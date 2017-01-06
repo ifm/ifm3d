@@ -1,0 +1,50 @@
+// -*- c++ -*-
+/*
+ * Copyright (C) 2017 Love Park Robotics, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distribted on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef __IFM3D_CAMERA_VERSION_H__
+#define __IFM3D_CAMERA_VERSION_H__
+
+#define IFM3D_LIBRARY_NAME "@GIT_PROJECT_NAME@"
+
+/* compile-time API version detection */
+/* variable expansion comes from CMakeLists.txt -- don't mess with these */
+#define IFM3D_VERSION_MAJOR @IFM3D_VERSION_MAJOR@
+#define IFM3D_VERSION_MINOR @IFM3D_VERSION_MINOR@
+#define IFM3D_VERSION_PATCH @IFM3D_VERSION_PATCH@
+
+#define IFM3D_MAKE_VERSION(major, minor, patch) \
+  ((major) * 10000 + (minor) * 100 + (patch))
+#define IFM3D_VERSION \
+  IFM3D_MAKE_VERSION( \
+        IFM3D_VERSION_MAJOR, \
+        IFM3D_VERSION_MINOR, \
+        IFM3D_VERSION_PATCH)
+
+namespace ifm3d
+{
+  /**
+   * Runtime API version detection
+   *
+   * @param[out] major Major version number
+   * @param[out] minor Minor version number
+   * @param[out] patch Version patch level
+   */
+  void version(int *major, int *minor, int *patch);
+
+} // end: namespace ifm3d
+
+#endif // __IFM3D_CAMERA_VERSION_H__
