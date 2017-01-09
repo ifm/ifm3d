@@ -82,6 +82,9 @@ namespace ifm3d
     /** The password associated with this Camera instance */
     std::string Password();
 
+    /** Retrieves the active session id */
+    std::string SessionID();
+
     /**
      * Serializes the state of the camera to JSON.
      *
@@ -100,6 +103,15 @@ namespace ifm3d
      * @throw ifm3d::error_t upon error
      */
     json ToJSON();
+
+    /**
+     * A stringified version of the JSON object returned by `ToJSON()`.
+     *
+     * @return A string version of the Camera's JSON representation.
+     *
+     * @see ToJSON
+     */
+    std::string ToJSONStr();
 
   private:
     class Impl;

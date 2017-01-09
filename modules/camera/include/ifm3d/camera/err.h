@@ -20,7 +20,20 @@
 
 #include <exception>
 
+// library errors
 extern const int IFM3D_NO_ERRORS;
+extern const int IFM3D_XMLRPC_FAILURE;
+extern const int IFM3D_XMLRPC_TIMEOUT;
+
+// sensor errors
+extern const int IFM3D_INVALID_PARAM;
+extern const int IFM3D_INVALID_VALUE_TYPE;
+extern const int IFM3D_VALUE_OUT_OF_RANGE;
+extern const int IFM3D_SESSION_ALREADY_ACTIVE;
+extern const int IFM3D_INVALID_PASSWORD;
+extern const int IFM3D_INVALID_SESSIONID;
+extern const int IFM3D_COULD_NOT_REBOOT;
+extern const int IFM3D_EEPROM_FAIL;
 
 namespace ifm3d
 {

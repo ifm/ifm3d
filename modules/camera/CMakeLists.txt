@@ -14,6 +14,7 @@ configure_file(
 ## Bring in dependent projects
 ################################################
 find_package(XMLRPC REQUIRED c++ client)
+find_package(Boost REQUIRED)
 
 ################################################
 ## Compiler and linker settings
@@ -21,6 +22,7 @@ find_package(XMLRPC REQUIRED c++ client)
 include_directories(
   ${IFM3D_CAMERA_BINARY_DIR}/include
   ${XMLRPC_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
   )
 
 ################################################

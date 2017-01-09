@@ -15,33 +15,42 @@
  */
 
 #include <ifm3d/camera/camera.h>
+#include <chrono>
 #include <cstdint>
 #include <cstdlib>
-#include <memory>
+#include <ctime>
+#include <map>
+#include <mutex>
+#include <regex>
 #include <string>
+#include <sstream>
+#include <unordered_map>
+#include <boost/algorithm/string.hpp>
 #include <glog/logging.h>
 #include <xmlrpc-c/client.hpp>
-#include <ifm3d/camera/version.h>
+#include <ifm3d/camera/err.h>
 #include <ifm3d/camera/logging.h>
+#include <ifm3d/camera/version.h>
 
-//------------------------------------------------
+//================================================
 // Public constants
-//------------------------------------------------
+//================================================
 const std::string ifm3d::DEFAULT_PASSWORD = "";
 const std::uint16_t ifm3d::DEFAULT_XMLRPC_PORT = 80;
 const std::string ifm3d::DEFAULT_IP =
   std::getenv("IFM3D_IP") == nullptr ?
   "192.168.0.69" : std::string(std::getenv("IFM3D_IP"));
 
-//------------------------------------------------
+//================================================
 // Private constants
-//------------------------------------------------
+//================================================
+
 namespace ifm3d
 {
   const int NET_WAIT = 3000; // millis
 
   const std::string XMLRPC_MAIN = "/api/rpc/v1/com.ifm.efector/";
-  const std::string XMLRPC_SESSION = "session_XXX/";
+  const std::string XMLRPC_SESSION = "session_$XXX/";
   const std::string XMLRPC_EDIT = "edit/";
   const std::string XMLRPC_DEVICE = "device/";
   const std::string XMLRPC_NET = "network/";
@@ -49,11 +58,11 @@ namespace ifm3d
   const std::string XMLRPC_IMAGER = "imager_001/";
   const std::string XMLRPC_SPATIALFILTER = "spatialfilter";
   const std::string XMLRPC_TEMPORALFILTER = "temporalfilter";
-} // end: namespace ifm3d
+}
 
-//------------------------------------------------
-// Camera::Impl class - the private implementation
-//------------------------------------------------
+//================================================
+// Camera::Impl class - the private interface
+//================================================
 
 class ifm3d::Camera::Impl
 {
@@ -63,31 +72,14 @@ private:
   std::string password_;
   std::string xmlrpc_url_prefix_;
   xmlrpc_c::clientPtr xclient_;
+  std::mutex xclient_mutex_;
+  std::string session_;
+  std::mutex session_mutex_;
 
 public:
-  Impl(const std::string& ip,
-       const std::uint16_t xmlrpc_port,
-       const std::string& password)
-    : ip_(ip),
-      xmlrpc_port_(xmlrpc_port),
-      password_(password),
-      xmlrpc_url_prefix_("http://" + ip + ":" + std::to_string(xmlrpc_port)),
-      xclient_(new xmlrpc_c::client_xml(
-                 xmlrpc_c::clientXmlTransportPtr(
-                   new xmlrpc_c::clientXmlTransport_curl(
-                     xmlrpc_c::clientXmlTransport_curl::constrOpt().
-                     timeout(ifm3d::NET_WAIT)))))
+  std::string XPrefix()
   {
-    VLOG(IFM3D_TRACE) << "Initializing Camera: ip="
-                      << this->IP()
-                      << ", xmlrpc_port=" << this->XMLRPCPort()
-                      << ", password=" << this->Password();
-    VLOG(IFM3D_TRACE) << "XMLRPC URL Prefix=" << this->xmlrpc_url_prefix_;
-  }
-
-  ~Impl()
-  {
-    VLOG(IFM3D_TRACE) << "Dtor...";
+    return this->xmlrpc_url_prefix_;
   }
 
   std::string IP()
@@ -105,11 +97,189 @@ public:
     return this->password_;
   }
 
+  std::string SessionID()
+  {
+    std::lock_guard<std::mutex> lock(this->session_mutex_);
+    return this->session_;
+  }
+
+  void SetSessionID(const std::string& id)
+  {
+    std::lock_guard<std::mutex> lock(this->session_mutex_);
+    this->session_ = id;
+  }
+
+private:
+  // ---------------------------------------------
+  // Conversions from XMLRPC data types to
+  // "normal" C++ data types
+  // ---------------------------------------------
+  std::unordered_map<std::string, std::string> const
+  value_struct_to_map(const xmlrpc_c::value_struct& vs)
+  {
+    std::map<std::string, xmlrpc_c::value> const
+      resmap(static_cast<std::map<std::string, xmlrpc_c::value> >(vs));
+
+    std::unordered_map<std::string, std::string> retval;
+    for (auto& kv : resmap)
+      {
+        retval[kv.first] = std::string(xmlrpc_c::value_string(kv.second));
+      }
+
+    return retval;
+  }
+
+  std::unordered_map<std::string,
+                     std::unordered_map<std::string, std::string> > const
+  value_struct_to_map_of_maps(const xmlrpc_c::value_struct& vs)
+  {
+    std::unordered_map<std::string,
+                       std::unordered_map<std::string, std::string> >
+      retval;
+
+    std::map<std::string, xmlrpc_c::value> const
+      outter_map(static_cast<std::map<std::string, xmlrpc_c::value> >
+                 (vs));
+
+    for (auto& kv : outter_map)
+      {
+        xmlrpc_c::value_struct _vs(kv.second);
+
+        std::map<std::string, xmlrpc_c::value> const
+          inner_map(static_cast<std::map<std::string, xmlrpc_c::value> >
+                    (_vs));
+
+        std::unordered_map<std::string, std::string> inner_retval;
+
+        for (auto& inner_kv : inner_map)
+          {
+            inner_retval[inner_kv.first] =
+              std::string(xmlrpc_c::value_string(inner_kv.second));
+          }
+
+        retval[kv.first] = inner_retval;
+      }
+
+    return retval;
+  }
+
+  // ---------------------------------------------
+  // Terminates recursion over the parameter pack
+  // in _XSetParams
+  // ---------------------------------------------
+  void _XSetParams(xmlrpc_c::paramList& params) { }
+
+  // ---------------------------------------------
+  // Recursively processes a parameter pack `args'
+  // as a list and sets those values into the
+  // `params' reference.
+  // ---------------------------------------------
+  template <typename T, typename... Args>
+  void _XSetParams(xmlrpc_c::paramList& params, T value, Args... args)
+  {
+    params.addc(value);
+    this->_XSetParams(params, args...);
+  }
+
+  // ---------------------------------------------
+  // Encapsulates XMLRPC calls to the sensor and
+  // unifies the trapping of comm errors.
+  // ---------------------------------------------
+  template <typename... Args>
+  xmlrpc_c::value const
+  _XCall(std::string& url, const std::string& method, Args... args)
+  {
+    xmlrpc_c::paramList params;
+    this->_XSetParams(params, args...);
+    xmlrpc_c::rpcPtr rpc(method, params);
+
+    url = std::regex_replace(url, std::regex("\\$XXX"), this->SessionID());
+    xmlrpc_c::carriageParm_curl0 cparam(url);
+
+    std::lock_guard<std::mutex> lock(this->xclient_mutex_);
+    try
+      {
+        rpc->call(this->xclient_.get(), &cparam);
+        return rpc->getResult();
+      }
+    catch (const std::exception& ex)
+      {
+        LOG(ERROR) << url << "->" << method << ":" << ex.what();
+
+        if (! rpc->isFinished())
+          {
+            throw ifm3d::error_t(IFM3D_XMLRPC_TIMEOUT);
+          }
+        else if (! rpc->isSuccessful())
+          {
+            xmlrpc_c::fault f = rpc->getFault();
+            throw ifm3d::error_t(f.getCode());
+          }
+        else
+          {
+            throw ifm3d::error_t(IFM3D_XMLRPC_FAILURE);
+          }
+      }
+  }
+
+  // ---------------------------------------------
+  // _XCall wrappers
+  // ---------------------------------------------
+  template <typename... Args>
+  xmlrpc_c::value const
+  _XCallMain(const std::string& method, Args... args)
+  {
+    std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN;
+    return this->_XCall(url, method, args...);
+  }
+
+public:
+  Impl(const std::string& ip,
+       const std::uint16_t xmlrpc_port,
+       const std::string& password)
+    : ip_(ip),
+      xmlrpc_port_(xmlrpc_port),
+      password_(password),
+      xmlrpc_url_prefix_("http://" + ip + ":" + std::to_string(xmlrpc_port)),
+      xclient_(new xmlrpc_c::client_xml(
+                 xmlrpc_c::clientXmlTransportPtr(
+                   new xmlrpc_c::clientXmlTransport_curl(
+                     xmlrpc_c::clientXmlTransport_curl::constrOpt().
+                     timeout(ifm3d::NET_WAIT))))),
+      session_("")
+  {
+    VLOG(IFM3D_TRACE) << "Initializing Camera: ip="
+                      << this->IP()
+                      << ", xmlrpc_port=" << this->XMLRPCPort()
+                      << ", password=" << this->Password();
+    VLOG(IFM3D_TRACE) << "XMLRPC URL Prefix=" << this->xmlrpc_url_prefix_;
+  }
+
+  ~Impl()
+  {
+    VLOG(IFM3D_TRACE) << "Dtor...";
+  }
+
+  std::unordered_map<std::string, std::string> HWInfo()
+  {
+    return this->value_struct_to_map(this->_XCallMain("getHWInfo"));
+  }
+
+  std::unordered_map<std::string, std::string> SWVersion()
+  {
+    return this->value_struct_to_map(this->_XCallMain("getSWVersion"));
+  }
+
+  std::unordered_map<std::string, std::string> DeviceInfo()
+  {
+    return this->value_struct_to_map(this->_XCallMain("getAllParameters"));
+  }
+
 }; // end: class ifm3d::Camera::Impl
 
-//------------------------------------------------
+//================================================
 // Camera class - the public interface
-//------------------------------------------------
+//================================================
 
 ifm3d::Camera::Camera(const std::string& ip,
                       const std::uint16_t xmlrpc_port,
@@ -137,18 +307,41 @@ ifm3d::Camera::Password()
   return this->pImpl->Password();
 }
 
+std::string
+ifm3d::Camera::SessionID()
+{
+  return this->pImpl->SessionID();
+}
+
 json
 ifm3d::Camera::ToJSON()
 {
+  auto t =
+    std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+  std::ostringstream time_buf;
+  time_buf << std::ctime(&t);
+  std::string time_s = time_buf.str();
+  boost::algorithm::trim(time_s);
+
   json j =
     {
       {
        "ifm3d",
        {
-         {std::string(IFM3D_LIBRARY_NAME) + "_version", IFM3D_VERSION}
+         {std::string(IFM3D_LIBRARY_NAME) + "_version", IFM3D_VERSION},
+         {"Date", time_s},
+         {"HWInfo", json(this->pImpl->HWInfo())},
+         {"SWVersion", json(this->pImpl->SWVersion())},
+         {"Device", json(this->pImpl->DeviceInfo())}
        }
       }
     };
 
   return j;
+}
+
+std::string
+ifm3d::Camera::ToJSONStr()
+{
+  return this->ToJSON().dump(2);
 }

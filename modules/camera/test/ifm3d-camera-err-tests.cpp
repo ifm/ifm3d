@@ -8,7 +8,7 @@ TEST(Err, LibraryError)
 
   try
     {
-      throw(ifm3d::error_t(IFM3D_NO_ERRORS));
+      throw ifm3d::error_t(IFM3D_NO_ERRORS);
     }
   catch (const ifm3d::error_t& ex)
     {
@@ -25,7 +25,7 @@ TEST(Err, SystemError)
 
   try
     {
-      throw(ifm3d::error_t(EAGAIN));
+      throw ifm3d::error_t(EAGAIN);
     }
   catch (const ifm3d::error_t& ex)
     {

@@ -28,7 +28,6 @@ TEST_F(CameraTest, DefaultCredentials)
 
 TEST_F(CameraTest, ToJSON)
 {
-  json j = this->cam_->ToJSON();
-  std::cout << j.dump(2) << std::endl;
+  std::cout << this->cam_->ToJSONStr() << std::endl;
   EXPECT_EQ(1,1);
 }
