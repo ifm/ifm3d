@@ -17,7 +17,7 @@ include(ifm3d_version)
 
 # Conditionally turn on/off parts of the build (global-level)
 option(BUILD_TESTS "Build unit tests" ON)
-option(BUILD_MODULE_CAMERA "Build the camera module" ON)
+option(BUILD_MODULE_TOOLS "Build the tools module" ON)
 option(BUILD_SDK_PKG "Build install packages for development purposes" ON)
 
 # Installation root
@@ -53,6 +53,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s") # create stripped binaries
 
-if(BUILD_MODULE_CAMERA)
-  add_subdirectory(modules/camera)
+# Build sub-modules
+add_subdirectory(modules/camera)
+
+if(BUILD_MODULE_TOOLS)
+  add_subdirectory(modules/tools)
 endif()

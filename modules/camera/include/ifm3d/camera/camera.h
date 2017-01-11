@@ -30,6 +30,7 @@ namespace ifm3d
   extern const std::string DEFAULT_IP;
   extern const std::uint16_t DEFAULT_XMLRPC_PORT;
   extern const std::string DEFAULT_PASSWORD;
+  extern const int MAX_HEARTBEAT;
 
   /**
    * Software interface to an ifm 3D camera
@@ -43,6 +44,14 @@ namespace ifm3d
   {
   public:
     using Ptr = std::shared_ptr<Camera>;
+
+    /**
+     * Camera boot up modes:
+     *
+     * Productive: the normal runtime firmware comes up
+     * Recovery: allows you to flash new firmware
+     */
+    enum class boot_mode : int { PRODUCTIVE = 0, RECOVERY = 1 };
 
     /**
      * Initializes the camera interface utilizing library defaults
@@ -84,6 +93,89 @@ namespace ifm3d
 
     /** Retrieves the active session id */
     std::string SessionID();
+
+    /**
+     * Requests an edit-mode session with the camera.
+     *
+     * In order to (permanently) mutate parameters on the camera, an edit
+     * session needs to be established. Only a single edit sesson may be
+     * established at any one time with the camera (think of it as a global
+     * mutex on the camera state -- except if you ask for the mutex and it is
+     * already taken, an exception will be thrown).
+     *
+     * Most typical use-cases for end-users will not involve establishing an
+     * edit-session with the camera. To mutate camera parameters, the
+     * `FromJSON` family of functions should be used, which, under-the-hood, on
+     * the user's behalf, will establish the edit session and gracefully close
+     * it. There is an exception. For users who plan to modulate imager
+     * parameters (temporary parameters) on the fly while running the
+     * framegrabber, managing the session manually is necessary. For this
+     * reason, we expose this method in the public `Camera` interface.
+     *
+     * NOTE: The session timeout is implicitly set to `ifm3d::MAX_HEARTBEAT`
+     * after the session has been successfully established.
+     *
+     * @return The session id issued by the camera.
+     *
+     * @throws ifm3d::error_t if an error is encountered.
+     */
+    std::string RequestSession();
+
+    /**
+     * Explictly stops the current session with the sensor.
+     *
+     * NOTE: This function returns a boolean indicating the success/failure of
+     * cancelling the session. The reason we return a bool and explicitly
+     * supress exceptions is because we want to cancel any open sessions in the
+     * camera dtor and we do not want to throw in the dtor.
+     *
+     * @return true if the session was cancelled properly, false if an
+     * exception was caught trying to close the session. Details will be
+     * logged.
+     */
+    bool CancelSession();
+
+    /**
+     * Heartbeat messages are used to keep a session with the sensor
+     * alive. This function sends a heartbeat message to the sensor and sets
+     * when the next heartbeat message is required.
+     *
+     * @param[in] hb The time (seconds) of when the next heartbeat message will
+     *               be required.
+     *
+     * @return The current timeout interval in seconds for heartbeat messages.
+     *
+     * @throw ifm3d::error_t upon error
+     */
+    int Heartbeat(int hb);
+
+    /**
+     * Reboot the sensor
+     *
+     * @param[in] mode The system mode to boot into upon restart of the sensor
+     * @throw ifm3d::error_t upon error
+     */
+    void Reboot(const boot_mode& mode = ifm3d::Camera::boot_mode::PRODUCTIVE);
+
+    /**
+     * Returns the integer index of the active application. A negative number
+     * indicates no application is marked as active on the sensor.
+     */
+    int ActiveApplication();
+
+    /**
+     * Delivers basic information about all applications stored on the device.
+     * A call to this function does not require establishing a session with the
+     * camera.
+     *
+     * The returned information is encoded as an array of JSON objects.
+     * Each object in the array is basically a dictionary with the following
+     * keys: 'index', 'id', 'name', 'description', 'active'
+     *
+     * @return A JSON encoding of the application information
+     * @throw ifm3d::error_t upon error
+     */
+    json ApplicationList();
 
     /**
      * Serializes the state of the camera to JSON.

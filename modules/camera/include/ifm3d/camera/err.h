@@ -24,6 +24,9 @@
 extern const int IFM3D_NO_ERRORS;
 extern const int IFM3D_XMLRPC_FAILURE;
 extern const int IFM3D_XMLRPC_TIMEOUT;
+extern const int IFM3D_JSON_ERROR;
+extern const int IFM3D_NO_ACTIVE_APPLICATION;
+extern const int IFM3D_SUBCOMMAND_ERROR;
 
 // sensor errors
 extern const int IFM3D_INVALID_PARAM;

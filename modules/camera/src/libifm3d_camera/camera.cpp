@@ -25,6 +25,7 @@
 #include <string>
 #include <sstream>
 #include <unordered_map>
+#include <vector>
 #include <boost/algorithm/string.hpp>
 #include <glog/logging.h>
 #include <xmlrpc-c/client.hpp>
@@ -40,6 +41,7 @@ const std::uint16_t ifm3d::DEFAULT_XMLRPC_PORT = 80;
 const std::string ifm3d::DEFAULT_IP =
   std::getenv("IFM3D_IP") == nullptr ?
   "192.168.0.69" : std::string(std::getenv("IFM3D_IP"));
+const int ifm3d::MAX_HEARTBEAT = 300; // secs
 
 //================================================
 // Private constants
@@ -58,6 +60,13 @@ namespace ifm3d
   const std::string XMLRPC_IMAGER = "imager_001/";
   const std::string XMLRPC_SPATIALFILTER = "spatialfilter";
   const std::string XMLRPC_TEMPORALFILTER = "temporalfilter";
+
+  using app_entry_t = struct {
+    int index;
+    int id;
+    std::string name;
+    std::string description;
+  };
 }
 
 //================================================
@@ -233,7 +242,62 @@ private:
     return this->_XCall(url, method, args...);
   }
 
+  template <typename... Args>
+  xmlrpc_c::value const
+  _XCallSession(const std::string& method, Args... args)
+  {
+    std::string url =
+      this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION;
+    return this->_XCall(url, method, args...);
+  }
+
 public:
+  int Heartbeat(int hb)
+  {
+    xmlrpc_c::value_int v_int(this->_XCallSession("heartbeat", hb));
+    return v_int.cvalue();
+  }
+
+  std::string RequestSession()
+  {
+    xmlrpc_c::value_string val_str(
+      this->_XCallMain("requestSession",
+                       this->Password().c_str(),
+                       std::string("")));
+
+    this->SetSessionID(static_cast<std::string>(val_str));
+    this->Heartbeat(ifm3d::MAX_HEARTBEAT);
+    return this->SessionID();
+  }
+
+  bool CancelSession()
+  {
+    if (this->SessionID() == "")
+      {
+        return true;
+      }
+
+    bool retval = true;
+
+    try
+      {
+        this->_XCallSession("cancelSession");
+        this->SetSessionID("");
+      }
+    catch (const ifm3d::error_t& ex)
+      {
+        LOG(ERROR) << "Failed to cancel session: "
+                   << this->SessionID() << " -> "
+                   << ex.what();
+        retval = false;
+      }
+
+    return retval;
+  }
+
+  //
+  // ctor
+  //
   Impl(const std::string& ip,
        const std::uint16_t xmlrpc_port,
        const std::string& password)
@@ -255,9 +319,13 @@ public:
     VLOG(IFM3D_TRACE) << "XMLRPC URL Prefix=" << this->xmlrpc_url_prefix_;
   }
 
+  //
+  // dtor
+  //
   ~Impl()
   {
     VLOG(IFM3D_TRACE) << "Dtor...";
+    this->CancelSession();
   }
 
   std::unordered_map<std::string, std::string> HWInfo()
@@ -273,6 +341,36 @@ public:
   std::unordered_map<std::string, std::string> DeviceInfo()
   {
     return this->value_struct_to_map(this->_XCallMain("getAllParameters"));
+  }
+
+  void Reboot(int mode)
+  {
+    this->_XCallMain("reboot", mode);
+  }
+
+  std::vector<ifm3d::app_entry_t> ApplicationList()
+  {
+    xmlrpc_c::value_array result(this->_XCallMain("getApplicationList"));
+    std::vector<xmlrpc_c::value> const res_vec(result.vectorValueValue());
+
+    std::vector<ifm3d::app_entry_t> retval;
+    for (auto& entry : res_vec)
+      {
+        xmlrpc_c::value_struct const entry_st(entry);
+        std::map<std::string, xmlrpc_c::value>
+          entry_map(static_cast<std::map<std::string, xmlrpc_c::value> >
+                    (entry_st));
+
+        ifm3d::app_entry_t app;
+        app.index = xmlrpc_c::value_int(entry_map["Index"]).cvalue();
+        app.id = xmlrpc_c::value_int(entry_map["Id"]).cvalue();
+        app.name = xmlrpc_c::value_string(entry_map["Name"]).cvalue();
+        app.description =
+          xmlrpc_c::value_string(entry_map["Description"]).cvalue();
+
+        retval.push_back(app);
+      }
+    return retval;
   }
 
 }; // end: class ifm3d::Camera::Impl
@@ -311,6 +409,77 @@ std::string
 ifm3d::Camera::SessionID()
 {
   return this->pImpl->SessionID();
+}
+
+std::string
+ifm3d::Camera::RequestSession()
+{
+  return this->pImpl->RequestSession();
+}
+
+bool
+ifm3d::Camera::CancelSession()
+{
+  return this->pImpl->CancelSession();
+}
+
+int
+ifm3d::Camera::Heartbeat(int hb)
+{
+  return this->pImpl->Heartbeat(hb);
+}
+
+void
+ifm3d::Camera::Reboot(const ifm3d::Camera::boot_mode& mode)
+{
+  this->pImpl->Reboot(static_cast<int>(mode));
+}
+
+int
+ifm3d::Camera::ActiveApplication()
+{
+  int active = -1;
+  json jdev(this->pImpl->DeviceInfo());
+
+  try
+    {
+      active = std::stoi(jdev["ActiveApplication"].get<std::string>());
+    }
+  catch (const std::exception& ex)
+    {
+      LOG(ERROR) << "Could not extract 'ActiveApplication' from JSON";
+      LOG(ERROR) << ex.what();
+      LOG(ERROR) << jdev.dump();
+
+      throw ifm3d::error_t(IFM3D_JSON_ERROR);
+    }
+
+  return active;
+}
+
+json
+ifm3d::Camera::ApplicationList()
+{
+  json retval; // list
+
+  int active = this->ActiveApplication();
+  std::vector<ifm3d::app_entry_t> apps = this->pImpl->ApplicationList();
+
+  for (auto& app : apps)
+    {
+      json dict =
+        {
+          {"Index", app.index},
+          {"Id", app.id},
+          {"Name", app.name},
+          {"Description", app.description},
+          {"Active", app.index == active ? true : false}
+        };
+
+      retval.push_back(dict);
+    }
+
+  return retval;
 }
 
 json

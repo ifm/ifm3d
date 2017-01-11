@@ -21,6 +21,9 @@
 const int IFM3D_NO_ERRORS = 0;
 const int IFM3D_XMLRPC_FAILURE = -100000;
 const int IFM3D_XMLRPC_TIMEOUT = -100001;
+const int IFM3D_JSON_ERROR = -100002;
+const int IFM3D_NO_ACTIVE_APPLICATION = -100003;
+const int IFM3D_SUBCOMMAND_ERROR = -100004;
 
 // sensor errors
 const int IFM3D_INVALID_PARAM = 101000;
@@ -40,9 +43,15 @@ const char *ifm3d::strerror(int errnum)
     case IFM3D_NO_ERRORS:
       return "OK";
     case IFM3D_XMLRPC_FAILURE:
-      return "Unknown XMLRPC failure";
+      return "Lib: Unknown XMLRPC failure";
     case IFM3D_XMLRPC_TIMEOUT:
-      return "XMLRPC Timeout - can you `ping' the sensor?";
+      return "Lib: XMLRPC Timeout - can you `ping' the sensor?";
+    case IFM3D_JSON_ERROR:
+      return "Lib: Error processing JSON";
+    case IFM3D_NO_ACTIVE_APPLICATION:
+      return "Lib: No application is marked active";
+    case  IFM3D_SUBCOMMAND_ERROR:
+      return "Lib: Missing or invalid sub-command";
     case IFM3D_INVALID_PARAM:
       return "Sensor: The parameter name is invalid";
     case IFM3D_INVALID_VALUE_TYPE:
