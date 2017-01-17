@@ -54,6 +54,12 @@ namespace ifm3d
     enum class boot_mode : int { PRODUCTIVE = 0, RECOVERY = 1 };
 
     /**
+     * Camera operating modes: run (streaming pixel data), edit (configuring
+     * the device/applications).
+     */
+    enum class operating_mode : int { RUN = 0, EDIT = 1};
+
+    /**
      * Initializes the camera interface utilizing library defaults
      * for password, ip, and xmlrpc port unless explicitly passed in.
      *
@@ -162,6 +168,17 @@ namespace ifm3d
      * indicates no application is marked as active on the sensor.
      */
     int ActiveApplication();
+
+    /**
+     * This is a convenience function for extracting out the article number of
+     * the connected camera. The primary intention of the function is for
+     * internal usage (i.e., triggering some conditional logic based on the
+     * model hardware we are talking to) however, it will likely be useful in
+     * other scenarios as well, so, it is available in the public interface.
+     */
+    std::string ArticleNumber();
+
+
 
     /**
      * Delivers basic information about all applications stored on the device.

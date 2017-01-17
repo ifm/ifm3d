@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef __IFM3D_TOOLS_REBOOT_APP_H__
-#define __IFM3D_TOOLS_REBOOT_APP_H__
+#ifndef __IFM3D_TOOLS_LS_APP_H__
+#define __IFM3D_TOOLS_LS_APP_H__
 
 #include <string>
 #include <ifm3d/tools/cmdline_app.h>
@@ -24,15 +24,15 @@
 namespace ifm3d
 {
   /**
-   * Concrete implementation of the `reboot` subcommand to the `ifm3d`
-   * command-line utility.
+   * Concrete implementation of the `ls` subcommand to the `ifm3d` command-line
+   * utility.
    */
-  class RebootApp : public ifm3d::CmdLineApp
+  class LsApp : public ifm3d::CmdLineApp
   {
   public:
-    RebootApp(int argc, const char **argv, const std::string& name = "reboot");
+    LsApp(int argc, const char **argv, const std::string& name = "ls");
     int Run();
-  }; // end: class RebootApp
+  }; // end: class LsApp
 } // end: namespace ifm3d
 
-#endif // __IFM3D_TOOLS_REBOOT_APP_H__
+#endif // __IFM3D_TOOLS_LS_APP_H__

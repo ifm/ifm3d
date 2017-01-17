@@ -31,17 +31,17 @@ int main(int argc, const char** argv)
     {
       std::cerr << "ifm3d error: " << ex.code() << std::endl
                 << ex.what() << std::endl;
-      return -1;
+      return 1;
     }
   catch (const std::exception& ex)
     {
       std::cerr << "ifm3d error: " << ex.what() << std::endl;
-      return -2;
+      return 1;
     }
   catch (...)
     {
       std::cerr << "ifm3d failed - error unknown!" << std::endl;
-      return -3;
+      return 1;
     }
 
   return err;

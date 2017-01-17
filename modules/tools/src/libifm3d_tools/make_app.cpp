@@ -22,6 +22,7 @@
 #include <glog/logging.h>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/tools/reboot_app.h>
+#include <ifm3d/tools/ls_app.h>
 #include <ifm3d/camera.h>
 
 namespace po = boost::program_options;
@@ -46,11 +47,15 @@ ifm3d::make_app(int argc, const char **argv)
   std::string cmd = vm["command"].as<std::string>();
   if (cmd == "reboot")
     {
-      return std::make_shared<ifm3d::RebootApp>(argc, argv);
+      return std::make_shared<ifm3d::RebootApp>(argc, argv, cmd);
+    }
+  else if (cmd == "ls")
+    {
+      return std::make_shared<ifm3d::LsApp>(argc, argv, cmd);
     }
   else if (cmd == "version")
     {
-      return std::make_shared<ifm3d::CmdLineApp>(argc, argv);
+      return std::make_shared<ifm3d::CmdLineApp>(argc, argv, cmd);
     }
   else
     {

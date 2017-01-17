@@ -16,15 +16,16 @@
 
 #include <ifm3d/tools/reboot_app.h>
 #include <iostream>
+#include <memory>
 #include <boost/program_options.hpp>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/camera/version.h>
+#include <ifm3d/camera/camera.h>
 
 namespace po = boost::program_options;
 
-ifm3d::RebootApp::RebootApp(int argc, const char **argv)
-  : ifm3d::CmdLineApp(argc, argv),
-    local_opts_("reboot options")
+ifm3d::RebootApp::RebootApp(int argc, const char **argv,
+                            const std::string& name)
+  : ifm3d::CmdLineApp(argc, argv, name)
 {
   this->local_opts_.add_options()
     ("recovery,r", "Reboot into recovery mode");
@@ -39,16 +40,16 @@ ifm3d::RebootApp::Run()
 {
   if (this->vm_.count("help"))
     {
-      std::cout << "usage: " << IFM3D_LIBRARY_NAME
-                << " [<global options>] reboot [<reboot options>]"
-                << std::endl << std::endl;
-      std::cout << this->global_opts_ << std::endl;
-      std::cout << this->local_opts_ << std::endl;
-
+      this->_LocalHelp();
       return 0;
     }
 
-  std::cout << "Running reboot!" << std::endl;
-  std::cout << this->ip_ << std::endl;
+  ifm3d::Camera::boot_mode mode =
+    this->vm_.count("recovery") ?
+    ifm3d::Camera::boot_mode::RECOVERY :
+    ifm3d::Camera::boot_mode::PRODUCTIVE;
+
+  this->cam_->Reboot(mode);
+
   return 0;
 }

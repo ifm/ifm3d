@@ -36,7 +36,10 @@ extern const int IFM3D_SESSION_ALREADY_ACTIVE;
 extern const int IFM3D_INVALID_PASSWORD;
 extern const int IFM3D_INVALID_SESSIONID;
 extern const int IFM3D_COULD_NOT_REBOOT;
+extern const int IFM3D_INVALID_APP_INDEX;
+extern const int IFM3D_APP_IN_EDIT_MODE;
 extern const int IFM3D_EEPROM_FAIL;
+extern const int IFM3D_IMPORT_EXPORT_IN_PROGRESS;
 
 namespace ifm3d
 {

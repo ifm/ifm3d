@@ -21,6 +21,7 @@
 #include <memory>
 #include <string>
 #include <boost/program_options.hpp>
+#include <ifm3d/camera/camera.h>
 
 namespace po = boost::program_options;
 
@@ -38,7 +39,8 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<CmdLineApp>;
 
-    CmdLineApp(int argc, const char **argv);
+    CmdLineApp(int argc, const char **argv,
+               const std::string& name = "version");
     virtual ~CmdLineApp() = default;
 
     // copy and move semantics
@@ -58,10 +60,14 @@ namespace ifm3d
   protected:
     po::variables_map vm_;
     po::options_description global_opts_;
+    po::options_description local_opts_;
 
     std::string ip_;
     std::uint16_t xmlrpc_port_;
     std::string password_;
+    ifm3d::Camera::Ptr cam_;
+
+    virtual void _LocalHelp();
 
   }; // end: class CmdLineApp
 

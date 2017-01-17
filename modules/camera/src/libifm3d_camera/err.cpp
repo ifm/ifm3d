@@ -34,7 +34,11 @@ const int IFM3D_SESSION_ALREADY_ACTIVE = 101004;
 const int IFM3D_INVALID_PASSWORD = 101005;
 const int IFM3D_INVALID_SESSIONID = 101006;
 const int IFM3D_COULD_NOT_REBOOT = 101007;
+const int IFM3D_INVALID_APP_INDEX = 101013;
+const int IFM3D_APP_IN_EDIT_MODE = 101014;
+const int IFM3D_MAX_APP_LIMIT = 101015;
 const int IFM3D_EEPROM_FAIL = 101046;
+const int IFM3D_IMPORT_EXPORT_IN_PROGRESS = 101052;
 
 const char *ifm3d::strerror(int errnum)
 {
@@ -68,8 +72,16 @@ const char *ifm3d::strerror(int errnum)
       return "Sensor: Invalid session id";
     case IFM3D_COULD_NOT_REBOOT:
       return "Sensor: Could not execute reboot command";
+    case IFM3D_INVALID_APP_INDEX:
+      return "Sensor: There is no application at the supplied index";
+    case IFM3D_APP_IN_EDIT_MODE:
+      return "Sensor: Operation not allowed while an app is in edit mode";
+    case IFM3D_MAX_APP_LIMIT:
+      return "Sensor: Maximum number of applications has been reached";
     case IFM3D_EEPROM_FAIL:
       return "Sensor: Failed to read EEPROM";
+    case IFM3D_IMPORT_EXPORT_IN_PROGRESS:
+      return "Sensor: Device busy, import/export in progress";
     default:
       return ::strerror(errnum);
     }

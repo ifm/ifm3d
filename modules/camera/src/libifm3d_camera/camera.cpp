@@ -295,6 +295,11 @@ public:
     return retval;
   }
 
+  void SetOperatingMode(const ifm3d::Camera::operating_mode& mode)
+  {
+    this->_XCallSession("setOperatingMode", static_cast<int>(mode));
+  }
+
   //
   // ctor
   //
@@ -346,6 +351,12 @@ public:
   void Reboot(int mode)
   {
     this->_XCallMain("reboot", mode);
+  }
+
+  std::string DeviceParameter(const std::string& param)
+  {
+    return xmlrpc_c::value_string(
+             this->_XCallMain("getParameter", param.c_str())).cvalue();
   }
 
   std::vector<ifm3d::app_entry_t> ApplicationList()
@@ -433,6 +444,12 @@ void
 ifm3d::Camera::Reboot(const ifm3d::Camera::boot_mode& mode)
 {
   this->pImpl->Reboot(static_cast<int>(mode));
+}
+
+std::string
+ifm3d::Camera::ArticleNumber()
+{
+  return this->pImpl->DeviceParameter("ArticleNumber");
 }
 
 int

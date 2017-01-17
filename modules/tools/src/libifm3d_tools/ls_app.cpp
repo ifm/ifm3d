@@ -1,4 +1,3 @@
-// -*- c++ -*-
 /*
  * Copyright (C) 2017 Love Park Robotics, LLC
  *
@@ -15,24 +14,27 @@
  * limitations under the License.
  */
 
-#ifndef __IFM3D_TOOLS_REBOOT_APP_H__
-#define __IFM3D_TOOLS_REBOOT_APP_H__
-
-#include <string>
+#include <ifm3d/tools/ls_app.h>
+#include <iostream>
+#include <memory>
 #include <ifm3d/tools/cmdline_app.h>
+#include <ifm3d/camera/camera.h>
 
-namespace ifm3d
+ifm3d::LsApp::LsApp(int argc, const char **argv,
+                    const std::string& name)
+  : ifm3d::CmdLineApp(argc, argv, name)
+{ }
+
+int ifm3d::LsApp::Run()
 {
-  /**
-   * Concrete implementation of the `reboot` subcommand to the `ifm3d`
-   * command-line utility.
-   */
-  class RebootApp : public ifm3d::CmdLineApp
-  {
-  public:
-    RebootApp(int argc, const char **argv, const std::string& name = "reboot");
-    int Run();
-  }; // end: class RebootApp
-} // end: namespace ifm3d
+  if (this->vm_.count("help"))
+    {
+      this->_LocalHelp();
+      return 0;
+    }
 
-#endif // __IFM3D_TOOLS_REBOOT_APP_H__
+  json apps = this->cam_->ApplicationList();
+  std::cout << apps.dump(2) << std::endl;
+
+  return 0;
+}

@@ -23,8 +23,10 @@
 
 namespace po = boost::program_options;
 
-ifm3d::CmdLineApp::CmdLineApp(int argc, const char **argv)
-  : global_opts_("Global options")
+ifm3d::CmdLineApp::CmdLineApp(int argc, const char **argv,
+                              const std::string& name)
+  : global_opts_("global options"),
+    local_opts_(name + " options")
 {
   this->global_opts_.add_options()
     ("help,h", "Produce this help message and exit")
@@ -39,7 +41,7 @@ ifm3d::CmdLineApp::CmdLineApp(int argc, const char **argv)
 
   po::options_description hidden_opts;
   hidden_opts.add_options()
-    ("command", po::value<std::string>()->default_value("version"),
+    ("command", po::value<std::string>()->default_value(name),
      "ifm3d Sub-command to execute");
 
   po::options_description all_opts;
@@ -56,6 +58,23 @@ ifm3d::CmdLineApp::CmdLineApp(int argc, const char **argv)
   this->ip_ = this->vm_["ip"].as<std::string>();
   this->xmlrpc_port_ = this->vm_["xmlrpc-port"].as<std::uint16_t>();
   this->password_ = this->vm_["password"].as<std::string>();
+
+  this->cam_ = std::make_shared<ifm3d::Camera>(this->ip_,
+                                               this->xmlrpc_port_,
+                                               this->password_);
+}
+
+void
+ifm3d::CmdLineApp::_LocalHelp()
+{
+  std::string cmd = this->vm_["command"].as<std::string>();
+  std::cout << "usage: " << IFM3D_LIBRARY_NAME
+            << " [<global options>] "
+            << cmd
+            << " [<" << cmd << " options>]"
+            << std::endl << std::endl;
+  std::cout << this->global_opts_ << std::endl;
+  std::cout << this->local_opts_ << std::endl;
 }
 
 int

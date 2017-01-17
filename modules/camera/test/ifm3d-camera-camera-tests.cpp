@@ -71,5 +71,6 @@ TEST_F(CameraTest, ToJSON)
   // Figure out a reasonable test for this
   //
   std::cout << this->cam_->ToJSONStr() << std::endl;
+  std::cout << this->cam_->ArticleNumber() << std::endl;
   EXPECT_EQ(1,1);
 }
