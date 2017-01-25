@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <ifm3d/tools/reboot_app.h>
+#include <ifm3d/tools/rm_app.h>
 #include <iostream>
 #include <string>
 #include <boost/program_options.hpp>
@@ -23,20 +23,21 @@
 
 namespace po = boost::program_options;
 
-ifm3d::RebootApp::RebootApp(int argc, const char **argv,
-                            const std::string& name)
+ifm3d::RmApp::RmApp(int argc, const char **argv,
+                    const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
   this->local_opts_.add_options()
-    ("recovery,r", "Reboot into recovery mode");
+    ("index",
+     po::value<int>()->default_value(-1),
+     "Index of application to remove");
 
   po::store(po::command_line_parser(argc, argv).
             options(this->local_opts_).allow_unregistered().run(), this->vm_);
   po::notify(this->vm_);
 }
 
-int
-ifm3d::RebootApp::Run()
+int ifm3d::RmApp::Run()
 {
   if (this->vm_.count("help"))
     {
@@ -44,12 +45,8 @@ ifm3d::RebootApp::Run()
       return 0;
     }
 
-  ifm3d::Camera::boot_mode mode =
-    this->vm_.count("recovery") ?
-    ifm3d::Camera::boot_mode::RECOVERY :
-    ifm3d::Camera::boot_mode::PRODUCTIVE;
-
-  this->cam_->Reboot(mode);
+  int idx = this->vm_["index"].as<int>();
+  this->cam_->DeleteApplication(idx);
 
   return 0;
 }

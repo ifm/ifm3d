@@ -37,6 +37,7 @@ const int IFM3D_COULD_NOT_REBOOT = 101007;
 const int IFM3D_INVALID_APP_INDEX = 101013;
 const int IFM3D_APP_IN_EDIT_MODE = 101014;
 const int IFM3D_MAX_APP_LIMIT = 101015;
+const int IFM3D_UNSUPPORTED_APP_TYPE = 101028;
 const int IFM3D_EEPROM_FAIL = 101046;
 const int IFM3D_IMPORT_EXPORT_IN_PROGRESS = 101052;
 
@@ -80,6 +81,8 @@ const char *ifm3d::strerror(int errnum)
       return "Sensor: Maximum number of applications has been reached";
     case IFM3D_EEPROM_FAIL:
       return "Sensor: Failed to read EEPROM";
+    case  IFM3D_UNSUPPORTED_APP_TYPE:
+      return "Sensor: Unsupported application type";
     case IFM3D_IMPORT_EXPORT_IN_PROGRESS:
       return "Sensor: Device busy, import/export in progress";
     default:

@@ -16,7 +16,6 @@
 
 #include <ifm3d/tools/ls_app.h>
 #include <iostream>
-#include <memory>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/camera/camera.h>
 

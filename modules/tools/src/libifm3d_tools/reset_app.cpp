@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-#include <ifm3d/tools/reboot_app.h>
+#include <ifm3d/tools/reset_app.h>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <boost/program_options.hpp>
 #include <ifm3d/tools/cmdline_app.h>
@@ -23,12 +24,12 @@
 
 namespace po = boost::program_options;
 
-ifm3d::RebootApp::RebootApp(int argc, const char **argv,
-                            const std::string& name)
+ifm3d::ResetApp::ResetApp(int argc, const char **argv,
+                          const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
   this->local_opts_.add_options()
-    ("recovery,r", "Reboot into recovery mode");
+    ("reboot,r", "Reboot the sensor after reset");
 
   po::store(po::command_line_parser(argc, argv).
             options(this->local_opts_).allow_unregistered().run(), this->vm_);
@@ -36,7 +37,7 @@ ifm3d::RebootApp::RebootApp(int argc, const char **argv,
 }
 
 int
-ifm3d::RebootApp::Run()
+ifm3d::ResetApp::Run()
 {
   if (this->vm_.count("help"))
     {
@@ -44,12 +45,11 @@ ifm3d::RebootApp::Run()
       return 0;
     }
 
-  ifm3d::Camera::boot_mode mode =
-    this->vm_.count("recovery") ?
-    ifm3d::Camera::boot_mode::RECOVERY :
-    ifm3d::Camera::boot_mode::PRODUCTIVE;
-
-  this->cam_->Reboot(mode);
+  this->cam_->FactoryReset();
+  if (this->vm_.count("reboot"))
+    {
+      this->cam_->Reboot();
+    }
 
   return 0;
 }

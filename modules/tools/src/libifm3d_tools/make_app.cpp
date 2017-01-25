@@ -15,17 +15,67 @@
  */
 
 #include <ifm3d/tools/make_app.h>
+#include <algorithm>
 #include <exception>
+#include <functional>
 #include <memory>
+#include <stdexcept>
 #include <string>
+#include <unordered_map>
+#include <vector>
 #include <boost/program_options.hpp>
 #include <glog/logging.h>
+#include <ifm3d/tools/app_types_app.h>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/tools/reboot_app.h>
+#include <ifm3d/tools/cp_app.h>
 #include <ifm3d/tools/ls_app.h>
+#include <ifm3d/tools/reboot_app.h>
+#include <ifm3d/tools/reset_app.h>
+#include <ifm3d/tools/rm_app.h>
 #include <ifm3d/camera.h>
 
 namespace po = boost::program_options;
+
+std::unordered_map<std::string,
+                   std::function<ifm3d::CmdLineApp::Ptr(int, const char**,
+                                                        const std::string&)> >
+app_factory =
+  {
+    {"app-types",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::AppTypesApp>(argc, argv, cmd); }},
+
+    {"cp",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::CpApp>(argc, argv, cmd); }},
+
+    {"ls",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::LsApp>(argc, argv, cmd); }},
+
+    {"reboot",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::RebootApp>(argc, argv, cmd); }},
+
+    {"reset",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::ResetApp>(argc, argv, cmd); }},
+
+    {"rm",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::RmApp>(argc, argv, cmd); }},
+
+    {"version",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::CmdLineApp>(argc, argv, cmd); }}
+  };
 
 ifm3d::CmdLineApp::Ptr
 ifm3d::make_app(int argc, const char **argv)
@@ -43,23 +93,28 @@ ifm3d::make_app(int argc, const char **argv)
             options(desc).positional(p).allow_unregistered().run(), vm);
   po::notify(vm);
 
-
   std::string cmd = vm["command"].as<std::string>();
-  if (cmd == "reboot")
+  try
     {
-      return std::make_shared<ifm3d::RebootApp>(argc, argv, cmd);
+      return app_factory.at(cmd)(argc, argv, cmd);
     }
-  else if (cmd == "ls")
+  catch (const std::out_of_range& ex)
     {
-      return std::make_shared<ifm3d::LsApp>(argc, argv, cmd);
-    }
-  else if (cmd == "version")
-    {
-      return std::make_shared<ifm3d::CmdLineApp>(argc, argv, cmd);
-    }
-  else
-    {
-      std::cerr << "Unknown sub-command: " << cmd << std::endl;
+      std::vector<std::string> keys;
+      for (auto& c : app_factory)
+        {
+          keys.push_back(c.first);
+        }
+      std::sort(keys.begin(), keys.end());
+
+      std::cerr << "Unrecognized command: " << cmd << std::endl;
+      std::cerr << "Valid commands are: " << std::endl;
+      for (auto& k : keys)
+        {
+          std::cerr << "- " << k << std::endl;
+        }
+      std::cerr << std::endl;
+
       throw ifm3d::error_t(IFM3D_SUBCOMMAND_ERROR);
     }
 }

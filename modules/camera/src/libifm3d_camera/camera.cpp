@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
+#include <functional>
 #include <map>
 #include <mutex>
 #include <regex>
@@ -251,6 +252,16 @@ private:
     return this->_XCall(url, method, args...);
   }
 
+  template <typename... Args>
+  xmlrpc_c::value const
+  _XCallEdit(const std::string& method, Args... args)
+  {
+    std::string url =
+      this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
+      ifm3d::XMLRPC_EDIT;
+    return this->_XCall(url, method, args...);
+  }
+
 public:
   int Heartbeat(int hb)
   {
@@ -384,6 +395,113 @@ public:
     return retval;
   }
 
+  std::vector<std::string> ApplicationTypes()
+  {
+    xmlrpc_c::value_array a = this->_XCallEdit("availableApplicationTypes");
+
+    std::vector<xmlrpc_c::value> v = a.vectorValueValue();
+    std::vector<std::string> retval;
+    for (auto& vs : v)
+      {
+        retval.push_back(static_cast<std::string>(xmlrpc_c::value_string(vs)));
+      }
+
+    return retval;
+  }
+
+  int CopyApplication(int idx)
+  {
+    xmlrpc_c::value_int v_int(this->_XCallEdit("copyApplication", idx));
+    return v_int.cvalue();
+  }
+
+  void DeleteApplication(int idx)
+  {
+    this->_XCallEdit("deleteApplication", idx);
+  }
+
+  int CreateApplication(const std::string& type)
+  {
+    xmlrpc_c::value_int
+      v_int(this->_XCallEdit("createApplication", type.c_str()));
+    return v_int.cvalue();
+  }
+
+  void FactoryReset()
+  {
+    this->_XCallEdit("factoryReset");
+  }
+
+  std::vector<std::uint8_t> ExportIFMApp(int idx)
+  {
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //
+    // Move session management into ifm3d::Camera
+    //
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    std::vector<std::uint8_t> retval;
+    try
+      {
+        this->RequestSession();
+        this->SetOperatingMode(ifm3d::Camera::operating_mode::EDIT);
+
+        const xmlrpc_c::value_bytestring v_bytes =
+          this->_XCallSession("exportApplication", idx);
+
+        retval = v_bytes.vectorUcharValue();
+      }
+    catch (const ifm3d::error_t& ex)
+      {
+        LOG(ERROR) << ex.what();
+        this->CancelSession();
+        throw ex;
+      }
+
+    this->CancelSession();
+    return retval;
+  }
+
+  template <typename T>
+  T WrapInEditSession(std::function<T()> f)
+  {
+    T retval;
+
+    try
+      {
+        this->RequestSession();
+        this->SetOperatingMode(ifm3d::Camera::operating_mode::EDIT);
+        retval = f();
+      }
+    catch (const ifm3d::error_t& ex)
+      {
+        LOG(ERROR) << ex.what();
+        this->CancelSession();
+        throw;
+      }
+
+    this->CancelSession();
+    return retval;
+  }
+
+  void WrapInEditSession(std::function<void()> f)
+  {
+    try
+      {
+        this->RequestSession();
+        this->SetOperatingMode(ifm3d::Camera::operating_mode::EDIT);
+        f();
+      }
+    catch (const ifm3d::error_t& ex)
+      {
+        LOG(ERROR) << ex.what();
+        this->CancelSession();
+        throw;
+      }
+
+    this->CancelSession();
+  }
+
 }; // end: class ifm3d::Camera::Impl
 
 //================================================
@@ -497,6 +615,47 @@ ifm3d::Camera::ApplicationList()
     }
 
   return retval;
+}
+
+std::vector<std::string>
+ifm3d::Camera::ApplicationTypes()
+{
+  return this->pImpl->WrapInEditSession<std::vector<std::string> >(
+    [this]()->std::vector<std::string>
+    { return this->pImpl->ApplicationTypes(); });
+}
+
+int
+ifm3d::Camera::CreateApplication(const std::string& type)
+{
+  return this->pImpl->WrapInEditSession<int>(
+    [this,&type]()->int { return this->pImpl->CreateApplication(type); });
+}
+
+int
+ifm3d::Camera::CopyApplication(int idx)
+{
+  return this->pImpl->WrapInEditSession<int>(
+    [this,idx]()->int { return this->pImpl->CopyApplication(idx); });
+}
+
+void
+ifm3d::Camera::DeleteApplication(int idx)
+{
+  this->pImpl->WrapInEditSession(
+     [this,idx]() { this->pImpl->DeleteApplication(idx); });
+}
+
+void
+ifm3d::Camera::FactoryReset()
+{
+  this->pImpl->WrapInEditSession([this]() { this->pImpl->FactoryReset(); });
+}
+
+std::vector<std::uint8_t>
+ifm3d::Camera::ExportIFMApp(int idx)
+{
+  return this->pImpl->ExportIFMApp(idx);
 }
 
 json

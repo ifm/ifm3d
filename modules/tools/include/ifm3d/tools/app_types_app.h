@@ -15,16 +15,25 @@
  * limitations under the License.
  */
 
-#ifndef __IFM3D_TOOLS_H__
-#define __IFM3D_TOOLS_H__
+#ifndef __IFM3D_TOOLS_APP_TYPES_APP_H__
+#define __IFM3D_TOOLS_APP_TYPES_APP_H__
 
-#include <ifm3d/tools/app_types_app.h>
+#include <string>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/tools/cp_app.h>
-#include <ifm3d/tools/ls_app.h>
-#include <ifm3d/tools/make_app.h>
-#include <ifm3d/tools/reboot_app.h>
-#include <ifm3d/tools/reset_app.h>
-#include <ifm3d/tools/rm_app.h>
 
-#endif // __IFM3D_TOOLS_H__
+namespace ifm3d
+{
+  /**
+   * Concrete implementation of the `app-types` subcommand to the `ifm3d`
+   * command-line utility.
+   */
+  class AppTypesApp : public ifm3d::CmdLineApp
+  {
+  public:
+    AppTypesApp(int argc, const char **argv,
+                const std::string& name = "app-types");
+    int Run();
+  }; // end: class AppTypeApp
+} // end: namespace ifm3d
+
+#endif // __IFM3D_TOOLS_APP_TYPES_APP_H__

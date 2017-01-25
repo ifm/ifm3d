@@ -85,6 +85,9 @@ ifm3d::CmdLineApp::Run()
     R"(
 These are common commands used in various situations:
 
+    cp          Create a new application on the sensor,
+                bootstrapped from a copy of an existing one.
+
     ls          Lists the applications currently installed on
                 the sensor.
 
@@ -92,6 +95,10 @@ These are common commands used in various situations:
                 mode. Recovery mode is useful for putting the
                 sensor into a state where it can be flashed
                 with new firmware.
+
+    reset       Reset the sensor to factory defaults.
+
+    rm          Deletes an application from the sensor.
 
 For bug reports, please see:
 https://github.com/lovepark/ifm3d/issues

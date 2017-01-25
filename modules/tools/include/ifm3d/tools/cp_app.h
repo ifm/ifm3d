@@ -15,16 +15,25 @@
  * limitations under the License.
  */
 
-#ifndef __IFM3D_TOOLS_H__
-#define __IFM3D_TOOLS_H__
+#ifndef __IFM3D_TOOLS_CP_APP_H__
+#define __IFM3D_TOOLS_CP_APP_H__
 
-#include <ifm3d/tools/app_types_app.h>
+#include <string>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/tools/cp_app.h>
-#include <ifm3d/tools/ls_app.h>
-#include <ifm3d/tools/make_app.h>
-#include <ifm3d/tools/reboot_app.h>
-#include <ifm3d/tools/reset_app.h>
-#include <ifm3d/tools/rm_app.h>
 
-#endif // __IFM3D_TOOLS_H__
+namespace ifm3d
+{
+  /**
+   * Concrete implementation of the `cp` subcommand to the `ifm3d` command-line
+   * utility.
+   */
+  class CpApp : public ifm3d::CmdLineApp
+  {
+  public:
+    CpApp(int argc, const char **argv, const std::string& name = "cp");
+    int Run();
+  }; // end: class CpApp
+
+} // end: namespace ifm3d
+
+#endif // __IFM3D_TOOLS_CP_APP_H__

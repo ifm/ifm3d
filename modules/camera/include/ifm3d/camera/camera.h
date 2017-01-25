@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 #include <ifm3d/contrib/json.hpp>
 
 using json = nlohmann::json;
@@ -178,8 +179,6 @@ namespace ifm3d
      */
     std::string ArticleNumber();
 
-
-
     /**
      * Delivers basic information about all applications stored on the device.
      * A call to this function does not require establishing a session with the
@@ -193,6 +192,80 @@ namespace ifm3d
      * @throw ifm3d::error_t upon error
      */
     json ApplicationList();
+
+    /**
+     * Lists the valid application types supported by the sensor.
+     *
+     * @return A vector of strings listing the available types of applications
+     *        supported by the sensor. Each element of the vector is a string
+     *        suitable to passing to `CreateApplication`.
+     *
+     * @throw ifm3d::error_t upon error
+     */
+    std::vector<std::string> ApplicationTypes();
+
+    /**
+     * Creates a new application by copying the configuration of another
+     * application. The device will generate an ID for the new application and
+     * put it on a free index.
+     *
+     * @param[in] idx The index of the application to copy
+     *
+     * @return Index of the new application
+     *
+     * @throw ifm3d::error_t upon error
+     */
+    int CopyApplication(int idx);
+
+    /**
+     * Creates a new application on the camera of the given type.
+     *
+     * To figure out valid `type`s, you should call the
+     *`AvailableApplicationTypes()` method.
+     *
+     * Upon creation of the application, the embedded device will initialize
+     * all parameters as necessary based on the type. However, based on the
+     * type, the application may not be in an _activatable_ state. That is, it
+     * can be created and saved on the device, but it cannot be marked as
+     * active.
+     *
+     * @param[in] type The (optional) application type to create. By default,
+     *                 it will create a new "Camera" application.
+     *
+     * @return The index of the new application.
+     */
+    int CreateApplication(const std::string& type = "Camera");
+
+    /**
+     * Deletes the application at the specified index from the sensor.
+     *
+     * @param[in] idx The index of the application to delete
+     * throw ifm3d::error_t upon error
+     */
+    void DeleteApplication(int idx);
+
+    /**
+     * Sets the camera configuration back to the state in which it shipped from
+     * the ifm factory.
+     */
+    void FactoryReset();
+
+    /**
+     * Export the application at the specified index into a byte array suitable
+     * for writing to a file. The exported bytes represent the IFM
+     * serialization of an application.
+     *
+     * This function provides compatibility with tools like IFM's Vision
+     * Assistant.
+     *
+     * @param[in] idx The index of the application to export.
+     *
+     * @return A vector of bytes representing the IFM serialization of the
+     *         exported application.
+     *
+     * @throw ifm3d::error_t upon error
+     */
+    std::vector<std::uint8_t> ExportIFMApp(int idx);
 
     /**
      * Serializes the state of the camera to JSON.
