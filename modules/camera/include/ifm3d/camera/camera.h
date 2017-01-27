@@ -58,7 +58,12 @@ namespace ifm3d
      * Camera operating modes: run (streaming pixel data), edit (configuring
      * the device/applications).
      */
-    enum class operating_mode : int { RUN = 0, EDIT = 1};
+    enum class operating_mode : int { RUN = 0, EDIT = 1 };
+
+    /**
+     * Import flags used when importing a Vision Assistant configuration
+     */
+    enum class import_flags : int { GLOBAL = 0x1, NET = 0x2, APPS = 0x10 };
 
     /**
      * Initializes the camera interface utilizing library defaults
@@ -251,6 +256,12 @@ namespace ifm3d
     void FactoryReset();
 
     /**
+     * Exports the entire camera configuration in a format compatible with
+     * Vision Assistant.
+     */
+    std::vector<std::uint8_t> ExportIFMConfig();
+
+    /**
      * Export the application at the specified index into a byte array suitable
      * for writing to a file. The exported bytes represent the IFM
      * serialization of an application.
@@ -266,6 +277,21 @@ namespace ifm3d
      * @throw ifm3d::error_t upon error
      */
     std::vector<std::uint8_t> ExportIFMApp(int idx);
+
+    /**
+     * Import the IFM-encoded application.
+     *
+     * This function provides compatibility with tools like IFM's Vision
+     * Assistant. An application configuration exported from VA, can be
+     * imported using this function.
+     *
+     * @param[in] bytes The raw bytes from the zip'd JSON file. NOTE: This
+     *                  function will base64 encode the data for tranmission
+     *                  over XML-RPC.
+     *
+     * @return The index of the imported application.
+     */
+    int ImportIFMApp(const std::vector<std::uint8_t>& bytes);
 
     /**
      * Serializes the state of the camera to JSON.

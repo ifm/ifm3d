@@ -88,6 +88,13 @@ These are common commands used in various situations:
     cp          Create a new application on the sensor,
                 bootstrapped from a copy of an existing one.
 
+    export      Export an application or whole sensor configuration
+                into a format compatible with ifm Vision Assistant.
+
+    import      Import an application or whole sensor configuration
+                that is compatible with ifm Vision Assistant's export
+                format.
+
     ls          Lists the applications currently installed on
                 the sensor.
 

@@ -28,6 +28,8 @@
 #include <ifm3d/tools/app_types_app.h>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/tools/cp_app.h>
+#include <ifm3d/tools/export_app.h>
+#include <ifm3d/tools/import_app.h>
 #include <ifm3d/tools/ls_app.h>
 #include <ifm3d/tools/reboot_app.h>
 #include <ifm3d/tools/reset_app.h>
@@ -50,6 +52,16 @@ app_factory =
      [](int argc, const char** argv, const std::string& cmd)
      ->ifm3d::CmdLineApp::Ptr
      { return std::make_shared<ifm3d::CpApp>(argc, argv, cmd); }},
+
+    {"export",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::ExportApp>(argc, argv, cmd); }},
+
+    {"import",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::ImportApp>(argc, argv, cmd); }},
 
     {"ls",
      [](int argc, const char** argv, const std::string& cmd)

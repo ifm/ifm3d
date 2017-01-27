@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
@@ -106,6 +107,33 @@ TEST_F(CameraTest, CreateApplicationException)
 {
   EXPECT_THROW(this->cam_->CreateApplication("Foo"),
                ifm3d::error_t);
+}
+
+TEST_F(CameraTest, ImportExportApplication)
+{
+  json app_list = this->cam_->ApplicationList();
+  EXPECT_EQ(app_list.size(), 1);
+
+  int idx = app_list[0]["Index"].get<int>();
+
+  std::vector<std::uint8_t> bytes;
+  EXPECT_NO_THROW(bytes = this->cam_->ExportIFMApp(idx));
+
+  int new_idx = -1;
+  EXPECT_NO_THROW(new_idx = this->cam_->ImportIFMApp(bytes));
+
+  app_list = this->cam_->ApplicationList();
+  EXPECT_EQ(app_list.size(), 2);
+
+  this->cam_->DeleteApplication(new_idx);
+  app_list = this->cam_->ApplicationList();
+  EXPECT_EQ(app_list.size(), 1);
+}
+
+TEST_F(CameraTest, ImportExportConfig)
+{
+  std::vector<std::uint8_t> bytes;
+  EXPECT_NO_THROW(bytes = this->cam_->ExportIFMConfig());
 }
 
 TEST_F(CameraTest, ActiveApplication)

@@ -432,34 +432,26 @@ public:
     this->_XCallEdit("factoryReset");
   }
 
+  std::vector<std::uint8_t> ExportIFMConfig()
+  {
+    const xmlrpc_c::value_bytestring v_bytes =
+      this->_XCallSession("exportConfig");
+
+    return v_bytes.vectorUcharValue();
+  }
+
   std::vector<std::uint8_t> ExportIFMApp(int idx)
   {
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //
-    // Move session management into ifm3d::Camera
-    //
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    const xmlrpc_c::value_bytestring v_bytes =
+      this->_XCallSession("exportApplication", idx);
 
-    std::vector<std::uint8_t> retval;
-    try
-      {
-        this->RequestSession();
-        this->SetOperatingMode(ifm3d::Camera::operating_mode::EDIT);
+    return v_bytes.vectorUcharValue();
+  }
 
-        const xmlrpc_c::value_bytestring v_bytes =
-          this->_XCallSession("exportApplication", idx);
-
-        retval = v_bytes.vectorUcharValue();
-      }
-    catch (const ifm3d::error_t& ex)
-      {
-        LOG(ERROR) << ex.what();
-        this->CancelSession();
-        throw ex;
-      }
-
-    this->CancelSession();
-    return retval;
+  int ImportIFMApp(const std::vector<std::uint8_t>& bytes)
+  {
+    xmlrpc_c::value_int v_int(this->_XCallSession("importApplication", bytes));
+    return v_int.cvalue();
   }
 
   template <typename T>
@@ -653,9 +645,26 @@ ifm3d::Camera::FactoryReset()
 }
 
 std::vector<std::uint8_t>
+ifm3d::Camera::ExportIFMConfig()
+{
+  return this->pImpl->WrapInEditSession<std::vector<std::uint8_t> >(
+    [this]()->std::vector<std::uint8_t>
+    { return this->pImpl->ExportIFMConfig(); });
+}
+
+std::vector<std::uint8_t>
 ifm3d::Camera::ExportIFMApp(int idx)
 {
-  return this->pImpl->ExportIFMApp(idx);
+  return this->pImpl->WrapInEditSession<std::vector<std::uint8_t> >(
+    [this,idx]()->std::vector<std::uint8_t>
+    { return this->pImpl->ExportIFMApp(idx); });
+}
+
+int
+ifm3d::Camera::ImportIFMApp(const std::vector<std::uint8_t>& bytes)
+{
+  return this->pImpl->WrapInEditSession<int>(
+    [this,&bytes]()->int { return this->pImpl->ImportIFMApp(bytes); });
 }
 
 json

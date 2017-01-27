@@ -24,6 +24,7 @@ const int IFM3D_XMLRPC_TIMEOUT = -100001;
 const int IFM3D_JSON_ERROR = -100002;
 const int IFM3D_NO_ACTIVE_APPLICATION = -100003;
 const int IFM3D_SUBCOMMAND_ERROR = -100004;
+const int IFM3D_IO_ERROR = -100005;
 
 // sensor errors
 const int IFM3D_INVALID_PARAM = 101000;
@@ -34,12 +35,16 @@ const int IFM3D_SESSION_ALREADY_ACTIVE = 101004;
 const int IFM3D_INVALID_PASSWORD = 101005;
 const int IFM3D_INVALID_SESSIONID = 101006;
 const int IFM3D_COULD_NOT_REBOOT = 101007;
+const int IFM3D_INVALID_FORMAT = 101010;
+const int IFM3D_INVALID_DEVICE_TYPE = 101011;
+const int IFM3D_INVALID_IMPORT_FLAGS = 101012;
 const int IFM3D_INVALID_APP_INDEX = 101013;
 const int IFM3D_APP_IN_EDIT_MODE = 101014;
 const int IFM3D_MAX_APP_LIMIT = 101015;
 const int IFM3D_UNSUPPORTED_APP_TYPE = 101028;
 const int IFM3D_EEPROM_FAIL = 101046;
 const int IFM3D_IMPORT_EXPORT_IN_PROGRESS = 101052;
+const int IFM3D_INVALID_FIRMWARE_VERSION = 101058;
 
 const char *ifm3d::strerror(int errnum)
 {
@@ -57,6 +62,8 @@ const char *ifm3d::strerror(int errnum)
       return "Lib: No application is marked active";
     case  IFM3D_SUBCOMMAND_ERROR:
       return "Lib: Missing or invalid sub-command";
+    case IFM3D_IO_ERROR:
+      return "Lib: I/O error";
     case IFM3D_INVALID_PARAM:
       return "Sensor: The parameter name is invalid";
     case IFM3D_INVALID_VALUE_TYPE:
@@ -73,6 +80,12 @@ const char *ifm3d::strerror(int errnum)
       return "Sensor: Invalid session id";
     case IFM3D_COULD_NOT_REBOOT:
       return "Sensor: Could not execute reboot command";
+    case IFM3D_INVALID_FORMAT:
+      return "Sensor: Data format is invalid";
+    case IFM3D_INVALID_DEVICE_TYPE:
+      return "Sensor: Invalid device type";
+    case IFM3D_INVALID_IMPORT_FLAGS:
+      return "Sensor: Invalid import flags";
     case IFM3D_INVALID_APP_INDEX:
       return "Sensor: There is no application at the supplied index";
     case IFM3D_APP_IN_EDIT_MODE:
@@ -85,6 +98,8 @@ const char *ifm3d::strerror(int errnum)
       return "Sensor: Unsupported application type";
     case IFM3D_IMPORT_EXPORT_IN_PROGRESS:
       return "Sensor: Device busy, import/export in progress";
+    case IFM3D_INVALID_FIRMWARE_VERSION:
+      return "Sensor: Invalid firmware version";
     default:
       return ::strerror(errnum);
     }

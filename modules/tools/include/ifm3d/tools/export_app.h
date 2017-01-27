@@ -15,18 +15,29 @@
  * limitations under the License.
  */
 
-#ifndef __IFM3D_TOOLS_H__
-#define __IFM3D_TOOLS_H__
+#ifndef __IFM3D_TOOLS_EXPORT_APP_H__
+#define __IFM3D_TOOLS_EXPORT_APP_H__
 
-#include <ifm3d/tools/app_types_app.h>
+#include <string>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/tools/cp_app.h>
-#include <ifm3d/tools/export_app.h>
-#include <ifm3d/tools/import_app.h>
-#include <ifm3d/tools/ls_app.h>
-#include <ifm3d/tools/make_app.h>
-#include <ifm3d/tools/reboot_app.h>
-#include <ifm3d/tools/reset_app.h>
-#include <ifm3d/tools/rm_app.h>
 
-#endif // __IFM3D_TOOLS_H__
+namespace ifm3d
+{
+  /**
+   * Concrete implementation of the `export` subcommand to the `ifm3d`
+   * command-line utility.
+   *
+   * `export` provides compatibility with Vision Assistant - it can produce
+   * exported applications/configurations that can be consumed by Vision
+   * Assistant.
+   */
+  class ExportApp : public ifm3d::CmdLineApp
+  {
+  public:
+    ExportApp(int argc, const char **argv, const std::string& name = "export");
+    int Run();
+  }; // end: class ExportApp
+
+} // end: namespace ifm3d
+
+#endif // __IFM3D_TOOLS_EXPORT_APP_H__
