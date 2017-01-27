@@ -262,6 +262,68 @@ private:
     return this->_XCall(url, method, args...);
   }
 
+  template <typename... Args>
+  xmlrpc_c::value const
+  _XCallDevice(const std::string& method, Args... args)
+  {
+    std::string url =
+      this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
+      ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE;
+    return this->_XCall(url, method, args...);
+  }
+
+  template <typename... Args>
+  xmlrpc_c::value const
+  _XCallNet(const std::string& method, Args... args)
+  {
+    std::string url =
+      this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
+      ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE + ifm3d::XMLRPC_NET;
+    return this->_XCall(url, method, args...);
+  }
+
+  template <typename... Args>
+  xmlrpc_c::value const
+  _XCallApp(const std::string& method, Args... args)
+  {
+    std::string url =
+      this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
+      ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_APP;
+    return this->_XCall(url, method, args...);
+  }
+
+  template <typename... Args>
+  xmlrpc_c::value const
+  _XCallImager(const std::string& method, Args... args)
+  {
+    std::string url =
+      this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
+      ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_APP + ifm3d::XMLRPC_IMAGER;
+    return this->_XCall(url, method, args...);
+  }
+
+  template <typename... Args>
+  xmlrpc_c::value const
+  _XCallSpatialFilter(const std::string& method, Args... args)
+  {
+    std::string url =
+      this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
+      ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_APP + ifm3d::XMLRPC_IMAGER +
+      ifm3d::XMLRPC_SPATIALFILTER;
+    return this->_XCall(url, method, args...);
+  }
+
+  template <typename... Args>
+  xmlrpc_c::value const
+  _XCallTemporalFilter(const std::string& method, Args... args)
+  {
+    std::string url =
+      this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
+      ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_APP + ifm3d::XMLRPC_IMAGER +
+      ifm3d::XMLRPC_TEMPORALFILTER;
+    return this->_XCall(url, method, args...);
+  }
+
 public:
   int Heartbeat(int hb)
   {
@@ -300,7 +362,19 @@ public:
         LOG(ERROR) << "Failed to cancel session: "
                    << this->SessionID() << " -> "
                    << ex.what();
-        retval = false;
+
+        if (ex.code() == IFM3D_XMLRPC_OBJ_NOT_FOUND)
+          {
+            // this code path gets tickled when a session
+            // is closed implicitly as a result of applying
+            // new network setting on the sensor.
+            this->SetSessionID("");
+            retval = true;
+          }
+        else
+          {
+            retval = false;
+          }
       }
 
     return retval;
@@ -359,15 +433,67 @@ public:
     return this->value_struct_to_map(this->_XCallMain("getAllParameters"));
   }
 
-  void Reboot(int mode)
-  {
-    this->_XCallMain("reboot", mode);
-  }
-
   std::string DeviceParameter(const std::string& param)
   {
     return xmlrpc_c::value_string(
              this->_XCallMain("getParameter", param.c_str())).cvalue();
+  }
+
+  void SetDeviceParameter(const std::string& param, const std::string& val)
+  {
+    this->_XCallDevice("setParameter", param.c_str(), val.c_str());
+  }
+
+  void SaveDevice()
+  {
+    this->_XCallDevice("save");
+  }
+
+  std::unordered_map<std::string, std::string> NetInfo()
+  {
+    return this->value_struct_to_map(this->_XCallNet("getAllParameters"));
+  }
+
+  std::string NetParameter(const std::string& param)
+  {
+    return xmlrpc_c::value_string(
+             this->_XCallNet("getParameter", param.c_str())).cvalue();
+  }
+
+  void SetNetParameter(const std::string& param, const std::string& val)
+  {
+    this->_XCallNet("setParameter", param.c_str(), val.c_str());
+  }
+
+  void SaveNet()
+  {
+    this->_XCallNet("saveAndActivateConfig");
+  }
+
+  std::unordered_map<std::string, std::string> AppInfo()
+  {
+    return this->value_struct_to_map(this->_XCallApp("getAllParameters"));
+  }
+
+  std::string AppParameter(const std::string& param)
+  {
+    return xmlrpc_c::value_string(
+             this->_XCallApp("getParameter", param.c_str())).cvalue();
+  }
+
+  void SetAppParameter(const std::string& param, const std::string& val)
+  {
+    this->_XCallApp("setParameter", param.c_str(), val.c_str());
+  }
+
+  void SaveApp()
+  {
+    this->_XCallApp("save");
+  }
+
+  void Reboot(int mode)
+  {
+    this->_XCallMain("reboot", mode);
   }
 
   std::vector<ifm3d::app_entry_t> ApplicationList()
@@ -448,10 +574,26 @@ public:
     return v_bytes.vectorUcharValue();
   }
 
+  void ImportIFMConfig(const std::vector<std::uint8_t>& bytes,
+                       std::uint16_t flags)
+  {
+    this->_XCallSession("importConfig", bytes, flags);
+  }
+
   int ImportIFMApp(const std::vector<std::uint8_t>& bytes)
   {
     xmlrpc_c::value_int v_int(this->_XCallSession("importApplication", bytes));
     return v_int.cvalue();
+  }
+
+  void EditApplication(int idx)
+  {
+    this->_XCallEdit("editApplication", idx);
+  }
+
+  void StopEditingApplication()
+  {
+    this->_XCallEdit("stopEditingApplication");
   }
 
   template <typename T>
@@ -660,6 +802,14 @@ ifm3d::Camera::ExportIFMApp(int idx)
     { return this->pImpl->ExportIFMApp(idx); });
 }
 
+void
+ifm3d::Camera::ImportIFMConfig(const std::vector<std::uint8_t>& bytes,
+                               std::uint16_t flags)
+{
+  return this->pImpl->WrapInEditSession(
+    [this,&bytes,flags]() { this->pImpl->ImportIFMConfig(bytes, flags); });
+}
+
 int
 ifm3d::Camera::ImportIFMApp(const std::vector<std::uint8_t>& bytes)
 {
@@ -677,6 +827,45 @@ ifm3d::Camera::ToJSON()
   std::string time_s = time_buf.str();
   boost::algorithm::trim(time_s);
 
+  json app_list = this->ApplicationList();
+  json net_info, app_info;
+
+  this->pImpl->WrapInEditSession(
+    [this,&net_info,&app_info,&app_list]()
+    {
+      net_info = json(this->pImpl->NetInfo());
+      app_info = json::parse("[]");
+
+      for (auto& app : app_list)
+        {
+          int idx = app["Index"].get<int>();
+          this->pImpl->EditApplication(idx);
+
+          json app_json = json(this->pImpl->AppInfo());
+          app_json["LogicGraph"] =
+            app_json["LogicGraph"].is_null() ?
+            json::parse("{}") :
+            json::parse(app_json["LogicGraph"].get<std::string>());
+          app_json["PcicEipResultSchema"] =
+            app_json["PcicEipResultSchema"].is_null() ?
+            json::parse("{}") :
+            json::parse(app_json["PcicEipResultSchema"].get<std::string>());
+          app_json["PcicPnioResultSchema"] =
+            app_json["PcicPnioResultSchema"].is_null() ?
+            json::parse("{}") :
+            json::parse(app_json["PcicPnioResultSchema"].get<std::string>());
+          app_json["PcicTcpResultSchema"] =
+            app_json["PcicTcpResultSchema"].is_null() ?
+            json::parse("{}") :
+            json::parse(app_json["PcicTcpResultSchema"].get<std::string>());
+          app_json["Index"] = std::to_string(idx);
+          app_json["Id"] = std::to_string(app["Id"].get<int>());
+          app_info.push_back(app_json);
+
+          this->pImpl->StopEditingApplication();
+        }
+    });
+
   json j =
     {
       {
@@ -686,7 +875,9 @@ ifm3d::Camera::ToJSON()
          {"Date", time_s},
          {"HWInfo", json(this->pImpl->HWInfo())},
          {"SWVersion", json(this->pImpl->SWVersion())},
-         {"Device", json(this->pImpl->DeviceInfo())}
+         {"Device", json(this->pImpl->DeviceInfo())},
+         {"Net", net_info},
+         {"Apps", app_info}
        }
       }
     };
@@ -698,4 +889,136 @@ std::string
 ifm3d::Camera::ToJSONStr()
 {
   return this->ToJSON().dump(2);
+}
+
+void
+ifm3d::Camera::FromJSON_(const json& j_curr,
+                         const json& j_new,
+                         std::function<void(const std::string&,
+                                            const std::string&)> SetFunc,
+                         std::function<void()> SaveFunc,
+                         const std::string& name)
+{
+  VLOG(IFM3D_TRACE) << "Setting " << name << " parameters...";
+  if (! j_new.is_object())
+    {
+      LOG(ERROR) << "The passed in " << name << " json should be an object!";
+      VLOG(IFM3D_TRACE) << "Invalid JSON was: " << j_new.dump();
+
+      throw ifm3d::error_t(IFM3D_JSON_ERROR);
+    }
+
+  this->pImpl->WrapInEditSession (
+    [&name,&j_curr,&j_new,&SetFunc,&SaveFunc]()
+    {
+      bool do_save = false;
+      for (auto it = j_new.begin(); it != j_new.end(); ++it)
+        {
+          std::string key = it.key();
+          std::string val = j_new[key].get<std::string>();
+          if (j_curr[key].get<std::string>() != val)
+            {
+              try
+                {
+                  VLOG(IFM3D_TRACE) << "Setting " << name << " parameter: "
+                                    << key << "=" << val;
+                  SetFunc(key, val);
+                  do_save = true;
+                }
+              catch (const ifm3d::error_t& ex)
+                {
+                  if (ex.code() != IFM3D_READONLY_PARAM)
+                    {
+                      throw;
+                    }
+                }
+            }
+        }
+
+      if (do_save)
+        {
+          SaveFunc();
+        }
+    });
+}
+
+void
+ifm3d::Camera::FromJSON(const json& j)
+{
+  if (! j.is_object())
+    {
+      LOG(ERROR) << "The passed in json should be an object!";
+      VLOG(IFM3D_TRACE) << "Invalid JSON was: " << j.dump();
+
+      throw ifm3d::error_t(IFM3D_JSON_ERROR);
+    }
+
+  // we use this to lessen the number of overall network calls
+  json current = this->ToJSON();
+
+  // make the `ifm3d` root element optional
+  json root = j.count("ifm3d") ? j["ifm3d"] : j;
+
+  // Device
+  json j_dev = root["Device"];
+  if (! j_dev.is_null())
+    {
+      this->FromJSON_(current["ifm3d"]["Device"], j_dev,
+                      [this](const std::string& k,
+                             const std::string& v)
+                      { this->pImpl->SetDeviceParameter(k,v); },
+                      [this](){ this->pImpl->SaveDevice(); },
+                      "Device");
+    }
+
+  // Apps - requires careful/special treatment
+  json j_apps = root["Apps"];
+  if (! j_apps.is_null())
+    {
+      if (! j_apps.is_array())
+        {
+          LOG(ERROR) << "The `Apps` element should be an array!";
+          VLOG(IFM3D_TRACE) << "Invalid JSON was: " << j_apps.dump();
+
+          throw ifm3d::error_t(IFM3D_JSON_ERROR);
+        }
+
+      for (auto& j_app : j_apps)
+        {
+          //
+          // XXX: Need to do application processing here
+          //
+        }
+    }
+
+  // Network - we do this last intentionally!
+  json j_net = root["Net"];
+  if (! j_net.is_null())
+    {
+      this->FromJSON_(current["ifm3d"]["Net"], j_net,
+                      [this](const std::string& k,
+                             const std::string& v)
+                      { this->pImpl->SetNetParameter(k,v); },
+                      [this](){ this->pImpl->SaveNet(); },
+                      "Net");
+    }
+}
+
+void
+ifm3d::Camera::FromJSONStr(const std::string& jstr)
+{
+  // We make this a bit verbose for better error reporting
+  json j;
+
+  try
+    {
+      j = json::parse(jstr);
+    }
+  catch (const std::exception& ex)
+    {
+      LOG(ERROR) << "JSON: " << ex.what();
+      throw ifm3d::error_t(IFM3D_JSON_ERROR);
+    }
+
+  this->FromJSON(j);
 }

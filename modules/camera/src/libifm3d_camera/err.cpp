@@ -27,6 +27,7 @@ const int IFM3D_SUBCOMMAND_ERROR = -100004;
 const int IFM3D_IO_ERROR = -100005;
 
 // sensor errors
+const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
 const int IFM3D_INVALID_PARAM = 101000;
 const int IFM3D_INVALID_VALUE_TYPE = 101001;
 const int IFM3D_VALUE_OUT_OF_RANGE = 101002;
@@ -41,8 +42,10 @@ const int IFM3D_INVALID_IMPORT_FLAGS = 101012;
 const int IFM3D_INVALID_APP_INDEX = 101013;
 const int IFM3D_APP_IN_EDIT_MODE = 101014;
 const int IFM3D_MAX_APP_LIMIT = 101015;
+const int IFM3D_NO_APP_IN_EDIT_MODE = 101016;
 const int IFM3D_UNSUPPORTED_APP_TYPE = 101028;
 const int IFM3D_EEPROM_FAIL = 101046;
+const int IFM3D_INVALID_NET_CONFIG = 101051;
 const int IFM3D_IMPORT_EXPORT_IN_PROGRESS = 101052;
 const int IFM3D_INVALID_FIRMWARE_VERSION = 101058;
 
@@ -64,6 +67,8 @@ const char *ifm3d::strerror(int errnum)
       return "Lib: Missing or invalid sub-command";
     case IFM3D_IO_ERROR:
       return "Lib: I/O error";
+    case IFM3D_XMLRPC_OBJ_NOT_FOUND:
+      return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:
       return "Sensor: The parameter name is invalid";
     case IFM3D_INVALID_VALUE_TYPE:
@@ -92,12 +97,16 @@ const char *ifm3d::strerror(int errnum)
       return "Sensor: Operation not allowed while an app is in edit mode";
     case IFM3D_MAX_APP_LIMIT:
       return "Sensor: Maximum number of applications has been reached";
+    case IFM3D_NO_APP_IN_EDIT_MODE:
+      return "Sensor: There is no application in edit-mode";
     case IFM3D_EEPROM_FAIL:
       return "Sensor: Failed to read EEPROM";
     case  IFM3D_UNSUPPORTED_APP_TYPE:
       return "Sensor: Unsupported application type";
     case IFM3D_IMPORT_EXPORT_IN_PROGRESS:
       return "Sensor: Device busy, import/export in progress";
+    case IFM3D_INVALID_NET_CONFIG:
+      return "Sensor: Invalid network config";
     case IFM3D_INVALID_FIRMWARE_VERSION:
       return "Sensor: Invalid firmware version";
     default:

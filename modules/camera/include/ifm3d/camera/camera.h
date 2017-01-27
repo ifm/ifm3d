@@ -19,6 +19,7 @@
 #define __IFM3D_CAMERA_CAMERA_H__
 
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -279,6 +280,13 @@ namespace ifm3d
     std::vector<std::uint8_t> ExportIFMApp(int idx);
 
     /**
+     * Imports an entire camera configuration from a format compatible with
+     * Vision Assistant.
+     */
+    void ImportIFMConfig(const std::vector<std::uint8_t>& bytes,
+                         std::uint16_t flags = 0x0);
+
+    /**
      * Import the IFM-encoded application.
      *
      * This function provides compatibility with tools like IFM's Vision
@@ -321,9 +329,55 @@ namespace ifm3d
      */
     std::string ToJSONStr();
 
+    /**
+     * Configures the camera based on the parameter values of the passed in
+     * JSON. This function is _the_ way to tune the
+     * camera/application/imager/etc. parameters.
+     *
+     * @param[in] json A json object encoding a camera configuration to apply
+     *                 to the hardware.
+     *
+     * Processing proceeds as follows:
+     *
+     * - Device parameters are processed and saved persistently
+     *
+     * @throw ifm3d::error_t upon error - if this throws an exception, you are
+     *        encouraged to check the log file as a best effort is made to be
+     *        as descriptive as possible as to the specific error that has
+     *        occured.
+     */
+    void FromJSON(const json& j);
+
+    /**
+     * Accepts a string with properly formatted/escaped JSON text, converts it
+     * to a `json` object, and call `FromJSON()` on it.
+     *
+     * @see FromJSON
+     */
+    void FromJSONStr(const std::string& jstr);
+
   private:
     class Impl;
     std::unique_ptr<Impl> pImpl;
+
+    /**
+     * Handles parsing a selected sub-tree of a potential input JSON file,
+     * setting the parameters as appropriate on the camera, and saving them
+     * persistently.
+     *
+     * @param[in] j_curr The current configuration
+     * @param[in] j_new  The desired configuration
+     * @param[in] SetFunc The setter function to call for each parameter
+     * @param[in] SaveFunc The function to call to persist the values
+     * @param[in] name A descriptive name for the sub-tree (used to make
+     *                 log messages useful).
+     */
+    void FromJSON_(const json& j_curr,
+                   const json& j_new,
+                   std::function<void(const std::string&,
+                                      const std::string&)> SetFunc,
+                   std::function<void()> SaveFunc,
+                   const std::string& name);
 
   }; // end: class Camera
 

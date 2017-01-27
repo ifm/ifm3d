@@ -38,7 +38,12 @@ ifm3d::ImportApp::ImportApp(int argc, const char **argv,
   this->local_opts_.add_options()
     ("file", po::value<std::string>()->default_value("-"),
      "Input file, defaults to `stdin' (good for reading off a pipeline)")
-    ("app,a", "Flag indicating the input is an application (config otherwise)");
+    ("config,c",
+     "Flag indicating the input is an entire sensor config (app otherwise)")
+    ("global,g", "If `-c', import the global configuration")
+    ("net,n", "If `-c', import the network configuration")
+    ("app,a", "If `-c', import the application configuration");
+
 
   po::store(po::command_line_parser(argc, argv).
             options(this->local_opts_).allow_unregistered().run(), this->vm_);
@@ -88,13 +93,30 @@ int ifm3d::ImportApp::Run()
                    std::istream_iterator<std::uint8_t>());
     }
 
-  if(this->vm_.count("app"))
+  std::uint16_t mask = 0x0;
+  if(! this->vm_.count("config"))
     {
       this->cam_->ImportIFMApp(bytes);
     }
   else
     {
-      std::cout << "Importing a config..." << std::endl;
+      if (this->vm_.count("global"))
+        {
+          mask |=
+            static_cast<std::uint16_t>(ifm3d::Camera::import_flags::GLOBAL);
+        }
+
+      if (this->vm_.count("net"))
+        {
+          mask |= static_cast<std::uint16_t>(ifm3d::Camera::import_flags::NET);
+        }
+
+      if (this->vm_.count("app"))
+        {
+          mask |= static_cast<std::uint16_t>(ifm3d::Camera::import_flags::APPS);
+        }
+
+      this->cam_->ImportIFMConfig(bytes, mask);
     }
 
   return 0;

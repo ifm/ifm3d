@@ -30,9 +30,11 @@ extern const int IFM3D_SUBCOMMAND_ERROR;
 extern const int IFM3D_IO_ERROR;
 
 // sensor errors
+extern const int IFM3D_XMLRPC_OBJ_NOT_FOUND;
 extern const int IFM3D_INVALID_PARAM;
 extern const int IFM3D_INVALID_VALUE_TYPE;
 extern const int IFM3D_VALUE_OUT_OF_RANGE;
+extern const int IFM3D_READONLY_PARAM;
 extern const int IFM3D_SESSION_ALREADY_ACTIVE;
 extern const int IFM3D_INVALID_PASSWORD;
 extern const int IFM3D_INVALID_SESSIONID;
@@ -42,9 +44,12 @@ extern const int IFM3D_INVALID_DEVICE_TYPE;
 extern const int IFM3D_INVALID_IMPORT_FLAGS;
 extern const int IFM3D_INVALID_APP_INDEX;
 extern const int IFM3D_APP_IN_EDIT_MODE;
-extern const int IFM3D_EEPROM_FAIL;
+extern const int IFM3D_MAX_APP_LIMIT;
+extern const int IFM3D_NO_APP_IN_EDIT_MODE;
 extern const int IFM3D_UNSUPPORTED_APP_TYPE;
+extern const int IFM3D_EEPROM_FAIL;
 extern const int IFM3D_IMPORT_EXPORT_IN_PROGRESS;
+extern const int IFM3D_INVALID_NET_CONFIG;
 extern const int IFM3D_INVALID_FIRMWARE_VERSION;
 
 namespace ifm3d

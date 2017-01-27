@@ -134,6 +134,9 @@ TEST_F(CameraTest, ImportExportConfig)
 {
   std::vector<std::uint8_t> bytes;
   EXPECT_NO_THROW(bytes = this->cam_->ExportIFMConfig());
+  EXPECT_NO_THROW(
+    this->cam_->ImportIFMConfig(
+      bytes, static_cast<std::uint16_t>(ifm3d::Camera::import_flags::GLOBAL)));
 }
 
 TEST_F(CameraTest, ActiveApplication)
@@ -144,11 +147,25 @@ TEST_F(CameraTest, ActiveApplication)
   EXPECT_EQ(1,1);
 }
 
-TEST_F(CameraTest, ToJSON)
+TEST_F(CameraTest, JSON)
 {
   //
   // Figure out a reasonable test for this
   //
+  //  std::cout << this->cam_->ToJSONStr() << std::endl;
+  //  EXPECT_EQ(1,1);
+
+  // must pass a JSON object, not an array
+  //EXPECT_THROW(this->cam_->FromJSONStr("[{}]"), ifm3d::error_t);
+
+  // std::string j_str =
+  //   R"(
+  //       {
+  //         "Device": { "Name":"Tom Test2" },
+  //         "Net": { }
+  //       }
+  //     )";
+
+  // this->cam_->FromJSONStr(j_str);
   std::cout << this->cam_->ToJSONStr() << std::endl;
-  EXPECT_EQ(1,1);
 }
