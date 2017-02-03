@@ -44,9 +44,14 @@ const int IFM3D_APP_IN_EDIT_MODE = 101014;
 const int IFM3D_MAX_APP_LIMIT = 101015;
 const int IFM3D_NO_APP_IN_EDIT_MODE = 101016;
 const int IFM3D_UNSUPPORTED_APP_TYPE = 101028;
+const int IFM3D_PIN_ALREADY_IN_USE = 101032;
+const int IFM3D_NO_SUCH_MODEL_OR_ROI = 101033;
+const int IFM3D_TEMPORAL_FILTER_TRIGGER_CONFLICT = 101036;
 const int IFM3D_EEPROM_FAIL = 101046;
 const int IFM3D_INVALID_NET_CONFIG = 101051;
 const int IFM3D_IMPORT_EXPORT_IN_PROGRESS = 101052;
+const int IFM3D_LED_DUTY_CYCLE_VIOLATION = 101055;
+const int IFM3D_AUTO_EXPOSURE_NOT_SUPPORTED = 101056;
 const int IFM3D_INVALID_FIRMWARE_VERSION = 101058;
 
 const char *ifm3d::strerror(int errnum)
@@ -103,10 +108,20 @@ const char *ifm3d::strerror(int errnum)
       return "Sensor: Failed to read EEPROM";
     case  IFM3D_UNSUPPORTED_APP_TYPE:
       return "Sensor: Unsupported application type";
+    case IFM3D_PIN_ALREADY_IN_USE:
+      return "Sensor: App requires a pin that is already in use";
+    case IFM3D_NO_SUCH_MODEL_OR_ROI:
+      return "Sensor: Logic layer contains model-roi which does not exist";
+    case IFM3D_TEMPORAL_FILTER_TRIGGER_CONFLICT:
+      return "Sensor: Temporal filter conflicts with trigger mode";
     case IFM3D_IMPORT_EXPORT_IN_PROGRESS:
       return "Sensor: Device busy, import/export in progress";
     case IFM3D_INVALID_NET_CONFIG:
       return "Sensor: Invalid network config";
+    case IFM3D_LED_DUTY_CYCLE_VIOLATION:
+      return "Sensor: LED duty cycle violation";
+    case IFM3D_AUTO_EXPOSURE_NOT_SUPPORTED:
+      return "Sensor: Auto-exposure not supported";
     case IFM3D_INVALID_FIRMWARE_VERSION:
       return "Sensor: Invalid firmware version";
     default:

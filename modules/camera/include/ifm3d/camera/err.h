@@ -47,9 +47,14 @@ extern const int IFM3D_APP_IN_EDIT_MODE;
 extern const int IFM3D_MAX_APP_LIMIT;
 extern const int IFM3D_NO_APP_IN_EDIT_MODE;
 extern const int IFM3D_UNSUPPORTED_APP_TYPE;
+extern const int IFM3D_PIN_ALREADY_IN_USE;
+extern const int IFM3D_NO_SUCH_MODEL_OR_ROI;
+extern const int IFM3D_TEMPORAL_FILTER_TRIGGER_CONFLICT;
 extern const int IFM3D_EEPROM_FAIL;
 extern const int IFM3D_IMPORT_EXPORT_IN_PROGRESS;
 extern const int IFM3D_INVALID_NET_CONFIG;
+extern const int IFM3D_LED_DUTY_CYCLE_VIOLATION;
+extern const int IFM3D_AUTO_EXPOSURE_NOT_SUPPORTED;
 extern const int IFM3D_INVALID_FIRMWARE_VERSION;
 
 namespace ifm3d
