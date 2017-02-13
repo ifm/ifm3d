@@ -1,6 +1,8 @@
+#include <chrono>
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <thread>
 #include <vector>
 #include <ifm3d/camera.h>
 #include <gtest/gtest.h>
@@ -26,6 +28,8 @@ protected:
 TEST_F(CameraTest, FactoryDefaults)
 {
   EXPECT_NO_THROW(this->cam_->FactoryReset());
+  std::this_thread::sleep_for(std::chrono::seconds(3));
+  EXPECT_NO_THROW(this->cam_->ArticleNumber());
 }
 
 TEST_F(CameraTest, DefaultCredentials)
@@ -142,7 +146,7 @@ TEST_F(CameraTest, ImportExportConfig)
 TEST_F(CameraTest, ActiveApplication)
 {
   //
-  // Create a new application, mark it as active
+  // Create a new application, mark it as active ... all done via JSON
   //
   EXPECT_EQ(1,1);
 }

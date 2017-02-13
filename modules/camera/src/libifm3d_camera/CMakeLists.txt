@@ -2,8 +2,9 @@ find_library(LIB_glog NAMES glog)
 find_library(LIB_xmlrpcxx NAMES xmlrpc++)
 find_library(LIB_xmlrpc_clientxx NAMES xmlrpc_client++)
 
-file(GLOB IFM3D_CAMERA_SOURCES *.cpp)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+file(GLOB IFM3D_CAMERA_SOURCES *.cpp)
 add_library(ifm3d_camera OBJECT ${IFM3D_CAMERA_SOURCES})
 set_property(TARGET ifm3d_camera PROPERTY POSITION_INDEPENDENT_CODE 1)
 
