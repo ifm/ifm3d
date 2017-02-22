@@ -118,6 +118,25 @@ namespace ifm3d
     void SetAppParameter(const std::string& param, const std::string& val);
     void SaveApp();
 
+    // Imager
+    std::unordered_map<std::string, std::string> ImagerInfo();
+    std::string ImagerParameter(const std::string& param);
+    void SetImagerParameter(const std::string& param, const std::string& val);
+    std::vector<std::string> ImagerTypes();
+    void ChangeImagerType(const std::string& type);
+
+    // Spatial Filter
+    std::unordered_map<std::string, std::string> SpatialFilterInfo();
+    std::string SpatialFilterParameter(const std::string& param);
+    void SetSpatialFilterParameter(const std::string& param,
+                                   const std::string& val);
+
+    // Temporal Filter
+    std::unordered_map<std::string, std::string> TemporalFilterInfo();
+    std::string TemporalFilterParameter(const std::string& param);
+    void SetTemporalFilterParameter(const std::string& param,
+                                    const std::string& val);
+
     // ---------------------------------------------
     // Session wrappers
     // ---------------------------------------------
@@ -763,6 +782,101 @@ void
 ifm3d::Camera::Impl::SaveApp()
 {
   this->_XCallApp("save");
+}
+
+// ---------------------------------------------
+// Imager
+// ---------------------------------------------
+
+std::unordered_map<std::string, std::string>
+ifm3d::Camera::Impl::ImagerInfo()
+{
+  return this->value_struct_to_map(this->_XCallImager("getAllParameters"));
+}
+
+std::string
+ifm3d::Camera::Impl::ImagerParameter(const std::string& param)
+{
+  return xmlrpc_c::value_string(
+           this->_XCallImager("getParameter", param.c_str())).cvalue();
+}
+
+void
+ifm3d::Camera::Impl::SetImagerParameter(const std::string& param,
+                                        const std::string& val)
+{
+  this->_XCallImager("setParameter", param.c_str(), val.c_str());
+}
+
+std::vector<std::string>
+ifm3d::Camera::Impl::ImagerTypes()
+{
+  xmlrpc_c::value_array a = this->_XCallImager("availableTypes");
+
+  std::vector<xmlrpc_c::value> v = a.vectorValueValue();
+  std::vector<std::string> retval;
+  for (auto& vs : v)
+    {
+      retval.push_back(static_cast<std::string>(xmlrpc_c::value_string(vs)));
+    }
+
+  return retval;
+}
+
+void
+ifm3d::Camera::Impl::ChangeImagerType(const std::string& type)
+{
+  this->_XCallImager("changeType", type.c_str());
+}
+
+// ---------------------------------------------
+// Spatial Filter
+// ---------------------------------------------
+
+std::unordered_map<std::string, std::string>
+ifm3d::Camera::Impl::SpatialFilterInfo()
+{
+  return this->value_struct_to_map(
+           this->_XCallSpatialFilter("getAllParameters"));
+}
+
+std::string
+ifm3d::Camera::Impl::SpatialFilterParameter(const std::string& param)
+{
+  return xmlrpc_c::value_string(
+           this->_XCallSpatialFilter("getParameter", param.c_str())).cvalue();
+}
+
+void
+ifm3d::Camera::Impl::SetSpatialFilterParameter(const std::string& param,
+                                               const std::string& val)
+{
+  this->_XCallSpatialFilter("setParameter", param.c_str(), val.c_str());
+}
+
+// ---------------------------------------------
+// Temporal Filter
+// ---------------------------------------------
+
+std::unordered_map<std::string, std::string>
+ifm3d::Camera::Impl::TemporalFilterInfo()
+{
+  return this->value_struct_to_map(
+           this->_XCallTemporalFilter("getAllParameters"));
+}
+
+std::string
+ifm3d::Camera::Impl::TemporalFilterParameter(const std::string& param)
+{
+  return xmlrpc_c::value_string(
+           this->_XCallTemporalFilter("getParameter", param.c_str())).cvalue();
+}
+
+void
+ifm3d::Camera::Impl::SetTemporalFilterParameter(const std::string& param,
+                                               const std::string& val)
+{
+  this->_XCallTemporalFilter("setParameter", param.c_str(), val.c_str());
 }
 
 #endif // __IFM3D_CAMERA_CAMERA_IMPL_HPP__

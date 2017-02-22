@@ -27,8 +27,11 @@
 #include <glog/logging.h>
 #include <ifm3d/tools/app_types_app.h>
 #include <ifm3d/tools/cmdline_app.h>
+#include <ifm3d/tools/config_app.h>
 #include <ifm3d/tools/cp_app.h>
+#include <ifm3d/tools/dump_app.h>
 #include <ifm3d/tools/export_app.h>
+#include <ifm3d/tools/imager_types_app.h>
 #include <ifm3d/tools/import_app.h>
 #include <ifm3d/tools/ls_app.h>
 #include <ifm3d/tools/reboot_app.h>
@@ -48,15 +51,30 @@ app_factory =
      ->ifm3d::CmdLineApp::Ptr
      { return std::make_shared<ifm3d::AppTypesApp>(argc, argv, cmd); }},
 
+    {"config",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::ConfigApp>(argc, argv, cmd); }},
+
     {"cp",
      [](int argc, const char** argv, const std::string& cmd)
      ->ifm3d::CmdLineApp::Ptr
      { return std::make_shared<ifm3d::CpApp>(argc, argv, cmd); }},
 
+    {"dump",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::DumpApp>(argc, argv, cmd); }},
+
     {"export",
      [](int argc, const char** argv, const std::string& cmd)
      ->ifm3d::CmdLineApp::Ptr
      { return std::make_shared<ifm3d::ExportApp>(argc, argv, cmd); }},
+
+    {"imager-types",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::ImagerTypesApp>(argc, argv, cmd); }},
 
     {"import",
      [](int argc, const char** argv, const std::string& cmd)

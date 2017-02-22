@@ -88,6 +88,11 @@ These are common commands used in various situations:
     cp          Create a new application on the sensor,
                 bootstrapped from a copy of an existing one.
 
+    config      Configure sensor settings from a JSON description of
+                the desired sensor state. See also `dump'.
+
+    dump        Serialize the sensor state to JSON.
+
     export      Export an application or whole sensor configuration
                 into a format compatible with ifm Vision Assistant.
 

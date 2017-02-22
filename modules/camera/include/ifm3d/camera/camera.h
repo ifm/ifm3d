@@ -67,6 +67,23 @@ namespace ifm3d
     enum class import_flags : int { GLOBAL = 0x1, NET = 0x2, APPS = 0x10 };
 
     /**
+     * Convenience constants for spatial filter types
+     */
+    enum class spatial_filter : int
+    { OFF = 0x0, MEDIAN = 0x1, MEAN = 0x2, BILATERAL = 0x3 };
+
+    /**
+     * Convenience constants for temporal filter types
+     */
+    enum class temporal_filter : int
+    { OFF = 0x0, MEAN = 0x1, ADAPTIVE_EXP = 0x2 };
+
+    /**
+     * Convenient constants for median filter mask sizes
+     */
+    enum class mfilt_mask_size : int { _3x3 = 0, _5x5 = 1};
+
+    /**
      * Initializes the camera interface utilizing library defaults
      * for password, ip, and xmlrpc port unless explicitly passed in.
      *
@@ -209,6 +226,16 @@ namespace ifm3d
      * @throw ifm3d::error_t upon error
      */
     std::vector<std::string> ApplicationTypes();
+
+    /**
+     * Lists the valid imager types supported by the sensor.
+     *
+     * @return A vector of strings listing the available types of imagers
+     *         supported by the sensor.
+     *
+     * @throw ifm3d::error_t upon error
+     */
+    std::vector<std::string> ImagerTypes();
 
     /**
      * Creates a new application by copying the configuration of another
@@ -371,13 +398,16 @@ namespace ifm3d
      * @param[in] SaveFunc The function to call to persist the values
      * @param[in] name A descriptive name for the sub-tree (used to make
      *                 log messages useful).
+     * @param[in] idx An application index to put into edit mode prior to
+     *                setting parameters.
      */
     void FromJSON_(const json& j_curr,
                    const json& j_new,
                    std::function<void(const std::string&,
                                       const std::string&)> SetFunc,
                    std::function<void()> SaveFunc,
-                   const std::string& name);
+                   const std::string& name,
+                   int idx = -1);
 
   }; // end: class Camera
 

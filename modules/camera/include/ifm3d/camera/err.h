@@ -46,6 +46,7 @@ extern const int IFM3D_INVALID_APP_INDEX;
 extern const int IFM3D_APP_IN_EDIT_MODE;
 extern const int IFM3D_MAX_APP_LIMIT;
 extern const int IFM3D_NO_APP_IN_EDIT_MODE;
+extern const int IFM3D_INVALID_IMAGER_TYPE;
 extern const int IFM3D_UNSUPPORTED_APP_TYPE;
 extern const int IFM3D_PIN_ALREADY_IN_USE;
 extern const int IFM3D_NO_SUCH_MODEL_OR_ROI;

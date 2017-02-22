@@ -161,6 +161,18 @@ ifm3d::Camera::ApplicationTypes()
     { return this->pImpl->ApplicationTypes(); });
 }
 
+std::vector<std::string>
+ifm3d::Camera::ImagerTypes()
+{
+  return this->pImpl->WrapInEditSession<std::vector<std::string> >(
+    [this]()->std::vector<std::string>
+    {
+      int idx = std::stoi(this->pImpl->DeviceParameter("ActiveApplication"));
+      this->pImpl->EditApplication(idx);
+      return this->pImpl->ImagerTypes();
+    });
+}
+
 int
 ifm3d::Camera::CreateApplication(const std::string& type)
 {
@@ -244,24 +256,45 @@ ifm3d::Camera::ToJSON()
           this->pImpl->EditApplication(idx);
 
           json app_json = json(this->pImpl->AppInfo());
-          app_json["LogicGraph"] =
-            app_json["LogicGraph"].is_null() ?
-            json::parse("{}") :
-            json::parse(app_json["LogicGraph"].get<std::string>());
-          app_json["PcicEipResultSchema"] =
-            app_json["PcicEipResultSchema"].is_null() ?
-            json::parse("{}") :
-            json::parse(app_json["PcicEipResultSchema"].get<std::string>());
-          app_json["PcicPnioResultSchema"] =
-            app_json["PcicPnioResultSchema"].is_null() ?
-            json::parse("{}") :
-            json::parse(app_json["PcicPnioResultSchema"].get<std::string>());
-          app_json["PcicTcpResultSchema"] =
-            app_json["PcicTcpResultSchema"].is_null() ?
-            json::parse("{}") :
-            json::parse(app_json["PcicTcpResultSchema"].get<std::string>());
+          // app_json["LogicGraph"] =
+          //   app_json["LogicGraph"].is_null() ?
+          //   json::parse("{}") :
+          //   json::parse(app_json["LogicGraph"].get<std::string>());
+          // app_json["PcicEipResultSchema"] =
+          //   app_json["PcicEipResultSchema"].is_null() ?
+          //   json::parse("{}") :
+          //   json::parse(app_json["PcicEipResultSchema"].get<std::string>());
+          // app_json["PcicPnioResultSchema"] =
+          //   app_json["PcicPnioResultSchema"].is_null() ?
+          //   json::parse("{}") :
+          //   json::parse(app_json["PcicPnioResultSchema"].get<std::string>());
+          // app_json["PcicTcpResultSchema"] =
+          //   app_json["PcicTcpResultSchema"].is_null() ?
+          //   json::parse("{}") :
+          //   json::parse(app_json["PcicTcpResultSchema"].get<std::string>());
           app_json["Index"] = std::to_string(idx);
           app_json["Id"] = std::to_string(app["Id"].get<int>());
+
+          json imager_json = json(this->pImpl->ImagerInfo());
+          // imager_json["AutoExposureReferenceROI"] =
+          //   imager_json["AutoExposureReferenceROI"].is_null() ?
+          //   json::parse("{}") :
+          //   json::parse(
+          //     imager_json["AutoExposureReferenceROI"].get<std::string>());
+          // imager_json["ClippingCuboid"] =
+          //   imager_json["ClippingCuboid"].is_null() ?
+          //   json::parse("{}") :
+          //   json::parse(
+          //     imager_json["ClippingCuboid"].get<std::string>());
+
+          json sfilt_json = json(this->pImpl->SpatialFilterInfo());
+          imager_json["SpatialFilter"] = sfilt_json;
+
+          json tfilt_json = json(this->pImpl->TemporalFilterInfo());
+          imager_json["TemporalFilter"] = tfilt_json;
+
+          app_json["Imager"] = imager_json;
+
           app_info.push_back(app_json);
 
           this->pImpl->StopEditingApplication();
@@ -273,10 +306,14 @@ ifm3d::Camera::ToJSON()
       {
        "ifm3d",
        {
-         {std::string(IFM3D_LIBRARY_NAME) + "_version", IFM3D_VERSION},
-         {"Date", time_s},
-         {"HWInfo", json(this->pImpl->HWInfo())},
-         {"SWVersion", json(this->pImpl->SWVersion())},
+         {"_",
+          {
+            {std::string(IFM3D_LIBRARY_NAME) + "_version", IFM3D_VERSION},
+            {"Date", time_s},
+            {"HWInfo", json(this->pImpl->HWInfo())},
+            {"SWVersion", json(this->pImpl->SWVersion())}
+          }
+         },
          {"Device", json(this->pImpl->DeviceInfo())},
          {"Net", net_info},
          {"Apps", app_info}
@@ -299,9 +336,10 @@ ifm3d::Camera::FromJSON_(const json& j_curr,
                          std::function<void(const std::string&,
                                             const std::string&)> SetFunc,
                          std::function<void()> SaveFunc,
-                         const std::string& name)
+                         const std::string& name,
+                         int idx)
 {
-  VLOG(IFM3D_TRACE) << "Setting " << name << " parameters...";
+  VLOG(IFM3D_TRACE) << "Setting " << name << " parameters";
   if (! j_new.is_object())
     {
       LOG(ERROR) << "The passed in " << name << " json should be an object!";
@@ -311,12 +349,27 @@ ifm3d::Camera::FromJSON_(const json& j_curr,
     }
 
   this->pImpl->WrapInEditSession (
-    [&name,&j_curr,&j_new,&SetFunc,&SaveFunc]()
+    [this,&name,idx,&j_curr,&j_new,&SetFunc,&SaveFunc]()
     {
+      if (idx > 0)
+        {
+          VLOG(IFM3D_TRACE) << "Editing app at idx=" << idx;
+          this->pImpl->EditApplication(idx);
+        }
+
       bool do_save = false;
       for (auto it = j_new.begin(); it != j_new.end(); ++it)
         {
           std::string key = it.key();
+          VLOG(IFM3D_TRACE) << "Processing key="
+                            << key << ", with val="
+                            << j_new[key].dump(2);
+          if (it.value().is_null())
+            {
+              LOG(WARNING)
+                << "Skipping " <<  key << ", null value -- should be string!";
+              continue;
+            }
           std::string val = j_new[key].get<std::string>();
           if (j_curr[key].get<std::string>() != val)
             {
@@ -329,11 +382,22 @@ ifm3d::Camera::FromJSON_(const json& j_curr,
                 }
               catch (const ifm3d::error_t& ex)
                 {
-                  if (ex.code() != IFM3D_READONLY_PARAM)
+                  if (ex.code() == IFM3D_READONLY_PARAM)
+                    {
+                      LOG(WARNING)
+                        << "Tried to set read-only " << name << " param: "
+                        << key;
+                    }
+                  else
                     {
                       throw;
                     }
                 }
+            }
+          else
+            {
+              VLOG(IFM3D_TRACE)
+                << "Skipping " << key << ", no change in value";
             }
         }
 
@@ -347,6 +411,7 @@ ifm3d::Camera::FromJSON_(const json& j_curr,
 void
 ifm3d::Camera::FromJSON(const json& j)
 {
+  VLOG(IFM3D_TRACE) << "Checking if passed in JSON is an object";
   if (! j.is_object())
     {
       LOG(ERROR) << "The passed in json should be an object!";
@@ -356,9 +421,11 @@ ifm3d::Camera::FromJSON(const json& j)
     }
 
   // we use this to lessen the number of overall network calls
+  VLOG(IFM3D_TRACE) << "Caching current camera dump";
   json current = this->ToJSON();
 
   // make the `ifm3d` root element optional
+  VLOG(IFM3D_TRACE) << "Extracing root element";
   json root = j.count("ifm3d") ? j["ifm3d"] : j;
 
   // Device
@@ -385,11 +452,128 @@ ifm3d::Camera::FromJSON(const json& j)
           throw ifm3d::error_t(IFM3D_JSON_ERROR);
         }
 
+      VLOG(IFM3D_TRACE) << "Looping over applications";
       for (auto& j_app : j_apps)
         {
-          //
-          // XXX: Need to do application processing here
-          //
+          if (! j_app.is_object())
+            {
+              LOG(ERROR) << "All 'Apps' must be a JSON object!";
+              VLOG(IFM3D_TRACE) << "Invalid JSON was: " << j_app.dump();
+              throw ifm3d::error_t(IFM3D_JSON_ERROR);
+            }
+
+          // First we determine if we are editing an existing application or if
+          // we are creating a new one. If no index is specified, we create a
+          // new application.
+          int idx = -1;
+          if (j_app["Index"].is_null())
+            {
+              VLOG(IFM3D_TRACE) << "Creating new application";
+              idx = j_app["Type"].is_null() ?
+                this->CreateApplication() :
+                this->CreateApplication(j_app["Type"].get<std::string>());
+
+              VLOG(IFM3D_TRACE) << "Created new app, updating our dump";
+              current = this->ToJSON();
+            }
+          else
+            {
+              VLOG(IFM3D_TRACE) << "Getting index of existing application";
+              idx = std::stoi(j_app["Index"].get<std::string>());
+            }
+
+          VLOG(IFM3D_TRACE) << "Application of interest is at index="
+                            << idx;
+
+          // now in `current` (which is a whole camera dump)
+          // we need to find the application at index `idx`.
+          json curr_app = json({});
+          json curr_apps = current["ifm3d"]["Apps"];
+          bool app_found = false;
+          for (auto& a : curr_apps)
+            {
+              if (std::stoi(a["Index"].get<std::string>()) == idx)
+                {
+                  curr_app = a;
+                  app_found = true;
+                  break;
+                }
+            }
+
+          if (! app_found)
+            {
+              LOG(ERROR) << "Could not find an application at index="
+                         << idx;
+              throw ifm3d::error_t(IFM3D_JSON_ERROR);
+            }
+
+          // at this point both the new and current
+          // should have the same index and type and
+          // we want to make sure of that.
+          j_app["Index"] = curr_app["Index"];
+          j_app["Type"] = curr_app["Type"];
+
+          // pull out the imager sub-tree (we treat that separately)
+          json j_im = j_app["Imager"];
+          if (! j_im.is_null())
+            {
+              j_app.erase("Imager");
+            }
+
+          this->FromJSON_(curr_app, j_app,
+                          [this](const std::string& k,
+                                 const std::string& v)
+                          { this->pImpl->SetAppParameter(k,v); },
+                          [this](){ this->pImpl->SaveApp(); },
+                          "App", idx);
+
+          json s_filt = j_im["SpatialFilter"];
+          if (! s_filt.is_null())
+            {
+              j_im.erase("SpatialFilter");
+            }
+
+          json t_filt = j_im["TemporalFilter"];
+          if (! t_filt.is_null())
+            {
+              j_im.erase("TemporalFilter");
+            }
+
+          this->FromJSON_(curr_app["Imager"], j_im,
+                          [this](const std::string& k,
+                                 const std::string& v)
+                          {
+                            if (k == "Type")
+                              {
+                                this->pImpl->ChangeImagerType(v);
+                              }
+                            else
+                              {
+                                this->pImpl->SetImagerParameter(k,v);
+                              }
+                          },
+                          [this](){ this->pImpl->SaveApp(); },
+                          "Imager", idx);
+
+          if (! s_filt.is_null())
+            {
+              this->FromJSON_(curr_app["Imager"]["SpatialFilter"], s_filt,
+                              [this](const std::string& k,
+                                     const std::string& v)
+                              { this->pImpl->SetSpatialFilterParameter(k,v); },
+                              [this](){ this->pImpl->SaveApp(); },
+                              "SpatialFilter", idx);
+            }
+
+          if (! t_filt.is_null())
+            {
+              this->FromJSON_(curr_app["Imager"]["TemporalFilter"], t_filt,
+                              [this](const std::string& k,
+                                     const std::string& v)
+                              { this->pImpl->SetTemporalFilterParameter(k,v); },
+                              [this](){ this->pImpl->SaveApp(); },
+                              "TemporalFilter", idx);
+            }
         }
     }
 

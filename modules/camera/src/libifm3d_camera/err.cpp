@@ -43,6 +43,7 @@ const int IFM3D_INVALID_APP_INDEX = 101013;
 const int IFM3D_APP_IN_EDIT_MODE = 101014;
 const int IFM3D_MAX_APP_LIMIT = 101015;
 const int IFM3D_NO_APP_IN_EDIT_MODE = 101016;
+const int IFM3D_INVALID_IMAGER_TYPE = 101027;
 const int IFM3D_UNSUPPORTED_APP_TYPE = 101028;
 const int IFM3D_PIN_ALREADY_IN_USE = 101032;
 const int IFM3D_NO_SUCH_MODEL_OR_ROI = 101033;
@@ -106,6 +107,8 @@ const char *ifm3d::strerror(int errnum)
       return "Sensor: There is no application in edit-mode";
     case IFM3D_EEPROM_FAIL:
       return "Sensor: Failed to read EEPROM";
+    case IFM3D_INVALID_IMAGER_TYPE:
+      return "Sensor: Unsupported imager type";
     case  IFM3D_UNSUPPORTED_APP_TYPE:
       return "Sensor: Unsupported application type";
     case IFM3D_PIN_ALREADY_IN_USE:

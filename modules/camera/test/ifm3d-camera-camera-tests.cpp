@@ -145,31 +145,156 @@ TEST_F(CameraTest, ImportExportConfig)
 
 TEST_F(CameraTest, ActiveApplication)
 {
-  //
-  // Create a new application, mark it as active ... all done via JSON
-  //
-  EXPECT_EQ(1,1);
+  // factory defaults, should only be 1 application
+  json app_list = this->cam_->ApplicationList();
+  EXPECT_EQ(app_list.size(), 1);
+
+  // create a new application using JSON syntax
+  EXPECT_NO_THROW(this->cam_->FromJSONStr(R"({"Apps":[{}]})"));
+
+  app_list = this->cam_->ApplicationList();
+  EXPECT_EQ(app_list.size(), 2);
+
+  // We expect the active application to be at index 2
+  int idx = -1;
+  for (auto& a : app_list)
+    {
+      if (! a["Active"].get<bool>())
+        {
+          idx = a["Index"].get<int>();
+          break;
+        }
+    }
+  EXPECT_EQ(idx, 2);
+
+  // Mark the application at index 2 as active
+  EXPECT_NO_THROW(
+    this->cam_->FromJSONStr(R"({"Device":{"ActiveApplication":"2"}})"));
+  app_list = this->cam_->ApplicationList();
+  for (auto& a : app_list)
+    {
+      if (a["Active"].get<bool>())
+        {
+          idx = a["Index"].get<int>();
+          break;
+        }
+    }
+  EXPECT_EQ(idx, 2);
+
+  // Delete the application at index 2
+  EXPECT_NO_THROW(this->cam_->DeleteApplication(idx));
+
+  // should only have one application now
+  app_list = this->cam_->ApplicationList();
+  EXPECT_EQ(app_list.size(), 1);
+
+  // the only application on the camera will not be active
+  idx = -1;
+  for (auto& a : app_list)
+    {
+      if (a["Active"].get<bool>())
+        {
+          idx = a["Index"].get<int>();
+          break;
+        }
+    }
+  EXPECT_EQ(idx, -1);
+
+  // Mark application 1 as active
+  EXPECT_NO_THROW(
+    this->cam_->FromJSONStr(R"({"Device":{"ActiveApplication":"1"}})"));
+  app_list = this->cam_->ApplicationList();
+  for (auto& a : app_list)
+    {
+      if (a["Active"].get<bool>())
+        {
+          idx = a["Index"].get<int>();
+          break;
+        }
+    }
+  EXPECT_EQ(idx, 1);
+}
+
+TEST_F(CameraTest, ImagerTypes)
+{
+  json dump = this->cam_->ToJSON();
+  std::string curr_im_type = dump["ifm3d"]["Apps"][0]["Imager"]["Type"];
+
+  std::vector<std::string> im_types = this->cam_->ImagerTypes();
+  json j = R"({"Apps":[]})"_json;
+  for (auto& it : im_types)
+    {
+      dump["ifm3d"]["Apps"][0]["Imager"]["Type"] = it;
+      j["Apps"] = dump["ifm3d"]["Apps"];
+      this->cam_->FromJSON(j);
+      dump = this->cam_->ToJSON();
+      EXPECT_STREQ(
+        dump["ifm3d"]["Apps"][0]["Imager"]["Type"].get<std::string>().c_str(),
+        it.c_str());
+    }
+
+  dump["ifm3d"]["Apps"][0]["Imager"]["Type"] = curr_im_type;
+  j["Apps"] = dump["ifm3d"]["Apps"];
+  EXPECT_NO_THROW(this->cam_->FromJSON(j));
+}
+
+TEST_F(CameraTest, Filters)
+{
+  // factory defaults, should only be 1 application
+  json app_list = this->cam_->ApplicationList();
+  EXPECT_EQ(app_list.size(), 1);
+
+  // Create a median spatial filter
+  std::string j =
+    R"(
+        {"Apps":[{"Index":"1", "Imager": {"SpatialFilterType":"1"}}]}
+      )";
+  EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
+
+  // a-priori we know the median filter has a MaskSize param,
+  // by default it is 3x3
+  json dump = this->cam_->ToJSON();
+  int mask_size =
+    std::stoi(
+      dump["ifm3d"]["Apps"][0]["Imager"]["SpatialFilter"]["MaskSize"].
+      get<std::string>());
+  EXPECT_EQ(mask_size, static_cast<int>(ifm3d::Camera::mfilt_mask_size::_3x3));
+
+  // get rid of the spatial filter
+  j =
+    R"(
+        {"Apps":[{"Index":"1", "Imager": {"SpatialFilterType":"0"}}]}
+      )";
+  EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
+
+  // Create a mean temporal filter
+  j =
+    R"(
+        {"Apps":[{"Index":"1", "Imager": {"TemporalFilterType":"1"}}]}
+      )";
+  EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
+
+  // a-priori we know the mean filter averages 2 images by default
+  dump = this->cam_->ToJSON();
+  int n_imgs =
+    std::stoi(
+      dump["ifm3d"]["Apps"][0]["Imager"]["TemporalFilter"]["NumberOfImages"].
+      get<std::string>());
+  EXPECT_EQ(n_imgs, 2);
+
+  // get rid of the temporal filter
+  j =
+    R"(
+        {"Apps":[{"Index":"1", "Imager": {"TemporalFilterType":"0"}}]}
+      )";
+  EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
 }
 
 TEST_F(CameraTest, JSON)
 {
-  //
-  // Figure out a reasonable test for this
-  //
-  //  std::cout << this->cam_->ToJSONStr() << std::endl;
-  //  EXPECT_EQ(1,1);
+  EXPECT_NO_THROW(this->cam_->FromJSON(this->cam_->ToJSON()));
+  EXPECT_NO_THROW(this->cam_->FromJSONStr(this->cam_->ToJSONStr()));
 
-  // must pass a JSON object, not an array
-  //EXPECT_THROW(this->cam_->FromJSONStr("[{}]"), ifm3d::error_t);
-
-  // std::string j_str =
-  //   R"(
-  //       {
-  //         "Device": { "Name":"Tom Test2" },
-  //         "Net": { }
-  //       }
-  //     )";
-
-  // this->cam_->FromJSONStr(j_str);
-  std::cout << this->cam_->ToJSONStr() << std::endl;
+  std::string j = R"({"Device":{"ActiveApplication":"1"}})";
+  EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
 }
