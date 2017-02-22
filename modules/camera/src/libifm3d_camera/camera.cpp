@@ -22,6 +22,7 @@
 #include <functional>
 #include <string>
 #include <sstream>
+#include <unordered_map>
 #include <vector>
 #include <boost/algorithm/string.hpp>
 #include <glog/logging.h>
@@ -41,13 +42,72 @@ const std::string ifm3d::DEFAULT_IP =
 const int ifm3d::MAX_HEARTBEAT = 300; // secs
 
 //================================================
+// A lookup table listing the read-only camera
+// parameters
+//================================================
+std::unordered_map<std::string,
+                   std::unordered_map<std::string, bool> >
+RO_LUT =
+  {
+    {"Device",
+     {
+       {"IPAddressConfig", true},
+       {"PasswordActivated", true},
+       {"OperatingMode", true},
+       {"DeviceType", true},
+       {"ArticleNumber", true},
+       {"ArticleStatus", true},
+       {"UpTime", true},
+       {"ImageTimestampReference", true},
+       {"TemperatureFront1", true},
+       {"TemperatureFront2", true},
+       {"TemperatureIMX6", true},
+       {"TemperatureIllu", true},
+     }
+    },
+
+    {"Apps",
+     {
+     }
+    },
+
+    {"Net",
+     {
+     }
+    },
+
+    {"Imager",
+     {
+       {"Type", true},
+       {"ClippingLeft", true},
+       {"ClippingTop", true},
+       {"ClippingRight", true},
+       {"ClippingBottom", true},
+       {"ExposureTimeList", true},
+       {"MaxAllowedLEDFrameRate", true},
+     }
+    },
+
+    {"SpatialFilter",
+     {
+     }
+    },
+
+    {"TemporalFilter",
+     {
+     }
+    }
+  };
+
+//================================================
 // Camera class - the public interface
 //================================================
 
 ifm3d::Camera::Camera(const std::string& ip,
                       const std::uint16_t xmlrpc_port,
                       const std::string& password)
-  : pImpl(new ifm3d::Camera::Impl(ip, xmlrpc_port, password))
+  : pImpl(new ifm3d::Camera::Impl(ip, xmlrpc_port, password)),
+    article_number_("")
 { }
 
 ifm3d::Camera::~Camera() = default;
@@ -101,9 +161,18 @@ ifm3d::Camera::Reboot(const ifm3d::Camera::boot_mode& mode)
 }
 
 std::string
-ifm3d::Camera::ArticleNumber()
+ifm3d::Camera::ArticleNumber(bool use_cached)
 {
-  return this->pImpl->DeviceParameter("ArticleNumber");
+  if (this->article_number_ != "")
+    {
+      if (use_cached)
+        {
+          return this->article_number_;
+        }
+    }
+
+  this->article_number_ = this->pImpl->DeviceParameter("ArticleNumber");
+  return this->article_number_;
 }
 
 int
@@ -349,6 +418,22 @@ ifm3d::Camera::FromJSON_(const json& j_curr,
             {
               try
                 {
+                  try
+                    {
+                      if (RO_LUT.at(name).at(key))
+                        {
+                          VLOG(IFM3D_TRACE)
+                            << "Skipping read-only " << name
+                            << " param: " << key;
+                          continue;
+                        }
+                    }
+                  catch (const std::out_of_range& ex)
+                    {
+                      // just swallow the error -- we are setting a
+                      // r/w parameter
+                    }
+
                   VLOG(IFM3D_TRACE) << "Setting " << name << " parameter: "
                                     << key << "=" << val;
                   SetFunc(key, val);
@@ -559,7 +644,27 @@ ifm3d::Camera::FromJSON(const json& j)
                       [this](const std::string& k,
                              const std::string& v)
                       { this->pImpl->SetNetParameter(k,v); },
-                      [this](){ this->pImpl->SaveNet(); },
+                      [this]()
+                      { // we are changing network parameters,
+                        // we expect a timeout!
+                        try
+                          {
+                            this->pImpl->SaveNet();
+                          }
+                        catch (const ifm3d::error_t& ex)
+                          {
+                            if (ex.code() == IFM3D_XMLRPC_TIMEOUT)
+                              {
+                                LOG(WARNING)
+                                  << "XML-RPC timeout saving net params, "
+                                  << "this is expected";
+                              }
+                            else
+                              {
+                                throw;
+                              }
+                          }
+                      },
                       "Net");
     }
 }

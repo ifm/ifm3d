@@ -199,8 +199,21 @@ namespace ifm3d
      * internal usage (i.e., triggering some conditional logic based on the
      * model hardware we are talking to) however, it will likely be useful in
      * other scenarios as well, so, it is available in the public interface.
+     *
+     * @param[in] use_cached If set to true, a cached lookup of the article
+     *                       number will be used as the return value. If false,
+     *                       it will make a network call to the camera to get
+     *                       the "real" article number. The only reason for
+     *                       setting this to `false` would be if you expect
+     *                       over the lifetime of your camera instance that you
+     *                       will swap out (for example) and O3D for an O3X (or
+     *                       vice versa) -- literally, swapping out the network
+     *                       cabels while an object instance is still alive. If
+     *                       that is not something you are worried about,
+     *                       leaving this set to true should result in a
+     *                       signficant performance increase.
      */
-    std::string ArticleNumber();
+    std::string ArticleNumber(bool use_cached = true);
 
     /**
      * Delivers basic information about all applications stored on the device.
@@ -386,6 +399,8 @@ namespace ifm3d
   private:
     class Impl;
     std::unique_ptr<Impl> pImpl;
+
+    std::string article_number_;
 
     /**
      * Handles parsing a selected sub-tree of a potential input JSON file,
