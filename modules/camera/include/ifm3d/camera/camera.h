@@ -33,6 +33,7 @@ namespace ifm3d
   extern const std::uint16_t DEFAULT_XMLRPC_PORT;
   extern const std::string DEFAULT_PASSWORD;
   extern const int MAX_HEARTBEAT;
+  extern const std::string ASSUME_ARTICLE_NUM;
 
   /**
    * Software interface to an ifm 3D camera

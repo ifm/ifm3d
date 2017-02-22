@@ -40,6 +40,9 @@ const std::string ifm3d::DEFAULT_IP =
   std::getenv("IFM3D_IP") == nullptr ?
   "192.168.0.69" : std::string(std::getenv("IFM3D_IP"));
 const int ifm3d::MAX_HEARTBEAT = 300; // secs
+const std::string ifm3d::ASSUME_ARTICLE_NUM =
+  std::getenv("IFM3D_ARTICLE") == nullptr ?
+  "" : std::string(std::getenv("IFM3D_ARTICLE"));
 
 //================================================
 // A lookup table listing the read-only camera
@@ -73,12 +76,17 @@ RO_LUT =
 
     {"Net",
      {
+       {"MACAddress", true},
      }
     },
 
     {"Imager",
      {
-       {"Type", true},
+       // Do not uncomment this! We treat the "Type"
+       // key special to make it easy to change imager types --
+       // i.e., while technically it is a RO param on the camera
+       // we use it as a trigger to call ChangeType(...)
+       // {"Type", true},
        {"ClippingLeft", true},
        {"ClippingTop", true},
        {"ClippingRight", true},
@@ -163,6 +171,13 @@ ifm3d::Camera::Reboot(const ifm3d::Camera::boot_mode& mode)
 std::string
 ifm3d::Camera::ArticleNumber(bool use_cached)
 {
+  if (ifm3d::ASSUME_ARTICLE_NUM != "")
+    {
+      LOG(WARNING) << "Returning assumed article number: "
+                   << ifm3d::ASSUME_ARTICLE_NUM;
+      return ifm3d::ASSUME_ARTICLE_NUM;
+    }
+
   if (this->article_number_ != "")
     {
       if (use_cached)
@@ -178,6 +193,11 @@ ifm3d::Camera::ArticleNumber(bool use_cached)
 int
 ifm3d::Camera::ActiveApplication()
 {
+  if (this->ArticleNumber() == "O3X")
+    {
+      return 1;
+    }
+
   int active = -1;
   json jdev(this->pImpl->DeviceInfo());
 
