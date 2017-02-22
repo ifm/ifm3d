@@ -256,36 +256,10 @@ ifm3d::Camera::ToJSON()
           this->pImpl->EditApplication(idx);
 
           json app_json = json(this->pImpl->AppInfo());
-          // app_json["LogicGraph"] =
-          //   app_json["LogicGraph"].is_null() ?
-          //   json::parse("{}") :
-          //   json::parse(app_json["LogicGraph"].get<std::string>());
-          // app_json["PcicEipResultSchema"] =
-          //   app_json["PcicEipResultSchema"].is_null() ?
-          //   json::parse("{}") :
-          //   json::parse(app_json["PcicEipResultSchema"].get<std::string>());
-          // app_json["PcicPnioResultSchema"] =
-          //   app_json["PcicPnioResultSchema"].is_null() ?
-          //   json::parse("{}") :
-          //   json::parse(app_json["PcicPnioResultSchema"].get<std::string>());
-          // app_json["PcicTcpResultSchema"] =
-          //   app_json["PcicTcpResultSchema"].is_null() ?
-          //   json::parse("{}") :
-          //   json::parse(app_json["PcicTcpResultSchema"].get<std::string>());
           app_json["Index"] = std::to_string(idx);
           app_json["Id"] = std::to_string(app["Id"].get<int>());
 
           json imager_json = json(this->pImpl->ImagerInfo());
-          // imager_json["AutoExposureReferenceROI"] =
-          //   imager_json["AutoExposureReferenceROI"].is_null() ?
-          //   json::parse("{}") :
-          //   json::parse(
-          //     imager_json["AutoExposureReferenceROI"].get<std::string>());
-          // imager_json["ClippingCuboid"] =
-          //   imager_json["ClippingCuboid"].is_null() ?
-          //   json::parse("{}") :
-          //   json::parse(
-          //     imager_json["ClippingCuboid"].get<std::string>());
 
           json sfilt_json = json(this->pImpl->SpatialFilterInfo());
           imager_json["SpatialFilter"] = sfilt_json;
