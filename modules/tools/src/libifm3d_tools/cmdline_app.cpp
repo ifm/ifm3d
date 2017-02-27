@@ -111,6 +111,17 @@ These are common commands used in various situations:
     reset       Reset the sensor to factory defaults.
 
     rm          Deletes an application from the sensor.
+      )";
+
+#if defined(BUILD_MODULE_FRAMEGRABBER)
+  help_msg +=
+    R"(
+    schema      Construct and analyze image acquisition schema masks.
+      )";
+#endif
+
+  help_msg +=
+    R"(
 
 For bug reports, please see:
 https://github.com/lovepark/ifm3d/issues

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include <ifm3d/tools/make_app.h>
 #include <algorithm>
 #include <exception>
 #include <functional>
@@ -25,18 +24,7 @@
 #include <vector>
 #include <boost/program_options.hpp>
 #include <glog/logging.h>
-#include <ifm3d/tools/app_types_app.h>
-#include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/tools/config_app.h>
-#include <ifm3d/tools/cp_app.h>
-#include <ifm3d/tools/dump_app.h>
-#include <ifm3d/tools/export_app.h>
-#include <ifm3d/tools/imager_types_app.h>
-#include <ifm3d/tools/import_app.h>
-#include <ifm3d/tools/ls_app.h>
-#include <ifm3d/tools/reboot_app.h>
-#include <ifm3d/tools/reset_app.h>
-#include <ifm3d/tools/rm_app.h>
+#include <ifm3d/tools.h>
 #include <ifm3d/camera.h>
 
 namespace po = boost::program_options;
@@ -100,6 +88,13 @@ app_factory =
      [](int argc, const char** argv, const std::string& cmd)
      ->ifm3d::CmdLineApp::Ptr
      { return std::make_shared<ifm3d::RmApp>(argc, argv, cmd); }},
+
+#if defined(BUILD_MODULE_FRAMEGRABBER)
+    {"schema",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::SchemaApp>(argc, argv, cmd); }},
+#endif
 
     {"version",
      [](int argc, const char** argv, const std::string& cmd)

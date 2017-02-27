@@ -15,25 +15,26 @@
  * limitations under the License.
  */
 
-#ifndef __IFM3D_TOOLS_H__
-#define __IFM3D_TOOLS_H__
+#ifndef __IFM3D_TOOLS_FG_SCHEMA_APP_H__
+#define __IFM3D_TOOLS_FG_SCHEMA_APP_H__
 
-#include <ifm3d/tools/app_types_app.h>
+#include <string>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/tools/config_app.h>
-#include <ifm3d/tools/cp_app.h>
-#include <ifm3d/tools/dump_app.h>
-#include <ifm3d/tools/export_app.h>
-#include <ifm3d/tools/imager_types_app.h>
-#include <ifm3d/tools/import_app.h>
-#include <ifm3d/tools/ls_app.h>
-#include <ifm3d/tools/make_app.h>
-#include <ifm3d/tools/reboot_app.h>
-#include <ifm3d/tools/reset_app.h>
-#include <ifm3d/tools/rm_app.h>
 
-#if defined(BUILD_MODULE_FRAMEGRABBER)
-#include <ifm3d/tools/fg/schema_app.h>
-#endif
+namespace ifm3d
+{
+  /**
+   * Concrete implementation of the `schema` subcommand to the
+   * `ifm3d` command-line utility.
+   */
+  class SchemaApp : public ifm3d::CmdLineApp
+  {
+  public:
+    SchemaApp(int argc, const char **argv,
+              const std::string& name = "schema");
+    int Run();
+  };
 
-#endif // __IFM3D_TOOLS_H__
+} // end: namespace ifm3d
+
+#endif // __IFM3D_TOOLS_FG_SCHEMA_APP_H__

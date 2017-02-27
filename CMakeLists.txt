@@ -17,6 +17,7 @@ include(ifm3d_version)
 
 # Conditionally turn on/off parts of the build (global-level)
 option(BUILD_TESTS "Build unit tests" ON)
+option(BUILD_MODULE_FRAMEGRABBER "Build the framegrabber module" ON)
 option(BUILD_MODULE_TOOLS "Build the tools module" ON)
 option(BUILD_SDK_PKG "Build install packages for development purposes" ON)
 
@@ -53,9 +54,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s") # create stripped binaries
 
+# Bootstrap gtest
+if(BUILD_TESTS)
+  add_subdirectory(${GTEST_CMAKE_DIR} gtest_bin)
+  add_custom_target(check)
+endif()
+
 # Build sub-modules
 add_subdirectory(modules/camera)
-
+if(BUILD_MODULE_FRAMEGRABBER)
+  add_definitions(-DBUILD_MODULE_FRAMEGRABBER=ON)
+  add_subdirectory(modules/framegrabber)
+endif()
 if(BUILD_MODULE_TOOLS)
   add_subdirectory(modules/tools)
 endif()
