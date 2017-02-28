@@ -28,6 +28,8 @@ extern const int IFM3D_JSON_ERROR;
 extern const int IFM3D_NO_ACTIVE_APPLICATION;
 extern const int IFM3D_SUBCOMMAND_ERROR;
 extern const int IFM3D_IO_ERROR;
+extern const int IFM3D_THREAD_INTERRUPTED;
+extern const int IFM3D_PCIC_BAD_REPLY;
 
 // sensor errors
 extern const int IFM3D_XMLRPC_OBJ_NOT_FOUND;

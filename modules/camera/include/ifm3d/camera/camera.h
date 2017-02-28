@@ -31,8 +31,12 @@ namespace ifm3d
 {
   extern const std::string DEFAULT_IP;
   extern const std::uint16_t DEFAULT_XMLRPC_PORT;
+  extern const int DEFAULT_PCIC_PORT;
   extern const std::string DEFAULT_PASSWORD;
   extern const int MAX_HEARTBEAT;
+
+  extern const std::string ARTICLE_NUM_O3D303;
+  extern const std::string ARTICLE_NUM_O3X;
   extern const std::string ASSUME_ARTICLE_NUM;
 
   /**
@@ -61,6 +65,11 @@ namespace ifm3d
      * the device/applications).
      */
     enum class operating_mode : int { RUN = 0, EDIT = 1 };
+
+    /**
+     * Image acquisition trigger modes
+     */
+    enum class trigger_mode : int { FREE_RUN = 1, SW = 2 };
 
     /**
      * Import flags used when importing a Vision Assistant configuration
@@ -215,6 +224,12 @@ namespace ifm3d
      *                       signficant performance increase.
      */
     std::string ArticleNumber(bool use_cached = true);
+
+    /**
+     * Convenience accessor for extracting a device parameters
+     * (i.e., no edit session created on the camera)
+     */
+    std::string DeviceParameter(const std::string& key);
 
     /**
      * Delivers basic information about all applications stored on the device.
@@ -401,6 +416,9 @@ namespace ifm3d
     class Impl;
     std::unique_ptr<Impl> pImpl;
 
+    /**
+     * The cached article number of the connected device.
+     */
     std::string article_number_;
 
     /**

@@ -36,10 +36,15 @@
 //================================================
 const std::string ifm3d::DEFAULT_PASSWORD = "";
 const std::uint16_t ifm3d::DEFAULT_XMLRPC_PORT = 80;
+const int ifm3d::DEFAULT_PCIC_PORT = 50010;
 const std::string ifm3d::DEFAULT_IP =
   std::getenv("IFM3D_IP") == nullptr ?
   "192.168.0.69" : std::string(std::getenv("IFM3D_IP"));
 const int ifm3d::MAX_HEARTBEAT = 300; // secs
+
+const std::string ifm3d::ARTICLE_NUM_O3D303 = "O3D303";
+const std::string ifm3d::ARTICLE_NUM_O3X = "O3X";
+
 const std::string ifm3d::ASSUME_ARTICLE_NUM =
   std::getenv("IFM3D_ARTICLE") == nullptr ?
   "" : std::string(std::getenv("IFM3D_ARTICLE"));
@@ -169,6 +174,12 @@ ifm3d::Camera::Reboot(const ifm3d::Camera::boot_mode& mode)
 }
 
 std::string
+ifm3d::Camera::DeviceParameter(const std::string& key)
+{
+  return this->pImpl->DeviceParameter(key);
+}
+
+std::string
 ifm3d::Camera::ArticleNumber(bool use_cached)
 {
   if (ifm3d::ASSUME_ARTICLE_NUM != "")
@@ -198,23 +209,7 @@ ifm3d::Camera::ActiveApplication()
       return 1;
     }
 
-  int active = -1;
-  json jdev(this->pImpl->DeviceInfo());
-
-  try
-    {
-      active = std::stoi(jdev["ActiveApplication"].get<std::string>());
-    }
-  catch (const std::exception& ex)
-    {
-      LOG(ERROR) << "Could not extract 'ActiveApplication' from JSON";
-      LOG(ERROR) << ex.what();
-      LOG(ERROR) << jdev.dump();
-
-      throw ifm3d::error_t(IFM3D_JSON_ERROR);
-    }
-
-  return active;
+  return std::stoi(this->pImpl->DeviceParameter("ActiveApplication"));
 }
 
 json

@@ -25,6 +25,8 @@ const int IFM3D_JSON_ERROR = -100002;
 const int IFM3D_NO_ACTIVE_APPLICATION = -100003;
 const int IFM3D_SUBCOMMAND_ERROR = -100004;
 const int IFM3D_IO_ERROR = -100005;
+const int IFM3D_THREAD_INTERRUPTED = -100006;
+const int IFM3D_PCIC_BAD_REPLY = -100007;
 
 // sensor errors
 const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
@@ -73,6 +75,10 @@ const char *ifm3d::strerror(int errnum)
       return "Lib: Missing or invalid sub-command";
     case IFM3D_IO_ERROR:
       return "Lib: I/O error";
+    case IFM3D_THREAD_INTERRUPTED:
+      return "Lib: Thread interrupted";
+    case IFM3D_PCIC_BAD_REPLY:
+      return "Lib: Bad or unexpected data from PCIC";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
       return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:
