@@ -204,7 +204,7 @@ ifm3d::Camera::ArticleNumber(bool use_cached)
 int
 ifm3d::Camera::ActiveApplication()
 {
-  if (this->ArticleNumber() == "O3X")
+  if (this->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
     {
       return 1;
     }
@@ -251,8 +251,10 @@ ifm3d::Camera::ImagerTypes()
   return this->pImpl->WrapInEditSession<std::vector<std::string> >(
     [this]()->std::vector<std::string>
     {
-      int idx = std::stoi(this->pImpl->DeviceParameter("ActiveApplication"));
-      this->pImpl->EditApplication(idx);
+      if (this->ArticleNumber() != ifm3d::ARTICLE_NUM_O3X)
+        {
+          this->pImpl->EditApplication(this->ActiveApplication());
+        }
       return this->pImpl->ImagerTypes();
     });
 }
@@ -260,6 +262,12 @@ ifm3d::Camera::ImagerTypes()
 int
 ifm3d::Camera::CreateApplication(const std::string& type)
 {
+  if (this->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
+    {
+      LOG(ERROR) << "O3X only supports a single app, create not supported";
+      throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+    }
+
   return this->pImpl->WrapInEditSession<int>(
     [this,&type]()->int { return this->pImpl->CreateApplication(type); });
 }
@@ -267,6 +275,12 @@ ifm3d::Camera::CreateApplication(const std::string& type)
 int
 ifm3d::Camera::CopyApplication(int idx)
 {
+  if (this->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
+    {
+      LOG(ERROR) << "O3X only supports a single app, copy not supported";
+      throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+    }
+
   return this->pImpl->WrapInEditSession<int>(
     [this,idx]()->int { return this->pImpl->CopyApplication(idx); });
 }
@@ -274,6 +288,12 @@ ifm3d::Camera::CopyApplication(int idx)
 void
 ifm3d::Camera::DeleteApplication(int idx)
 {
+  if (this->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
+    {
+      LOG(ERROR) << "O3X only supports a single app, delete not supported";
+      throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+    }
+
   this->pImpl->WrapInEditSession(
      [this,idx]() { this->pImpl->DeleteApplication(idx); });
 }
@@ -337,7 +357,10 @@ ifm3d::Camera::ToJSON()
       for (auto& app : app_list)
         {
           int idx = app["Index"].get<int>();
-          this->pImpl->EditApplication(idx);
+          if (this->ArticleNumber() != ifm3d::ARTICLE_NUM_O3X)
+            {
+              this->pImpl->EditApplication(idx);
+            }
 
           json app_json = json(this->pImpl->AppInfo());
           app_json["Index"] = std::to_string(idx);
@@ -355,7 +378,10 @@ ifm3d::Camera::ToJSON()
 
           app_info.push_back(app_json);
 
-          this->pImpl->StopEditingApplication();
+          if (this->ArticleNumber() != ifm3d::ARTICLE_NUM_O3X)
+            {
+              this->pImpl->StopEditingApplication();
+            }
         }
     });
 
@@ -411,8 +437,11 @@ ifm3d::Camera::FromJSON_(const json& j_curr,
     {
       if (idx > 0)
         {
-          VLOG(IFM3D_TRACE) << "Editing app at idx=" << idx;
-          this->pImpl->EditApplication(idx);
+          if (this->ArticleNumber() != ifm3d::ARTICLE_NUM_O3X)
+            {
+              VLOG(IFM3D_TRACE) << "Editing app at idx=" << idx;
+              this->pImpl->EditApplication(idx);
+            }
         }
 
       bool do_save = false;
@@ -542,13 +571,22 @@ ifm3d::Camera::FromJSON(const json& j)
           int idx = -1;
           if (j_app["Index"].is_null())
             {
-              VLOG(IFM3D_TRACE) << "Creating new application";
-              idx = j_app["Type"].is_null() ?
-                this->CreateApplication() :
-                this->CreateApplication(j_app["Type"].get<std::string>());
+              if (this->ArticleNumber() != ifm3d::ARTICLE_NUM_O3X)
+                {
+                  VLOG(IFM3D_TRACE) << "Creating new application";
+                  idx = j_app["Type"].is_null() ?
+                    this->CreateApplication() :
+                    this->CreateApplication(j_app["Type"].get<std::string>());
 
-              VLOG(IFM3D_TRACE) << "Created new app, updating our dump";
-              current = this->ToJSON();
+                  VLOG(IFM3D_TRACE) << "Created new app, updating our dump";
+                  current = this->ToJSON();
+                }
+              else
+                {
+                  VLOG(IFM3D_TRACE)
+                    << "O3X only has a single app, assuming idx=1";
+                  idx = 1;
+                }
             }
           else
             {

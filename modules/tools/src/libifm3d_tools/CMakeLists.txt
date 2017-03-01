@@ -10,17 +10,20 @@ add_library(ifm3d_tools OBJECT ${IFM3D_TOOLS_SOURCES})
 set_property(TARGET ifm3d_tools PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 add_library(ifm3d_tools_shared SHARED $<TARGET_OBJECTS:ifm3d_tools>)
-target_link_libraries(
-  ifm3d_tools_shared
-  ifm3d_camera_shared
-  ${LIB_glog}
-  ${Boost_LIBRARIES}
-  )
-
 if(BUILD_MODULE_FRAMEGRABBER)
   target_link_libraries(
     ifm3d_tools_shared
+    ifm3d_camera_shared
     ifm3d_framegrabber_shared
+    ${LIB_glog}
+    ${Boost_LIBRARIES}
+    )
+else()
+  target_link_libraries(
+    ifm3d_tools_shared
+    ifm3d_camera_shared
+    ${LIB_glog}
+    ${Boost_LIBRARIES}
     )
 endif()
 

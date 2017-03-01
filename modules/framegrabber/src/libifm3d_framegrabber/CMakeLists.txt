@@ -17,7 +17,7 @@ target_link_libraries(
   ${CMAKE_THREAD_LIBS_INIT}
   )
 
-set_target_properties(ifm3d_camera_shared PROPERTIES
+set_target_properties(ifm3d_framegrabber_shared PROPERTIES
   VERSION ${IFM3D_VERSION_STRING}
   OUTPUT_NAME ifm3d_framegrabber
   LINKER_LANGUAGE CXX

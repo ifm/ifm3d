@@ -95,7 +95,18 @@ These are common commands used in various situations:
 
     export      Export an application or whole sensor configuration
                 into a format compatible with ifm Vision Assistant.
+      )";
 
+#if defined(BUILD_MODULE_FRAMEGRABBER)
+  help_msg +=
+    R"(
+    hz          Compute the actual frequency at which the FrameGrabber
+                is running.
+      )";
+#endif
+
+  help_msg +=
+    R"(
     import      Import an application or whole sensor configuration
                 that is compatible with ifm Vision Assistant's export
                 format.
