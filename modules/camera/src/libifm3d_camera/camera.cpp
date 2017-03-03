@@ -315,6 +315,12 @@ ifm3d::Camera::ExportIFMConfig()
 std::vector<std::uint8_t>
 ifm3d::Camera::ExportIFMApp(int idx)
 {
+  if (this->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
+    {
+      LOG(ERROR) << "O3X only supports exporting an entire camera config";
+      throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+    }
+
   return this->pImpl->WrapInEditSession<std::vector<std::uint8_t> >(
     [this,idx]()->std::vector<std::uint8_t>
     { return this->pImpl->ExportIFMApp(idx); });
@@ -331,6 +337,12 @@ ifm3d::Camera::ImportIFMConfig(const std::vector<std::uint8_t>& bytes,
 int
 ifm3d::Camera::ImportIFMApp(const std::vector<std::uint8_t>& bytes)
 {
+  if (this->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
+    {
+      LOG(ERROR) << "O3X only supports a single app, import-app not supported";
+      throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+    }
+
   return this->pImpl->WrapInEditSession<int>(
     [this,&bytes]()->int { return this->pImpl->ImportIFMApp(bytes); });
 }

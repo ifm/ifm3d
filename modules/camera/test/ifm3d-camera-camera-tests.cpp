@@ -70,6 +70,11 @@ TEST_F(CameraTest, SessionManagement)
 
 TEST_F(CameraTest, CopyDeleteApplication)
 {
+  if (this->article_number_ == ifm3d::ARTICLE_NUM_O3X)
+    {
+      return;
+    }
+
   json app_list = this->cam_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1);
 
@@ -90,6 +95,11 @@ TEST_F(CameraTest, CopyDeleteExceptions)
 
 TEST_F(CameraTest, CreateDeleteApplication)
 {
+  if (this->article_number_ == ifm3d::ARTICLE_NUM_O3X)
+    {
+      return;
+    }
+
   json app_list = this->cam_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1);
 
@@ -124,14 +134,27 @@ TEST_F(CameraTest, ImportExportApplication)
   EXPECT_NO_THROW(bytes = this->cam_->ExportIFMApp(idx));
 
   int new_idx = -1;
-  EXPECT_NO_THROW(new_idx = this->cam_->ImportIFMApp(bytes));
 
-  app_list = this->cam_->ApplicationList();
-  EXPECT_EQ(app_list.size(), 2);
+  if (this->article_number_ == ifm3d::ARTICLE_NUM_O3X)
+    {
+      // single application restriction on O3X
+      EXPECT_THROW(new_idx = this->cam_->ImportIFMApp(bytes),
+                   ifm3d::error_t);
 
-  this->cam_->DeleteApplication(new_idx);
-  app_list = this->cam_->ApplicationList();
-  EXPECT_EQ(app_list.size(), 1);
+      app_list = this->cam_->ApplicationList();
+      EXPECT_EQ(app_list.size(), 1);
+    }
+  else
+    {
+      EXPECT_NO_THROW(new_idx = this->cam_->ImportIFMApp(bytes));
+
+      app_list = this->cam_->ApplicationList();
+      EXPECT_EQ(app_list.size(), 2);
+
+      this->cam_->DeleteApplication(new_idx);
+      app_list = this->cam_->ApplicationList();
+      EXPECT_EQ(app_list.size(), 1);
+    }
 }
 
 TEST_F(CameraTest, ImportExportConfig)
