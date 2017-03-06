@@ -31,6 +31,8 @@ extern const int IFM3D_IO_ERROR;
 extern const int IFM3D_THREAD_INTERRUPTED;
 extern const int IFM3D_PCIC_BAD_REPLY;
 extern const int IFM3D_UNSUPPORTED_OP;
+extern const int IFM3D_IMG_CHUNK_NOT_FOUND;
+extern const int IFM3D_PIXEL_FORMAT_ERROR;
 
 // sensor errors
 extern const int IFM3D_XMLRPC_OBJ_NOT_FOUND;

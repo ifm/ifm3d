@@ -18,6 +18,7 @@ include(ifm3d_version)
 # Conditionally turn on/off parts of the build (global-level)
 option(BUILD_TESTS "Build unit tests" ON)
 option(BUILD_MODULE_FRAMEGRABBER "Build the framegrabber module" ON)
+option(BUILD_MODULE_IMAGE "Build the image module" ON)
 option(BUILD_MODULE_TOOLS "Build the tools module" ON)
 option(BUILD_SDK_PKG "Build install packages for development purposes" ON)
 
@@ -65,6 +66,14 @@ add_subdirectory(modules/camera)
 if(BUILD_MODULE_FRAMEGRABBER)
   add_definitions(-DBUILD_MODULE_FRAMEGRABBER=ON)
   add_subdirectory(modules/framegrabber)
+endif()
+if(BUILD_MODULE_IMAGE)
+  # `image` relies on `framegrabber`, in the event the user
+  # explicitly disabled the `framegrabber` but not `image`
+  # we are going to let the compiler convey the message (for now) instead of
+  # doing some implicit CMake stuff that will be hard to maintain and
+  # confuse the end-user.
+  add_subdirectory(modules/image)
 endif()
 if(BUILD_MODULE_TOOLS)
   add_subdirectory(modules/tools)

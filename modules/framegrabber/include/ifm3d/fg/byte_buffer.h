@@ -18,6 +18,8 @@
 #ifndef __IFM3D_FG_BYTE_BUFFER_H__
 #define __IFM3D_FG_BYTE_BUFFER_H__
 
+#include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -25,6 +27,37 @@
 namespace ifm3d
 {
   extern const std::size_t IMG_TICKET_SZ; // bytes
+
+  enum class pixel_format : std::uint32_t
+  {
+    FORMAT_8U = 0,
+    FORMAT_8S = 1,
+    FORMAT_16U = 2,
+    FORMAT_16S = 3,
+    FORMAT_32U = 4,
+    FORMAT_32S = 5,
+    FORMAT_32F = 6,
+    FORMAT_64U = 7,
+    FORMAT_64F = 8,
+    FORMAT_16U2 = 9,
+    FORMAT_32F3 = 10
+  };
+
+  enum class image_chunk : std::uint32_t
+  {
+    RADIAL_DISTANCE = 100,
+    AMPLITUDE = 101, // normalized amplitude
+    RAW_AMPLITUDE = 103,
+    GRAY = 104, // ambient light
+    CARTESIAN_X = 200,
+    CARTESIAN_Y = 201,
+    CARTESIAN_Z = 202,
+    CARTESIAN_ALL = 203,
+    UNIT_VECTOR_ALL = 223,
+    CONFIDENCE = 300,
+    DIAGNOSTIC_DATA = 302,
+    EXTRINSIC_CALIBRATION = 400
+  };
 
   /**
    * Validates the passed in "ticket" from the sensor. This is a low-level
@@ -59,6 +92,50 @@ namespace ifm3d
    * @return The expected size of the image buffer
    */
   std::size_t get_image_buffer_size(const std::vector<std::uint8_t>& buff);
+
+  /**
+   * Finds the index into the image buffer of where the chunk of `chunk_type'
+   * begins.
+   *
+   * @param[in] buff The image buffer to search
+   * @param[in] chunk_type The type of chunk to look for
+   *
+   * @return The index into the buffer of where the chunk begins or
+   *         std::numeric_limits<std::size_t>::max() if the chunk was not
+   *         found.
+   */
+  std::size_t get_chunk_index(const std::vector<std::uint8_t>& buff,
+                              ifm3d::image_chunk chunk_type);
+
+  /**
+   * Create a value of type T from sizeof(T) bytes of the passed in byte
+   * buffer. Given that the ifm sensors transmit data in little endian
+   * format, this function will swap bytes if necessary for the host
+   * representation of T.
+   *
+   * @param[in] buff A pointer to a buffer in memory intended to be interpreted
+   * as data of type T and assuming the buffer is little endian.
+   *
+   * @return An interpretation of `buff` as type T with bytes swapped as
+   * appropriate for the host's byte ordering semantics.
+   */
+  template<typename T>
+  T mkval(const unsigned char *buff)
+  {
+    union
+    {
+      T v;
+      unsigned char bytes[sizeof(T)];
+    } value;
+
+#if __BYTE_ORDER == __BIG_ENDIAN
+    std::reverse_copy(buff, buff + sizeof(T), value.bytes);
+#else
+    std::copy(buff, buff + sizeof(T), value.bytes);
+#endif
+
+    return value.v;
+  }
 
   /**
    * The ByteBuffer class is used to hold a validated byte buffer from the

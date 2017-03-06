@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Set any environment variables necessary for testing here
+
+exec ./ifm3d-image-tests ${1+"$@"}

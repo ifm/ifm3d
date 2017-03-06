@@ -15,7 +15,9 @@
  */
 
 #include <ifm3d/fg/byte_buffer.h>
+#include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <vector>
 
 //-------------------------------------
@@ -49,6 +51,27 @@ std::size_t
 ifm3d::get_image_buffer_size(const std::vector<std::uint8_t>& buff)
 {
   return std::stoi(std::string(buff.begin()+5, buff.end()));
+}
+
+std::size_t
+ifm3d::get_chunk_index(const std::vector<std::uint8_t>& buff,
+                       ifm3d::image_chunk chunk_type)
+{
+  std::size_t idx = 8; // start of first chunk
+
+  while (buff.begin()+idx < buff.end()-6)
+    {
+      if (static_cast<std::uint32_t>(chunk_type) ==
+          ifm3d::mkval<std::uint32_t>(buff.data()+idx))
+        {
+          return idx;
+        }
+
+      // move to the beginning of the next chunk
+      idx += ifm3d::mkval<std::uint32_t>(buff.data()+idx+4);
+    }
+
+  return std::numeric_limits<std::size_t>::max();
 }
 
 //-------------------------------------
