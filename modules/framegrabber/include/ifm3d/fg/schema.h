@@ -43,6 +43,15 @@ namespace ifm3d
   std::string make_schema(std::uint16_t mask);
 
   /**
+   * Utility function to build a json string, compatible with O3X,
+   * for turning on/off image type based on a schema mask
+   *
+   * @param[in] mask The mask to use to build the schema
+   * @return A json-string comaptible with o3x xmlrpc
+   */
+  std::string make_o3x_json_from_mask(std::uint16_t mask);
+
+  /**
    * Utility function to create a schema mask from a string.
    *
    * The passed in string should contain valid symbolic constants `OR'd`

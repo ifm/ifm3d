@@ -12,8 +12,7 @@ class CameraTest : public ::testing::Test
 protected:
   virtual void SetUp()
   {
-    this->cam_ = std::make_shared<ifm3d::Camera>();
-    this->article_number_ = this->cam_->ArticleNumber();
+    this->cam_ = ifm3d::Camera::MakeShared();
   }
 
   virtual void TearDown()
@@ -22,14 +21,13 @@ protected:
   }
 
   ifm3d::Camera::Ptr cam_;
-  std::string article_number_;
 };
 
 TEST_F(CameraTest, FactoryDefaults)
 {
   EXPECT_NO_THROW(this->cam_->FactoryReset());
   std::this_thread::sleep_for(std::chrono::seconds(3));
-  EXPECT_NO_THROW(this->cam_->ArticleNumber());
+  EXPECT_NO_THROW(this->cam_->DeviceType());
 }
 
 TEST_F(CameraTest, DefaultCredentials)
@@ -70,7 +68,7 @@ TEST_F(CameraTest, SessionManagement)
 
 TEST_F(CameraTest, CopyDeleteApplication)
 {
-  if (this->article_number_ == ifm3d::ARTICLE_NUM_O3X)
+  if (this->cam_->IsO3X())
     {
       return;
     }
@@ -95,7 +93,7 @@ TEST_F(CameraTest, CopyDeleteExceptions)
 
 TEST_F(CameraTest, CreateDeleteApplication)
 {
-  if (this->article_number_ == ifm3d::ARTICLE_NUM_O3X)
+  if (this->cam_->IsO3X())
     {
       return;
     }
@@ -131,21 +129,16 @@ TEST_F(CameraTest, ImportExportApplication)
   int idx = app_list[0]["Index"].get<int>();
 
   std::vector<std::uint8_t> bytes;
-  EXPECT_NO_THROW(bytes = this->cam_->ExportIFMApp(idx));
-
   int new_idx = -1;
 
-  if (this->article_number_ == ifm3d::ARTICLE_NUM_O3X)
+  if (this->cam_->IsO3X())
     {
-      // single application restriction on O3X
-      EXPECT_THROW(new_idx = this->cam_->ImportIFMApp(bytes),
+      EXPECT_THROW(bytes = this->cam_->ExportIFMApp(idx),
                    ifm3d::error_t);
-
-      app_list = this->cam_->ApplicationList();
-      EXPECT_EQ(app_list.size(), 1);
     }
   else
     {
+      EXPECT_NO_THROW(bytes = this->cam_->ExportIFMApp(idx));
       EXPECT_NO_THROW(new_idx = this->cam_->ImportIFMApp(bytes));
 
       app_list = this->cam_->ApplicationList();
@@ -160,6 +153,14 @@ TEST_F(CameraTest, ImportExportApplication)
 TEST_F(CameraTest, ImportExportConfig)
 {
   std::vector<std::uint8_t> bytes;
+
+  if (this->cam_->IsO3X())
+    {
+      EXPECT_THROW(bytes = this->cam_->ExportIFMConfig(),
+                   ifm3d::error_t);
+      return;
+    }
+
   EXPECT_NO_THROW(bytes = this->cam_->ExportIFMConfig());
   EXPECT_NO_THROW(
     this->cam_->ImportIFMConfig(
@@ -172,13 +173,21 @@ TEST_F(CameraTest, ActiveApplication)
   json app_list = this->cam_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1);
 
+  //
+  // The rest of the test is invalid for O3X
+  //
+  if (this->cam_->IsO3X())
+    {
+      return;
+    }
+
   // create a new application using JSON syntax
   EXPECT_NO_THROW(this->cam_->FromJSONStr(R"({"Apps":[{}]})"));
 
   app_list = this->cam_->ApplicationList();
   EXPECT_EQ(app_list.size(), 2);
 
-  // We expect the active application to be at index 2
+  // We expect the new application to be at index 2
   int idx = -1;
   for (auto& a : app_list)
     {
@@ -318,6 +327,6 @@ TEST_F(CameraTest, JSON)
   EXPECT_NO_THROW(this->cam_->FromJSON(this->cam_->ToJSON()));
   EXPECT_NO_THROW(this->cam_->FromJSONStr(this->cam_->ToJSONStr()));
 
-  std::string j = R"({"Device":{"ActiveApplication":"1"}})";
+  std::string j = R"({"Device":{"Name":"ifm3d unit test"}})";
   EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
 }

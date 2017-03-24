@@ -27,6 +27,7 @@
 namespace ifm3d
 {
   extern const std::size_t IMG_TICKET_SZ; // bytes
+  extern const std::size_t IMG_BUFF_START; // byte number
 
   enum class pixel_format : std::uint32_t
   {
@@ -99,13 +100,16 @@ namespace ifm3d
    *
    * @param[in] buff The image buffer to search
    * @param[in] chunk_type The type of chunk to look for
+   * @param[in] start_idx The first index into the byte buffer
+   *                      to look for the chunk of interest
    *
    * @return The index into the buffer of where the chunk begins or
    *         std::numeric_limits<std::size_t>::max() if the chunk was not
    *         found.
    */
   std::size_t get_chunk_index(const std::vector<std::uint8_t>& buff,
-                              ifm3d::image_chunk chunk_type);
+                              ifm3d::image_chunk chunk_type,
+                              std::size_t start_idx = ifm3d::IMG_BUFF_START);
 
   /**
    * Create a value of type T from sizeof(T) bytes of the passed in byte

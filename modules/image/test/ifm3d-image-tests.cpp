@@ -18,7 +18,7 @@ TEST(Image, CloudMechanics)
   // do ... mechanically.
   //
 
-  auto cam = std::make_shared<ifm3d::Camera>();
+  auto cam = ifm3d::Camera::MakeShared();
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
   auto im = std::make_shared<ifm3d::ImageBuffer>();
 
@@ -47,7 +47,7 @@ TEST(Image, CloudMechanics)
 
 TEST(Image, XYZImage)
 {
-  auto cam = std::make_shared<ifm3d::Camera>();
+  auto cam = ifm3d::Camera::MakeShared();
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
   auto im = std::make_shared<ifm3d::ImageBuffer>();
 
@@ -56,8 +56,7 @@ TEST(Image, XYZImage)
   pcl::PointCloud<ifm3d::PointT>::Ptr cloud = im->Cloud();
   cv::Mat xyz = im->XYZImage();
 
-  // XXX: May fail on O3X ???
-  ASSERT_EQ(xyz.type(), CV_16SC3);
+  ASSERT_TRUE((xyz.type() == CV_16SC3) || (xyz.type() == CV_32FC3));
 
   int npts = xyz.rows * xyz.cols;
   ASSERT_EQ(npts, cloud->points.size());
@@ -74,16 +73,33 @@ TEST(Image, XYZImage)
       for (int c = 0; c < xyz.cols; ++c, ++i)
         {
           ifm3d::PointT& pt = cloud->points[i];
-          EXPECT_FLOAT_EQ(pt.x * 1000., (float) x.at<std::int16_t>(r,c));
-          EXPECT_FLOAT_EQ(pt.y * 1000., (float) y.at<std::int16_t>(r,c));
-          EXPECT_FLOAT_EQ(pt.z * 1000., (float) z.at<std::int16_t>(r,c));
+          if (xyz.type() == CV_16SC3)
+            {
+              EXPECT_FLOAT_EQ(pt.x * 1000., (float) x.at<std::int16_t>(r,c));
+              EXPECT_FLOAT_EQ(pt.y * 1000., (float) y.at<std::int16_t>(r,c));
+              EXPECT_FLOAT_EQ(pt.z * 1000., (float) z.at<std::int16_t>(r,c));
+            }
+          else
+            {
+              EXPECT_FLOAT_EQ(pt.x, x.at<float>(r,c));
+              EXPECT_FLOAT_EQ(pt.y, y.at<float>(r,c));
+              EXPECT_FLOAT_EQ(pt.z, z.at<float>(r,c));
+            }
         }
     }
 }
 
 TEST(Image, ComputeCartesian)
 {
-  auto cam = std::make_shared<ifm3d::Camera>();
+  //
+  // NOTE: The conversions back/forth from/to m/mm is to
+  // make this code work for all ifm3d sensors -- i.e.,
+  // some return their data as float in meters, others as
+  // integers in mm. We normalize to mm and do integer comparisions for
+  // correctness.
+  //
+
+  auto cam = ifm3d::Camera::MakeShared();
   auto im = std::make_shared<ifm3d::ImageBuffer>();
 
   //
@@ -97,16 +113,35 @@ TEST(Image, ComputeCartesian)
   // 2. Now we stream in both the radial distance image and the cartesian
   // data. The latter we simply use as ground truth
   //
-  fg.reset(new ifm3d::FrameGrabber(cam, ifm3d::IMG_RDIS|ifm3d::IMG_CART));
+  fg.reset();
+  fg = std::make_shared<ifm3d::FrameGrabber>(
+         cam, ifm3d::IMG_RDIS|ifm3d::IMG_CART);
   EXPECT_TRUE(fg->WaitForFrame(im.get(), 1000));
   cv::Mat rdis = im->DistanceImage();
   cv::Mat xyz = im->XYZImage(); // ground truth
 
   std::vector<cv::Mat> chans(3);
   cv::split(xyz, chans);
-  cv::Mat x_cam = chans[0];
-  cv::Mat y_cam = chans[1];
-  cv::Mat z_cam = chans[2];
+  cv::Mat x_cam, y_cam, z_cam;
+  if (chans[0].type() == CV_32FC1)
+    {
+      // convert to mm
+      chans[0] *= 1000.;
+      chans[1] *= 1000.;
+      chans[2] *= 1000.;
+
+      // cast to int16_t
+      chans[0].convertTo(x_cam, CV_16SC1);
+      chans[1].convertTo(y_cam, CV_16SC1);
+      chans[2].convertTo(z_cam, CV_16SC1);
+    }
+  else
+    {
+      // camera data are already mm
+      x_cam = chans[0];
+      y_cam = chans[1];
+      z_cam = chans[2];
+    }
 
   //
   // We also need the translation vector from the extrinsics
@@ -130,6 +165,11 @@ TEST(Image, ComputeCartesian)
 
   cv::Mat rdis_f;
   rdis.convertTo(rdis_f, CV_32FC1);
+  if (rdis.type() == CV_32FC1)
+    {
+      // assume rdis was in meters, convert to mm
+      rdis_f *= 1000.;
+    }
 
   // compute
   cv::Mat x_ = ex.mul(rdis_f) + tx;
@@ -137,7 +177,7 @@ TEST(Image, ComputeCartesian)
   cv::Mat z_ = ez.mul(rdis_f) + tz;
 
   //
-  // 4. Cast back to int16 and transform to ifm3d coord frame
+  // 4. Cast (back) to int16 and transform to ifm3d coord frame
   //
   cv::Mat x_i, y_i, z_i;
   x_.convertTo(x_i, CV_16SC1);
@@ -151,14 +191,9 @@ TEST(Image, ComputeCartesian)
   //
   // 5. Compare for correctness
   //
-  // Recall, the XYZImage from the ImageBuffer is in mm, so, we will consider
-  // these values equal if they are within 1 cm of eachother (rounding
-  // differences in OpenCV (in the cast from float to int16_t above) vs. the
-  // camera is a likely source of such discrepancies).
-  //
   auto cmp = [](std::int16_t a, std::int16_t b) -> bool
     {
-      if (std::abs(a - b) <= 10) // cm accuracy
+      if (std::abs(a - b) <= 10) // 10 mm == cm accuracy
         {
           return true;
         }

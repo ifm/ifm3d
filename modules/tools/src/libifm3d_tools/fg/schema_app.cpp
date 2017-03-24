@@ -84,7 +84,11 @@ int ifm3d::SchemaApp::Run()
   std::cout << "mask=" << (int) mask
             << ", str=" << mask_str
             << std::endl << "---" << std::endl
+            << "PCIC (O3D-compatible): " << std::endl
             << ifm3d::make_schema(mask)
+            << std::endl << "---" << std::endl
+            << "XML-RPC (O3X-compatible): " << std::endl
+            << ifm3d::make_o3x_json_from_mask(mask)
             << std::endl;
 
   return 0;

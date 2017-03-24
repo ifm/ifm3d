@@ -46,6 +46,81 @@ auto __ifm3d_schema_mask__ = []()->std::uint16_t
 const std::uint16_t ifm3d::DEFAULT_SCHEMA_MASK = __ifm3d_schema_mask__();
 
 std::string
+ifm3d::make_o3x_json_from_mask(std::uint16_t mask)
+{
+  std::string schema =
+  R"(
+      {
+         "Apps":
+         [
+           {
+             "Index":"1")";
+
+  if((mask & ifm3d::IMG_RDIS) == ifm3d::IMG_RDIS)
+    {
+      schema +=
+      R"(,
+             "OutputDistanceImage":"true")";
+    }
+  else
+    {
+      schema +=
+      R"(,
+             "OutputDistanceImage":"false")";
+    }
+
+  if((mask & ifm3d::IMG_AMP) == ifm3d::IMG_AMP)
+    {
+      schema +=
+      R"(,
+             "OutputAmplitudeImage":"true")";
+    }
+  else
+    {
+      schema +=
+      R"(,
+             "OutputAmplitudeImage":"false")";
+    }
+
+  if((mask & ifm3d::IMG_GRAY) == ifm3d::IMG_GRAY)
+    {
+      schema +=
+      R"(,
+             "OutputGrayscaleImage":"true")";
+    }
+  else
+    {
+      schema +=
+      R"(,
+             "OutputGrayscaleImage":"false")";
+    }
+
+  if((mask & ifm3d::IMG_CART) == ifm3d::IMG_CART)
+    {
+      schema +=
+      R"(,
+             "OutputXYZImage":"true")";
+    }
+  else
+    {
+      schema +=
+      R"(,
+             "OutputXYZImage":"false")";
+    }
+
+  // other invariants
+  schema +=
+  R"(,
+             "OutputConfidenceImage":"true"
+            }
+         ]
+      }
+   )";
+
+  return schema;
+}
+
+std::string
 ifm3d::make_schema(std::uint16_t mask)
 {
   std::string schema =

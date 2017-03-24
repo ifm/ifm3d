@@ -68,6 +68,7 @@ namespace ifm3d
   protected:
     virtual void Run();
     virtual void Stop();
+    virtual void SetUVecBuffer(std::uint16_t mask);
     virtual void SetSchemaBuffer(std::uint16_t mask);
     virtual void SetTriggerBuffer();
 
@@ -82,6 +83,8 @@ namespace ifm3d
                               std::size_t bytes_xferd,
                               std::size_t bytes_read);
 
+    virtual void HBHandler();
+
     //---------------------
     // State
     //---------------------
@@ -94,10 +97,12 @@ namespace ifm3d
     boost::asio::io_service io_service_;
     boost::asio::ip::tcp::socket sock_;
     boost::asio::ip::tcp::endpoint endpoint_;
+    boost::asio::deadline_timer hbtimer_;
     std::unique_ptr<std::thread> thread_;
     std::atomic<bool> pcic_ready_;
     std::vector<std::uint8_t> schema_buffer_;
     std::vector<std::uint8_t> trigger_buffer_;
+    std::vector<std::uint8_t> uvec_buffer_;
 
     //
     // Holds the raw 'Ticket' bytes received from the sensor:
@@ -147,24 +152,52 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam,
                                 std::uint16_t mask)
   : cam_(cam),
     mask_(mask),
+    cam_ip_(this->cam_->IP()),
+    cam_port_(ifm3d::DEFAULT_PCIC_PORT),
     io_service_(),
     sock_(io_service_),
+    hbtimer_(io_service_),
     pcic_ready_(false)
 {
   this->SetSchemaBuffer(this->mask_);
   this->SetTriggerBuffer();
+  this->SetUVecBuffer(this->mask_);
 
-  try
+  if (! this->cam_->IsO3X())
     {
-      this->cam_ip_ = this->cam_->IP();
-      this->cam_port_ = std::stoi(this->cam_->DeviceParameter("PcicTcpPort"));
+      try
+        {
+          this->cam_ip_ = this->cam_->IP();
+          this->cam_port_ =
+            std::stoi(this->cam_->DeviceParameter("PcicTcpPort"));
+        }
+      catch (const ifm3d::error_t& ex)
+        {
+          LOG(ERROR) << "Could not get PCIC Port of the camera: " << ex.what();
+          LOG(WARNING) << "Assuming default PCIC port: "
+                       << ifm3d::DEFAULT_PCIC_PORT;
+          this->cam_port_ = ifm3d::DEFAULT_PCIC_PORT;
+        }
     }
-  catch (const ifm3d::error_t& ex)
+  else
     {
-      LOG(ERROR) << "Could not get PCIC Port of the camera: " << ex.what();
-      LOG(WARNING) << "Assuming default PCIC port: "
-                   << ifm3d::DEFAULT_PCIC_PORT;
-      this->cam_port_ = ifm3d::DEFAULT_PCIC_PORT;
+      // For O3X, in the event we are S/W triggering, we need to
+      // establish an edit session with the XMLRPC server and periodically
+      // ping it with a heartbeat message. This is b/c on O3X, S/W triggering
+      // occurs as an XMLRPC call and not over PCIC
+
+      //
+      // XXX: does not look like S/W triggering is currently
+      // enabled in O3X, so, we are going to disable for now
+      //
+      // VLOG(IFM3D_TRACE) << "Establishing edit session for O3X...";
+      // this->cam_->RequestSession();
+      // VLOG(IFM3D_TRACE) << "Session ID: " << this->cam_->SessionID();
+
+      // VLOG(IFM3D_TRACE) << "Setting up heartbeat callback...";
+      // this->hbtimer_.expires_from_now(boost::posix_time::milliseconds(1000));
+      // this->hbtimer_.async_wait(
+      //   std::bind(&ifm3d::FrameGrabber::Impl::HBHandler, this));
     }
 
   LOG(INFO) << "Camera connection info: ip=" << this->cam_ip_
@@ -183,6 +216,14 @@ ifm3d::FrameGrabber::Impl::~Impl()
 {
   VLOG(IFM3D_TRACE) << "FrameGrabber dtor running...";
 
+  //
+  // XXX: Re-enable this after we have s/w triggering in O3X
+  //
+  // if (this->cam_->IsO3X())
+  //   {
+  //     this->cam_->CancelSession();
+  //   }
+
   if (this->thread_ && this->thread_->joinable())
     {
       this->Stop();
@@ -198,10 +239,37 @@ ifm3d::FrameGrabber::Impl::~Impl()
 //-------------------------------------
 
 void
+ifm3d::FrameGrabber::Impl::HBHandler()
+{
+  VLOG(IFM3D_TRACE) << "Sending heartbeat, timeout="
+                           << ifm3d::MAX_HEARTBEAT;
+  this->cam_->Heartbeat(ifm3d::MAX_HEARTBEAT);
+
+  this->hbtimer_.expires_from_now(
+    boost::posix_time::milliseconds((ifm3d::MAX_HEARTBEAT/2)*1000));
+  this->hbtimer_.async_wait(
+    std::bind(&ifm3d::FrameGrabber::Impl::HBHandler, this));
+}
+
+void
 ifm3d::FrameGrabber::Impl::SWTrigger()
 {
-  if (this->cam_->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
+  //
+  // XXX: Disabling s/w triggering for now for O3X -- doesn't appear to be
+  // implemented.
+  //
+  if (this->cam_->IsO3X())
     {
+      // try
+      //   {
+      //     this->cam_->ForceTrigger();
+      //   }
+      // catch(const ifm3d::error_t& ex)
+      //   {
+      //     LOG(ERROR) << "While trying to software trigger the camera: "
+      //                << ex.code() << " - " << ex.what();
+      //   }
+
       return;
     }
 
@@ -245,7 +313,7 @@ ifm3d::FrameGrabber::Impl::WaitForFrame(ifm3d::ByteBuffer* buff,
 
   try
     {
-      if (timeout_millis <0)
+      if (timeout_millis <= 0)
         {
           this->front_buffer_cv_.wait(lock);
         }
@@ -281,18 +349,60 @@ ifm3d::FrameGrabber::Impl::WaitForFrame(ifm3d::ByteBuffer* buff,
 // "Private" interface
 //-------------------------------------
 void
+ifm3d::FrameGrabber::Impl::SetUVecBuffer(std::uint16_t mask)
+{
+  //
+  // For O3X, we cache the unit vectors and fake it to the
+  // ByteBuffer that these data came over PCIC rather than
+  // over XML-RPC
+  //
+
+  if (! this->cam_->IsO3X())
+    {
+      return;
+    }
+
+  if ((mask & ifm3d::IMG_UVEC) != ifm3d::IMG_UVEC)
+    {
+      return;
+    }
+
+  try
+    {
+      VLOG(IFM3D_TRACE) << "Caching unit vectors from xmlrpc...";
+      this->uvec_buffer_ = this->cam_->UnitVectors();
+    }
+  catch (const ifm3d::error_t& ex)
+    {
+      LOG(ERROR) << "Could not fetch unit vectors from XML-RPC!";
+      LOG(ERROR) << ex.code() << " : " << ex.what();
+    }
+}
+
+
+void
 ifm3d::FrameGrabber::Impl::SetSchemaBuffer(std::uint16_t mask)
 {
-  if (this->cam_->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
+  if (this->cam_->IsO3X())
     {
       // O3X does not set the schema via PCIC, rather we set it via
       // XMLRPC using the camera interface.
       // NOTE: Our internal `this->schema_buffer_` is not needed for O3X, so we
       // don't waste any time filling it.
-
-      //
-      // XXX: TODO -> Set the schema via XMLRPC
-      //
+      std::string o3xjson = ifm3d::make_o3x_json_from_mask(mask);
+      VLOG(IFM3D_PROTO_DEBUG) << "o3x schema: "
+                              << std::endl
+                              << o3xjson;
+      try
+        {
+          this->cam_->FromJSONStr(o3xjson);
+        }
+      catch (const std::exception& ex)
+        {
+          LOG(ERROR) << "Failed to set schema on O3X: "
+                     << ex.what();
+          LOG(WARNING) << "Running with currently applied schema";
+        }
 
       return;
     }
@@ -323,9 +433,10 @@ ifm3d::FrameGrabber::Impl::SetSchemaBuffer(std::uint16_t mask)
 void
 ifm3d::FrameGrabber::Impl::SetTriggerBuffer()
 {
-  if (this->cam_->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
+  if (this->cam_->IsO3X())
     {
-      // O3X does not S/W trigger, so, no need to set the trigger buffer
+      // O3X does not S/W trigger over PCIC, so, no need to set the trigger
+      // buffer
       return;
     }
 
@@ -356,6 +467,7 @@ ifm3d::FrameGrabber::Impl::Stop()
 void
 ifm3d::FrameGrabber::Impl::Run()
 {
+  VLOG(IFM3D_TRACE) << "Framegrabber thread running...";
   boost::asio::io_service::work work(this->io_service_);
 
   // For non-O3X devices setting the schema via PCIC, we get acknowledgement of
@@ -383,8 +495,8 @@ ifm3d::FrameGrabber::Impl::Run()
     {
       // O3X should just start reading in pixel bytes once we establish our
       // connection to the PCIC daemon (PCIC data goes one-way on O3X)
-      if (this->cam_->ArticleNumber() ==
-          ifm3d::ARTICLE_NUM_O3X)
+      VLOG(IFM3D_TRACE) << "Connecting to PCIC...";
+      if (this->cam_->IsO3X())
         {
           this->pcic_ready_.store(true);
 
@@ -586,6 +698,15 @@ ifm3d::FrameGrabber::Impl::ImageHandler(const boost::system::error_code& ec,
       // Move data to the front buffer in O(1)
       this->front_buffer_mutex_.lock();
       this->back_buffer_.swap(this->front_buffer_);
+      // For O3X, copy in the unit vectors if necessary
+      if (this->cam_->IsO3X() &&
+          ((this->mask_ & ifm3d::IMG_UVEC) == ifm3d::IMG_UVEC))
+        {
+          VLOG(IFM3D_TRACE) << "Inserting unit vectors to front buffer";
+          this->front_buffer_.insert(
+            this->front_buffer_.begin()+ifm3d::IMG_BUFF_START,
+            this->uvec_buffer_.begin(), this->uvec_buffer_.end());
+        }
       this->front_buffer_mutex_.unlock();
 
       // notify waiting client

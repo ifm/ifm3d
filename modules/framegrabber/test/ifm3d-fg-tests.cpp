@@ -1,13 +1,27 @@
+#include <chrono>
 #include <future>
 #include <memory>
 #include <string>
+#include <thread>
 #include <ifm3d/fg.h>
 #include <ifm3d/camera/camera.h>
+#include <glog/logging.h>
 #include <gtest/gtest.h>
+
+TEST(FrameGrabber, FactoryDefaults)
+{
+  LOG(INFO) << "FactoryDefaults test";
+  auto cam = ifm3d::Camera::MakeShared();
+
+  EXPECT_NO_THROW(cam->FactoryReset());
+  std::this_thread::sleep_for(std::chrono::seconds(3));
+  EXPECT_NO_THROW(cam->DeviceType());
+}
 
 TEST(FrameGrabber, WaitForFrame)
 {
-  auto cam = std::make_shared<ifm3d::Camera>();
+  LOG(INFO) << "WaitForFrame test";
+  auto cam = ifm3d::Camera::MakeShared();
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
   auto buff = std::make_shared<ifm3d::ByteBuffer>();
 
@@ -23,9 +37,10 @@ TEST(FrameGrabber, WaitForFrame)
 
 TEST(FrameGrabber, CustomSchema)
 {
+  LOG(INFO) << "CustomSchema test";
   std::uint16_t mask = ifm3d::IMG_AMP|ifm3d::IMG_RDIS|ifm3d::IMG_CART;
 
-  auto cam = std::make_shared<ifm3d::Camera>();
+  auto cam = ifm3d::Camera::MakeShared();
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, mask);
   auto buff = std::make_shared<ifm3d::ByteBuffer>();
 
@@ -34,7 +49,8 @@ TEST(FrameGrabber, CustomSchema)
 
 TEST(FrameGrabber, ByteBufferCopyCtor)
 {
-  auto cam = std::make_shared<ifm3d::Camera>();
+  LOG(INFO) << "ByteBufferCopyCtor test";
+  auto cam = ifm3d::Camera::MakeShared();
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
   auto buff1 = std::make_shared<ifm3d::ByteBuffer>();
 
@@ -48,7 +64,8 @@ TEST(FrameGrabber, ByteBufferCopyCtor)
 
 TEST(FrameGrabber, ByteBufferCopyAssignmentOperator)
 {
-  auto cam = std::make_shared<ifm3d::Camera>();
+  LOG(INFO) << "ByteBufferCopyAssignmentOperator test";
+  auto cam = ifm3d::Camera::MakeShared();
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
   auto buff1 = std::make_shared<ifm3d::ByteBuffer>();
   auto buff2 = std::make_shared<ifm3d::ByteBuffer>();
@@ -62,7 +79,9 @@ TEST(FrameGrabber, ByteBufferCopyAssignmentOperator)
 
 TEST(FrameGrabber, FrameGrabberRecycling)
 {
-  auto cam = std::make_shared<ifm3d::Camera>();
+  LOG(INFO) << "FrameGrabberRecycling test";
+
+  auto cam = ifm3d::Camera::MakeShared();
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
   auto buff = std::make_shared<ifm3d::ByteBuffer>();
 
@@ -71,18 +90,42 @@ TEST(FrameGrabber, FrameGrabberRecycling)
       EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
     }
 
-  fg.reset(new ifm3d::FrameGrabber(cam));
-  for (int i = 0; i < 5; ++i)
+  if (! cam->IsO3X())
     {
-      EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
+      fg.reset(new ifm3d::FrameGrabber(cam));
+      for (int i = 0; i < 5; ++i)
+        {
+          EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
+        }
+    }
+  else
+    {
+      //
+      // O3X PCIC can only handle a single connection
+      // so, resetting the framegrabber needs to happen
+      // in discrete steps:
+      //
+      // 1. Ensure the first fg's dtor is run which joins
+      //    on the framegrabbing thread holding the open socket.
+      // 2. Instantiate the new fg - which creates a new thread
+      //    and opens a new socket.
+      //
+      fg.reset();
+      fg = std::make_shared<ifm3d::FrameGrabber>(cam);
+      for (int i = 0; i < 5; ++i)
+        {
+          EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
+        }
     }
 }
 
 TEST(FrameGrabber, SoftwareTrigger)
 {
-  auto cam = std::make_shared<ifm3d::Camera>();
+  LOG(INFO) << "SoftwareTrigger test";
+  auto cam = ifm3d::Camera::MakeShared();
 
-  if (cam->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
+  // Doesn't look like s/w triggering is implemented yet on O3X
+  if (cam->IsO3X())
     {
       return;
     }
@@ -107,6 +150,11 @@ TEST(FrameGrabber, SoftwareTrigger)
       EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
     }
 
+  // Now, because O3X establishes an edit session for purposes
+  // of S/W triggering, we first run the camera dtor, then
+  // edit the rest of the camera config
+  fg.reset();
+
   // set the camera back into free-run mode
   config["ifm3d"]["Apps"][idx-1]["TriggerMode"] =
     std::to_string(static_cast<int>(ifm3d::Camera::trigger_mode::FREE_RUN));
@@ -115,9 +163,14 @@ TEST(FrameGrabber, SoftwareTrigger)
 
 TEST(FrameGrabber, SWTriggerMultipleClients)
 {
-  auto cam = std::make_shared<ifm3d::Camera>();
+  LOG(INFO) << "SWTriggerMultipleClients test";
+  auto cam = ifm3d::Camera::MakeShared();
 
-  if (cam->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
+  //
+  // O3X cannot handle multiple client connections to PCIC
+  // so this test does not apply
+  //
+  if (cam->IsO3X())
     {
       return;
     }

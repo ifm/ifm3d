@@ -174,6 +174,15 @@ namespace ifm3d
       T* xyz_ptr;
       T x_, y_, z_;
 
+      // We assume, if the data from the sensor are a floating point type,
+      // the data are in meters, otherwise, the sensor is sending an
+      // integer type and the data are in mm.
+      bool convert_to_meters = true;
+      if ((im.type() == CV_32FC3) || (im.type() == CV_64FC3))
+        {
+          convert_to_meters = false;
+        }
+
       for (std::size_t i = 0; i < npts;
            ++i, xidx += incr, yidx += incr, zidx += incr)
         {
@@ -196,14 +205,18 @@ namespace ifm3d
           xyz_ptr[xyz_col + 1] = y_;
           xyz_ptr[xyz_col + 2] = z_;
 
-          // XXX: TP Mar 5, 2017
-          //
-          // Right now, I assume the Cartesian data from
-          // the sensor is in mm. This may not be a safe
-          // assumption once we see O3X h/w
-          pt.x = x_ / 1000.0f;
-          pt.y = y_ / 1000.0f;
-          pt.z = z_ / 1000.0f;
+          if (convert_to_meters)
+            {
+              pt.x = x_ / 1000.0f;
+              pt.y = y_ / 1000.0f;
+              pt.z = z_ / 1000.0f;
+            }
+          else
+            {
+              pt.x = x_;
+              pt.y = y_;
+              pt.z = z_;
+            }
 
           pt.data_c[0] = pt.data_c[1] = pt.data_c[2] = pt.data_c[3] = 0;
           pt.intensity = 0.; // we fill this in later
@@ -221,6 +234,7 @@ namespace ifm3d
             << "Shape mismatch when coloring pcl intensity: "
             << cloud->points.size() << " vs "
             << numpts;
+          return;
         }
 
       const T* row_ptr;
@@ -337,6 +351,7 @@ ifm3d::ImageBuffer::Impl::Organize(const std::vector<std::uint8_t>& bytes)
 {
   // indices to the start of each chunk of interest in the buffer
   std::size_t INVALID_IDX = std::numeric_limits<std::size_t>::max();
+  std::size_t xyzidx = INVALID_IDX;
   std::size_t xidx = INVALID_IDX;
   std::size_t yidx = INVALID_IDX;
   std::size_t zidx = INVALID_IDX;
@@ -348,9 +363,27 @@ ifm3d::ImageBuffer::Impl::Organize(const std::vector<std::uint8_t>& bytes)
   std::size_t extidx = INVALID_IDX;
   std::size_t gidx = INVALID_IDX;
 
-  xidx = ifm3d::get_chunk_index(bytes, ifm3d::image_chunk::CARTESIAN_X);
-  yidx = ifm3d::get_chunk_index(bytes, ifm3d::image_chunk::CARTESIAN_Y);
-  zidx = ifm3d::get_chunk_index(bytes, ifm3d::image_chunk::CARTESIAN_Z);
+  xyzidx = ifm3d::get_chunk_index(bytes, ifm3d::image_chunk::CARTESIAN_ALL);
+  if (xyzidx == INVALID_IDX)
+    {
+      xidx = ifm3d::get_chunk_index(bytes, ifm3d::image_chunk::CARTESIAN_X);
+      yidx = ifm3d::get_chunk_index(bytes, ifm3d::image_chunk::CARTESIAN_Y);
+      zidx = ifm3d::get_chunk_index(bytes, ifm3d::image_chunk::CARTESIAN_Z);
+    }
+  else
+    {
+      xidx = ifm3d::get_chunk_index(bytes,
+                                    ifm3d::image_chunk::CARTESIAN_X,
+                                    xyzidx + 48);
+
+      yidx = ifm3d::get_chunk_index(bytes,
+                                    ifm3d::image_chunk::CARTESIAN_Y,
+                                    xyzidx + 48);
+
+      zidx = ifm3d::get_chunk_index(bytes,
+                                    ifm3d::image_chunk::CARTESIAN_Z,
+                                    xyzidx + 48);
+    }
   aidx = ifm3d::get_chunk_index(bytes, ifm3d::image_chunk::AMPLITUDE);
   raw_aidx = ifm3d::get_chunk_index(bytes, ifm3d::image_chunk::RAW_AMPLITUDE);
   cidx = ifm3d::get_chunk_index(bytes, ifm3d::image_chunk::CONFIDENCE);
@@ -359,6 +392,18 @@ ifm3d::ImageBuffer::Impl::Organize(const std::vector<std::uint8_t>& bytes)
   gidx = ifm3d::get_chunk_index(bytes, ifm3d::image_chunk::GRAY);
   extidx = ifm3d::get_chunk_index(bytes,
                                   ifm3d::image_chunk::EXTRINSIC_CALIBRATION);
+
+  VLOG(IFM3D_PROTO_DEBUG) << "xyzidx=" << xyzidx
+                          << ", xidx=" << xidx
+                          << ", yidx=" << yidx
+                          << ", zidx=" << zidx
+                          << ", aidx=" << aidx
+                          << ", raw_aidx=" << raw_aidx
+                          << ", cidx=" << cidx
+                          << ", didx=" << didx
+                          << ", uidx=" << uidx
+                          << ", extidx=" << extidx
+                          << ", gidx=" << gidx;
 
   // if we do not have a confidence image we cannot go further
   if (cidx == INVALID_IDX)
@@ -375,17 +420,6 @@ ifm3d::ImageBuffer::Impl::Organize(const std::vector<std::uint8_t>& bytes)
   bool G_OK = gidx != INVALID_IDX;
   bool CART_OK =
     ((xidx != INVALID_IDX) && (yidx != INVALID_IDX) && (zidx != INVALID_IDX));
-
-  VLOG(IFM3D_PROTO_DEBUG) << "xidx=" << xidx
-                          << ", yidx=" << yidx
-                          << ", zidx=" << zidx
-                          << ", aidx=" << aidx
-                          << ", raw_aidx=" << raw_aidx
-                          << ", cidx=" << cidx
-                          << ", didx=" << didx
-                          << ", uidx=" << uidx
-                          << ", extidx=" << extidx
-                          << ", gidx=" << gidx;
 
   // pixel format of each image
   std::uint32_t INVALID_FMT = std::numeric_limits<std::uint32_t>::max();
@@ -521,16 +555,18 @@ ifm3d::ImageBuffer::Impl::Organize(const std::vector<std::uint8_t>& bytes)
                                            bytes);  // raw bytes
           break;
 
-        //
-        // XXX: TP Mar 5, 2017
-        //
-        // O3X spec says that Cartesian data will be float32, however,
-        // not sure if that is meters/mm/etc. Not sure if it is a typo
-        // as it is inconsistent with O3D. If it is float32, we should
-        // add another case statement here to dynamically handle that.
-        //
-        // For now, let's throw an exception until we see some O3X h/w
-        //
+        case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F):
+          this->cloud_create<float>(im,      // OpenCV point cloud
+                                    cloud,   // PCL point cloud
+                                    fmt,     // format for `im`
+                                    xidx,    // index of x-pix
+                                    yidx,    // index of y-pix
+                                    zidx,    // index of z-pix
+                                    width,   // n-cols
+                                    height,  // n-rows
+                                    npts,    // total points
+                                    bytes);  // raw bytes
+          break;
 
         default:
           LOG(ERROR) << "Cannot create cloud with pixel format = " << fmt;

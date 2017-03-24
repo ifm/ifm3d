@@ -30,6 +30,7 @@ const int IFM3D_PCIC_BAD_REPLY = -100007;
 const int IFM3D_UNSUPPORTED_OP = -100008;
 const int IFM3D_IMG_CHUNK_NOT_FOUND = -100009;
 const int IFM3D_PIXEL_FORMAT_ERROR = -100010;
+const int IFM3D_UNSUPPORTED_DEVICE = -100011;
 
 // sensor errors
 const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
@@ -48,6 +49,7 @@ const int IFM3D_INVALID_APP_INDEX = 101013;
 const int IFM3D_APP_IN_EDIT_MODE = 101014;
 const int IFM3D_MAX_APP_LIMIT = 101015;
 const int IFM3D_NO_APP_IN_EDIT_MODE = 101016;
+const int IFM3D_CANNOT_SW_TRIGGER = 101024;
 const int IFM3D_INVALID_IMAGER_TYPE = 101027;
 const int IFM3D_UNSUPPORTED_APP_TYPE = 101028;
 const int IFM3D_PIN_ALREADY_IN_USE = 101032;
@@ -83,11 +85,13 @@ const char *ifm3d::strerror(int errnum)
     case IFM3D_PCIC_BAD_REPLY:
       return "Lib: Bad or unexpected data from PCIC";
     case IFM3D_UNSUPPORTED_OP:
-      return "Lib: This operation is not supported by the Article Number";
+      return "Lib: An attempted operation is not supported by the device";
     case IFM3D_IMG_CHUNK_NOT_FOUND:
       return "Lib: Image chunk not found";
     case IFM3D_PIXEL_FORMAT_ERROR:
       return "Lib: Pixel format error - didn't expect a particular pixel type";
+    case IFM3D_UNSUPPORTED_DEVICE:
+      return "Lib: The detected device is not supported by the library";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
       return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:
@@ -122,6 +126,8 @@ const char *ifm3d::strerror(int errnum)
       return "Sensor: There is no application in edit-mode";
     case IFM3D_EEPROM_FAIL:
       return "Sensor: Failed to read EEPROM";
+    case IFM3D_CANNOT_SW_TRIGGER:
+      return "Sensor: Operation mode does not allow S/W trigger";
     case IFM3D_INVALID_IMAGER_TYPE:
       return "Sensor: Unsupported imager type";
     case  IFM3D_UNSUPPORTED_APP_TYPE:

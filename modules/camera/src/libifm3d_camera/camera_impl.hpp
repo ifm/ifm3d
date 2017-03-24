@@ -82,6 +82,7 @@ namespace ifm3d
     void Reboot(int mode);
     std::vector<ifm3d::app_entry_t> ApplicationList();
     std::string RequestSession();
+    std::vector<std::uint8_t> UnitVectors();
 
     // Session
     bool CancelSession();
@@ -117,6 +118,7 @@ namespace ifm3d
     std::string AppParameter(const std::string& param);
     void SetAppParameter(const std::string& param, const std::string& val);
     void SaveApp();
+    void ForceTrigger();
 
     // Imager
     std::unordered_map<std::string, std::string> ImagerInfo();
@@ -375,6 +377,11 @@ ifm3d::Camera::Impl::Impl(const std::string& ip,
                    timeout(ifm3d::NET_WAIT))))),
     session_("")
 {
+  // Needed for fetching unit vectors over xmlrpc for O3X
+  VLOG(IFM3D_TRACE) << "Increasing XML-RPC response size limit...";
+  xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID,
+                   XMLRPC_XML_SIZE_LIMIT_DEFAULT * 2);
+
   VLOG(IFM3D_TRACE) << "Initializing Camera: ip="
                     << this->IP()
                     << ", xmlrpc_port=" << this->XMLRPCPort()
@@ -560,6 +567,15 @@ ifm3d::Camera::Impl::RequestSession()
   this->SetSessionID(static_cast<std::string>(val_str));
   this->Heartbeat(ifm3d::MAX_HEARTBEAT);
   return this->SessionID();
+}
+
+std::vector<std::uint8_t>
+ifm3d::Camera::Impl::UnitVectors()
+{
+  const xmlrpc_c::value_bytestring v_bytes =
+    this->_XCallMain("getUnitVectors");
+
+  return v_bytes.vectorUcharValue();
 }
 
 // ---------------------------------------------
@@ -782,6 +798,12 @@ void
 ifm3d::Camera::Impl::SaveApp()
 {
   this->_XCallApp("save");
+}
+
+void
+ifm3d::Camera::Impl::ForceTrigger()
+{
+  this->_XCallApp("forceTrigger");
 }
 
 // ---------------------------------------------

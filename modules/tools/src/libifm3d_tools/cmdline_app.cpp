@@ -59,9 +59,9 @@ ifm3d::CmdLineApp::CmdLineApp(int argc, const char **argv,
   this->xmlrpc_port_ = this->vm_["xmlrpc-port"].as<std::uint16_t>();
   this->password_ = this->vm_["password"].as<std::string>();
 
-  this->cam_ = std::make_shared<ifm3d::Camera>(this->ip_,
-                                               this->xmlrpc_port_,
-                                               this->password_);
+  this->cam_ = ifm3d::Camera::MakeShared(this->ip_,
+                                         this->xmlrpc_port_,
+                                         this->password_);
 }
 
 void

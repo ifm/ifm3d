@@ -42,12 +42,14 @@ const std::string ifm3d::DEFAULT_IP =
   "192.168.0.69" : std::string(std::getenv("IFM3D_IP"));
 const int ifm3d::MAX_HEARTBEAT = 300; // secs
 
-const std::string ifm3d::ARTICLE_NUM_O3D303 = "O3D303";
-const std::string ifm3d::ARTICLE_NUM_O3X = "O3X";
+const int ifm3d::DEV_O3D_MIN = 1;
+const int ifm3d::DEV_O3D_MAX = 255;
+const int ifm3d::DEV_O3X_MIN = 512;
+const int ifm3d::DEV_O3X_MAX = 767;
 
-const std::string ifm3d::ASSUME_ARTICLE_NUM =
-  std::getenv("IFM3D_ARTICLE") == nullptr ?
-  "" : std::string(std::getenv("IFM3D_ARTICLE"));
+const std::string ifm3d::ASSUME_DEVICE =
+  std::getenv("IFM3D_DEVICE") == nullptr ?
+  "" : std::string(std::getenv("IFM3D_DEVICE"));
 
 //================================================
 // A lookup table listing the read-only camera
@@ -113,6 +115,64 @@ RO_LUT =
   };
 
 //================================================
+// Factory function for making cameras
+//================================================
+ifm3d::Camera::Ptr
+ifm3d::Camera::MakeShared(const std::string& ip,
+                          const std::uint16_t xmlrpc_port,
+                          const std::string& password)
+{
+  auto base = std::make_shared<ifm3d::Camera>(ip, xmlrpc_port, password);
+  try
+    {
+      //
+      // It is an optimization to return the specialized subclass
+      //
+      if (base->IsO3X())
+        {
+          VLOG(IFM3D_TRACE) << "Instantiating O3X...";
+          return std::make_shared<ifm3d::O3XCamera>(ip, xmlrpc_port, password);
+        }
+      else if (base->IsO3D())
+        {
+          VLOG(IFM3D_TRACE) << "Instantiating O3D...";
+          return std::make_shared<ifm3d::O3DCamera>(ip, xmlrpc_port, password);
+        }
+      else
+        {
+          LOG(WARNING) << "Unexpected camera device type: "
+                       << base->DeviceType();
+        }
+    }
+  catch (const ifm3d::error_t& ex)
+    {
+      if (ex.code() == IFM3D_XMLRPC_TIMEOUT)
+        {
+          LOG(WARNING) << "Could not probe device type: "
+                       << ex.what();
+        }
+      else
+        {
+          LOG(ERROR) << "While trying to instantiate camera: "
+                     << ex.what();
+          //
+          // XXX: For now, we re-throw. I am not sure what else would
+          // go wrong here except for a network time out. To that end,
+          // I'd like this to "fail loudly" so I can get to the root
+          // of the issue
+          //
+          throw;
+        }
+    }
+
+  //
+  // worst case: we return the "non-optimized" base class
+  //
+  LOG(WARNING) << "Returning instance of base camera class!";
+  return base;
+}
+
+//================================================
 // Camera class - the public interface
 //================================================
 
@@ -120,7 +180,7 @@ ifm3d::Camera::Camera(const std::string& ip,
                       const std::uint16_t xmlrpc_port,
                       const std::string& password)
   : pImpl(new ifm3d::Camera::Impl(ip, xmlrpc_port, password)),
-    article_number_("")
+    device_type_("")
 { }
 
 ifm3d::Camera::~Camera() = default;
@@ -168,6 +228,29 @@ ifm3d::Camera::Heartbeat(int hb)
 }
 
 void
+ifm3d::Camera::ForceTrigger()
+{
+  if (! this->IsO3X())
+    {
+      return;
+    }
+
+  return this->pImpl->ForceTrigger();
+}
+
+std::vector<std::uint8_t>
+ifm3d::Camera::UnitVectors()
+{
+  if (this->IsO3X())
+    {
+      return this->pImpl->UnitVectors();
+    }
+
+  LOG(ERROR) << "The device does not support the XMLRPC UnitVectors accessor";
+  throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+}
+
+void
 ifm3d::Camera::Reboot(const ifm3d::Camera::boot_mode& mode)
 {
   this->pImpl->Reboot(static_cast<int>(mode));
@@ -180,31 +263,85 @@ ifm3d::Camera::DeviceParameter(const std::string& key)
 }
 
 std::string
-ifm3d::Camera::ArticleNumber(bool use_cached)
+ifm3d::Camera::DeviceType(bool use_cached)
 {
-  if (ifm3d::ASSUME_ARTICLE_NUM != "")
+  if (ifm3d::ASSUME_DEVICE != "")
     {
-      LOG(WARNING) << "Returning assumed article number: "
-                   << ifm3d::ASSUME_ARTICLE_NUM;
-      return ifm3d::ASSUME_ARTICLE_NUM;
+      LOG(WARNING) << "Returning assumed device type: "
+                   << ifm3d::ASSUME_DEVICE;
+      return ifm3d::ASSUME_DEVICE;
     }
 
-  if (this->article_number_ != "")
+  if (this->device_type_ != "")
     {
       if (use_cached)
         {
-          return this->article_number_;
+          return this->device_type_;
         }
     }
 
-  this->article_number_ = this->pImpl->DeviceParameter("ArticleNumber");
-  return this->article_number_;
+  this->device_type_ = this->pImpl->DeviceParameter("DeviceType");
+  return this->device_type_;
+}
+
+bool
+ifm3d::Camera::IsO3X()
+{
+  int devid = 0;
+  std::string dt = this->DeviceType();
+  std::string::size_type n = dt.find(":");
+  if (n != std::string::npos)
+    {
+      try
+        {
+          devid = std::atoi(dt.substr(n+1).c_str());
+        }
+      catch (std::out_of_range& ex)
+        {
+          LOG(WARNING) << ex.what();
+        }
+    }
+
+  if ((devid >= ifm3d::DEV_O3X_MIN) &&
+      (devid <= ifm3d::DEV_O3X_MAX))
+    {
+      return true;
+    }
+
+  return false;
+}
+
+bool
+ifm3d::Camera::IsO3D()
+{
+  int devid = 0;
+  std::string dt = this->DeviceType();
+  std::string::size_type n = dt.find(":");
+  if (n != std::string::npos)
+    {
+      try
+        {
+          devid = std::atoi(dt.substr(n+1).c_str());
+        }
+      catch (std::out_of_range& ex)
+        {
+          LOG(WARNING) << ex.what();
+        }
+    }
+
+  if ((devid >= ifm3d::DEV_O3D_MIN) &&
+      (devid <= ifm3d::DEV_O3D_MAX))
+    {
+      return true;
+    }
+
+  return false;
 }
 
 int
 ifm3d::Camera::ActiveApplication()
 {
-  if (this->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
+  if (this->IsO3X())
     {
       return 1;
     }
@@ -251,7 +388,7 @@ ifm3d::Camera::ImagerTypes()
   return this->pImpl->WrapInEditSession<std::vector<std::string> >(
     [this]()->std::vector<std::string>
     {
-      if (this->ArticleNumber() != ifm3d::ARTICLE_NUM_O3X)
+      if (! this->IsO3X())
         {
           this->pImpl->EditApplication(this->ActiveApplication());
         }
@@ -262,7 +399,7 @@ ifm3d::Camera::ImagerTypes()
 int
 ifm3d::Camera::CreateApplication(const std::string& type)
 {
-  if (this->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
+  if (this->IsO3X())
     {
       LOG(ERROR) << "O3X only supports a single app, create not supported";
       throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
@@ -275,7 +412,7 @@ ifm3d::Camera::CreateApplication(const std::string& type)
 int
 ifm3d::Camera::CopyApplication(int idx)
 {
-  if (this->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
+  if (this->IsO3X())
     {
       LOG(ERROR) << "O3X only supports a single app, copy not supported";
       throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
@@ -288,7 +425,7 @@ ifm3d::Camera::CopyApplication(int idx)
 void
 ifm3d::Camera::DeleteApplication(int idx)
 {
-  if (this->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
+  if (this->IsO3X())
     {
       LOG(ERROR) << "O3X only supports a single app, delete not supported";
       throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
@@ -307,6 +444,12 @@ ifm3d::Camera::FactoryReset()
 std::vector<std::uint8_t>
 ifm3d::Camera::ExportIFMConfig()
 {
+  if (this->IsO3X())
+    {
+      LOG(ERROR) << "O3X does not support exporting a camera config";
+      throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+    }
+
   return this->pImpl->WrapInEditSession<std::vector<std::uint8_t> >(
     [this]()->std::vector<std::uint8_t>
     { return this->pImpl->ExportIFMConfig(); });
@@ -315,7 +458,7 @@ ifm3d::Camera::ExportIFMConfig()
 std::vector<std::uint8_t>
 ifm3d::Camera::ExportIFMApp(int idx)
 {
-  if (this->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
+  if (this->IsO3X())
     {
       LOG(ERROR) << "O3X only supports exporting an entire camera config";
       throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
@@ -330,6 +473,12 @@ void
 ifm3d::Camera::ImportIFMConfig(const std::vector<std::uint8_t>& bytes,
                                std::uint16_t flags)
 {
+  if (this->IsO3X())
+    {
+      LOG(ERROR) << "O3X does not support importing a camera config";
+      throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+    }
+
   return this->pImpl->WrapInEditSession(
     [this,&bytes,flags]() { this->pImpl->ImportIFMConfig(bytes, flags); });
 }
@@ -337,7 +486,7 @@ ifm3d::Camera::ImportIFMConfig(const std::vector<std::uint8_t>& bytes,
 int
 ifm3d::Camera::ImportIFMApp(const std::vector<std::uint8_t>& bytes)
 {
-  if (this->ArticleNumber() == ifm3d::ARTICLE_NUM_O3X)
+  if (this->IsO3X())
     {
       LOG(ERROR) << "O3X only supports a single app, import-app not supported";
       throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
@@ -369,7 +518,7 @@ ifm3d::Camera::ToJSON()
       for (auto& app : app_list)
         {
           int idx = app["Index"].get<int>();
-          if (this->ArticleNumber() != ifm3d::ARTICLE_NUM_O3X)
+          if (! this->IsO3X())
             {
               this->pImpl->EditApplication(idx);
             }
@@ -390,7 +539,7 @@ ifm3d::Camera::ToJSON()
 
           app_info.push_back(app_json);
 
-          if (this->ArticleNumber() != ifm3d::ARTICLE_NUM_O3X)
+          if (! this->IsO3X())
             {
               this->pImpl->StopEditingApplication();
             }
@@ -449,7 +598,7 @@ ifm3d::Camera::FromJSON_(const json& j_curr,
     {
       if (idx > 0)
         {
-          if (this->ArticleNumber() != ifm3d::ARTICLE_NUM_O3X)
+          if (! this->IsO3X())
             {
               VLOG(IFM3D_TRACE) << "Editing app at idx=" << idx;
               this->pImpl->EditApplication(idx);
@@ -583,7 +732,7 @@ ifm3d::Camera::FromJSON(const json& j)
           int idx = -1;
           if (j_app["Index"].is_null())
             {
-              if (this->ArticleNumber() != ifm3d::ARTICLE_NUM_O3X)
+              if (! this->IsO3X())
                 {
                   VLOG(IFM3D_TRACE) << "Creating new application";
                   idx = j_app["Type"].is_null() ?
@@ -751,4 +900,52 @@ ifm3d::Camera::FromJSONStr(const std::string& jstr)
     }
 
   this->FromJSON(j);
+}
+
+//================================================
+// O3DCamera class - the public interface
+//================================================
+
+ifm3d::O3DCamera::O3DCamera(const std::string& ip,
+                            const std::uint16_t xmlrpc_port,
+                            const std::string& password)
+  : ifm3d::Camera::Camera(ip, xmlrpc_port, password)
+{ }
+
+ifm3d::O3DCamera::~O3DCamera() = default;
+
+bool
+ifm3d::O3DCamera::IsO3X()
+{
+  return false;
+}
+
+bool
+ifm3d::O3DCamera::IsO3D()
+{
+  return true;
+}
+
+//================================================
+// O3XCamera class - the public interface
+//================================================
+
+ifm3d::O3XCamera::O3XCamera(const std::string& ip,
+                            const std::uint16_t xmlrpc_port,
+                            const std::string& password)
+  : ifm3d::Camera::Camera(ip, xmlrpc_port, password)
+{ }
+
+ifm3d::O3XCamera::~O3XCamera() = default;
+
+bool
+ifm3d::O3XCamera::IsO3X()
+{
+  return true;
+}
+
+bool
+ifm3d::O3XCamera::IsO3D()
+{
+  return false;
 }
