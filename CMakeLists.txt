@@ -65,6 +65,29 @@ endif()
 #################################################
 # Packaging stuff - for now, we build debs only
 #################################################
+# file(COPY ${IFM3D_SOURCE_DIR}/cmake/ifm3d/IFM3DConfig.cmake.in
+#   DESTINATION ${IFM3D_BINARY_DIR}
+#   )
+# configure_file(
+#   ${IFM3D_BINARY_DIR}/IFM3DConfig.cmake.in
+#   ${IFM3D_BINARY_DIR}/IFM3DConfig.cmake
+#   @ONLY
+#   )
+# file(COPY ${IFM3D_SOURCE_DIR}/cmake/ifm3d/IFM3DConfigVersion.cmake.in
+#   DESTINATION ${IFM3D_BINARY_DIR}
+#   )
+# configure_file(
+#   ${IFM3D_BINARY_DIR}/IFM3DConfigVersion.cmake.in
+#   ${IFM3D_BINARY_DIR}/IFM3DConfigVersion.cmake
+#   @ONLY
+#   )
+# install(FILES
+#   ${IFM3D_BINARY_DIR}/IFM3DConfig.cmake
+#   ${IFM3D_BINARY_DIR}/IFM3DConfigVersion.cmake
+#   DESTINATION lib/ifm3d
+#   COMPONENT camera
+#   )
+
 
 # Turn on component-based installation
 set(CPACK_DEB_COMPONENT_INSTALL ON)
