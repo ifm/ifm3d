@@ -22,4 +22,7 @@ set_target_properties(ifm3d_camera_shared PROPERTIES
   LINKER_LANGUAGE CXX
   )
 
-install(TARGETS ifm3d_camera_shared DESTINATION lib)
+install(TARGETS ifm3d_camera_shared
+  DESTINATION lib
+  COMPONENT camera
+  )

@@ -35,17 +35,10 @@ endif()
 ################################################
 if(BUILD_SDK_PKG)
   install(DIRECTORY ${IFM3D_FG_BINARY_DIR}/include
-   DESTINATION ${CPACK_INSTALL_PREFIX}
-   PATTERN "*.in" EXCLUDE
-   PATTERN ".git" EXCLUDE
-   PATTERN "*~" EXCLUDE
+    DESTINATION ${CPACK_INSTALL_PREFIX}
+    COMPONENT framegrabber-dev
+    PATTERN "*.in" EXCLUDE
+    PATTERN ".git" EXCLUDE
+    PATTERN "*~" EXCLUDE
    )
 endif()
-
-################################################
-## Manage packaging process
-################################################
-
-################################################
-## Manage deployment process
-################################################

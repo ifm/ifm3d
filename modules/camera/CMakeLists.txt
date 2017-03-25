@@ -40,17 +40,10 @@ endif()
 ################################################
 if(BUILD_SDK_PKG)
   install(DIRECTORY ${IFM3D_CAMERA_BINARY_DIR}/include
-   DESTINATION ${CPACK_INSTALL_PREFIX}
-   PATTERN "*.in" EXCLUDE
-   PATTERN ".git" EXCLUDE
-   PATTERN "*~" EXCLUDE
-   )
+    DESTINATION ${CPACK_INSTALL_PREFIX}
+    COMPONENT camera-dev
+    PATTERN "*.in" EXCLUDE
+    PATTERN ".git" EXCLUDE
+    PATTERN "*~" EXCLUDE
+    )
 endif()
-
-################################################
-## Manage packaging process
-################################################
-
-################################################
-## Manage deployment process
-################################################

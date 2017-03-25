@@ -35,17 +35,10 @@ add_subdirectory(src)
 ################################################
 if(BUILD_SDK_PKG)
   install(DIRECTORY ${IFM3D_TOOLS_BINARY_DIR}/include
-   DESTINATION ${CPACK_INSTALL_PREFIX}
-   PATTERN "*.in" EXCLUDE
-   PATTERN ".git" EXCLUDE
-   PATTERN "*~" EXCLUDE
-   )
+    DESTINATION ${CPACK_INSTALL_PREFIX}
+    COMPONENT tools-dev
+    PATTERN "*.in" EXCLUDE
+    PATTERN ".git" EXCLUDE
+    PATTERN "*~" EXCLUDE
+    )
 endif()
-
-################################################
-## Manage packaging process
-################################################
-
-################################################
-## Manage deployment process
-################################################
