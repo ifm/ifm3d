@@ -48,7 +48,7 @@ endif()
 if(BUILD_SDK_PKG)
   install(DIRECTORY ${IFM3D_IMAGE_BINARY_DIR}/include
     DESTINATION ${CPACK_INSTALL_PREFIX}
-    COMPONENT image-dev
+    COMPONENT image
     PATTERN "*.in" EXCLUDE
     PATTERN ".git" EXCLUDE
     PATTERN "*~" EXCLUDE

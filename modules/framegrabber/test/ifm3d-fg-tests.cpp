@@ -124,7 +124,7 @@ TEST(FrameGrabber, SoftwareTrigger)
   LOG(INFO) << "SoftwareTrigger test";
   auto cam = ifm3d::Camera::MakeShared();
 
-  // Doesn't look like s/w triggering is implemented yet on O3X
+  // Need to implement s/w triggering on o3x -- not ready yet
   if (cam->IsO3X())
     {
       return;
@@ -148,6 +148,7 @@ TEST(FrameGrabber, SoftwareTrigger)
     {
       fg->SWTrigger();
       EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
+
     }
 
   // Now, because O3X establishes an edit session for purposes
