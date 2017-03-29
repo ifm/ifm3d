@@ -118,24 +118,179 @@ You can do the following to resolve this:
     $ sudo apt-get -f install
 
 At this point, if your camera is plugged in and powered on, you should be able
-to list its applications. For example with an O3X plugged in:
+to (for example) dump its configuration. For example with an O3X plugged in:
 
 ```
-$ ifm3d ls
-[
-  {
-    "Active": true,
-    "Description": "",
-    "Id": 1299148885,
-    "Index": 1,
-    "Name": ""
+$ ifm3d dump
+{
+  "ifm3d": {
+    "Apps": [
+      {
+        "Description": "",
+        "Id": "1299148885",
+        "Imager": {
+          "ExposureTime": "1000",
+          "FrameRate": "5",
+          "MaxAllowedFrameRate": "12.5",
+          "MinimumAmplitude": "42",
+          "SpatialFilter": {},
+          "SpatialFilterType": "0",
+          "SymmetryThreshold": "0.4",
+          "TemporalFilter": {},
+          "TemporalFilterType": "0",
+          "Type": "1FRQ_1EXP_0GRAY"
+        },
+        "Index": "1",
+        "Name": "",
+        "OutputAmplitudeImage": "true",
+        "OutputConfidenceImage": "true",
+        "OutputDistanceImage": "true",
+        "OutputGrayscaleImage": "false",
+        "OutputXYZImage": "true",
+        "TriggerMode": "1",
+        "Type": "Camera"
+      }
+    ],
+    "Device": {
+      "ArticleNumber": "",
+      "ArticleStatus": "??",
+      "Description": "",
+      "DeviceType": "1:512",
+      "IPAddressConfig": "0",
+      "ImageTimestampReference": "1489579229",
+      "Name": "New sensor",
+      "OperatingMode": "0",
+      "PasswordActivated": "false",
+      "SessionTimeout": "30",
+      "UpTime": "1.59972222222222"
+    },
+    "Net": {
+      "MACAddress": "00:02:01:40:54:09",
+      "NetworkSpeed": "0",
+      "StaticIPv4Address": "192.168.0.69",
+      "StaticIPv4Gateway": "192.168.0.201",
+      "StaticIPv4SubNetMask": "255.255.255.0",
+      "UseDHCP": "false"
+    },
+    "_": {
+      "Date": "Tue Mar 28 21:16:07 2017",
+      "HWInfo": {
+        "MACAddress": "00:02:01:40:54:09",
+        "Mainboard": "#!03_M100_B01_12345678_008025483",
+        "MiraSerial": "Not implemented"
+      },
+      "SWVersion": {
+        "Algorithm_Version": "0.1.3",
+        "Calibration_Device": "00:02:01:40:54:09",
+        "Calibration_Version": "0.0.1",
+        "ELDK": "GOLDENEYE_YOCTO_HARDFP-273-06d9c894636352a6c93711c7284d02b0c794a527",
+        "IFM_Software": "0.1.4",
+        "Linux": "Linux version 3.14.34-rt31-yocto-standard-00016-g5121435-dirty (jenkins@dettlx152) (gcc version 4.9.2 (GCC) ) #1 SMP PREEMPT RT Tue Mar 14 08:40:14 CET 2017",
+        "Main_Application": "0.4.986"
+      },
+      "ifm3d_version": 100
+    }
   }
-]
+}
+```
+
+Redirecting the above serialized json to a file would allow you to edit camera
+parameters. Let's say you saved that data to a file called `o3x.json` and made
+some modifications. To commit those changes to the hardware, you would:
+
+    $ ifm3d config < o3x.json
+
+You could also just edit a single parameter quite easily from the command
+line. Referring to our dump above where the camera is set to stream data at 5
+Hz, if we wanted to step the frame rate up to 10 Hz, you could:
+
+    $ echo '{"Apps":[{"Index":"1","Imager":{"FrameRate":"10"}}]}' | ifm3d config
+
+We can see that our setting took affect by dumping the camera configuration
+again. This time, we *grep* our output using the handy json filtering tool
+[jq](https://stedolan.github.io/jq):
+
+```
+$ ifm3d dump | jq .ifm3d.Apps[0].Imager.FrameRate
+"10"
+```
+
+You can see what else is available via the `ifm3d` tool by running:
+
+```
+$ ifm3d --help
+ifm3d: version=0.1.0
+usage: ifm3d [<global options>] <command> [<args>]
+
+global options:
+  -h [ --help ]            Produce this help message and exit
+  --ip arg (=192.168.0.69) IP address of the sensor
+  --xmlrpc-port arg (=80)  XMLRPC port of the sensor
+  --password arg           Password for establishing an edit-session with the
+                           sensor
+
+
+These are common commands used in various situations:
+
+    cp          Create a new application on the sensor,
+                bootstrapped from a copy of an existing one.
+
+    config      Configure sensor settings from a JSON description of
+                the desired sensor state. See also `dump'.
+
+    dump        Serialize the sensor state to JSON.
+
+    export      Export an application or whole sensor configuration
+                into a format compatible with ifm Vision Assistant.
+
+    hz          Compute the actual frequency at which the FrameGrabber
+                is running.
+
+    import      Import an application or whole sensor configuration
+                that is compatible with ifm Vision Assistant's export
+                format.
+
+    ls          Lists the applications currently installed on
+                the sensor.
+
+    reboot      Reboot the sensor, potentially into recovery
+                mode. Recovery mode is useful for putting the
+                sensor into a state where it can be flashed
+                with new firmware.
+
+    reset       Reset the sensor to factory defaults.
+
+    rm          Deletes an application from the sensor.
+
+    schema      Construct and analyze image acquisition schema masks.
+
+
+For bug reports, please see:
+https://github.com/lovepark/ifm3d/issues
+```
+
+We also note that every sub-command also accepts the `--help` argument. For
+example:
+
+```
+$ ifm3d reboot --help
+usage: ifm3d [<global options>] reboot [<reboot options>]
+
+global options:
+  -h [ --help ]            Produce this help message and exit
+  --ip arg (=192.168.0.69) IP address of the sensor
+  --xmlrpc-port arg (=80)  XMLRPC port of the sensor
+  --password arg           Password for establishing an edit-session with the
+                           sensor
+
+reboot options:
+  -r [ --recovery ]     Reboot into recovery mode
 ```
 
 For viewing the point cloud data, currently, our only supported visualization
 tool is [rviz](http://wiki.ros.org/rviz). To utilize it, you will need to
-install our [ifm3d ROS bindings](https://github.com/lovepark/ifm3d-ros).
+install our [ifm3d ROS bindings](https://github.com/lovepark/ifm3d-ros) and
+follow the instructions from there.
 
 
 Known Issues, Bugs, and our TODO list
