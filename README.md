@@ -67,6 +67,52 @@ Installing the Software
 
 ### Building from source
 
+**NOTE:** If you are on Ubuntu 16.04 LTS and you are running ROS, we highly
+  recommend you just install
+  [our supplied binaries](https://github.com/lovepark/ifm3d/releases/tag/v0.1.0). Further
+  instructions are listed below.
+
+If you plan to build the software from source, you will need to have the
+following pre-requisites installed on your machine:
+
+* [Boost](http://www.boost.org)
+* [Gtest](https://github.com/google/googletest)
+* [Glog](https://github.com/google/glog)
+* [libxmlrpc](http://xmlrpc-c.sourceforge.net/)
+* [CMake](http://www.cmake.org)
+* [OpenCV](http://opencv.org)
+* [PCL](http://pointclouds.org)
+
+Building the software follows the usual cmake idiom of:
+
+```
+$ mkdir build
+$ cd build
+$ cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+$ make
+$ make check
+$ sudo make install
+```
+
+A few important notes when building from source:
+
+* For the `make check` step, we highly recommend you run your unit tests
+  against an O3D and **not** an O3X. Some of the tests will likely
+  fail. However, this will not be an indication that there is a problem with
+  the software. We are still characterizing this new sensor and we are working
+  very closely with ifm to gain clarity on its expected behavior. Running the
+  unit tests against an O3D however, should pass. If the O3D tests pass, you
+  should be OK to install the software and run it against either an O3D or
+  O3X.
+
+* An alternative to the `make install` step (which we don't like very much
+  ourselves) is to `make package`. This will create a set of deb files that you
+  can then install with `dpkg`. We note however that our OpenCV dependency in
+  the Debian control file is expressed as the OpenCV supplied with ROS, which
+  you may not have installed. In which case, your easiest path forward may be
+  to use the `make install` step as called out above.
+
+
 ### Installing binaries
 
 If you are running on Ubuntu (16.04 LTS) and running ROS (Kinetic), binaries
