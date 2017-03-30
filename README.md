@@ -133,7 +133,7 @@ the `ros-kinetic-desktop-full` installation.
   installing ROS when using our supplied binaries because (currently) our
   dependency on OpenCV in the Debian control file is expressed as the version
   of OpenCV 3 supplied with ROS Kinetic, namely
-  `ros-kinectic-opencv3`. Experienced users can work around this restriction.
+  `ros-kinetic-opencv3`. Experienced users can work around this restriction.
 
 Once you have downloaded the supplied binaries, they can be installed as
 follows (please note the order of installation):
