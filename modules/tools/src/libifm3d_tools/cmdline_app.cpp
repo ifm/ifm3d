@@ -59,9 +59,14 @@ ifm3d::CmdLineApp::CmdLineApp(int argc, const char **argv,
   this->xmlrpc_port_ = this->vm_["xmlrpc-port"].as<std::uint16_t>();
   this->password_ = this->vm_["password"].as<std::string>();
 
-  this->cam_ = ifm3d::Camera::MakeShared(this->ip_,
-                                         this->xmlrpc_port_,
-                                         this->password_);
+  // slight optimization -- if it is a `help' or `version' request
+  // no need to ping the h/w ... which is slow when no device is present.
+  if ((!(this->vm_.count("help"))) && (name != "version"))
+    {
+      this->cam_ = ifm3d::Camera::MakeShared(this->ip_,
+                                             this->xmlrpc_port_,
+                                             this->password_);
+    }
 }
 
 void

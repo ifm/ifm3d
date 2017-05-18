@@ -19,6 +19,12 @@ Software Compatibility Matrix
     <td>0.1.4</td>
     <td>Initial (beta) release</td>
   </tr>
+  <tr>
+    <td>0.2.0</td>
+    <td>1.6.2114</td>
+    <td>0.1.16</td>
+    <td></td>
+  </tr>
 </table>
 
 Disclaimer
