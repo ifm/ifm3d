@@ -83,8 +83,6 @@ namespace ifm3d
                               std::size_t bytes_xferd,
                               std::size_t bytes_read);
 
-    virtual void HBHandler();
-
     //---------------------
     // State
     //---------------------
@@ -97,7 +95,6 @@ namespace ifm3d
     boost::asio::io_service io_service_;
     boost::asio::ip::tcp::socket sock_;
     boost::asio::ip::tcp::endpoint endpoint_;
-    boost::asio::deadline_timer hbtimer_;
     std::unique_ptr<std::thread> thread_;
     std::atomic<bool> pcic_ready_;
     std::vector<std::uint8_t> schema_buffer_;
@@ -156,7 +153,6 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam,
     cam_port_(ifm3d::DEFAULT_PCIC_PORT),
     io_service_(),
     sock_(io_service_),
-    hbtimer_(io_service_),
     pcic_ready_(false)
 {
   this->SetSchemaBuffer(this->mask_);
@@ -179,26 +175,6 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam,
           this->cam_port_ = ifm3d::DEFAULT_PCIC_PORT;
         }
     }
-  else
-    {
-      // For O3X, in the event we are S/W triggering, we need to
-      // establish an edit session with the XMLRPC server and periodically
-      // ping it with a heartbeat message. This is b/c on O3X, S/W triggering
-      // occurs as an XMLRPC call and not over PCIC
-
-      //
-      // XXX: does not look like S/W triggering is currently
-      // enabled in O3X, so, we are going to disable for now
-      //
-      // VLOG(IFM3D_TRACE) << "Establishing edit session for O3X...";
-      // this->cam_->RequestSession();
-      // VLOG(IFM3D_TRACE) << "Session ID: " << this->cam_->SessionID();
-
-      // VLOG(IFM3D_TRACE) << "Setting up heartbeat callback...";
-      // this->hbtimer_.expires_from_now(boost::posix_time::milliseconds(1000));
-      // this->hbtimer_.async_wait(
-      //   std::bind(&ifm3d::FrameGrabber::Impl::HBHandler, this));
-    }
 
   LOG(INFO) << "Camera connection info: ip=" << this->cam_ip_
             << ", port=" << this->cam_port_;
@@ -216,14 +192,6 @@ ifm3d::FrameGrabber::Impl::~Impl()
 {
   VLOG(IFM3D_TRACE) << "FrameGrabber dtor running...";
 
-  //
-  // XXX: Re-enable this after we have s/w triggering in O3X
-  //
-  // if (this->cam_->IsO3X())
-  //   {
-  //     this->cam_->CancelSession();
-  //   }
-
   if (this->thread_ && this->thread_->joinable())
     {
       this->Stop();
@@ -239,40 +207,26 @@ ifm3d::FrameGrabber::Impl::~Impl()
 //-------------------------------------
 
 void
-ifm3d::FrameGrabber::Impl::HBHandler()
-{
-  VLOG(IFM3D_TRACE) << "Sending heartbeat, timeout="
-                           << ifm3d::MAX_HEARTBEAT;
-  this->cam_->Heartbeat(ifm3d::MAX_HEARTBEAT);
-
-  this->hbtimer_.expires_from_now(
-    boost::posix_time::milliseconds((ifm3d::MAX_HEARTBEAT/2)*1000));
-  this->hbtimer_.async_wait(
-    std::bind(&ifm3d::FrameGrabber::Impl::HBHandler, this));
-}
-
-void
 ifm3d::FrameGrabber::Impl::SWTrigger()
 {
-  //
-  // XXX: Disabling s/w triggering for now for O3X -- doesn't appear to be
-  // implemented.
-  //
   if (this->cam_->IsO3X())
     {
-      // try
-      //   {
-      //     this->cam_->ForceTrigger();
-      //   }
-      // catch(const ifm3d::error_t& ex)
-      //   {
-      //     LOG(ERROR) << "While trying to software trigger the camera: "
-      //                << ex.code() << " - " << ex.what();
-      //   }
+      try
+        {
+          this->cam_->ForceTrigger();
+        }
+      catch(const ifm3d::error_t& ex)
+        {
+          LOG(ERROR) << "While trying to software trigger the camera: "
+                     << ex.code() << " - " << ex.what();
+        }
 
       return;
     }
 
+  //
+  // For O3D and other bi-directional PCIC implementations
+  //
   int i = 0;
   while (! this->pcic_ready_.load())
     {

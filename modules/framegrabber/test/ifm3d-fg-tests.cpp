@@ -124,12 +124,6 @@ TEST(FrameGrabber, SoftwareTrigger)
   LOG(INFO) << "SoftwareTrigger test";
   auto cam = ifm3d::Camera::MakeShared();
 
-  // Need to implement s/w triggering on o3x -- not ready yet
-  if (cam->IsO3X())
-    {
-      return;
-    }
-
   // mark the current active application as sw triggered
   int idx = cam->ActiveApplication();
   json config = cam->ToJSON();
@@ -150,11 +144,6 @@ TEST(FrameGrabber, SoftwareTrigger)
       EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
 
     }
-
-  // Now, because O3X establishes an edit session for purposes
-  // of S/W triggering, we first run the camera dtor, then
-  // edit the rest of the camera config
-  fg.reset();
 
   // set the camera back into free-run mode
   config["ifm3d"]["Apps"][idx-1]["TriggerMode"] =

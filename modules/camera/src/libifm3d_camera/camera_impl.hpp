@@ -83,6 +83,7 @@ namespace ifm3d
     std::vector<ifm3d::app_entry_t> ApplicationList();
     std::string RequestSession();
     std::vector<std::uint8_t> UnitVectors();
+    void ForceTrigger();
 
     // Session
     bool CancelSession();
@@ -118,7 +119,6 @@ namespace ifm3d
     std::string AppParameter(const std::string& param);
     void SetAppParameter(const std::string& param, const std::string& val);
     void SaveApp();
-    void ForceTrigger();
 
     // Imager
     std::unordered_map<std::string, std::string> ImagerInfo();
@@ -578,6 +578,12 @@ ifm3d::Camera::Impl::UnitVectors()
   return v_bytes.vectorUcharValue();
 }
 
+void
+ifm3d::Camera::Impl::ForceTrigger()
+{
+  this->_XCallMain("trigger");
+}
+
 // ---------------------------------------------
 // Session
 // ---------------------------------------------
@@ -798,12 +804,6 @@ void
 ifm3d::Camera::Impl::SaveApp()
 {
   this->_XCallApp("save");
-}
-
-void
-ifm3d::Camera::Impl::ForceTrigger()
-{
-  this->_XCallApp("forceTrigger");
 }
 
 // ---------------------------------------------

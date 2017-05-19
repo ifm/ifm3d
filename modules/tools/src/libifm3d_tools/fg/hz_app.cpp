@@ -94,7 +94,7 @@ int ifm3d::HzApp::Run()
   if (nruns >= 1)
     {
       std::size_t sz = stats.size();
-      std::nth_element(stats.begin(), stats.begin() + sz/2, stats.end());
+      std::sort(stats.begin(), stats.end());
 
       if (sz % 2 == 0)
         {
