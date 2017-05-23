@@ -133,8 +133,9 @@ TEST_F(CameraTest, ImportExportApplication)
 
   if (this->cam_->IsO3X())
     {
-      EXPECT_THROW(bytes = this->cam_->ExportIFMApp(idx),
-                   ifm3d::error_t);
+      EXPECT_NO_THROW(bytes = this->cam_->ExportIFMApp(idx));
+      EXPECT_NO_THROW(new_idx = this->cam_->ImportIFMApp(bytes));
+      EXPECT_EQ(new_idx, idx); // single app on O3X
     }
   else
     {
@@ -154,17 +155,11 @@ TEST_F(CameraTest, ImportExportConfig)
 {
   std::vector<std::uint8_t> bytes;
 
-  if (this->cam_->IsO3X())
-    {
-      EXPECT_THROW(bytes = this->cam_->ExportIFMConfig(),
-                   ifm3d::error_t);
-      return;
-    }
-
   EXPECT_NO_THROW(bytes = this->cam_->ExportIFMConfig());
   EXPECT_NO_THROW(
     this->cam_->ImportIFMConfig(
-      bytes, static_cast<std::uint16_t>(ifm3d::Camera::import_flags::GLOBAL)));
+      bytes,
+      static_cast<std::uint16_t>(ifm3d::Camera::import_flags::GLOBAL)));
 }
 
 TEST_F(CameraTest, ActiveApplication)

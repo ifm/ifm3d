@@ -444,12 +444,6 @@ ifm3d::Camera::FactoryReset()
 std::vector<std::uint8_t>
 ifm3d::Camera::ExportIFMConfig()
 {
-  if (this->IsO3X())
-    {
-      LOG(ERROR) << "O3X does not support exporting a camera config";
-      throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
-    }
-
   return this->pImpl->WrapInEditSession<std::vector<std::uint8_t> >(
     [this]()->std::vector<std::uint8_t>
     { return this->pImpl->ExportIFMConfig(); });
@@ -458,12 +452,6 @@ ifm3d::Camera::ExportIFMConfig()
 std::vector<std::uint8_t>
 ifm3d::Camera::ExportIFMApp(int idx)
 {
-  if (this->IsO3X())
-    {
-      LOG(ERROR) << "O3X only supports exporting an entire camera config";
-      throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
-    }
-
   return this->pImpl->WrapInEditSession<std::vector<std::uint8_t> >(
     [this,idx]()->std::vector<std::uint8_t>
     { return this->pImpl->ExportIFMApp(idx); });
@@ -473,12 +461,6 @@ void
 ifm3d::Camera::ImportIFMConfig(const std::vector<std::uint8_t>& bytes,
                                std::uint16_t flags)
 {
-  if (this->IsO3X())
-    {
-      LOG(ERROR) << "O3X does not support importing a camera config";
-      throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
-    }
-
   return this->pImpl->WrapInEditSession(
     [this,&bytes,flags]() { this->pImpl->ImportIFMConfig(bytes, flags); });
 }
@@ -486,12 +468,6 @@ ifm3d::Camera::ImportIFMConfig(const std::vector<std::uint8_t>& bytes,
 int
 ifm3d::Camera::ImportIFMApp(const std::vector<std::uint8_t>& bytes)
 {
-  if (this->IsO3X())
-    {
-      LOG(ERROR) << "O3X only supports a single app, import-app not supported";
-      throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
-    }
-
   return this->pImpl->WrapInEditSession<int>(
     [this,&bytes]()->int { return this->pImpl->ImportIFMApp(bytes); });
 }
