@@ -11,30 +11,32 @@ Software Compatibility Matrix
     <th>ifm3d version</th>
     <th>O3D Firmware Version</th>
     <th>O3X Firmware Version</th>
+    <th>Ubuntu Linux Version</th>
     <th>Notes</th>
   </tr>
   <tr>
     <td>0.1.0</td>
     <td>1.6.2114</td>
     <td>0.1.4</td>
+    <td>16.04</td>
     <td>Initial (beta) release</td>
   </tr>
   <tr>
     <td>0.2.0</td>
     <td>1.6.2114</td>
     <td>0.1.16</td>
-    <td></td>
+    <td>14.04, 16.04</td>
+    <td>Software triggering (O3X), support for Ubuntu 14.04</td>
   </tr>
 </table>
 
-Disclaimer
-----------
-This software is under active development and not yet ready for production
-systems. If you are looking for a C++ sensor interface to the ifm O3D303,
-please consider using [libo3d3xx](https://github.com/lovepark/libo3d3xx).
-
-If you are an early-adopter user of the new O3X, please keep reading.
-
+**NOTE**: Our *officially supported platform* is Ubuntu Linux. However, other
+  operating systems will likely be acceptable, especially other Debian-based
+  Linuxes. We also note that, WRT Ubuntu Linux, our current plan is to support
+  the two most recent LTS releases. So, for example, as of this writing, we
+  currently support 16.04 (preferred) and 14.04. Once 18.04 is released, we
+  will drop support for 14.04 and only be supporting 18.04 and 16.04. If you
+  are using this library embedded in a product, you should plan accordingly.
 
 Organization of the Software
 ----------------------------
@@ -67,19 +69,13 @@ The ifm3d software is organized into modules, they are:
   </tr>
 </table>
 
-
 Installing the Software
 -----------------------
 
 ### Building from source
 
-**NOTE:** If you are on Ubuntu 16.04 LTS and you are running ROS, we highly
-  recommend you just install
-  [our supplied binaries](https://github.com/lovepark/ifm3d/releases/tag/v0.1.0). Further
-  instructions are listed below.
-
-If you plan to build the software from source, you will need to have the
-following pre-requisites installed on your machine:
+Building the software from source, requires the following pre-requisites
+installed on your machine:
 
 * [Boost](http://www.boost.org)
 * [Gtest](https://github.com/google/googletest)
@@ -100,78 +96,64 @@ $ make check
 $ sudo make install
 ```
 
+Alternatively, if you are on a supported Linux platform (see above), the
+preferred method of building and installing the software is:
+
+```
+$ mkdir build
+$ cd build
+$ cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+$ make
+$ make check
+$ make package
+$ make repackage
+$ sudo dpkg -i ifm3d_0.2.0_amd64-camera.deb
+$ sudo dpkg -i ifm3d_0.2.0_amd64-framegrabber.deb
+$ sudo dpkg -i ifm3d_0.2.0_amd64-image.deb
+$ sudo dpkg -i ifm3d_0.2.0_amd64-tools.deb
+```
+(The version number embedded in the deb file will be dependent upon which
+version of the `ifm3d` software you are building)
+
 A few important notes when building from source:
 
-* For the `make check` step, we highly recommend you run your unit tests
-  against an O3D and **not** an O3X. Some of the tests will likely
-  fail. However, this will not be an indication that there is a problem with
-  the software. We are still characterizing this new sensor and we are working
-  very closely with ifm to gain clarity on its expected behavior. Running the
-  unit tests against an O3D however, should pass. If the O3D tests pass, you
-  should be OK to install the software and run it against either an O3D or
-  O3X.
+* For the `make check` step, you will need to have your camera plugged in. The
+  cameras settings will get mutated by this process, so, you are encouraged to
+  back up your configuration if you'd like to later restore your camera to its
+  pre-testing state. You are also encouraged to test against the camera (or
+  cameras) you plan to use. I.e., O3D, O3X, etc. Please note that testing
+  against the O3X will fail unless you have at least version 0.1.16 of the ifm
+  firmware installed on the device.
 
-* An alternative to the `make install` step (which we don't like very much
-  ourselves) is to `make package`. This will create a set of deb files that you
-  can then install with `dpkg`. We note however that our OpenCV dependency in
-  the Debian control file is expressed as the OpenCV supplied with ROS, which
-  you may not have installed. In which case, your easiest path forward may be
-  to use the `make install` step as called out above.
+* Many `ifm3d` users ultimately plan to use this library along with its
+  associated [ROS wrapper](https://github.com/lovepark/ifm3d-ros). If this is
+  the case, you need to be sure that the version of OpenCV that you link to in
+  both `ifm3d` and `ifm3d-ros` are consistent. To give you some control over
+  that, the build process allows you to explicitly call out which version of
+  OpenCV you wish to use. For example, if you are on 14.04 and using ROS
+  Indigo, your `cmake` line above should look something like: `$ cmake
+  -DCMAKE_INSTALL_PREFIX=/usr -DFORCE_OPENCV2=ON ..`. Similarly, if you are on
+  16.04 and ROS Kinetic, your `cmake` line above should look something like: `$ cmake
+  -DCMAKE_INSTALL_PREFIX=/usr -DFORCE_OPENCV3=ON ..`
 
 
-### Installing binaries
+Basic Library Usage
+-------------------
+A set of example programs for using the library are forthcoming. In the
+meantime, please refer to
+[the image module unit tests](modules/image/test/ifm3d-image-tests.cpp) for
+concrete examples of library usage. We think you will find those instructive
+and will enable you to get started quickly with the software.
 
-If you are running on Ubuntu (16.04 LTS) and running ROS (Kinetic), binaries
-have been supplied with the initial 0.1.0 release. They can be downloaded from
-[here](https://github.com/lovepark/ifm3d/releases/tag/v0.1.0)
 
-Before installing the supplied debs, you should first update your packages on
-Ubuntu 16.04 LTS:
+Configuring Your Camera
+-----------------------
+(For exemplary purposes, we assume an O3X camera)
 
-    $ sudo apt-get update
-    $ sudo apt-get -u upgrade
+The central command-line tool provided with the library is the
+appropriately-named binary program `ifm3d`.
 
-You should then
-[install ROS](http://wiki.ros.org/kinetic/Installation/Ubuntu). We recommend
-the `ros-kinetic-desktop-full` installation.
-
-**NOTE:** ROS is not strictly necessary for using ifm3d. We recommend
-  installing ROS when using our supplied binaries because (currently) our
-  dependency on OpenCV in the Debian control file is expressed as the version
-  of OpenCV 3 supplied with ROS Kinetic, namely
-  `ros-kinetic-opencv3`. Experienced users can work around this restriction.
-
-Once you have downloaded the supplied binaries, they can be installed as
-follows (please note the order of installation):
-
-    $ sudo dpkg -i ifm3d_0.1.0_amd64-camera.deb
-    $ sudo dpkg -i ifm3d_0.1.0_amd64-framegrabber.deb
-    $ sudo dpkg -i ifm3d_0.1.0_amd64-image.deb
-    $ sudo dpkg -i ifm3d_0.1.0_amd64-tools.deb
-
-If you run into a dependency issues, e.g., on a fresh Ubuntu install you may
-see something like:
-
-```
-$ sudo dpkg -i ifm3d_0.1.0_amd64-camera.deb
-Selecting previously unselected package ifm3d-camera.
-(Reading database ... 249133 files and directories currently installed.)
-Preparing to unpack ifm3d_0.1.0_amd64-camera.deb ...
-Unpacking ifm3d-camera (0.1.0) ...
-dpkg: dependency problems prevent configuration of ifm3d-camera:
- ifm3d-camera depends on libgoogle-glog0v5; however:
-  Package libgoogle-glog0v5 is not installed.
- ifm3d-camera depends on libxmlrpc-c++8v5; however:
-  Package libxmlrpc-c++8v5 is not installed.
-```
-
-You can do the following to resolve this:
-
-    $ sudo apt-get -f install
-
-At this point, if your camera is plugged in and powered on, you should be able
-to (for example) dump its configuration. For example with an O3X plugged in:
-
+To view your current camera settings, you can run the following command:
 ```
 $ ifm3d dump
 {
@@ -347,7 +329,6 @@ follow the instructions from there.
 
 Known Issues, Bugs, and our TODO list
 -------------------------------------
-
 We greatly appreciate your choice to use our sensor interface software. As of
 this writing, this software is very new. However, it is informed by many years
 of developing and supporting
@@ -363,10 +344,9 @@ We appreciate your feedback as you use the code. We will be tracking things
 
 LICENSE
 -------
-
 Please see the file called [LICENSE](LICENSE).
+
 
 AUTHORS
 -------
-
 Tom Panzarella <tom@loveparkrobotics.com>

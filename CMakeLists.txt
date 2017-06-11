@@ -1,5 +1,5 @@
 project(IFM3D CXX)
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 2.8.3)
 set(GIT_PROJECT_NAME "ifm3d")
 
 # Make our cmake functions accessible
@@ -32,11 +32,11 @@ set(GTEST_CMAKE_DIR "/usr/src/gtest" CACHE STRING "GTest cmake project dir")
 
 # Global compiler flags
 set(CMAKE_BUILD_TYPE Release) # Release or Debug
-set(CMAKE_CXX_EXTENSIONS OFF) # OFF -> -std=c++14, ON -> -std=gnu++14
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_EXTENSIONS OFF) # OFF -> -std=c++11, ON -> -std=gnu++11
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s") # create stripped binaries
+    "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s -std=c++11")
 
 # Bootstrap gtest
 if(BUILD_TESTS)
@@ -65,37 +65,29 @@ endif()
 #################################################
 # Packaging stuff - for now, we build debs only
 #################################################
-# file(COPY ${IFM3D_SOURCE_DIR}/cmake/ifm3d/IFM3DConfig.cmake.in
-#   DESTINATION ${IFM3D_BINARY_DIR}
-#   )
-# configure_file(
-#   ${IFM3D_BINARY_DIR}/IFM3DConfig.cmake.in
-#   ${IFM3D_BINARY_DIR}/IFM3DConfig.cmake
-#   @ONLY
-#   )
-# file(COPY ${IFM3D_SOURCE_DIR}/cmake/ifm3d/IFM3DConfigVersion.cmake.in
-#   DESTINATION ${IFM3D_BINARY_DIR}
-#   )
-# configure_file(
-#   ${IFM3D_BINARY_DIR}/IFM3DConfigVersion.cmake.in
-#   ${IFM3D_BINARY_DIR}/IFM3DConfigVersion.cmake
-#   @ONLY
-#   )
-# install(FILES
-#   ${IFM3D_BINARY_DIR}/IFM3DConfig.cmake
-#   ${IFM3D_BINARY_DIR}/IFM3DConfigVersion.cmake
-#   DESTINATION lib/ifm3d
-#   COMPONENT camera
-#   )
-
+file(COPY ${IFM3D_SOURCE_DIR}/cmake/utils/ifm3d-dpkg-deps.py.in
+  DESTINATION ${IFM3D_BINARY_DIR}
+  FILE_PERMISSIONS OWNER_READ
+                   OWNER_WRITE
+                   OWNER_EXECUTE
+                   GROUP_READ
+                   GROUP_EXECUTE
+                   WORLD_READ
+                   WORLD_EXECUTE
+  )
+configure_file(
+  ${IFM3D_BINARY_DIR}/ifm3d-dpkg-deps.py.in
+  ${IFM3D_BINARY_DIR}/ifm3d-dpkg-deps.py
+  @ONLY
+  )
 
 # Turn on component-based installation
 set(CPACK_DEB_COMPONENT_INSTALL ON)
 set(CPACK_GENERATOR "DEB")
 
 # Package architecture
+find_program(DPKG_CMD dpkg)
 if(NOT CMAKE_CROSSCOMPILING)
-  find_program(DPKG_CMD dpkg)
   if(NOT DPKG_CMD)
     message(STATUS
       "Cannot find dpkg in your path, default to ${CMAKE_SYSTEM_PROCESSOR}.")
@@ -119,47 +111,13 @@ set(CPACK_PACKAGE_CONTACT "Tom Panzarella <tom@loveparkrobotics.com>")
 set(CPACK_PACKAGE_VERSION_MAJOR ${IFM3D_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${IFM3D_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${IFM3D_VERSION_PATCH})
-string(CONCAT CPACK_PACKAGE_FILE_NAME
-  "${GIT_PROJECT_NAME}" "_"
-  "${IFM3D_VERSION_STRING}" "_"
-  "${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
+set(CPACK_PACKAGE_FILE_NAME
+    "${GIT_PROJECT_NAME}_${IFM3D_VERSION_STRING}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
 
-# dependencies of the various modules
-#set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON) <-- good idea, doesn't work
-string(CONCAT CAMERA_MODULE_DEPS
-  "libc6 (>= 2.14), "
-  "libgcc1 (>= 1:3.0), "
-  "libgoogle-glog0v5, "
-  "libstdc++6 (>= 5.2), "
-  "libxmlrpc-c++8v5")
-set(CPACK_DEBIAN_CAMERA_PACKAGE_DEPENDS ${CAMERA_MODULE_DEPS})
-
-string(CONCAT FG_MODULE_DEPS
-  "libboost-system1.58.0, "
-  "libc6 (>= 2.14), "
-  "libgcc1 (>= 1:3.0), "
-  "libgoogle-glog0v5, "
-  "libstdc++6 (>= 5.2), "
-  "ifm3d-camera (= ${IFM3D_VERSION_STRING})")
-set(CPACK_DEBIAN_FRAMEGRABBER_PACKAGE_DEPENDS ${FG_MODULE_DEPS})
-
-string(CONCAT IMAGE_MODULE_DEPS
-  "libc6 (>= 2.4), "
-  "libgcc1 (>= 1:3.0), "
-  "libgoogle-glog0v5, "
-  "libstdc++6 (>= 5.2), "
-  "ros-kinetic-opencv3, "
-  "ifm3d-camera (= ${IFM3D_VERSION_STRING}), "
-  "ifm3d-framegrabber (= ${IFM3D_VERSION_STRING})")
-set(CPACK_DEBIAN_IMAGE_PACKAGE_DEPENDS ${IMAGE_MODULE_DEPS})
-
-string(CONCAT TOOLS_MODULE_DEPS
-  "libc6 (>= 2.4), "
-  "libgcc1 (>= 1:3.0), "
-  "libstdc++6 (>= 5.2), "
-  "libboost-program-options1.58.0, "
-  "ifm3d-camera (= ${IFM3D_VERSION_STRING}), "
-  "ifm3d-framegrabber (= ${IFM3D_VERSION_STRING})")
-set(CPACK_DEBIAN_TOOLS_PACKAGE_DEPENDS ${TOOLS_MODULE_DEPS})
+# dynamically create dependencies of the various modules
+#set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON) # <-- Good idea, doesn't work for us
+add_custom_target(repackage
+  COMMAND ${IFM3D_BINARY_DIR}/ifm3d-dpkg-deps.py ${IFM3D_BINARY_DIR}/*.deb
+  )
 
 include(CPack)

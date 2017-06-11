@@ -1,5 +1,7 @@
 project(IFM3D_IMAGE CXX)
 set(IFM3D_IMAGE_MODULE_NAME "libifm3d-image")
+option(FORCE_OPENCV3 "Force the build to require OpenCV 3" OFF)
+option(FORCE_OPENCV2 "Force the build to require OpenCV 2.4" OFF)
 
 file(COPY ${IFM3D_IMAGE_SOURCE_DIR}/include
   DESTINATION ${IFM3D_IMAGE_BINARY_DIR}
@@ -9,7 +11,13 @@ file(COPY ${IFM3D_IMAGE_SOURCE_DIR}/include
 ## Bring in dependent projects
 ################################################
 find_package(PCL 1.7 REQUIRED COMPONENTS common)
-find_package(OpenCV 3 REQUIRED)
+if(FORCE_OPENCV3)
+  find_package(OpenCV 3 REQUIRED)
+elseif(FORCE_OPENCV2)
+  find_package(OpenCV 2.4 REQUIRED)
+else()
+  find_package(OpenCV REQUIRED)
+endif()
 
 ################################################
 ## Compiler and linker settings
