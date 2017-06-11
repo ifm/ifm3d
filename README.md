@@ -72,7 +72,7 @@ The ifm3d software is organized into modules, they are:
 Installing the Software
 -----------------------
 
-### Building from source
+### Build Dependencies
 
 Building the software from source, requires the following pre-requisites
 installed on your machine:
@@ -84,6 +84,20 @@ installed on your machine:
 * [CMake](http://www.cmake.org)
 * [OpenCV](http://opencv.org)
 * [PCL](http://pointclouds.org)
+
+Additionally, if you plan to build the debian packages and have the
+dependencies computed for you dynamically (see the note below on the
+`repackage` target), you will also need:
+
+* [Python 2.7](https://www.python.org/)
+* [readelf](https://www.gnu.org/software/binutils/) (Part of the `binutils` package)
+* [dpkg](https://help.ubuntu.com/lts/serverguide/dpkg.html)
+
+We note that, if you are running on a supported Linux, all of these packages
+are available through the offical debian repositories and should be a simple
+`apt-get` away from being installed on your machine.
+
+### Building From Source
 
 Building the software follows the usual cmake idiom of:
 
@@ -135,6 +149,19 @@ A few important notes when building from source:
   -DCMAKE_INSTALL_PREFIX=/usr -DFORCE_OPENCV2=ON ..`. Similarly, if you are on
   16.04 and ROS Kinetic, your `cmake` line above should look something like: `$ cmake
   -DCMAKE_INSTALL_PREFIX=/usr -DFORCE_OPENCV3=ON ..`
+
+* Experienced users may be puzzled by the `repackage` step. If you are simply
+  building for your local machine, you can skip it (albeit, with minimal
+  risk). This step is used to dynamically compute the debian dependencies for
+  the particular module. Due to how we are partitioning out the software, this
+  approach is necessary vs. the more traditional
+  `CPACK_DEBIAN_PACKAGE_SHLIBDEPS` wrapper around `dpkg-shlibdeps`. We
+  basically created [a version of that tool](cmake/utils/ifm3d-dpkg-deps.py.in)
+  that exploits *a-priori* information about the `ifm3d` environment to
+  properly compute the debian dependencies. If you are building debs on a build
+  machine to be distributed out to various runtime computers, you will
+  certainly want to exectue the `repackage` target so that you are ensured the
+  runtime machines have the proper dependency chain in place.
 
 
 Basic Library Usage

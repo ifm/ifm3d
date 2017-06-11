@@ -97,7 +97,10 @@ class DpkgDeps(object):
             n = len(self.deb_deps_.keys())
             i = 0
             for deb, version in self.deb_deps_.iteritems():
-                file.write("%s (= %s)" % (deb, version))
+                if "ifm3d" in deb:
+                    file.write("%s (= %s)" % (deb, version))
+                else:
+                    file.write("%s (>= %s)" % (deb, version))
                 if i < n - 1:
                     file.write(", ")
                 i += 1
