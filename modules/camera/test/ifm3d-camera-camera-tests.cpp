@@ -26,7 +26,7 @@ protected:
 TEST_F(CameraTest, FactoryDefaults)
 {
   EXPECT_NO_THROW(this->cam_->FactoryReset());
-  std::this_thread::sleep_for(std::chrono::seconds(3));
+  std::this_thread::sleep_for(std::chrono::seconds(6));
   EXPECT_NO_THROW(this->cam_->DeviceType());
 }
 

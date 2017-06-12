@@ -14,7 +14,7 @@ TEST(FrameGrabber, FactoryDefaults)
   auto cam = ifm3d::Camera::MakeShared();
 
   EXPECT_NO_THROW(cam->FactoryReset());
-  std::this_thread::sleep_for(std::chrono::seconds(3));
+  std::this_thread::sleep_for(std::chrono::seconds(6));
   EXPECT_NO_THROW(cam->DeviceType());
 }
 
