@@ -24,7 +24,7 @@ Software Compatibility Matrix
   <tr>
     <td>0.2.0</td>
     <td>1.6.2114</td>
-    <td>0.1.16</td>
+    <td>0.1.16, 0.1.20</td>
     <td>14.04, 16.04</td>
     <td>Software triggering (O3X), support for Ubuntu 14.04</td>
   </tr>
