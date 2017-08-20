@@ -1,6 +1,6 @@
 ## Changes between ifm3d 0.2.0 and 0.3.0
 
-* Support for NTP
+* Support for NTP (on O3X)
 
 ## Changes between ifm3d 0.1.0 and 0.2.0
 
