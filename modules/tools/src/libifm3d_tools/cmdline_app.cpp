@@ -138,6 +138,7 @@ These are common commands used in various situations:
 
   help_msg +=
     R"(
+    time        Get/set the current time on the camera.
 
 For bug reports, please see:
 https://github.com/lovepark/ifm3d/issues
