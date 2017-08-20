@@ -18,7 +18,9 @@
 #ifndef __IFM3D_CAMERA_CAMERA_IMPL_HPP__
 #define __IFM3D_CAMERA_CAMERA_IMPL_HPP__
 
+#include <chrono>
 #include <cstdint>
+#include <ctime>
 #include <functional>
 #include <map>
 #include <mutex>
@@ -41,6 +43,7 @@ namespace ifm3d
   const std::string XMLRPC_EDIT = "edit/";
   const std::string XMLRPC_DEVICE = "device/";
   const std::string XMLRPC_NET = "network/";
+  const std::string XMLRPC_TIME = "time/";
   const std::string XMLRPC_APP = "application/";
   const std::string XMLRPC_IMAGER = "imager_001/";
   const std::string XMLRPC_SPATIALFILTER = "spatialfilter";
@@ -114,6 +117,14 @@ namespace ifm3d
     std::string NetParameter(const std::string& param);
     void SetNetParameter(const std::string& param, const std::string& val);
     void SaveNet();
+
+    // Time
+    std::unordered_map<std::string, std::string> TimeInfo();
+    std::string TimeParameter(const std::string& param);
+    void SetTimeParameter(const std::string& param, const std::string& val);
+    void SaveTime();
+    // A value less than 0 (the default) will set the time to "now"
+    void SetCurrentTime(int epoch_seconds = -1);
 
     // Application
     std::unordered_map<std::string, std::string> AppInfo();
@@ -310,6 +321,16 @@ namespace ifm3d
       std::string url =
         this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
         ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE + ifm3d::XMLRPC_NET;
+      return this->_XCall(url, method, args...);
+    }
+
+    template <typename... Args>
+    xmlrpc_c::value const
+    _XCallTime(const std::string& method, Args... args)
+    {
+      std::string url =
+        this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
+        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE + ifm3d::XMLRPC_TIME;
       return this->_XCall(url, method, args...);
     }
 
@@ -779,6 +800,48 @@ ifm3d::Camera::Impl::SaveNet()
 {
   this->_XCallNet("saveAndActivateConfig");
 }
+
+// ---------------------------------------------
+// Time
+// ---------------------------------------------
+
+std::unordered_map<std::string, std::string>
+ifm3d::Camera::Impl::TimeInfo()
+{
+  return this->value_struct_to_map(this->_XCallTime("getAllParameters"));
+}
+
+std::string
+ifm3d::Camera::Impl::TimeParameter(const std::string& param)
+{
+  return xmlrpc_c::value_string(
+           this->_XCallTime("getParameter", param.c_str())).cvalue();
+}
+
+void
+ifm3d::Camera::Impl::SetTimeParameter(const std::string& param,
+                                      const std::string& val)
+{
+  this->_XCallTime("setParameter", param.c_str(), val.c_str());
+}
+
+void ifm3d::Camera::Impl::SaveTime()
+{
+  this->_XCallTime("saveAndActivateConfig");
+}
+
+
+void
+ifm3d::Camera::Impl::SetCurrentTime(int epoch_seconds)
+{
+  if (epoch_seconds < 0)
+    {
+      epoch_seconds = std::chrono::seconds(std::time(nullptr)).count();
+    }
+
+  this->_XCallTime("setCurrentTime", epoch_seconds);
+}
+
 
 // ---------------------------------------------
 // Application

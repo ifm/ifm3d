@@ -87,6 +87,15 @@ RO_LUT =
      }
     },
 
+    {"Time",
+     {
+       {"StartingSynchronization", true},
+       {"Syncing", true},
+       {"CurrentTime", true},
+       {"Stats", true},
+     }
+    },
+
     {"Imager",
      {
        // Do not uncomment this! We treat the "Type"
@@ -441,6 +450,13 @@ ifm3d::Camera::FactoryReset()
   this->pImpl->WrapInEditSession([this]() { this->pImpl->FactoryReset(); });
 }
 
+void
+ifm3d::Camera::SetCurrentTime(int epoch_secs)
+{
+  this->pImpl->WrapInEditSession(
+    [this,epoch_secs]() { this->pImpl->SetCurrentTime(epoch_secs); });
+}
+
 std::vector<std::uint8_t>
 ifm3d::Camera::ExportIFMConfig()
 {
@@ -484,11 +500,16 @@ ifm3d::Camera::ToJSON()
 
   json app_list = this->ApplicationList();
   json net_info, app_info;
+  json time_info = json::parse("{}");
 
   this->pImpl->WrapInEditSession(
-    [this,&net_info,&app_info,&app_list]()
+    [this,&net_info,&time_info,&app_info,&app_list]()
     {
       net_info = json(this->pImpl->NetInfo());
+      if (this->IsO3X())
+        {
+          time_info = json(this->pImpl->TimeInfo());
+        }
       app_info = json::parse("[]");
 
       for (auto& app : app_list)
@@ -537,6 +558,7 @@ ifm3d::Camera::ToJSON()
          },
          {"Device", json(this->pImpl->DeviceInfo())},
          {"Net", net_info},
+         {"Time", time_info},
          {"Apps", app_info}
        }
       }
@@ -823,6 +845,21 @@ ifm3d::Camera::FromJSON(const json& j)
                               [this](){ this->pImpl->SaveApp(); },
                               "TemporalFilter", idx);
             }
+        }
+    }
+
+  // Time
+  if (this->IsO3X())
+    {
+      json j_time = root["Time"];
+      if (! j_time.is_null())
+        {
+          this->FromJSON_(current["ifm3d"]["Time"], j_time,
+                          [this](const std::string& k,
+                                 const std::string& v)
+                          { this->pImpl->SetTimeParameter(k,v); },
+                          [this](){ this->pImpl->SaveTime(); },
+                          "Time");
         }
     }
 

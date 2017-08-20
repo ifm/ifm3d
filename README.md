@@ -28,6 +28,13 @@ Software Compatibility Matrix
     <td>14.04, 16.04</td>
     <td>Software triggering (O3X), support for Ubuntu 14.04</td>
   </tr>
+  <tr>
+    <td>0.3.0</td>
+    <td>1.6.2114</td>
+    <td>0.1.20</td>
+    <td>14.04, 16.04</td>
+    <td>Parsing extrinsics (O3D), NTP support (O3X), Simple GUI</td>
+  </tr>
 </table>
 
 **NOTE**: Our *officially supported platform* is Ubuntu Linux. However, other

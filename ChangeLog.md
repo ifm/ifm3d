@@ -1,3 +1,7 @@
+## Changes between ifm3d 0.2.0 and 0.3.0
+
+* Support for NTP
+
 ## Changes between ifm3d 0.1.0 and 0.2.0
 
 * Added software trigger support to O3X

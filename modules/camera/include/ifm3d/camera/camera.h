@@ -358,6 +358,15 @@ namespace ifm3d
     virtual void DeleteApplication(int idx);
 
     /**
+     * Explicitly sets the current time on the camera.
+     *
+     * @param[in] epoch_secs Time since the Unix epoch in seconds.
+     *            A value less than 0 will implicitly set the time
+     *            to the current system time.
+     */
+    virtual void SetCurrentTime(int epoch_secs = -1);
+
+    /**
      * Sets the camera configuration back to the state in which it shipped from
      * the ifm factory.
      */
