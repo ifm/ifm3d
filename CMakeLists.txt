@@ -56,6 +56,7 @@ if(BUILD_MODULE_IMAGE)
   # we are going to let the compiler convey the message (for now) instead of
   # doing some implicit CMake stuff that will be hard to maintain and
   # confuse the end-user.
+  add_definitions(-DBUILD_MODULE_IMAGE=ON)
   add_subdirectory(modules/image)
 endif()
 if(BUILD_MODULE_TOOLS)
