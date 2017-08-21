@@ -50,14 +50,18 @@ public:
     //
     auto pclvis_ =
       std::make_shared<pcl::visualization::PCLVisualizer>(this->description_);
-    pclvis_->setBackgroundColor(0, 0, 0);
     pclvis_->setSize(win_w, win_h);
+
+    int v_pcl(0);
+    pclvis_->createViewPort(0., 0., 1., 1., v_pcl);
+    pclvis_->setBackgroundColor(0, 0, 0, v_pcl);
     pclvis_->setCameraPosition(-3.0, // x-position
                                0,    // y-position
                                0,    // z-position
                                0,    // x-axis "up" (0 = false)
                                0,    // y-axis "up" (0 = false)
-                               1);   // z-axis "up" (1 = true)
+                               1,    // z-axis "up" (1 = true)
+                               v_pcl);    // viewport
 
     // use "A" and "a" to toggle axes indicators
     pclvis_->registerKeyboardCallback(
@@ -65,18 +69,19 @@ public:
       {
         if (ev.getKeySym() == "A" && ev.keyDown())
           {
-            pclvis_->addCoordinateSystem();
+            pclvis_->addCoordinateSystem(1., v_pcl);
           }
         else if (ev.getKeySym() == "a" && ev.keyDown())
           {
-            pclvis_->removeCoordinateSystem();
+            pclvis_->removeCoordinateSystem(v_pcl);
           }
       });
 
    bool is_first = true;
-    while (! pclvis_->wasStopped())
+   while (! pclvis_->wasStopped())
       {
         pclvis_->spinOnce(100);
+
         if (! fg->WaitForFrame(buff.get(), 500))
           {
             continue;
@@ -91,7 +96,8 @@ public:
         if (is_first)
           {
             is_first = false;
-            pclvis_->addPointCloud(buff->Cloud(), color_handler, "cloud");
+            pclvis_->addPointCloud(buff->Cloud(), color_handler, "cloud",
+                                   v_pcl);
           }
         else
           {
