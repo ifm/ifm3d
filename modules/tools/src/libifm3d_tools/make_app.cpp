@@ -106,6 +106,13 @@ app_factory =
      { return std::make_shared<ifm3d::HzApp>(argc, argv, cmd); }},
 #endif
 
+#if defined(BUILD_MODULE_IMAGE)
+    {"viewer",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::ViewerApp>(argc, argv, cmd); }},
+#endif
+
     {"version",
      [](int argc, const char** argv, const std::string& cmd)
      ->ifm3d::CmdLineApp::Ptr

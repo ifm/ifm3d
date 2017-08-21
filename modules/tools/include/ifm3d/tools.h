@@ -38,4 +38,8 @@
 #include <ifm3d/tools/fg/hz_app.h>
 #endif
 
+#if defined(BUILD_MODULE_IMAGE)
+#include <ifm3d/tools/image/viewer_app.h>
+#endif
+
 #endif // __IFM3D_TOOLS_H__
