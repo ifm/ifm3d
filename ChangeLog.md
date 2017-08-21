@@ -1,6 +1,9 @@
 ## Changes between ifm3d 0.2.0 and 0.3.0
 
 * Support for NTP (on O3X)
+* Added simple viewer sub-command to the `ifm3d` command-line program. This
+  viewer will render the point cloud and color each pixel with the normalized
+  amplitude value registered to that point.
 
 ## Changes between ifm3d 0.1.0 and 0.2.0
 

@@ -37,10 +37,10 @@ if (BUILD_MODULE_IMAGE)
       list(REMOVE_ITEM PCL_VISUALIZATION_LIBRARIES "vtkproj4")
     endif()
   endif()
+
   include_directories(
     ${IFM3D_IMAGE_BINARY_DIR}/include
     ${PCL_INCLUDE_DIRS}
-    ${OpenCV_INCLUDE_DIRS}
     )
 endif()
 
