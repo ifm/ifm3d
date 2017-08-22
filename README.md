@@ -3,6 +3,8 @@ ifm3d
 =====
 Library and utilities for working with ifm pmd-based 3D ToF Cameras.
 
+![viewer](doc/ifm3d_viewer.png)
+
 
 Software Compatibility Matrix
 -----------------------------
@@ -287,7 +289,7 @@ You can see what else is available via the `ifm3d` tool by running:
 
 ```
 $ ifm3d --help
-ifm3d: version=0.1.0
+ifm3d: version=0.3.0
 usage: ifm3d [<global options>] <command> [<args>]
 
 global options:
@@ -332,6 +334,10 @@ These are common commands used in various situations:
 
     schema      Construct and analyze image acquisition schema masks.
 
+    time        Get/set the current time on the camera.
+
+    viewer      Stream and view real-time data from the camera.
+
 
 For bug reports, please see:
 https://github.com/lovepark/ifm3d/issues
@@ -355,26 +361,9 @@ reboot options:
   -r [ --recovery ]     Reboot into recovery mode
 ```
 
-For viewing the point cloud data, currently, our only supported visualization
-tool is [rviz](http://wiki.ros.org/rviz). To utilize it, you will need to
-install our [ifm3d ROS bindings](https://github.com/lovepark/ifm3d-ros) and
-follow the instructions from there.
-
-
 Known Issues, Bugs, and our TODO list
 -------------------------------------
-We greatly appreciate your choice to use our sensor interface software. As of
-this writing, this software is very new. However, it is informed by many years
-of developing and supporting
-[libo3d3xx](https://github.com/lovepark/libo3d3xx), the de-facto C++ sensor
-interface to the ifm O3D. We are committed to evolving this software package
-into the production quality code that has made libo3d3xx the basis of many
-commercial products with the additional benefit of providing a hardware
-abstraction layer over top of *all* ifm pmd-based 3D ToF cameras.
-
-We appreciate your feedback as you use the code. We will be tracking things
-(including our TODO list) on the
-[Github Issue Tracker](https://github.com/lovepark/ifm3d/issues).
+Please see the [Github Issue Tracker](https://github.com/lovepark/ifm3d/issues).
 
 LICENSE
 -------
