@@ -1,3 +1,7 @@
+## Changes between ifm3d 0.3.0 and 0.3.1
+
+* Fixed regression on 14.04 - no compiler support for std::put_time (#3)
+
 ## Changes between ifm3d 0.2.0 and 0.3.0
 
 * Support for NTP (on O3X)
