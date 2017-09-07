@@ -64,7 +64,7 @@ int ifm3d::TimeApp::Run()
     std::stoi(dump["ifm3d"]["Time"]["CurrentTime"].get<std::string>());
   std::time_t curr_time_t = curr_time;
   std::cout << "Local time on camera is: "
-            << std::put_time(std::localtime(&curr_time_t), "%c %Z")
+            << std::asctime(std::localtime(&curr_time_t))
             << std::endl;
 
   return 0;
