@@ -38,9 +38,18 @@ if (BUILD_MODULE_IMAGE)
     endif()
   endif()
 
+  if(FORCE_OPENCV3)
+    find_package(OpenCV 3 REQUIRED)
+  elseif(FORCE_OPENCV2)
+    find_package(OpenCV 2.4 REQUIRED)
+  else()
+    find_package(OpenCV REQUIRED)
+  endif()
+
   include_directories(
     ${IFM3D_IMAGE_BINARY_DIR}/include
     ${PCL_INCLUDE_DIRS}
+    ${OpenCV_INCLUDE_DIRS}
     )
 endif()
 

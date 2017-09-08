@@ -22,6 +22,7 @@ if(BUILD_MODULE_IMAGE)
       ifm3d_framegrabber_shared
       ifm3d_image_shared
       ${PCL_VISUALIZATION_LIBRARIES}
+      ${OpenCV_LIBRARY_DIRS}
       ${LIB_glog}
       ${Boost_LIBRARIES}
     )
