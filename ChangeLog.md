@@ -1,3 +1,8 @@
+## Changes between ifm3d 0.3.1 and 0.3.2
+
+* CMake build scripts now look for opencv in tools module since the image
+  buffer header includes an opencv header
+
 ## Changes between ifm3d 0.3.0 and 0.3.1
 
 * Fixed regression on 14.04 - no compiler support for std::put_time (#3)
