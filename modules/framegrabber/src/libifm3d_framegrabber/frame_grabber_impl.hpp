@@ -35,6 +35,7 @@
 #include <thread>
 #include <boost/asio.hpp>
 #include <boost/system/system_error.hpp>
+#undef ERROR
 #include <glog/logging.h>
 #include <ifm3d/camera/camera.h>
 #include <ifm3d/camera/err.h>

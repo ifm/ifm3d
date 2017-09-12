@@ -36,14 +36,25 @@ set(CMAKE_BUILD_TYPE Release) # Release or Debug
 set(CMAKE_CXX_EXTENSIONS OFF) # OFF -> -std=c++11, ON -> -std=gnu++11
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
+if(WIN32)
+set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -std=c++11")
+else(WIN32)
 set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s -std=c++11")
-
+endif(WIN32)
 # Bootstrap gtest
 if(BUILD_TESTS)
   add_subdirectory(${GTEST_CMAKE_DIR} gtest_bin)
   add_custom_target(check)
 endif()
+
+if(WIN32)
+add_subdirectory(3rdparty)
+# This is a hack as long as the xmlrpc-c find script is broken under windows
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/3rdParty/xmlrpc-c/include)
+include_directories(${CMAKE_SOURCE_DIR}/3rdParty/xmlrpc-c/include)
+endif(WIN32)
 
 # Build sub-modules
 add_subdirectory(modules/camera)

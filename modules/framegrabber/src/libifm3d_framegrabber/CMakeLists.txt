@@ -1,13 +1,19 @@
-find_library(LIB_glog NAMES glog)
+find_package(Boost REQUIRED COMPONENTS system date_time regex)
+find_package(glog QUIET CONFIG NAMES google-glog glog)
+if (NOT TARGET glog::glog)
+	find_library(LIB_glog NAMES glog)
+else()
+	set(LIB_glog glog::glog)
+endif (NOT TARGET glog::glog)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 file(GLOB IFM3D_FG_SOURCES *.cpp)
-add_library(ifm3d_framegrabber OBJECT ${IFM3D_FG_SOURCES})
-set_property(TARGET ifm3d_framegrabber PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 add_library(
-  ifm3d_framegrabber_shared SHARED $<TARGET_OBJECTS:ifm3d_framegrabber>)
+  ifm3d_framegrabber_shared SHARED ${IFM3D_FG_SOURCES}
+  )
+set_property(TARGET ifm3d_framegrabber_shared PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 target_link_libraries(
   ifm3d_framegrabber_shared
