@@ -67,3 +67,7 @@ target_link_libraries(ex-file_io
                       ${OpenCV_LIBRARIES}
                       )
 
+add_executable(ex-getmac  ex-getmac.cpp)
+target_link_libraries(ex-getmac
+                      ifm3d_camera_shared
+                      )
