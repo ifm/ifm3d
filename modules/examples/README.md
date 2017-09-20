@@ -40,4 +40,6 @@ What is included?
 * [ex-file_io](ex-file_io.cpp) Shows how to capture data from the camera and
   write the images to disk. In this example, the amplitude and radial distance
   image are written out as PNG files and the point cloud is written as a PCD.
-
+* [ex-getmac](ex-getmac.cpp)
+  Request the MAC address from the camera. The MAC address can be used as
+  a unique identifier.
