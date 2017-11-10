@@ -1,3 +1,19 @@
+## Changes between ifm3d 0.3.1 and 0.3.2
+
+* CMake build scripts now look for opencv in tools module since the image
+  buffer header includes an opencv header
+
+## Changes between ifm3d 0.3.0 and 0.3.1
+
+* Fixed regression on 14.04 - no compiler support for std::put_time (#3)
+
+## Changes between ifm3d 0.2.0 and 0.3.0
+
+* Support for NTP (on O3X)
+* Added simple viewer sub-command to the `ifm3d` command-line program. This
+  viewer will render the point cloud and color each pixel with the normalized
+  amplitude value registered to that point.
+
 ## Changes between ifm3d 0.1.0 and 0.2.0
 
 * Added software trigger support to O3X

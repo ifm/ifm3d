@@ -138,6 +138,18 @@ These are common commands used in various situations:
 
   help_msg +=
     R"(
+    time        Get/set the current time on the camera.
+      )";
+
+#if defined(BUILD_MODULE_IMAGE)
+  help_msg +=
+    R"(
+    viewer      Stream and view real-time data from the camera.
+      )";
+#endif
+
+  help_msg +=
+    R"(
 
 For bug reports, please see:
 https://github.com/lovepark/ifm3d/issues

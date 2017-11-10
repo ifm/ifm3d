@@ -325,3 +325,84 @@ TEST_F(CameraTest, JSON)
   std::string j = R"({"Device":{"Name":"ifm3d unit test"}})";
   EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
 }
+
+TEST_F(CameraTest, Time)
+{
+  if (! this->cam_->IsO3X())
+    {
+      return;
+    }
+
+  //
+  // 1. check mutating the "WaitSyncTries" parameters
+  //
+  json dump = this->cam_->ToJSON();
+  int n_tries =
+    std::stoi(dump["ifm3d"]["Time"]["WaitSyncTries"].get<std::string>());
+  int n_tries_new = n_tries == 1 ? 2 : 1;
+  dump["ifm3d"]["Time"]["WaitSyncTries"] = std::to_string(n_tries_new);
+
+  EXPECT_NO_THROW(this->cam_->FromJSON(dump));
+  dump = this->cam_->ToJSON();
+  n_tries =
+    std::stoi(dump["ifm3d"]["Time"]["WaitSyncTries"].get<std::string>());
+  EXPECT_EQ(n_tries_new, n_tries);
+
+  //
+  // 2. Make sure CurrentTime is treated as read-only
+  //
+  int curr_time =
+    std::stoi(dump["ifm3d"]["Time"]["CurrentTime"].get<std::string>());
+  dump["ifm3d"]["Time"]["CurrentTime"] = std::to_string(0);
+  EXPECT_NO_THROW(this->cam_->FromJSON(dump));
+  // make sure at least one full second passes
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  dump = this->cam_->ToJSON();
+  int curr_time_new =
+    std::stoi(dump["ifm3d"]["Time"]["CurrentTime"].get<std::string>());
+  EXPECT_GT(curr_time_new, curr_time);
+
+  //
+  // 3. Test setting the NTP servers && activating NTP
+  //
+  std::string j = R"(
+                       {
+                         "Time":
+                           {
+                             "NTPServers":"91.189.89.198",
+                             "SynchronizationActivated":"true"
+                           }
+                       }
+                   )";
+  EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
+  dump = this->cam_->ToJSON();
+  std::string ip = dump["ifm3d"]["Time"]["NTPServers"].get<std::string>();
+  std::string active =
+    dump["ifm3d"]["Time"]["SynchronizationActivated"].get<std::string>();
+  EXPECT_STREQ("91.189.89.198", ip.c_str());
+  EXPECT_STREQ("true", active.c_str());
+
+  //
+  // 4. Now, undo what we did above
+  //
+  j = R"(
+          {
+            "Time":
+             {
+               "NTPServers":"",
+               "SynchronizationActivated":"false"
+             }
+          }
+         )";
+  EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
+  dump = this->cam_->ToJSON();
+  ip = dump["ifm3d"]["Time"]["NTPServers"].get<std::string>();
+  active = dump["ifm3d"]["Time"]["SynchronizationActivated"].get<std::string>();
+  EXPECT_STREQ("", ip.c_str());
+  EXPECT_STREQ("false", active.c_str());
+
+  //
+  // 5. Set the time to "now"
+  //
+  EXPECT_NO_THROW(this->cam_->SetCurrentTime());
+}

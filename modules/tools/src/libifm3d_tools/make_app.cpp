@@ -89,6 +89,11 @@ app_factory =
      ->ifm3d::CmdLineApp::Ptr
      { return std::make_shared<ifm3d::RmApp>(argc, argv, cmd); }},
 
+    {"time",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::TimeApp>(argc, argv, cmd); }},
+
 #if defined(BUILD_MODULE_FRAMEGRABBER)
     {"schema",
      [](int argc, const char** argv, const std::string& cmd)
@@ -99,6 +104,13 @@ app_factory =
      [](int argc, const char** argv, const std::string& cmd)
      ->ifm3d::CmdLineApp::Ptr
      { return std::make_shared<ifm3d::HzApp>(argc, argv, cmd); }},
+#endif
+
+#if defined(BUILD_MODULE_IMAGE)
+    {"viewer",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::ViewerApp>(argc, argv, cmd); }},
 #endif
 
     {"version",

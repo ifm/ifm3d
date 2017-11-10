@@ -31,10 +31,15 @@
 #include <ifm3d/tools/reboot_app.h>
 #include <ifm3d/tools/reset_app.h>
 #include <ifm3d/tools/rm_app.h>
+#include <ifm3d/tools/time_app.h>
 
 #if defined(BUILD_MODULE_FRAMEGRABBER)
 #include <ifm3d/tools/fg/schema_app.h>
 #include <ifm3d/tools/fg/hz_app.h>
+#endif
+
+#if defined(BUILD_MODULE_IMAGE)
+#include <ifm3d/tools/image/viewer_app.h>
 #endif
 
 #endif // __IFM3D_TOOLS_H__

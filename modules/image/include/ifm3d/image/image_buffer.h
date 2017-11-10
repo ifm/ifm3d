@@ -118,7 +118,7 @@ namespace ifm3d
      * calibration of the camera. NOTE: This is the extrinsics WRT to the ifm
      * optical frame.
      *
-     * The elements are: tx, ty, tz, rot_z, rot_y, rot_z
+     * The elements are: tx, ty, tz, rot_x, rot_y, rot_z
      *
      * Translation units are mm, rotations are degrees
      *

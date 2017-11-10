@@ -20,6 +20,7 @@ option(BUILD_TESTS "Build unit tests" ON)
 option(BUILD_MODULE_FRAMEGRABBER "Build the framegrabber module" ON)
 option(BUILD_MODULE_IMAGE "Build the image module" ON)
 option(BUILD_MODULE_TOOLS "Build the tools module" ON)
+option(BUILD_MODULE_EXAMPLES "Build the examples module" ON)
 option(BUILD_SDK_PKG "Build install packages for development purposes" ON)
 
 # Installation root
@@ -56,12 +57,16 @@ if(BUILD_MODULE_IMAGE)
   # we are going to let the compiler convey the message (for now) instead of
   # doing some implicit CMake stuff that will be hard to maintain and
   # confuse the end-user.
+  add_definitions(-DBUILD_MODULE_IMAGE=ON)
   add_subdirectory(modules/image)
 endif()
 if(BUILD_MODULE_TOOLS)
   add_subdirectory(modules/tools)
 endif()
 
+if(BUILD_MODULE_EXAMPLES)
+  add_subdirectory(modules/examples)
+endif()
 #################################################
 # Packaging stuff - for now, we build debs only
 #################################################
