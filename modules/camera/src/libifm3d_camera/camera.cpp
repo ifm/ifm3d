@@ -505,11 +505,22 @@ ifm3d::Camera::ToJSON()
 
           json imager_json = json(this->pImpl->ImagerInfo());
 
-          json sfilt_json = json(this->pImpl->SpatialFilterInfo());
-          imager_json["SpatialFilter"] = sfilt_json;
+	  /* Initialize the imager_json filters with defult values for
+	     compatibility with o3x which does not support dedicated xmlrpc
+             filter objects since there are no config options for the o3x filter */
+	  std::unordered_map<std::string, std::string> spatialFil = {{"MaskSize", "0"}};
+          std::unordered_map<std::string, std::string> tmpFil = {{}}; // empty map
+          imager_json["SpatialFilter"] = json(spatialFil);
+          imager_json["TemporalFilter"] = json(tmpFil);
 
-          json tfilt_json = json(this->pImpl->TemporalFilterInfo());
-          imager_json["TemporalFilter"] = tfilt_json;
+          if (! this->IsO3X())
+            {
+		json sfilt_json = json(this->pImpl->SpatialFilterInfo());
+                imager_json["SpatialFilter"] = sfilt_json;
+
+                json tfilt_json = json(this->pImpl->TemporalFilterInfo());
+                imager_json["TemporalFilter"] = tfilt_json;
+            }
 
           app_json["Imager"] = imager_json;
 
@@ -804,25 +815,29 @@ ifm3d::Camera::FromJSON(const json& j)
                           [this](){ this->pImpl->SaveApp(); },
                           "Imager", idx);
 
-          if (! s_filt.is_null())
-            {
-              this->FromJSON_(curr_app["Imager"]["SpatialFilter"], s_filt,
-                              [this](const std::string& k,
-                                     const std::string& v)
-                              { this->pImpl->SetSpatialFilterParameter(k,v); },
-                              [this](){ this->pImpl->SaveApp(); },
-                              "SpatialFilter", idx);
-            }
+        if (! this->IsO3X())
+          {
 
-          if (! t_filt.is_null())
-            {
-              this->FromJSON_(curr_app["Imager"]["TemporalFilter"], t_filt,
-                              [this](const std::string& k,
-                                     const std::string& v)
-                              { this->pImpl->SetTemporalFilterParameter(k,v); },
-                              [this](){ this->pImpl->SaveApp(); },
-                              "TemporalFilter", idx);
-            }
+            if (! s_filt.is_null())
+              {
+                this->FromJSON_(curr_app["Imager"]["SpatialFilter"], s_filt,
+                                [this](const std::string& k,
+                                       const std::string& v)
+                                { this->pImpl->SetSpatialFilterParameter(k,v); },
+                                [this](){ this->pImpl->SaveApp(); },
+                                "SpatialFilter", idx);
+              }
+
+            if (! t_filt.is_null())
+              {
+                this->FromJSON_(curr_app["Imager"]["TemporalFilter"], t_filt,
+                                [this](const std::string& k,
+                                       const std::string& v)
+                                { this->pImpl->SetTemporalFilterParameter(k,v); },
+                                [this](){ this->pImpl->SaveApp(); },
+                                "TemporalFilter", idx);
+              }
+           }
         }
     }
 

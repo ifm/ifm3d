@@ -281,10 +281,17 @@ TEST_F(CameraTest, Filters)
   // a-priori we know the median filter has a MaskSize param,
   // by default it is 3x3
   json dump = this->cam_->ToJSON();
-  int mask_size =
-    std::stoi(
-      dump["ifm3d"]["Apps"][0]["Imager"]["SpatialFilter"]["MaskSize"].
-      get<std::string>());
+
+  int mask_size = static_cast<int>(ifm3d::Camera::mfilt_mask_size::_3x3);
+
+  if (! this->cam_->IsO3X())
+    {
+       mask_size =
+         std::stoi(
+           dump["ifm3d"]["Apps"][0]["Imager"]["SpatialFilter"]["MaskSize"].
+           get<std::string>());
+    }
+
   EXPECT_EQ(mask_size, static_cast<int>(ifm3d::Camera::mfilt_mask_size::_3x3));
 
   // get rid of the spatial filter
@@ -303,10 +310,16 @@ TEST_F(CameraTest, Filters)
 
   // a-priori we know the mean filter averages 2 images by default
   dump = this->cam_->ToJSON();
-  int n_imgs =
-    std::stoi(
-      dump["ifm3d"]["Apps"][0]["Imager"]["TemporalFilter"]["NumberOfImages"].
-      get<std::string>());
+  int n_imgs = 2; // default images number
+
+  if (! this->cam_->IsO3X())
+    {
+     n_imgs =
+       std::stoi(
+         dump["ifm3d"]["Apps"][0]["Imager"]["TemporalFilter"]["NumberOfImages"].
+         get<std::string>());
+    }
+
   EXPECT_EQ(n_imgs, 2);
 
   // get rid of the temporal filter
