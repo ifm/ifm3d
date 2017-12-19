@@ -237,6 +237,12 @@ ifm3d::Camera::Heartbeat(int hb)
 }
 
 void
+ifm3d::Camera::SetTemporaryApplicationParameters(const std::unordered_map<std::string, std::string>& params)
+{
+  this->pImpl->SetTemporaryApplicationParameters(params);
+}
+
+void
 ifm3d::Camera::ForceTrigger()
 {
   if (! this->IsO3X())

@@ -93,6 +93,7 @@ namespace ifm3d
     bool CancelSession();
     int Heartbeat(int hb);
     void SetOperatingMode(const ifm3d::Camera::operating_mode& mode);
+    void SetTemporaryApplicationParameters(const std::unordered_map<std::string, std::string>& params);
     std::vector<std::uint8_t> ExportIFMConfig();
     std::vector<std::uint8_t> ExportIFMApp(int idx);
     void ImportIFMConfig(const std::vector<std::uint8_t>& bytes,
@@ -662,6 +663,35 @@ void
 ifm3d::Camera::Impl::SetOperatingMode(const ifm3d::Camera::operating_mode& mode)
 {
   this->_XCallSession("setOperatingMode", static_cast<int>(mode));
+}
+
+void
+ifm3d::Camera::Impl::SetTemporaryApplicationParameters(
+  const std::unordered_map<std::string, std::string>& params)
+{
+  std::map<std::string, xmlrpc_c::value> param_map;
+
+  for (const auto& kv : params)
+    {
+      std::pair<std::string, xmlrpc_c::value> member;
+
+      if ((kv.first == "imager_001/ExposureTime") ||
+          (kv.first == "imager_001/ExposureTimeRatio") ||
+          (kv.first == "imager_001/Channel"))
+        {
+          member =
+            std::make_pair(kv.first, xmlrpc_c::value_int(std::stoi(kv.second)));
+          param_map.insert(member);
+        }
+      else
+        {
+        throw(ifm3d::error_t(IFM3D_INVALID_PARAM));
+        }
+    }
+
+  xmlrpc_c::value_struct const params_st(param_map);
+  this->_XCallSession("setTemporaryApplicationParameters",
+                      params_st);
 }
 
 std::vector<std::uint8_t>
