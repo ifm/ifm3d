@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 #include <ifm3d/contrib/json.hpp>
+#include <unordered_map>
 
 using json = nlohmann::json;
 
@@ -215,6 +216,25 @@ namespace ifm3d
      * @throw ifm3d::error_t upon error
      */
     virtual int Heartbeat(int hb);
+
+    /**
+     * Sets temporary application parameters in run mode.
+     *
+     * The changes are not persistent and are lost when entering edit mode or
+     * turning the device off. The parameters "ExposureTime" and
+     * "ExposureTimeRatio" of the imager configuration are supported. All
+     * additional parameters are ignored (for now). Exposure times are clamped
+     * to their allowed range, depending on the exposure mode. The user must
+     * provide the complete set of parameters depending on the exposure mode,
+     * i.e., "ExposureTime" only for single exposure modes and both
+     * "ExposureTime" and "ExposureTimeRatio" for double exposure
+     * modes. Otherwise, behavior is undefined.
+     *
+     * @param[in] params The parameters to set on the camera.
+     *
+     * @throw ifm3d::error_t upon error
+     */
+    virtual void SetTemporaryApplicationParameters(const std::unordered_map<std::string, std::string>& params);
 
     /**
      * Sends a S/W trigger to the camera over XMLRPC.
