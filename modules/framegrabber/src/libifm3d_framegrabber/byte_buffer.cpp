@@ -19,6 +19,8 @@
 #include <cstdint>
 #include <limits>
 #include <vector>
+#include <glog/logging.h>
+#include <ifm3d/camera/logging.h>
 
 //-------------------------------------
 // Utilities
@@ -62,7 +64,7 @@ ifm3d::get_chunk_index(const std::vector<std::uint8_t>& buff,
 {
   std::size_t idx = start_idx; // start of first chunk
 
-  while (buff.begin()+idx < buff.end()-6)
+  while ((buff.begin()+idx) < (buff.end()-6))
     {
       if (static_cast<std::uint32_t>(chunk_type) ==
           ifm3d::mkval<std::uint32_t>(buff.data()+idx))
@@ -71,7 +73,14 @@ ifm3d::get_chunk_index(const std::vector<std::uint8_t>& buff,
         }
 
       // move to the beginning of the next chunk
-      idx += ifm3d::mkval<std::uint32_t>(buff.data()+idx+4);
+      std::uint32_t incr = ifm3d::mkval<std::uint32_t>(buff.data()+idx+4);
+      if (incr <= 0)
+        {
+          LOG(WARNING) << "Next chunk is supposedly "
+                       << incr << " bytes from the current one ... failing!";
+          break;
+        }
+      idx += incr;
     }
 
   return std::numeric_limits<std::size_t>::max();
