@@ -332,6 +332,26 @@ ifm3d::FrameGrabber::Impl::SetUVecBuffer(std::uint16_t mask)
     {
       VLOG(IFM3D_TRACE) << "Caching unit vectors from xmlrpc...";
       this->uvec_buffer_ = this->cam_->UnitVectors();
+      if (FLAGS_v >= IFM3D_PROTO_DEBUG)
+        {
+          std::stringstream ss;
+          ss << "[";
+          std::size_t len = this->uvec_buffer_.size();
+          for (std::size_t i = 0; i < len; ++i)
+            {
+              ss << std::hex << std::setw(2)
+                 << std::setfill('0') << (int) this->uvec_buffer_.at(i);
+
+              if (i < (len - 1))
+                {
+                  ss << ",";
+                }
+            }
+          ss << "]";
+
+          VLOG(IFM3D_PROTO_DEBUG) << "Unit vectors: " << std::endl
+                                  << ss.str();
+        }
     }
   catch (const ifm3d::error_t& ex)
     {
