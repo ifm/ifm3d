@@ -70,7 +70,7 @@ To build the curl library it is recommended to use CMake for setting the arch to
 > cmake -Ax64  -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON ..
 > cmake --build . --clean-first --config Release --target INSTALL
 ```
-After a successful curl build the build artifacts will be found in the top level curl project folder within the ``builds\`` directory. This folder contains a machine and configuration dependent sub folder for example ``<PATH to the ifm3dlib>\3rdParty\curl\builds\libcurl-vc-x86-release-dll-ipv6-sspi-winssl`` Please check this for your configuration and platform.
+After a successful curl build the build artifacts will be for example found in ``%PROGRAMFILES(x86)%\CURL``. Please double check this with your configuration and platform.
 
 
 ### Building glog
