@@ -51,6 +51,13 @@ Software Compatibility Matrix
     <td>14.04, 16.04</td>
     <td>Patch to tools module build script</td>
   </tr>
+  <tr>
+    <td>0.3.3</td>
+    <td>1.6.2114</td>
+    <td>0.1.20</td>
+    <td>14.04, 16.04</td>
+    <td>Windows build support</td>
+  </tr>
 </table>
 
 **NOTE**: Our *officially supported platform* is Ubuntu Linux. However, other
