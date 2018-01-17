@@ -1,14 +1,32 @@
-find_library(LIB_glog NAMES glog)
-find_library(LIB_xmlrpcxx NAMES xmlrpc++)
-find_library(LIB_xmlrpc_clientxx NAMES xmlrpc_client++)
+find_package(glog QUIET CONFIG NAMES google-glog glog)
+if (NOT TARGET glog::glog)
+	find_library(LIB_glog NAMES glog)
+else()
+	set(LIB_glog glog::glog)
+endif (NOT TARGET glog::glog)
+
+if(NOT WIN32)
+    find_library(LIB_xmlrpcxx NAMES xmlrpc++)
+    find_library(LIB_xmlrpc_clientxx NAMES xmlrpc_client++)
+else()
+	set(LIB_xmlrpcxx
+		xmlrpc
+		xmlrpc_client
+	)
+	set(LIB_xmlrpc_clientxx
+		xmlrpc++
+		xmlrpc_client++
+	)
+endif(NOT WIN32)
+
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 file(GLOB IFM3D_CAMERA_SOURCES *.cpp)
-add_library(ifm3d_camera OBJECT ${IFM3D_CAMERA_SOURCES})
-set_property(TARGET ifm3d_camera PROPERTY POSITION_INDEPENDENT_CODE 1)
 
-add_library(ifm3d_camera_shared SHARED $<TARGET_OBJECTS:ifm3d_camera>)
+add_library(ifm3d_camera_shared SHARED ${IFM3D_CAMERA_SOURCES} )
+set_property(TARGET ifm3d_camera_shared PROPERTY POSITION_INDEPENDENT_CODE 1)
+
 target_link_libraries(
   ifm3d_camera_shared
   ${LIB_glog}

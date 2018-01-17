@@ -27,19 +27,28 @@
 
 using json = nlohmann::json;
 
+// Annoying stuff for windows -- makes sure clients can import these functions
+#ifndef IFM3D_DLL_DECL
+# if defined(_WIN32) && !defined(__CYGWIN__)
+#   define IFM3D_DLL_DECL  __declspec(dllimport)
+# else
+#   define IFM3D_DLL_DECL
+# endif
+#endif
+
 namespace ifm3d
 {
-  extern const std::string DEFAULT_IP;
-  extern const std::uint16_t DEFAULT_XMLRPC_PORT;
-  extern const int DEFAULT_PCIC_PORT;
-  extern const std::string DEFAULT_PASSWORD;
-  extern const int MAX_HEARTBEAT;
+  extern IFM3D_DLL_DECL const std::string DEFAULT_IP;
+  extern IFM3D_DLL_DECL const std::uint16_t DEFAULT_XMLRPC_PORT;
+  extern IFM3D_DLL_DECL const int DEFAULT_PCIC_PORT;
+  extern IFM3D_DLL_DECL const std::string DEFAULT_PASSWORD;
+  extern IFM3D_DLL_DECL const int MAX_HEARTBEAT;
 
-  extern const int DEV_O3D_MIN;
-  extern const int DEV_O3D_MAX;
-  extern const int DEV_O3X_MIN;
-  extern const int DEV_O3X_MAX;
-  extern const std::string ASSUME_DEVICE;
+  extern IFM3D_DLL_DECL const int DEV_O3D_MIN;
+  extern IFM3D_DLL_DECL const int DEV_O3D_MAX;
+  extern IFM3D_DLL_DECL const int DEV_O3X_MIN;
+  extern IFM3D_DLL_DECL const int DEV_O3X_MAX;
+  extern IFM3D_DLL_DECL const std::string ASSUME_DEVICE;
 
   /**
    * Software interface to an ifm 3D camera

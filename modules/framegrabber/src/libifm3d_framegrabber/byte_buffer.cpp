@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <limits>
 #include <vector>
+#include <string>
 #include <glog/logging.h>
 #include <ifm3d/camera/logging.h>
 
