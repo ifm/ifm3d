@@ -24,10 +24,19 @@
 #include <memory>
 #include <vector>
 
+// Annoying stuff for windows -- makes sure clients can import these functions
+#ifndef IFM3D_DLL_DECL
+# if defined(_WIN32) && !defined(__CYGWIN__)
+#   define IFM3D_DLL_DECL  __declspec(dllimport)
+# else
+#   define IFM3D_DLL_DECL
+# endif
+#endif
+
 namespace ifm3d
 {
-  extern const std::size_t IMG_TICKET_SZ; // bytes
-  extern const std::size_t IMG_BUFF_START; // byte number
+  extern IFM3D_DLL_DECL const std::size_t IMG_TICKET_SZ; // bytes
+  extern IFM3D_DLL_DECL const std::size_t IMG_BUFF_START; // byte number
 
   enum class pixel_format : std::uint32_t
   {
@@ -132,7 +141,7 @@ namespace ifm3d
       unsigned char bytes[sizeof(T)];
     } value;
 
-#if __BYTE_ORDER == __BIG_ENDIAN
+#if !defined(_WIN32) && __BYTE_ORDER == __BIG_ENDIAN
     std::reverse_copy(buff, buff + sizeof(T), value.bytes);
 #else
     std::copy(buff, buff + sizeof(T), value.bytes);
