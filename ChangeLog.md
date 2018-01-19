@@ -1,3 +1,11 @@
+## Changes between ifm3d 0.3.3 and 0.4.0
+
+* Added modules/tools/contrib with bash completions for ifm3d
+
+## Changes between ifm3d 0.3.2 and 0.3.3
+
+* Windows build support (should have been a bump to 0.4.0)
+
 ## Changes between ifm3d 0.3.1 and 0.3.2
 
 * CMake build scripts now look for opencv in tools module since the image
