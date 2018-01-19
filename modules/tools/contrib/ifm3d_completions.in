@@ -1,0 +1,102 @@
+# -*- shell-script -*-
+#
+# Copyright (C) 2018 Love Park Robotics, LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distribted on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+###############################################
+###############################################
+#
+# Move this to /etc/bash_completion.d/ifm3d_completions
+# This will give you auto-complete in bash for `ifm3d`.
+#
+# We may want to do this "smarter", but for now, this "brute force" method
+# works OK and is *really* convenient.
+#
+
+_ifm3d()
+{
+    local cur prev opts subcmds
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="--help --ip --xmlrpc-port --password"
+    subcmds="app-types config cp dump export imager-types import ls reboot reset rm time schema hz viewer version"
+
+   case "${prev}" in
+       config)
+           COMPREPLY=( $(compgen -W "--file" -- ${cur}) )
+           return 0
+           ;;
+
+       cp)
+           COMPREPLY=( $(compgen -W "--index" -- ${cur}) )
+           return 0
+           ;;
+
+       export)
+           COMPREPLY=( $(compgen -W "--file --index" -- ${cur}) )
+           return 0
+           ;;
+
+       import)
+           COMPREPLY=( $(compgen -W "--file --config --global --net --app" -- ${cur}) )
+           return 0
+           ;;
+
+       reboot)
+           COMPREPLY=( $(compgen -W "--recovery" -- ${cur}) )
+           return 0
+           ;;
+
+       reset)
+           COMPREPLY=( $(compgen -W "--reboot" -- ${cur}) )
+           return 0
+           ;;
+
+       rm)
+           COMPREPLY=( $(compgen -W "--index" -- ${cur}) )
+           return 0
+           ;;
+
+       time)
+           COMPREPLY=( $(compgen -W "--epoch" -- ${cur}) )
+           return 0
+           ;;
+
+       schema)
+           COMPREPLY=( $(compgen -W "--mask --str --dump" -- ${cur}) )
+           return 0
+           ;;
+
+       hz)
+           COMPREPLY=( $(compgen -W "--nframes --nruns --sw" -- ${cur}) )
+           return 0
+           ;;
+
+       *)
+           ;;
+   esac
+
+   if [[ ${cur} == -* ]] ; then
+       COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+       return 0
+   fi
+
+   if [[ ${prev} == ifm3d ]] ; then
+       COMPREPLY=( $(compgen -W "${subcmds}" -- ${cur}) )
+       return 0
+   fi
+}
+
+complete -F _ifm3d ifm3d
