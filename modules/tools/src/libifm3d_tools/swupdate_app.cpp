@@ -33,7 +33,6 @@
 #include <curl/curl.h>
 #include <ifm3d/contrib/json.hpp>
 
-
 #ifdef _WIN32
 # include <io.h>
 # include <fcntl.h>
@@ -42,6 +41,7 @@
 static const std::string FWU_UPLOAD_URL = "/handle_post_request";
 static const std::string FWU_REBOOT_URL = "/reboot_to_live";
 static const std::string FWU_STATUS_URL = "/getstatus.json";
+static const std::string FWU_CHECK_RECOVERY_URL = "/id.lp";
 static const int FWU_RECOVERY_PORT = 8080;
 static const std::string FWU_FILENAME_HEADER = "X_FILENAME: swupdate.swu";
 static const std::string FWU_CONTENT_TYPE_HEADER = "Content-Type: application/octet-stream";
@@ -67,7 +67,7 @@ ifm3d::SwupdateApp::SwupdateApp(int argc, const char **argv,
   po::notify(this->vm_);
 }
 
-std::string createURL(std::string ip, int port, std::string path)
+static std::string createURL(std::string ip, int port, std::string path)
 {
   return "http://" + ip + ":" + std::to_string(port) + path;
 }
@@ -84,7 +84,8 @@ static size_t SWupdateStatusWriteCallback(char* ptr, size_t size, size_t nmemb, 
   return size * nmemb;
 }
 
-static size_t SWupdateXferInfoCallback(void* clientp, size_t dltotal, size_t dlnow, size_t uptotal, size_t upnow) {
+static size_t SWupdateXferInfoCallback(void* clientp, size_t dltotal, size_t dlnow, size_t uptotal, size_t upnow)
+{
   if (uptotal > 0 && upnow >= uptotal)
     {
       return 1;
@@ -117,7 +118,7 @@ int ifm3d::SwupdateApp::Run()
       return 0;
     }
 
-  /* Load the update */
+  checkRecovery();
 
   std::cout << "Loading firmware..." << std::endl;
 
@@ -167,10 +168,36 @@ int ifm3d::SwupdateApp::Run()
     }
 
   std::cout << "Firmware loaded, uploading to device..." << std::endl;
+  uploadData(ifs, file_size);
 
-  /* Perform update */
+  std::cout << "Upload finished, waiting for the update process to finish..." << std::endl;
+  waitForUpdateFinish();
+
+  std::cout << "Update successfull, rebooting device..." << std::endl;
+  reboot();
+
+  return 0;
+}
+
+void ifm3d::SwupdateApp::checkRecovery()
+{
   CURL* curl = curl_easy_init();
   CURLcode curlResult = CURLE_OK;
+
+  curl_easy_setopt(curl, CURLOPT_URL, createURL(this->cam_->IP(), FWU_RECOVERY_PORT, FWU_CHECK_RECOVERY_URL).c_str());
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, SWupdateStatusWriteCallbackIgnore);
+
+  curlResult = curl_easy_perform(curl);
+
+  if (curlResult != CURLE_OK)
+    {
+      throw ifm3d::error_t(IFM3D_RECOVERY_CONNECTION_ERROR);
+    }
+}
+
+void ifm3d::SwupdateApp::uploadData(std::shared_ptr<std::istream> data, size_t filesize)
+{
+  CURL* curl = curl_easy_init();
 
   struct curl_slist* headerList = 0;
   headerList = curl_slist_append(headerList, FWU_CONTENT_TYPE_HEADER.c_str());
@@ -180,15 +207,15 @@ int ifm3d::SwupdateApp::Run()
   curl_easy_setopt(curl, CURLOPT_POST, 1);
   curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerList);
   curl_easy_setopt(curl, CURLOPT_READFUNCTION, SWupdateStatusReadCallback);
-  curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE_LARGE, file_size);
+  curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE_LARGE, filesize);
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, SWupdateStatusWriteCallbackIgnore);
-  curl_easy_setopt(curl, CURLOPT_READDATA, ifs.get());
+  curl_easy_setopt(curl, CURLOPT_READDATA, data.get());
 
   // Note: This is a workaround since the device will never actually close the connection
   curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, SWupdateXferInfoCallback);
   curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
 
-  curlResult = curl_easy_perform(curl);
+  CURLcode curlResult = curl_easy_perform(curl);
 
   curl_slist_free_all(headerList);
   curl_easy_cleanup(curl);
@@ -198,11 +225,11 @@ int ifm3d::SwupdateApp::Run()
     {
       throw ifm3d::error_t(IFM3D_RECOVERY_CONNECTION_ERROR);
     }
+}
 
-  std::cout << "Upload finished, waiting for the update process to finish..." << std::endl;
-
-  /* Query status */
-  curl = curl_easy_init();
+void ifm3d::SwupdateApp::waitForUpdateFinish()
+{
+  CURL* curl = curl_easy_init();
 
   std::string statusString;
   curl_easy_setopt(curl, CURLOPT_URL, createURL(this->cam_->IP(), FWU_RECOVERY_PORT, FWU_STATUS_URL).c_str());
@@ -213,7 +240,7 @@ int ifm3d::SwupdateApp::Run()
   while (!updateFinished)
     {
       statusString.clear();
-      curlResult = curl_easy_perform(curl);
+      CURLcode curlResult = curl_easy_perform(curl);
 
       /* Check for connection error */
       if (curlResult != CURLE_OK)
@@ -222,7 +249,7 @@ int ifm3d::SwupdateApp::Run()
         }
 
       /* Parse status */
-	  auto json = nlohmann::json::parse(statusString.c_str());
+      auto json = nlohmann::json::parse(statusString.c_str());
       int statusId = std::stoi(json["Status"].get<std::string>());
       int statusError = std::stoi(json["Error"].get<std::string>());
       std::string statusMessage = json["Msg"];
@@ -244,21 +271,22 @@ int ifm3d::SwupdateApp::Run()
             }
         }
 
-	  std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
   curl_easy_cleanup(curl);
+}
 
-  std::cout << "Update successfull, rebooting device..." << std::endl;
-
-  curl = curl_easy_init();
+void ifm3d::SwupdateApp::reboot()
+{
+  CURL* curl = curl_easy_init();
 
   curl_easy_setopt(curl, CURLOPT_URL, createURL(this->cam_->IP(), FWU_RECOVERY_PORT, FWU_REBOOT_URL).c_str());
   curl_easy_setopt(curl, CURLOPT_POST, true);
   curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, 0);
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, SWupdateStatusWriteCallbackIgnore);
 
-  curlResult = curl_easy_perform(curl);
+  CURLcode curlResult = curl_easy_perform(curl);
 
   /* Check for connection error */
   if (curlResult != CURLE_OK)
@@ -267,6 +295,4 @@ int ifm3d::SwupdateApp::Run()
     }
 
   curl_easy_cleanup(curl);
-
-  return 0;
 }
