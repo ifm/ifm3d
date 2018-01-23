@@ -185,11 +185,13 @@ void ifm3d::SwupdateApp::checkRecovery()
   CURLcode curlResult = CURLE_OK;
 
   curl_easy_setopt(curl, CURLOPT_URL, createURL(this->cam_->IP(), FWU_RECOVERY_PORT, FWU_CHECK_RECOVERY_URL).c_str());
-  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, SWupdateStatusWriteCallbackIgnore);
+  curl_easy_setopt(curl, CURLOPT_NOBODY, true);
 
   curlResult = curl_easy_perform(curl);
+  long statusCode;
+  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &statusCode);
 
-  if (curlResult != CURLE_OK)
+  if (curlResult != CURLE_OK  || statusCode != 200)
     {
       throw ifm3d::error_t(IFM3D_RECOVERY_CONNECTION_ERROR);
     }
