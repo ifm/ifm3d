@@ -84,6 +84,17 @@ static size_t SWupdateStatusWriteCallback(char* ptr, size_t size, size_t nmemb, 
   return size * nmemb;
 }
 
+static size_t SWupdateXferInfoCallback(void* clientp, size_t dltotal, size_t dlnow, size_t uptotal, size_t upnow) {
+  if (uptotal > 0 && upnow >= uptotal)
+    {
+      return 1;
+    }
+  else
+    {
+      return 0;
+    }
+}
+
 static size_t SWupdateStatusReadCallback(void *dest, size_t size, size_t nmemb, void *userp)
 {
   std::istream *is = (std::istream *)userp;
@@ -173,12 +184,17 @@ int ifm3d::SwupdateApp::Run()
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, SWupdateStatusWriteCallbackIgnore);
   curl_easy_setopt(curl, CURLOPT_READDATA, ifs.get());
 
+  // Note: This is a workaround since the device will never actually close the connection
+  curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, SWupdateXferInfoCallback);
+  curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
+
   curlResult = curl_easy_perform(curl);
 
   curl_slist_free_all(headerList);
   curl_easy_cleanup(curl);
 
-  if (curlResult != CURLE_OK)
+  // CURLE_ABORTED_BY_CALLBACK is the result of the workaround
+  if (curlResult != CURLE_OK && curlResult != CURLE_ABORTED_BY_CALLBACK)
     {
       throw ifm3d::error_t(IFM3D_RECOVERY_CONNECTION_ERROR);
     }
