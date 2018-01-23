@@ -33,6 +33,27 @@ namespace ifm3d
     SwupdateApp(int argc, const char **argv, const std::string& name = "swupdate");
     int Run();
 
+  private:
+	   /**
+       * Check if the device is in recovery mode
+       */
+	  void checkRecovery();
+
+	   /**
+       * Upload the update to the device
+       */
+	  void uploadData(std::shared_ptr<std::istream> data, size_t filesize);
+
+	   /**
+       * Wait until the update process finishes
+       */
+	  void waitForUpdateFinish();
+
+	   /**
+       * Reboot the device to production mode
+       */
+	  void reboot();
+
   }; // end: class SwupdateApp
 
 } // end: namespace ifm3d
