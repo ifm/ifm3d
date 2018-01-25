@@ -147,6 +147,12 @@ These are common commands used in various situations:
     viewer      Stream and view real-time data from the camera.
       )";
 #endif
+  help_msg +=
+    R"(
+    swupdate    Perform a firmware update on the camera. Please ensure
+                that the camera is bootet to recovery beforehand. 
+      )";
+
 
   help_msg +=
     R"(
