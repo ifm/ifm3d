@@ -31,7 +31,7 @@ _ifm3d()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     opts="--help --ip --xmlrpc-port --password"
-    subcmds="app-types config cp dump export imager-types import ls reboot reset rm time schema hz viewer version"
+    subcmds="app-types config cp dump export imager-types import ls reboot reset rm time schema swupdate hz viewer version"
 
    case "${prev}" in
        config)
@@ -76,6 +76,11 @@ _ifm3d()
 
        schema)
            COMPREPLY=( $(compgen -W "--mask --str --dump" -- ${cur}) )
+           return 0
+           ;;
+
+       swupdate)
+           COMPREPLY=( $(compgen -W "--file" -- ${cur}) )
            return 0
            ;;
 
