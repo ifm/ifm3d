@@ -61,8 +61,12 @@ if (BUILD_MODULE_IMAGE)
     )
   set_target_properties(ifm3d_tools_shared PROPERTIES
     AUTOMOC TRUE
-    COMPILE_FLAGS "-Wno-deprecated -Wno-deprecated-declarations"
     )
+  if(NOT WIN32)
+    set_target_properties(ifm3d_tools_shared PROPERTIES
+      COMPILE_FLAGS "-Wno-deprecated -Wno-deprecated-declarations"
+      )
+  endif()
 else()
   set_target_properties(ifm3d_tools_shared PROPERTIES
     VERSION ${IFM3D_VERSION_STRING}
