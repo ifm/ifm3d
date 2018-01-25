@@ -1,3 +1,7 @@
+## Changes between ifm3d 0.4.0 and 0.5.0
+
+* Added `swupdate` subcommand in the tools module
+
 ## Changes between ifm3d 0.3.3 and 0.4.0
 
 * Added modules/tools/contrib with bash completions for ifm3d
