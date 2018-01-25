@@ -64,8 +64,9 @@ ifm3d::get_chunk_index(const std::vector<std::uint8_t>& buff,
                        std::size_t start_idx)
 {
   std::size_t idx = start_idx; // start of first chunk
+  std::size_t size = buff.size()-6;
 
-  while ((buff.begin()+idx) < (buff.end()-6))
+  while (idx < size)
     {
       if (static_cast<std::uint32_t>(chunk_type) ==
           ifm3d::mkval<std::uint32_t>(buff.data()+idx))

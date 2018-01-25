@@ -32,6 +32,7 @@
 #include <ifm3d/tools/reset_app.h>
 #include <ifm3d/tools/rm_app.h>
 #include <ifm3d/tools/time_app.h>
+#include <ifm3d/tools/swupdate_app.h>
 
 #if defined(BUILD_MODULE_FRAMEGRABBER)
 #include <ifm3d/tools/fg/schema_app.h>

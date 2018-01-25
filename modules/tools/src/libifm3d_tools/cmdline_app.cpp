@@ -138,6 +138,13 @@ These are common commands used in various situations:
 
   help_msg +=
     R"(
+    swupdate    Perform a firmware update on the camera. Please ensure
+                that the camera is booted to recovery beforehand.
+      )";
+
+
+  help_msg +=
+    R"(
     time        Get/set the current time on the camera.
       )";
 
