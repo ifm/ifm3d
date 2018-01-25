@@ -1,6 +1,7 @@
 ## Changes between ifm3d 0.4.0 and 0.5.0
 
 * Added `swupdate` subcommand in the tools module
+* Added image module support to Windows build
 
 ## Changes between ifm3d 0.3.3 and 0.4.0
 
