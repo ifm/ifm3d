@@ -40,6 +40,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 include_directories(
   ${IFM3D_IMAGE_BINARY_DIR}/include
+  ${IFM3D_SIMPLE_IMAGE_BINARY_DIR}/include
   ${IFM3D_FG_BINARY_DIR}/include
   ${IFM3D_CAMERA_BINARY_DIR}/include
   ${PCL_INCLUDE_DIRS}
@@ -69,5 +70,12 @@ target_link_libraries(ex-file_io
 
 add_executable(ex-getmac  ex-getmac.cpp)
 target_link_libraries(ex-getmac
+                      ifm3d_camera_shared
+                      )
+
+add_executable(ex-simple_image  ex-simple_image.cpp)
+target_link_libraries(ex-simple_image
+                      ifm3d_simple_image_shared
+                      ifm3d_framegrabber_shared
                       ifm3d_camera_shared
                       )
