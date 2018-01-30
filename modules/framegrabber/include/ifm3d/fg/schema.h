@@ -21,18 +21,27 @@
 #include <cstdint>
 #include <string>
 
+// Annoying stuff for windows -- makes sure clients can import these functions
+#ifndef IFM3D_DLL_DECL
+# if defined(_WIN32) && !defined(__CYGWIN__)
+#   define IFM3D_DLL_DECL  __declspec(dllimport)
+# else
+#   define IFM3D_DLL_DECL
+# endif
+#endif
+
 namespace ifm3d
 {
-  extern const std::uint16_t DEFAULT_SCHEMA_MASK;
+  extern IFM3D_DLL_DECL const std::uint16_t DEFAULT_SCHEMA_MASK;
 
   // Constants used to create "pluggable schema masks"
-  extern const std::uint16_t IMG_RDIS; // radial distance
-  extern const std::uint16_t IMG_AMP;  // normalized amplitude
-  extern const std::uint16_t IMG_RAMP; // raw amplitude
-  extern const std::uint16_t IMG_CART; // Cartesian
-  extern const std::uint16_t IMG_UVEC; // Unit vectors
-  extern const std::uint16_t EXP_TIME; // Exposure times
-  extern const std::uint16_t IMG_GRAY; // Grayscale (ambient light)
+  extern IFM3D_DLL_DECL const std::uint16_t IMG_RDIS; // radial distance
+  extern IFM3D_DLL_DECL const std::uint16_t IMG_AMP;  // normalized amplitude
+  extern IFM3D_DLL_DECL const std::uint16_t IMG_RAMP; // raw amplitude
+  extern IFM3D_DLL_DECL const std::uint16_t IMG_CART; // Cartesian
+  extern IFM3D_DLL_DECL const std::uint16_t IMG_UVEC; // Unit vectors
+  extern IFM3D_DLL_DECL const std::uint16_t EXP_TIME; // Exposure times
+  extern IFM3D_DLL_DECL const std::uint16_t IMG_GRAY; // Grayscale (ambient light)
 
   /**
    * Utility function to build an image acquisition result schema from a mask.

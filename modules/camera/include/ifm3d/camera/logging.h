@@ -18,8 +18,17 @@
 #ifndef __IFM3D_CAMERA_LOGGING_H__
 #define __IFM3D_CAMERA_LOGGING_H__
 
-extern const int IFM3D_TRACE;
-extern const int IFM3D_TRACE_DEEP;
-extern const int IFM3D_PROTO_DEBUG;
+// Annoying stuff for windows -- makes sure clients can import these functions
+#ifndef IFM3D_DLL_DECL
+# if defined(_WIN32) && !defined(__CYGWIN__)
+#   define IFM3D_DLL_DECL  __declspec(dllimport)
+# else
+#   define IFM3D_DLL_DECL
+# endif
+#endif
+
+extern IFM3D_DLL_DECL const int IFM3D_TRACE;
+extern IFM3D_DLL_DECL const int IFM3D_TRACE_DEEP;
+extern IFM3D_DLL_DECL const int IFM3D_PROTO_DEBUG;
 
 #endif // __IFM3D_CAMERA_LOGGING_H__

@@ -31,6 +31,8 @@ const int IFM3D_UNSUPPORTED_OP = -100008;
 const int IFM3D_IMG_CHUNK_NOT_FOUND = -100009;
 const int IFM3D_PIXEL_FORMAT_ERROR = -100010;
 const int IFM3D_UNSUPPORTED_DEVICE = -100011;
+const int IFM3D_UPDATE_ERROR = -1000012;
+const int IFM3D_RECOVERY_CONNECTION_ERROR = -1000013;
 
 // sensor errors
 const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
@@ -90,8 +92,12 @@ const char *ifm3d::strerror(int errnum)
       return "Lib: Image chunk not found";
     case IFM3D_PIXEL_FORMAT_ERROR:
       return "Lib: Pixel format error - didn't expect a particular pixel type";
-    case IFM3D_UNSUPPORTED_DEVICE:
-      return "Lib: The detected device is not supported by the library";
+	case IFM3D_UNSUPPORTED_DEVICE:
+		return "Lib: The detected device is not supported by the library";
+	case IFM3D_UPDATE_ERROR:
+		return "Lib: An error occured while performing the update";
+	case IFM3D_RECOVERY_CONNECTION_ERROR:
+		return "Lib: Couldn't connect to the device (make sure the device is in Recovery Mode)";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
       return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:
