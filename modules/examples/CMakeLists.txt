@@ -105,3 +105,12 @@ target_link_libraries(ex-timestamp
                       ${PCL_IO_LIBRARIES}
                       ${OpenCV_LIBRARIES}
                       )
+
+add_executable(ex-exposure_times ex-exposure_times.cpp)
+target_link_libraries(ex-exposure_times
+                      ifm3d_camera_shared
+                      ifm3d_framegrabber_shared
+                      ifm3d_image_shared
+                      ${PCL_IO_LIBRARIES}
+                      ${OpenCV_LIBRARIES}
+                      )
