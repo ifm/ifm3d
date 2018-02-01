@@ -29,6 +29,11 @@ set_target_properties(ifm3d_framegrabber_shared PROPERTIES
   LINKER_LANGUAGE CXX
   )
 
+if(WIN32)
+    target_compile_definitions(ifm3d_framegrabber_shared PRIVATE
+        IFM3D_FRAME_GRABBER_DLL_BUILD=1)
+endif(WIN32)
+
 install(TARGETS ifm3d_framegrabber_shared
   DESTINATION lib
   COMPONENT framegrabber
