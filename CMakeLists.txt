@@ -1,5 +1,5 @@
 project(IFM3D CXX)
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 2.8.11)
 set(GIT_PROJECT_NAME "ifm3d")
 
 # Make our cmake functions accessible
