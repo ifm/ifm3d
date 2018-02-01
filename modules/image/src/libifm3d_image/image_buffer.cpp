@@ -130,6 +130,12 @@ ifm3d::TimePointT ifm3d::ImageBuffer::TimeStamp()
   return this->pImpl->TimeStamp();
 }
 
+float ifm3d::ImageBuffer::IlluTemp()
+{
+  this->Organize();
+  return this->pImpl->IlluTemp();
+}
+
 void
 ifm3d::ImageBuffer::Organize()
 {

@@ -45,3 +45,6 @@ What is included?
   a unique identifier.
 * [ex-timestamp](ex-timestamp.cpp)
  Request some frames from the camera and write the timestamps to stdout
+* [ex-exposure_times](ex-exposure_times.cpp) Shows how to change imager
+  exposure times on the fly while streaming in pixel data and validating the
+  setting of the exposure times registered to the frame data.
