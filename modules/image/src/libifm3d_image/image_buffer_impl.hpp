@@ -86,6 +86,7 @@ namespace ifm3d
     cv::Mat RawAmplitudeImage();
     cv::Mat ConfidenceImage();
     cv::Mat XYZImage();
+    float IlluTemp();
     pcl::PointCloud<pcl::PointXYZI>::Ptr Cloud();
     std::vector<float> Extrinsics();
     std::vector<std::uint32_t> ExposureTimes();
@@ -96,6 +97,7 @@ namespace ifm3d
   protected:
     std::vector<float> extrinsics_;
     std::vector<std::uint32_t> exposure_times_;
+    float illu_temp_;
     pcl::PointCloud<ifm3d::PointT>::Ptr cloud_;
     ifm3d::TimePointT time_stamp_;
     cv::Mat dist_;
@@ -351,6 +353,11 @@ ifm3d::ImageBuffer::Impl::TimeStamp()
   return this->time_stamp_;
 }
 
+float
+ifm3d::ImageBuffer::Impl::IlluTemp()
+{
+  return this->illu_temp_;
+}
 //-------------------------------------
 // Looping over the pixel bytes
 //-------------------------------------
@@ -718,9 +725,74 @@ ifm3d::ImageBuffer::Impl::Organize(const std::vector<std::uint8_t>& bytes)
         }
     }
 
-  //
-  // XXX: TP March 5, 2017 -- TODO add exposure times parsing
-  //
+  // OK, now we want to see if the temp illu and exposure times are present,
+  // if they are, we want to parse them out and store them in the image buffer.
+  // Since the extrinsics are invariant and should *always* be present, we use
+  // the current index of the extrinsics.
+  if (EXT_OK)
+    {
+      std::size_t extime_idx = extidx;
+      size_t bytes_left = bytes.size() - extime_idx;
+
+      // Read extime (6 bytes string + 3x 4 bytes uint32_t)
+      if (bytes_left >= 18
+          && std::equal(bytes.begin() + extidx,
+                        bytes.begin() + extidx + 6,
+                        std::begin("extime")))
+        {
+          extime_idx += 6;
+          bytes_left -= 6;
+
+          // 3 exposure times
+          for (std::size_t i = 0; i < 3; ++i)
+            {
+              if ((bytes_left - 6) <= 0)
+                {
+                  break;
+                }
+
+              std::uint32_t extime2 =
+                  ifm3d::mkval<std::uint32_t>(
+                    bytes.data() + extime_idx);
+
+              this->exposure_times_.at(i) = extime2;
+
+              extime_idx += 4;
+              bytes_left -= 4;
+            }
+        }
+      else
+        {
+          std::fill(this->exposure_times_.begin(),
+                    this->exposure_times_.end(), 0);
+        }
+
+      // Read temp_illu (9 bytes string + 4 bytes float)
+      if (bytes_left >= 13
+          && std::equal(bytes.begin() + extidx,
+                        bytes.begin() + extidx + 8,
+                        std::begin("temp_illu")))
+        {
+          extime_idx += 9;
+          bytes_left -= 9;
+
+          this->illu_temp_ =
+              ifm3d::mkval<float>(bytes.data() + extime_idx);
+
+          extime_idx += 4;
+          bytes_left -= 4;
+
+          DLOG(INFO) << "IlluTemp= " << this->illu_temp_;
+        }
+      else
+        {
+          this->illu_temp_ = 0;
+        }
+    }
+  else
+    {
+      LOG(WARNING) << "Checking for illu temp and exposure times skipped (cant trust extidx)";
+    }
 }
 
 #endif // __IFM3D_IMAGE_IMAGE_BUFFER_IMPL_H__
