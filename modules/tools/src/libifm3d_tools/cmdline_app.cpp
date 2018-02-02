@@ -148,6 +148,12 @@ These are common commands used in various situations:
     time        Get/set the current time on the camera.
       )";
 
+
+  help_msg +=
+    R"(
+    trace       Get trace messages from the internal camera trace buffer.
+      )";
+
 #if defined(BUILD_MODULE_IMAGE)
   help_msg +=
     R"(
