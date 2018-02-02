@@ -1,0 +1,2 @@
+add_subdirectory(libifm3d_pcicclient)
+add_subdirectory(bin)
