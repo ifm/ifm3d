@@ -83,6 +83,7 @@ namespace ifm3d
     std::unordered_map<std::string, std::string> HWInfo();
     std::unordered_map<std::string, std::string> DeviceInfo();
     std::string DeviceParameter(const std::string& param);
+    std::vector<std::string> TraceLogs(int count);
     void Reboot(int mode);
     std::vector<ifm3d::app_entry_t> ApplicationList();
     std::string RequestSession();
@@ -529,6 +530,21 @@ ifm3d::Camera::Impl::DeviceParameter(const std::string& param)
 {
   return xmlrpc_c::value_string(
            this->_XCallMain("getParameter", param.c_str())).cvalue();
+}
+
+std::vector<std::string>
+ifm3d::Camera::Impl::TraceLogs(int count)
+{
+  xmlrpc_c::value_array result(this->_XCallMain("getTraceLogs", count));
+  std::vector<xmlrpc_c::value> const res_vec(result.vectorValueValue());
+
+  std::vector<std::string> retval;
+  for (auto& entry : res_vec)
+    {
+      xmlrpc_c::value_string const entry_str(entry);
+      retval.push_back(static_cast<std::string>(entry_str));
+    }
+  return retval;
 }
 
 std::unordered_map<std::string, std::string>
