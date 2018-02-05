@@ -96,3 +96,12 @@ target_link_libraries(ex-pcicclient_async_messages
                       ifm3d_pcicclient_shared
                       ${Boost_LIBRARIES}
                       )
+
+add_executable(ex-timestamp  ex-timestamp.cpp)
+target_link_libraries(ex-timestamp
+                      ifm3d_image_shared
+                      ifm3d_framegrabber_shared
+                      ifm3d_camera_shared
+                      ${PCL_IO_LIBRARIES}
+                      ${OpenCV_LIBRARIES}
+                      )

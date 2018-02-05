@@ -89,6 +89,7 @@ namespace ifm3d
     pcl::PointCloud<pcl::PointXYZI>::Ptr Cloud();
     std::vector<float> Extrinsics();
     std::vector<std::uint32_t> ExposureTimes();
+    ifm3d::TimePointT TimeStamp();
 
     void Organize(const std::vector<std::uint8_t>& bytes);
 
@@ -96,6 +97,7 @@ namespace ifm3d
     std::vector<float> extrinsics_;
     std::vector<std::uint32_t> exposure_times_;
     pcl::PointCloud<ifm3d::PointT>::Ptr cloud_;
+    ifm3d::TimePointT time_stamp_;
     cv::Mat dist_;
     cv::Mat uvec_;
     cv::Mat gray_;
@@ -270,7 +272,8 @@ namespace ifm3d
 ifm3d::ImageBuffer::Impl::Impl()
   : cloud_(new pcl::PointCloud<pcl::PointXYZI>()),
     extrinsics_({0.,0.,0.,0.,0.,0.}),
-    exposure_times_({0,0,0})
+    exposure_times_({0,0,0}),
+    time_stamp_(std::chrono::system_clock::now())
 {
   this->cloud_->sensor_origin_.setZero();
   this->cloud_->sensor_orientation_.w() = 1.0f;
@@ -342,6 +345,12 @@ ifm3d::ImageBuffer::Impl::ExposureTimes()
   return this->exposure_times_;
 }
 
+ifm3d::TimePointT
+ifm3d::ImageBuffer::Impl::TimeStamp()
+{
+  return this->time_stamp_;
+}
+
 //-------------------------------------
 // Looping over the pixel bytes
 //-------------------------------------
@@ -411,6 +420,28 @@ ifm3d::ImageBuffer::Impl::Organize(const std::vector<std::uint8_t>& bytes)
       LOG(ERROR) << "No confidence image found!";
       throw ifm3d::error_t(IFM3D_IMG_CHUNK_NOT_FOUND);
     }
+
+  const std::uint32_t header_version =  ifm3d::mkval<std::uint32_t>(bytes.data()+cidx+12);
+  // for the *big* time stamp minimum header version 2 is needed
+  if( header_version > 1 )
+    {
+      // Retrieve the timespamp information from the confidence data
+      const std::uint32_t timestampSec =
+          ifm3d::mkval<std::uint32_t>(bytes.data()+cidx+40);
+      const std::uint32_t timestampNsec =
+          ifm3d::mkval<std::uint32_t>(bytes.data()+cidx+44);
+      // convert the time stamp into a TimePointT
+      this->time_stamp_ = ifm3d::TimePointT {
+          std::chrono::seconds{timestampSec}
+          + std::chrono::nanoseconds{timestampNsec}
+    };
+    }
+  else
+    {
+      // There is no *big* time stamp in chunk version 1
+      this->time_stamp_ = std::chrono::system_clock::now();
+    }
+
 
   bool A_OK = aidx != INVALID_IDX;
   bool RAW_A_OK = raw_aidx != INVALID_IDX;

@@ -8,6 +8,7 @@
 #include <ifm3d/fg.h>
 #include <ifm3d/image.h>
 #include <gtest/gtest.h>
+#include <ifm3d/contrib/json.hpp>
 
 TEST(Image, CloudMechanics)
 {
@@ -212,4 +213,55 @@ TEST(Image, ComputeCartesian)
   EXPECT_TRUE(std::equal(z_cam.begin<std::int16_t>(),
                          z_cam.end<std::int16_t>(),
                          z_computed.begin<std::int16_t>(), cmp));
+}
+
+TEST(ImageBuffers_Tests, TimeStamp)
+{
+  std::string json =
+    R"(
+        {
+          "o3d3xx":
+          {
+            "Device":
+            {
+              "ActiveApplication": "1"
+            },
+            "Apps":
+            [
+              {
+                "TriggerMode": "1",
+                "Index": "1",
+                "Imager":
+                {
+                    "ExposureTime": "5000",
+                    "ExposureTimeList": "125;5000",
+                    "ExposureTimeRatio": "40",
+                    "Type":"under5m_moderate"
+                }
+              }
+           ]
+          }
+        }
+      )";
+
+  ifm3d::Camera::Ptr cam = std::make_shared<ifm3d::Camera>();
+  cam->FromJSON(nlohmann::json::parse(json));
+
+  ifm3d::ImageBuffer::Ptr img = std::make_shared<ifm3d::ImageBuffer>();
+  ifm3d::FrameGrabber::Ptr fg =
+    std::make_shared<ifm3d::FrameGrabber>(
+      cam, ifm3d::IMG_AMP|ifm3d::IMG_CART);
+
+  std::array<ifm3d::TimePointT, 2> tps;
+  // get two consecutive timestamps
+  for (ifm3d::TimePointT& t : tps)
+  {
+      EXPECT_TRUE(fg->WaitForFrame(img.get(), 1000));
+      t = img->TimeStamp();
+  }
+  // the first time point need to be smaller than the second one
+  EXPECT_LT(tps[0],tps[1]);
+  auto tdiff = std::chrono::duration_cast<std::chrono::milliseconds>(
+                 tps[1] - tps[0]).count();
+  EXPECT_GT(tdiff,20);
 }

@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <chrono>
 #include <opencv2/core/core.hpp>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -29,6 +30,7 @@
 namespace ifm3d
 {
   using PointT = pcl::PointXYZI;
+  using TimePointT = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
 
   /**
    * The ImageBuffer class is a composite data structure used to hold
@@ -136,6 +138,14 @@ namespace ifm3d
      * error in parsing them has occured.
      */
     std::vector<std::uint32_t> ExposureTimes();
+
+    /**
+     * Returns the time stamp of the image data.
+     *
+     * NOTE: To get the timestamp of the confidence data, you
+     * need to make sure your current pcic schema mask have enabled confidence data.
+     */
+    ifm3d::TimePointT TimeStamp();
 
     /**
      * Synchronizes the parsed out image data with the internally wrapped byte

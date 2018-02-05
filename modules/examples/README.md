@@ -43,3 +43,5 @@ What is included?
 * [ex-getmac](ex-getmac.cpp)
   Request the MAC address from the camera. The MAC address can be used as
   a unique identifier.
+* [ex-timestamp](ex-timestamp.cpp)
+ Request some frames from the camera and write the timestamps to stdout
