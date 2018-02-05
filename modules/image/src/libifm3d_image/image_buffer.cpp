@@ -124,6 +124,12 @@ ifm3d::ImageBuffer::ExposureTimes()
   return this->pImpl->ExposureTimes();
 }
 
+ifm3d::TimePointT ifm3d::ImageBuffer::TimeStamp()
+{
+  this->Organize();
+  return this->pImpl->TimeStamp();
+}
+
 void
 ifm3d::ImageBuffer::Organize()
 {
