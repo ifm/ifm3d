@@ -1,5 +1,5 @@
 project(IFM3D CXX)
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 2.8.11)
 set(GIT_PROJECT_NAME "ifm3d")
 
 # Make our cmake functions accessible
@@ -19,6 +19,7 @@ include(ifm3d_version)
 option(BUILD_TESTS "Build unit tests" ON)
 option(BUILD_MODULE_FRAMEGRABBER "Build the framegrabber module" ON)
 option(BUILD_MODULE_IMAGE "Build the image module" ON)
+option(BUILD_MODULE_PCICCLIENT "Build the pcicclient module" ON)
 option(BUILD_MODULE_TOOLS "Build the tools module" ON)
 option(BUILD_MODULE_EXAMPLES "Build the examples module" ON)
 option(BUILD_SDK_PKG "Build install packages for development purposes" ON)
@@ -58,6 +59,7 @@ endif(WIN32)
 
 # Build sub-modules
 add_subdirectory(modules/camera)
+
 if(BUILD_MODULE_FRAMEGRABBER)
   add_definitions(-DBUILD_MODULE_FRAMEGRABBER=ON)
   add_subdirectory(modules/framegrabber)
@@ -70,6 +72,9 @@ if(BUILD_MODULE_IMAGE)
   # confuse the end-user.
   add_definitions(-DBUILD_MODULE_IMAGE=ON)
   add_subdirectory(modules/image)
+endif()
+if(BUILD_MODULE_PCICCLIENT)
+  add_subdirectory(modules/pcicclient)
 endif()
 if(BUILD_MODULE_TOOLS)
   add_subdirectory(modules/tools)
