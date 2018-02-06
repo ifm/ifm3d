@@ -73,6 +73,13 @@ Software Compatibility Matrix
     <td>Added firmware flashing to ifm3d command line, Windows support for
     image module</td>
   </tr>
+  <tr>
+    <td>0.6.0</td>
+    <td>1.6.2114</td>
+    <td>1.0.62</td>
+    <td>14.04, 16.04</td>
+    <td>Added pcic client</td>
+  </tr>
 </table>
 
 **NOTE**: Our *officially supported platform* is Ubuntu Linux. However, other
