@@ -42,6 +42,7 @@ include_directories(
   ${IFM3D_IMAGE_BINARY_DIR}/include
   ${IFM3D_FG_BINARY_DIR}/include
   ${IFM3D_CAMERA_BINARY_DIR}/include
+  ${IFM3D_PCICCLIENT_BINARY_DIR}/include
   ${PCL_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   )
@@ -70,4 +71,28 @@ target_link_libraries(ex-file_io
 add_executable(ex-getmac  ex-getmac.cpp)
 target_link_libraries(ex-getmac
                       ifm3d_camera_shared
+                      )
+
+add_executable(ex-fast_app_switch ex-fast_app_switch.cpp)
+target_link_libraries(ex-fast_app_switch
+                      ifm3d_image_shared
+                      ifm3d_framegrabber_shared
+                      ifm3d_camera_shared
+                      ifm3d_pcicclient_shared
+                      ${OpenCV_LIBRARIES}
+                      ${Boost_LIBRARIES}
+                      )
+
+add_executable(ex-pcicclient_set_io ex-pcicclient_set_io.cpp)
+target_link_libraries(ex-pcicclient_set_io
+                      ifm3d_camera_shared
+                      ifm3d_pcicclient_shared
+                      ${Boost_LIBRARIES}
+                      )
+
+add_executable(ex-pcicclient_async_messages ex-pcicclient_async_messages.cpp)
+target_link_libraries(ex-pcicclient_async_messages
+                      ifm3d_camera_shared
+                      ifm3d_pcicclient_shared
+                      ${Boost_LIBRARIES}
                       )
