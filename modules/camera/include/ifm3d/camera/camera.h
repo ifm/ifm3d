@@ -284,6 +284,16 @@ namespace ifm3d
     virtual std::string DeviceParameter(const std::string& key);
 
     /**
+     * Delivers the trace log from the camera
+     * A session is not required to call this function.
+     *
+     * @return A `vector' of `std::string' for each entry in the tracelog
+     *
+     * @throw ifm3d::error_t upon error
+     */
+     virtual std::vector<std::string> TraceLogs(int count);
+
+    /**
      * Delivers basic information about all applications stored on the device.
      * A call to this function does not require establishing a session with the
      * camera.
