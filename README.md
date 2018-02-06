@@ -78,7 +78,7 @@ Software Compatibility Matrix
     <td>1.6.2114</td>
     <td>1.0.62</td>
     <td>14.04, 16.04</td>
-    <td>Added pcic client</td>
+    <td>Added pcic client, ability to dump camera trace logs</td>
   </tr>
 </table>
 
