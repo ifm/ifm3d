@@ -1,3 +1,7 @@
+## Changes between ifm3d 0.5.0 and 0.6.0
+
+* Added the pcic client feature from `libo3d3xx`
+
 ## Changes between ifm3d 0.4.0 and 0.5.0
 
 * Added `swupdate` subcommand in the tools module
