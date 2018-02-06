@@ -33,6 +33,7 @@ const int IFM3D_PIXEL_FORMAT_ERROR = -100010;
 const int IFM3D_UNSUPPORTED_DEVICE = -100011;
 const int IFM3D_UPDATE_ERROR = -1000012;
 const int IFM3D_RECOVERY_CONNECTION_ERROR = -1000013;
+const int IFM3D_PCICCLIENT_UNSUPPORTED_DEVICE = -1000014;
 
 // sensor errors
 const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
@@ -92,12 +93,14 @@ const char *ifm3d::strerror(int errnum)
       return "Lib: Image chunk not found";
     case IFM3D_PIXEL_FORMAT_ERROR:
       return "Lib: Pixel format error - didn't expect a particular pixel type";
-	case IFM3D_UNSUPPORTED_DEVICE:
-		return "Lib: The detected device is not supported by the library";
-	case IFM3D_UPDATE_ERROR:
-		return "Lib: An error occured while performing the update";
-	case IFM3D_RECOVERY_CONNECTION_ERROR:
-		return "Lib: Couldn't connect to the device (make sure the device is in Recovery Mode)";
+    case IFM3D_UNSUPPORTED_DEVICE:
+      return "Lib: The detected device is not supported by the library";
+    case IFM3D_UPDATE_ERROR:
+      return "Lib: An error occured while performing the update";
+    case IFM3D_RECOVERY_CONNECTION_ERROR:
+      return "Lib: Couldn't connect to the device (make sure the device is in Recovery Mode)";
+    case IFM3D_PCICCLIENT_UNSUPPORTED_DEVICE:
+      return "Lib: PCICClient is not supported for this device";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
       return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:
@@ -136,7 +139,7 @@ const char *ifm3d::strerror(int errnum)
       return "Sensor: Operation mode does not allow S/W trigger";
     case IFM3D_INVALID_IMAGER_TYPE:
       return "Sensor: Unsupported imager type";
-    case  IFM3D_UNSUPPORTED_APP_TYPE:
+    case IFM3D_UNSUPPORTED_APP_TYPE:
       return "Sensor: Unsupported application type";
     case IFM3D_PIN_ALREADY_IN_USE:
       return "Sensor: App requires a pin that is already in use";
