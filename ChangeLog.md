@@ -1,3 +1,9 @@
+## Changes between ifm3d 0.5.0 and 0.6.0
+
+* Added the pcic client feature from `libo3d3xx`
+* Added the ability to dump on-camera tracelogs including an interface to this
+  capability via the `trace` subcommand to the `ifm3d` command-line tool.
+
 ## Changes between ifm3d 0.4.0 and 0.5.0
 
 * Added `swupdate` subcommand in the tools module

@@ -271,6 +271,12 @@ ifm3d::Camera::DeviceParameter(const std::string& key)
   return this->pImpl->DeviceParameter(key);
 }
 
+std::vector<std::string>
+ifm3d::Camera::TraceLogs(int count)
+{
+  return this->pImpl->TraceLogs(count);
+}
+
 std::string
 ifm3d::Camera::DeviceType(bool use_cached)
 {
