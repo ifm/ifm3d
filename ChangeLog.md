@@ -1,3 +1,8 @@
+## Changes between ifm3d 0.6.0 and 0.7.0
+
+* Added timestamping of image buffers
+* Added support for setting/getting time on O3D cameras
+
 ## Changes between ifm3d 0.5.0 and 0.6.0
 
 * Added the pcic client feature from `libo3d3xx`
