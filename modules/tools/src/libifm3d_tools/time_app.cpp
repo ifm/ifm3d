@@ -47,9 +47,10 @@ int ifm3d::TimeApp::Run()
       return 0;
     }
 
-  if (! this->cam_->IsO3X())
+  json dump = this->cam_->ToJSON();
+  if (dump["/ifm3d/Time"_json_pointer].empty())
     {
-      std::cout << "Time support currently requires an O3X"
+      std::cout << "Time support currently requires an O3X or an O3D3XX with firmware >= 1.20.790"
                 << std::endl;
       return 0;
     }
@@ -59,7 +60,7 @@ int ifm3d::TimeApp::Run()
       this->cam_->SetCurrentTime(this->vm_["epoch"].as<int>());
     }
 
-  json dump = this->cam_->ToJSON();
+  dump = this->cam_->ToJSON();
   int curr_time =
     std::stoi(dump["ifm3d"]["Time"]["CurrentTime"].get<std::string>());
   std::time_t curr_time_t = curr_time;

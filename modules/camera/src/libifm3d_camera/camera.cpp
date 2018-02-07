@@ -494,6 +494,29 @@ ifm3d::Camera::ImportIFMApp(const std::vector<std::uint8_t>& bytes)
     [this,&bytes]()->int { return this->pImpl->ImportIFMApp(bytes); });
 }
 
+bool ifm3d::Camera::check_min_ifm_version(unsigned int major, unsigned int minor, unsigned int patch)
+{
+
+    auto data = this->pImpl->SWVersion();
+    const std::string swversion = data["IFM_Software"];
+    std::istringstream str(swversion);
+    std::vector<std::string> strings;
+    std::string token;
+    while (getline(str, token, '.'))
+      {
+        strings.push_back(token);
+      }
+    const auto cmajor = std::stoi(strings[0],nullptr);
+    const auto cminor = std::stoi(strings[1],nullptr);
+    const auto cpatch = std::stoi(strings[2],nullptr);
+    const auto res = (
+                (cmajor >= major) &&
+                (cminor >= minor) &&
+                (cpatch >= patch)
+               );
+    return res;
+}
+
 json
 ifm3d::Camera::ToJSON()
 {
@@ -512,7 +535,7 @@ ifm3d::Camera::ToJSON()
     [this,&net_info,&time_info,&app_info,&app_list]()
     {
       net_info = json(this->pImpl->NetInfo());
-      if (this->IsO3X())
+      if (this->IsO3X() || (this->IsO3D() && this->check_min_ifm_version(1,20,790)))
         {
           time_info = json(this->pImpl->TimeInfo());
         }
@@ -870,7 +893,7 @@ ifm3d::Camera::FromJSON(const json& j)
     }
 
   // Time
-  if (this->IsO3X())
+  if (this->IsO3X() || (this->IsO3D() && this->check_min_ifm_version(1,20,790)))
     {
       json j_time = root["Time"];
       if (! j_time.is_null())

@@ -519,7 +519,10 @@ namespace ifm3d
                    std::function<void()> SaveFunc,
                    const std::string& name,
                    int idx = -1);
-
+    /*
+     * Checks for a minimum ifm camera software version
+     */
+    bool check_min_ifm_version(unsigned int major, unsigned int minor, unsigned int patch);
   }; // end: class Camera
 
   /**
