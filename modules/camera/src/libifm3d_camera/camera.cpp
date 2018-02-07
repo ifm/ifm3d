@@ -55,6 +55,10 @@ const unsigned int ifm3d::O3D_TIME_SUPPORT_MAJOR = 1;
 const unsigned int ifm3d::O3D_TIME_SUPPORT_MINOR = 20;
 const unsigned int ifm3d::O3D_TIME_SUPPORT_PATCH = 790;
 
+const unsigned int ifm3d::O3D_TMP_PARAMS_SUPPORT_MAJOR = 1;
+const unsigned int ifm3d::O3D_TMP_PARAMS_SUPPORT_MINOR = 20;
+const unsigned int ifm3d::O3D_TMP_PARAMS_SUPPORT_PATCH = 0;
+
 //================================================
 // A lookup table listing the read-only camera
 // parameters
@@ -241,8 +245,22 @@ ifm3d::Camera::Heartbeat(int hb)
 }
 
 void
-ifm3d::Camera::SetTemporaryApplicationParameters(const std::unordered_map<std::string, std::string>& params)
+ifm3d::Camera::SetTemporaryApplicationParameters(
+  const std::unordered_map<std::string, std::string>& params)
 {
+  //
+  // NOTE: we "fail" silently here. Assumption is a closed loop check by the
+  // user to see if/when the temp params take effect.
+  //
+  if (this->IsO3D() &&
+      (! this->check_min_ifm_version(ifm3d::O3D_TMP_PARAMS_SUPPORT_MAJOR,
+                                     ifm3d::O3D_TMP_PARAMS_SUPPORT_MINOR,
+                                     ifm3d::O3D_TMP_PARAMS_SUPPORT_PATCH)))
+    {
+      LOG(WARNING) << "Setting temp params not supported by this device!";
+      return;
+    }
+
   this->pImpl->SetTemporaryApplicationParameters(params);
 }
 
