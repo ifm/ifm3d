@@ -80,6 +80,13 @@ Software Compatibility Matrix
     <td>14.04, 16.04</td>
     <td>Added pcic client, ability to dump camera trace logs</td>
   </tr>
+  <tr>
+    <td>0.7.0</td>
+    <td>1.6.2114, 1.20.973</td>
+    <td>1.0.62</td>
+    <td>14.04, 16.04</td>
+    <td>Timestamping of image buffers and host/device time sync for O3D</td>
+  </tr>
 </table>
 
 **NOTE**: Our *officially supported platform* is Ubuntu Linux. However, other
