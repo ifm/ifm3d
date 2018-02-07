@@ -2,6 +2,9 @@
 
 * Added timestamping of image buffers
 * Added support for setting/getting time on O3D cameras
+* Added support for setting temporary application parameters. Please note, that
+  if the device does not support this, it may "fail silently", so, a
+  closed-loop check by the user is recommended.
 
 ## Changes between ifm3d 0.5.0 and 0.6.0
 
