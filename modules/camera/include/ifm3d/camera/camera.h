@@ -43,6 +43,10 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const int DEV_O3X_MAX;
   extern IFM3D_CAMERA_EXPORT const std::string ASSUME_DEVICE;
 
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TIME_SUPPORT_MAJOR;
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TIME_SUPPORT_MINOR;
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TIME_SUPPORT_PATCH;
+
   /**
    * Software interface to an ifm 3D camera
    *
@@ -539,10 +543,12 @@ namespace ifm3d
                    std::function<void()> SaveFunc,
                    const std::string& name,
                    int idx = -1);
-    /*
+    /**
      * Checks for a minimum ifm camera software version
      */
-    bool check_min_ifm_version(unsigned int major, unsigned int minor, unsigned int patch);
+    bool check_min_ifm_version(unsigned int major,
+                               unsigned int minor,
+                               unsigned int patch);
   }; // end: class Camera
 
   /**

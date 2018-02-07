@@ -51,6 +51,10 @@ const std::string ifm3d::ASSUME_DEVICE =
   std::getenv("IFM3D_DEVICE") == nullptr ?
   "" : std::string(std::getenv("IFM3D_DEVICE"));
 
+const unsigned int ifm3d::O3D_TIME_SUPPORT_MAJOR = 1;
+const unsigned int ifm3d::O3D_TIME_SUPPORT_MINOR = 20;
+const unsigned int ifm3d::O3D_TIME_SUPPORT_PATCH = 790;
+
 //================================================
 // A lookup table listing the read-only camera
 // parameters
@@ -500,7 +504,9 @@ ifm3d::Camera::ImportIFMApp(const std::vector<std::uint8_t>& bytes)
     [this,&bytes]()->int { return this->pImpl->ImportIFMApp(bytes); });
 }
 
-bool ifm3d::Camera::check_min_ifm_version(unsigned int major, unsigned int minor, unsigned int patch)
+bool
+ifm3d::Camera::check_min_ifm_version(unsigned int major,
+                                     unsigned int minor, unsigned int patch)
 {
 
     auto data = this->pImpl->SWVersion();
@@ -541,7 +547,11 @@ ifm3d::Camera::ToJSON()
     [this,&net_info,&time_info,&app_info,&app_list]()
     {
       net_info = json(this->pImpl->NetInfo());
-      if (this->IsO3X() || (this->IsO3D() && this->check_min_ifm_version(1,20,790)))
+      if (this->IsO3X() ||
+          (this->IsO3D() &&
+           this->check_min_ifm_version(ifm3d::O3D_TIME_SUPPORT_MAJOR,
+                                       ifm3d::O3D_TIME_SUPPORT_MINOR,
+                                       ifm3d::O3D_TIME_SUPPORT_PATCH)))
         {
           time_info = json(this->pImpl->TimeInfo());
         }
@@ -899,7 +909,11 @@ ifm3d::Camera::FromJSON(const json& j)
     }
 
   // Time
-  if (this->IsO3X() || (this->IsO3D() && this->check_min_ifm_version(1,20,790)))
+  if (this->IsO3X() ||
+      (this->IsO3D() &&
+       this->check_min_ifm_version(ifm3d::O3D_TIME_SUPPORT_MAJOR,
+                                   ifm3d::O3D_TIME_SUPPORT_MINOR,
+                                   ifm3d::O3D_TIME_SUPPORT_PATCH)))
     {
       json j_time = root["Time"];
       if (! j_time.is_null())
