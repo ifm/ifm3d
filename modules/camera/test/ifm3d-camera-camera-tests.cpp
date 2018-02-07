@@ -341,7 +341,8 @@ TEST_F(CameraTest, JSON)
 
 TEST_F(CameraTest, Time)
 {
-  if (! this->cam_->IsO3X())
+  json dump = this->cam_->ToJSON();
+  if (dump["/ifm3d/Time"_json_pointer].empty())
     {
       return;
     }
@@ -349,7 +350,6 @@ TEST_F(CameraTest, Time)
   //
   // 1. check mutating the "WaitSyncTries" parameters
   //
-  json dump = this->cam_->ToJSON();
   int n_tries =
     std::stoi(dump["ifm3d"]["Time"]["WaitSyncTries"].get<std::string>());
   int n_tries_new = n_tries == 1 ? 2 : 1;
