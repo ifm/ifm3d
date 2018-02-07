@@ -50,7 +50,11 @@ int ifm3d::TimeApp::Run()
   json dump = this->cam_->ToJSON();
   if (dump["/ifm3d/Time"_json_pointer].empty())
     {
-      std::cout << "Time support currently requires an O3X or an O3D3XX with firmware >= 1.20.790"
+      std::cout << "Time support currently requires an O3X or "
+                << "an O3D3XX with firmware >= "
+                << ifm3d::O3D_TIME_SUPPORT_MAJOR << "."
+                << ifm3d::O3D_TIME_SUPPORT_MINOR << "."
+                << ifm3d::O3D_TIME_SUPPORT_PATCH
                 << std::endl;
       return 0;
     }
