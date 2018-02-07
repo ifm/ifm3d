@@ -428,10 +428,10 @@ TEST_F(CameraTest, TemporaryParameters)
   };
   cam_->RequestSession();
 
-  cam_->SetTemporaryApplicationParameters(params);
+  EXPECT_NO_THROW(cam_->SetTemporaryApplicationParameters(params));
 
   params["imager_001/ExposureTime"] = "5000";
   params["imager_001/ExposureTimeRatio"] = "40";
 
-  cam_->SetTemporaryApplicationParameters(params);
+  EXPECT_NO_THROW(cam_->SetTemporaryApplicationParameters(params));
 }

@@ -85,7 +85,8 @@ Software Compatibility Matrix
     <td>1.6.2114, 1.20.973</td>
     <td>1.0.62</td>
     <td>14.04, 16.04</td>
-    <td>Timestamping of image buffers and host/device time sync for O3D</td>
+    <td>Timestamping of image buffers, host/device time sync for O3D, changing
+    application parameters on-the-fly</td>
   </tr>
 </table>
 
