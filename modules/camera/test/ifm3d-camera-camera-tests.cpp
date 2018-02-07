@@ -419,3 +419,19 @@ TEST_F(CameraTest, Time)
   //
   EXPECT_NO_THROW(this->cam_->SetCurrentTime());
 }
+
+TEST_F(CameraTest, TemporaryParameters)
+{
+  std::unordered_map<std::string, std::string> params =
+  {
+    { "imager_001/ExposureTime", "6000" }
+  };
+  cam_->RequestSession();
+
+  cam_->SetTemporaryApplicationParameters(params);
+
+  params["imager_001/ExposureTime"] = "5000";
+  params["imager_001/ExposureTimeRatio"] = "40";
+
+  cam_->SetTemporaryApplicationParameters(params);
+}
