@@ -65,7 +65,9 @@ int ifm3d::SchemaApp::Run()
                 << '\t' << "EXP_TIME: "
                 << (int) ifm3d::EXP_TIME << std::endl
                 << '\t' << "IMG_GRAY: "
-                << (int) ifm3d::IMG_GRAY << std::endl;
+                << (int) ifm3d::IMG_GRAY << std::endl
+                << '\t' << "ILLU_TEMP: "
+                << (int) ifm3d::ILLU_TEMP << std::endl;
 
       return 0;
     }

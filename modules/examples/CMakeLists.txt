@@ -1,8 +1,6 @@
 project(IFM3D_EXAMPLES)
 cmake_minimum_required(VERSION 2.8.12)
 
-set(CMAKE_BUILD_TYPE Release) # Release or Debug
-
 set(CMAKE_MODULE_PATH
     ${ifm3d_EXAMPLES_SOURCE_DIR}/../../cmake/modules
     ${CMAKE_MODULE_PATH}
@@ -102,6 +100,15 @@ target_link_libraries(ex-timestamp
                       ifm3d_image_shared
                       ifm3d_framegrabber_shared
                       ifm3d_camera_shared
+                      ${PCL_IO_LIBRARIES}
+                      ${OpenCV_LIBRARIES}
+                      )
+
+add_executable(ex-exposure_times ex-exposure_times.cpp)
+target_link_libraries(ex-exposure_times
+                      ifm3d_camera_shared
+                      ifm3d_framegrabber_shared
+                      ifm3d_image_shared
                       ${PCL_IO_LIBRARIES}
                       ${OpenCV_LIBRARIES}
                       )

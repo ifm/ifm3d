@@ -148,6 +148,14 @@ namespace ifm3d
     ifm3d::TimePointT TimeStamp();
 
     /**
+     * Returns the temperature of the illumination unit.
+     *
+     * NOTE: To get the temperature of the illumination unit to the frame, you
+     * need to make sure your current pcic schema asks for it.
+     */
+    float IlluTemp();
+
+    /**
      * Synchronizes the parsed out image data with the internally wrapped byte
      * buffer.
      */

@@ -5,20 +5,21 @@ else()
 	set(LIB_glog glog::glog)
 endif (NOT TARGET glog::glog)
 
+
 if(NOT WIN32)
     find_library(LIB_xmlrpcxx NAMES xmlrpc++)
     find_library(LIB_xmlrpc_clientxx NAMES xmlrpc_client++)
 else()
+  find_package(xmlrpc-c CONFIG REQUIRED COMPONENTS xmlrpc xmlrpc_client xmlrpc++ xmlrpc_client++)
 	set(LIB_xmlrpcxx
-		xmlrpc
-		xmlrpc_client
+    xmlrpc-c::xmlrpc
+		xmlrpc-c::xmlrpc_client
 	)
 	set(LIB_xmlrpc_clientxx
-		xmlrpc++
-		xmlrpc_client++
-	)
+    xmlrpc-c::xmlrpc++
+    xmlrpc-c::xmlrpc_client++
+  )
 endif(NOT WIN32)
-
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -46,6 +47,9 @@ if(WIN32)
 endif(WIN32)
 
 install(TARGETS ifm3d_camera_shared
-  DESTINATION lib
+  RUNTIME DESTINATION ${_bin}
+  LIBRARY DESTINATION ${_lib}
+  ARCHIVE DESTINATION ${_lib}
+  PUBLIC_HEADER DESTINATION ${_include}
   COMPONENT camera
   )
