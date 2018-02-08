@@ -265,3 +265,26 @@ TEST(ImageBuffers_Tests, TimeStamp)
                  tps[1] - tps[0]).count();
   EXPECT_GT(tdiff,20);
 }
+
+TEST(Image, IlluTemp)
+{
+  ifm3d::Camera::Ptr cam = std::make_shared<ifm3d::Camera>();
+
+  ifm3d::ImageBuffer::Ptr img = std::make_shared<ifm3d::ImageBuffer>();
+  ifm3d::FrameGrabber::Ptr fg =
+    std::make_shared<ifm3d::FrameGrabber>(
+      cam, ifm3d::DEFAULT_SCHEMA_MASK | ifm3d::ILLU_TEMP);
+
+  EXPECT_TRUE(fg->WaitForFrame(img.get(), 1000));
+
+  // currently not supported on O3X
+  if (cam->IsO3X())
+    {
+      return;
+    }
+
+  float illu_temp = img->IlluTemp();
+
+  EXPECT_GT(illu_temp, 10);
+  EXPECT_LT(illu_temp, 90);
+}

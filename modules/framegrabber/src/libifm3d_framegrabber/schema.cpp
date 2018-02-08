@@ -21,13 +21,14 @@
 #include <vector>
 #include <boost/algorithm/string.hpp>
 
-const std::uint16_t ifm3d::IMG_RDIS = 1;  // 2**0
-const std::uint16_t ifm3d::IMG_AMP  = 2;  // 2**1
-const std::uint16_t ifm3d::IMG_RAMP = 4;  // 2**2
-const std::uint16_t ifm3d::IMG_CART = 8;  // 2**3
-const std::uint16_t ifm3d::IMG_UVEC = 16; // 2**4
-const std::uint16_t ifm3d::EXP_TIME = 32; // 2**5
-const std::uint16_t ifm3d::IMG_GRAY = 64; // 2**6
+const std::uint16_t ifm3d::IMG_RDIS  = 1;   // 2**0
+const std::uint16_t ifm3d::IMG_AMP   = 2;   // 2**1
+const std::uint16_t ifm3d::IMG_RAMP  = 4;   // 2**2
+const std::uint16_t ifm3d::IMG_CART  = 8;   // 2**3
+const std::uint16_t ifm3d::IMG_UVEC  = 16;  // 2**4
+const std::uint16_t ifm3d::EXP_TIME  = 32;  // 2**5
+const std::uint16_t ifm3d::IMG_GRAY  = 64;  // 2**6
+const std::uint16_t ifm3d::ILLU_TEMP = 128; // 2**7
 
 auto __ifm3d_schema_mask__ = []()->std::uint16_t
   {
@@ -37,7 +38,7 @@ auto __ifm3d_schema_mask__ = []()->std::uint16_t
             ifm3d::IMG_AMP|ifm3d::IMG_CART :
             std::stoul(std::string(std::getenv("IFM3D_MASK"))) & 0xFFFF;
       }
-    catch (const std::exception& ex)
+    catch (const std::exception& /*ex*/)
       {
         return ifm3d::IMG_AMP|ifm3d::IMG_CART;
       }
@@ -107,6 +108,20 @@ ifm3d::make_o3x_json_from_mask(std::uint16_t mask)
       R"(,
              "OutputXYZImage":"false")";
     }
+
+// Note: this is not yet supported by o3x
+//  if((mask & ifm3d::ILLU_TEMP) == ifm3d::ILLU_TEMP)
+//    {
+//      schema +=
+//      R"(,
+//             "OutputIlluminatorTemperature":"true")";
+//    }
+//  else
+//    {
+//      schema +=
+//      R"(,
+//             "OutputIlluminatorTemperature":"false")";
+//    }
 
   // other invariants
   schema +=
@@ -201,6 +216,17 @@ ifm3d::make_schema(std::uint16_t mask)
            })";
     }
 
+  if((mask & ifm3d::ILLU_TEMP) == ifm3d::ILLU_TEMP)
+    {
+      schema +=
+      R"(,
+           {"type":"string", "id":"temp_illu", "value":"temp_illu"},
+           {
+            "type":"float32", "id":"temp_illu",
+            "format":{"dataencoding":"binary", "order":"little"}
+           })";
+    }
+
   // other invariants
   schema +=
   R"(,
@@ -248,6 +274,10 @@ ifm3d::schema_mask_from_string(const std::string& in)
       else if (part == "EXP_TIME")
         {
           mask |= ifm3d::EXP_TIME;
+        }
+      else if (part == "ILLU_TEMP")
+        {
+          mask |= ifm3d::ILLU_TEMP;
         }
     }
 
