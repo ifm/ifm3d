@@ -258,7 +258,7 @@ ifm3d::PCICClient::ConnectHandler(const boost::system::error_code& ec)
 }
 
 void
-ifm3d::PCICClient::DoRead(State state, int bytes_remaining)
+ifm3d::PCICClient::DoRead(State state, std::size_t bytes_remaining)
 {
   std::string &buffer = this->InBufferByState(state);
   if(bytes_remaining==UNSET)
@@ -346,12 +346,13 @@ ifm3d::PCICClient::InBufferByState(State state)
     case State::CONTENT: return this->in_content_buffer_;
     case State::POST_CONTENT: return this->in_post_content_buffer_;
     }
+  throw;
 }
 
 void
 ifm3d::PCICClient::DoWrite(State state,
 			    const std::string& out_content_buffer,
-			    int bytes_remaining)
+			    std::size_t bytes_remaining)
 {
   const std::string &buffer = this->OutBufferByState(state, out_content_buffer);
   if(bytes_remaining==UNSET)
@@ -417,6 +418,7 @@ ifm3d::PCICClient::OutBufferByState(State state,
     case State::CONTENT: return out_content_buffer;
     case State::POST_CONTENT: return this->out_post_content_buffer_;
     }
+  throw;
 }
 
 int
