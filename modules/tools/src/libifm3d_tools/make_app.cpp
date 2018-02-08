@@ -150,7 +150,7 @@ ifm3d::make_app(int argc, const char **argv)
     {
       return app_factory.at(cmd)(argc, argv, cmd);
     }
-  catch (const std::out_of_range& ex)
+  catch (const std::out_of_range& /*ex*/)
     {
       std::vector<std::string> keys;
       for (auto& c : app_factory)

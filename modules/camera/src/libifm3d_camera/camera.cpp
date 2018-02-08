@@ -705,7 +705,7 @@ ifm3d::Camera::FromJSON_(const json& j_curr,
                           continue;
                         }
                     }
-                  catch (const std::out_of_range& ex)
+                  catch (const std::out_of_range& /*ex*/)
                     {
                       // just swallow the error -- we are setting a
                       // r/w parameter

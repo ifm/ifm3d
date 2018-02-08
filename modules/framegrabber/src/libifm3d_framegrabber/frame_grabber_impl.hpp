@@ -394,7 +394,7 @@ ifm3d::FrameGrabber::Impl::SetSchemaBuffer(std::uint16_t mask)
   mask &= ~ifm3d::IMG_GRAY;
 
   std::string schema = ifm3d::make_schema(mask);
-  int c_len = 4 + 1 + 9 + schema.size() + 2;
+  std::size_t c_len = 4 + 1 + 9 + schema.size() + 2;
   std::ostringstream str;
   str << ifm3d::TICKET_c
       << 'L' << std::setfill('0') << std::setw(9) << c_len
