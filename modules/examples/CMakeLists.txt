@@ -1,6 +1,8 @@
 project(IFM3D_EXAMPLES)
 cmake_minimum_required(VERSION 2.8.12)
 
+set(CMAKE_BUILD_TYPE Release) # Release or Debug
+
 set(CMAKE_MODULE_PATH
     ${ifm3d_EXAMPLES_SOURCE_DIR}/../../cmake/modules
     ${CMAKE_MODULE_PATH}
