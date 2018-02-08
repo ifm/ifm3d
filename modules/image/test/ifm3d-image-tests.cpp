@@ -276,6 +276,13 @@ TEST(Image, IlluTemp)
       cam, ifm3d::DEFAULT_SCHEMA_MASK | ifm3d::ILLU_TEMP);
 
   EXPECT_TRUE(fg->WaitForFrame(img.get(), 1000));
+
+  // currently not supported on O3X
+  if (cam->IsO3X())
+    {
+      return;
+    }
+
   float illu_temp = img->IlluTemp();
 
   EXPECT_GT(illu_temp, 10);
