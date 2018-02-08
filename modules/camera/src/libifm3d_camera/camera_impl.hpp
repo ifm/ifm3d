@@ -883,7 +883,8 @@ ifm3d::Camera::Impl::SetCurrentTime(int epoch_seconds)
 {
   if (epoch_seconds < 0)
     {
-      epoch_seconds = std::chrono::seconds(std::time(nullptr)).count();
+      epoch_seconds = static_cast<int>(
+                std::chrono::seconds(std::time(nullptr)).count());
     }
 
   this->_XCallTime("setCurrentTime", epoch_seconds);
