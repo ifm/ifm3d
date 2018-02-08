@@ -220,11 +220,11 @@ ifm3d::make_schema(std::uint16_t mask)
     {
       schema +=
       R"(,
-             {"type":"string", "id":"temp_illu", "value":"temp_illu"},
-             {
-              "type":"float32", "id":"temp_illu",
-              "format":{"dataencoding":"binary", "order":"little"}
-             })";
+           {"type":"string", "id":"temp_illu", "value":"temp_illu"},
+           {
+            "type":"float32", "id":"temp_illu",
+            "format":{"dataencoding":"binary", "order":"little"}
+           })";
     }
 
   // other invariants
