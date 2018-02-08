@@ -1,3 +1,7 @@
+## Changes between ifm3d 0.7.0 and 0.8.0
+
+* Illumination temperature is registered to frame data
+
 ## Changes between ifm3d 0.6.0 and 0.7.0
 
 * Added timestamping of image buffers
