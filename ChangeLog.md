@@ -1,3 +1,7 @@
+## Changes between ifm3d 0.8.0 and 0.8.1
+
+* Reverted Windows build changes due to how it broke packaging on Linux
+
 ## Changes between ifm3d 0.7.0 and 0.8.0
 
 * Illumination temperature is registered to frame data

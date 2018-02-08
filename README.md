@@ -89,7 +89,7 @@ Software Compatibility Matrix
     application parameters on-the-fly</td>
   </tr>
   <tr>
-    <td>0.8.0</td>
+    <td>0.8.1</td>
     <td>1.6.2114, 1.20.973</td>
     <td>1.0.62</td>
     <td>14.04, 16.04</td>
