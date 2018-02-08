@@ -38,7 +38,7 @@ auto __ifm3d_schema_mask__ = []()->std::uint16_t
             ifm3d::IMG_AMP|ifm3d::IMG_CART :
             std::stoul(std::string(std::getenv("IFM3D_MASK"))) & 0xFFFF;
       }
-    catch (const std::exception& /*ex*/)
+    catch (const std::exception& ex)
       {
         return ifm3d::IMG_AMP|ifm3d::IMG_CART;
       }
