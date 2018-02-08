@@ -88,6 +88,13 @@ Software Compatibility Matrix
     <td>Timestamping of image buffers, host/device time sync for O3D, changing
     application parameters on-the-fly</td>
   </tr>
+  <tr>
+    <td>0.8.0</td>
+    <td>1.6.2114, 1.20.973</td>
+    <td>1.0.62</td>
+    <td>14.04, 16.04</td>
+    <td>Register illumination temperature to frame data</td>
+  </tr>
 </table>
 
 **NOTE**: Our *officially supported platform* is Ubuntu Linux. However, other
