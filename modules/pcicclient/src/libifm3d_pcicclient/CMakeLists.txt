@@ -33,9 +33,8 @@ if(WIN32)
 endif(WIN32)
 
 install(TARGETS ifm3d_pcicclient_shared
-  RUNTIME DESTINATION ${_bin}
-  LIBRARY DESTINATION ${_lib}
-  ARCHIVE DESTINATION ${_lib}
-  PUBLIC_HEADER DESTINATION ${_include}
-  COMPONENT pcicclient
+  RUNTIME DESTINATION ${_bin} COMPONENT pcicclient
+  LIBRARY DESTINATION ${_lib} COMPONENT pcicclient
+  ARCHIVE DESTINATION ${_lib} COMPONENT pcicclient
+  PUBLIC_HEADER DESTINATION ${_include} COMPONENT pcicclient
   )
