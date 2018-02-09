@@ -35,9 +35,8 @@ if(WIN32)
 endif(WIN32)
 
 install(TARGETS ifm3d_framegrabber_shared
-  RUNTIME DESTINATION ${_bin}
-  LIBRARY DESTINATION ${_lib}
-  ARCHIVE DESTINATION ${_lib}
-  PUBLIC_HEADER DESTINATION ${_include}
-  COMPONENT framegrabber
+  RUNTIME DESTINATION ${_bin} COMPONENT framegrabber
+  LIBRARY DESTINATION ${_lib} COMPONENT framegrabber
+  ARCHIVE DESTINATION ${_lib} COMPONENT framegrabber
+  PUBLIC_HEADER DESTINATION ${_include} COMPONENT framegrabber
   )
