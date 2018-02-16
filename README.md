@@ -95,6 +95,13 @@ Software Compatibility Matrix
     <td>14.04, 16.04</td>
     <td>Register illumination temperature to frame data</td>
   </tr>
+  <tr>
+    <td>0.8.2</td>
+    <td>1.6.2114, 1.20.973</td>
+    <td>1.0.62</td>
+    <td>14.04, 16.04</td>
+    <td>Patches to windows build</td>
+  </tr>
 </table>
 
 **NOTE**: Our *officially supported platform* is Ubuntu Linux. However, other
