@@ -527,24 +527,43 @@ ifm3d::Camera::check_min_ifm_version(unsigned int major,
                                      unsigned int minor, unsigned int patch)
 {
 
-    auto data = this->pImpl->SWVersion();
-    const std::string swversion = data["IFM_Software"];
-    std::istringstream str(swversion);
-    std::vector<std::string> strings;
-    std::string token;
-    while (getline(str, token, '.'))
-      {
-        strings.push_back(token);
-      }
-    const auto cmajor = std::stoi(strings[0],nullptr);
-    const auto cminor = std::stoi(strings[1],nullptr);
-    const auto cpatch = std::stoi(strings[2],nullptr);
-    const auto res = (
-                (cmajor >= major) &&
-                (cminor >= minor) &&
-                (cpatch >= patch)
-               );
-    return res;
+  auto data = this->pImpl->SWVersion();
+  const std::string swversion = data["IFM_Software"];
+  std::istringstream str(swversion);
+  std::vector<std::string> strings;
+  std::string token;
+  while (getline(str, token, '.'))
+    {
+      strings.push_back(token);
+    }
+  const auto cmajor = std::stoi(strings[0],nullptr);
+  const auto cminor = std::stoi(strings[1],nullptr);
+  const auto cpatch = std::stoi(strings[2],nullptr);
+  auto res = false;
+  if(cmajor > major)
+    {
+      res = true;
+    }
+  else if (cmajor == major)
+    {
+      if(cminor > minor)
+        {
+          res = true;
+        }
+      else if (cminor == minor)
+        {
+          if(cpatch > patch)
+            {
+              res = true;
+            }
+          else if(cpatch == patch)
+            {
+              res = true;
+            }
+        }
+    }
+
+  return res;
 }
 
 json
@@ -705,7 +724,7 @@ ifm3d::Camera::FromJSON_(const json& j_curr,
                           continue;
                         }
                     }
-                  catch (const std::out_of_range& ex)
+                  catch (const std::out_of_range& /*ex*/)
                     {
                       // just swallow the error -- we are setting a
                       // r/w parameter

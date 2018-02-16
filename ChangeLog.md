@@ -1,3 +1,8 @@
+## Changes between ifm3d 0.8.1 and 0.8.2
+
+* Patch to windows build
+* Better semver parsing of camera firmware
+
 ## Changes between ifm3d 0.8.0 and 0.8.1
 
 * Reverted Windows build changes due to how it broke packaging on Linux
