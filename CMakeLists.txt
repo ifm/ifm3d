@@ -29,6 +29,11 @@ set(CPACK_SET_DESTDIR true)
 set(CMAKE_INSTALL_PREFIX "/usr" CACHE STRING "CMake install prefix")
 set(CPACK_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
+# Installation paths
+set(_lib       lib CACHE STRING "Basename of the library-directory; usually 'lib' or 'lib64' (on multilib archs)")
+set(_bin       bin CACHE STRING "Basename of the bin-directory; usually 'bin'")
+set(_include   include CACHE STRING "Basename of the include-directory; usually 'include'")
+
 # Where to find GTest
 set(GTEST_CMAKE_DIR "/usr/src/gtest" CACHE STRING "GTest cmake project dir")
 
@@ -38,24 +43,16 @@ set(CMAKE_CXX_EXTENSIONS OFF) # OFF -> -std=c++11, ON -> -std=gnu++11
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 if(WIN32)
-set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -std=c++11")
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS) 
 else(WIN32)
-set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s -std=c++11")
+  set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s")
 endif(WIN32)
 # Bootstrap gtest
 if(BUILD_TESTS)
   add_subdirectory(${GTEST_CMAKE_DIR} gtest_bin)
   add_custom_target(check)
 endif()
-
-if(WIN32)
-add_subdirectory(3rdparty)
-# This is a hack as long as the xmlrpc-c find script is broken under windows
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/3rdParty/xmlrpc-c/include)
-include_directories(${CMAKE_SOURCE_DIR}/3rdParty/xmlrpc-c/include)
-endif(WIN32)
 
 # Build sub-modules
 add_subdirectory(modules/camera)

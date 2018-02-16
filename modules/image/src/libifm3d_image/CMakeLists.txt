@@ -34,6 +34,8 @@ if(WIN32)
 endif(WIN32)
 
 install(TARGETS ifm3d_image_shared
-  DESTINATION lib
-  COMPONENT image
+  RUNTIME DESTINATION ${_bin} COMPONENT image
+  LIBRARY DESTINATION ${_lib} COMPONENT image
+  ARCHIVE DESTINATION ${_lib} COMPONENT image
+  PUBLIC_HEADER DESTINATION ${_include} COMPONENT image
   )

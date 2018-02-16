@@ -169,7 +169,7 @@ namespace ifm3d
      * Reads data from network into one of the three "in" buffers
      * depending on current reading state.
      */
-    void DoRead(State state, int bytes_remaining = UNSET);
+    void DoRead(State state, std::size_t bytes_remaining = UNSET);
 
     /**
      * Handles DoRead results: Triggers further reads and in
@@ -192,7 +192,7 @@ namespace ifm3d
      */
     void DoWrite(State state,
 		 const std::string &out_content_buffer,
-		 int bytes_remaining = UNSET);
+		 std::size_t bytes_remaining = UNSET);
 
     /**
      * Handles DoWrite results: Triggers further writes and in
