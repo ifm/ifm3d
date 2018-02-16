@@ -81,6 +81,8 @@ if(WIN32)
 endif(WIN32)
 
 install(TARGETS ifm3d_tools_shared
-  DESTINATION lib
-  COMPONENT tools
+  RUNTIME DESTINATION ${_bin} COMPONENT tools
+  LIBRARY DESTINATION ${_lib} COMPONENT tools
+  ARCHIVE DESTINATION ${_lib} COMPONENT tools
+  PUBLIC_HEADER DESTINATION ${_include} COMPONENT tools
   )
