@@ -14,7 +14,7 @@ configure_file(
 ## Bring in dependent projects
 ################################################
 if(NOT WIN32)
-find_package(XMLRPC REQUIRED c++ client)
+  find_package(XMLRPC REQUIRED c++ client)
 endif()
 find_package(Boost REQUIRED)
 
