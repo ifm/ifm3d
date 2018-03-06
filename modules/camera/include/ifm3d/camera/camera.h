@@ -243,7 +243,8 @@ namespace ifm3d
      *
      * @throw ifm3d::error_t upon error
      */
-    virtual void SetTemporaryApplicationParameters(const std::unordered_map<std::string, std::string>& params);
+    virtual void SetTemporaryApplicationParameters(
+      const std::unordered_map<std::string, std::string>& params);
 
     /**
      * Sends a S/W trigger to the camera over XMLRPC.
