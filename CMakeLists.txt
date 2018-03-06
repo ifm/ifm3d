@@ -1,5 +1,5 @@
 project(IFM3D CXX)
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.5)
 set(GIT_PROJECT_NAME "ifm3d")
 
 # Make our cmake functions accessible
@@ -30,24 +30,24 @@ set(CMAKE_INSTALL_PREFIX "/usr" CACHE STRING "CMake install prefix")
 set(CPACK_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
 # Installation paths
-set(_lib       lib CACHE STRING "Basename of the library-directory; usually 'lib' or 'lib64' (on multilib archs)")
-set(_bin       bin CACHE STRING "Basename of the bin-directory; usually 'bin'")
-set(_include   include CACHE STRING "Basename of the include-directory; usually 'include'")
+set(_lib lib CACHE STRING "Basename of the library-directory")
+set(_bin bin CACHE STRING "Basename of the bin-directory")
+set(_include  include CACHE STRING "Basename of the include-directory")
 
 # Where to find GTest
 set(GTEST_CMAKE_DIR "/usr/src/gtest" CACHE STRING "GTest cmake project dir")
 
 # Global compiler flags
 set(CMAKE_BUILD_TYPE Release) # Release or Debug
-set(CMAKE_CXX_EXTENSIONS OFF) # OFF -> -std=c++11, ON -> -std=gnu++11
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_EXTENSIONS OFF) # OFF -> -std=c++14, ON -> -std=gnu++14
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 if(WIN32)
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS) 
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 else(WIN32)
-  set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s")
 endif(WIN32)
+
 # Bootstrap gtest
 if(BUILD_TESTS)
   add_subdirectory(${GTEST_CMAKE_DIR} gtest_bin)
@@ -80,6 +80,7 @@ endif()
 if(BUILD_MODULE_EXAMPLES)
   add_subdirectory(modules/examples)
 endif()
+
 #################################################
 # Packaging stuff - for now, we build debs only
 #################################################
@@ -124,8 +125,8 @@ endif()
 set(CPACK_DEBIAN_PACKAGE_SECTION Libraries)
 set(CPACK_DEBIAN_PACKAGE_NAME ${GIT_PROJECT_NAME})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "C++ sensor interface to ifm 3D cameras")
-set(CPACK_PACKAGE_VENDOR "Love Park Robotics, LLC")
-set(CPACK_PACKAGE_CONTACT "Tom Panzarella <tom@loveparkrobotics.com>")
+set(CPACK_PACKAGE_VENDOR "TiSC, Inc.")
+set(CPACK_PACKAGE_CONTACT "Tom Panzarella <tom.panzarella@ifm.com>")
 set(CPACK_PACKAGE_VERSION_MAJOR ${IFM3D_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${IFM3D_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${IFM3D_VERSION_PATCH})

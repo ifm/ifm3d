@@ -1,5 +1,9 @@
 ## Changes between ifm3d 0.8.2 and 1.0.0
 
+* Dropped support for Ubuntu 14.04
+* Increased cmake requirements to 3.5
+* Increaded compiler requirements to C++14
+
 ## Changes between ifm3d 0.8.1 and 0.8.2
 
 * Patch to windows build

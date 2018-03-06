@@ -107,17 +107,9 @@ Software Compatibility Matrix
     <td>1.6.2114, 1.20.973</td>
     <td>1.0.62</td>
     <td>16.04</td>
-    <td></td>
+    <td>Dropped support for Ubuntu 14.04, moved to C++14</td>
   </tr>
 </table>
-
-**NOTE**: Our *officially supported platform* is Ubuntu Linux. However, other
-  operating systems will likely be acceptable, especially other Debian-based
-  Linuxes. We also note that, WRT Ubuntu Linux, our current plan is to support
-  the two most recent LTS releases. So, for example, as of this writing, we
-  currently support 16.04 (preferred) and 14.04. Once 18.04 is released, we
-  will drop support for 14.04 and only be supporting 18.04 and 16.04. If you
-  are using this library embedded in a product, you should plan accordingly.
 
 Organization of the Software
 ----------------------------
