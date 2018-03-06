@@ -1,3 +1,5 @@
+## Changes between ifm3d 0.8.2 and 1.0.0
+
 ## Changes between ifm3d 0.8.1 and 0.8.2
 
 * Patch to windows build
