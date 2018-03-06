@@ -1,5 +1,7 @@
-project(IFM3D CXX)
 cmake_minimum_required(VERSION 3.5)
+cmake_policy(SET CMP0048 NEW)
+# Manage version number here: Major.Minor.Patch (we don't use "tweak")
+project(IFM3D VERSION 1.0.0 LANGUAGES CXX)
 set(GIT_PROJECT_NAME "ifm3d")
 
 # Make our cmake functions accessible
@@ -11,9 +13,6 @@ set(CMAKE_MODULE_PATH
 include(MacroOutOfSourceBuild)
 macro_ensure_out_of_source_build(
   "Please build ${PROJECT_NAME} out-of-source")
-
-# Library version
-include(ifm3d_version)
 
 # Conditionally turn on/off parts of the build (global-level)
 option(BUILD_TESTS "Build unit tests" ON)
@@ -131,7 +130,7 @@ set(CPACK_PACKAGE_VERSION_MAJOR ${IFM3D_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${IFM3D_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${IFM3D_VERSION_PATCH})
 set(CPACK_PACKAGE_FILE_NAME
-    "${GIT_PROJECT_NAME}_${IFM3D_VERSION_STRING}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
+    "${GIT_PROJECT_NAME}_${IFM3D_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
 
 # dynamically create dependencies of the various modules
 #set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON) # <-- Good idea, doesn't work for us

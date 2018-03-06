@@ -1,8 +1,8 @@
 find_package(glog QUIET CONFIG NAMES google-glog glog)
 if (NOT TARGET glog::glog)
-	find_library(LIB_glog NAMES glog)
+  find_library(LIB_glog NAMES glog)
 else()
-	set(LIB_glog glog::glog)
+  set(LIB_glog glog::glog)
 endif (NOT TARGET glog::glog)
 find_package(Boost REQUIRED COMPONENTS program_options system)
 find_package(CURL REQUIRED)
@@ -55,7 +55,7 @@ endif()
 
 if (BUILD_MODULE_IMAGE)
   set_target_properties(ifm3d_tools_shared PROPERTIES
-    VERSION ${IFM3D_VERSION_STRING}
+    VERSION ${IFM3D_VERSION}
     OUTPUT_NAME ifm3d_tools
     LINKER_LANGUAGE CXX
     )
@@ -69,7 +69,7 @@ if (BUILD_MODULE_IMAGE)
   endif()
 else()
   set_target_properties(ifm3d_tools_shared PROPERTIES
-    VERSION ${IFM3D_VERSION_STRING}
+    VERSION ${IFM3D_VERSION}
     OUTPUT_NAME ifm3d_tools
     LINKER_LANGUAGE CXX
   )

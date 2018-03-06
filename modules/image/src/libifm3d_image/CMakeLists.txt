@@ -1,9 +1,9 @@
 find_package(Boost REQUIRED COMPONENTS system date_time regex)
 find_package(glog QUIET CONFIG NAMES google-glog glog)
 if (NOT TARGET glog::glog)
-	find_library(LIB_glog NAMES glog)
+  find_library(LIB_glog NAMES glog)
 else()
-	set(LIB_glog glog::glog)
+  set(LIB_glog glog::glog)
 endif (NOT TARGET glog::glog)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -23,7 +23,7 @@ target_link_libraries(
   )
 
 set_target_properties(ifm3d_image_shared PROPERTIES
-  VERSION ${IFM3D_VERSION_STRING}
+  VERSION ${IFM3D_VERSION}
   OUTPUT_NAME ifm3d_image
   LINKER_LANGUAGE CXX
   )

@@ -37,7 +37,7 @@ import subprocess
 import sys
 import tempfile
 
-VERSION = "@IFM3D_VERSION_STRING@"
+VERSION = "@IFM3D_VERSION@"
 
 class DpkgDeps(object):
     """Auto-computes the dependencies for a debian package and repackages it
