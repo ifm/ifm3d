@@ -31,7 +31,7 @@ target_link_libraries(
   )
 
 set_target_properties(ifm3d_camera_shared PROPERTIES
-  VERSION ${IFM3D_VERSION_STRING}
+  VERSION ${IFM3D_VERSION}
   OUTPUT_NAME ifm3d_camera
   LINKER_LANGUAGE CXX
   )
