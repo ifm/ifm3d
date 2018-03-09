@@ -103,11 +103,12 @@ Software Compatibility Matrix
     <td>Patches to windows build</td>
   </tr>
   <tr>
-    <td>1.0.0</td>
+    <td>0.9.0</td>
     <td>1.6.2114, 1.20.973</td>
     <td>1.0.62</td>
     <td>16.04</td>
-    <td>Dropped support for Ubuntu 14.04, moved to C++14, cmake 3.5</td>
+    <td>Prepping for 1.0.0 release: Dropped support for Ubuntu 14.04, moved to
+    C++14, cmake 3.5</td>
   </tr>
 </table>
 
