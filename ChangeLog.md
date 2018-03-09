@@ -1,4 +1,4 @@
-## Changes between ifm3d 0.8.2 and 1.0.0
+## Changes between ifm3d 0.8.2 and 0.9.0
 
 * Version number handling is now done in the cmake `project` command in the
   top-level CMakeLists.txt file
