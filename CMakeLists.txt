@@ -20,7 +20,6 @@ option(BUILD_MODULE_FRAMEGRABBER "Build the framegrabber module" ON)
 option(BUILD_MODULE_IMAGE "Build the image module" ON)
 option(BUILD_MODULE_PCICCLIENT "Build the pcicclient module" ON)
 option(BUILD_MODULE_TOOLS "Build the tools module" ON)
-option(BUILD_MODULE_EXAMPLES "Build the examples module" ON)
 option(BUILD_SDK_PKG "Build install packages for development purposes" ON)
 
 # Installation root
@@ -74,10 +73,6 @@ if(BUILD_MODULE_PCICCLIENT)
 endif()
 if(BUILD_MODULE_TOOLS)
   add_subdirectory(modules/tools)
-endif()
-
-if(BUILD_MODULE_EXAMPLES)
-  add_subdirectory(modules/examples)
 endif()
 
 #################################################

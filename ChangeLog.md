@@ -5,6 +5,8 @@
 * Dropped support for Ubuntu 14.04
 * Increased cmake requirements to 3.5
 * Increaded compiler requirements to C++14
+* Moved `examples` module into new project
+  [ifm3d-examples](https://github.com/lovepark/ifm3d-examples)
 
 ## Changes between ifm3d 0.8.1 and 0.8.2
 
