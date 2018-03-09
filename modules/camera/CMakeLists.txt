@@ -11,23 +11,6 @@ configure_file(
   )
 
 ################################################
-## Bring in dependent projects
-################################################
-if(NOT WIN32)
-  find_package(XMLRPC REQUIRED c++ client)
-endif()
-find_package(Boost REQUIRED)
-
-################################################
-## Compiler and linker settings
-################################################
-include_directories(
-  ${IFM3D_CAMERA_BINARY_DIR}/include
-  ${XMLRPC_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS}
-  )
-
-################################################
 ## Process child CMakeLists.txt files
 ################################################
 add_subdirectory(src)
