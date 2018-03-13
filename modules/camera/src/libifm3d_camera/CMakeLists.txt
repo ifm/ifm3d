@@ -72,7 +72,16 @@ set_target_properties(
 #------------------
 # Installation
 #------------------
+if(BUILD_SDK_PKG)
+  install(EXPORT ifm3d-camera-targets
+    NAMESPACE ifm3d::
+    DESTINATION ${ConfigPackageLocation}
+    COMPONENT camera
+    )
+endif()
+
 install(TARGETS ifm3d_camera_shared
+  EXPORT ifm3d-camera-targets
   RUNTIME DESTINATION ${_bin} COMPONENT camera
   LIBRARY DESTINATION ${_lib} COMPONENT camera
   ARCHIVE DESTINATION ${_lib} COMPONENT camera

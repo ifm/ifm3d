@@ -46,6 +46,24 @@ else(WIN32)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s")
 endif(WIN32)
 
+# create the cmake-package files
+if(BUILD_SDK_PKG)
+  include(CMakePackageConfigHelpers)
+
+  write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config-version.cmake
+    VERSION ${IFM3D_VERSION}
+    COMPATIBILITY AnyNewerVersion
+    )
+
+  set(ConfigPackageLocation ${_lib}/cmake/ifm3d-${IFM3D_VERSION})
+endif()
+
+
+################################################
+## Start deferring work to the submodules
+################################################
+
 # Bootstrap gtest
 if(BUILD_TESTS)
   add_subdirectory(${GTEST_CMAKE_DIR} gtest_bin)
