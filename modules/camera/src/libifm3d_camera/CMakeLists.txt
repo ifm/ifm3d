@@ -44,6 +44,18 @@ target_include_directories(ifm3d_camera_shared
     ${Boost_INCLUDE_DIRS}
   )
 
+# NOTE: we cannot use the following due to only requiring cmake 3.5
+#
+#target_compile_features(ifm3d_camera_shared
+#  PUBLIC "cxx_std_${CMAKE_CXX_STANDARD}"
+#  )
+#
+# ... so, we do a more ugly thing here instead
+#
+target_compile_options(ifm3d_camera_shared
+  PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++${CMAKE_CXX_STANDARD}>
+  )
+
 if(WIN32)
   target_compile_definitions(
     ifm3d_camera_shared PRIVATE
@@ -65,6 +77,7 @@ target_link_libraries(
 set_target_properties(
   ifm3d_camera_shared PROPERTIES
   VERSION ${IFM3D_VERSION}
+  EXPORT_NAME camera
   OUTPUT_NAME ifm3d_camera
   LINKER_LANGUAGE CXX
   )
@@ -72,14 +85,6 @@ set_target_properties(
 #------------------
 # Installation
 #------------------
-if(BUILD_SDK_PKG)
-  install(EXPORT ifm3d-camera-targets
-    NAMESPACE ifm3d::
-    DESTINATION ${ConfigPackageLocation}
-    COMPONENT camera
-    )
-endif()
-
 install(TARGETS ifm3d_camera_shared
   EXPORT ifm3d-camera-targets
   RUNTIME DESTINATION ${_bin} COMPONENT camera
@@ -87,3 +92,11 @@ install(TARGETS ifm3d_camera_shared
   ARCHIVE DESTINATION ${_lib} COMPONENT camera
   PUBLIC_HEADER DESTINATION ${_include} COMPONENT camera
   )
+
+if(BUILD_SDK_PKG)
+  install(EXPORT ifm3d-camera-targets
+    NAMESPACE ifm3d::
+    DESTINATION ${CONFIG_PACKAGE_LOCATION}
+    COMPONENT camera
+    )
+endif()

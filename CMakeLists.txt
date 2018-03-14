@@ -30,7 +30,7 @@ set(CPACK_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 # Installation paths
 set(_lib lib CACHE STRING "Basename of the library-directory")
 set(_bin bin CACHE STRING "Basename of the bin-directory")
-set(_include  include CACHE STRING "Basename of the include-directory")
+set(_include include CACHE STRING "Basename of the include-directory")
 
 # Where to find GTest
 set(GTEST_CMAKE_DIR "/usr/src/gtest" CACHE STRING "GTest cmake project dir")
@@ -43,7 +43,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 if(WIN32)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 else(WIN32)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s")
+  #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s")
 endif(WIN32)
 
 # create the cmake-package files
@@ -56,9 +56,8 @@ if(BUILD_SDK_PKG)
     COMPATIBILITY AnyNewerVersion
     )
 
-  set(ConfigPackageLocation ${_lib}/cmake/ifm3d-${IFM3D_VERSION})
+  set(CONFIG_PACKAGE_LOCATION ${_lib}/cmake/ifm3d-${IFM3D_VERSION})
 endif()
-
 
 ################################################
 ## Start deferring work to the submodules
@@ -91,6 +90,26 @@ if(BUILD_MODULE_PCICCLIENT)
 endif()
 if(BUILD_MODULE_TOOLS)
   add_subdirectory(modules/tools)
+endif()
+
+################################################
+## Sub-modules are done, finish up the cmake package
+################################################
+if(BUILD_SDK_PKG)
+  configure_package_config_file(
+    ${CMAKE_CURRENT_LIST_DIR}/cmake/modules/ifm3d-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config.cmake
+    INSTALL_DESTINATION ${CONFIG_PACKAGE_LOCATION}
+    )
+
+  # NOTE: we use 'COMPONENT camera' here as it is the one
+  # "required" module in our stack
+  install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config-version.cmake
+          ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config.cmake
+    DESTINATION ${CONFIG_PACKAGE_LOCATION}
+    COMPONENT camera
+    )
 endif()
 
 #################################################
