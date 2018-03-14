@@ -28,7 +28,7 @@
 namespace ifm3d
 {
   extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t IMG_TICKET_SZ; // bytes
-  extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t IMG_BUFF_START; // byte number
+  extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t IMG_BUFF_START;
 
   enum class pixel_format : std::uint32_t
   {
