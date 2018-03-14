@@ -90,7 +90,7 @@ namespace ifm3d
      * receiving the response.
      */
     long Call(const std::string& request,
-	      std::function<void(const std::string& response)> callback);
+              std::function<void(const std::string& response)> callback);
 
     /**
      * Sends a PCIC command to the camera and returns the response
@@ -107,7 +107,8 @@ namespace ifm3d
 
     /**
      * Sets the specified callback for receiving asynchronous error messages
-     * until it is replaced by a new callback or canceled via @see CancelCallback.
+     * until it is replaced by a new callback or canceled via
+     * @see CancelCallback.
      *
      * Note: Since the PCICClient is unbuffered, the receiving thread will be
      * blocked while the error callback has not returned.
@@ -117,7 +118,8 @@ namespace ifm3d
      *
      * @return Callback id, which can be used to cancel receiving errors.
      */
-    long SetErrorCallback(std::function<void(const std::string& error)> callback);
+    long SetErrorCallback(
+      std::function<void(const std::string& error)> callback);
 
     /**
      * Sets the specified callback for receiving asynchronous notification
@@ -127,27 +129,27 @@ namespace ifm3d
      * Note: Since the PCICClient is unbuffered, the receiving thread will be
      * blocked while the notification callback has not returned.
      *
-     * @param[in] callback Function, called after receiving an notification message
-     * from camera (without any header information, like ticket, length, etc.)
+     * @param[in] callback Function, called after receiving an notification
+     *            message from camera (without any header information, like
+     *            ticket, length, etc.)
      *
      * @return Callback id, which can be used to cancel receiving notifications.
      */
-    long SetNotificationCallback(std::function<void(const std::string& notification)> callback);
+    long SetNotificationCallback(
+      std::function<void(const std::string& notification)> callback);
 
     /**
-
      * Cancels registered callbacks. Must be called in case references/pointers
-     * provided through callbacks get invalid. If callback id isn't present internally
-     * anymore, i.e. if callback was replaced, already canceled or
+     * provided through callbacks get invalid. If callback id isn't present
+     * internally anymore, i.e. if callback was replaced, already canceled or
      * automatically removed (in case of the Call method), it is simply ignored.
      *
-     * @param[in] callback_id Callback id, returned by methods which take a callback
-     * as parameter.
+     * @param[in] callback_id Callback id, returned by methods which take a
+     *                        callback as parameter.
      */
     void CancelCallback(long callback_id);
 
   private:
-
     /**
      * Commands consist of content data surrounded by some meta data.
      * The State enum provides information which buffer is currently
@@ -177,8 +179,8 @@ namespace ifm3d
      * the callback (if existent).
      */
     void ReadHandler(State state, const boost::system::error_code& ec,
-		     std::size_t bytes_transferred,
-		     std::size_t bytes_remaining);
+                     std::size_t bytes_transferred,
+                     std::size_t bytes_remaining);
 
     /**
      * Returns buffer to be filled from network depending on
@@ -191,18 +193,18 @@ namespace ifm3d
      * depending on current writing state.
      */
     void DoWrite(State state,
-		 const std::string &out_content_buffer,
-		 std::size_t bytes_remaining = UNSET);
+                 const std::string &out_content_buffer,
+                 std::size_t bytes_remaining = UNSET);
 
     /**
      * Handles DoWrite results: Triggers further writes and in
      * case a request is completely sent, unblocks calling thread.
      */
     void WriteHandler(State state,
-		      const boost::system::error_code& ec,
-		      std::size_t bytes_transferred,
-		      const std::string& out_content_buffer,
-		      std::size_t bytes_remaining);
+                      const boost::system::error_code& ec,
+                      std::size_t bytes_transferred,
+                      const std::string& out_content_buffer,
+                      std::size_t bytes_remaining);
 
     /**
      * Returns buffer containing data to be written to network
@@ -210,7 +212,7 @@ namespace ifm3d
      * the specified out_content_buffer is returned.)
      */
     const std::string& OutBufferByState(State state,
-					const std::string& out_content_buffer);
+                                        const std::string& out_content_buffer);
 
     /**
      * Finds and returns the next free ticket for a command
@@ -223,7 +225,6 @@ namespace ifm3d
     long NextCallbackId();
 
   private:
-
     /**
      * Init command sequence
      */
@@ -297,7 +298,8 @@ namespace ifm3d
      * Maps callback ids to callbacks. When receiving an incoming message,
      * the accordant callback can be found (and triggered).
      */
-    std::map<long, std::function<void(const std::string& content)>> pending_callbacks_;
+    std::map<long, std::function<void(const std::string& content)>>
+      pending_callbacks_;
 
     /**
      * Pre-content buffer for incoming messages (<ticket><length>\r\n<ticket>)

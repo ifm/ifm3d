@@ -6,21 +6,6 @@ file(COPY ${IFM3D_FG_SOURCE_DIR}/include
   )
 
 ################################################
-## Bring in dependent projects
-################################################
-find_package(Threads REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system)
-
-################################################
-## Compiler and linker settings
-################################################
-include_directories(
-  ${IFM3D_FG_BINARY_DIR}/include
-  ${IFM3D_CAMERA_BINARY_DIR}/include
-  ${Boost_INCLUDE_DIRS}
-  )
-
-################################################
 ## Process child CMakeLists.txt files
 ################################################
 add_subdirectory(src)
