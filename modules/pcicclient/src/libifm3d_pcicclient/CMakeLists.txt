@@ -4,11 +4,11 @@
 find_package(Threads REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system regex date_time)
 find_package(glog QUIET CONFIG NAMES google-glog glog)
-if (NOT TARGET glog::glog)
+if(NOT TARGET glog::glog)
   find_library(LIB_glog NAMES glog)
 else()
   set(LIB_glog glog::glog)
-endif (NOT TARGET glog::glog)
+endif(NOT TARGET glog::glog)
 
 
 ################################################
@@ -53,9 +53,12 @@ target_link_libraries(
   ifm3d_pcicclient_shared
   PUBLIC
     ifm3d_camera_shared
-    ${Boost_LIBRARIES}
+    Boost::system
+  PRIVATE
+    Boost::regex
+    Boost::date_time
     ${LIB_glog}
-    ${CMAKE_THREAD_LIBS_INIT}
+    Threads::Threads
   )
 
 set_target_properties(ifm3d_pcicclient_shared PROPERTIES
