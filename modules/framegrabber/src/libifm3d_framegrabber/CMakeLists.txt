@@ -46,8 +46,10 @@ target_link_libraries(
   PRIVATE
     ifm3d_camera_shared
     ${LIB_glog}
-    ${Boost_LIBRARIES}
-    ${CMAKE_THREAD_LIBS_INIT}
+    Boost::system
+    Boost::date_time
+    Boost::regex
+    Threads::Threads
   )
 
 set_target_properties(

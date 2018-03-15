@@ -21,6 +21,8 @@ option(BUILD_MODULE_IMAGE "Build the image module" ON)
 option(BUILD_MODULE_PCICCLIENT "Build the pcicclient module" ON)
 option(BUILD_MODULE_TOOLS "Build the tools module" ON)
 option(BUILD_SDK_PKG "Build install packages for development purposes" ON)
+option(FORCE_OPENCV3 "Force the build to require OpenCV 3" OFF)
+option(FORCE_OPENCV2 "Force the build to require OpenCV 2.4" OFF)
 
 # Installation root
 set(CPACK_SET_DESTDIR true)
@@ -43,7 +45,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 if(WIN32)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 else(WIN32)
-  #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s")
 endif(WIN32)
 
 # create the cmake-package files
