@@ -140,29 +140,10 @@ These are common commands used in various situations:
     R"(
     swupdate    Perform a firmware update on the camera. Please ensure
                 that the camera is booted to recovery beforehand.
-      )";
 
-
-  help_msg +=
-    R"(
     time        Get/set the current time on the camera.
-      )";
 
-
-  help_msg +=
-    R"(
     trace       Get trace messages from the internal camera trace buffer.
-      )";
-
-#if defined(BUILD_MODULE_IMAGE)
-  help_msg +=
-    R"(
-    viewer      Stream and view real-time data from the camera.
-      )";
-#endif
-
-  help_msg +=
-    R"(
 
 For bug reports, please see:
 https://github.com/lovepark/ifm3d/issues
