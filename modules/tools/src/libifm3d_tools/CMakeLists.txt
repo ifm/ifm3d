@@ -14,27 +14,11 @@ if (BUILD_MODULE_FRAMEGRABBER)
   file(GLOB IFM3D_TOOLS_FG_SOURCES fg/*.cpp)
   set(IFM3D_TOOLS_SOURCES ${IFM3D_TOOLS_SOURCES} ${IFM3D_TOOLS_FG_SOURCES})
 endif()
-if (BUILD_MODULE_IMAGE)
-  file(GLOB IFM3D_TOOLS_IMAGE_SOURCES image/*.cpp)
-  set(IFM3D_TOOLS_SOURCES ${IFM3D_TOOLS_SOURCES} ${IFM3D_TOOLS_IMAGE_SOURCES})
-endif()
 
 add_library(ifm3d_tools_shared SHARED ${IFM3D_TOOLS_SOURCES})
 set_property(TARGET ifm3d_tools_shared PROPERTY POSITION_INDEPENDENT_CODE 1)
 
-if(BUILD_MODULE_IMAGE)
-    target_link_libraries(
-      ifm3d_tools_shared
-      ifm3d_camera_shared
-      ifm3d_framegrabber_shared
-      ifm3d_image_shared
-      ${PCL_VISUALIZATION_LIBRARIES}
-      ${OpenCV_LIBRARY_DIRS}
-      ${LIB_glog}
-      ${Boost_LIBRARIES}
-      ${CURL_LIBRARIES}
-    )
-elseif(BUILD_MODULE_FRAMEGRABBER)
+if(BUILD_MODULE_FRAMEGRABBER)
   target_link_libraries(
     ifm3d_tools_shared
     ifm3d_camera_shared
