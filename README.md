@@ -118,17 +118,11 @@ The ifm3d software is organized into modules, they are:
 
 |Module Name|Description|
 |-----------|-----------|
-|[Camera](modules/camera)|Provides an implementation of the XMLRPC protocol for
- configuring the camera and PMD imager settings.|
-|[Framegrabber](modules/framegrabber)|Provides an implementation of the PCIC
- protocol for streaming pixel data and triggered image acquisition.|
-|[Image](modules/image)|Provides a bridge from raw camera bytes to OpenCV and
- PCL image encodings.|
-|[PCIC](modules/pcicclient)|Direct access to PCIC to, for example, actuate
- digital IO|
-|[Tools](modules/tools)|Provides the ifm3d command line tool for manipulating
- and introspecting the hardware interactively. It is also suitable for usage
- within shell scripts.|
+|[Camera](modules/camera)|Provides an implementation of the XMLRPC protocol for configuring the camera and PMD imager settings.|
+|[Framegrabber](modules/framegrabber)|Provides an implementation of the PCIC protocol for streaming pixel data and triggered image acquisition.|
+|[Image](modules/image)|Provides a bridge from raw camera bytes to OpenCV and PCL image encodings.|
+|[PCIC](modules/pcicclient)|Direct access to PCIC to, for example, actuate digital IO|
+|[Tools](modules/tools)|Provides the ifm3d command line tool for manipulating and introspecting the hardware interactively. It is also suitable for usage within shell scripts.|
 
 Installing the Software
 -----------------------
