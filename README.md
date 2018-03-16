@@ -108,7 +108,7 @@ Software Compatibility Matrix
     <td>1.0.62</td>
     <td>16.04</td>
     <td>Prepping for 1.0.0 release: Dropped support for Ubuntu 14.04, moved to
-    C++14, cmake 3.5</td>
+    C++14, cmake 3.5, removed viewer application</td>
   </tr>
 </table>
 
@@ -118,11 +118,17 @@ The ifm3d software is organized into modules, they are:
 
 |Module Name|Description|
 |-----------|-----------|
-|[Camera](modules/camera)|Provides an implementation of the XMLRPC protocol for configuring the camera and PMD imager settings.|
-|[Framegrabber](modules/framegrabber)|Provides an implementation of the PCIC protocol for streaming pixel data and triggered image acquisition.|
-|[Image](modules/image)|Provides a bridge from raw camera bytes to OpenCV and PCL image encodings.|
-|[Tools](modules/tools)|Provides the ifm3d command line tool for manipulating and introspecting the hardware interactively. It is also suitable for usage within shell scripts.|
-|[Examples](modules/examples)|Provides examples how to use the ifm3d library.|
+|[Camera](modules/camera)|Provides an implementation of the XMLRPC protocol for
+ configuring the camera and PMD imager settings.|
+|[Framegrabber](modules/framegrabber)|Provides an implementation of the PCIC
+ protocol for streaming pixel data and triggered image acquisition.|
+|[Image](modules/image)|Provides a bridge from raw camera bytes to OpenCV and
+ PCL image encodings.|
+|[PCIC](modules/pcicclient)|Direct access to PCIC to, for example, actuate
+ digital IO|
+|[Tools](modules/tools)|Provides the ifm3d command line tool for manipulating
+ and introspecting the hardware interactively. It is also suitable for usage
+ within shell scripts.|
 
 Installing the Software
 -----------------------
