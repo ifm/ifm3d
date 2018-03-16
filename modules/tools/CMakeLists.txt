@@ -7,26 +7,6 @@ file(COPY ${IFM3D_TOOLS_SOURCE_DIR}/include
 if (NOT BUILD_MODULE_FRAMEGRABBER)
   file(REMOVE_RECURSE ${IFM3D_TOOLS_BINARY_DIR}/include/ifm3d/tools/fg)
 endif()
-if (NOT BUILD_MODULE_IMAGE)
-  file(REMOVE_RECURSE ${IFM3D_TOOLS_BINARY_DIR}/include/ifm3d/tools/image)
-endif()
-
-################################################
-## Bring in dependent projects
-################################################
-find_package(Boost REQUIRED COMPONENTS program_options)
-
-################################################
-## Compiler and linker settings
-################################################
-include_directories(
-  ${IFM3D_TOOLS_BINARY_DIR}/include
-  ${IFM3D_CAMERA_BINARY_DIR}/include
-  ${Boost_INCLUDE_DIRS}
-  )
-if (BUILD_MODULE_FRAMEGRABBER)
-  include_directories(${IFM3D_FG_BINARY_DIR}/include)
-endif()
 
 ################################################
 ## Process child CMakeLists.txt files
