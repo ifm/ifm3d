@@ -12,6 +12,7 @@
   this viewer application:
   [ifm3d-pcl-viewer](https://github.com/lovepark/ifm3d-pcl-viewer)
 * Updated JSON parsing library to 3.1.2
+* By default, pcicclient module is now `OFF`.
 
 
 ## Changes between ifm3d 0.8.1 and 0.8.2
