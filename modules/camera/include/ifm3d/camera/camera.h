@@ -23,8 +23,8 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <ifm3d/contrib/json.hpp>
 #include <unordered_map>
+#include <ifm3d/contrib/nlohmann/json.hpp>
 #include <ifm3d/camera/camera_export.h>
 
 using json = nlohmann::json;

@@ -8,7 +8,7 @@
 #include <ifm3d/fg.h>
 #include <ifm3d/image.h>
 #include <gtest/gtest.h>
-#include <ifm3d/contrib/json.hpp>
+#include <ifm3d/contrib/nlohmann/json.hpp>
 
 TEST(Image, CloudMechanics)
 {
