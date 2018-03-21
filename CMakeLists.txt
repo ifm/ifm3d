@@ -43,10 +43,10 @@ set(CMAKE_CXX_EXTENSIONS OFF) # OFF -> -std=c++11, ON -> -std=gnu++11
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 if(WIN32)
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS) 
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 else(WIN32)
   set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s")
+    "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s -std=c++11")
 endif(WIN32)
 # Bootstrap gtest
 if(BUILD_TESTS)
