@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+=======
+## Changes between ifm3d 0.8.2 and 0.8.3
+
+* Fixed a cmake regression regarding -std=c++11 flags passed to the compiler;
+  surfaces on old versions of cmake, i.e., in Ubuntu 14.04
+
+>>>>>>> upstream/master
 ## Changes between ifm3d 0.8.1 and 0.8.2
 
 * Patch to windows build
