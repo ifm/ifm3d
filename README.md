@@ -102,6 +102,13 @@ Software Compatibility Matrix
     <td>14.04, 16.04</td>
     <td>Patches to windows build</td>
   </tr>
+  <tr>
+    <td>0.8.3</td>
+    <td>1.6.2114, 1.20.973</td>
+    <td>1.0.62</td>
+    <td>14.04, 16.04</td>
+    <td>Fixed cmake regression for older versions of cmake (i.e., on Ubuntu 14.04)</td>
+  </tr>
 </table>
 
 **NOTE**: Our *officially supported platform* is Ubuntu Linux. However, other
