@@ -112,3 +112,13 @@ target_link_libraries(ex-exposure_times
                       ${PCL_IO_LIBRARIES}
                       ${OpenCV_LIBRARIES}
                       )
+
+add_executable(ex-cartesian_compare ex-cartesian_compare.cpp)
+target_link_libraries(ex-cartesian_compare
+                     ifm3d_camera_shared
+                     ifm3d_framegrabber_shared
+                     ifm3d_image_shared
+                     ${OpenCV_LIBRARIES}
+                     ${PCL_IO_LIBRARIES}
+                     ${Boost_LIBRARIES}
+                     )
