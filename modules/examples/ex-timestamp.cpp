@@ -38,8 +38,9 @@ std::string formatTimestamp(ifm3d::TimePointT timestamp) {
 
     std::ostringstream s;
 
-    //s << std::put_time(std::localtime(&time), "%Y-%m-%d %H:%M:%S")
-    //  << ":" << std::setw(3) << std::setfill('0') << milli.count();
+    char foo[128];
+    if(0 < strftime(foo, sizeof(foo), "%Y-%m-%d %H:%M:%S", std::localtime(&time))) s << foo
+      << ":" << std::setw(3) << std::setfill('0') << milli.count();
 
     return s.str();
 }
