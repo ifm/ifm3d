@@ -110,32 +110,6 @@ ifm3d::ImageBuffer::Cloud()
   return this->pImpl->Cloud();
 }
 
-std::vector<float>
-ifm3d::ImageBuffer::Extrinsics()
-{
-  this->Organize();
-  return this->pImpl->Extrinsics();
-}
-
-std::vector<std::uint32_t>
-ifm3d::ImageBuffer::ExposureTimes()
-{
-  this->Organize();
-  return this->pImpl->ExposureTimes();
-}
-
-ifm3d::TimePointT ifm3d::ImageBuffer::TimeStamp()
-{
-  this->Organize();
-  return this->pImpl->TimeStamp();
-}
-
-float ifm3d::ImageBuffer::IlluTemp()
-{
-  this->Organize();
-  return this->pImpl->IlluTemp();
-}
-
 void
 ifm3d::ImageBuffer::Organize()
 {

@@ -86,20 +86,12 @@ namespace ifm3d
     cv::Mat RawAmplitudeImage();
     cv::Mat ConfidenceImage();
     cv::Mat XYZImage();
-    float IlluTemp();
     pcl::PointCloud<pcl::PointXYZI>::Ptr Cloud();
-    std::vector<float> Extrinsics();
-    std::vector<std::uint32_t> ExposureTimes();
-    ifm3d::TimePointT TimeStamp();
 
     void Organize(const std::vector<std::uint8_t>& bytes);
 
   protected:
-    std::vector<float> extrinsics_;
-    std::vector<std::uint32_t> exposure_times_;
-    float illu_temp_;
     pcl::PointCloud<ifm3d::PointT>::Ptr cloud_;
-    ifm3d::TimePointT time_stamp_;
     cv::Mat dist_;
     cv::Mat uvec_;
     cv::Mat gray_;
@@ -272,10 +264,7 @@ namespace ifm3d
 // ctor/dtor
 //-------------------------------------
 ifm3d::ImageBuffer::Impl::Impl()
-  : cloud_(new pcl::PointCloud<pcl::PointXYZI>()),
-    extrinsics_({0.,0.,0.,0.,0.,0.}),
-    exposure_times_({0,0,0}),
-    time_stamp_(std::chrono::system_clock::now())
+  : cloud_(new pcl::PointCloud<pcl::PointXYZI>())
 {
   this->cloud_->sensor_origin_.setZero();
   this->cloud_->sensor_orientation_.w() = 1.0f;
@@ -335,29 +324,6 @@ ifm3d::ImageBuffer::Impl::Cloud()
   return this->cloud_;
 }
 
-std::vector<float>
-ifm3d::ImageBuffer::Impl::Extrinsics()
-{
-  return this->extrinsics_;
-}
-
-std::vector<std::uint32_t>
-ifm3d::ImageBuffer::Impl::ExposureTimes()
-{
-  return this->exposure_times_;
-}
-
-ifm3d::TimePointT
-ifm3d::ImageBuffer::Impl::TimeStamp()
-{
-  return this->time_stamp_;
-}
-
-float
-ifm3d::ImageBuffer::Impl::IlluTemp()
-{
-  return this->illu_temp_;
-}
 //-------------------------------------
 // Looping over the pixel bytes
 //-------------------------------------
@@ -791,7 +757,8 @@ ifm3d::ImageBuffer::Impl::Organize(const std::vector<std::uint8_t>& bytes)
     }
   else
     {
-      LOG(WARNING) << "Checking for illu temp and exposure times skipped (cant trust extidx)";
+      LOG(WARNING)
+        << "illu temp and exposure times skipped (cant trust extidx)";
     }
 }
 

@@ -1,12 +1,54 @@
+#include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <future>
 #include <memory>
 #include <string>
 #include <thread>
+#include <vector>
 #include <ifm3d/fg.h>
 #include <ifm3d/camera/camera.h>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
+
+#include <iostream>
+
+// Test class used to mock up a minimal ByteBuffer implemenation
+class MyBuff : public ifm3d::ByteBuffer<MyBuff>
+{
+public:
+  MyBuff() : ifm3d::ByteBuffer<MyBuff>()
+  {
+    LOG(INFO) << "ctor";
+  }
+
+  template <typename T>
+  void ImCreate(ifm3d::image_chunk im,
+                std::uint32_t fmt,
+                std::size_t idx,
+                std::uint32_t width,
+                std::uint32_t height,
+                int nchan,
+                std::uint32_t npts,
+                const std::vector<std::uint8_t>& bytes)
+  {
+    LOG(INFO) << "ImCreate: " << (int) im;
+  }
+
+  template <typename T>
+  void CloudCreate(std::uint32_t fmt,
+                   std::size_t xidx,
+                   std::size_t yidx,
+                   std::size_t zidx,
+                   std::uint32_t width,
+                   std::uint32_t height,
+                   std::uint32_t npts,
+                   const std::vector<std::uint8_t>& bytes)
+  {
+    LOG(INFO) << "CloudCreate";
+  }
+
+};
 
 TEST(FrameGrabber, FactoryDefaults)
 {
@@ -18,12 +60,25 @@ TEST(FrameGrabber, FactoryDefaults)
   EXPECT_NO_THROW(cam->DeviceType());
 }
 
+TEST(FrameGrabber, ByteBufferBasics)
+{
+  auto buff = std::make_shared<MyBuff>();
+  EXPECT_FALSE(buff->Dirty());
+
+  std::vector<float> zeros(6, 0.);
+  std::vector<float> extrinsics = buff->Extrinsics();
+  std::vector<std::uint32_t> exposures = buff->ExposureTimes();
+
+  EXPECT_TRUE(std::equal(extrinsics.begin(), extrinsics.end(), zeros.begin()));
+  EXPECT_TRUE(std::equal(exposures.begin(), exposures.end(), zeros.begin()));
+}
+
 TEST(FrameGrabber, WaitForFrame)
 {
   LOG(INFO) << "WaitForFrame test";
   auto cam = ifm3d::Camera::MakeShared();
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
-  auto buff = std::make_shared<ifm3d::ByteBuffer>();
+  auto buff = std::make_shared<MyBuff>();
 
   int i = 0;
   while (i < 10)
@@ -38,13 +93,44 @@ TEST(FrameGrabber, WaitForFrame)
 TEST(FrameGrabber, CustomSchema)
 {
   LOG(INFO) << "CustomSchema test";
-  std::uint16_t mask = ifm3d::IMG_AMP|ifm3d::IMG_RDIS|ifm3d::IMG_CART;
+  std::uint16_t mask = ifm3d::IMG_AMP|ifm3d::IMG_RDIS|ifm3d::IMG_UVEC;
 
   auto cam = ifm3d::Camera::MakeShared();
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, mask);
-  auto buff = std::make_shared<ifm3d::ByteBuffer>();
+  auto buff = std::make_shared<MyBuff>();
 
   EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
+}
+
+TEST(FrameGrabber, ByteBufferMoveCtor)
+{
+  LOG(INFO) << "ByteBufferMoveCtor test";
+  auto cam = ifm3d::Camera::MakeShared();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
+  auto buff1 = std::make_shared<MyBuff>();
+
+  EXPECT_TRUE(fg->WaitForFrame(buff1.get(), 1000));
+
+  auto copy_of_buff1_bytes = buff1->Bytes();
+  auto buff2 = std::make_shared<MyBuff>(std::move(*(buff1.get())));
+
+  EXPECT_TRUE(copy_of_buff1_bytes == buff2->Bytes());
+}
+
+TEST(FrameGrabber, ByteBufferMoveAssignmentOperator)
+{
+  LOG(INFO) << "ByteBufferMoveAssignmentOperator test";
+  auto cam = ifm3d::Camera::MakeShared();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
+  auto buff1 = std::make_shared<MyBuff>();
+  auto buff2 = MyBuff();
+
+  EXPECT_TRUE(fg->WaitForFrame(buff1.get(), 1000));
+
+  auto copy_of_buff1_bytes = buff1->Bytes();
+  buff2 = std::move(*(buff1.get()));
+
+  EXPECT_TRUE(copy_of_buff1_bytes == buff2.Bytes());
 }
 
 TEST(FrameGrabber, ByteBufferCopyCtor)
@@ -52,11 +138,11 @@ TEST(FrameGrabber, ByteBufferCopyCtor)
   LOG(INFO) << "ByteBufferCopyCtor test";
   auto cam = ifm3d::Camera::MakeShared();
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
-  auto buff1 = std::make_shared<ifm3d::ByteBuffer>();
+  auto buff1 = std::make_shared<MyBuff>();
 
   EXPECT_TRUE(fg->WaitForFrame(buff1.get(), 1000));
 
-  auto buff2 = std::make_shared<ifm3d::ByteBuffer>(*(buff1.get()));
+  auto buff2 = std::make_shared<MyBuff>(*(buff1.get()));
 
   EXPECT_TRUE(buff1->Dirty() != buff2->Dirty());
   EXPECT_TRUE(buff1->Bytes() == buff2->Bytes());
@@ -67,8 +153,8 @@ TEST(FrameGrabber, ByteBufferCopyAssignmentOperator)
   LOG(INFO) << "ByteBufferCopyAssignmentOperator test";
   auto cam = ifm3d::Camera::MakeShared();
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
-  auto buff1 = std::make_shared<ifm3d::ByteBuffer>();
-  auto buff2 = std::make_shared<ifm3d::ByteBuffer>();
+  auto buff1 = std::make_shared<MyBuff>();
+  auto buff2 = std::make_shared<MyBuff>();
 
   EXPECT_TRUE(fg->WaitForFrame(buff1.get(), 1000));
 
@@ -83,7 +169,7 @@ TEST(FrameGrabber, FrameGrabberRecycling)
 
   auto cam = ifm3d::Camera::MakeShared();
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
-  auto buff = std::make_shared<ifm3d::ByteBuffer>();
+  auto buff = std::make_shared<MyBuff>();
 
   for (int i = 0; i < 5; ++i)
     {
@@ -132,7 +218,7 @@ TEST(FrameGrabber, SoftwareTrigger)
   cam->FromJSON(config);
 
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
-  auto buff = std::make_shared<ifm3d::ByteBuffer>();
+  auto buff = std::make_shared<MyBuff>();
 
   // waiting for an image should now timeout
   EXPECT_FALSE(fg->WaitForFrame(buff.get(), 1000));
@@ -176,8 +262,8 @@ TEST(FrameGrabber, SWTriggerMultipleClients)
   auto fg1 = std::make_shared<ifm3d::FrameGrabber>(cam);
   auto fg2 = std::make_shared<ifm3d::FrameGrabber>(cam);
 
-  auto buff1 = std::make_shared<ifm3d::ByteBuffer>();
-  auto buff2 = std::make_shared<ifm3d::ByteBuffer>();
+  auto buff1 = std::make_shared<MyBuff>();
+  auto buff2 = std::make_shared<MyBuff>();
 
   // launch two threads where each of the framegrabbers will
   // wait for a new frame

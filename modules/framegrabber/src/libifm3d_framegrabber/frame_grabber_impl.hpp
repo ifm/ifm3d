@@ -33,6 +33,7 @@
 #include <string>
 #include <system_error>
 #include <thread>
+#include <vector>
 #include <boost/asio.hpp>
 #include <boost/system/system_error.hpp>
 #include <glog/logging.h>
@@ -57,36 +58,34 @@ namespace ifm3d
   {
   public:
     Impl(ifm3d::Camera::Ptr cam, std::uint16_t mask);
-    virtual ~Impl();
+    ~Impl();
 
     virtual void SWTrigger();
-    virtual bool WaitForFrame(ifm3d::ByteBuffer* buff,
-                              long timeout_millis,
-                              bool copy_buff,
-                              bool organize);
+    bool WaitForFrame(
+      long timeout_millis,
+      std::function<void(std::vector<std::uint8_t>&)> set_bytes);
 
   protected:
-    virtual void Run();
-    virtual void Stop();
-    virtual void SetUVecBuffer(std::uint16_t mask);
-    virtual void SetSchemaBuffer(std::uint16_t mask);
-    virtual void SetTriggerBuffer();
+    void Run();
+    void Stop();
+    void SetUVecBuffer(std::uint16_t mask);
+    void SetSchemaBuffer(std::uint16_t mask);
+    void SetTriggerBuffer();
 
     //
     // ASIO event handlers
     //
-    virtual void TicketHandler(const boost::system::error_code& ec,
-                               std::size_t bytes_xferd,
-                               std::size_t bytes_read);
+    void TicketHandler(const boost::system::error_code& ec,
+                       std::size_t bytes_xferd,
+                       std::size_t bytes_read);
 
-    virtual void ImageHandler(const boost::system::error_code& ec,
-                              std::size_t bytes_xferd,
-                              std::size_t bytes_read);
+    void ImageHandler(const boost::system::error_code& ec,
+                      std::size_t bytes_xferd,
+                      std::size_t bytes_read);
 
     //---------------------
     // State
     //---------------------
-
     ifm3d::Camera::Ptr cam_;
     std::uint16_t mask_;
 
@@ -262,10 +261,9 @@ ifm3d::FrameGrabber::Impl::SWTrigger()
 }
 
 bool
-ifm3d::FrameGrabber::Impl::WaitForFrame(ifm3d::ByteBuffer* buff,
-                                        long timeout_millis,
-                                        bool copy_buff,
-                                        bool organize)
+ifm3d::FrameGrabber::Impl::WaitForFrame(
+  long timeout_millis,
+  std::function<void(std::vector<std::uint8_t>&)> set_bytes)
 {
   // mutex will unlock in `unique_lock` dtor if not explicitly unlocked prior
   // -- we use it here to ensure no deadlocks
@@ -294,14 +292,22 @@ ifm3d::FrameGrabber::Impl::WaitForFrame(ifm3d::ByteBuffer* buff,
       return false;
     }
 
-  buff->SetBytes(this->front_buffer_, copy_buff);
+  // if (copy_buff)
+  //   {
+  //     std::size_t sz = this->front_buffer_.size();
+  //     buff.resize(sz);
+
+  //     std::copy(this->front_buffer_.begin(),
+  //               this->front_buffer_.begin() + sz,
+  //               buff.begin());
+  //   }
+  // else
+  //   {
+  //     buff.swap(this->front_buffer_);
+  //   }
+  set_bytes(this->front_buffer_);
+
   lock.unlock();
-
-  if (organize)
-    {
-      buff->Organize();
-    }
-
   return true;
 }
 
