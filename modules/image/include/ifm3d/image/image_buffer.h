@@ -21,7 +21,6 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include <chrono>
 #include <opencv2/core/core.hpp>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -30,7 +29,6 @@
 namespace ifm3d
 {
   using PointT = pcl::PointXYZI;
-  using TimePointT = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
 
   /**
    * The ImageBuffer class is a composite data structure used to hold
@@ -114,46 +112,6 @@ namespace ifm3d
      * Returns a shared pointer to the wrapped point cloud
      */
     pcl::PointCloud<ifm3d::PointT>::Ptr Cloud();
-
-    /**
-     * Returns a 6-element vector containing the extrinsic
-     * calibration of the camera. NOTE: This is the extrinsics WRT to the ifm
-     * optical frame.
-     *
-     * The elements are: tx, ty, tz, rot_x, rot_y, rot_z
-     *
-     * Translation units are mm, rotations are degrees
-     *
-     * Users of this library are highly DISCOURAGED from using the extrinsic
-     * calibration data stored on the camera itself.
-     */
-    std::vector<float> Extrinsics();
-
-    /**
-     * Returns a 3-element vector containing the exposure times (usec) for the
-     * current frame. Unused exposure times are reported as 0.
-     *
-     * If all elements are reported as 0 either the exposure times are not
-     * configured to be returned back in the data stream from the camera or an
-     * error in parsing them has occured.
-     */
-    std::vector<std::uint32_t> ExposureTimes();
-
-    /**
-     * Returns the time stamp of the image data.
-     *
-     * NOTE: To get the timestamp of the confidence data, you
-     * need to make sure your current pcic schema mask have enabled confidence data.
-     */
-    ifm3d::TimePointT TimeStamp();
-
-    /**
-     * Returns the temperature of the illumination unit.
-     *
-     * NOTE: To get the temperature of the illumination unit to the frame, you
-     * need to make sure your current pcic schema asks for it.
-     */
-    float IlluTemp();
 
     /**
      * Synchronizes the parsed out image data with the internally wrapped byte

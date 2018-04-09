@@ -19,6 +19,7 @@
 #define __IFM3D_FG_BYTE_BUFFER_H__
 
 #include <algorithm>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -27,6 +28,10 @@
 
 namespace ifm3d
 {
+  using TimePointT =
+    std::chrono::time_point<std::chrono::system_clock,
+                            std::chrono::nanoseconds>;
+
   extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t IMG_TICKET_SZ; // bytes
   extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t IMG_BUFF_START;
 
@@ -144,21 +149,44 @@ namespace ifm3d
 
   /**
    * The ByteBuffer class is used to hold a validated byte buffer from the
-   * sensor that represents a single timesynchronized set of images based on
+   * sensor that represents a single time-synchronized set of images based on
    * the current schema mask set on the active framegrabber.
    *
    * The ByteBuffer imposes no specific image or point cloud data
-   * structure. Further, no specific coordinate frame conventions are
-   * enforced. This class is intended to be subclassed where more user-friendly
+   * structure. This class is intended to be subclassed where more user-friendly
    * data structures can be used to gain access to the bytes in a semantically
    * meaningful manner.
    *
+   * There are two primary interfaces (documented below) that image container
+   * developers should implement. They are:
+   *
+   * ``ImCreate``
+   * ``CloudCreate``
+   *
+   * These functions will be called as customization hooks at the time of
+   * parsing the raw image bytes from the sensor. It is the contract of this
+   * interface that all calls to ``ImCreate`` will be made before the single
+   * call to ``CloudCreate``. The reason for this part of the contract is to
+   * give all image container implementers the ability to set the point cloud
+   * intensity data from one of the image containers. That is, at the
+   * time of calling ``CloudCreate`` all image data (e.g., amplitude or gray)
+   * data are avaialble for coloring the point cloud intensity pixels. In
+   * addition, it is guaranteed that the first call to ``ImCreate`` will be the
+   * confidence image. So, the confidence bits for a given pixel can be
+   * consulting while constructing the payload images.
+   *
+   * We note that the ploymorphic behaviors implemented by this class are
+   * static (resolved at compile-time via CRTP) rather than dynamic at runtime
+   * (via a vtable). This is why there are no interface functions declared
+   * `virtual`.
+   *
    * NOTE: The ByteBuffer is NOT thread safe!
    */
+  template <typename Derived>
   class ByteBuffer
   {
   public:
-    using Ptr = std::shared_ptr<ByteBuffer>;
+    using Ptr = std::shared_ptr<ByteBuffer<Derived> >;
 
     /**
      * Default initializes instance vars
@@ -168,11 +196,11 @@ namespace ifm3d
     /**
      * RAII dealloc
      */
-    virtual ~ByteBuffer();
+    ~ByteBuffer();
 
-    // no move semantics
-    ByteBuffer(ByteBuffer&&) = delete;
-    ByteBuffer& operator=(ByteBuffer&&) = delete;
+    // move semantics
+    ByteBuffer(ByteBuffer&&);
+    ByteBuffer& operator=(ByteBuffer&&);
 
     // copy ctor/assignment operator
     ByteBuffer(const ByteBuffer& src_buff);
@@ -187,13 +215,6 @@ namespace ifm3d
      * Returns the state of the `dirty' flag
      */
     bool Dirty() const noexcept;
-
-    /**
-     * Intended for subclasses to override. It provides a hook to synchronize
-     * the internally wrapped byte buffer with the semantically meaningful
-     * image/cloud data structures used by the subclass.
-     */
-    virtual void Organize();
 
     /**
      * Sets the data from the passed in `buff' to the internally wrapped byte
@@ -212,7 +233,140 @@ namespace ifm3d
      */
     void SetBytes(std::vector<std::uint8_t>& buff, bool copy = false);
 
+    /**
+     * Returns a 6-element vector containing the extrinsic
+     * calibration of the camera. NOTE: This is the extrinsics WRT to the ifm
+     * optical frame.
+     *
+     * The elements are: tx, ty, tz, rot_x, rot_y, rot_z
+     *
+     * Translation units are mm, rotations are degrees
+     *
+     * Users of this library are highly DISCOURAGED from using the extrinsic
+     * calibration data stored on the camera itself.
+     */
+    std::vector<float> Extrinsics();
+
+    /**
+     * Returns a 3-element vector containing the exposure times (usec) for the
+     * current frame. Unused exposure times are reported as 0.
+     *
+     * If all elements are reported as 0 either the exposure times are not
+     * configured to be returned back in the data stream from the camera or an
+     * error in parsing them has occured.
+     */
+    std::vector<std::uint32_t> ExposureTimes();
+
+    /**
+     * Returns the time stamp of the image data.
+     *
+     * NOTE: To get the timestamp of the confidence data, you
+     * need to make sure your current pcic schema mask have enabled confidence
+     * data.
+     */
+    ifm3d::TimePointT TimeStamp();
+
+    /**
+     * Returns the temperature of the illumination unit.
+     *
+     * NOTE: To get the temperature of the illumination unit to the frame, you
+     * need to make sure your current pcic schema asks for it.
+     */
+    float IlluTemp();
+
+    /**
+     * This is the interface hook that synchronizes the internally wrapped byte
+     * buffer with the semantically meaningful image/cloud data
+     * structures. Within the overall `ifm3d` framework, this function is
+     * called by the `FrameGrabber` when a complete "frame packet" has been
+     * recieved. This then parses the bytes and, in-line, will statically
+     * dispatch to the underly dervied class to populate their image/cloud data
+     * structures.
+     *
+     * Additionally, this function will populate the extrinsics, exposure
+     * times, timestamp, and illumination temperature as appropriate and
+     * subject to the current pcic schema.
+     */
+    void Organize();
+
   protected:
+    /**
+     * This function is part of the ByteBuffer interface, intended to be
+     * overloaded by image container implementers. It is a callback hook that
+     * is called once for each 2D image type specified in the current pcic
+     * schema for each frame recieved by the framegrabber. All 2D image
+     * callbacks are  guaranteed to be called prior to the ``CloudCreate``
+     * callback -- this is to allow for "coloring" the intensity channel of the
+     * point cloud with data from one of the 2D images (already parsed)
+     *
+     * For a given frame, the first ``ImCreate`` callback will be the
+     * confidence image.
+     *
+     * @param[in] im The 2D image type currently being processed
+     * @param[in] fmt The pixel format of the image (see `ifm3d::pixel_format`)
+     * @param[in] idx The index into the byte buffer, `bytes`, as to where the
+     *                pixel data begin
+     * @param[in] width The image width (pixels)
+     * @param[in] height The image height (pixels)
+     * @param[in] nchan The number of channels in the image
+     * @param[in] npts The total number of image points (width * height)
+     * @param[in] bytes A const reference to the byte buffer to process
+     */
+    template <typename T>
+    void ImCreate(ifm3d::image_chunk im,
+                  std::uint32_t fmt,
+                  std::size_t idx,
+                  std::uint32_t width,
+                  std::uint32_t height,
+                  int nchan,
+                  std::uint32_t npts,
+                  const std::vector<std::uint8_t>& bytes)
+    {
+      static_cast<Derived *>(this)
+        ->ImCreate<T>(im, fmt, idx, width, height, nchan, npts, bytes);
+    }
+
+    /**
+     * This function is part of the ByteBuffer interface, intended to be
+     * overloaded by image container implementers. It is a callback hook that
+     * is called once for each frame recieved by the framegrabber if the
+     * cartesian data are specified in the current pcic schema. All 2D image
+     * callbacks (i.e., ``ImCreate``) are  guaranteed to be called prior to
+     * this function -- this is to allow for "coloring" the intensity channel
+     * of the point cloud with data from one of the 2D images (already
+     * parsed). It is also implied that for a given frame, before this function
+     * is called, the image container implementer will have had the opportunity
+     * to construct the confidence image associated with this frame.
+     *
+     * @param[in] fmt The pixel format of the image (see `ifm3d::pixel_format`)
+     * @param[in] xidx The index into `bytes` where the x-coords start
+     * @param[in] yidx The index into `bytes` where the y-coords start
+     * @param[in] zidx The index into `bytes` where the z-coords start
+     * @param[in] width Number of columns in the point cloud
+     * @param[in] height Number of rows in the point cloud
+     * @param[in] npts Total points in the point cloud (width * height)
+     * @paramin] bytes A const reference to the byte buffer to process
+     *
+     */
+    template <typename T>
+    void CloudCreate(std::uint32_t fmt,
+                     std::size_t xidx,
+                     std::size_t yidx,
+                     std::size_t zidx,
+                     std::uint32_t width,
+                     std::uint32_t height,
+                     std::uint32_t npts,
+                     const std::vector<std::uint8_t>& bytes)
+    {
+      static_cast<Derived *>(this)
+        ->CloudCreate<T>(fmt, xidx, yidx, zidx, width, height, npts, bytes);
+    }
+
+    /**
+     * Mutates the dirty flag
+     */
+    void _SetDirty(bool flg) noexcept;
+
     /**
      * Flag used to indicate if the wrapped byte buffer needs to be
      * `Organized'. I.e., in a subclass, this would indicate if your parsed out
@@ -227,12 +381,32 @@ namespace ifm3d
     std::vector<std::uint8_t> bytes_;
 
     /**
-     * Mutates the dirty flag
+     * Extrinsic calibration WRT camera optical frame:
+     * tx, ty, tz, rotx, roty, rotz. Translation units are mm, rotational units
+     * are degrees.
      */
-    void _SetDirty(bool flg) noexcept;
+    std::vector<float> extrinsics_;
+
+    /**
+     * Exposure time(s) (up to 3), registered to the current frame.
+     */
+    std::vector<std::uint32_t> exposure_times_;
+
+    /**
+     * Camera timestamp of the current frame
+     */
+    ifm3d::TimePointT time_stamp_;
+
+    /**
+     * Temperature of the illumination unit synchronized in time with the
+     * current frame data.
+     */
+    float illu_temp_;
 
   }; // end: class ByteBuffer
 
 } // end: namespace ifm3d
+
+#include <ifm3d/fg/detail/byte_buffer.hpp>
 
 #endif // __IFM3D_FG_BYTE_BUFFER_H__

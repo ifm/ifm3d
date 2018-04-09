@@ -20,6 +20,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <vector>
 #include <ifm3d/camera/camera.h>
 #include <ifm3d/fg/byte_buffer.h>
 #include <ifm3d/fg/schema.h>
@@ -75,7 +76,7 @@ namespace ifm3d
     void SWTrigger();
 
     /**
-     * This function is used to grab and parse out time synchronized iamge data
+     * This function is used to grab and parse out time synchronized image data
      * from the camera. It will call `SetBytes` on the passed in `ByteBuffer`
      * as well as (optionally, but by default) call `Organize`. Calling
      * `Organize` is the default behavior so the `buff` output parameter is
@@ -84,8 +85,8 @@ namespace ifm3d
      * enhancement to not call `Organize` but rather handle that outside of the
      * `FrameGrabber`.
      *
-     * @param[out] buff A pointer to an `ifm3d::ByteBuffer` object to update
-     *                  with the latest data from the camera.
+     * @param[out] buff A pointer to an `ifm3d::ByteBuffer<Dervied>` object to
+     *                  update with the latest data from the camera.
      *
      * @param[in] timeout_millis Timeout in millis to wait for new image data
      *                           from the FrameGrabber. If `timeout_millis` is
@@ -104,10 +105,48 @@ namespace ifm3d
      * @return true if a new buffer was acquired w/in `timeout_millis`, false
      *              otherwise.
      */
-    bool WaitForFrame(ifm3d::ByteBuffer* buff,
+    template <typename T>
+    bool WaitForFrame(ifm3d::ByteBuffer<T>* buff,
                       long timeout_millis = 0,
                       bool copy_buff = false,
-                      bool organize = true);
+                      bool organize = true)
+    {
+      bool retval =
+        this->WaitForFrame(timeout_millis,
+                           [buff, copy_buff]
+                           (std::vector<std::uint8_t>& frame_data)
+                           {
+                             buff->SetBytes(frame_data, copy_buff);
+                           });
+
+      // NOTE: it is an optimization to keep the call to Organize() outside of
+      //       the lambda.
+      if (retval && organize)
+        {
+          buff->Organize();
+        }
+
+      return retval;
+    }
+
+  protected:
+    /**
+     * This is a convenience/wrapper function used to proxy `WaitForFrame`
+     * calls through to the pimpl class w/o requiring the pimpl to know about
+     * the ByteBuffer CRTP class hierarchy -- i.e., it operates on a vector of
+     * bytes not an `ifm3d::ByteBuffer<Derived>`.
+     *
+     * @param[in] timeout_millis Timeout in millis to wait for new image data
+     *                           from the FrameGrabber. If `timeout_millis` is
+     *                           set to 0, this function will block
+     *                           indefinitely.
+     *
+     * @param[in] set_bytes A mutator function that will be called with the
+     *                      latest frame data bytes from the camera.
+     */
+    bool
+    WaitForFrame(long timeout_millis,
+                 std::function<void(std::vector<std::uint8_t>&)> set_bytes);
 
   private:
     class Impl;
