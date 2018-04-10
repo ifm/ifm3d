@@ -16,6 +16,8 @@
 * Pixel-parsing framework has been significantly refactored. Sub-system
   specific docs for image container implementers have been provided in the
   `doc` folder.
+* Updated the `ImageBuffer` to conform to the new pixel-publishing
+  architecture.
 
 ## Changes between ifm3d 0.8.1 and 0.8.2
 

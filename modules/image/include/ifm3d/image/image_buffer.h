@@ -37,9 +37,10 @@ namespace ifm3d
    *
    * This class is not thread safe
    */
-  class ImageBuffer : public ifm3d::ByteBuffer
+  class ImageBuffer : public ifm3d::ByteBuffer<ifm3d::ImageBuffer>
   {
   public:
+    friend class ifm3d::ByteBuffer<ifm3d::ImageBuffer>;
     using Ptr = std::shared_ptr<ImageBuffer>;
 
     /**
@@ -48,28 +49,17 @@ namespace ifm3d
     ImageBuffer();
 
     /**
-     * RAII decallocations
+     * RAII deallocations
      */
-    virtual ~ImageBuffer();
+    ~ImageBuffer();
 
-    // disable move semantics
-    ImageBuffer(ImageBuffer&&) = delete;
-    ImageBuffer& operator=(ImageBuffer&&) = delete;
+    // move semantics
+    ImageBuffer(ImageBuffer&&);
+    ImageBuffer& operator=(ImageBuffer&&);
 
-    // copy semantics
+    // copy ctor/assignment operator
     ImageBuffer(const ImageBuffer& src_buff);
     ImageBuffer& operator=(const ImageBuffer& src_buff);
-
-    //
-    // XXX: TP March 5, 2017
-    //
-    // Note: right now we are not documenting the shape of each returned
-    // array as we may not be in position to make "absolute" statements about
-    // these across all devices (e.g., data types, units of measure, etc.). For
-    // now, users will have to introspect the array shapes from the data
-    // structures themselves and leverage "tribal knowledge" regarding what to
-    // expect across devices. Need to discuss this more with ifm.
-    //
 
     /**
      * Accessor for the wrapped radial distance image
@@ -113,15 +103,75 @@ namespace ifm3d
      */
     pcl::PointCloud<ifm3d::PointT>::Ptr Cloud();
 
+  protected:
     /**
-     * Synchronizes the parsed out image data with the internally wrapped byte
-     * buffer.
+     * Hook called by the base class to populate the image containers.
      */
-    virtual void Organize();
+    template <typename T>
+    void ImCreate(ifm3d::image_chunk im,
+                  std::uint32_t fmt,
+                  std::size_t idx,
+                  std::uint32_t width,
+                  std::uint32_t height,
+                  int nchan,
+                  std::uint32_t npts,
+                  const std::vector<std::uint8_t>& bytes)
+    {
+      // NOTE: we drop the template parameter here (and re-establish it later)
+      // so that we can maintain our pimpl abstraction in support of the
+      // general user-base. It is understood that this has a non-zero cost
+      // associated with it. Other higher-peformance image containers are
+      // currently being contemplated for advanced / latency sensitive users.
+      this->_ImCreate(im, fmt, idx, width, height, nchan, npts, bytes);
+    }
+
+    /**
+     * Hook called by the base class to populate the point cloud containers.
+     */
+    template <typename T>
+    void CloudCreate(std::uint32_t fmt,
+                     std::size_t xidx,
+                     std::size_t yidx,
+                     std::size_t zidx,
+                     std::uint32_t width,
+                     std::uint32_t height,
+                     std::uint32_t npts,
+                     const std::vector<std::uint8_t>& bytes)
+  {
+    // See "NOTE" in `ImCreate` as to why we are dropping the template
+    // parameter here. Same rationale applies.
+    this->_CloudCreate(fmt, xidx, yidx, zidx, width, height, npts, bytes);
+  }
 
   private:
     class Impl;
     std::unique_ptr<Impl> pImpl;
+
+    /**
+     * Wrapper called by the main `ImCreate` callback hook that allows us to
+     * proxy the image container population into our wrapped `Impl`.
+     */
+    void _ImCreate(ifm3d::image_chunk im,
+                   std::uint32_t fmt,
+                   std::size_t idx,
+                   std::uint32_t width,
+                   std::uint32_t height,
+                   int nchan,
+                   std::uint32_t npts,
+                   const std::vector<std::uint8_t>& bytes);
+
+    /**
+     * Wrapper called by the main `CloudCreate` callback hook that allows us to
+     * proxy the cloud container population into our wrapped `Impl`.
+     */
+    void _CloudCreate(std::uint32_t fmt,
+                      std::size_t xidx,
+                      std::size_t yidx,
+                      std::size_t zidx,
+                      std::uint32_t width,
+                      std::uint32_t height,
+                      std::uint32_t npts,
+                      const std::vector<std::uint8_t>& bytes);
 
   }; // end: class ImageBuffer
 } // end: namespace ifm3d
