@@ -95,6 +95,6 @@ if(BUILD_SDK_PKG)
   install(EXPORT ifm3d-image-targets
     NAMESPACE ifm3d::
     DESTINATION ${CONFIG_PACKAGE_LOCATION}
-    COMPONENT framegrabber
+    COMPONENT image
     )
 endif()
