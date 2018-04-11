@@ -68,7 +68,8 @@ class DpkgDeps(object):
 
         self.so_deps_ = self.generate_so_deps()
         self.deb_deps_ = self.generate_deb_deps()
-        self.update_control_file()
+        if len(self.deb_deps_) > 0:
+            self.update_control_file()
         self.repackage_deb()
 
         print("Removing: %s" % self.deb_file_in_)
@@ -132,6 +133,8 @@ class DpkgDeps(object):
                     debs["ifm3d-image"] = VERSION
                 elif "tools" in so:
                     debs["ifm3d-tools"] = VERSION
+                elif "opencv" in so:
+                    debs["ifm3d-opencv"] = VERSION
             else:
                 out = subprocess.check_output(["dpkg", "-S", so])
                 for line in out.split("\n"):
