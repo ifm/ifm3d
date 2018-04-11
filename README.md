@@ -146,6 +146,7 @@ dependencies computed for you dynamically (see the note below on the
 
 * [Python 2.7](https://www.python.org/)
 * [readelf](https://www.gnu.org/software/binutils/) (Part of the `binutils` package)
+* [ldd](http://man7.org/linux/man-pages/man1/ldd.1.html) (Part of the `libc-bin` package)
 * [dpkg](https://help.ubuntu.com/lts/serverguide/dpkg.html)
 
 We note that, if you are running on a supported Linux, all of these packages

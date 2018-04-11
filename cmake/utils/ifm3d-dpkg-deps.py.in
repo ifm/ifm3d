@@ -168,6 +168,7 @@ class DpkgDeps(object):
         print("Found the following .so files: %s" % str(sos))
 
         so_deps = {}
+        # This gives us the base name of the .so
         for so in sos:
             out = subprocess.check_output(["readelf", "-d", so])
             for line in out.split("\n"):
@@ -175,6 +176,25 @@ class DpkgDeps(object):
                     m = re.search(r"\[(.*)\]", line)
                     if m is not None:
                         so_deps[m.group(1)] = 1
+
+        print(".so deps *prior* to full-path resolution:")
+        print(so_deps)
+        # now, resolve the full path to the .so
+        for so in sos:
+            out = subprocess.check_output(["ldd", so])
+            for line in out.split("\n"):
+                parts = line.split()
+                if len(parts) <= 1:
+                    continue
+                elif len(parts) < 3:
+                    so_deps.pop(parts[0], None)
+                else:
+                    if ((so_deps.has_key(parts[0])) and
+                            ("ifm3d" not in parts[0])):
+                        so_deps[parts[2]] = so_deps.pop(parts[0])
+
+        print(".so deps *after* to full-path resolution:")
+        print(so_deps)
 
         retval = so_deps.keys()
         print("Found the following .so deps: %s" % retval)
