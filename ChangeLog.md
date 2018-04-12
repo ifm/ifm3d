@@ -18,6 +18,8 @@
   `doc` folder.
 * Updated the `ImageBuffer` to conform to the new pixel-publishing
   architecture.
+* Initial implementation of an OpenCV-only (i.e., no PCL) image container. This
+  is the `opencv` module of the `ifm3d` project.
 
 ## Changes between ifm3d 0.8.1 and 0.8.2
 
