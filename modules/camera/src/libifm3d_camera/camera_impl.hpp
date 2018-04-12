@@ -28,7 +28,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <boost/algorithm/string.hpp>
 #include <glog/logging.h>
 #include <xmlrpc-c/client.hpp>
 #include <ifm3d/camera/err.h>
@@ -245,10 +244,7 @@ namespace ifm3d
       this->_XSetParams(params, args...);
       xmlrpc_c::rpcPtr rpc(method, params);
 
-      // XXX: Making this work on older GCC versions where regex is not yet
-      // implemented
-      // url = std::regex_replace(url, std::regex("\\$XXX"), this->SessionID());
-      boost::replace_all(url, "$XXX", this->SessionID());
+      url = std::regex_replace(url, std::regex("\\$XXX"), this->SessionID());
       xmlrpc_c::carriageParm_curl0 cparam(url);
 
       std::lock_guard<std::mutex> lock(this->xclient_mutex_);

@@ -1,6 +1,5 @@
-// -*- c++ -*-
 /*
- * Copyright (C) 2017 Love Park Robotics, LLC
+ * Copyright (C) 2018 ifm electronic, gmbh
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +14,26 @@
  * limitations under the License.
  */
 
-#ifndef __IFM3D_CAMERA_H__
-#define __IFM3D_CAMERA_H__
-
-#include <ifm3d/camera/version.h>
-#include <ifm3d/camera/err.h>
 #include <ifm3d/camera/util.h>
-#include <ifm3d/camera/logging.h>
-#include <ifm3d/camera/camera.h>
+#include <string>
 
-#endif // __IFM3D_CAMERA_H__
+std::string&
+ifm3d::ltrim(std::string& str, const std::string& chars)
+{
+  str.erase(0, str.find_first_not_of(chars));
+  return str;
+}
+
+std::string&
+ifm3d::rtrim(std::string& str, const std::string& chars)
+{
+  str.erase(str.find_last_not_of(chars) + 1);
+  return str;
+}
+
+
+std::string&
+ifm3d::trim(std::string& str, const std::string& chars)
+{
+  return ifm3d::ltrim(ifm3d::rtrim(str, chars), chars);
+}

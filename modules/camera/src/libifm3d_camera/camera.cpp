@@ -24,11 +24,11 @@
 #include <sstream>
 #include <unordered_map>
 #include <vector>
-#include <boost/algorithm/string.hpp>
 #include <glog/logging.h>
 #include <ifm3d/camera/err.h>
 #include <ifm3d/camera/logging.h>
 #include <ifm3d/camera/version.h>
+#include <ifm3d/camera/util.h>
 #include <camera_impl.hpp>
 
 //================================================
@@ -574,7 +574,7 @@ ifm3d::Camera::ToJSON()
   std::ostringstream time_buf;
   time_buf << std::ctime(&t);
   std::string time_s = time_buf.str();
-  boost::algorithm::trim(time_s);
+  ifm3d::trim(time_s);
 
   json app_list = this->ApplicationList();
   json net_info, app_info;
