@@ -4,7 +4,6 @@
 if(NOT WIN32)
   find_package(XMLRPC REQUIRED c++ client)
 endif()
-find_package(Boost REQUIRED)
 
 find_package(glog QUIET CONFIG NAMES google-glog glog)
 if (NOT TARGET glog::glog)
@@ -41,7 +40,6 @@ target_include_directories(ifm3d_camera_shared
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${XMLRPC_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
   )
 
 # NOTE: we cannot use the following due to only requiring cmake 3.5
