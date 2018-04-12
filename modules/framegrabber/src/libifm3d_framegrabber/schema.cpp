@@ -19,7 +19,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
-#include <boost/algorithm/string.hpp>
+#include <ifm3d/camera/util.h>
 
 const std::uint16_t ifm3d::IMG_RDIS  = 1;   // 2**0
 const std::uint16_t ifm3d::IMG_AMP   = 2;   // 2**1
@@ -242,11 +242,10 @@ std::uint16_t
 ifm3d::schema_mask_from_string(const std::string& in)
 {
   std::uint16_t mask = 0;
-  std::vector<std::string> mask_parts;
-  boost::split(mask_parts, in, boost::is_any_of("|"));
+  std::vector<std::string> mask_parts = ifm3d::split(in, '|');
   for (auto part : mask_parts)
     {
-      boost::algorithm::trim(part);
+      ifm3d::trim(part);
       if (part == "IMG_RDIS")
         {
           mask |= ifm3d::IMG_RDIS;

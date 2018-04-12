@@ -2,7 +2,7 @@
 ## Bring in dependent projects
 ################################################
 find_package(Threads REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system date_time regex)
+find_package(Boost REQUIRED COMPONENTS system)
 find_package(glog QUIET CONFIG NAMES google-glog glog)
 if (NOT TARGET glog::glog)
   find_library(LIB_glog NAMES glog)
@@ -47,8 +47,6 @@ target_link_libraries(
     ifm3d_camera_shared
     ${LIB_glog}
     Boost::system
-    Boost::date_time
-    Boost::regex
     Threads::Threads
   )
 
