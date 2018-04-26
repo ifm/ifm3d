@@ -84,8 +84,9 @@ RO_LUT =
      }
     },
 
-    {"Apps",
+    {"App",
      {
+       {"Id", true},
      }
     },
 
