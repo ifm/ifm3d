@@ -21,15 +21,14 @@ add_library(ifm3d_pcicclient_shared SHARED ${IFM3D_PCICCLIENT_SOURCES})
 # Compiler settings
 #------------------
 
-#
-# XXX: The Boost headers should be moved to PRIVATE
-# once pcic client is implemented as a PIMPL
-#
+
 target_include_directories(ifm3d_pcicclient_shared
   PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${IFM3D_PCICCLIENT_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
+    PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${Boost_INCLUDE_DIRS}
   )
 
@@ -45,19 +44,15 @@ endif(WIN32)
 #------------------
 # Linker settings
 #------------------
-#
-# XXX: Move libraries to PRIVATE visibility once pcic client is implemented as
-# a pimpl
-#
+
 target_link_libraries(
   ifm3d_pcicclient_shared
-  PUBLIC
-    ifm3d_camera_shared
-    Boost::system
   PRIVATE
+    ifm3d_camera_shared
+	${LIB_glog}
+    Boost::system
     Boost::regex
     Boost::date_time
-    ${LIB_glog}
     Threads::Threads
   )
 
