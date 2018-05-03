@@ -104,12 +104,12 @@ Software Compatibility Matrix
   </tr>
   <tr>
     <td>0.9.0</td>
-    <td>1.6.2114, 1.20.973</td>
-    <td>1.0.62</td>
+    <td>1.20.1138</td>
+    <td>1.0.126</td>
     <td>16.04</td>
-    <td>Prepping for 1.0.0 release: Dropped support for Ubuntu 14.04, moved to
-    C++14, cmake 3.5, removed viewer application, PCL is now optional, provides
-    a framework for implementing alternative image containers</td>
+    <td>Dropped support for Ubuntu 14.04, moved to C++14, cmake 3.5, removed
+    viewer application, PCL is now optional, provides a framework for
+    implementing alternative image containers</td>
   </tr>
 </table>
 
