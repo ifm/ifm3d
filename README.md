@@ -3,8 +3,8 @@ ifm3d
 =====
 Library and utilities for working with ifm pmd-based 3D ToF Cameras.
 
-Current Revision:
------------------
+Current Revision
+----------------
 <table>
   <tr>
     <th>ifm3d version</th>
