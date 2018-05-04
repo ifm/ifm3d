@@ -10,7 +10,7 @@ structure of a control loop whereby images are continuously acquired from the
 camera and acted upon in some application-specific way. The example code below
 shows how this may look:
 
-<script src="https://gist.github.com/tpanzarella/1975acec9f4bdf5eb21d44a6fc91ce7d.js"></script>
+<div><script src="https://gist.github.com/tpanzarella/1975acec9f4bdf5eb21d44a6fc91ce7d.js"></script></div>
 
 Let's break down this simple program to get a better sense of what is going on.
 
