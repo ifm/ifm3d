@@ -51,7 +51,7 @@ Inside of `main` on lines 10 - 12 we create the three core structures (camera,
 framegrabber, and an image container)  that will be utilized by most `ifm3d`
 programs:
 
-```
+```c++
   auto cam = ifm3d::Camera::MakeShared();
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
   auto im = std::make_shared<ifm3d::ImageBuffer>();
@@ -70,7 +70,7 @@ else. Regardless, a `std::shared_ptr` is returned from this call.
 On lines 14 - 15, we declare a couple of OpenCV image containers to hold the
 most recent amplitude and point cloud data frames from the camera:
 
-```
+```c++
  cv::Mat amp;
  cv::Mat xyz;
 ```
@@ -78,7 +78,7 @@ most recent amplitude and point cloud data frames from the camera:
 Then, in line 17 we begin our control loop. At the top of the control loop we
 see the following conditional on lines 19 - 23:
 
-```
+```c++
     if (! fg->WaitForFrame(im.get(), 1000))
     {
       std::cerr << "Timeout waiting for camera!" << std::endl;
@@ -104,7 +104,7 @@ access to the `cv::Mat` encoded image data. At this point we can unleash the
 full power of OpenCV (or just exploit the `cv::Mat` array container utilizing
 our own algorithms) on our data to help build our application.
 
-```
+```c++
    amp = im->AmplitudeImage();
    xyz = im->XYZImage();
 ```
