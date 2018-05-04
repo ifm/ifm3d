@@ -49,7 +49,7 @@ target_link_libraries(
   ifm3d_pcicclient_shared
   PRIVATE
     ifm3d_camera_shared
-	${LIB_glog}
+    ${LIB_glog}
     Boost::system
     Boost::regex
     Boost::date_time

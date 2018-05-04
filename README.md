@@ -3,104 +3,15 @@ ifm3d
 =====
 Library and utilities for working with ifm pmd-based 3D ToF Cameras.
 
-![viewer](doc/ifm3d_viewer.png)
-
-
-Software Compatibility Matrix
------------------------------
+Current Revision:
+-----------------
 <table>
   <tr>
     <th>ifm3d version</th>
-    <th>O3D Firmware Version</th>
-    <th>O3X Firmware Version</th>
-    <th>Ubuntu Linux Version</th>
+    <th>Supported O3D Firmware Version</th>
+    <th>Supported O3X Firmware Version</th>
+    <th>Supported Ubuntu Linux Version</th>
     <th>Notes</th>
-  </tr>
-  <tr>
-    <td>0.1.0</td>
-    <td>1.6.2114</td>
-    <td>0.1.4</td>
-    <td>16.04</td>
-    <td>Initial (beta) release</td>
-  </tr>
-  <tr>
-    <td>0.2.0</td>
-    <td>1.6.2114</td>
-    <td>0.1.16, 0.1.20</td>
-    <td>14.04, 16.04</td>
-    <td>Software triggering (O3X), support for Ubuntu 14.04</td>
-  </tr>
-  <tr>
-    <td>0.3.0</td>
-    <td>1.6.2114</td>
-    <td>0.1.20</td>
-    <td>14.04, 16.04</td>
-    <td>Parsing extrinsics (O3D), NTP support (O3X), Simple GUI</td>
-  </tr>
-  <tr>
-    <td>0.3.1</td>
-    <td>1.6.2114</td>
-    <td>0.1.20</td>
-    <td>14.04, 16.04</td>
-    <td>Fixed 14.04 regression (std::put_time)</td>
-  </tr>
-  <tr>
-    <td>0.3.2</td>
-    <td>1.6.2114</td>
-    <td>0.1.20</td>
-    <td>14.04, 16.04</td>
-    <td>Patch to tools module build script</td>
-  </tr>
-  <tr>
-    <td>0.3.3</td>
-    <td>1.6.2114</td>
-    <td>0.1.20</td>
-    <td>14.04, 16.04</td>
-    <td>Windows build support</td>
-  </tr>
-  <tr>
-    <td>0.4.0</td>
-    <td>1.6.2114</td>
-    <td>0.1.20</td>
-    <td>14.04, 16.04</td>
-    <td>Added bash completions for ifm3d command line tool</td>
-  </tr>
-  <tr>
-    <td>0.5.0</td>
-    <td>1.6.2114</td>
-    <td>0.1.20</td>
-    <td>14.04, 16.04</td>
-    <td>Added firmware flashing to ifm3d command line, Windows support for
-    image module</td>
-  </tr>
-  <tr>
-    <td>0.6.0</td>
-    <td>1.6.2114</td>
-    <td>1.0.62</td>
-    <td>14.04, 16.04</td>
-    <td>Added pcic client, ability to dump camera trace logs</td>
-  </tr>
-  <tr>
-    <td>0.7.0</td>
-    <td>1.6.2114, 1.20.973</td>
-    <td>1.0.62</td>
-    <td>14.04, 16.04</td>
-    <td>Timestamping of image buffers, host/device time sync for O3D, changing
-    application parameters on-the-fly</td>
-  </tr>
-  <tr>
-    <td>0.8.1</td>
-    <td>1.6.2114, 1.20.973</td>
-    <td>1.0.62</td>
-    <td>14.04, 16.04</td>
-    <td>Register illumination temperature to frame data</td>
-  </tr>
-  <tr>
-    <td>0.8.2</td>
-    <td>1.6.2114, 1.20.973</td>
-    <td>1.0.62</td>
-    <td>14.04, 16.04</td>
-    <td>Patches to windows build</td>
   </tr>
   <tr>
     <td>0.9.0</td>
@@ -113,33 +24,105 @@ Software Compatibility Matrix
   </tr>
 </table>
 
+A full software compatibility matrix, including older releases, is available [here](doc/swcompat.md).
+
 Organization of the Software
 ----------------------------
 The ifm3d software is organized into modules, they are:
 
-|Module Name|Description|
-|-----------|-----------|
-|[Camera](modules/camera)|Provides an implementation of the XMLRPC protocol for configuring the camera and PMD imager settings.|
-|[Framegrabber](modules/framegrabber)|Provides an implementation of the PCIC protocol for streaming pixel data and triggered image acquisition.|
-|[Image](modules/image)|Provides a bridge from raw camera bytes to OpenCV and PCL image encodings.|
-|[PCIC](modules/pcicclient)|Direct access to PCIC to, for example, actuate digital IO|
-|[Tools](modules/tools)|Provides the ifm3d command line tool for manipulating and introspecting the hardware interactively. It is also suitable for usage within shell scripts.|
+<table>
+  <tr>
+    <th>Module Name</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>camera</td>
+    <td>Provides an implementation of the XMLRPC protocol for configuring the
+    camera and pmd imager settings.</td>
+  </tr>
+  <tr>
+    <td>framegrabber</td>
+    <td>Provides an implementation of the PCIC protocol for streaming pixel
+    data and triggered image acquisition.</td>
+  </tr>
+  <tr>
+    <td>image</td>
+    <td>Provides a bridge from raw camera bytes to OpenCV and PCL image encodings.</td>
+  </tr>
+  <tr>
+    <td>opencv</td>
+    <td>This is an officially supported and alternate data container to the
+    default Image module. This module provides a bridge from raw camera bytes
+    to OpenCV image encodings without any dependence upon PCL.</td>
+  </tr>
+  <tr>
+    <td>pcicclient</td>
+    <td>Direct access to PCIC to, for example, actuate digital IO.</td>
+  </tr>
+  <tr>
+    <td>tools</td>
+    <td>Provides the ifm3d command line tool for manipulating and introspecting
+    the hardware interactively. It is also suitable for usage within shell
+    scripts to, for example, manage fleets of cameras.</td>
+  </tr>
+</table>
+
+As of version 0.9.0, we have removed the `viewer` sub-command from the `ifm3d`
+command line tool (part of the `tools` module). The objective was to lessen the
+dependencies for the core library. However, a *clone* of the pre-0.9.0
+viewer is available in its own repository:
+[ifm3d-pcl-viewer](https://github.com/lovepark/ifm3d-pcl-viewer).
 
 Installing the Software
 -----------------------
 
 ### Build Dependencies
 
-Building the software from source, requires the following pre-requisites
-installed on your machine:
-
-* [Boost](http://www.boost.org)
-* [Gtest](https://github.com/google/googletest)
-* [Glog](https://github.com/google/glog)
-* [libxmlrpc](http://xmlrpc-c.sourceforge.net/)
-* [CMake](http://www.cmake.org)
-* [OpenCV](http://opencv.org)
-* [PCL](http://pointclouds.org)
+<table>
+  <tr>
+    <th>Dependency</th>
+    <th>Dependent ifm3d module</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td><a href="http://www.boost.org">Boost</a></td>
+    <td>framegrabber, pcicclient, tools</td>
+    <td>We use Boost ASIO (header-only) to handle cross-platform network
+     communication with the camera. While ASIO itself is header-only, it does
+     require runtime linking to Boost System. We also use Boost Program Options
+     to handle command line parsing in the tools module.</td>
+  </tr>
+  <tr>
+    <td><a href="http://www.cmake.org">CMake</a></td>
+    <td>camera, framegrabber, image, opencv, pcicclient, tools</td>
+    <td>Meta-build framework</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/google/glog">Glog</a></td>
+    <td>camera, framegrabber, image, opencv, pcicclient, tools</td>
+    <td>Logging framework</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/google/googletest">Gtest</a></td>
+    <td>camera, framegrabber, image, opencv, pcicclient, tools</td>
+    <td>Unit testing framework</td>
+  </tr>
+  <tr>
+    <td><a href="http://xmlrpc-c.sourceforge.net/">libxmlrpc</a></td>
+    <td>camera</td>
+    <td>XMLRPC client used call into the camera configuration interface</td>
+  </tr>
+  <tr>
+    <td><a href="http://opencv.org">OpenCV</a></td>
+    <td>image, opencv</td>
+    <td>N-dimensional array container for encoding 2d and 3d image data</td>
+  </tr>
+  <tr>
+    <td><a href="http://pointclouds.org">PCL</a></td>
+    <td>image</td>
+    <td>A 3D point cloud encoding</td>
+  </tr>
+</table>
 
 Additionally, if you plan to build the debian packages and have the
 dependencies computed for you dynamically (see the note below on the
