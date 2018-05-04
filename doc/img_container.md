@@ -3,7 +3,7 @@ ifm3d - Implementing a Custom Image Container
 =============================================
 
 `ifm3d` provides a full software stack for writing computer vision / robotics
-perception applicaitons based upon ifm 3D cameras and the pmd ToF chip. `ifm3d`
+perception applications based upon ifm 3D cameras and the pmd ToF chip. `ifm3d`
 ships, as part of its core, two *image modules*. They are `image` and
 `opencv`. The `image` module bridges the 3D camera data to both OpenCV and
 PCL, while `opencv` exclusively bridges to OpenCV dropping any required PCL
