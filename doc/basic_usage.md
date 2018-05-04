@@ -10,7 +10,40 @@ structure of a control loop whereby images are continuously acquired from the
 camera and acted upon in some application-specific way. The example code below
 shows how this may look:
 
-<div><script src="https://gist.github.com/tpanzarella/1975acec9f4bdf5eb21d44a6fc91ce7d.js"></script></div>
+```c++
+#include <iostream>
+#include <memory>
+#include <opencv2/core/core.hpp>
+#include <ifm3d/camera.h>
+#include <ifm3d/fg.h>
+#include <ifm3d/image.h>
+
+int main(int argc, const char **argv)
+{
+  auto cam = ifm3d::Camera::MakeShared();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
+  auto im = std::make_shared<ifm3d::ImageBuffer>();
+
+  cv::Mat amp;
+  cv::Mat xyz;
+
+  while (true)
+  {
+    if (! fg->WaitForFrame(im.get(), 1000))
+    {
+      std::cerr << "Timeout waiting for camera!" << std::endl;
+      return -1;
+    }
+
+    amp = im->AmplitudeImage();
+    xyz = im->XYZImage();
+
+    // now do something with `amp` and `xyz`
+  }
+
+  return 0;
+}
+```
 
 Let's break down this simple program to get a better sense of what is going on.
 
