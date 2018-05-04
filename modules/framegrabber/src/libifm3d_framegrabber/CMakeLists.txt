@@ -43,9 +43,10 @@ endif(WIN32)
 #------------------
 target_link_libraries(
   ifm3d_framegrabber_shared
+  PUBLIC
+    ${LIB_glog}
   PRIVATE
     ifm3d_camera_shared
-    ${LIB_glog}
     Boost::system
     Threads::Threads
   )
