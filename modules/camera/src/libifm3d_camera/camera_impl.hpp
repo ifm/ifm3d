@@ -113,6 +113,8 @@ namespace ifm3d
     // Device
     void SetDeviceParameter(const std::string& param, const std::string& val);
     void SaveDevice();
+	void ActivatePassword(std::string password = "");
+	void DisablePassword();
 
     // Network
     std::unordered_map<std::string, std::string> NetInfo();
@@ -812,6 +814,18 @@ void
 ifm3d::Camera::Impl::SaveDevice()
 {
   this->_XCallDevice("save");
+}
+
+void
+ifm3d::Camera::Impl::ActivatePassword(std::string password)
+{
+  this->_XCallDevice("activatePassword", password.c_str());
+}
+
+void
+ifm3d::Camera::Impl::DisablePassword()
+{
+  this->_XCallDevice("disablePassword");
 }
 
 // ---------------------------------------------

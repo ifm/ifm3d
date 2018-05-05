@@ -119,6 +119,8 @@ These are common commands used in various situations:
     ls          Lists the applications currently installed on
                 the sensor.
 
+    passwd      Sets the password on the sensor.
+
     reboot      Reboot the sensor, potentially into recovery
                 mode. Recovery mode is useful for putting the
                 sensor into a state where it can be flashed
