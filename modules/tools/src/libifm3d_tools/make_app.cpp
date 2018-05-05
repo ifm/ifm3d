@@ -74,6 +74,11 @@ app_factory =
      ->ifm3d::CmdLineApp::Ptr
      { return std::make_shared<ifm3d::LsApp>(argc, argv, cmd); }},
 
+    {"passwd",
+	 [](int argc, const char** argv, const std::string& cmd)
+	 ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::PasswdApp>(argc, argv, cmd); }},
+
     {"reboot",
      [](int argc, const char** argv, const std::string& cmd)
      ->ifm3d::CmdLineApp::Ptr

@@ -1017,6 +1017,16 @@ ifm3d::Camera::FromJSONStr(const std::string& jstr)
   this->FromJSON(j);
 }
 
+void
+ifm3d::Camera::SetPassword(std::string password)
+{
+  this->pImpl->WrapInEditSession(
+	[this, password]() { password == "" ?
+	this->pImpl->DisablePassword() : this->pImpl->ActivatePassword(password);
+	this->pImpl->SaveDevice(); });
+
+}
+
 //================================================
 // O3DCamera class - the public interface
 //================================================
