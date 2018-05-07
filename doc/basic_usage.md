@@ -111,7 +111,7 @@ our own algorithms) on our data to help build our application.
 
 This was just a simple example to give users of `ifm3d` a quick start to begin
 utilizing ifm 3D cameras and the `ifm3d` library. There is much more that the
-library and ecosystem are capabile of, we look forward to seeing what you can
+library and ecosystem are capable of, we look forward to seeing what you can
 build. For additional help, we urge you to utilize our
 [issue tracker](https://github.com/lovepark/ifm3d/issues) and to look at the
 examples provided [here](https://github.com/lovepark/ifm3d-examples).
