@@ -95,7 +95,7 @@ container implementation.
 We also note that both ``ImCreate`` and ``CloudCreate`` are template functions
 that take a single template parameter ``T``. ``T`` represents the C++ pixel
 data type. So, if you are using a strongly-typed container that supports
-template parameters, you can pass ``T`` stright through and not incur the
+template parameters, you can pass ``T`` straight through and not incur the
 overhead of performing a lookup on the ``fmt`` argument (which is redundant
 with ``T``).
 
@@ -110,10 +110,8 @@ auto cam = ifm3d::Camera::MakeShared();
 auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
 auto buff = std::make_shared<MyBuff>();
 
-while (true)
+while (fg->WaitForFrame(buff.get(), 1000))
  {
-    fg->WaitForFrame(buff.get(), 1000);
-
     // ... now use buff ..
  }
 ```
