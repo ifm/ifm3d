@@ -27,7 +27,7 @@ JSON, some of the examples below will utilize the
 Linux pipelines to carry out a specific task. The usage of `jq` is *not*
 required. Standard Linux tools (`grep`, `sed`, `awk`, `perl`, `python`, etc.)
 could also be used or a single pipeline can be decomposed into multiple
-commands whereby data are serialized to a file, editied, then I/O redirected
+commands whereby data are serialized to a file, edited, then I/O redirected
 into `ifm3d config` in discrete steps. Again, the remainder of this document
 will assume `jq` is available. (To install `jq` on Ubuntu:
 `sudo apt-get install jq`).
