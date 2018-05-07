@@ -274,8 +274,3 @@ Please see the [Github Issue Tracker](https://github.com/lovepark/ifm3d/issues).
 LICENSE
 -------
 Please see the file called [LICENSE](LICENSE).
-
-
-AUTHORS
--------
-Tom Panzarella <tom@loveparkrobotics.com>
