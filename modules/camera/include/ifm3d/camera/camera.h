@@ -518,6 +518,17 @@ namespace ifm3d
      */
     virtual void FromJSONStr(const std::string& jstr);
 
+	/**
+	* Sets or disable the password on the camera.
+	*
+	* @param[in] password is the password string. If the password is blank, password is
+	* disabled
+	*
+	* @throw ifm3d::error_t upon error
+	*/
+
+	virtual void SetPassword(std::string password = "");
+
   protected:
     class Impl;
     std::unique_ptr<Impl> pImpl;
