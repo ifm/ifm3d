@@ -129,13 +129,6 @@ Installing the Software
     header-only (we need to construct a point cloud) however there is no runtime
     linking dependency.</td>
   </tr>
-  <tr>
-    <td>0.8.3</td>
-    <td>1.6.2114, 1.20.973</td>
-    <td>1.0.62</td>
-    <td>14.04, 16.04</td>
-    <td>Fixed cmake regression for older versions of cmake (i.e., on Ubuntu 14.04)</td>
-  </tr>
 </table>
 
 Additionally, if you plan to build the debian packages and have the
