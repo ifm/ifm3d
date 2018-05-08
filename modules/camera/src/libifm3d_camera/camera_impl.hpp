@@ -28,7 +28,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <boost/algorithm/string.hpp>
 #include <glog/logging.h>
 #include <xmlrpc-c/client.hpp>
 #include <ifm3d/camera/err.h>
@@ -114,6 +113,8 @@ namespace ifm3d
     // Device
     void SetDeviceParameter(const std::string& param, const std::string& val);
     void SaveDevice();
+	void ActivatePassword(std::string password = "");
+	void DisablePassword();
 
     // Network
     std::unordered_map<std::string, std::string> NetInfo();
@@ -245,10 +246,7 @@ namespace ifm3d
       this->_XSetParams(params, args...);
       xmlrpc_c::rpcPtr rpc(method, params);
 
-      // XXX: Making this work on older GCC versions where regex is not yet
-      // implemented
-      // url = std::regex_replace(url, std::regex("\\$XXX"), this->SessionID());
-      boost::replace_all(url, "$XXX", this->SessionID());
+      url = std::regex_replace(url, std::regex("\\$XXX"), this->SessionID());
       xmlrpc_c::carriageParm_curl0 cparam(url);
 
       std::lock_guard<std::mutex> lock(this->xclient_mutex_);
@@ -816,6 +814,18 @@ void
 ifm3d::Camera::Impl::SaveDevice()
 {
   this->_XCallDevice("save");
+}
+
+void
+ifm3d::Camera::Impl::ActivatePassword(std::string password)
+{
+  this->_XCallDevice("activatePassword", password.c_str());
+}
+
+void
+ifm3d::Camera::Impl::DisablePassword()
+{
+  this->_XCallDevice("disablePassword");
 }
 
 // ---------------------------------------------

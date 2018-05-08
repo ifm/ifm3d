@@ -12,4 +12,3 @@
 #endif
 
 #endif /* IFM3D_FRAME_GRABBER_EXPORT_HPP */
-

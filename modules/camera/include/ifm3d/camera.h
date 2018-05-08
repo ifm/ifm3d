@@ -20,6 +20,7 @@
 
 #include <ifm3d/camera/version.h>
 #include <ifm3d/camera/err.h>
+#include <ifm3d/camera/util.h>
 #include <ifm3d/camera/logging.h>
 #include <ifm3d/camera/camera.h>
 

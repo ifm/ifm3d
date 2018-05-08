@@ -15,6 +15,7 @@
  */
 
 #include <ifm3d/fg/byte_buffer.h>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -22,6 +23,7 @@
 #include <string>
 #include <glog/logging.h>
 #include <ifm3d/camera/logging.h>
+#include <ifm3d/camera/err.h>
 
 //-------------------------------------
 // Utilities
@@ -88,87 +90,7 @@ ifm3d::get_chunk_index(const std::vector<std::uint8_t>& buff,
   return std::numeric_limits<std::size_t>::max();
 }
 
-//-------------------------------------
-// The ByteBuffer class
-//-------------------------------------
-
-ifm3d::ByteBuffer::ByteBuffer()
-  : dirty_(false)
-{ }
-
-ifm3d::ByteBuffer::~ByteBuffer() = default;
-
-ifm3d::ByteBuffer::ByteBuffer(const ifm3d::ByteBuffer& src_buff)
-  : ifm3d::ByteBuffer()
-{
-  this->SetBytes(const_cast<std::vector<std::uint8_t>&>(src_buff.bytes_),
-                 true);
-}
-
-ifm3d::ByteBuffer&
-ifm3d::ByteBuffer::operator= (const ifm3d::ByteBuffer& src_buff)
-{
-  if (this == &src_buff)
-    {
-      return *this;
-    }
-
-  this->SetBytes(const_cast<std::vector<std::uint8_t>&>(src_buff.bytes_),
-                 true);
-  return *this;
-}
-
-void
-ifm3d::ByteBuffer::SetBytes(std::vector<std::uint8_t>& buff,
-                            bool copy)
-{
-  if (copy)
-    {
-      std::size_t sz = buff.size();
-      this->bytes_.resize(sz);
-
-      std::copy(buff.begin(),
-                buff.begin() + sz,
-                this->bytes_.begin());
-    }
-  else
-    {
-      buff.swap(this->bytes_);
-    }
-
-  this->_SetDirty(true);
-}
-
-void
-ifm3d::ByteBuffer::_SetDirty(bool flg) noexcept
-{
-  this->dirty_ = flg;
-}
-
-bool
-ifm3d::ByteBuffer::Dirty() const noexcept
-{
-  return this->dirty_;
-}
-
-std::vector<std::uint8_t>
-ifm3d::ByteBuffer::Bytes()
-{
-  return this->bytes_;
-}
-
-void
-ifm3d::ByteBuffer::Organize()
-{
-  // This is a basic stub for subclasses
-  if (! this->Dirty())
-    {
-      return;
-    }
-
-  // Theoretically, here is where you would iterate over the
-  // internally wrapped `bytes_` and populate your image data
-  // structures. Always flag as "not dirty" when done.
-
-  this->_SetDirty(false);
-}
+//------------------------------------------------------------
+// NOTE: ByteBuffer<Derived> class is
+// now implemented in: include/ifm3d/fg/detail/byte_buffer.hpp
+//------------------------------------------------------------

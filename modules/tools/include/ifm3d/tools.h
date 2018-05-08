@@ -27,6 +27,7 @@
 #include <ifm3d/tools/imager_types_app.h>
 #include <ifm3d/tools/import_app.h>
 #include <ifm3d/tools/ls_app.h>
+#include <ifm3d/tools/passwd_app.h>
 #include <ifm3d/tools/make_app.h>
 #include <ifm3d/tools/reboot_app.h>
 #include <ifm3d/tools/reset_app.h>
@@ -38,10 +39,6 @@
 #if defined(BUILD_MODULE_FRAMEGRABBER)
 #include <ifm3d/tools/fg/schema_app.h>
 #include <ifm3d/tools/fg/hz_app.h>
-#endif
-
-#if defined(BUILD_MODULE_IMAGE)
-#include <ifm3d/tools/image/viewer_app.h>
 #endif
 
 #endif // __IFM3D_TOOLS_H__

@@ -31,7 +31,7 @@ _ifm3d()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     opts="--help --ip --xmlrpc-port --password"
-    subcmds="app-types config cp dump export imager-types import ls reboot reset rm time trace schema swupdate hz viewer version"
+    subcmds="app-types config cp dump export imager-types import ls passwd reboot reset rm time trace schema swupdate hz version"
 
    case "${prev}" in
        config)
@@ -51,6 +51,11 @@ _ifm3d()
 
        import)
            COMPREPLY=( $(compgen -W "--file --config --global --net --app" -- ${cur}) )
+           return 0
+           ;;
+
+       passwd)
+           COMPREPLY=( $(compgen -W "--new --disable" -- ${cur}) )
            return 0
            ;;
 
