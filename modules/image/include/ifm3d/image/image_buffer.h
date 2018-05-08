@@ -21,7 +21,6 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include <chrono>
 #include <opencv2/core/core.hpp>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -30,7 +29,6 @@
 namespace ifm3d
 {
   using PointT = pcl::PointXYZI;
-  using TimePointT = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
 
   /**
    * The ImageBuffer class is a composite data structure used to hold
@@ -39,9 +37,10 @@ namespace ifm3d
    *
    * This class is not thread safe
    */
-  class ImageBuffer : public ifm3d::ByteBuffer
+  class ImageBuffer : public ifm3d::ByteBuffer<ifm3d::ImageBuffer>
   {
   public:
+    friend class ifm3d::ByteBuffer<ifm3d::ImageBuffer>;
     using Ptr = std::shared_ptr<ImageBuffer>;
 
     /**
@@ -50,28 +49,17 @@ namespace ifm3d
     ImageBuffer();
 
     /**
-     * RAII decallocations
+     * RAII deallocations
      */
-    virtual ~ImageBuffer();
+    ~ImageBuffer();
 
-    // disable move semantics
-    ImageBuffer(ImageBuffer&&) = delete;
-    ImageBuffer& operator=(ImageBuffer&&) = delete;
+    // move semantics
+    ImageBuffer(ImageBuffer&&);
+    ImageBuffer& operator=(ImageBuffer&&);
 
-    // copy semantics
+    // copy ctor/assignment operator
     ImageBuffer(const ImageBuffer& src_buff);
     ImageBuffer& operator=(const ImageBuffer& src_buff);
-
-    //
-    // XXX: TP March 5, 2017
-    //
-    // Note: right now we are not documenting the shape of each returned
-    // array as we may not be in position to make "absolute" statements about
-    // these across all devices (e.g., data types, units of measure, etc.). For
-    // now, users will have to introspect the array shapes from the data
-    // structures themselves and leverage "tribal knowledge" regarding what to
-    // expect across devices. Need to discuss this more with ifm.
-    //
 
     /**
      * Accessor for the wrapped radial distance image
@@ -115,55 +103,75 @@ namespace ifm3d
      */
     pcl::PointCloud<ifm3d::PointT>::Ptr Cloud();
 
+  protected:
     /**
-     * Returns a 6-element vector containing the extrinsic
-     * calibration of the camera. NOTE: This is the extrinsics WRT to the ifm
-     * optical frame.
-     *
-     * The elements are: tx, ty, tz, rot_x, rot_y, rot_z
-     *
-     * Translation units are mm, rotations are degrees
-     *
-     * Users of this library are highly DISCOURAGED from using the extrinsic
-     * calibration data stored on the camera itself.
+     * Hook called by the base class to populate the image containers.
      */
-    std::vector<float> Extrinsics();
+    template <typename T>
+    void ImCreate(ifm3d::image_chunk im,
+                  std::uint32_t fmt,
+                  std::size_t idx,
+                  std::uint32_t width,
+                  std::uint32_t height,
+                  int nchan,
+                  std::uint32_t npts,
+                  const std::vector<std::uint8_t>& bytes)
+    {
+      // NOTE: we drop the template parameter here (and re-establish it later)
+      // so that we can maintain our pimpl abstraction in support of the
+      // general user-base. It is understood that this has a non-zero cost
+      // associated with it. Other higher-peformance image containers are
+      // currently being contemplated for advanced / latency sensitive users.
+      this->_ImCreate(im, fmt, idx, width, height, nchan, npts, bytes);
+    }
 
     /**
-     * Returns a 3-element vector containing the exposure times (usec) for the
-     * current frame. Unused exposure times are reported as 0.
-     *
-     * If all elements are reported as 0 either the exposure times are not
-     * configured to be returned back in the data stream from the camera or an
-     * error in parsing them has occured.
+     * Hook called by the base class to populate the point cloud containers.
      */
-    std::vector<std::uint32_t> ExposureTimes();
-
-    /**
-     * Returns the time stamp of the image data.
-     *
-     * NOTE: To get the timestamp of the confidence data, you
-     * need to make sure your current pcic schema mask have enabled confidence data.
-     */
-    ifm3d::TimePointT TimeStamp();
-
-    /**
-     * Returns the temperature of the illumination unit.
-     *
-     * NOTE: To get the temperature of the illumination unit to the frame, you
-     * need to make sure your current pcic schema asks for it.
-     */
-    float IlluTemp();
-
-    /**
-     * Synchronizes the parsed out image data with the internally wrapped byte
-     * buffer.
-     */
-    virtual void Organize();
+    template <typename T>
+    void CloudCreate(std::uint32_t fmt,
+                     std::size_t xidx,
+                     std::size_t yidx,
+                     std::size_t zidx,
+                     std::uint32_t width,
+                     std::uint32_t height,
+                     std::uint32_t npts,
+                     const std::vector<std::uint8_t>& bytes)
+  {
+    // See "NOTE" in `ImCreate` as to why we are dropping the template
+    // parameter here. Same rationale applies.
+    this->_CloudCreate(fmt, xidx, yidx, zidx, width, height, npts, bytes);
+  }
 
   private:
     class Impl;
     std::unique_ptr<Impl> pImpl;
+
+    /**
+     * Wrapper called by the main `ImCreate` callback hook that allows us to
+     * proxy the image container population into our wrapped `Impl`.
+     */
+    void _ImCreate(ifm3d::image_chunk im,
+                   std::uint32_t fmt,
+                   std::size_t idx,
+                   std::uint32_t width,
+                   std::uint32_t height,
+                   int nchan,
+                   std::uint32_t npts,
+                   const std::vector<std::uint8_t>& bytes);
+
+    /**
+     * Wrapper called by the main `CloudCreate` callback hook that allows us to
+     * proxy the cloud container population into our wrapped `Impl`.
+     */
+    void _CloudCreate(std::uint32_t fmt,
+                      std::size_t xidx,
+                      std::size_t yidx,
+                      std::size_t zidx,
+                      std::uint32_t width,
+                      std::uint32_t height,
+                      std::uint32_t npts,
+                      const std::vector<std::uint8_t>& bytes);
 
   }; // end: class ImageBuffer
 } // end: namespace ifm3d

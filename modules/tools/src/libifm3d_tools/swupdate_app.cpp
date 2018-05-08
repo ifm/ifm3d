@@ -31,7 +31,7 @@
 #include <ifm3d/camera/err.h>
 #include <glog/logging.h>
 #include <curl/curl.h>
-#include <ifm3d/contrib/json.hpp>
+#include <ifm3d/contrib/nlohmann/json.hpp>
 
 #ifdef _WIN32
 # include <io.h>
@@ -44,7 +44,8 @@ static const std::string FWU_STATUS_URL = "/getstatus.json";
 static const std::string FWU_CHECK_RECOVERY_URL = "/id.lp";
 static const int FWU_RECOVERY_PORT = 8080;
 static const std::string FWU_FILENAME_HEADER = "X_FILENAME: swupdate.swu";
-static const std::string FWU_CONTENT_TYPE_HEADER = "Content-Type: application/octet-stream";
+static const std::string FWU_CONTENT_TYPE_HEADER =
+  "Content-Type: application/octet-stream";
 
 static const int FWU_STATUS_IDLE = 0;
 static const int FWU_STATUS_START = 1;

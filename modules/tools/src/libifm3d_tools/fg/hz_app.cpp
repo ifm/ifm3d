@@ -27,6 +27,36 @@
 #include <ifm3d/camera.h>
 #include <ifm3d/fg.h>
 
+// Dummy/minimal image container
+class MyBuff : public ifm3d::ByteBuffer<MyBuff>
+{
+public:
+  MyBuff() : ifm3d::ByteBuffer<MyBuff>()
+  { }
+
+  template <typename T>
+  void ImCreate(ifm3d::image_chunk im,
+                std::uint32_t fmt,
+                std::size_t idx,
+                std::uint32_t width,
+                std::uint32_t height,
+                int nchan,
+                std::uint32_t npts,
+                const std::vector<std::uint8_t>& bytes)
+  { }
+
+  template <typename T>
+  void CloudCreate(std::uint32_t fmt,
+                   std::size_t xidx,
+                   std::size_t yidx,
+                   std::size_t zidx,
+                   std::uint32_t width,
+                   std::uint32_t height,
+                   std::uint32_t npts,
+                   const std::vector<std::uint8_t>& bytes)
+  { }
+};
+
 ifm3d::HzApp::HzApp(int argc, const char **argv,
                     const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
@@ -68,7 +98,7 @@ int ifm3d::HzApp::Run()
   std::vector<double> stats;
 
   auto fg = std::make_shared<ifm3d::FrameGrabber>(this->cam_);
-  auto buff = std::make_shared<ifm3d::ByteBuffer>();
+  auto buff = std::make_shared<ifm3d::ByteBuffer<MyBuff> >();
 
   for (int i = 0; i < nruns; i++)
     {

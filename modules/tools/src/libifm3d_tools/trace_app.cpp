@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <iostream>
 #include <ifm3d/tools/trace_app.h>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/camera/camera.h>
@@ -24,7 +25,7 @@ ifm3d::TraceApp::TraceApp(int argc, const char **argv,
 {
   this->local_opts_.add_options()
     ("limit,l", po::value<int>(),
-     "Limit the amount of trace log messages printed. If not provided all are printed");
+     "Limit the amount of trace log messages printed. (default: all)");
 
   po::store(po::command_line_parser(argc, argv).
             options(this->local_opts_).allow_unregistered().run(), this->vm_);
