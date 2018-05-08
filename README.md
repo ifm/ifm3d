@@ -15,12 +15,12 @@ Current Revision
   </tr>
   <tr>
     <td>0.9.0</td>
-    <td>1.20.1138</td>
-    <td>1.0.126</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
     <td>16.04</td>
     <td>Dropped support for Ubuntu 14.04, moved to C++14, cmake 3.5, removed
     viewer application, PCL is now optional, provides a framework for
-    implementing alternative image containers</td>
+    implementing alternative image containers, ability to set password on camera</td>
   </tr>
 </table>
 
