@@ -20,6 +20,7 @@
   architecture.
 * Initial implementation of an OpenCV-only (i.e., no PCL) image container. This
   is the `opencv` module of the `ifm3d` project.
+* Added a `passwd` subcommand to `ifm3d`
 
 ## Changes between ifm3d 0.8.1 and 0.8.2
 
