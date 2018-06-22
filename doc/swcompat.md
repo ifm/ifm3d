@@ -104,4 +104,11 @@ ifm3d Software Compatibility Matrix
     implementing alternative image containers, ability to set password on
     camera.</td>
   </tr>
+  <tr>
+    <td>0.9.1</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04</td>
+    <td>Removed some additional Boost dependencies</td>
+  </tr>
 </table>
