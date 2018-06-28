@@ -48,12 +48,6 @@ if(WIN32)
       ${OpenCV_DEFINITIONS}
     PRIVATE
       IFM3D_IMAGE_DLL_BUILD=1)
-else()
-  target_compile_definitions(ifm3d_image_shared
-    PUBLIC
-      ${PCL_DEFINITIONS}
-      ${OpenCV_DEFINITIONS}
-    )
 endif(WIN32)
 
 target_compile_options(ifm3d_image_shared
