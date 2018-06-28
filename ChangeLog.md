@@ -1,3 +1,7 @@
+## Changes between ifm3d 0.9.0 and 0.9.2
+
+* Added Support for the Ubuntu 18.04
+
 ## Changes between ifm3d 0.9.0 and 0.9.1
 
 * Removed some additional Boost dependencies
