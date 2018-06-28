@@ -323,7 +323,7 @@ namespace ifm3d
                   const std::vector<std::uint8_t>& bytes)
     {
       static_cast<Derived *>(this)
-        ->ImCreate<T>(im, fmt, idx, width, height, nchan, npts, bytes);
+        ->template ImCreate<T>(im, fmt, idx, width, height, nchan, npts, bytes);
     }
 
     /**
@@ -359,7 +359,7 @@ namespace ifm3d
                      const std::vector<std::uint8_t>& bytes)
     {
       static_cast<Derived *>(this)
-        ->CloudCreate<T>(fmt, xidx, yidx, zidx, width, height, npts, bytes);
+        ->template CloudCreate<T>(fmt, xidx, yidx, zidx, width, height, npts, bytes);
     }
 
     /**
