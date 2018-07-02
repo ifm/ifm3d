@@ -69,7 +69,7 @@ endif()
 
 # Bootstrap gtest
 if(BUILD_TESTS)
-  add_subdirectory(${GTEST_CMAKE_DIR} gtest_bin)
+  add_subdirectory(${GTEST_CMAKE_DIR} gtest_bin EXCLUDE_FROM_ALL)
   add_custom_target(check)
 endif()
 
