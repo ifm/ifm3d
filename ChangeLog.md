@@ -1,3 +1,7 @@
+## Changes between ifm3d 0.9.0 and 0.9.1
+
+* Removed some additional Boost dependencies
+
 ## Changes between ifm3d 0.8.3 and 0.9.0
 
 * Version number handling is now done in the cmake `project` command in the
