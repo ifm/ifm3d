@@ -1,3 +1,8 @@
+## Changes between ifm3d 0.9.2 and 0.9.3
+
+* Added build instructions how to switch between Release and Debug
+  for Windows builds
+
 ## Changes between ifm3d 0.9.1 and 0.9.2
 
 * Added Support for the Ubuntu 18.04
