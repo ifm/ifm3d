@@ -34,6 +34,9 @@ const int IFM3D_UNSUPPORTED_DEVICE = -100011;
 const int IFM3D_UPDATE_ERROR = -1000012;
 const int IFM3D_RECOVERY_CONNECTION_ERROR = -1000013;
 const int IFM3D_PCICCLIENT_UNSUPPORTED_DEVICE = -1000014;
+const int IFM3D_HEADER_VERSION_MISMATCH = -1000015;
+const int IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE = -1000016;
+const int IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE = -1000017;
 
 // sensor errors
 const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
@@ -101,6 +104,10 @@ const char *ifm3d::strerror(int errnum)
       return "Lib: Couldn't connect to the device (make sure the device is in Recovery Mode)";
     case IFM3D_PCICCLIENT_UNSUPPORTED_DEVICE:
       return "Lib: PCICClient is not supported for this device";
+    case IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE:
+      return "Lib: Intrinsic parameter is not supported by Device";
+    case IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE:
+      return "Lib:  Intrinsic parameter is not supported by Firmware";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
       return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:
@@ -157,6 +164,8 @@ const char *ifm3d::strerror(int errnum)
       return "Sensor: Auto-exposure not supported";
     case IFM3D_INVALID_FIRMWARE_VERSION:
       return "Sensor: Invalid firmware version";
+    case IFM3D_HEADER_VERSION_MISMATCH:
+      return "Sensor: Header version mismatch while parsing data";
     default:
       return ::strerror(errnum);
     }
