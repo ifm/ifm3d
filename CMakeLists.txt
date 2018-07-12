@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 cmake_policy(SET CMP0048 NEW)
 # Manage version number here: Major.Minor.Patch (we don't use "tweak")
-project(IFM3D VERSION 0.9.1 LANGUAGES CXX)
+project(IFM3D VERSION 0.9.2 LANGUAGES CXX)
 set(GIT_PROJECT_NAME "ifm3d")
 
 # Make our cmake functions accessible
@@ -69,7 +69,7 @@ endif()
 
 # Bootstrap gtest
 if(BUILD_TESTS)
-  add_subdirectory(${GTEST_CMAKE_DIR} gtest_bin)
+  add_subdirectory(${GTEST_CMAKE_DIR} gtest_bin EXCLUDE_FROM_ALL)
   add_custom_target(check)
 endif()
 
