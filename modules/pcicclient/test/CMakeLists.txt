@@ -23,6 +23,8 @@ add_executable(ifm3d-pcicclient-tests ${TEST_SOURCES})
 target_link_libraries(ifm3d-pcicclient-tests
                       gtest_main
                       ifm3d_pcicclient_shared
+                      ifm3d_camera_shared
+                      ${LIB_glog}
                       )
 
 if(NOT CMAKE_CROSSCOMPILING)

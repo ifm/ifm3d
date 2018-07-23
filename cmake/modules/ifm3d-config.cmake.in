@@ -1,0 +1,48 @@
+# 'camera' component is required
+if(NOT TARGET ifm3d::camera)
+  include("${CMAKE_CURRENT_LIST_DIR}/ifm3d-camera-targets.cmake")
+endif()
+
+option(FORCE_OPENCV3 "Force the build to require OpenCV 3" @FORCE_OPENCV3@)
+option(FORCE_OPENCV2 "Force the build to require OpenCV 2.4" @FORCE_OPENCV2@)
+
+# checking glog 
+find_package(glog QUIET CONFIG NAMES google-glog glog)
+
+if(NOT TARGET ifm3d::camera)
+  set(ifm3d_FOUND False)
+  message(FATAL_ERROR
+    "ifm3d installation is broken, camera targets not found!"
+    )
+else()
+  message(STATUS "ifm3d found component: camera")
+  foreach(_comp ${ifm3d_FIND_COMPONENTS})
+    if(NOT "${_comp}" MATCHES "camera")
+      if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/ifm3d-${_comp}-targets.cmake")
+        if("${_comp}" MATCHES "image")
+          if(FORCE_OPENCV3)
+            find_package(OpenCV 3 REQUIRED COMPONENTS core)
+          elseif(FORCE_OPENCV2)
+            find_package(OpenCV 2.4 REQUIRED COMPONENTS core)
+          else()
+            find_package(OpenCV REQUIRED COMPONENTS core)
+          endif()
+        elseif("${_comp}" MATCHES "opencv")
+          if(FORCE_OPENCV3)
+            find_package(OpenCV 3 REQUIRED COMPONENTS core)
+          elseif(FORCE_OPENCV2)
+            find_package(OpenCV 2.4 REQUIRED COMPONENTS core)
+          else()
+            find_package(OpenCV REQUIRED COMPONENTS core)
+          endif()
+        endif()
+
+        include("${CMAKE_CURRENT_LIST_DIR}/ifm3d-${_comp}-targets.cmake")
+        message(STATUS "ifm3d found component: ${_comp}")
+      else()
+        set(ifm3d_FOUND False)
+        message(WARNING "ifm3d could not find component: ${_comp}")
+      endif()
+    endif()
+  endforeach()
+endif()

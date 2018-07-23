@@ -16,6 +16,8 @@
 
 #include <ifm3d/fg/frame_grabber.h>
 #include <cstdint>
+#include <functional>
+#include <vector>
 #include <ifm3d/camera/camera.h>
 #include <ifm3d/fg/byte_buffer.h>
 #include <frame_grabber_impl.hpp>
@@ -34,13 +36,9 @@ ifm3d::FrameGrabber::SWTrigger()
 }
 
 bool
-ifm3d::FrameGrabber::WaitForFrame(ifm3d::ByteBuffer* buff,
-                                  long timeout_millis,
-                                  bool copy_buff,
-                                  bool organize)
+ifm3d::FrameGrabber::WaitForFrame(
+  long timeout_millis,
+  std::function<void(std::vector<std::uint8_t>&)> set_bytes)
 {
-  return this->pImpl->WaitForFrame(buff,
-                                   timeout_millis,
-                                   copy_buff,
-                                   organize);
+  return this->pImpl->WaitForFrame(timeout_millis, set_bytes);
 }

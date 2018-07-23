@@ -7,8 +7,222 @@
 #include <ifm3d/camera.h>
 #include <ifm3d/fg.h>
 #include <ifm3d/image.h>
+#include <glog/logging.h>
 #include <gtest/gtest.h>
-#include <ifm3d/contrib/json.hpp>
+
+TEST(Image, MoveCtor)
+{
+  LOG(INFO) << "Image.MoveCtor test";
+  auto cam = ifm3d::Camera::MakeShared();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
+  auto im = std::make_shared<ifm3d::ImageBuffer>();
+
+  ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
+
+  cv::Mat amp = im->AmplitudeImage();
+  cv::Mat copy_of_amp = amp.clone();
+
+  auto im2 = std::make_shared<ifm3d::ImageBuffer>(std::move(*(im.get())));
+  cv::Mat amp2 = im2->AmplitudeImage();
+
+  if (cam->IsO3X())
+    {
+      EXPECT_TRUE(copy_of_amp.type() == CV_32F);
+      EXPECT_TRUE(amp2.type() == CV_32F);
+      EXPECT_TRUE(std::equal(copy_of_amp.begin<float>(),
+                             copy_of_amp.end<float>(),
+                             amp2.begin<float>()));
+    }
+  else
+    {
+      EXPECT_TRUE(copy_of_amp.type() == CV_16UC1);
+      EXPECT_TRUE(amp2.type() == CV_16UC1);
+      EXPECT_TRUE(std::equal(copy_of_amp.begin<std::uint16_t>(),
+                             copy_of_amp.end<std::uint16_t>(),
+                             amp2.begin<std::uint16_t>()));
+    }
+}
+
+TEST(Image, MoveAssignmentOperator)
+{
+  LOG(INFO) << "Image.MoveAssignmentOperator test";
+  auto cam = ifm3d::Camera::MakeShared();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
+  auto im = std::make_shared<ifm3d::ImageBuffer>();
+
+  ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
+
+  cv::Mat amp = im->AmplitudeImage();
+  cv::Mat copy_of_amp = amp.clone();
+
+  auto im2 = ifm3d::ImageBuffer();
+  im2 = std::move(*(im.get()));
+
+  cv::Mat amp2 = im2.AmplitudeImage();
+
+  if (cam->IsO3X())
+    {
+      EXPECT_TRUE(copy_of_amp.type() == CV_32F);
+      EXPECT_TRUE(amp2.type() == CV_32F);
+      EXPECT_TRUE(std::equal(copy_of_amp.begin<float>(),
+                             copy_of_amp.end<float>(),
+                             amp2.begin<float>()));
+    }
+  else
+    {
+      EXPECT_TRUE(copy_of_amp.type() == CV_16UC1);
+      EXPECT_TRUE(amp2.type() == CV_16UC1);
+      EXPECT_TRUE(std::equal(copy_of_amp.begin<std::uint16_t>(),
+                             copy_of_amp.end<std::uint16_t>(),
+                             amp2.begin<std::uint16_t>()));
+    }
+}
+
+TEST(Image, CopyCtor)
+{
+  LOG(INFO) << "Image.CopyCtor test";
+  auto cam = ifm3d::Camera::MakeShared();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
+  auto im = std::make_shared<ifm3d::ImageBuffer>();
+
+  ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
+
+  cv::Mat amp = im->AmplitudeImage();
+
+  auto im2 = std::make_shared<ifm3d::ImageBuffer>();
+  cv::Mat amp2 = im2->AmplitudeImage();
+  EXPECT_FALSE((amp.rows * amp.cols) == (amp2.rows * amp2.cols));
+
+  im2 = std::make_shared<ifm3d::ImageBuffer>(*(im.get()));
+  amp2 = im2->AmplitudeImage();
+  EXPECT_TRUE((amp.rows * amp.cols) == (amp2.rows * amp2.cols));
+
+  if (cam->IsO3X())
+    {
+      EXPECT_TRUE(amp.type() == CV_32F);
+      EXPECT_TRUE(amp2.type() == CV_32F);
+      EXPECT_TRUE(std::equal(amp.begin<float>(), amp.end<float>(),
+                             amp2.begin<float>()));
+    }
+  else
+    {
+      EXPECT_TRUE(amp.type() == CV_16UC1);
+      EXPECT_TRUE(amp2.type() == CV_16UC1);
+      EXPECT_TRUE(std::equal(amp.begin<std::uint16_t>(),
+                             amp.end<std::uint16_t>(),
+                             amp2.begin<std::uint16_t>()));
+    }
+
+  amp2 += 1;
+
+  if (cam->IsO3X())
+    {
+      EXPECT_FALSE(std::equal(amp.begin<float>(),
+                              amp.end<float>(),
+                              amp2.begin<float>()));
+    }
+  else
+    {
+      EXPECT_FALSE(std::equal(amp.begin<std::uint16_t>(),
+                              amp.end<std::uint16_t>(),
+                              amp2.begin<std::uint16_t>()));
+    }
+}
+
+TEST(Image, CopyAssignmentOperator)
+{
+  LOG(INFO) << "Image.CopyAssignmentOperator test";
+
+  auto cam = ifm3d::Camera::MakeShared();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
+  auto im = std::make_shared<ifm3d::ImageBuffer>();
+  auto im2 = std::make_shared<ifm3d::ImageBuffer>();
+
+  ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
+
+  *(im2.get()) = *(im.get());
+
+  auto amp = im->AmplitudeImage();
+  auto amp2 = im2->AmplitudeImage();
+
+  if (cam->IsO3X())
+    {
+      EXPECT_TRUE(amp.type() == CV_32F);
+      EXPECT_TRUE(amp2.type() == CV_32F);
+      EXPECT_TRUE(std::equal(amp.begin<float>(),
+                             amp.end<float>(),
+                             amp2.begin<float>()));
+    }
+  else
+    {
+      EXPECT_TRUE(amp.type() == CV_16UC1);
+      EXPECT_TRUE(amp2.type() == CV_16UC1);
+      EXPECT_TRUE(std::equal(amp.begin<std::uint16_t>(),
+                             amp.end<std::uint16_t>(),
+                             amp2.begin<std::uint16_t>()));
+    }
+
+  amp2 += 1;
+
+  if (cam->IsO3X())
+    {
+      EXPECT_FALSE(std::equal(amp.begin<float>(),
+                              amp.end<float>(),
+                              amp2.begin<float>()));
+    }
+  else
+    {
+      EXPECT_FALSE(std::equal(amp.begin<std::uint16_t>(),
+                              amp.end<std::uint16_t>(),
+                              amp2.begin<std::uint16_t>()));
+    }
+}
+
+TEST(Image, References)
+{
+  LOG(INFO) << "Image.References test";
+
+  auto cam = ifm3d::Camera::MakeShared();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
+  auto im = std::make_shared<ifm3d::ImageBuffer>();
+
+  ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
+
+  auto amp1 = im->AmplitudeImage();
+  auto amp2 = im->AmplitudeImage();
+
+  if (cam->IsO3X())
+    {
+      EXPECT_TRUE(amp1.type() == CV_32F);
+      EXPECT_TRUE(amp2.type() == CV_32F);
+      EXPECT_TRUE(std::equal(amp1.begin<float>(),
+                             amp1.end<float>(),
+                             amp2.begin<float>()));
+    }
+  else
+    {
+      EXPECT_TRUE(amp1.type() == CV_16UC1);
+      EXPECT_TRUE(amp2.type() == CV_16UC1);
+      EXPECT_TRUE(std::equal(amp1.begin<std::uint16_t>(),
+                             amp1.end<std::uint16_t>(),
+                             amp2.begin<std::uint16_t>()));
+    }
+
+  amp2 += 1;
+
+  if (cam->IsO3X())
+    {
+      EXPECT_TRUE(std::equal(amp1.begin<float>(),
+                             amp1.end<float>(),
+                             amp2.begin<float>()));
+    }
+  else
+    {
+      EXPECT_TRUE(std::equal(amp1.begin<std::uint16_t>(),
+                             amp1.end<std::uint16_t>(),
+                             amp2.begin<std::uint16_t>()));
+    }
+}
 
 TEST(Image, CloudMechanics)
 {
@@ -23,7 +237,7 @@ TEST(Image, CloudMechanics)
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
   auto im = std::make_shared<ifm3d::ImageBuffer>();
 
-  EXPECT_TRUE(fg->WaitForFrame(im.get(), 1000));
+  ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
 
   pcl::PointCloud<ifm3d::PointT>::Ptr cloud = im->Cloud();
   EXPECT_TRUE(cloud.use_count() == 2);
@@ -52,7 +266,7 @@ TEST(Image, XYZImage)
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
   auto im = std::make_shared<ifm3d::ImageBuffer>();
 
-  EXPECT_TRUE(fg->WaitForFrame(im.get(), 1000));
+  ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
 
   pcl::PointCloud<ifm3d::PointT>::Ptr cloud = im->Cloud();
   cv::Mat xyz = im->XYZImage();
@@ -107,7 +321,7 @@ TEST(Image, ComputeCartesian)
   // 1. Stream in the unit vectors
   //
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, ifm3d::IMG_UVEC);
-  EXPECT_TRUE(fg->WaitForFrame(im.get(), 1000));
+  ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
   cv::Mat uvec = im->UnitVectors();
 
   //
@@ -215,7 +429,7 @@ TEST(Image, ComputeCartesian)
                          z_computed.begin<std::int16_t>(), cmp));
 }
 
-TEST(ImageBuffers_Tests, TimeStamp)
+TEST(Image, TimeStamp)
 {
   std::string json =
     R"(
@@ -275,7 +489,7 @@ TEST(Image, IlluTemp)
     std::make_shared<ifm3d::FrameGrabber>(
       cam, ifm3d::DEFAULT_SCHEMA_MASK | ifm3d::ILLU_TEMP);
 
-  EXPECT_TRUE(fg->WaitForFrame(img.get(), 1000));
+  ASSERT_TRUE(fg->WaitForFrame(img.get(), 1000));
 
   // currently not supported on O3X
   if (cam->IsO3X())

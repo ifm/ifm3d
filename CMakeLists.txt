@@ -1,5 +1,7 @@
-project(IFM3D CXX)
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.5)
+cmake_policy(SET CMP0048 NEW)
+# Manage version number here: Major.Minor.Patch (we don't use "tweak")
+project(IFM3D VERSION 0.9.2 LANGUAGES CXX)
 set(GIT_PROJECT_NAME "ifm3d")
 
 # Make our cmake functions accessible
@@ -12,17 +14,16 @@ include(MacroOutOfSourceBuild)
 macro_ensure_out_of_source_build(
   "Please build ${PROJECT_NAME} out-of-source")
 
-# Library version
-include(ifm3d_version)
-
 # Conditionally turn on/off parts of the build (global-level)
 option(BUILD_TESTS "Build unit tests" ON)
 option(BUILD_MODULE_FRAMEGRABBER "Build the framegrabber module" ON)
 option(BUILD_MODULE_IMAGE "Build the image module" ON)
-option(BUILD_MODULE_PCICCLIENT "Build the pcicclient module" ON)
+option(BUILD_MODULE_OPENCV "Build the OpenCV-only image container" OFF)
+option(BUILD_MODULE_PCICCLIENT "Build the pcicclient module" OFF)
 option(BUILD_MODULE_TOOLS "Build the tools module" ON)
-option(BUILD_MODULE_EXAMPLES "Build the examples module" ON)
 option(BUILD_SDK_PKG "Build install packages for development purposes" ON)
+option(FORCE_OPENCV3 "Force the build to require OpenCV 3" OFF)
+option(FORCE_OPENCV2 "Force the build to require OpenCV 2.4" OFF)
 
 # Installation root
 set(CPACK_SET_DESTDIR true)
@@ -30,27 +31,45 @@ set(CMAKE_INSTALL_PREFIX "/usr" CACHE STRING "CMake install prefix")
 set(CPACK_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
 # Installation paths
-set(_lib       lib CACHE STRING "Basename of the library-directory; usually 'lib' or 'lib64' (on multilib archs)")
-set(_bin       bin CACHE STRING "Basename of the bin-directory; usually 'bin'")
-set(_include   include CACHE STRING "Basename of the include-directory; usually 'include'")
+set(_lib lib CACHE STRING "Basename of the library-directory")
+set(_bin bin CACHE STRING "Basename of the bin-directory")
+set(_include include CACHE STRING "Basename of the include-directory")
 
 # Where to find GTest
 set(GTEST_CMAKE_DIR "/usr/src/gtest" CACHE STRING "GTest cmake project dir")
 
 # Global compiler flags
 set(CMAKE_BUILD_TYPE Release) # Release or Debug
-set(CMAKE_CXX_EXTENSIONS OFF) # OFF -> -std=c++11, ON -> -std=gnu++11
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_EXTENSIONS OFF) # OFF -> -std=c++14, ON -> -std=gnu++14
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 if(WIN32)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+  add_definitions(-DBOOST_ALL_NO_LIB)
 else(WIN32)
-  set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s -std=c++11")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -s")
 endif(WIN32)
+
+# create the cmake-package files
+if(BUILD_SDK_PKG)
+  include(CMakePackageConfigHelpers)
+
+  write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config-version.cmake
+    VERSION ${IFM3D_VERSION}
+    COMPATIBILITY AnyNewerVersion
+    )
+
+  set(CONFIG_PACKAGE_LOCATION ${_lib}/cmake/ifm3d-${IFM3D_VERSION})
+endif()
+
+################################################
+## Start deferring work to the submodules
+################################################
+
 # Bootstrap gtest
 if(BUILD_TESTS)
-  add_subdirectory(${GTEST_CMAKE_DIR} gtest_bin)
+  add_subdirectory(${GTEST_CMAKE_DIR} gtest_bin EXCLUDE_FROM_ALL)
   add_custom_target(check)
 endif()
 
@@ -70,6 +89,10 @@ if(BUILD_MODULE_IMAGE)
   add_definitions(-DBUILD_MODULE_IMAGE=ON)
   add_subdirectory(modules/image)
 endif()
+if(BUILD_MODULE_OPENCV)
+  add_definitions(-DBUILD_MODULE_OPENCV=ON)
+  add_subdirectory(modules/opencv)
+endif()
 if(BUILD_MODULE_PCICCLIENT)
   add_subdirectory(modules/pcicclient)
 endif()
@@ -77,9 +100,26 @@ if(BUILD_MODULE_TOOLS)
   add_subdirectory(modules/tools)
 endif()
 
-if(BUILD_MODULE_EXAMPLES)
-  add_subdirectory(modules/examples)
+################################################
+## Sub-modules are done, finish up the cmake package
+################################################
+if(BUILD_SDK_PKG)
+  configure_package_config_file(
+    ${CMAKE_CURRENT_LIST_DIR}/cmake/modules/ifm3d-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config.cmake
+    INSTALL_DESTINATION ${CONFIG_PACKAGE_LOCATION}
+    )
+
+  # NOTE: we use 'COMPONENT camera' here as it is the one
+  # "required" module in our stack
+  install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config-version.cmake
+          ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config.cmake
+    DESTINATION ${CONFIG_PACKAGE_LOCATION}
+    COMPONENT camera
+    )
 endif()
+
 #################################################
 # Packaging stuff - for now, we build debs only
 #################################################
@@ -124,13 +164,13 @@ endif()
 set(CPACK_DEBIAN_PACKAGE_SECTION Libraries)
 set(CPACK_DEBIAN_PACKAGE_NAME ${GIT_PROJECT_NAME})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "C++ sensor interface to ifm 3D cameras")
-set(CPACK_PACKAGE_VENDOR "Love Park Robotics, LLC")
-set(CPACK_PACKAGE_CONTACT "Tom Panzarella <tom@loveparkrobotics.com>")
+set(CPACK_PACKAGE_VENDOR "ifm robotics")
+set(CPACK_PACKAGE_CONTACT "Tom Panzarella <tom.panzarella@ifm.com>")
 set(CPACK_PACKAGE_VERSION_MAJOR ${IFM3D_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${IFM3D_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${IFM3D_VERSION_PATCH})
 set(CPACK_PACKAGE_FILE_NAME
-    "${GIT_PROJECT_NAME}_${IFM3D_VERSION_STRING}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
+    "${GIT_PROJECT_NAME}_${IFM3D_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
 
 # dynamically create dependencies of the various modules
 #set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON) # <-- Good idea, doesn't work for us

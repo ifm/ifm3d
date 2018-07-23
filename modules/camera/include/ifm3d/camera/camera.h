@@ -23,8 +23,8 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <ifm3d/contrib/json.hpp>
 #include <unordered_map>
+#include <ifm3d/contrib/nlohmann/json.hpp>
 #include <ifm3d/camera/camera_export.h>
 
 using json = nlohmann::json;
@@ -243,7 +243,8 @@ namespace ifm3d
      *
      * @throw ifm3d::error_t upon error
      */
-    virtual void SetTemporaryApplicationParameters(const std::unordered_map<std::string, std::string>& params);
+    virtual void SetTemporaryApplicationParameters(
+      const std::unordered_map<std::string, std::string>& params);
 
     /**
      * Sends a S/W trigger to the camera over XMLRPC.
@@ -516,6 +517,17 @@ namespace ifm3d
      * @see FromJSON
      */
     virtual void FromJSONStr(const std::string& jstr);
+
+	/**
+	* Sets or disable the password on the camera.
+	*
+	* @param[in] password is the password string. If the password is blank, password is
+	* disabled
+	*
+	* @throw ifm3d::error_t upon error
+	*/
+
+	virtual void SetPassword(std::string password = "");
 
   protected:
     class Impl;

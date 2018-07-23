@@ -1,11 +1,41 @@
-<<<<<<< HEAD
-=======
+## Changes between ifm3d 0.9.1 and 0.9.2
+
+* Added Support for the Ubuntu 18.04
+* Added glog support in the cmake config files
+
+## Changes between ifm3d 0.9.0 and 0.9.1
+
+* Removed some additional Boost dependencies
+
+## Changes between ifm3d 0.8.3 and 0.9.0
+
+* Version number handling is now done in the cmake `project` command in the
+  top-level CMakeLists.txt file
+* Dropped support for Ubuntu 14.04
+* Increased cmake requirements to 3.5
+* Increaded compiler requirements to C++14
+* Moved `examples` module into new project
+  [ifm3d-examples](https://github.com/lovepark/ifm3d-examples)
+* Moved `viewer` sub-command out of the ifm3d project. This is to decrease the
+  PCL dependencies (see Issue #42). A new project will be created in support of
+  this viewer application:
+  [ifm3d-pcl-viewer](https://github.com/lovepark/ifm3d-pcl-viewer)
+* Updated JSON parsing library to 3.1.2
+* By default, pcicclient module is now `OFF`.
+* Pixel-parsing framework has been significantly refactored. Sub-system
+  specific docs for image container implementers have been provided in the
+  `doc` folder.
+* Updated the `ImageBuffer` to conform to the new pixel-publishing
+  architecture.
+* Initial implementation of an OpenCV-only (i.e., no PCL) image container. This
+  is the `opencv` module of the `ifm3d` project.
+* Added a `passwd` subcommand to `ifm3d`
+
 ## Changes between ifm3d 0.8.2 and 0.8.3
 
 * Fixed a cmake regression regarding -std=c++11 flags passed to the compiler;
   surfaces on old versions of cmake, i.e., in Ubuntu 14.04
 
->>>>>>> upstream/master
 ## Changes between ifm3d 0.8.1 and 0.8.2
 
 * Patch to windows build

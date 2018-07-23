@@ -12,4 +12,3 @@
 #endif
 
 #endif /* IFM3D_CAMERA_EXPORT_HPP */
-

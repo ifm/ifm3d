@@ -12,4 +12,3 @@
 #endif
 
 #endif /* IFM3D_IMAGE_EXPORT_HPP */
-

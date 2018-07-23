@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
- * Copyright (C) 2017 Love Park Robotics, LLC
+ * Copyright (C) 2018 ifm electronic, gmbh
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,9 @@
  * limitations under the License.
  */
 
-#ifndef __IFM3D_TOOLS_IMAGE_VIEWER_H__
-#define __IFM3D_TOOLS_IMAGE_VIEWER_H__
+#ifndef __IFM3D_OPENCV_H__
+#define __IFM3D_OPENCV_H__
 
-#include <string>
-#include <ifm3d/tools/cmdline_app.h>
+#include <ifm3d/opencv/opencv_buffer.h>
 
-namespace ifm3d
-{
-  /**
-   * Concrete implementation of the `viewer` subcommand to the `ifm3d`
-   * command-line utility.
-   */
-  class ViewerApp : public ifm3d::CmdLineApp
-  {
-  public:
-    ViewerApp(int argc, const char **argv, const std::string& name = "viewer");
-    int Run();
-  };
-
-} // end: namespace ifm3d
-
-#endif // __IFM3D_TOOLS_IMAGE_VIEWER_H__
+#endif // __IFM3D_OPENCV_H__
