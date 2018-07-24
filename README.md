@@ -149,7 +149,7 @@ sudo apt-get update && apt-get install -y libboost-all-dev git jq libcurl4-opens
 libgtest-dev libgoogle-glog-dev libxmlrpc-c++8-dev libopencv-dev libpcl-dev libproj-dev 
 build-essential coreutils cmake
 ```
-Note: The package names may differ in different flavours of Linux. Above apt-get commands 
+Note: The package name may differ in different flavours of Linux. Above apt-get commands 
 are specific to Debian based systems
 
 ### Building From Source
@@ -272,6 +272,7 @@ Additional Resources
 * [Viewing the Point Cloud](https://github.com/lovepark/ifm3d-pcl-viewer)
 * [Implementing your own image container](doc/img_container.md)
 * [ROS](https://github.com/lovepark/ifm3d-ros)
+* [Troubleshoot](doc/troubleshoot.md)
 
 
 Known Issues, Bugs, and our TODO list
