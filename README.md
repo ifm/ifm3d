@@ -140,7 +140,17 @@ dependencies computed for you dynamically (see the note below on the
 
 We note that, if you are running on a supported Linux, all of these packages
 are available through the offical debian repositories and should be a simple
-`apt-get` away from being installed on your machine.
+`apt-get` away from being installed on your machine. 
+
+Use the following steps to install all the library dependencies on Debian based systems
+```
+sudo apt-get update && apt-get -y upgrade
+sudo apt-get update && apt-get install -y libboost-all-dev git jq libcurl4-openssl-dev 
+libgtest-dev libgoogle-glog-dev libxmlrpc-c++8-dev libopencv-dev libpcl-dev libproj-dev 
+build-essential coreutils cmake
+```
+Note: The package names may differ in different flavours of Linux. Above apt-get commands 
+are specific to Debian based systems
 
 ### Building From Source
 
