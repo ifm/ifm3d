@@ -9,8 +9,12 @@ You can use this guide to help you identify and resolve basic problems you may b
 - [ifm3d not found](#ifm3d-not-found)
  
 ## Connecting the camera 
-While connecting to device through ifm3d, if you get following error message 
+While connecting to device through ifm3d e.g.
 ```
+ifm3d ls
+```
+if you get following error message
+``` 
 ifm3d error: -100001
 Lib: XMLRPC Timeout - can you `ping' the sensor? 
 ```
@@ -21,7 +25,11 @@ Following are some guidelines to troubleshoot this issue
 - Provide the device IP address to the ifm3d
    
 ifm3d by default connects to the default IP <"192.168.0.69">, one can also pass the 
-IP through enviornment variable IFM3D_IP and for command line tools through --ip switch
+IP through enviornment variable IFM3D_IP and for command line tools through --ip switch. 
+To get the application list from camera one can use following command 
+```
+ifm3d --ip=192.168.0.69 ls 
+```
 
 - Check if you can ping the camera
 
@@ -32,16 +40,10 @@ check for the physical connections.
 
 Ping to device might not be successfull if you are under proxy network, to resolve this issue one needed to bypass the proxy 
 for the device address. A quick fix is to set the environment variable **no_proxy** to the IP address of the device. 
-if you are working with multiple device it is always good to bypass the required IP's in environment
-config file as shown below
+if you are working with multiple device it is always good to bypass the required IP's in ~/.bashrc file as shown below
  
 ```
-$ sudo vi /etc/environment
-no_proxy="127.0.0.1, localhost,  192.168.0.69, 192.168.0.70, 192.168.1.* " 
-```
-For bash style shell one can also use following 
-```
-$ sudo vi ~/.bashrc
+$ vi ~/.bashrc
 no_proxy="127.0.0.1, localhost,  192.168.0.69, 192.168.0.70, 192.168.1.* " 
 ```
 
