@@ -31,7 +31,7 @@ Make sure that you have installed CMake and Visual Studio 64bit before you move 
 [1.64 for Visual Studio 2017 (MSVC 14.1)](https://dl.bintray.com/boostorg/release/1.64.0/binaries/boost_1_64_0-msvc-14.1-64.exe) or [1.64 for Visual Studio 2015 (MSVC 14.0)](https://dl.bintray.com/boostorg/release/1.64.0/binaries/boost_1_64_0-msvc-14.0-64.exe))
 
 
-Note: Visual Studio 2015 or later is required as older versions don't support all required features of C++11
+Note: Microsoft Visual C++ 2015 / Build Tools 14.0.25123.0 (and possibly later) is required as older versions don't support all required features of C++11. Thanks to the GitHub User [Fibird](https://github.com/Fibird) for the [hint](https://github.com/lovepark/ifm3d/issues/82#issuecomment-408664526).
 
 Note: Only x64 builds are suppported.
 
@@ -47,12 +47,12 @@ image container module.
   </tr>
   <tr>
     <td>Image</td>
-    <td>curl, xmlrpc-c, glog, FLANN, Eigen, VTK, PCL, OpenCV</td>
+    <td>Boost, Curl, Xmlrpc-c, Glog, FLANN, Eigen, VTK, PCL, OpenCV</td>
     <td>By default this module is ON, Use compiler flag -DBUILD_MODULE_IMAGE=OFF/ON to exclude/include from compilation while building the ifm3d</td>
   </tr>
   <tr>
     <td>OpenCV</td>
-    <td>curl, xmlrpc-c, glog, OpenCV</td>
+    <td>Boost, Curl, Xmlrpc-c, Glog, OpenCV</td>
     <td>By default this module is OFF, Use compiler flag -DBUILD_MODULE_IMAGE=ON/OFF to include/exclude from compilation while building the ifm3d</td>
   </tr>
  </table> 
