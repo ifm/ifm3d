@@ -3,6 +3,9 @@ ifm3d
 =====
 Library and utilities for working with ifm pmd-based 3D ToF Cameras.
 
+![Supported by ifm electronic gmbh](doc/images/supported-by-ifm.jpg "Supported by ifm electronic gmbh")
+
+
 Current Revision
 ----------------
 <table>
@@ -14,7 +17,7 @@ Current Revision
     <th>Notes</th>
   </tr>
   <tr>
-    <td>0.9.2</td>
+    <td>0.9.3</td>
     <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522</td>
     <td>1.0.111, 1.0.122, 1.0.126</td>
     <td>16.04,18.04</td>
@@ -140,7 +143,17 @@ dependencies computed for you dynamically (see the note below on the
 
 We note that, if you are running on a supported Linux, all of these packages
 are available through the offical debian repositories and should be a simple
-`apt-get` away from being installed on your machine.
+`apt-get` away from being installed on your machine. 
+
+Use the following steps to install all the library dependencies on Debian based systems
+```
+sudo apt-get update && apt-get -y upgrade
+sudo apt-get update && apt-get install -y libboost-all-dev git jq libcurl4-openssl-dev 
+libgtest-dev libgoogle-glog-dev libxmlrpc-c++8-dev libopencv-dev libpcl-dev libproj-dev 
+build-essential coreutils cmake
+```
+Note: The package name may differ in different flavours of Linux. Above apt-get commands 
+are specific to Debian based systems
 
 ### Building From Source
 
@@ -262,6 +275,7 @@ Additional Resources
 * [Viewing the Point Cloud](https://github.com/lovepark/ifm3d-pcl-viewer)
 * [Implementing your own image container](doc/img_container.md)
 * [ROS](https://github.com/lovepark/ifm3d-ros)
+* [Troubleshoot](doc/troubleshoot.md)
 
 
 Known Issues, Bugs, and our TODO list
@@ -272,3 +286,9 @@ Please see the [Github Issue Tracker](https://github.com/lovepark/ifm3d/issues).
 LICENSE
 -------
 Please see the file called [LICENSE](LICENSE).
+
+DISCLAIMER
+----------
+The author provides all contributions and information to the best of his knowledge, but without assuming any guarantee for their correctness.
+
+Liability for any damage resulting from the use of this information shall be excluded.

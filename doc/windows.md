@@ -31,9 +31,33 @@ Make sure that you have installed CMake and Visual Studio 64bit before you move 
 [1.64 for Visual Studio 2017 (MSVC 14.1)](https://dl.bintray.com/boostorg/release/1.64.0/binaries/boost_1_64_0-msvc-14.1-64.exe) or [1.64 for Visual Studio 2015 (MSVC 14.0)](https://dl.bintray.com/boostorg/release/1.64.0/binaries/boost_1_64_0-msvc-14.0-64.exe))
 
 
-Note: Visual Studio 2015 or later is required as older versions don't support all required features of C++11
+Note: Microsoft Visual C++ 2015 / Build Tools 14.0.25123.0 (and possibly later) is required as older versions don't support all required features of C++11. Thanks to the GitHub User [Fibird](https://github.com/Fibird) for the [hint](https://github.com/lovepark/ifm3d/issues/82#issuecomment-408664526).
 
 Note: Only x64 builds are suppported.
+
+from ifm3d version 0.9.0 library support different [image containers](img_container.md) with which user can extend the library for thier own image type.
+currently ifm3d provides two image conatiners and following table shows the external library dependency for building ifm3d library with corresponding
+image container module. 
+
+<table>
+  <tr>
+    <th>Image Container</th>
+    <th>External Lib dependency</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td>Image</td>
+    <td>Boost, Curl, Xmlrpc-c, Glog, FLANN, Eigen, VTK, PCL, OpenCV</td>
+    <td>By default this module is ON, Use compiler flag -DBUILD_MODULE_IMAGE=OFF/ON to exclude/include from compilation while building the ifm3d</td>
+  </tr>
+  <tr>
+    <td>OpenCV</td>
+    <td>Boost, Curl, Xmlrpc-c, Glog, OpenCV</td>
+    <td>By default this module is OFF, Use compiler flag -DBUILD_MODULE_IMAGE=ON/OFF to include/exclude from compilation while building the ifm3d</td>
+  </tr>
+ </table> 
+ 
+
 
 The following command line examples assume we run from a windows command prompt with CMake and Git in the ``PATH`` variable.
 Depending on your installation you may have to add CMake and Git to your ``PATH`` variable.
@@ -196,7 +220,15 @@ Download:
 cd %IFM3D_BUILD_DIR%
 git clone  https://github.com/lovepark/ifm3d.git
 ```
-
+To build the OpenCV module instead of the PCL use following additional compiler flag 
+```
+-DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_IMAGE=OFF
+```
+some more flags which can be used  
+```
+-D_SCL_SECURE_NO_WARNINGS=ON for Calling any one of the potentially unsafe methods in the Standard C++ Library
+-D_CRT_SECURE_NO_WARNINGS=ON for Calling any one of the potentially unsafe methods in the CRT Library
+```
 Build
 ```
 cd %IFM3D_BUILD_DIR%\ifm3d
@@ -205,7 +237,6 @@ cd build
 cmake -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_SDK_PKG=ON -DBUILD_TESTS=OFF -DCMAKE_PREFIX_PATH="%IFM3D_BUILD_DIR%\install" -DBoost_INCLUDE_DIR="%BOOST_INSTALL_DIR%" -DBOOST_LIBRARYDIR="%BOOST_INSTALL_DIR%/lib64-msvc-%MSVC_MAJOR_VERSION%.%MSVC_MINOR_VERSION%" -DBoost_COMPILER=-vc%MSVC_MAJOR_VERSION%%MSVC_MINOR_VERSION% -DBoost_USE_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE=%CONFIG% -DCMAKE_INSTALL_PREFIX=%IFM3D_BUILD_DIR%\install ..
 cmake --build . --clean-first --config %CONFIG% --target INSTALL
 ```
-
 
 # Running ifm3d tool on Windows.
 After Building ifm3d, the binary files will be installed at ``%IFM3D_BUILD_DIR%\install\bin``. To run the ifm3d tool you need to add this directory to your path. You will also need to add the opencv and boost binary directories to your ``PATH``.
