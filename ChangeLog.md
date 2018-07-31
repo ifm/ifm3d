@@ -2,6 +2,11 @@
 
 * Added build instructions how to switch between Release and Debug
   for Windows builds
+* Added Troubleshoot guide 
+* Added Opencv module build instruction for windows
+* Added minimum MSVC version requirement 
+* Added prerequisite packages list for building ifm3d
+* Added a disclaimer and supported by ifm electronic gmbh logo
 
 ## Changes between ifm3d 0.9.1 and 0.9.2
 
