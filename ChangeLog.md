@@ -6,7 +6,6 @@
 * Added Opencv module build instruction for windows
 * Added minimum MSVC version requirement
 * Added prerequisite packages list for building ifm3d
-* Added a disclaimer and supported by ifm electronic gmbh logo
 * Changed warning message in framegrabber from `WARNING` to `IFM3D_TRACE`
   severity level
 
