@@ -3,9 +3,6 @@ ifm3d
 =====
 Library and utilities for working with ifm pmd-based 3D ToF Cameras.
 
-![Supported by ifm electronic gmbh](doc/images/supported-by-ifm.jpg "Supported by ifm electronic gmbh")
-
-
 Current Revision
 ----------------
 <table>
@@ -290,11 +287,3 @@ Please see the [Github Issue Tracker](https://github.com/lovepark/ifm3d/issues).
 LICENSE
 -------
 Please see the file called [LICENSE](LICENSE).
-
-DISCLAIMER
-----------
-The author provides all contributions and information to the best of his
-knowledge, but without assuming any guarantee for their correctness.
-
-Liability for any damage resulting from the use of this information shall be
-excluded.
