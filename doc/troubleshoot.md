@@ -6,6 +6,7 @@ You can use this guide to help you identify and resolve basic problems you may b
 # Select the troubleshooting options
 
 - [Connecting the camera](#Connecting-the-camera)
+- [Log Level](#Increase-the-log-level)
 - [ifm3d not found](#ifm3d-not-found)
  
 ## Connecting the camera 
@@ -22,13 +23,23 @@ This shows that ifm3d is not able to connect to device on your network.
 
 Following are some guidelines to troubleshoot this issue 
 ##### Provide the device IP address to the ifm3d
-   
-ifm3d by default connects to the default IP <"192.168.0.69">, one can also pass the 
-IP through enviornment variable IFM3D_IP and for command line tools through --ip switch. 
-To get the application list from camera one can use following command 
+
+ifm3d by default connects to the default IP <"192.168.0.69">, one can also pass the
+IP through enviornment variable IFM3D_IP and for command line tools through --ip switch.
+To get the application list from camera one can use following command
 ```
-ifm3d --ip=192.168.0.69 ls 
+ifm3d --ip=192.168.0.69 ls
+IFM3D_IP=192.168.0.69 ifm3d ls
 ```
+
+## Increase the log level
+
+ When running the ifm3d command the logging can be turned up to get more info. For example, if you do
+
+```
+$ IFM3D_VLOG=20 ifm3d config < foo.json
+```
+The log output can be found at ``/tmp/ifm3d.INFO`` There is a file for each log level INFO,WARNING and ERROR.
 
 ##### Check if you can ping the camera
 
