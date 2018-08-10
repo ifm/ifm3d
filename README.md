@@ -14,11 +14,14 @@ Current Revision
     <th>Notes</th>
   </tr>
   <tr>
-    <td>0.9.3</td>
+    <td>0.10.0</td>
     <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522</td>
     <td>1.0.111, 1.0.122, 1.0.126</td>
     <td>16.04,18.04</td>
-    <td>Docs and minor patches</td>
+    <td>
+      Session IDs can be explicitly set and shared across camera
+      instances. Speed improvements to JSON imports.
+    </td>
   </tr>
 </table>
 
