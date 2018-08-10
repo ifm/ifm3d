@@ -36,6 +36,8 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const int DEFAULT_PCIC_PORT;
   extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_PASSWORD;
   extern IFM3D_CAMERA_EXPORT const int MAX_HEARTBEAT;
+  extern IFM3D_CAMERA_EXPORT const std::size_t SESSION_ID_SZ;
+  extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_SESSION_ID;
 
   extern IFM3D_CAMERA_EXPORT const int DEV_O3D_MIN;
   extern IFM3D_CAMERA_EXPORT const int DEV_O3D_MAX;
@@ -192,7 +194,8 @@ namespace ifm3d
      * NOTE: The session timeout is implicitly set to `ifm3d::MAX_HEARTBEAT`
      * after the session has been successfully established.
      *
-     * @return The session id issued by the camera.
+     * @return The session id issued or accepted by the camera (see
+     *         IFM3D_SESSION_ID environment variable)
      *
      * @throws ifm3d::error_t if an error is encountered.
      */
@@ -211,6 +214,15 @@ namespace ifm3d
      * logged.
      */
     virtual bool CancelSession();
+
+    /**
+     * Attempts to cancel a session with a particular session id.
+     *
+     * @return true if the session was cancelled properly, false if an
+     * exception was caught trying to close the session. Details will be
+     * logged.
+     */
+    virtual bool CancelSession(const std::string& sid);
 
     /**
      * Heartbeat messages are used to keep a session with the sensor
@@ -499,6 +511,7 @@ namespace ifm3d
      * @param[in] json A json object encoding a camera configuration to apply
      *                 to the hardware.
      *
+     * @todo This needs to be fully documented!
      * Processing proceeds as follows:
      *
      * - Device parameters are processed and saved persistently
@@ -518,16 +531,15 @@ namespace ifm3d
      */
     virtual void FromJSONStr(const std::string& jstr);
 
-	/**
-	* Sets or disable the password on the camera.
-	*
-	* @param[in] password is the password string. If the password is blank, password is
-	* disabled
-	*
-	* @throw ifm3d::error_t upon error
-	*/
-
-	virtual void SetPassword(std::string password = "");
+    /**
+     * Sets or disable the password on the camera.
+     *
+     * @param[in] password is the password string. If the password is blank,
+     *                     password is disabled
+     *
+     * @throw ifm3d::error_t upon error
+     */
+    virtual void SetPassword(std::string password = "");
 
   protected:
     class Impl;

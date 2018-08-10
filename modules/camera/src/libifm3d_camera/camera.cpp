@@ -41,6 +41,46 @@ const std::string ifm3d::DEFAULT_IP =
   std::getenv("IFM3D_IP") == nullptr ?
   "192.168.0.69" : std::string(std::getenv("IFM3D_IP"));
 const int ifm3d::MAX_HEARTBEAT = 300; // secs
+const std::size_t ifm3d::SESSION_ID_SZ = 32;
+
+auto __ifm3d_session_id__ = []() -> std::string
+{
+  std::string sid;
+
+  try
+    {
+      if (std::getenv("IFM3D_SESSION_ID") == nullptr)
+        {
+          sid = "";
+        }
+      else
+        {
+          sid = std::string(std::getenv("IFM3D_SESSION_ID"));
+          if (! ((sid.size() == ifm3d::SESSION_ID_SZ) &&
+                 (sid.find_first_not_of("0123456789abcdefABCDEF") ==
+                  std::string::npos)))
+            {
+              LOG(WARNING) << "Invalid session id: " << sid;
+              sid = "";
+            }
+          else
+            {
+              LOG(INFO) << "Default session id: " << sid;
+            }
+        }
+    }
+  catch (const std::exception& ex)
+    {
+      LOG(WARNING) << "When trying to set default session id: "
+                   << ex.what();
+
+      sid = "";
+    }
+
+  return sid;
+};
+
+const std::string ifm3d::DEFAULT_SESSION_ID = __ifm3d_session_id__();
 
 const int ifm3d::DEV_O3D_MIN = 1;
 const int ifm3d::DEV_O3D_MAX = 255;
@@ -237,6 +277,12 @@ bool
 ifm3d::Camera::CancelSession()
 {
   return this->pImpl->CancelSession();
+}
+
+bool
+ifm3d::Camera::CancelSession(const std::string& sid)
+{
+  return this->pImpl->CancelSession(sid);
 }
 
 int
