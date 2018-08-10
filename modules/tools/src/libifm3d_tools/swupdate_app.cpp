@@ -133,7 +133,7 @@ int ifm3d::SwupdateApp::Run()
     }
   else if(recovery_reboot)
     {
-    return reboottoProductiveMode();
+    return rebootToProductiveMode();
     }
   else if(file)
     {
@@ -304,7 +304,7 @@ int ifm3d::SwupdateApp::checkRecoveryMode()
   return 0;
   }
 
-int ifm3d::SwupdateApp::reboottoProductiveMode()
+int ifm3d::SwupdateApp::rebootToProductiveMode()
   {
   try
     {
