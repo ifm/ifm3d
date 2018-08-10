@@ -8,7 +8,8 @@
 * Added prerequisite packages list for building ifm3d
 * Changed warning message in framegrabber from `WARNING` to `IFM3D_TRACE`
   severity level
-* Updated swupdate command with --check (recovery mode check) and -r(reboot to productive mode)
+* Updated swupdate command with --check (recovery mode check) and -r (reboot to
+  productive mode)
 
 ## Changes between ifm3d 0.9.1 and 0.9.2
 

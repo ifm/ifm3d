@@ -18,7 +18,7 @@ Current Revision
     <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522</td>
     <td>1.0.111, 1.0.122, 1.0.126</td>
     <td>16.04,18.04</td>
-    <td>Added Support for the Ubuntu 18.04</td>
+    <td>Docs and minor patches</td>
   </tr>
 </table>
 
