@@ -731,7 +731,6 @@ ifm3d::Camera::FromJSON_(const json& j_curr,
       throw ifm3d::error_t(IFM3D_JSON_ERROR);
     }
 
-  this->pImpl->WrapInEditSession (
     [this,&name,idx,&j_curr,&j_new,&SetFunc,&SaveFunc]()
     {
       if (idx > 0)
@@ -807,7 +806,15 @@ ifm3d::Camera::FromJSON_(const json& j_curr,
         {
           SaveFunc();
         }
-    });
+      if(idx > 0)
+        {
+        if(!this->IsO3X())
+          {
+            VLOG(IFM3D_TRACE) << "Stop editing app at idx=" << idx;
+            this->pImpl->StopEditingApplication();
+          }
+        }
+    }();
 }
 
 void
@@ -829,6 +836,11 @@ ifm3d::Camera::FromJSON(const json& j)
   // make the `ifm3d` root element optional
   VLOG(IFM3D_TRACE) << "Extracing root element";
   json root = j.count("ifm3d") ? j["ifm3d"] : j;
+
+  // Ensure we cancle the session when leaving this method
+  ifm3d::ScopeGuard guard([this](){this->CancelSession();});
+  this->pImpl->RequestSession();
+  this->pImpl->SetOperatingMode(ifm3d::Camera::operating_mode::EDIT);
 
   // Device
   json j_dev = root["Device"];
