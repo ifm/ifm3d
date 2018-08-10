@@ -79,7 +79,7 @@ You can also change the GLog log directory with following commad
 ```
 $ GLOG_log_dir=<user log dir path> ifm3d config < foo.json
 ```
-For more help on GLOG visit[*Glog Document*](https://godoc.org/github.com/golang/glog#pkg-files)
+For more help on GLOG visit [**Glog Document**](https://godoc.org/github.com/golang/glog#pkg-files)
 
 ## ifm3d not found 
 This might occur if ifm3d is not installed properly.
