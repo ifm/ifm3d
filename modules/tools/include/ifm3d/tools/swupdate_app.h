@@ -47,12 +47,28 @@ namespace ifm3d
 	   /**
        * Wait until the update process finishes
        */
-	  void waitForUpdateFinish();
+	  void waitForUpdateFinish(int status);
 
 	   /**
        * Reboot the device to production mode
        */
 	  void reboot();
+
+     /**
+       * Checks wether the camera is in recovery mode
+       * returns 0 for recovery mode and
+       *        -1 for production mode
+	   *		-2 for device not connected
+       */
+    int checkRecoveryMode();
+     /**
+       * Reboot device from recovery mode to production mode
+       */
+    int reboottoProductiveMode();
+     /**
+       * upload firmware file to the device
+       */
+    int uploadFiletoDevice();
 
   }; // end: class SwupdateApp
 
