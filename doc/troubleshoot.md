@@ -6,6 +6,7 @@ You can use this guide to help you identify and resolve basic problems you may b
 # Select the troubleshooting options
 
 - [Connecting the camera](#Connecting-the-camera)
+- [ifm3d logging](#ifm3d-logging)
 - [ifm3d not found](#ifm3d-not-found)
  
 ## Connecting the camera 
@@ -22,12 +23,13 @@ This shows that ifm3d is not able to connect to device on your network.
 
 Following are some guidelines to troubleshoot this issue 
 ##### Provide the device IP address to the ifm3d
-   
-ifm3d by default connects to the default IP <"192.168.0.69">, one can also pass the 
-IP through enviornment variable IFM3D_IP and for command line tools through --ip switch. 
-To get the application list from camera one can use following command 
+
+ifm3d by default connects to the default IP <"192.168.0.69">, one can also pass the
+IP through enviornment variable IFM3D_IP and for command line tools through --ip switch.
+To get the application list from camera one can use following command
 ```
-ifm3d --ip=192.168.0.69 ls 
+ifm3d --ip=192.168.0.69 ls
+IFM3D_IP=192.168.0.69 ifm3d ls
 ```
 
 ##### Check if you can ping the camera
@@ -55,6 +57,29 @@ On Linux,use following command
 ```
  $ avahi-browse -arp 2>/dev/null | grep  ^=.*O3D.*Workstation 
 ```
+
+## ifm3d logging 
+This section will help you to understand the different log levels used in ifm3d 
+
+##### ifm3d log levels
+Following are the IFM3D_VLOG levels 
+```
+IFM3D_TRACE = 5  		// ifm3d library logs capturing the flow of the execution, can be used for ifm3d debugging. 
+IFM3D_PROTO_DEBUG = 15  // ifm3d camera protocol logs, used for camera protocol debugging.
+```
+##### Increasing the log levels
+When running the ifm3d command the logging can be turned up to get more info. For example, if you do
+```
+$ IFM3D_VLOG=15 ifm3d config < foo.json
+```
+The log output can be found at ``/tmp/ifm3d.INFO`` There is a file for each log level INFO,WARNING and ERROR.
+
+##### Changing the log directory
+You can also change the GLog log directory with following commad 
+```
+$ GLOG_log_dir=<user log dir path> ifm3d config < foo.json
+```
+For more help on GLOG visit [**Glog Document**](https://godoc.org/github.com/golang/glog#pkg-files)
 
 ## ifm3d not found 
 This might occur if ifm3d is not installed properly.
