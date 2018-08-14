@@ -279,6 +279,7 @@ Additional Resources
 * [Viewing the Point Cloud](https://github.com/lovepark/ifm3d-pcl-viewer)
 * [Implementing your own image container](doc/img_container.md)
 * [ROS](https://github.com/lovepark/ifm3d-ros)
+* [Environment variables](doc/environment.md)
 * [Troubleshoot](doc/troubleshoot.md)
 
 
