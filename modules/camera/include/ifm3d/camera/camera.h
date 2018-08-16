@@ -571,6 +571,16 @@ namespace ifm3d
                    std::function<void()> SaveFunc,
                    const std::string& name,
                    int idx = -1);
+
+    /**
+     *  Implements the Serializes the state of the camera to JSON.
+     *  @param[in] open_session if false function will work
+                   on already opened session
+     *  @return A JSON object representation of the current state of the
+     *         hardware.
+     */
+    json ToJSON_(const bool open_session = true);
+
     /**
      * Checks for a minimum ifm camera software version
      */
