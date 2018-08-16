@@ -42,6 +42,7 @@ const std::string ifm3d::DEFAULT_IP =
   "192.168.0.69" : std::string(std::getenv("IFM3D_IP"));
 const int ifm3d::MAX_HEARTBEAT = 300; // secs
 const std::size_t ifm3d::SESSION_ID_SZ = 32;
+const std::string ifm3d::DEFAULT_APPLICATION_TYPE = "Camera";
 
 auto __ifm3d_session_id__ = []() -> std::string
 {
@@ -899,7 +900,7 @@ ifm3d::Camera::FromJSON(const json& j)
                 {
                   VLOG(IFM3D_TRACE) << "Creating new application";
                   idx = j_app["Type"].is_null() ?
-                    this->pImpl->CreateApplication("Camera") :
+                    this->pImpl->CreateApplication(DEFAULT_APPLICATION_TYPE) :
                     this->pImpl->CreateApplication(j_app["Type"].get<std::string>());
 
                   VLOG(IFM3D_TRACE) << "Created new app, updating our dump";

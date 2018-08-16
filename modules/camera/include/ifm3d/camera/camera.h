@@ -38,6 +38,7 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const int MAX_HEARTBEAT;
   extern IFM3D_CAMERA_EXPORT const std::size_t SESSION_ID_SZ;
   extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_SESSION_ID;
+  extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_APPLICATION_TYPE;
 
   extern IFM3D_CAMERA_EXPORT const int DEV_O3D_MIN;
   extern IFM3D_CAMERA_EXPORT const int DEV_O3D_MAX;
@@ -399,7 +400,8 @@ namespace ifm3d
      *
      * @return The index of the new application.
      */
-    virtual int CreateApplication(const std::string& type = "Camera");
+    virtual int CreateApplication(
+            const std::string& type = DEFAULT_APPLICATION_TYPE);
 
     /**
      * Deletes the application at the specified index from the sensor.
