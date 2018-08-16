@@ -614,7 +614,7 @@ ifm3d::Camera::check_min_ifm_version(unsigned int major,
 }
 
 json
-ifm3d::Camera::ToJSON()
+ifm3d::Camera::ToJSON_(const bool open_session)
 {
   auto t =
     std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -627,8 +627,7 @@ ifm3d::Camera::ToJSON()
   json net_info, app_info;
   json time_info = json::parse("{}");
 
-  this->pImpl->WrapInEditSession(
-    [this,&net_info,&time_info,&app_info,&app_list]()
+  auto exec_toJSON = [this,&net_info,&time_info,&app_info,&app_list]()
     {
       net_info = json(this->pImpl->NetInfo());
       if (this->IsO3X() ||
@@ -681,7 +680,15 @@ ifm3d::Camera::ToJSON()
               this->pImpl->StopEditingApplication();
             }
         }
-    });
+    };
+  if(open_session)
+    {
+        this->pImpl->WrapInEditSession(exec_toJSON);
+    }
+  else
+    {
+        exec_toJSON();
+    }
 
   json j =
     {
@@ -705,6 +712,12 @@ ifm3d::Camera::ToJSON()
     };
 
   return j;
+}
+
+json
+ifm3d::Camera::ToJSON()
+{
+      return ToJSON_();
 }
 
 std::string
@@ -886,11 +899,11 @@ ifm3d::Camera::FromJSON(const json& j)
                 {
                   VLOG(IFM3D_TRACE) << "Creating new application";
                   idx = j_app["Type"].is_null() ?
-                    this->CreateApplication() :
-                    this->CreateApplication(j_app["Type"].get<std::string>());
+                    this->pImpl->CreateApplication("Camera") :
+                    this->pImpl->CreateApplication(j_app["Type"].get<std::string>());
 
                   VLOG(IFM3D_TRACE) << "Created new app, updating our dump";
-                  current = this->ToJSON();
+                  current = this->ToJSON_(false);
                 }
               else
                 {
