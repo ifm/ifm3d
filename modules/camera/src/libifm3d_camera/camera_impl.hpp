@@ -55,12 +55,23 @@ namespace ifm3d
     std::string description;
   };
 
-
-struct ScopeGuard {
-    ScopeGuard(std::function<void()> f) : f(f) {}
-    ~ScopeGuard() { f(); }
-    std::function<void()> f;
-};
+  class ScopeGuard final
+  {
+  public:
+    explicit ScopeGuard(std::function<void()> f) : f_(f)
+      {
+      }
+    ScopeGuard() = delete;
+    ScopeGuard(const ScopeGuard&) = delete;
+    ScopeGuard& operator=(const ScopeGuard&) = delete;
+    ScopeGuard& operator=(ScopeGuard&&) = delete;
+    ~ScopeGuard()
+      {
+          f_();
+      }
+  private:
+    std::function<void()> f_;
+  };
 
   //============================================================
   // Impl interface
