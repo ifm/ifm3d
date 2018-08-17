@@ -55,24 +55,6 @@ namespace ifm3d
     std::string description;
   };
 
-  class ScopeGuard final
-  {
-  public:
-    explicit ScopeGuard(std::function<void()> f) : f_(f)
-      {
-      }
-    ScopeGuard() = delete;
-    ScopeGuard(const ScopeGuard&) = delete;
-    ScopeGuard& operator=(const ScopeGuard&) = delete;
-    ScopeGuard& operator=(ScopeGuard&&) = delete;
-    ~ScopeGuard()
-      {
-          f_();
-      }
-  private:
-    std::function<void()> f_;
-  };
-
   //============================================================
   // Impl interface
   //============================================================
@@ -182,9 +164,6 @@ namespace ifm3d
     T WrapInEditSession(std::function<T()> f)
     {
       T retval;
-      // Ensure we cancle the session when leaving this method
-      ifm3d::ScopeGuard guard([this](){this->CancelSession();});
-
       try
         {
           this->RequestSession();
@@ -194,15 +173,15 @@ namespace ifm3d
       catch (const ifm3d::error_t& ex)
         {
           LOG(ERROR) << ex.what();
+          this->CancelSession();
           throw;
         }
+      this->CancelSession();
       return retval;
     }
 
     void WrapInEditSession(std::function<void()> f)
     {
-      // Ensure we cancle the session when leaving this method
-      ifm3d::ScopeGuard guard([this](){this->CancelSession();});
       try
         {
           this->RequestSession();
@@ -212,8 +191,10 @@ namespace ifm3d
       catch (const ifm3d::error_t& ex)
         {
           LOG(ERROR) << ex.what();
+          this->CancelSession();
           throw;
         }
+        this->CancelSession();
     }
 
   private:
