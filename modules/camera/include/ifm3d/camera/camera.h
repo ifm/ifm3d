@@ -575,11 +575,10 @@ namespace ifm3d
                    int idx = -1);
 
     /**
-     *  Implements the Serializes the state of the camera to JSON.
+     *  Implements the serialization of the camera state to JSON.
      *  @param[in] open_session if false function will work
                    on already opened session
-     *  @return A JSON object representation of the current state of the
-     *         hardware.
+     *  @return A JSON object representation of the current camera state.
      */
     json ToJSON_(const bool open_session = true);
 
