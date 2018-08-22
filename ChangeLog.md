@@ -3,6 +3,8 @@
 * Adds support for setting the `IFM3D_SESSION_ID` environment variable for
   establishing edit sessions with the camera using a known ID.
 * Sessions are now explicitly cancellable if the session ID is known.
+* Some session management optimizations in `FromJSON` which should result in
+  incremental speedups in importing JSON configurations to the camera.
 
 
 ## Changes between ifm3d 0.9.2 and 0.9.3

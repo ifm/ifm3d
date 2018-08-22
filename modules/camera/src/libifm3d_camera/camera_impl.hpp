@@ -164,7 +164,6 @@ namespace ifm3d
     T WrapInEditSession(std::function<T()> f)
     {
       T retval;
-
       try
         {
           this->RequestSession();
@@ -177,7 +176,6 @@ namespace ifm3d
           this->CancelSession();
           throw;
         }
-
       this->CancelSession();
       return retval;
     }
@@ -196,8 +194,7 @@ namespace ifm3d
           this->CancelSession();
           throw;
         }
-
-      this->CancelSession();
+        this->CancelSession();
     }
 
   private:
