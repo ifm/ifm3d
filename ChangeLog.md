@@ -1,5 +1,7 @@
 ## Changes between ifm3d 0.10.0 and 0.11.0
 
+* Added a `jitter` subcommand to ifm3d
+
 ## Changes between ifm3d 0.9.3 and 0.10.0
 
 * Adds support for setting the `IFM3D_SESSION_ID` environment variable for

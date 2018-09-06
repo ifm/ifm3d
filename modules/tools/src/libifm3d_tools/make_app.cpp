@@ -119,6 +119,11 @@ app_factory =
      [](int argc, const char** argv, const std::string& cmd)
      ->ifm3d::CmdLineApp::Ptr
      { return std::make_shared<ifm3d::HzApp>(argc, argv, cmd); }},
+
+    {"jitter",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::JitterApp>(argc, argv, cmd); }},
 #endif
 
     {"version",

@@ -115,7 +115,18 @@ These are common commands used in various situations:
     import      Import an application or whole sensor configuration
                 that is compatible with ifm Vision Assistant's export
                 format.
+      )";
 
+#if defined(BUILD_MODULE_FRAMEGRABBER)
+  help_msg +=
+    R"(
+    jitter      Collects statistics on framegrabber (and optionally, image
+                construction) jitter.
+      )";
+#endif
+
+  help_msg +=
+    R"(
     ls          Lists the applications currently installed on
                 the sensor.
 

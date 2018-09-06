@@ -31,7 +31,7 @@ _ifm3d()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     opts="--help --ip --xmlrpc-port --password"
-    subcmds="app-types config cp dump export imager-types import ls passwd reboot reset rm time trace schema swupdate hz version"
+    subcmds="app-types config cp dump export imager-types import jitter ls passwd reboot reset rm time trace schema swupdate hz version"
 
    case "${prev}" in
        config)
@@ -96,6 +96,11 @@ _ifm3d()
 
        hz)
            COMPREPLY=( $(compgen -W "--nframes --nruns --sw" -- ${cur}) )
+           return 0
+           ;;
+
+       jitter)
+           COMPREPLY=( $(compgen -W "--nframes --outfile" -- ${cur}) )
            return 0
            ;;
 
