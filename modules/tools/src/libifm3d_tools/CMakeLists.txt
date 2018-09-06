@@ -28,11 +28,32 @@ target_include_directories(ifm3d_tools_shared
   PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${IFM3D_TOOLS_BINARY_DIR}/include>
-    $<BUILD_INTERFACE:${IFM3D_FG_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
     ${Boost_INCLUDE_DIRS}
     ${CURL_INCLUDE_DIRS}
     )
+
+if (BUILD_MODULE_FRAMEGRABBER)
+  target_include_directories(ifm3d_tools_shared
+    PUBLIC
+      $<BUILD_INTERFACE:${IFM3D_FG_BINARY_DIR}/include>
+    )
+endif()
+
+if (BUILD_MODULE_IMAGE)
+  target_include_directories(ifm3d_tools_shared
+    PUBLIC
+      $<BUILD_INTERFACE:${IFM3D_IMAGE_BINARY_DIR}/include>
+    )
+endif()
+
+if (BUILD_MODULE_OPENCV)
+  target_include_directories(ifm3d_tools_shared
+    PUBLIC
+      $<BUILD_INTERFACE:${IFM3D_OPENCV_BINARY_DIR}/include>
+    )
+endif()
+
 
 target_compile_options(ifm3d_tools_shared
   PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++${CMAKE_CXX_STANDARD}>
@@ -49,11 +70,31 @@ endif(WIN32)
 target_link_libraries(
   ifm3d_tools_shared
   ifm3d_camera_shared
-  ifm3d_framegrabber_shared
   ${LIB_glog}
   Boost::program_options
   ${CURL_LIBRARIES}
   )
+
+if (BUILD_MODULE_FRAMEGRABBER)
+  target_link_libraries(
+    ifm3d_tools_shared
+    ifm3d_framegrabber_shared
+    )
+endif()
+
+if (BUILD_MODULE_IMAGE)
+  target_link_libraries(
+    ifm3d_tools_shared
+    ifm3d_image_shared
+    )
+endif()
+
+if (BUILD_MODULE_OPENCV)
+  target_link_libraries(
+    ifm3d_tools_shared
+    ifm3d_opencv
+    )
+endif()
 
 set_target_properties(ifm3d_tools_shared PROPERTIES
   VERSION ${IFM3D_VERSION}

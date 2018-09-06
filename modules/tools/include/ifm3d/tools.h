@@ -39,6 +39,7 @@
 #if defined(BUILD_MODULE_FRAMEGRABBER)
 #include <ifm3d/tools/fg/schema_app.h>
 #include <ifm3d/tools/fg/hz_app.h>
+#include <ifm3d/tools/fg/jitter_app.h>
 #endif
 
 #endif // __IFM3D_TOOLS_H__
