@@ -1,0 +1,52 @@
+$ sar -P ALL -u 1 | tee cpu_10_single.txt
+$ $ sar -n DEV 1 | tee net_10_single.txt
+
+----------------------------
+
+[ ~/dev/ifm3d/doc/system ]
+uspanzto@uspanzto20: $ IFM3D_MASK=10 ifm3d jitter --nframes=500
+Capturing frame data for ifm3d::ByteBuffer...
+Mean:   102.488 ms
+Median: 102.997 ms
+Stdev:  0.78304 ms
+Mad:    0.258183 ms
+
+Capturing frame data for ifm3d::ImageBuffer...
+Mean:   102.478 ms
+Median: 102.998 ms
+Stdev:  0.835311 ms
+Mad:    0.297924 ms
+
+Capturing frame data for ifm3d::OpenCVBuffer...
+Mean:   102.516 ms
+Median: 103.031 ms
+Stdev:  0.811081 ms
+Mad:    0.315617 ms
+
+----------------------------
+----------------------------
+
+$ sar -P ALL -u 1 | tee cpu_3_single.txt
+$ sar -n DEV 1 | tee net_3_single.txt
+
+----------------------------
+
+[ ~/dev/ifm3d/doc/system ]
+uspanzto@uspanzto20: $ IFM3D_MASK=3 ifm3d jitter --nframes=500
+Capturing frame data for ifm3d::ByteBuffer...
+Mean:   102.516 ms
+Median: 103.001 ms
+Stdev:  0.61101 ms
+Mad:    0.137833 ms
+
+Capturing frame data for ifm3d::ImageBuffer...
+Mean:   102.472 ms
+Median: 102.988 ms
+Stdev:  0.688318 ms
+Mad:    0.139809 ms
+
+Capturing frame data for ifm3d::OpenCVBuffer...
+Mean:   102.476 ms
+Median: 102.992 ms
+Stdev:  0.790797 ms
+Mad:    0.142117 ms

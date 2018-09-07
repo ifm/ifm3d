@@ -1,0 +1,24 @@
+[ ~/dev/ifm3d/doc/system ]
+uspanzto@uspanzto20: $ cat cpu_10_dual.txt | ./post_process_sar.py > cpu_10_dual.csv
+
+[ ~/dev/ifm3d/doc/system ]
+uspanzto@uspanzto20: $ cat cpu_10_single.txt | ./post_process_sar.py > cpu_10_single.csv
+
+[ ~/dev/ifm3d/doc/system ]
+uspanzto@uspanzto20: $ cat cpu_3_dual.txt | ./post_process_sar.py > cpu_3_dual.csv
+
+[ ~/dev/ifm3d/doc/system ]
+uspanzto@uspanzto20: $ cat cpu_3_single.txt | ./post_process_sar.py > cpu_3_single.csv
+
+[ ~/dev/ifm3d/doc/system ]
+uspanzto@uspanzto20: $ cat net_10_dual.txt | ./post_process_sar.py > net_10_dual.csv
+
+[ ~/dev/ifm3d/doc/system ]
+uspanzto@uspanzto20: $ cat net_10_single.txt | ./post_process_sar.py > net_10_single.csv
+
+[ ~/dev/ifm3d/doc/system ]
+uspanzto@uspanzto20: $ cat net_3_dual.txt | ./post_process_sar.py > net_3_dual.csv
+
+[ ~/dev/ifm3d/doc/system ]
+uspanzto@uspanzto20: $ cat net_3_single.txt | ./post_process_sar.py > net_3_single.csv
+
