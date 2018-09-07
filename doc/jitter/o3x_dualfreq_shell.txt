@@ -1,52 +1,52 @@
 [ ~/dev/ifm3d/doc/jitter ]
-uspanzto@uspanzto20: $ IFM3D_SCHEMA=10 ifm3d hz --nframes=100
-FrameGrabber running at: 6.25131 Hz
+uspanzto@uspanzto20: $ IFM3D_MASK=10 ifm3d hz --nframes=100
+FrameGrabber running at: 6.53846 Hz
 100 frames captured, over 1 runs
 
 [ ~/dev/ifm3d/doc/jitter ]
-uspanzto@uspanzto20: $ IFM3D_SCHEMA=3 ifm3d hz --nframes=100
-FrameGrabber running at: 8.12579 Hz
+uspanzto@uspanzto20: $ IFM3D_MASK=3 ifm3d hz --nframes=100
+FrameGrabber running at: 9.33747 Hz
 100 frames captured, over 1 runs
 
 [ ~/dev/ifm3d/doc/jitter ]
-uspanzto@uspanzto20: $ IFM3D_SCHEMA=10 ifm3d jitter --outfile=o3x_10_dualfreq.csv
+uspanzto@uspanzto20: $ IFM3D_MASK=10 ifm3d jitter --outfile=o3x_10_dualfreq.csv
 Capturing frame data for ifm3d::ByteBuffer...
-Mean:   115.82 ms
-Median: 107.025 ms
-Stdev:  45.8692 ms
-Mad:    5.08638 ms
+Mean:   168.34 ms
+Median: 155.969 ms
+Stdev:  48.3401 ms
+Mad:    6.72388 ms
 
 Capturing frame data for ifm3d::ImageBuffer...
-Mean:   156.95 ms
-Median: 146.929 ms
-Stdev:  61.7167 ms
-Mad:    11.6008 ms
+Mean:   131.96 ms
+Median: 109.219 ms
+Stdev:  78.9582 ms
+Mad:    4.81717 ms
 
 Capturing frame data for ifm3d::OpenCVBuffer...
-Mean:   160.08 ms
-Median: 153.086 ms
-Stdev:  39.5972 ms
-Mad:    7.95448 ms
+Mean:   153.98 ms
+Median: 146.862 ms
+Stdev:  54.0374 ms
+Mad:    10.6415 ms
 Raw data has been written to: o3x_10_dualfreq.csv
 
 [ ~/dev/ifm3d/doc/jitter ]
-uspanzto@uspanzto20: $ IFM3D_SCHEMA=3 ifm3d jitter --outfile=o3x_3_dualfreq.csv
+uspanzto@uspanzto20: $ IFM3D_MASK=3 ifm3d jitter --outfile=o3x_3_dualfreq.csv
+IFM3D_MASK=3 ifm3d jitter --outfile=o3x_3_dualfreq.csv
 Capturing frame data for ifm3d::ByteBuffer...
-Mean:   157.85 ms
-Median: 144.08 ms
-Stdev:  61.9306 ms
-Mad:    9.59409 ms
+Mean:   102.57 ms
+Median: 103.009 ms
+Stdev:  0.857179 ms
+Mad:    0.216187 ms
 
 Capturing frame data for ifm3d::ImageBuffer...
-Mean:   148.16 ms
-Median: 131.436 ms
-Stdev:  74.1527 ms
-Mad:    17.6944 ms
+Mean:   102.55 ms
+Median: 102.98 ms
+Stdev:  0.910114 ms
+Mad:    0.277157 ms
 
 Capturing frame data for ifm3d::OpenCVBuffer...
-Mean:   158.03 ms
-Median: 150.63 ms
-Stdev:  49.4087 ms
-Mad:    6.52549 ms
+Mean:   102.37 ms
+Median: 102.942 ms
+Stdev:  0.946565 ms
+Mad:    0.196693 ms
 Raw data has been written to: o3x_3_dualfreq.csv
-
