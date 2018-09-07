@@ -1,0 +1,92 @@
+{
+  "ifm3d": {
+    "Apps": [
+      {
+        "Description": "",
+        "Id": "1013227023",
+        "Imager": {
+          "AutoExposureMaxExposureTime": "10000",
+          "AutoExposureMaxNumberOfSaturatedPixels": "20",
+          "AutoExposureReferencePointX": "88",
+          "AutoExposureReferencePointY": "66",
+          "AutoExposureReferenceROI": "{\"ROIs\":[{\"id\":0,\"group\":0,\"type\":\"Rect\",\"width\":224,\"height\":172,\"angle\":0,\"center_x\":112,\"center_y\":86}]}",
+          "AutoExposureReferenceType": "0",
+          "ContinuousAutoExposure": "false",
+          "ExposureTime": "550",
+          "ExposureTimeRatio": "50",
+          "FrameRate": "10",
+          "MaxAllowedFrameRate": "10.4166666666667",
+          "MinimumAmplitude": "42",
+          "SpatialFilter": {
+            "MaskSize": "0"
+          },
+          "SpatialFilterType": "1",
+          "SymmetryThreshold": "0.4",
+          "TemporalFilter": {
+            "": ""
+          },
+          "TemporalFilterType": "0",
+          "Type": "upTo03m_moderate"
+        },
+        "Index": "1",
+        "Name": "",
+        "OutputAmplitudeImage": "true",
+        "OutputConfidenceImage": "true",
+        "OutputDistanceImage": "false",
+        "OutputGrayscaleImage": "false",
+        "OutputXYZImage": "true",
+        "TriggerMode": "1",
+        "Type": "Camera"
+      }
+    ],
+    "Device": {
+      "ArticleNumber": "M03457",
+      "ArticleStatus": "AC",
+      "Description": "",
+      "DeviceType": "1:512",
+      "IPAddressConfig": "0",
+      "ImageTimestampReference": "1516803801",
+      "Name": "New sensor",
+      "OperatingMode": "0",
+      "PasswordActivated": "false",
+      "SessionTimeout": "30",
+      "TemperatureIllu": "37.0625",
+      "UpTime": "0.118333333333333"
+    },
+    "Net": {
+      "MACAddress": "00:02:01:40:67:3F",
+      "NetworkSpeed": "0",
+      "StaticIPv4Address": "192.168.0.69",
+      "StaticIPv4Gateway": "192.168.0.201",
+      "StaticIPv4SubNetMask": "255.255.255.0",
+      "UseDHCP": "false"
+    },
+    "Time": {
+      "CurrentTime": "1516803800",
+      "NTPServers": "",
+      "StartingSynchronization": "false",
+      "Stats": "",
+      "SynchronizationActivated": "false",
+      "Syncing": "false",
+      "WaitSyncTries": "1"
+    },
+    "_": {
+      "Date": "Thu Sep  6 09:46:13 2018",
+      "HWInfo": {
+        "MACAddress": "00:02:01:40:67:3F",
+        "Mainboard": "#!02_M162_B30_12345678_008026357",
+        "MiraSerial": "Not implemented"
+      },
+      "SWVersion": {
+        "Algorithm_Version": "0.2.0",
+        "Calibration_Device": "00:02:01:40:67:3f",
+        "Calibration_Version": "1.0.0",
+        "ELDK": "GOLDENEYE_YOCTO_HARDFP-371-06d9c894636352a6c93711c7284d02b0c794a527",
+        "IFM_Software": "1.0.126",
+        "Linux": "Linux version 3.14.34-rt31-yocto-standard-00029-gdf05c54-dirty (jenkins@dettlx152) (gcc version 4.9.2 (GCC) ) #1 SMP PREEMPT RT Wed Jan 24 13:40:11 CET 2018",
+        "Main_Application": "0.4.1483"
+      },
+      "ifm3d_version": 1100
+    }
+  }
+}
