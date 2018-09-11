@@ -26,6 +26,7 @@
 #include <ratio>
 #include <string>
 #include <tuple>
+#include <type_traits>
 #include <vector>
 #include <boost/program_options.hpp>
 #include <ifm3d/tools/cmdline_app.h>
@@ -39,6 +40,12 @@
 #if defined(BUILD_MODULE_OPENCV)
 #include <ifm3d/opencv.h>
 #endif
+
+// Make sure we use a steady_clock -- prefer the high_resolution_clock
+// on platforms where it is steady.
+using Clock_t = std::conditional<std::chrono::high_resolution_clock::is_steady,
+                                 std::chrono::high_resolution_clock,
+                                 std::chrono::steady_clock>::type;
 
 // Dummy/minimal image container -- used for testing jitter in
 // recieving bytes but not constructing any image containers
@@ -168,13 +175,13 @@ void capture_frames(ifm3d::Camera::Ptr cam, T buff, std::vector<float>& results)
 
   for (int i = 0; i < nframes; ++i)
     {
-      auto t1 = std::chrono::high_resolution_clock::now();
+      auto t1 = Clock_t::now();
       if (! fg->WaitForFrame(buff.get(), 1000))
         {
           std::cerr << "Timeout waiting for image acquisition!" << std::endl;
           return;
         }
-      auto t2 = std::chrono::high_resolution_clock::now();
+      auto t2 = Clock_t::now();
 
       std::chrono::duration<float, std::milli> fp_ms = t2 - t1;
       results[i] = fp_ms.count();
@@ -195,7 +202,6 @@ int ifm3d::JitterApp::Run()
   int nframes = this->vm_["nframes"].as<int>();
   nframes = nframes <= 0 ? 100 : nframes;
   std::string outfile = this->vm_["outfile"].as<std::string>();
-
 
   //
   // capture data for computing jitter statistics
