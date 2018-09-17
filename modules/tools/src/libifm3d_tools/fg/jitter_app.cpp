@@ -137,7 +137,7 @@ std::tuple<T, T> mean_stdev(const std::vector<T>& arr)
 
   T ssd = 0;
   std::for_each(arr.begin(), arr.end(),
-                [&](const T val) -> T
+                [&](const T val) -> void
                 { ssd += ((val - mean) * (val - mean)); });
 
   T stdev = std::sqrt(ssd / (arr.size()-1));
