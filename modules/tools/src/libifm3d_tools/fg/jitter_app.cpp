@@ -23,6 +23,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <numeric>
 #include <ratio>
 #include <string>
 #include <tuple>
@@ -132,7 +133,7 @@ std::tuple<T, T> mean_stdev(const std::vector<T>& arr)
       return std::make_tuple(0, 0);
     }
 
-  T sum = std::accumulate(arr.begin(), arr.end(), 0);
+  T sum = std::accumulate(arr.begin(), arr.end(), 0.f);
   T mean = sum / arr.size();
 
   T ssd = 0;
