@@ -214,6 +214,13 @@ cmake -A x64 -DWITH_CUDA=OFF -DWITH_EIGEN=ON -DWITH_IPP=ON -DWITH_JASPTER=ON -DW
 cmake --build . --clean-first --config %CONFIG% --target INSTALL
 ```
 
+### [gtest](https://github.com/google/googletest.git)
+Download:
+```
+cd %IFM3D_BUILD_DIR%
+git clone --branch release-1.8.1 https://github.com/google/googletest.git
+```
+
 ## Building ifm3d
 Download:
 ```
@@ -234,7 +241,12 @@ Build
 cd %IFM3D_BUILD_DIR%\ifm3d
 mkdir build
 cd build
-cmake -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_SDK_PKG=ON -DBUILD_TESTS=OFF -DCMAKE_PREFIX_PATH="%IFM3D_BUILD_DIR%\install" -DBoost_INCLUDE_DIR="%BOOST_INSTALL_DIR%" -DBOOST_LIBRARYDIR="%BOOST_INSTALL_DIR%/lib64-msvc-%MSVC_MAJOR_VERSION%.%MSVC_MINOR_VERSION%" -DBoost_COMPILER=-vc%MSVC_MAJOR_VERSION%%MSVC_MINOR_VERSION% -DBoost_USE_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE=%CONFIG% -DCMAKE_INSTALL_PREFIX=%IFM3D_BUILD_DIR%\install ..
+cmake -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_SDK_PKG=ON -DGTEST_CMAKE_DIR=%IFM3D_BUILD_DIR%\googletest\googletest -Dgtest_force_shared_crt=TRUE -DCMAKE_PREFIX_PATH="%IFM3D_BUILD_DIR%\install" -DBoost_INCLUDE_DIR="%BOOST_INSTALL_DIR%" -DBOOST_LIBRARYDIR="%BOOST_INSTALL_DIR%/lib64-msvc-%MSVC_MAJOR_VERSION%.%MSVC_MINOR_VERSION%" -DBoost_COMPILER=-vc%MSVC_MAJOR_VERSION%%MSVC_MINOR_VERSION% -DBoost_USE_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE=%CONFIG% -DCMAKE_INSTALL_PREFIX=%IFM3D_BUILD_DIR%\install ..
+
+#run tests
+cmake --build . --config %CONFIG% --target check
+
+#install
 cmake --build . --clean-first --config %CONFIG% --target INSTALL
 ```
 
