@@ -539,6 +539,15 @@ ifm3d::Camera::SetCurrentTime(int epoch_secs)
     [this,epoch_secs]() { this->pImpl->SetCurrentTime(epoch_secs); });
 }
 
+void
+ifm3d::Camera::RenewNTP()
+{
+  this->pImpl->WrapInEditSession([this]()
+    {
+      this->pImpl->SaveTime();
+    });
+}
+
 std::vector<std::uint8_t>
 ifm3d::Camera::ExportIFMConfig()
 {

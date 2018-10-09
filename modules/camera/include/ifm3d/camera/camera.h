@@ -421,6 +421,11 @@ namespace ifm3d
     virtual void SetCurrentTime(int epoch_secs = -1);
 
     /**
+     * Ask the device to retry to sync time with configured ntp servers
+     */
+    virtual void RenewNTP();
+
+    /**
      * Sets the camera configuration back to the state in which it shipped from
      * the ifm factory.
      */
