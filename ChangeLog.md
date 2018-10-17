@@ -1,6 +1,7 @@
 ## Changes between ifm3d 0.10.0 and 0.11.0
 
 * Added a `jitter` subcommand to ifm3d
+* Added support to retrieve the intrinsic parameters from O3D3xx cameras
 
 ## Changes between ifm3d 0.9.3 and 0.10.0
 
