@@ -29,6 +29,7 @@ const std::uint16_t ifm3d::IMG_UVEC  = 16;  // 2**4
 const std::uint16_t ifm3d::EXP_TIME  = 32;  // 2**5
 const std::uint16_t ifm3d::IMG_GRAY  = 64;  // 2**6
 const std::uint16_t ifm3d::ILLU_TEMP = 128; // 2**7
+const std::uint16_t ifm3d::INTR_CAL  = 256; // 2**8
 
 auto __ifm3d_schema_mask__ = []()->std::uint16_t
   {
@@ -190,7 +191,13 @@ ifm3d::make_schema(std::uint16_t mask)
       R"(,
            {"type":"blob", "id":"all_unit_vector_matrices"})";
     }
-
+  // intrinsic calibration
+  if ((mask & ifm3d::INTR_CAL) == ifm3d::INTR_CAL)
+    {
+      schema +=
+      R"(,
+           {"type":"blob", "id":"intrinsic_calibration"})";
+    }
   // confidence_image and extrinsics are invariant
   schema +=
     R"(,
@@ -277,6 +284,10 @@ ifm3d::schema_mask_from_string(const std::string& in)
       else if (part == "ILLU_TEMP")
         {
           mask |= ifm3d::ILLU_TEMP;
+        }
+      else if (part == "INTR_CAL")
+        {
+          mask |= ifm3d::INTR_CAL;
         }
     }
 
