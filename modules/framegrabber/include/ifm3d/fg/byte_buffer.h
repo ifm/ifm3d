@@ -34,6 +34,8 @@ namespace ifm3d
 
   extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t IMG_TICKET_SZ; // bytes
   extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t IMG_BUFF_START;
+  extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t NUM_EXTRINSIC_PARAM;
+  extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t NUM_INTRINSIC_PARAM;
 
   enum class pixel_format : std::uint32_t
   {
@@ -63,7 +65,39 @@ namespace ifm3d
     UNIT_VECTOR_ALL = 223,
     CONFIDENCE = 300,
     DIAGNOSTIC_DATA = 302,
-    EXTRINSIC_CALIBRATION = 400
+    EXTRINSIC_CALIBRATION = 400,
+    INTRINSIC_CALIBRATION = 401
+  };
+  // intrinsic param key which cahn be used for indexing the vector of the
+  // intrinsic parameter
+  enum class intrinsic_param : std::uint32_t
+  {
+    F_X = 0,    //Focal length of the camera in the sensor's x axis direction.
+    F_Y = 1,    //Focal length of the camera in the sensor's y axis direction.
+    M_X = 2,    //Main point in the sensor's x direction
+    M_Y = 3,    //Main point in the sensor's x direction
+    ALPHA = 4,  //Skew parameter
+    K1 = 5,   //First radial distortion coefficient
+    K2 = 6,   //Second radial distortion coefficient
+    K5 = 7,   //Third radial distortion coefficient
+    K3 = 8,   //First tangential distortion coefficient
+    K4 = 9,   //Second tangential distortion coefficient
+    TRANS_X = 10, //Translation along x-direction in meters.
+    TRANS_Y = 11, //Translation along y-direction in meters.
+    TRANS_Z = 12, //Translation along Z-direction in meters.
+    ROT_X = 13, //Rotation along x-axis in radians. Positive values indicate clockwise rotation.
+    ROT_Y = 14, //Rotation along y-axis in radians. Positive values indicate clockwise rotation.
+    ROT_Z = 15  //Rotation along z-axis in radians. Positive values indicate clockwise rotation.
+  };
+
+  enum class extrinsic_param : std::uint32_t
+  {
+    TRANS_X = 0,  //Translation along x-direction in meters.
+    TRANS_Y = 1,  //Translation along y-direction in meters.
+    TRANS_Z = 2,  //Translation along Z-direction in meters.
+    ROT_X = 3,  //Rotation along x-axis in radians. Positive values indicate clockwise rotation.
+    ROT_Y = 4,  //Rotation along y-axis in radians. Positive values indicate clockwise rotation.
+    ROT_Z = 5   //Rotation along z-axis in radians. Positive values indicate clockwise rotation.
   };
 
   /**
@@ -248,6 +282,33 @@ namespace ifm3d
     std::vector<float> Extrinsics();
 
     /**
+     *  Returns a 16-element vector containing the intrinsic
+     * calibration of the camera.
+     *
+     * The elements are:
+     *
+     * Name  Data type   Unit      Description
+     * fx    32 bit float  px        Focal length of the camera in the sensor's x axis direction.
+     * fy    32 bit float  px        Focal length of the camera in the sensor's y axis direction.
+     * mx    32 bit float  px        Main point in the sensor's x direction
+     * my    32 bit float  px        Main point in the sensor's y direction
+     * alpha 32 bit float  dimensionless Skew parameter
+     * k1    32 bit float  dimensionless First radial distortion coefficient
+     * k2    32 bit float  dimensionless Second radial distortion coefficient
+     * k5    32 bit float  dimensionless Third radial distortion coefficient
+     * k3    32 bit float  dimensionless First tangential distortion coefficient
+     * k4    32 bit float  dimensionless Second tangential distortion coefficient
+     * transX  32 bit float  mm        Translation along x-direction in meters.
+     * transY  32 bit float  mm        Translation along y-direction in meters.
+     * transZ  32 bit float  mm        Translation along z-direction in meters.
+     * rotX  32 bit float  degree        Rotation along x-axis in radians. Positive values indicate clockwise rotation.
+     * rotY  32 bit float  degree        Rotation along y-axis in radians. Positive values indicate clockwise rotation.
+     * rotZ  32 bit float  degree        Rotation along z-axis in radians. Positive values indicate clockwise rotation.
+     *
+     */
+    std::vector<float> Intrinsics();
+
+    /**
      * Returns a 3-element vector containing the exposure times (usec) for the
      * current frame. Unused exposure times are reported as 0.
      *
@@ -388,6 +449,12 @@ namespace ifm3d
     std::vector<float> extrinsics_;
 
     /**
+     * Intrinsic calibration WRT camera lense:
+     * parameter are stored in String in JSon parameter
+     */
+    std::vector<float> intrinsics_;
+
+    /**
      * Exposure time(s) (up to 3), registered to the current frame.
      */
     std::vector<std::uint32_t> exposure_times_;
@@ -403,6 +470,11 @@ namespace ifm3d
      */
     float illu_temp_;
 
+  private:
+    /**
+     * flag for checking if intrinsic values are already available
+     */
+    bool intrinsic_available;
   }; // end: class ByteBuffer
 
 } // end: namespace ifm3d
