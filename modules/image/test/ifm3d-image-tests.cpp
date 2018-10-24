@@ -320,7 +320,9 @@ TEST(Image, ComputeCartesian)
   //
   // 1. Stream in the unit vectors
   //
-  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, ifm3d::IMG_UVEC);
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, ifm3d::IMG_UVEC|
+													   ifm3d::IMG_RDIS|
+													   ifm3d::IMG_CART);
   ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
   cv::Mat uvec = im->UnitVectors();
 
@@ -328,12 +330,10 @@ TEST(Image, ComputeCartesian)
   // 2. Now we stream in both the radial distance image and the cartesian
   // data. The latter we simply use as ground truth
   //
-  fg.reset();
-  fg = std::make_shared<ifm3d::FrameGrabber>(
-         cam, ifm3d::IMG_RDIS|ifm3d::IMG_CART);
-  EXPECT_TRUE(fg->WaitForFrame(im.get(), 1000));
   cv::Mat rdis = im->DistanceImage();
   cv::Mat xyz = im->XYZImage(); // ground truth
+  cv::Mat confidence = im->ConfidenceImage(); 
+  confidence = (confidence & 0x01) ^ 1;  // all valid pixel will be 1
 
   std::vector<cv::Mat> chans(3);
   cv::split(xyz, chans);
@@ -390,14 +390,20 @@ TEST(Image, ComputeCartesian)
   cv::Mat x_ = ex.mul(rdis_f) + tx;
   cv::Mat y_ = ey.mul(rdis_f) + ty;
   cv::Mat z_ = ez.mul(rdis_f) + tz;
+ 
+  // masking for valid pixel 
+  cv::Mat maskx_, masky_,maskz_; 
+  x_.copyTo(maskx_,confidence);
+  y_.copyTo(masky_,confidence);
+  z_.copyTo(maskz_,confidence);
 
   //
   // 4. Cast (back) to int16 and transform to ifm3d coord frame
   //
   cv::Mat x_i, y_i, z_i;
-  x_.convertTo(x_i, CV_16SC1);
-  y_.convertTo(y_i, CV_16SC1);
-  z_.convertTo(z_i, CV_16SC1);
+  maskx_.convertTo(x_i, CV_16SC1);
+  masky_.convertTo(y_i, CV_16SC1);
+  maskz_.convertTo(z_i, CV_16SC1);
 
   cv::Mat x_computed = z_i;
   cv::Mat y_computed = -x_i;
