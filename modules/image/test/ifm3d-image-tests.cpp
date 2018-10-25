@@ -332,7 +332,7 @@ TEST(Image, ComputeCartesian)
   //
   cv::Mat rdis = im->DistanceImage();
   cv::Mat xyz = im->XYZImage(); // ground truth
-  cv::Mat confidence = im->ConfidenceImage(); 
+  cv::Mat confidence = im->ConfidenceImage();
   confidence = (confidence & 0x01) ^ 1;  // all valid pixel will be 1
 
   std::vector<cv::Mat> chans(3);
@@ -387,28 +387,21 @@ TEST(Image, ComputeCartesian)
     }
 
   // compute
-  cv::Mat x_ = ex.mul(rdis_f) + tx;
-  cv::Mat y_ = ey.mul(rdis_f) + ty;
-  cv::Mat z_ = ez.mul(rdis_f) + tz;
- 
-  // masking for valid pixel 
-  cv::Mat maskx_, masky_,maskz_; 
-  x_.copyTo(maskx_,confidence);
-  y_.copyTo(masky_,confidence);
-  z_.copyTo(maskz_,confidence);
+  std::array<cv::Mat,3> computed = {{
+      ez.mul(rdis_f) + tz,
+      -(ex.mul(rdis_f) + tx),
+      -(ey.mul(rdis_f) + ty),
+  }};
 
-  //
-  // 4. Cast (back) to int16 and transform to ifm3d coord frame
-  //
-  cv::Mat x_i, y_i, z_i;
-  maskx_.convertTo(x_i, CV_16SC1);
-  masky_.convertTo(y_i, CV_16SC1);
-  maskz_.convertTo(z_i, CV_16SC1);
-
-  cv::Mat x_computed = z_i;
-  cv::Mat y_computed = -x_i;
-  cv::Mat z_computed = -y_i;
-
+  std::for_each(computed.begin(), computed.end(),
+          [&confidence](cv::Mat& elem)
+          {
+            cv::Mat masked;
+            // Only take valid Pixel into account
+            elem.copyTo(masked, confidence);
+            // 4. Cast (back) to int16 and transform to ifm3d coord frame
+            masked.convertTo(elem, CV_16SC1);
+          });
   //
   // 5. Compare for correctness
   //
@@ -421,18 +414,17 @@ TEST(Image, ComputeCartesian)
 
       return false;
     };
-
   EXPECT_TRUE(std::equal(x_cam.begin<std::int16_t>(),
                          x_cam.end<std::int16_t>(),
-                         x_computed.begin<std::int16_t>(), cmp));
+                         computed[0].begin<std::int16_t>(), cmp));
 
   EXPECT_TRUE(std::equal(y_cam.begin<std::int16_t>(),
                          y_cam.end<std::int16_t>(),
-                         y_computed.begin<std::int16_t>(), cmp));
+                         computed[1].begin<std::int16_t>(), cmp));
 
   EXPECT_TRUE(std::equal(z_cam.begin<std::int16_t>(),
                          z_cam.end<std::int16_t>(),
-                         z_computed.begin<std::int16_t>(), cmp));
+                         computed[2].begin<std::int16_t>(), cmp));
 }
 
 TEST(Image, TimeStamp)
