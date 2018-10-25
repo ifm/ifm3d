@@ -1,5 +1,8 @@
 ## Changes between ifm3d 0.11.0 and 0.12.0
 
+* Bugfix for #103 ``header is not in the correct format`` when ``make check`` is
+  executed against FW 1.6.2114
+
 ## Changes between ifm3d 0.10.0 and 0.11.0
 
 * Added a `jitter` subcommand to ifm3d
