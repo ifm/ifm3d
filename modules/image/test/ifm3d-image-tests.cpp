@@ -318,7 +318,9 @@ TEST(Image, ComputeCartesian)
   auto im = std::make_shared<ifm3d::ImageBuffer>();
 
   //
-  // 1. Stream in the unit vectors
+  // 1. Stream in the unit vectors and both the radial distance
+  // image and the cartesian data.
+  // The latter we simply use as ground truth
   //
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, ifm3d::IMG_UVEC|
                              ifm3d::IMG_RDIS|
@@ -326,10 +328,6 @@ TEST(Image, ComputeCartesian)
   ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
   cv::Mat uvec = im->UnitVectors();
 
-  //
-  // 2. Now we stream in both the radial distance image and the cartesian
-  // data. The latter we simply use as ground truth
-  //
   cv::Mat rdis = im->DistanceImage();
   cv::Mat xyz = im->XYZImage(); // ground truth
   cv::Mat confidence = im->ConfidenceImage();
@@ -367,7 +365,7 @@ TEST(Image, ComputeCartesian)
   float tz = extrinsics[2];
 
   //
-  // 3. Compute the cartesian data
+  // 2. Compute the cartesian data
   //
 
   // unit vectors
@@ -386,7 +384,7 @@ TEST(Image, ComputeCartesian)
       rdis_f *= 1000.;
     }
 
-  // compute
+  // compute and transform to ifm3d coord frame
   std::array<cv::Mat,3> computed = {{
       ez.mul(rdis_f) + tz,
       -(ex.mul(rdis_f) + tx),
@@ -399,11 +397,11 @@ TEST(Image, ComputeCartesian)
             cv::Mat masked;
             // Only take valid Pixel into account
             elem.copyTo(masked, confidence);
-            // 4. Cast (back) to int16 and transform to ifm3d coord frame
+            // 3. Cast (back) to int16
             masked.convertTo(elem, CV_16SC1);
           });
   //
-  // 5. Compare for correctness
+  // 4. Compare for correctness
   //
   auto cmp = [](std::int16_t a, std::int16_t b) -> bool
     {
