@@ -321,8 +321,8 @@ TEST(Image, ComputeCartesian)
   // 1. Stream in the unit vectors
   //
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, ifm3d::IMG_UVEC|
-													   ifm3d::IMG_RDIS|
-													   ifm3d::IMG_CART);
+                             ifm3d::IMG_RDIS|
+                             ifm3d::IMG_CART);
   ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
   cv::Mat uvec = im->UnitVectors();
 
