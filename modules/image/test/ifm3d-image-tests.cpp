@@ -330,8 +330,8 @@ TEST(Image, ComputeCartesian)
 
   cv::Mat rdis = im->DistanceImage();
   cv::Mat xyz = im->XYZImage(); // ground truth
-  cv::Mat confidence = im->ConfidenceImage();
-  confidence = (confidence & 0x01) ^ 1;  // all valid pixel will be 1
+  // all valid pixel will be 1
+  const cv::Mat confidence_mask = (cv::Mat(im->ConfidenceImage()) & 0x01) ^ 1;
 
   std::vector<cv::Mat> chans(3);
   cv::split(xyz, chans);
@@ -392,11 +392,11 @@ TEST(Image, ComputeCartesian)
   }};
 
   std::for_each(computed.begin(), computed.end(),
-          [&confidence](cv::Mat& elem)
+          [&confidence_mask](cv::Mat& elem)
           {
             cv::Mat masked;
             // Only take valid Pixel into account
-            elem.copyTo(masked, confidence);
+            elem.copyTo(masked, confidence_mask);
             // 3. Cast (back) to int16
             masked.convertTo(elem, CV_16SC1);
           });
