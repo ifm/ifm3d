@@ -318,22 +318,20 @@ TEST(Image, ComputeCartesian)
   auto im = std::make_shared<ifm3d::ImageBuffer>();
 
   //
-  // 1. Stream in the unit vectors
+  // 1. Stream in the unit vectors and both the radial distance
+  // image and the cartesian data.
+  // The latter we simply use as ground truth
   //
-  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, ifm3d::IMG_UVEC);
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, ifm3d::IMG_UVEC|
+                             ifm3d::IMG_RDIS|
+                             ifm3d::IMG_CART);
   ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
   cv::Mat uvec = im->UnitVectors();
 
-  //
-  // 2. Now we stream in both the radial distance image and the cartesian
-  // data. The latter we simply use as ground truth
-  //
-  fg.reset();
-  fg = std::make_shared<ifm3d::FrameGrabber>(
-         cam, ifm3d::IMG_RDIS|ifm3d::IMG_CART);
-  EXPECT_TRUE(fg->WaitForFrame(im.get(), 1000));
   cv::Mat rdis = im->DistanceImage();
   cv::Mat xyz = im->XYZImage(); // ground truth
+  // all valid pixel will be 1
+  const cv::Mat confidence_mask = (cv::Mat(im->ConfidenceImage()) & 0x01) ^ 1;
 
   std::vector<cv::Mat> chans(3);
   cv::split(xyz, chans);
@@ -367,7 +365,7 @@ TEST(Image, ComputeCartesian)
   float tz = extrinsics[2];
 
   //
-  // 3. Compute the cartesian data
+  // 2. Compute the cartesian data
   //
 
   // unit vectors
@@ -386,25 +384,24 @@ TEST(Image, ComputeCartesian)
       rdis_f *= 1000.;
     }
 
-  // compute
-  cv::Mat x_ = ex.mul(rdis_f) + tx;
-  cv::Mat y_ = ey.mul(rdis_f) + ty;
-  cv::Mat z_ = ez.mul(rdis_f) + tz;
+  // compute and transform to ifm3d coord frame
+  std::array<cv::Mat,3> computed = {{
+      ez.mul(rdis_f) + tz,
+      -(ex.mul(rdis_f) + tx),
+      -(ey.mul(rdis_f) + ty),
+  }};
 
+  std::for_each(computed.begin(), computed.end(),
+          [&confidence_mask](cv::Mat& elem)
+          {
+            cv::Mat masked;
+            // Only take valid Pixel into account
+            elem.copyTo(masked, confidence_mask);
+            // 3. Cast (back) to int16
+            masked.convertTo(elem, CV_16SC1);
+          });
   //
-  // 4. Cast (back) to int16 and transform to ifm3d coord frame
-  //
-  cv::Mat x_i, y_i, z_i;
-  x_.convertTo(x_i, CV_16SC1);
-  y_.convertTo(y_i, CV_16SC1);
-  z_.convertTo(z_i, CV_16SC1);
-
-  cv::Mat x_computed = z_i;
-  cv::Mat y_computed = -x_i;
-  cv::Mat z_computed = -y_i;
-
-  //
-  // 5. Compare for correctness
+  // 4. Compare for correctness
   //
   auto cmp = [](std::int16_t a, std::int16_t b) -> bool
     {
@@ -415,18 +412,17 @@ TEST(Image, ComputeCartesian)
 
       return false;
     };
-
   EXPECT_TRUE(std::equal(x_cam.begin<std::int16_t>(),
                          x_cam.end<std::int16_t>(),
-                         x_computed.begin<std::int16_t>(), cmp));
+                         computed[0].begin<std::int16_t>(), cmp));
 
   EXPECT_TRUE(std::equal(y_cam.begin<std::int16_t>(),
                          y_cam.end<std::int16_t>(),
-                         y_computed.begin<std::int16_t>(), cmp));
+                         computed[1].begin<std::int16_t>(), cmp));
 
   EXPECT_TRUE(std::equal(z_cam.begin<std::int16_t>(),
                          z_cam.end<std::int16_t>(),
-                         z_computed.begin<std::int16_t>(), cmp));
+                         computed[2].begin<std::int16_t>(), cmp));
 }
 
 TEST(Image, TimeStamp)
