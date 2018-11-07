@@ -450,9 +450,6 @@ ifm3d::ByteBuffer<Derived>::Organize()
   //
   std::uint32_t pixel_data_offset =
     ifm3d::mkval<std::uint32_t>(this->bytes_.data()+cidx+8);
-  //size of the chunk data
-  std::uint32_t chunk_size =
-    ifm3d::mkval<uint32_t >(this->bytes_.data()+intridx+4);
 
   cidx += pixel_data_offset;
   im_wrapper(ifm3d::image_chunk::CONFIDENCE, cfmt, cidx);
@@ -502,6 +499,9 @@ ifm3d::ByteBuffer<Derived>::Organize()
   //
   if (INTR_OK)
     {
+      //size of the chunk data
+      std::uint32_t chunk_size =
+      ifm3d::mkval<uint32_t >(this->bytes_.data() + intridx + 4);
       intridx += pixel_data_offset;
       if (intrfmt !=
           static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F))
@@ -533,6 +533,9 @@ ifm3d::ByteBuffer<Derived>::Organize()
   //
   if (EXT_OK)
     {
+      //size of the chunk data
+      std::uint32_t chunk_size =
+      ifm3d::mkval<uint32_t >(this->bytes_.data() + extidx + 4);
       extidx += pixel_data_offset;
       if (extfmt !=
           static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F))
