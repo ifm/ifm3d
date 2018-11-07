@@ -4,6 +4,7 @@
   executed against FW 1.6.2114
 * Bugifx for #107 Allows OpenCV module headers to be included in more than one
   translation unit thus avoiding violation of ODR.
+* The `image` and `opencv` modules now flags bad pixels at the driver-level
 
 ## Changes between ifm3d 0.10.0 and 0.11.0
 
