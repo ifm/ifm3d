@@ -18,7 +18,9 @@ Current Revision
     <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522</td>
     <td>1.0.111, 1.0.122, 1.0.126</td>
     <td>16.04,18.04</td>
-    <td></td>
+    <td>Bad pixels are now flagged by the driver, opencv image container module
+    headers can be included in multiple translation units, and other minor bug
+    fixes.</td>
   </tr>
 </table>
 
