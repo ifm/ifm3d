@@ -32,7 +32,7 @@ namespace ifm3d
   // installed.
   //
 
-  std::unordered_map<std::uint32_t, int> PIX_LUT_
+  static std::unordered_map<std::uint32_t, int> PIX_LUT_
   {
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8U), CV_8U},
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8S), CV_8S},
@@ -44,7 +44,7 @@ namespace ifm3d
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_64F), CV_64F}
   };
 
-  std::unordered_map<std::uint32_t, int> PIX_LUT3_
+  static std::unordered_map<std::uint32_t, int> PIX_LUT3_
   {
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8U), CV_8UC3},
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8S), CV_8SC3},
@@ -62,21 +62,21 @@ namespace ifm3d
 // ifm3d::OpenCVBuffer implementation
 //==============================================
 
-ifm3d::OpenCVBuffer::OpenCVBuffer()
+inline ifm3d::OpenCVBuffer::OpenCVBuffer()
   : ifm3d::ByteBuffer<ifm3d::OpenCVBuffer>()
 { }
 
-ifm3d::OpenCVBuffer::~OpenCVBuffer() = default;
+inline ifm3d::OpenCVBuffer::~OpenCVBuffer() = default;
 
 // move ctor
-ifm3d::OpenCVBuffer::OpenCVBuffer(ifm3d::OpenCVBuffer&& src_buff)
+inline ifm3d::OpenCVBuffer::OpenCVBuffer(ifm3d::OpenCVBuffer&& src_buff)
   : ifm3d::OpenCVBuffer::OpenCVBuffer()
 {
   this->SetBytes(src_buff.bytes_, false);
 }
 
 // move assignment
-ifm3d::OpenCVBuffer&
+inline ifm3d::OpenCVBuffer&
 ifm3d::OpenCVBuffer::operator= (ifm3d::OpenCVBuffer&& src_buff)
 {
   this->SetBytes(src_buff.bytes_, false);
@@ -84,7 +84,7 @@ ifm3d::OpenCVBuffer::operator= (ifm3d::OpenCVBuffer&& src_buff)
 }
 
 // copy ctor
-ifm3d::OpenCVBuffer::OpenCVBuffer(const ifm3d::OpenCVBuffer& src_buff)
+inline ifm3d::OpenCVBuffer::OpenCVBuffer(const ifm3d::OpenCVBuffer& src_buff)
   : ifm3d::OpenCVBuffer::OpenCVBuffer()
 {
   this->SetBytes(const_cast<std::vector<std::uint8_t>&>(src_buff.bytes_),
@@ -92,7 +92,7 @@ ifm3d::OpenCVBuffer::OpenCVBuffer(const ifm3d::OpenCVBuffer& src_buff)
 }
 
 // copy assignment
-ifm3d::OpenCVBuffer&
+inline ifm3d::OpenCVBuffer&
 ifm3d::OpenCVBuffer::operator= (const ifm3d::OpenCVBuffer& src_buff)
 {
   if (this == &src_buff)
@@ -105,49 +105,49 @@ ifm3d::OpenCVBuffer::operator= (const ifm3d::OpenCVBuffer& src_buff)
   return *this;
 }
 
-cv::Mat
+inline cv::Mat
 ifm3d::OpenCVBuffer::DistanceImage()
 {
   this->Organize();
   return this->dist_;
 }
 
-cv::Mat
+inline cv::Mat
 ifm3d::OpenCVBuffer::UnitVectors()
 {
   this->Organize();
   return this->uvec_;
 }
 
-cv::Mat
+inline cv::Mat
 ifm3d::OpenCVBuffer::GrayImage()
 {
   this->Organize();
   return this->gray_;
 }
 
-cv::Mat
+inline cv::Mat
 ifm3d::OpenCVBuffer::AmplitudeImage()
 {
   this->Organize();
   return this->amp_;
 }
 
-cv::Mat
+inline cv::Mat
 ifm3d::OpenCVBuffer::RawAmplitudeImage()
 {
   this->Organize();
   return this->ramp_;
 }
 
-cv::Mat
+inline cv::Mat
 ifm3d::OpenCVBuffer::ConfidenceImage()
 {
   this->Organize();
   return this->conf_;
 }
 
-cv::Mat
+inline cv::Mat
 ifm3d::OpenCVBuffer::XYZImage()
 {
   this->Organize();
@@ -155,7 +155,7 @@ ifm3d::OpenCVBuffer::XYZImage()
 }
 
 template <typename T>
-void
+inline void
 ifm3d::OpenCVBuffer::ImCreate(ifm3d::image_chunk im,
                               std::uint32_t fmt,
                               std::size_t idx,
@@ -237,7 +237,7 @@ ifm3d::OpenCVBuffer::ImCreate(ifm3d::image_chunk im,
 }
 
 template <typename T>
-void
+inline void
 ifm3d::OpenCVBuffer::CloudCreate(std::uint32_t fmt,
                                  std::size_t xidx,
                                  std::size_t yidx,
