@@ -19,6 +19,7 @@
 #define __IFM3D_OPENCV_DETAIL_OPENCV_BUFFER_HPP__
 
 #include <cstdint>
+#include <limits>
 #include <unordered_map>
 #include <vector>
 #include <opencv2/core/core.hpp>
@@ -234,6 +235,19 @@ ifm3d::OpenCVBuffer::ImCreate(ifm3d::image_chunk im,
           ptr[col] = ifm3d::mkval<T>(bytes.data()+idx);
         }
     }
+
+  constexpr T bad_pixel =
+    std::numeric_limits<T>::has_quiet_NaN
+    ? std::numeric_limits<T>::quiet_NaN() : 0;
+
+  if (im == ifm3d::image_chunk::CONFIDENCE)
+    {
+      cv::bitwise_and(this->conf_, 0x1, this->bad_);
+    }
+  else if (im != ifm3d::image_chunk::UNIT_VECTOR_ALL)
+    {
+      mat->setTo(bad_pixel, this->bad_);
+    }
 }
 
 template <typename T>
@@ -256,6 +270,11 @@ ifm3d::OpenCVBuffer::CloudCreate(std::uint32_t fmt,
 
   T* xyz_ptr;
   T x_, y_, z_;
+  std::uint8_t* bad_ptr;
+
+  constexpr T bad_pixel =
+    std::numeric_limits<T>::has_quiet_NaN
+    ? std::numeric_limits<T>::quiet_NaN() : 0;
 
   for (std::size_t i = 0; i < npts;
        ++i, xidx += incr, yidx += incr, zidx += incr)
@@ -266,6 +285,7 @@ ifm3d::OpenCVBuffer::CloudCreate(std::uint32_t fmt,
         {
           row += 1;
           xyz_ptr = this->xyz_.ptr<T>(row);
+          bad_ptr = this->bad_.ptr(row);
         }
 
       // convert to ifm3d coord frame
@@ -273,9 +293,18 @@ ifm3d::OpenCVBuffer::CloudCreate(std::uint32_t fmt,
       y_ = -ifm3d::mkval<T>(bytes.data()+xidx);
       z_ = -ifm3d::mkval<T>(bytes.data()+yidx);
 
-      xyz_ptr[xyz_col] = x_;
-      xyz_ptr[xyz_col + 1] = y_;
-      xyz_ptr[xyz_col + 2] = z_;
+      if (bad_ptr[col] == 0)
+        {
+          xyz_ptr[xyz_col] = x_;
+          xyz_ptr[xyz_col + 1] = y_;
+          xyz_ptr[xyz_col + 2] = z_;
+        }
+      else
+        {
+          xyz_ptr[xyz_col] = bad_pixel;
+          xyz_ptr[xyz_col + 1] = bad_pixel;
+          xyz_ptr[xyz_col + 2] = bad_pixel;
+        }
     }
 }
 

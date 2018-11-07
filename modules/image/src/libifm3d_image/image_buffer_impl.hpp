@@ -115,9 +115,11 @@ namespace ifm3d
     cv::Mat ramp_;
     cv::Mat conf_;
     cv::Mat xyz_;
+    cv::Mat_<std::uint8_t> bad_; // mask of bad pixels
 
     template<typename T>
-    void _ImCreate(cv::Mat& im, std::uint32_t fmt, std::size_t idx,
+    void _ImCreate(cv::Mat& im, ifm3d::image_chunk chunk,
+                   std::uint32_t fmt, std::size_t idx,
                    std::uint32_t width, std::uint32_t height, int nchan,
                    std::uint32_t npts, const std::vector<std::uint8_t>& bytes)
     {
@@ -159,6 +161,25 @@ namespace ifm3d
               ptr[col] = ifm3d::mkval<T>(bytes.data()+idx);
             }
         }
+
+      //
+      // There are only certain image types we want to flag bad
+      // pixels for. For example we do *not* want to flag the confidence image
+      // or the unit vectors. To that end, we do not do this in-line above
+      // with a bunch of nasty if-statements for each pixel. Instead,
+      // we take another pass over the image. This vectorized approach
+      // should be fast/cache-friendly enough to not have us introduce too
+      // much additional latency.
+      //
+      constexpr T bad_pixel =
+        std::numeric_limits<T>::has_quiet_NaN
+        ? std::numeric_limits<T>::quiet_NaN() : 0;
+
+      if ((chunk != ifm3d::image_chunk::CONFIDENCE) &&
+          (chunk != ifm3d::image_chunk::UNIT_VECTOR_ALL))
+        {
+          im.setTo(bad_pixel, this->bad_);
+        }
     }
 
     template<typename T>
@@ -185,6 +206,11 @@ namespace ifm3d
 
       T* xyz_ptr;
       T x_, y_, z_;
+      std::uint8_t* bad_ptr;
+
+      constexpr T bad_pixel =
+        std::numeric_limits<T>::has_quiet_NaN
+        ? std::numeric_limits<T>::quiet_NaN() : 0;
 
       // We assume, if the data from the sensor are a floating point type,
       // the data are in meters, otherwise, the sensor is sending an
@@ -206,6 +232,7 @@ namespace ifm3d
             {
               row += 1;
               xyz_ptr = im.ptr<T>(row);
+              bad_ptr = this->bad_.ptr(row);
             }
 
           // convert to ifm3d coord frame
@@ -213,21 +240,48 @@ namespace ifm3d
           y_ = -ifm3d::mkval<T>(bytes.data()+xidx);
           z_ = -ifm3d::mkval<T>(bytes.data()+yidx);
 
-          xyz_ptr[xyz_col] = x_;
-          xyz_ptr[xyz_col + 1] = y_;
-          xyz_ptr[xyz_col + 2] = z_;
-
-          if (convert_to_meters)
+          if (bad_ptr[col] == 0)
             {
-              pt.x = x_ / 1000.0f;
-              pt.y = y_ / 1000.0f;
-              pt.z = z_ / 1000.0f;
+              xyz_ptr[xyz_col] = x_;
+              xyz_ptr[xyz_col + 1] = y_;
+              xyz_ptr[xyz_col + 2] = z_;
             }
           else
             {
-              pt.x = x_;
-              pt.y = y_;
-              pt.z = z_;
+              xyz_ptr[xyz_col] = bad_pixel;
+              xyz_ptr[xyz_col + 1] = bad_pixel;
+              xyz_ptr[xyz_col + 2] = bad_pixel;
+            }
+
+          if (convert_to_meters)
+            {
+              if (bad_ptr[col] == 0)
+                {
+                  pt.x = x_ / 1000.0f;
+                  pt.y = y_ / 1000.0f;
+                  pt.z = z_ / 1000.0f;
+                }
+              else
+                {
+                  pt.x = bad_pixel;
+                  pt.y = bad_pixel;
+                  pt.z = bad_pixel;
+                }
+            }
+          else
+            {
+              if (bad_ptr[col] == 0)
+                {
+                  pt.x = x_;
+                  pt.y = y_;
+                  pt.z = z_;
+                }
+              else
+                {
+                  pt.x = bad_pixel;
+                  pt.y = bad_pixel;
+                  pt.z = bad_pixel;
+                }
             }
 
           pt.data_c[0] = pt.data_c[1] = pt.data_c[2] = pt.data_c[3] = 0;
@@ -384,47 +438,53 @@ ifm3d::ImageBuffer::Impl::ImCreate(ifm3d::image_chunk im,
     {
     case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8U):
       this->_ImCreate<std::uint8_t>(
-        *image, fmt, idx, width, height, 1, npts, bytes);
+        *image, im, fmt, idx, width, height, 1, npts, bytes);
       break;
 
     case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8S):
       this->_ImCreate<std::int8_t>(
-        *image, fmt, idx, width, height, 1, npts, bytes);
+        *image, im, fmt, idx, width, height, 1, npts, bytes);
       break;
 
     case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16U):
       this->_ImCreate<std::uint16_t>(
-        *image, fmt, idx, width, height, 1, npts, bytes);
+        *image, im, fmt, idx, width, height, 1, npts, bytes);
       break;
 
     case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16S):
       this->_ImCreate<std::int16_t>(
-        *image, fmt, idx, width, height, 1, npts, bytes);
+        *image, im, fmt, idx, width, height, 1, npts, bytes);
       break;
 
     case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32S):
       this->_ImCreate<std::int32_t>(
-        *image, fmt, idx, width, height, 1, npts, bytes);
+        *image, im, fmt, idx, width, height, 1, npts, bytes);
       break;
 
     case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F):
       this->_ImCreate<float>(
-        *image, fmt, idx, width, height, 1, npts, bytes);
+        *image, im, fmt, idx, width, height, 1, npts, bytes);
       break;
 
     case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F3):
       this->_ImCreate<float>(
-        *image, fmt, idx, width, height, 3, npts, bytes);
+        *image, im, fmt, idx, width, height, 3, npts, bytes);
       break;
 
     case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_64F):
       this->_ImCreate<double>(
-        *image, fmt, idx, width, height, 1, npts, bytes);
+        *image, im, fmt, idx, width, height, 1, npts, bytes);
       break;
 
     default:
       LOG(ERROR) << "Unknown image pixel format: " << fmt;
       throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
+    }
+
+  // update the bad pixel mask if we just saw the confidence image
+  if (im == ifm3d::image_chunk::CONFIDENCE)
+    {
+      cv::bitwise_and(this->conf_, 0x1, this->bad_);
     }
 }
 
