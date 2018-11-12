@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -9,6 +10,19 @@
 #include <ifm3d/image.h>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
+
+template <typename T>
+bool cmp_with_nan(T a, T b)
+{
+  if (std::isnan(a) || std::isnan(b))
+    {
+      return(std::isnan(a) && std::isnan(b));
+    }
+  else
+    {
+      return a == b;
+    }
+}
 
 TEST(Image, MoveCtor)
 {
@@ -31,7 +45,7 @@ TEST(Image, MoveCtor)
       EXPECT_TRUE(amp2.type() == CV_32F);
       EXPECT_TRUE(std::equal(copy_of_amp.begin<float>(),
                              copy_of_amp.end<float>(),
-                             amp2.begin<float>()));
+                             amp2.begin<float>(), cmp_with_nan<float>));
     }
   else
     {
@@ -66,7 +80,7 @@ TEST(Image, MoveAssignmentOperator)
       EXPECT_TRUE(amp2.type() == CV_32F);
       EXPECT_TRUE(std::equal(copy_of_amp.begin<float>(),
                              copy_of_amp.end<float>(),
-                             amp2.begin<float>()));
+                             amp2.begin<float>(), cmp_with_nan<float>));
     }
   else
     {
@@ -102,7 +116,7 @@ TEST(Image, CopyCtor)
       EXPECT_TRUE(amp.type() == CV_32F);
       EXPECT_TRUE(amp2.type() == CV_32F);
       EXPECT_TRUE(std::equal(amp.begin<float>(), amp.end<float>(),
-                             amp2.begin<float>()));
+                             amp2.begin<float>(), cmp_with_nan<float>));
     }
   else
     {
@@ -119,7 +133,7 @@ TEST(Image, CopyCtor)
     {
       EXPECT_FALSE(std::equal(amp.begin<float>(),
                               amp.end<float>(),
-                              amp2.begin<float>()));
+                              amp2.begin<float>(), cmp_with_nan<float>));
     }
   else
     {
@@ -151,7 +165,7 @@ TEST(Image, CopyAssignmentOperator)
       EXPECT_TRUE(amp2.type() == CV_32F);
       EXPECT_TRUE(std::equal(amp.begin<float>(),
                              amp.end<float>(),
-                             amp2.begin<float>()));
+                             amp2.begin<float>(), cmp_with_nan<float>));
     }
   else
     {
@@ -168,7 +182,7 @@ TEST(Image, CopyAssignmentOperator)
     {
       EXPECT_FALSE(std::equal(amp.begin<float>(),
                               amp.end<float>(),
-                              amp2.begin<float>()));
+                              amp2.begin<float>(), cmp_with_nan<float>));
     }
   else
     {
@@ -197,7 +211,7 @@ TEST(Image, References)
       EXPECT_TRUE(amp2.type() == CV_32F);
       EXPECT_TRUE(std::equal(amp1.begin<float>(),
                              amp1.end<float>(),
-                             amp2.begin<float>()));
+                             amp2.begin<float>(), cmp_with_nan<float>));
     }
   else
     {
@@ -214,7 +228,7 @@ TEST(Image, References)
     {
       EXPECT_TRUE(std::equal(amp1.begin<float>(),
                              amp1.end<float>(),
-                             amp2.begin<float>()));
+                             amp2.begin<float>(), cmp_with_nan<float>));
     }
   else
     {
@@ -296,9 +310,17 @@ TEST(Image, XYZImage)
             }
           else
             {
-              EXPECT_FLOAT_EQ(pt.x, x.at<float>(r,c));
-              EXPECT_FLOAT_EQ(pt.y, y.at<float>(r,c));
-              EXPECT_FLOAT_EQ(pt.z, z.at<float>(r,c));
+              if (std::isnan(pt.x) || std::isnan(x.at<float>(r,c)))
+                {
+                  EXPECT_TRUE(std::isnan(pt.x));
+                  EXPECT_TRUE(std::isnan(x.at<float>(r,c)));
+                }
+              else
+                {
+                  EXPECT_FLOAT_EQ(pt.x, x.at<float>(r,c));
+                  EXPECT_FLOAT_EQ(pt.y, y.at<float>(r,c));
+                  EXPECT_FLOAT_EQ(pt.z, z.at<float>(r,c));
+                }
             }
         }
     }
@@ -335,11 +357,25 @@ TEST(Image, ComputeCartesian)
   cv::Mat rdis = im->DistanceImage();
   cv::Mat xyz = im->XYZImage(); // ground truth
 
+  // reusable masks for nan filtering
+  cv::Mat x_nan_mask;
+  cv::Mat y_nan_mask;
+  cv::Mat z_nan_mask;
+
   std::vector<cv::Mat> chans(3);
   cv::split(xyz, chans);
   cv::Mat x_cam, y_cam, z_cam;
   if (chans[0].type() == CV_32FC1)
     {
+      // filter nan -- set to 0
+      x_nan_mask = cv::Mat(chans[0] != chans[0]);
+      y_nan_mask = cv::Mat(chans[1] != chans[1]);
+      z_nan_mask = cv::Mat(chans[2] != chans[2]);
+
+      chans[0].setTo(0, x_nan_mask);
+      chans[1].setTo(0, y_nan_mask);
+      chans[2].setTo(0, z_nan_mask);
+
       // convert to mm
       chans[0] *= 1000.;
       chans[1] *= 1000.;
@@ -390,6 +426,15 @@ TEST(Image, ComputeCartesian)
   cv::Mat x_ = ex.mul(rdis_f) + tx;
   cv::Mat y_ = ey.mul(rdis_f) + ty;
   cv::Mat z_ = ez.mul(rdis_f) + tz;
+
+  // filter nan -- set to 0
+  x_nan_mask = cv::Mat(x_ != x_);
+  y_nan_mask = cv::Mat(y_ != y_);
+  z_nan_mask = cv::Mat(z_ != z_);
+
+  x_.setTo(0, x_nan_mask);
+  y_.setTo(0, y_nan_mask);
+  z_.setTo(0, z_nan_mask);
 
   //
   // 4. Cast (back) to int16 and transform to ifm3d coord frame

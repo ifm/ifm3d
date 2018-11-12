@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 cmake_policy(SET CMP0048 NEW)
 # Manage version number here: Major.Minor.Patch (we don't use "tweak")
-project(IFM3D VERSION 0.11.1 LANGUAGES CXX)
+project(IFM3D VERSION 0.11.2 LANGUAGES CXX)
 set(GIT_PROJECT_NAME "ifm3d")
 
 # Make our cmake functions accessible

@@ -626,7 +626,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
     }
   else
     {
-      LOG(WARNING)
+      VLOG(IFM3D_PROTO_DEBUG)
         << "illu temp and exposure times skipped (can't trust extidx)";
     }
 
