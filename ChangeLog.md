@@ -1,3 +1,10 @@
+## Changes between ifm3d 0.11.1 and 0.11.2
+
+* Bugfix for #111, moved a log message in framegrabber to IFM3D_PROTO_DEBUG to
+  keep noise level low when running an O3X for extended periods of time.
+* Updated unit tests to account for nan filtering based on 0.11.1 changes to
+  how bad pixels are flagged in the image containers.
+
 ## Changes between ifm3d 0.11.0 and 0.11.1
 
 * Bugfix for #103 ``header is not in the correct format`` when ``make check`` is
