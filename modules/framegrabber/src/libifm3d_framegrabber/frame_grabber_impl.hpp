@@ -281,7 +281,8 @@ ifm3d::FrameGrabber::Impl::WaitForFrame(
                 lock, std::chrono::milliseconds(timeout_millis)) ==
               std::cv_status::timeout)
             {
-              LOG(WARNING) << "Timeout waiting for image buffer from camera";
+              VLOG(IFM3D_TRACE)
+                << "Timeout waiting for image buffer from camera";
               return false;
             }
         }

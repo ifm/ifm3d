@@ -14,11 +14,14 @@ Current Revision
     <th>Notes</th>
   </tr>
   <tr>
-    <td>0.9.2</td>
+    <td>0.10.0</td>
     <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522</td>
     <td>1.0.111, 1.0.122, 1.0.126</td>
     <td>16.04,18.04</td>
-    <td>Added Support for the Ubuntu 18.04</td>
+    <td>
+      Session IDs can be explicitly set and shared across camera
+      instances. Speed improvements to JSON imports.
+    </td>
   </tr>
 </table>
 
@@ -142,6 +145,20 @@ We note that, if you are running on a supported Linux, all of these packages
 are available through the offical debian repositories and should be a simple
 `apt-get` away from being installed on your machine.
 
+Use the following steps to install all the library dependencies on Debian based
+systems
+
+```
+$ sudo apt-get update && apt-get -y upgrade
+$ sudo apt-get update && apt-get install -y libboost-all-dev git jq libcurl4-openssl-dev \
+                                            libgtest-dev libgoogle-glog-dev  \
+                                            libxmlrpc-c++8-dev libopencv-dev \
+                                            libpcl-dev libproj-dev \
+                                            build-essential coreutils cmake
+```
+Note: The package name may differ in different flavours of Linux. Above apt-get commands
+are specific to Debian based systems
+
 ### Building From Source
 
 #### The default build
@@ -262,6 +279,7 @@ Additional Resources
 * [Viewing the Point Cloud](https://github.com/lovepark/ifm3d-pcl-viewer)
 * [Implementing your own image container](doc/img_container.md)
 * [ROS](https://github.com/lovepark/ifm3d-ros)
+* [Troubleshoot](doc/troubleshoot.md)
 
 
 Known Issues, Bugs, and our TODO list
