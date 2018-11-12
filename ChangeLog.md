@@ -1,3 +1,25 @@
+## Changes between ifm3d 0.9.3 and 0.10.0
+
+* Adds support for setting the `IFM3D_SESSION_ID` environment variable for
+  establishing edit sessions with the camera using a known ID.
+* Sessions are now explicitly cancellable if the session ID is known.
+* Some session management optimizations in `FromJSON` which should result in
+  incremental speedups in importing JSON configurations to the camera.
+
+
+## Changes between ifm3d 0.9.2 and 0.9.3
+
+* Added build instructions how to switch between Release and Debug
+  for Windows builds
+* Added Troubleshoot guide
+* Added Opencv module build instruction for windows
+* Added minimum MSVC version requirement
+* Added prerequisite packages list for building ifm3d
+* Changed warning message in framegrabber from `WARNING` to `IFM3D_TRACE`
+  severity level
+* Updated swupdate command with --check (recovery mode check) and -r (reboot to
+  productive mode)
+
 ## Changes between ifm3d 0.9.1 and 0.9.2
 
 * Added Support for the Ubuntu 18.04

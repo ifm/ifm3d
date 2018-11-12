@@ -85,12 +85,14 @@ namespace ifm3d
     std::vector<std::string> TraceLogs(int count);
     void Reboot(int mode);
     std::vector<ifm3d::app_entry_t> ApplicationList();
-    std::string RequestSession();
+    std::string RequestSession(
+      const std::string& sid = ifm3d::DEFAULT_SESSION_ID);
     std::vector<std::uint8_t> UnitVectors();
     void ForceTrigger();
 
     // Session
     bool CancelSession();
+    bool CancelSession(const std::string& sid);
     int Heartbeat(int hb);
     void SetOperatingMode(const ifm3d::Camera::operating_mode& mode);
     void SetTemporaryApplicationParameters(const std::unordered_map<std::string,
@@ -113,8 +115,8 @@ namespace ifm3d
     // Device
     void SetDeviceParameter(const std::string& param, const std::string& val);
     void SaveDevice();
-	void ActivatePassword(std::string password = "");
-	void DisablePassword();
+    void ActivatePassword(const std::string& password = "");
+    void DisablePassword();
 
     // Network
     std::unordered_map<std::string, std::string> NetInfo();
@@ -162,7 +164,6 @@ namespace ifm3d
     T WrapInEditSession(std::function<T()> f)
     {
       T retval;
-
       try
         {
           this->RequestSession();
@@ -175,7 +176,6 @@ namespace ifm3d
           this->CancelSession();
           throw;
         }
-
       this->CancelSession();
       return retval;
     }
@@ -194,8 +194,7 @@ namespace ifm3d
           this->CancelSession();
           throw;
         }
-
-      this->CancelSession();
+        this->CancelSession();
     }
 
   private:
@@ -598,12 +597,11 @@ ifm3d::Camera::Impl::ApplicationList()
 }
 
 std::string
-ifm3d::Camera::Impl::RequestSession()
+ifm3d::Camera::Impl::RequestSession(const std::string& sid)
 {
   xmlrpc_c::value_string val_str(
     this->_XCallMain("requestSession",
-                     this->Password().c_str(),
-                     std::string("")));
+                     this->Password().c_str(), sid));
 
   this->SetSessionID(static_cast<std::string>(val_str));
   this->Heartbeat(ifm3d::MAX_HEARTBEAT);
@@ -628,6 +626,20 @@ ifm3d::Camera::Impl::ForceTrigger()
 // ---------------------------------------------
 // Session
 // ---------------------------------------------
+bool
+ifm3d::Camera::Impl::CancelSession(const std::string& sid)
+{
+  if (sid == this->SessionID())
+    {
+      return this->CancelSession();
+    }
+
+  std::string old_sid = this->SessionID();
+  this->SetSessionID(sid);
+  bool retval = this->CancelSession();
+  this->SetSessionID(old_sid);
+  return retval;
+}
 
 bool
 ifm3d::Camera::Impl::CancelSession()
@@ -646,9 +658,9 @@ ifm3d::Camera::Impl::CancelSession()
     }
   catch (const ifm3d::error_t& ex)
     {
-      LOG(ERROR) << "Failed to cancel session: "
-                 << this->SessionID() << " -> "
-                 << ex.what();
+      LOG(WARNING) << "Failed to cancel session: "
+                   << this->SessionID() << " -> "
+                   << ex.what();
 
       if (ex.code() == IFM3D_XMLRPC_OBJ_NOT_FOUND)
         {
@@ -817,7 +829,7 @@ ifm3d::Camera::Impl::SaveDevice()
 }
 
 void
-ifm3d::Camera::Impl::ActivatePassword(std::string password)
+ifm3d::Camera::Impl::ActivatePassword(const std::string& password)
 {
   this->_XCallDevice("activatePassword", password.c_str());
 }

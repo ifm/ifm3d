@@ -60,6 +60,78 @@ TEST_F(CameraTest, SessionManagement)
   this->cam_.reset(new ifm3d::Camera());
   EXPECT_STREQ("", this->cam_->SessionID().c_str());
 
+  // tests which only get enabled when the IFM3D_SESSION_ID
+  // environment variable is properly set
+  if (ifm3d::DEFAULT_SESSION_ID != "")
+    {
+      // default session id should be our 32 char hex string
+      EXPECT_EQ(ifm3d::DEFAULT_SESSION_ID.size(), ifm3d::SESSION_ID_SZ);
+
+      sid = this->cam_->RequestSession();
+      EXPECT_STREQ(sid.c_str(), ifm3d::DEFAULT_SESSION_ID.c_str());
+      EXPECT_TRUE(this->cam_->CancelSession());
+
+      // no session open, but env var set
+      EXPECT_TRUE(this->cam_->CancelSession());
+
+      // New scope, so the `cam2` dtor runs
+      {
+        auto cam2 = ifm3d::Camera::MakeShared();
+        sid = cam2->RequestSession();
+        EXPECT_STREQ(sid.c_str(), ifm3d::DEFAULT_SESSION_ID.c_str());
+        // OK, pretend `cam2` crashed ... we want to create a new session
+        // but we will get an exception
+        EXPECT_THROW(this->cam_->RequestSession(), ifm3d::error_t);
+        // Let's now use `this->cam_` to cancel the sid from the other
+        // camera
+        EXPECT_TRUE(this->cam_->CancelSession(sid));
+        // Now make a new session
+        sid = this->cam_->RequestSession();
+        EXPECT_STREQ(sid.c_str(), ifm3d::DEFAULT_SESSION_ID.c_str());
+        // Now cancel the "current session on `this->cam_`
+        EXPECT_TRUE(this->cam_->CancelSession());
+
+        // once we fall off the edge of this scope, the `cam2` dtor
+        // will run ... you may see a warning message in the log
+        // related to the old session id trying to be closed by the
+        // `cam2` dtor, this is OK
+      }
+    }
+  else
+    {
+      // No session open and env var not set
+      EXPECT_TRUE(this->cam_->CancelSession());
+
+      //
+      // same test as above, but w/o the comparision to some known session id
+      // set via an environment var
+      //
+      // New scope, so the `cam2` dtor runs
+      {
+        auto cam2 = ifm3d::Camera::MakeShared();
+        sid = cam2->RequestSession();
+
+        // OK, pretend `cam2` crashed ... we want to create a new session
+        // but we will get an exception
+        EXPECT_THROW(this->cam_->RequestSession(), ifm3d::error_t);
+
+        // Let's now use `this->cam_` to cancel the sid from the other
+        // camera
+        EXPECT_TRUE(this->cam_->CancelSession(sid));
+
+        // Now make a new session
+        sid = this->cam_->RequestSession();
+
+        // Now cancel the "current session on `this->cam_`
+        EXPECT_TRUE(this->cam_->CancelSession());
+
+        // once we fall off the edge of this scope, the `cam2` dtor
+        // will run ... you may see a warning message in the log
+        // related to the old session id trying to be closed by the
+        // `cam2` dtor, this is OK
+      }
+    }
+
   // explicitly request session ... the unit test lifecycle should
   // implicitly cancel the session for us (i.e., the cam dtor will run)
   sid = this->cam_->RequestSession();
