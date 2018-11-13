@@ -324,6 +324,15 @@ TEST(OpenCV, ComputeCartesian)
   cv::Mat y_ = ey.mul(rdis_f) + ty;
   cv::Mat z_ = ez.mul(rdis_f) + tz;
 
+  // blank out bad pixels ... our zero pixels will
+  // be exactly equal to tx, ty, tz and if any of those
+  // exceed 1cm (our test tolerance) like on an O3D301,
+  // we will get errors in the unit test.
+  cv::Mat bad_mask = rdis == 0;
+  x_.setTo(0., bad_mask);
+  y_.setTo(0., bad_mask);
+  z_.setTo(0., bad_mask);
+
   //
   // 4. Cast (back) to int16 and transform to ifm3d coord frame
   //
