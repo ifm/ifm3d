@@ -236,9 +236,10 @@ ifm3d::OpenCVBuffer::ImCreate(ifm3d::image_chunk im,
         }
     }
 
-  constexpr T bad_pixel =
-    std::numeric_limits<T>::has_quiet_NaN
-    ? std::numeric_limits<T>::quiet_NaN() : 0;
+  // constexpr T bad_pixel =
+  //   std::numeric_limits<T>::has_quiet_NaN
+  //   ? std::numeric_limits<T>::quiet_NaN() : 0;
+  constexpr T bad_pixel = 0;
 
   if (im == ifm3d::image_chunk::CONFIDENCE)
     {
@@ -272,9 +273,10 @@ ifm3d::OpenCVBuffer::CloudCreate(std::uint32_t fmt,
   T x_, y_, z_;
   std::uint8_t* bad_ptr;
 
-  constexpr T bad_pixel =
-    std::numeric_limits<T>::has_quiet_NaN
-    ? std::numeric_limits<T>::quiet_NaN() : 0;
+  // constexpr T bad_pixel =
+  //   std::numeric_limits<T>::has_quiet_NaN
+  //   ? std::numeric_limits<T>::quiet_NaN() : 0;
+  constexpr T bad_pixel = 0;
 
   for (std::size_t i = 0; i < npts;
        ++i, xidx += incr, yidx += incr, zidx += incr)

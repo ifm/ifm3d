@@ -2,8 +2,10 @@
 
 * Bugfix for #111, moved a log message in framegrabber to IFM3D_PROTO_DEBUG to
   keep noise level low when running an O3X for extended periods of time.
-* Updated unit tests to account for nan filtering based on 0.11.1 changes to
-  how bad pixels are flagged in the image containers.
+* Changed flagging bad pixels to always be `0` regardless of data type. Users
+  could always consult the confidence image themselves and discriminate between
+  a true `0` (not possible) and a bad pixel which they could then transform to
+  `nan` or whatever other sentinel makes sense for their application.
 
 ## Changes between ifm3d 0.11.0 and 0.11.1
 

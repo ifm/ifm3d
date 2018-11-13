@@ -171,9 +171,10 @@ namespace ifm3d
       // should be fast/cache-friendly enough to not have us introduce too
       // much additional latency.
       //
-      constexpr T bad_pixel =
-        std::numeric_limits<T>::has_quiet_NaN
-        ? std::numeric_limits<T>::quiet_NaN() : 0;
+      // constexpr T bad_pixel =
+      //   std::numeric_limits<T>::has_quiet_NaN
+      //   ? std::numeric_limits<T>::quiet_NaN() : 0;
+      constexpr T bad_pixel = 0;
 
       if ((chunk != ifm3d::image_chunk::CONFIDENCE) &&
           (chunk != ifm3d::image_chunk::UNIT_VECTOR_ALL))
@@ -208,9 +209,10 @@ namespace ifm3d
       T x_, y_, z_;
       std::uint8_t* bad_ptr;
 
-      constexpr T bad_pixel =
-        std::numeric_limits<T>::has_quiet_NaN
-        ? std::numeric_limits<T>::quiet_NaN() : 0;
+      // constexpr T bad_pixel =
+      //   std::numeric_limits<T>::has_quiet_NaN
+      //   ? std::numeric_limits<T>::quiet_NaN() : 0;
+      constexpr T bad_pixel = 0;
 
       // We assume, if the data from the sensor are a floating point type,
       // the data are in meters, otherwise, the sensor is sending an
