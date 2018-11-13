@@ -357,25 +357,11 @@ TEST(Image, ComputeCartesian)
   cv::Mat rdis = im->DistanceImage();
   cv::Mat xyz = im->XYZImage(); // ground truth
 
-  // reusable masks for nan filtering
-  cv::Mat x_nan_mask;
-  cv::Mat y_nan_mask;
-  cv::Mat z_nan_mask;
-
   std::vector<cv::Mat> chans(3);
   cv::split(xyz, chans);
   cv::Mat x_cam, y_cam, z_cam;
   if (chans[0].type() == CV_32FC1)
     {
-      // filter nan -- set to 0
-      x_nan_mask = cv::Mat(chans[0] != chans[0]);
-      y_nan_mask = cv::Mat(chans[1] != chans[1]);
-      z_nan_mask = cv::Mat(chans[2] != chans[2]);
-
-      chans[0].setTo(0, x_nan_mask);
-      chans[1].setTo(0, y_nan_mask);
-      chans[2].setTo(0, z_nan_mask);
-
       // convert to mm
       chans[0] *= 1000.;
       chans[1] *= 1000.;
@@ -426,15 +412,6 @@ TEST(Image, ComputeCartesian)
   cv::Mat x_ = ex.mul(rdis_f) + tx;
   cv::Mat y_ = ey.mul(rdis_f) + ty;
   cv::Mat z_ = ez.mul(rdis_f) + tz;
-
-  // filter nan -- set to 0
-  x_nan_mask = cv::Mat(x_ != x_);
-  y_nan_mask = cv::Mat(y_ != y_);
-  z_nan_mask = cv::Mat(z_ != z_);
-
-  x_.setTo(0, x_nan_mask);
-  y_.setTo(0, y_nan_mask);
-  z_.setTo(0, z_nan_mask);
 
   //
   // 4. Cast (back) to int16 and transform to ifm3d coord frame
