@@ -58,6 +58,10 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INTRINSIC_PARAM_SUPPORT_MINOR;
   extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INTRINSIC_PARAM_SUPPORT_PATCH;
 
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR;
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR;
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH;
+
   /**
    * Software interface to an ifm 3D camera
    *

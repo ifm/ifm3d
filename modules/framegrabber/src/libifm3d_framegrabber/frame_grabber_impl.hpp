@@ -385,6 +385,21 @@ ifm3d::FrameGrabber::Impl::SetSchemaBuffer(std::uint16_t mask)
       throw ifm3d::error_t(IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE);
     }
 
+  if((mask & ifm3d::INV_INTR_CAL) == ifm3d::INV_INTR_CAL && (! this->cam_->IsO3D()))
+	{
+	  LOG(ERROR) << "Failed to set schema on O3X: Inverse intrinsic parameter not supported by Device";
+	  throw ifm3d::error_t(IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE);
+	}
+
+  if((mask & ifm3d::INV_INTR_CAL) == ifm3d::INV_INTR_CAL && this->cam_->IsO3D()
+	 && ! this->cam_->CheckMinimumFirmwareVersion(ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR,
+												  ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR,
+												  ifm3d:: O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH))
+	{
+	  LOG(ERROR) << "Failed to set schema on O3D: Inverse intrinsic parameter not supported by Firmware";
+	  throw ifm3d::error_t(IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE);
+	}
+
   if(this->cam_->IsO3X())
     {
       // O3X does not set the schema via PCIC, rather we set it via
