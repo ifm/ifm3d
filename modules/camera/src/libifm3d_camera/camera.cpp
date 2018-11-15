@@ -104,6 +104,10 @@ const unsigned int ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MAJOR = 1;
 const unsigned int ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MINOR = 23;
 const unsigned int ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_PATCH = 0;
 
+const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR = 1;
+const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR = 25;
+const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH = 0;
+
 //================================================
 // A lookup table listing the read-only camera
 // parameters

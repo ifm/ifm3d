@@ -36,6 +36,7 @@ namespace ifm3d
   extern IFM3D_FRAME_GRABBER_EXPORT const std::uint16_t IMG_GRAY;
   extern IFM3D_FRAME_GRABBER_EXPORT const std::uint16_t ILLU_TEMP;
   extern IFM3D_FRAME_GRABBER_EXPORT const std::uint16_t INTR_CAL;
+  extern IFM3D_FRAME_GRABBER_EXPORT const std::uint16_t INV_INTR_CAL;
 
   /**
    * Utility function to build an image acquisition result schema from a mask.
