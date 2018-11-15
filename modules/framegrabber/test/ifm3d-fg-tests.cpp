@@ -131,6 +131,41 @@ TEST(FrameGrabber, IntrinsicParamSchema)
    }
 }
 
+TEST(FrameGrabber, InverseIntrinsicParamSchema)
+{
+  LOG(INFO) << "InverseIntrinsicParamSchema test";
+
+  std::uint16_t mask = ifm3d::IMG_AMP|ifm3d::IMG_RDIS|ifm3d::INTR_CAL|ifm3d::INV_INTR_CAL;
+  auto cam = ifm3d::Camera::MakeShared();
+  if(cam->IsO3X()) // inverse intrinsic parameter  not supported
+   {
+     EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
+                  ifm3d::error_t);
+   }
+  if(cam->IsO3D() &&
+     cam->CheckMinimumFirmwareVersion(ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR,
+                                      ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR,
+                                      ifm3d:: O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH))
+   {
+     auto fg = std::make_shared<ifm3d::FrameGrabber>(cam,mask);
+     auto buff = std::make_shared<MyBuff>();
+     auto crossfoot=[](const std::vector<float>&v){float cf=0.0; for (auto i: v)cf+=i;return(cf);};
+
+     EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
+
+     std::vector<float> intrinsics=buff->Intrinsics();
+     EXPECT_TRUE( crossfoot( intrinsics ) > 0.0 );
+
+     std::vector<float> inverseIntrinsics=buff->InverseIntrinsics();
+     EXPECT_TRUE( crossfoot( inverseIntrinsics ) > 0.0 );
+   }
+  else if(cam->IsO3D())
+   {
+     EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
+                  ifm3d::error_t);
+   }
+}
+
 TEST(FrameGrabber, ByteBufferMoveCtor)
 {
   LOG(INFO) << "ByteBufferMoveCtor test";
