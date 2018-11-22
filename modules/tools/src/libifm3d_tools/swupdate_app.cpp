@@ -147,7 +147,7 @@ int ifm3d::SwupdateApp::Run()
     {
       checkRecovery();
       uploadFiletoDevice();
-      std::cout << "Update successfull, rebooting device..." << std::endl;
+      std::cout << "Update successful, rebooting device..." << std::endl;
       reboot();
     }
   return 0;
