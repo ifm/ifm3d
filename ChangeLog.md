@@ -1,3 +1,7 @@
+## Changes between ifm3d 0.11.2 and 0.12.0
+
+* Fixes to build infrastructure in support of windows unit tests
+
 ## Changes between ifm3d 0.11.1 and 0.11.2
 
 * Bugfix for #111, moved a log message in framegrabber to IFM3D_PROTO_DEBUG to
