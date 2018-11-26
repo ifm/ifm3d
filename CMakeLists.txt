@@ -71,6 +71,14 @@ endif()
 if(BUILD_TESTS)
   add_subdirectory(${GTEST_CMAKE_DIR} gtest_bin EXCLUDE_FROM_ALL)
   add_custom_target(check)
+  #var
+  if(WIN32)
+    set(TEST_WRAPPER_EXT "bat" )
+  else()
+    set(TEST_WRAPPER_EXT "sh" )
+  endif()
+  set(TEST_WRAPPER_IN "test_wrapper.${TEST_WRAPPER_EXT}.in" )
+  set(TEST_WRAPPER "test_wrapper.${TEST_WRAPPER_EXT}" )
 endif()
 
 # Build sub-modules

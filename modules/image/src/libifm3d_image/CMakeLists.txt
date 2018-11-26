@@ -2,13 +2,6 @@
 ## Bring in dependent projects
 ################################################
 find_package(PCL 1.7 REQUIRED COMPONENTS common)
-if(FORCE_OPENCV3)
-  find_package(OpenCV 3 REQUIRED COMPONENTS core)
-elseif(FORCE_OPENCV2)
-  find_package(OpenCV 2.4 REQUIRED COMPONENTS core)
-else()
-  find_package(OpenCV REQUIRED COMPONENTS core)
-endif()
 
 # needs to be done before the target is declared
 link_directories(${PCL_LIBRARY_DIRS} ${OpenCV_LIBRARY_DIRS})
