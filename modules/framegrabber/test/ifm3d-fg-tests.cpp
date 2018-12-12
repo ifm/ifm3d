@@ -69,8 +69,10 @@ TEST(FrameGrabber, ByteBufferBasics)
   std::vector<float> extrinsics = buff->Extrinsics();
   std::vector<std::uint32_t> exposures = buff->ExposureTimes();
   std::vector<float> intrinsic = buff->Intrinsics();
+  std::vector<float> inverseIntrinsic = buff->InverseIntrinsics();
 
   EXPECT_TRUE(std::equal(intrinsic.begin(), intrinsic.end(), zeros.begin()));
+  EXPECT_TRUE(std::equal(inverseIntrinsic.begin(), inverseIntrinsic.end(), zeros.begin()));
   EXPECT_TRUE(std::equal(extrinsics.begin(), extrinsics.end(), zeros.begin()));
   EXPECT_TRUE(std::equal(exposures.begin(), exposures.end(), zeros.begin()));
 }

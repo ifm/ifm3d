@@ -31,8 +31,8 @@ template <typename Derived>
 ifm3d::ByteBuffer<Derived>::ByteBuffer()
   : dirty_(false),
     extrinsics_({0.,0.,0.,0.,0.,0.}),
-    intrinsics_({-1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.}),
-    inverseIntrinsics_({-1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.}),
+    intrinsics_({0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.}),
+    inverseIntrinsics_({0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.}),
     intrinsic_available(false),
     inverse_intrinsic_available(false),
     exposure_times_({0,0,0}),
