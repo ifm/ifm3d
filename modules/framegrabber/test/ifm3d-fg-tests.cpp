@@ -151,15 +151,14 @@ TEST(FrameGrabber, InverseIntrinsicParamSchema)
    {
      auto fg = std::make_shared<ifm3d::FrameGrabber>(cam,mask);
      auto buff = std::make_shared<MyBuff>();
-     auto crossfoot=[](const std::vector<float>&v){float cf=0.0; for (auto i: v)cf+=i;return(cf);};
 
      EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
 
      std::vector<float> intrinsics=buff->Intrinsics();
-     EXPECT_TRUE( crossfoot( intrinsics ) > 0.0 );
+     EXPECT_TRUE( std::accumulate( intrinsics.begin(), intrinsics.end(), 0.) > 0. );
 
      std::vector<float> inverseIntrinsics=buff->InverseIntrinsics();
-     EXPECT_TRUE( crossfoot( inverseIntrinsics ) > 0.0 );
+     EXPECT_TRUE( std::accumulate( inverseIntrinsics.begin(), inverseIntrinsics.end(), 0. ) > 0.0 );
    }
   else if(cam->IsO3D())
    {
