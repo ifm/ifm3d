@@ -1,6 +1,8 @@
 ## Changes between ifm3d 0.11.2 and 0.12.0
 
 * Fixes to build infrastructure in support of windows unit tests
+* Added support to retrieve the inverse intrinsic parameters from O3D3xx
+  cameras
 
 ## Changes between ifm3d 0.11.1 and 0.11.2
 
