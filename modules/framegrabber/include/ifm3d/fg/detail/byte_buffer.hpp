@@ -32,7 +32,9 @@ ifm3d::ByteBuffer<Derived>::ByteBuffer()
   : dirty_(false),
     extrinsics_({0.,0.,0.,0.,0.,0.}),
     intrinsics_({0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.}),
+    inverseIntrinsics_({0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.}),
     intrinsic_available(false),
+    inverse_intrinsic_available(false),
     exposure_times_({0,0,0}),
     time_stamp_(std::chrono::system_clock::now())
 { }
@@ -146,6 +148,14 @@ ifm3d::ByteBuffer<Derived>::Intrinsics()
 }
 
 template <typename Derived>
+std::vector<float>
+ifm3d::ByteBuffer<Derived>::InverseIntrinsics()
+{
+  this->Organize();
+  return this->inverseIntrinsics_;
+}
+
+template <typename Derived>
 std::vector<std::uint32_t>
 ifm3d::ByteBuffer<Derived>::ExposureTimes()
 {
@@ -192,6 +202,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
   std::size_t extidx = INVALID_IDX;
   std::size_t gidx = INVALID_IDX;
   std::size_t intridx = INVALID_IDX;
+  std::size_t invintridx = INVALID_IDX;
 
   xyzidx = ifm3d::get_chunk_index(this->bytes_,
                                   ifm3d::image_chunk::CARTESIAN_ALL);
@@ -241,6 +252,13 @@ ifm3d::ByteBuffer<Derived>::Organize()
                                       ifm3d::image_chunk::INTRINSIC_CALIBRATION);
     }
 
+  if( !inverse_intrinsic_available )
+  {
+    invintridx = ifm3d::get_chunk_index(this->bytes_,
+                                  ifm3d::image_chunk::INVERSE_INTRINSIC_CALIBRATION);
+  }
+
+
   VLOG(IFM3D_PROTO_DEBUG) << "xyzidx=" << xyzidx
                           << ", xidx=" << xidx
                           << ", yidx=" << yidx
@@ -252,7 +270,8 @@ ifm3d::ByteBuffer<Derived>::Organize()
                           << ", uidx=" << uidx
                           << ", extidx=" << extidx
                           << ", gidx=" << gidx
-                          << ", intridx=" << intridx;
+                          << ", intridx=" << intridx
+                          << ", invintridx=" << invintridx;
 
   // if we do not have a confidence image we cannot go further
   if (cidx == INVALID_IDX)
@@ -288,6 +307,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
   bool U_OK = (uidx != INVALID_IDX);
   bool EXT_OK = (extidx != INVALID_IDX);
   bool INTR_OK = (intridx != INVALID_IDX);
+  bool INVINTR_OK = (invintridx != INVALID_IDX);
   bool G_OK = (gidx != INVALID_IDX);
   bool CART_OK =
     ((xidx != INVALID_IDX) && (yidx != INVALID_IDX) && (zidx != INVALID_IDX));
@@ -335,6 +355,10 @@ ifm3d::ByteBuffer<Derived>::Organize()
     INTR_OK ?
     ifm3d::mkval<std::uint32_t>(this->bytes_.data()+intridx+24) :
     INVALID_FMT;
+  std::uint32_t invintrfmt =
+    INVINTR_OK ?
+    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+invintridx+24) :
+    INVALID_FMT;
 
   VLOG(IFM3D_PROTO_DEBUG) << "xfmt=" << xfmt
                           << ", yfmt=" << yfmt
@@ -346,7 +370,8 @@ ifm3d::ByteBuffer<Derived>::Organize()
                           << ", ufmt=" << ufmt
                           << ", extfmt=" << extfmt
                           << ", gfmt=" << gfmt
-                          << ", intrfmt= " << intrfmt;
+                          << ", intrfmt= " << intrfmt
+                          << ", invintrfmt= " << invintrfmt;
   // get the image dimensions
   std::uint32_t width =
     ifm3d::mkval<std::uint32_t>(this->bytes_.data()+cidx+16);
@@ -526,6 +551,40 @@ ifm3d::ByteBuffer<Derived>::Organize()
                 ifm3d::mkval<float>(this->bytes_.data()+intridx);
         }
       this->intrinsic_available = true;
+    }
+
+  //
+  //   intrinsic calibration
+  //
+  if (INVINTR_OK)
+    {
+      //size of the chunk data
+      std::uint32_t chunk_size =
+      ifm3d::mkval<uint32_t >(this->bytes_.data() + invintridx + 4);
+      invintridx += pixel_data_offset;
+      if (invintrfmt !=
+          static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F))
+        {
+          LOG(ERROR) << "Inverse intrinsic are expected to be float, not: "
+                     << invintrfmt;
+          throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
+        }
+      if (header_version < 2 && (chunk_size - pixel_data_offset)
+          != ifm3d::NUM_INTRINSIC_PARAM * sizeof(uint32_t))
+        {
+          LOG(ERROR) << "Header Version expected value is >=2, not :"
+                     << header_version
+                     << "Intrinsic param dataLength expected value 64, not :"
+                     << chunk_size - pixel_data_offset;
+
+        throw ifm3d::error_t(IFM3D_HEADER_VERSION_MISMATCH);
+        }
+      for (std::size_t i = 0; i < ifm3d::NUM_INTRINSIC_PARAM; ++i, invintridx += 4)
+        {
+          this->inverseIntrinsics_[i] =
+                ifm3d::mkval<float>(this->bytes_.data()+invintridx);
+        }
+      this->inverse_intrinsic_available = true;
     }
 
   //

@@ -66,7 +66,8 @@ namespace ifm3d
     CONFIDENCE = 300,
     DIAGNOSTIC_DATA = 302,
     EXTRINSIC_CALIBRATION = 400,
-    INTRINSIC_CALIBRATION = 401
+    INTRINSIC_CALIBRATION = 401,
+    INVERSE_INTRINSIC_CALIBRATION = 402,
   };
   // intrinsic param key which cahn be used for indexing the vector of the
   // intrinsic parameter
@@ -309,6 +310,12 @@ namespace ifm3d
     std::vector<float> Intrinsics();
 
     /**
+     *  Returns a 16-element vector containing the inverse intrinsic
+     *  calibration of the camera. See Intrinsics() for further information
+     */
+    std::vector<float> InverseIntrinsics();
+
+    /**
      * Returns a 3-element vector containing the exposure times (usec) for the
      * current frame. Unused exposure times are reported as 0.
      *
@@ -449,10 +456,14 @@ namespace ifm3d
     std::vector<float> extrinsics_;
 
     /**
-     * Intrinsic calibration WRT camera lense:
-     * parameter are stored in String in JSon parameter
+     * Intrinsic calibration WRT camera lense
      */
     std::vector<float> intrinsics_;
+
+    /**
+     * Inverse intrinsic calibration WRT camera lense:
+     */
+    std::vector<float> inverseIntrinsics_;
 
     /**
      * Exposure time(s) (up to 3), registered to the current frame.
@@ -475,6 +486,7 @@ namespace ifm3d
      * flag for checking if intrinsic values are already available
      */
     bool intrinsic_available;
+    bool inverse_intrinsic_available;
   }; // end: class ByteBuffer
 
 } // end: namespace ifm3d
