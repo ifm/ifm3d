@@ -51,6 +51,13 @@ To start the NTP servers
 ```
 > net start w32time
 ```
+To update the configuration without restart of NTP server 
+```
+> w32tm /config /update
+```
+
+Note : Firewall or port filter blocks NTP packages. Make sure that firewall settings in Windows 
+enable UDP protocol in both ways (inbound/outbound) on port 123
 
 ### Enabling the Linux NTP Server
 
