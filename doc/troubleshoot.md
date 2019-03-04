@@ -9,6 +9,7 @@ be experiencing with ifm3d library or ifm 3d cameras.
 - [Connecting the camera](#Connecting-the-camera)
 - [ifm3d logging](#ifm3d-logging)
 - [ifm3d not found](#ifm3d-not-found)
+- [WaitForFrame Timeout](#waitforframe-timeout)
 
 ## Connecting the camera
 While connecting to device through ifm3d e.g.
@@ -120,3 +121,29 @@ explained very well
 
 Use intruction at the https://github.com/lovepark/ifm3d#the-default-build to
 build and install the library on Linux.
+
+## WaitForFrame Timeout
+
+During runtime it can occur that the camera reports a Timeout when calling for
+example ``fg->WaitForFrame(im.get(), 1000)``.
+This can be caused by an issue on the camera possible root causes:
+
+- Overheat, due to the active illumination and the configuration it can appear
+  that the camera is getting too hot.
+  So the camera needs to stop the image acquisition until it is cooled down.
+- Issues with the power supply. The O3D3XX does have an internal power supply
+  monitoring. If an under or over voltage  situation is detected the image
+  acquisition is also stopped.
+- Other none recoverable hardware issues detected by the on board camera
+  diagnostics.
+
+During development and for getting support on [GitHub](https://github.com/ifm/ifm3d/issues)
+the ``ifm3d trace`` command is a powerful information source.
+
+Within your application the trace command is not suitable for diagnostic. A
+better source of information are the asynchronous notifications send by the camera. You can use the
+``pcicclient`` module to receive those notifications and error messages. Please
+take a look at the example code provided by
+[ifm3d-examples](https://github.com/ifm/ifm3d-examples/tree/master/pcicclient_async_messages)
+the anotated list of error codes is provided in the doc folder
+[doc/pcic_async_errors.md](doc/pcic_async_errors.md).
