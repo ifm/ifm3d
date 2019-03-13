@@ -76,9 +76,9 @@ Installing the Software
 Binaries for ifm3d are available on a few supported platforms. Instructions for
 each now follow.
 
-## Linux
+### Linux
 
-### Configure the ifm apt server
+#### Configure the ifm apt server
 
 We are currently supporting binaries for the two most recent LTS releases of
 Ubuntu Linux. The first step in installation is to set up your computer to
@@ -87,37 +87,37 @@ will depend on your version of Ubuntu and whether or not you plan to utilize
 the [ifm3d ROS bindings](https://github.com/ifm/ifm3d-ros). Please follow the
 instructions appropriate for your machine below:
 
-#### Ubuntu 16.04, no ROS
+##### Ubuntu 16.04, no ROS
 
 ```
 $ sudo sh -c 'echo "deb [arch=amd64] https://nexus.ifm.com/repository/ifm-robotics_ubuntu_xenial_amd64 xenial main" > /etc/apt/sources.list.d/ifm-robotics.list'
 ```
 
-#### Ubuntu 18.04, no ROS
+##### Ubuntu 18.04, no ROS
 
 ```
 $ sudo sh -c 'echo "deb [arch=amd64] https://nexus.ifm.com/repository/ifm-robotics_ubuntu_bionic_amd64 bionic main" > /etc/apt/sources.list.d/ifm-robotics.list'
 ```
 
-#### Ubuntu 16.04, ROS Kinetic
+##### Ubuntu 16.04, ROS Kinetic
 
 ```
 $ sudo sh -c 'echo "deb [arch=amd64] https://nexus.ifm.com/repository/ifm-robotics_ubuntu_xenial_amd64_ros xenial main" > /etc/apt/sources.list.d/ifm-robotics.list'
 ```
 
-#### Ubuntu 18.04, ROS Melodic
+##### Ubuntu 18.04, ROS Melodic
 
 ```
 $ sudo sh -c 'echo "deb [arch=amd64] https://nexus.ifm.com/repository/ifm-robotics_ubuntu_bionic_amd64_ros bionic main" > /etc/apt/sources.list.d/ifm-robotics.list'
 ```
 
-### Set up your keys
+#### Set up your keys
 
 ```
 $ sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 8AB59D3A2BD7B692
 ```
 
-### Install
+#### Install
 
 Update your package index:
 
@@ -149,11 +149,11 @@ source. Those instructions are located at the
 above will simply install the core `ifm3d` sensor interface and tools, linked
 properly against libraries in your ROS environment.
 
-## Windows
+### Windows
 
 Coming soon...
 
-## Other platforms
+### Other platforms
 
 If you are running on a platform we did not mention above, the links below will
 assist you in building from source code. Alternatively, if you are simply
