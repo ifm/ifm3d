@@ -63,6 +63,13 @@ The ifm3d software is organized into modules, they are:
     the hardware interactively. It is also suitable for usage within shell
     scripts to, for example, manage fleets of cameras.</td>
   </tr>
+  <tr>
+    <td>pybind11</td>
+    <td>Provides python bindings through
+    <a href="https://github.com/pybind/pybind11">pybind11</a> to the native C++ API.
+    Supports all general camera functionality as well as a zero-copy interface 
+    to image data, exposed as NumPy arrays.</td>
+  </tr>
 </table>
 
 As of version 0.9.0, we have removed the `viewer` sub-command from the `ifm3d`
@@ -133,7 +140,9 @@ $ sudo apt-get install ifm3d-camera \
                        ifm3d-image \
                        ifm3d-opencv \
                        ifm3d-pcicclient \
-                       ifm3d-tools
+                       ifm3d-tools \
+                       ifm3d-python \
+                       ifm3d-python3
 ```
 
 If you are on a non-ROS platform, you can also install the default non-ROS
@@ -166,6 +175,7 @@ Additional Resources
 --------------------
 * [Building from source on Linux](doc/source_build.md)
 * [Building on Windows](doc/windows.md)
+* [Building and using Python bindings](doc/python.md)
 * [Basic library usage](doc/basic_usage.md)
 * [ifm3d command line tool](doc/cmdline.md)
 * [Configuring Your Camera](doc/configuring.md)
