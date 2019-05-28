@@ -1,3 +1,6 @@
+## Next release version
+*  PCIC timeout issue fixed
+
 ## Changes between ifm3d 0.14.1 and 0.15.0
 * Added Interface for getting json_model from O3D3xx devices.
 
