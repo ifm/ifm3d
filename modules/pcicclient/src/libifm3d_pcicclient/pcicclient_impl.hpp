@@ -49,7 +49,7 @@ namespace ifm3d
 	const int PRE_CONTENT_BUFFER_LENGTH = 20;
 	const int POST_CONTENT_BUFFER_LENGTH = 2;
 
- 
+
   //============================================================
   // Impl interface
   //============================================================
@@ -102,8 +102,35 @@ namespace ifm3d
 	*
 	* @return Copy of received plain response data as string
 	* (without any header information, like ticket, length, etc.)
+	*
+	* NOTE: This Call can block and hang indefinitely depending upon PCIC response.
 	*/
 	std::string Call(const std::string& request);
+
+	/**
+	* Similar to the Call function above.
+	*
+	* Sends a PCIC command to the camera and returns the response
+	* as soon as it has been received. In the meanwhile, this call
+	* is blocked.
+	*
+	* @param[in] request String containing the plain command
+	* (without any header infomration, like ticket, length, etc.)
+	*
+	* @param[in] response String containing the response from the camera
+	*  providing the plain response data as string
+	* (without any header information, like ticket, length, etc.)
+	*
+	* @param[in] timeout in milliseconds, in case, the PCIC fails to come
+	* through.
+	*
+	* NOTE: This Call can fail with no response if supplied with an
+	* unsuitable "timeout_millis" value. Providing timeout_millis value as 0
+	* results in behaviour similar to the above Call method.
+	*
+	* @return true if Call succeeded, false if failed.
+	*/
+	bool Call(const std::string& request, std::string &response, long timeout_millis);
 
 	/**
 	* Sets the specified callback for receiving asynchronous error messages
@@ -285,7 +312,7 @@ namespace ifm3d
      * Using callback ids for cancelling callbacks instead of tickets eliminates
      * the risk of cancelling a newer callback with the same ticket.
      */
-    long current_callback_id_;
+    unsigned long current_callback_id_;
 
     /**
      * Maps PCIC tickets to callback ids. When receiving an incoming message,
@@ -501,26 +528,75 @@ ifm3d::PCICClient::Impl::Call(const std::string& request,
 std::string
 ifm3d::PCICClient::Impl::Call(const std::string& request)
 {
-	std::atomic_bool has_result(false);
-	std::string result;
+  std::string response;
+  Call(request, response, 0);
+  return response;
+}
 
-	Call(request, [&](const std::string& content)
-	{
-		// Copy content, notify and leave callback
-		result = content;
-		std::unique_lock<std::mutex> lock(this->in_mutex_);
-		has_result.store(true);
-		this->in_cv_.notify_all();
-	});
+bool/* @R Consider boost::asio::error return type here */
+ifm3d::PCICClient::Impl::Call(const std::string& request, std::string& response, long timeout_millis)
+{
+  std::atomic_bool has_result(false);
+  long call_output = -1;
 
-	std::unique_lock<std::mutex> lock(this->in_mutex_);
-	while (!has_result.load())
-	{
-		this->in_cv_.wait(lock);
-	}
-	lock.unlock();
+  // Handle the PCIC Call
 
-	return result;
+  std::unique_ptr<std::thread> call_thread_ = std::make_unique<std::thread>([&]{
+  call_output = Call(request, [&](const std::string& content)
+  {
+    // Copy content, notify and leave callback
+    response = content;
+    std::unique_lock<std::mutex> lock(this->in_mutex_);
+    has_result.store(true);
+    this->in_cv_.notify_all();
+
+  });
+
+  });
+
+  if(call_thread_ && call_thread_->joinable()) call_thread_->join();
+  
+  // Check the return value of our PCIC Call
+  if(call_output > 0)
+  {
+    std::unique_lock<std::mutex> lock(this->in_mutex_);
+    try
+    {
+      if (timeout_millis <= 0)
+      {
+        this->in_cv_.wait(lock, [&]{return has_result.load();});
+      }
+
+      else
+      {
+        if (this->in_cv_.wait_for(
+              lock, std::chrono::milliseconds(timeout_millis)) ==
+            std::cv_status::timeout)
+        {
+          this->in_cv_.notify_all();
+          if(this->thread_ && this->thread_->joinable())
+          {
+          	this->Stop();
+          	this->thread_->join();
+          }
+          return has_result.load();
+        }
+
+        else
+        {
+          this->in_cv_.wait(lock, [&]{return has_result.load();});
+        }
+      }
+    }
+
+    catch (const std::system_error& ex)
+    {
+      LOG(WARNING) << "PCICClient::Call: " << ex.what();
+      return has_result.load();
+    }
+  }
+
+  return has_result.load();
 }
 
 long
@@ -786,13 +862,7 @@ ifm3d::PCICClient::Impl::NextCommandTicket()
 long
 ifm3d::PCICClient::Impl::NextCallbackId()
 {
-  // In case of long overflow, reset to 1
-  if(++this->current_callback_id_ <= 0)
-    {
-      this->current_callback_id_ = 1;
-    }
-
-  return this->current_callback_id_;
+  return (this->current_callback_id_ == 0)? (this->current_callback_id_ = 1) : (++this->current_callback_id_) ;
 }
 
 
