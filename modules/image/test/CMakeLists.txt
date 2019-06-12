@@ -29,9 +29,9 @@ file(GLOB TEST_SOURCES *.cpp)
 add_executable(ifm3d-image-tests ${TEST_SOURCES})
 target_link_libraries(ifm3d-image-tests
                       gtest_main
-                      ifm3d_image_shared
-                      ifm3d_framegrabber_shared
-                      ifm3d_camera_shared
+                      ifm3d_image
+                      ifm3d_framegrabber
+                      ifm3d_camera
                       ${LIB_glog}
                       )
 
