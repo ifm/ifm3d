@@ -1,4 +1,6 @@
 ## Changes between ifm3d 0.12.0 and 0.13.0
+* Honor semantics of CMake's BUILD_SHARED_LIBS flag (ON by default). Setting
+  to off will build and link against ifm3d modules as static libraries.
 
 ## Changes between ifm3d 0.11.2 and 0.12.0
 
