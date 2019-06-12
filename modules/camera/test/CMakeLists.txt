@@ -22,7 +22,7 @@ file(GLOB TEST_SOURCES *.cpp)
 add_executable(ifm3d-camera-tests ${TEST_SOURCES})
 target_link_libraries(ifm3d-camera-tests
                       gtest_main
-                      ifm3d_camera_shared
+                      ifm3d_camera
                       )
 
 if(NOT CMAKE_CROSSCOMPILING)
