@@ -106,7 +106,7 @@ cmake --build . --clean-first --config %CONFIG% --target INSTALL
 Download:
 ```
 cd %IFM3D_BUILD_DIR%
-git clone --branch 1.33.14-cmake https://github.com/graugans/xmlrpc-c.git
+git clone --branch 1.33.14-cmake https://github.com/ifm/xmlrpc-c.git
 ```
 
 Build:
@@ -114,7 +114,7 @@ Build:
 cd %IFM3D_BUILD_DIR%\xmlrpc-c
 mkdir build
 cd build
-cmake -Ax64  -DCMAKE_INSTALL_PREFIX=%IFM3D_BUILD_DIR%\install ..
+cmake -Ax64 -DCMAKE_PREFIX_PATH=%IFM3D_BUILD_DIR%\install -DCMAKE_INSTALL_PREFIX=%IFM3D_BUILD_DIR%\install ..
 cmake --build . --clean-first --config %CONFIG% --target INSTALL
 ```
 
@@ -194,7 +194,7 @@ Build:
 cd %IFM3D_BUILD_DIR%\pcl
 mkdir build
 cd build
-cmake -A x64 DPCL_ENABLE_SSE=OFF -DWITH_CUDA=OFF -DWITH_DAVIDSDK=OFF -DWITH_DOCS=OFF -DWITH_DSSDK=OFF -DWITH_ENSENSO=OFF -DWITH_FZAPI=OFF -DWITH_LIBUSB=OFF -DWITH_OPENGL=ON -DWITH_OPENNI=OFF -DWITH_OPENNI2=OFF -DWITH_PCAP=OFF -DWITH_PNG=OFF -DWITH_QHULL=OFF -DWITH_QT=OFF -DWITH_RSSDK=OFF -DCMAKE_INSTALL_PREFIX=%IFM3D_BUILD_DIR%\install ..
+cmake -A x64 -DPCL_ENABLE_SSE=OFF -DWITH_CUDA=OFF -DWITH_DAVIDSDK=OFF -DWITH_DOCS=OFF -DWITH_DSSDK=OFF -DWITH_ENSENSO=OFF -DWITH_FZAPI=OFF -DWITH_LIBUSB=OFF -DWITH_OPENGL=ON -DWITH_OPENNI=OFF -DWITH_OPENNI2=OFF -DWITH_PCAP=OFF -DWITH_PNG=OFF -DWITH_QHULL=OFF -DWITH_QT=OFF -DWITH_RSSDK=OFF -DCMAKE_INSTALL_PREFIX=%IFM3D_BUILD_DIR%\install ..
 cmake --build . --clean-first --config %CONFIG% --target INSTALL
 ```
 
@@ -225,7 +225,7 @@ git clone --branch release-1.8.1 https://github.com/google/googletest.git
 Download:
 ```
 cd %IFM3D_BUILD_DIR%
-git clone  https://github.com/lovepark/ifm3d.git
+git clone  https://github.com/ifm/ifm3d.git
 ```
 To build the OpenCV module instead of the PCL use following additional compiler flag 
 ```
