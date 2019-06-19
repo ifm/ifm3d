@@ -8,7 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distribted on an "AS IS" BASIS,
+# distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
@@ -26,10 +26,16 @@ def get_version_from_cmakelists():
     installation through setuptools, pip, etc and cannot rely on the
     presence of auto-generated cmake variables.
     """
+
+    # CMakeLists is either three levels up (if tests are run in place)
+    # or four levels up (if being run through cmake in an out-of-source dir)
+    # Check both locations.
     path_to_cmakelists = os.path.abspath('../../../CMakeLists.txt')
     if not os.path.isfile(path_to_cmakelists):
-        raise RuntimeError('CMakeLists.txt not found, ' +
-                           'unable to parse project version!')
+        path_to_cmakelists = os.path.abspath('../../../../CMakeLists.txt')
+        if not os.path.isfile(path_to_cmakelists):
+            raise RuntimeError('CMakeLists.txt not found, ' +
+                               'unable to parse project version!')
 
     with open(path_to_cmakelists, "r") as f:
         lines = f.readlines()
