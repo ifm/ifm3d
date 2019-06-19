@@ -8,7 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distribted on an "AS IS" BASIS,
+# distributed under the License is distribtued on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
@@ -81,9 +81,21 @@ def test_inverseintrinsicparamschema():
         buff = ifm3dpy.ImageBuffer()
         assert fg.wait_for_frame(buff, 1000)
     elif (cam.is_O3D()):
-        print("HEERE")
         with pytest.raises(RuntimeError):
             fg = ifm3dpy.FrameGrabber(cam, mask)
+
+def test_framegrabberrecycling():
+    cam = ifm3dpy.Camera()
+    fg = ifm3dpy.FrameGrabber(cam)
+    buff = ifm3dpy.ImageBuffer()
+
+    for i in range(5):
+        assert fg.wait_for_frame(buff, 1000)
+
+    fg.reset(cam)
+
+    for i in range(5):
+        assert fg.wait_for_frame(buff, 1000)
 
 def test_softwaretrigger():
     cam = ifm3dpy.Camera()

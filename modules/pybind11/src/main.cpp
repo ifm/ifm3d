@@ -38,6 +38,88 @@
 
 namespace py = pybind11;
 
+namespace ifm3d
+{
+  /**
+   * Helper class for binding ifm3d::FrameGrabber
+   *
+   * Simple wrapper around ifm3d::FrameGrabber with the following additions:
+   * - The WaitForFrame function signature is compatible with passing a bound
+   *   ifm3d::OpenCVBuffer object from Python
+   * - Addition of a Reset method which is used to emulate the .reset()
+   *   semantics on the C++ shared_ptr when, for example, changing the imager
+   *   mask.
+   */
+  class FrameGrabberWrapper
+  {
+  public:
+    using Ptr = std::shared_ptr<FrameGrabberWrapper>;
+
+    /**
+     * Creates an internally-held ifm3d::FrameGrabber object with the
+     * provided arguments (1:1 map to the ifm3d::FrameGrabber ctor)
+     */
+    FrameGrabberWrapper(ifm3d::Camera::Ptr cam,
+                        std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK);
+
+    // disable copy/move semantics
+    FrameGrabberWrapper(FrameGrabberWrapper&&) = delete;
+    FrameGrabberWrapper& operator=(FrameGrabberWrapper&&) = delete;
+    FrameGrabberWrapper(FrameGrabberWrapper&) = delete;
+    FrameGrabberWrapper& operator=(const FrameGrabberWrapper&) = delete;
+
+    /**
+     * Passthrough to ifm3d::FrameGrabber::SWTrigger
+     */
+    void SWTrigger();
+
+    /**
+     * Passthough to ifm3d::FrameGrabber::WaitForFrame
+     */
+    bool WaitForFrame(const ifm3d::OpenCVBuffer::Ptr& buff,
+                      long timeout_millis,
+                      bool copy_buff,
+                      bool organize);
+
+    /**
+     * Resets the internal shared_ptr and creates a new FrameGrabber
+     * with the provided arguments. Does this in two distinct steps
+     * to force destruction of the object (for the O3X)
+     */
+    void Reset(ifm3d::Camera::Ptr cam,
+               std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK);
+
+  private:
+    ifm3d::FrameGrabber::Ptr fg_;
+  };
+
+  FrameGrabberWrapper::FrameGrabberWrapper(ifm3d::Camera::Ptr cam,
+                                           std::uint16_t mask)
+    : fg_(std::make_shared<ifm3d::FrameGrabber>(cam, mask)) {}
+
+  void FrameGrabberWrapper::SWTrigger()
+  {
+    this->fg_->SWTrigger();
+  }
+
+  bool FrameGrabberWrapper::WaitForFrame(
+      const ifm3d::OpenCVBuffer::Ptr& buff,
+      long timeout_millis,
+      bool copy_buff,
+      bool organize)
+  {
+    return this->fg_->WaitForFrame(buff.get(), timeout_millis,
+                                   copy_buff, organize);
+  }
+
+  void FrameGrabberWrapper::Reset(ifm3d::Camera::Ptr cam, std::uint16_t mask)
+  {
+    // Two distinct steps (required because O3X only accepts one connection)
+    this->fg_.reset();
+    this->fg_ = std::make_shared<ifm3d::FrameGrabber>(cam, mask);
+  }
+}
+
 PYBIND11_MODULE(ifm3dpy, m)
 {
   m.doc() = "Bindings for the ifm3d Camera Library";
@@ -326,7 +408,7 @@ PYBIND11_MODULE(ifm3dpy, m)
             Image organized on the pixel array [rows, cols, chans(x,y,z)]
       )");
 
-  py::class_<ifm3d::FrameGrabber, ifm3d::FrameGrabber::Ptr>(
+  py::class_<ifm3d::FrameGrabberWrapper, ifm3d::FrameGrabberWrapper::Ptr>(
     m,
     "FrameGrabber",
     R"(
@@ -350,7 +432,7 @@ PYBIND11_MODULE(ifm3dpy, m)
         )")
     .def(
       "sw_trigger",
-      &ifm3d::FrameGrabber::SWTrigger,
+      &ifm3d::FrameGrabberWrapper::SWTrigger,
       R"(
         Triggers the camera for image acquisition
 
@@ -368,14 +450,12 @@ PYBIND11_MODULE(ifm3dpy, m)
       )")
     .def(
       "wait_for_frame",
-      [](const ifm3d::FrameGrabber::Ptr& fg,
-         const ifm3d::OpenCVBuffer::Ptr& buff,
-         long timeout_millis, bool copy_buff, bool organize)
-      {
-        return fg->WaitForFrame(buff.get(), timeout_millis,
-                                copy_buff, organize);
-      },
+      &ifm3d::FrameGrabberWrapper::WaitForFrame,
       py::call_guard<py::gil_scoped_release>(),
+      py::arg("buff"),
+      py::arg("timeout_millis") = 0,
+      py::arg("copy_buff") = false,
+      py::arg("organize") = true,
       R"(
         This function is used to grab and parse out time synchronized image
         data from the camera.
@@ -410,11 +490,24 @@ PYBIND11_MODULE(ifm3dpy, m)
         bool
             True if a new buffer was acquired w/in "timeout_millis", false
             otherwise.
-      )",
-    py::arg("buff"),
-    py::arg("timeout_millis") = 0,
-    py::arg("copy_buff") = false,
-    py::arg("organize") = true);
+      )")
+  .def(
+    "reset",
+    &ifm3d::FrameGrabberWrapper::Reset,
+    py::arg("cam"),
+    py::arg("mask") = ifm3d::DEFAULT_SCHEMA_MASK,
+    R"(
+      Resets the FrameGrabber with a new camera/bitmask
+
+      Parameters
+      ----------
+      cam : ifm3dpy.Camera
+          The camera instance to grab frames from.
+
+      mask : uint16
+          A bitmask encoding the image acquisition schema to stream in from
+          the camera.
+      )");
 
   /**
    * Bindings for the Camera module
