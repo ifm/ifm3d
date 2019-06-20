@@ -190,10 +190,10 @@ The `pybind11` module takes one additional dependency:
 
 #### [Pybind11](https://github.com/pybind/pybind11)
 Download:
-``` 
+```
 cd %IFM3D_BUILD_DIR%
 git clone https://github.com/pybind/pybind11.git
-cd pybind11 
+cd pybind11
 git checkout tags/v2.3.0
 ```
 
@@ -241,9 +241,9 @@ $ python -m pip install pytest
 
 The tests can be executed as follows:
 
-``` 
-$ cd modules/pybind11/test 
-$ python -m pytest . 
+```
+$ cd modules/pybind11/test
+$ python -m pytest .
 ```
 
 ## Usage
@@ -313,4 +313,31 @@ The C++ bindings do support true multithreading and release the python GIL for
 long running operations. This is most useful for scenarios where one thread is
 blocking on `wait_for_frame` and another thread is software triggering.
 
+### ifm3dpy.FrameGrabber.reset() Method
+
+One usage pattern of the ifm3d C++ API is to use the
+`std::shared_ptr<ifm3d::FrameGrabber>::reset()` method in order to change
+associated cameras or imager mask settings. Since this happens directly at the
+`std::shared_ptr` level, a helper method `ifm3dpy.FrameGrabber.reset()` has
+been created to emulate this usage pattern in Python. The following example
+demonstrates caching the unit vectors, changing the `FrameGrabber` schema, and
+then streaming data.
+
+```python
+#!/usr/bin/env python
+import ifm3dpy
+
+cam = ifm3dpy.Camera()
+fg = ifm3dpy.FrameGrabber(cam, ifm3dpy.IMG_UVEC)
+im = ifm3dpy.ImageBuffer()
+
+# Grab the unit vectors
+fg.wait_for_frame(im, 1000)
+uvec = im.unit_vectors()
+
+# Change the schema to radial distance
+fg.reset(cam, ifm3dpy.IMG_RDIS)
+fg.wait_for_frame(im, 1000)
+rdis = im.distance_image()
+```
 

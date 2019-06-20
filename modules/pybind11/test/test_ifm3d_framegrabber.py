@@ -81,9 +81,21 @@ def test_inverseintrinsicparamschema():
         buff = ifm3dpy.ImageBuffer()
         assert fg.wait_for_frame(buff, 1000)
     elif (cam.is_O3D()):
-        print("HEERE")
         with pytest.raises(RuntimeError):
             fg = ifm3dpy.FrameGrabber(cam, mask)
+
+def test_framegrabberrecycling():
+    cam = ifm3dpy.Camera()
+    fg = ifm3dpy.FrameGrabber(cam)
+    buff = ifm3dpy.ImageBuffer()
+
+    for i in range(5):
+        assert fg.wait_for_frame(buff, 1000)
+
+    fg.reset(cam)
+
+    for i in range(5):
+        assert fg.wait_for_frame(buff, 1000)
 
 def test_softwaretrigger():
     cam = ifm3dpy.Camera()
