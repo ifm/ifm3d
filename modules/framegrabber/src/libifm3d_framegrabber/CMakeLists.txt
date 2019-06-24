@@ -14,12 +14,13 @@ endif (NOT TARGET glog::glog)
 ## Target: libifm3d_framegrabber.so
 ################################################
 file(GLOB IFM3D_FG_SOURCES *.cpp)
-add_library(ifm3d_framegrabber_shared SHARED ${IFM3D_FG_SOURCES})
+add_library(ifm3d_framegrabber ${IFM3D_FG_SOURCES})
+set_property(TARGET ifm3d_framegrabber PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 #------------------
 # Compiler settings
 #------------------
-target_include_directories(ifm3d_framegrabber_shared
+target_include_directories(ifm3d_framegrabber
   PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${IFM3D_FG_BINARY_DIR}/include>
@@ -29,12 +30,12 @@ target_include_directories(ifm3d_framegrabber_shared
     ${Boost_INCLUDE_DIRS}
   )
 
-target_compile_options(ifm3d_framegrabber_shared
+target_compile_options(ifm3d_framegrabber
   PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++${CMAKE_CXX_STANDARD}>
   )
 
 if(WIN32)
-    target_compile_definitions(ifm3d_framegrabber_shared PRIVATE
+    target_compile_definitions(ifm3d_framegrabber PRIVATE
         IFM3D_FRAME_GRABBER_DLL_BUILD=1)
 endif(WIN32)
 
@@ -42,17 +43,17 @@ endif(WIN32)
 # Linker settings
 #------------------
 target_link_libraries(
-  ifm3d_framegrabber_shared
+  ifm3d_framegrabber
   PUBLIC
     ${LIB_glog}
   PRIVATE
-    ifm3d_camera_shared
+    ifm3d_camera
     Boost::system
     Threads::Threads
   )
 
 set_target_properties(
-  ifm3d_framegrabber_shared PROPERTIES
+  ifm3d_framegrabber PROPERTIES
   VERSION ${IFM3D_VERSION}
   EXPORT_NAME framegrabber
   OUTPUT_NAME ifm3d_framegrabber
@@ -62,7 +63,7 @@ set_target_properties(
 #------------------
 # Installation
 #------------------
-install(TARGETS ifm3d_framegrabber_shared
+install(TARGETS ifm3d_framegrabber
   EXPORT ifm3d-framegrabber-targets
   RUNTIME DESTINATION ${_bin} COMPONENT framegrabber
   LIBRARY DESTINATION ${_lib} COMPONENT framegrabber

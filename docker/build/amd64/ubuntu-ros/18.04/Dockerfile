@@ -22,8 +22,21 @@ RUN apt-get update && \
     apt-get install -y jq \
                        libgoogle-glog-dev \
                        libxmlrpc-c++8-dev \
+                       python-dev \
+                       python3-dev \
                        locales \
                        sudo
+
+RUN mkdir -p /opt && \
+    cd /opt && \
+    git clone https://github.com/pybind/pybind11 && \
+    cd pybind11 && \
+    git checkout tags/v2.3.0 && \
+    mkdir build && \
+    cd build && \
+    cmake -DPYBIND11_TEST=OFF .. && \
+    make && \
+    make install
 
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
     locale-gen en_US.UTF-8 && \
@@ -46,9 +59,12 @@ RUN /bin/bash -c 'mkdir src && \
     if [ "x$vtag" = "x" ]; then echo "Building from master"; else git checkout tags/$vtag; fi && \
     mkdir build && \
     cd build && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON .. && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON -DBUILD_MODULE_PYBIND11=ON -DPYTHON_EXECUTABLE=/usr/bin/python .. && \
     make -j $ncores && \
     if [ "x$run_tests" = "x" ]; then echo "Skipping tests..."; else make check; fi && \
+    make package && \
+    cmake -DPYTHON_EXECUTABLE=/usr/bin/python3 .. && \
+    make -j $ncores && \
     make package && \
     make repackage && \
     ls -1 *.deb | grep -iv 'unspecified' | xargs sudo dpkg -i'
