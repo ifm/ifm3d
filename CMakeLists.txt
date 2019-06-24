@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 cmake_policy(SET CMP0048 NEW)
 # Manage version number here: Major.Minor.Patch (we don't use "tweak")
-project(IFM3D VERSION 0.12.0 LANGUAGES CXX)
+project(IFM3D VERSION 0.13.0 LANGUAGES CXX)
 set(GIT_PROJECT_NAME "ifm3d")
 
 # Make our cmake functions accessible
@@ -21,9 +21,11 @@ option(BUILD_MODULE_IMAGE "Build the image module" ON)
 option(BUILD_MODULE_OPENCV "Build the OpenCV-only image container" OFF)
 option(BUILD_MODULE_PCICCLIENT "Build the pcicclient module" OFF)
 option(BUILD_MODULE_TOOLS "Build the tools module" ON)
+option(BUILD_MODULE_PYBIND11 "Build the python bindings module" OFF)
 option(BUILD_SDK_PKG "Build install packages for development purposes" ON)
 option(FORCE_OPENCV3 "Force the build to require OpenCV 3" OFF)
 option(FORCE_OPENCV2 "Force the build to require OpenCV 2.4" OFF)
+option(BUILD_SHARED_LIBS "Build modules as shared libraries" ON)
 
 # Installation root
 set(CPACK_SET_DESTDIR true)
@@ -106,6 +108,10 @@ if(BUILD_MODULE_PCICCLIENT)
 endif()
 if(BUILD_MODULE_TOOLS)
   add_subdirectory(modules/tools)
+endif()
+if(BUILD_MODULE_PYBIND11)
+  add_definitions(-DBUILD_MODULE_PYBIND11)
+  add_subdirectory(modules/pybind11)
 endif()
 
 ################################################

@@ -69,7 +69,7 @@ endif(WIN32)
 #------------------
 target_link_libraries(
   ifm3d_tools_shared
-  ifm3d_camera_shared
+  ifm3d_camera
   ${LIB_glog}
   Boost::program_options
   ${CURL_LIBRARIES}
@@ -78,14 +78,14 @@ target_link_libraries(
 if (BUILD_MODULE_FRAMEGRABBER)
   target_link_libraries(
     ifm3d_tools_shared
-    ifm3d_framegrabber_shared
+    ifm3d_framegrabber
     )
 endif()
 
 if (BUILD_MODULE_IMAGE)
   target_link_libraries(
     ifm3d_tools_shared
-    ifm3d_image_shared
+    ifm3d_image
     )
 endif()
 

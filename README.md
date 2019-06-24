@@ -14,11 +14,11 @@ Current Revision
     <th>Notes</th>
   </tr>
   <tr>
-    <td>0.12.0</td>
+    <td>0.13.0</td>
     <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848</td>
     <td>1.0.111, 1.0.122, 1.0.126</td>
     <td>16.04,18.04</td>
-    <td>Inverse intrinsic parameters from O3D cameras</td>
+    <td>Introduced `pybind11` module to provide ifm3d Python bindings</td>
   </tr>
 </table>
 
@@ -62,6 +62,13 @@ The ifm3d software is organized into modules, they are:
     <td>Provides the ifm3d command line tool for manipulating and introspecting
     the hardware interactively. It is also suitable for usage within shell
     scripts to, for example, manage fleets of cameras.</td>
+  </tr>
+  <tr>
+    <td>pybind11</td>
+    <td>Provides python bindings through
+    <a href="https://github.com/pybind/pybind11">pybind11</a> to the native C++ API.
+    Supports all general camera functionality as well as a zero-copy interface 
+    to image data, exposed as NumPy arrays.</td>
   </tr>
 </table>
 
@@ -133,7 +140,9 @@ $ sudo apt-get install ifm3d-camera \
                        ifm3d-image \
                        ifm3d-opencv \
                        ifm3d-pcicclient \
-                       ifm3d-tools
+                       ifm3d-tools \
+                       ifm3d-python \
+                       ifm3d-python3
 ```
 
 If you are on a non-ROS platform, you can also install the default non-ROS
@@ -166,6 +175,7 @@ Additional Resources
 --------------------
 * [Building from source on Linux](doc/source_build.md)
 * [Building on Windows](doc/windows.md)
+* [Building and using Python bindings](doc/python.md)
 * [Basic library usage](doc/basic_usage.md)
 * [ifm3d command line tool](doc/cmdline.md)
 * [Configuring Your Camera](doc/configuring.md)
