@@ -5,6 +5,11 @@ FROM ros:kinetic-perception-xenial
 
 ENV DEBIAN_FRONTEND noninteractive
 
+# See:
+# http://answers.ros.org/question/325039/apt-update-fails-cannot-install-pkgs-key-not-working/
+RUN apt-key del 421C365BD9FF1F717815A3895523BAEEB01FA116
+RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+
 RUN apt-get update && apt-get -y upgrade
 RUN apt-get update && \
     apt-get install -y jq \
@@ -27,6 +32,7 @@ RUN echo 'deb [arch=amd64] https://nexus.ifm.com/repository/ifm-robotics_ubuntu_
 RUN apt-key adv \
          --keyserver hkp://ha.pool.sks-keyservers.net:80 \
          --recv-key 8AB59D3A2BD7B692
+
 RUN apt-get update && \
     apt-get install -y ifm3d-camera \
                        ifm3d-framegrabber \
