@@ -35,7 +35,7 @@ target_compile_options(ifm3d_opencv
 
 target_link_libraries(ifm3d_opencv
   INTERFACE
-    ifm3d_framegrabber_shared
+    ifm3d_framegrabber
     ${OpenCV_LIBRARIES}
     )
 
