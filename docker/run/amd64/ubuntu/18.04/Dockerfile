@@ -34,7 +34,9 @@ RUN apt-get update && \
                        ifm3d-opencv \
                        ifm3d-pcicclient \
                        ifm3d-tools \
-                       ifm3d-pcl-viewer
+                       ifm3d-pcl-viewer \
+                       ifm3d-python \
+                       ifm3d-python3
 
 RUN id ifm 2>/dev/null || useradd --uid 30000 --create-home -s /bin/bash -U ifm
 RUN echo "ifm ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers
