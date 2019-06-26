@@ -105,7 +105,6 @@ TEST(FrameGrabber, CustomSchema)
 
   EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
 }
-
 TEST(FrameGrabber, IntrinsicParamSchema)
 {
   LOG(INFO) << "IntrinsicParamSchema test";

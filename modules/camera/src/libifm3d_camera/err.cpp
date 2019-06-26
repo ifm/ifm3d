@@ -39,6 +39,9 @@ const int IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE = -1000016;
 const int IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE = -1000017;
 const int IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE = -1000018;
 const int IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE = -1000019;
+const int IFM3D_CURL_ERROR = -1000020;
+const int IFM3D_CURL_TIMEOUT = -1000021;
+const int IFM3D_CURL_ABORTED = -1000022;
 
 // sensor errors
 const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
@@ -110,6 +113,12 @@ const char *ifm3d::strerror(int errnum)
       return "Lib: Intrinsic parameter is not supported by Device";
     case IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE:
       return "Lib:  Intrinsic parameter is not supported by Firmware";
+    case IFM3D_CURL_ERROR:
+      return "Lib: Encountered an unexpected error in the CURL library";
+    case IFM3D_CURL_TIMEOUT:
+      return "Lib: An HTTP operation with CURL timed out. Can you 'ping' the camera?";
+    case IFM3D_CURL_ABORTED:
+      return "Lib: An HTTP operation with CURL was aborted.";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
       return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:

@@ -1,0 +1,1 @@
+add_subdirectory(libifm3d_swupdater)
