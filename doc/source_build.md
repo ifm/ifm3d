@@ -118,11 +118,11 @@ $ make
 $ make check
 $ make package
 $ make repackage
-$ sudo dpkg -i ifm3d_0.9.0_amd64-camera.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-swupdater.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-framegrabber.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-image.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-tools.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-camera.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-swupdater.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-framegrabber.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-image.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-tools.deb
 ```
 
 (The version number embedded in the deb file will be dependent upon which
@@ -164,7 +164,7 @@ A few important notes when building from source:
 
 Many `ifm3d` users seem to be moving away from PCL. To that end, it is possible
 to build `ifm3d` without any reliance on PCL yet still maintain a bridge to
-OpenCV image encodings. (NOTE: As of 0.9.0, it is also quite easy to build your
+OpenCV image encodings. (NOTE: As of 0.14.0, it is also quite easy to build your
 own image encoding to interoperate within the `ifm3d` ecosystem.)
 
 Building `ifm3d` without a PCL dependency looks like the following:
@@ -177,11 +177,11 @@ $ make
 $ make check
 $ make package
 $ make repackage
-$ sudo dpkg -i ifm3d_0.9.0_amd64-camera.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-framegrabber.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-swupdater.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-opencv.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-tools.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-camera.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-framegrabber.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-swupdater.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-opencv.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-tools.deb
 ```
 
 #### Building the Python Bindings
@@ -203,11 +203,11 @@ $ make -j 8
 $ make check
 $ make package
 $ make repackage
-$ sudo dpkg -i ifm3d_0.9.0_amd64-camera.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-framegrabber.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-swupdater.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-image.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-opencv.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-tools.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-pcicclient.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-camera.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-framegrabber.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-swupdater.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-image.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-opencv.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-tools.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-pcicclient.deb
 ```
