@@ -67,7 +67,7 @@ The ifm3d software is organized into modules, they are:
     <td>pybind11</td>
     <td>Provides python bindings through
     <a href="https://github.com/pybind/pybind11">pybind11</a> to the native C++ API.
-    Supports all general camera functionality as well as a zero-copy interface 
+    Supports all general camera functionality as well as a zero-copy interface
     to image data, exposed as NumPy arrays.</td>
   </tr>
 </table>
@@ -182,6 +182,7 @@ Additional Resources
 * [Viewing the Point Cloud](https://github.com/ifm/ifm3d-pcl-viewer)
 * [Implementing your own image container](doc/img_container.md)
 * [ROS](https://github.com/ifm/ifm3d-ros)
+* [ROS 2](https://github.com/ifm/ifm3d-ros2)
 * [Troubleshoot](doc/troubleshoot.md)
 
 
