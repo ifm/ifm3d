@@ -31,7 +31,10 @@ Make sure that you have installed CMake and Visual Studio 64bit before you move 
 [1.64 for Visual Studio 2017 (MSVC 14.1)](https://dl.bintray.com/boostorg/release/1.64.0/binaries/boost_1_64_0-msvc-14.1-64.exe) or [1.64 for Visual Studio 2015 (MSVC 14.0)](https://dl.bintray.com/boostorg/release/1.64.0/binaries/boost_1_64_0-msvc-14.0-64.exe))
 
 
-Note: Microsoft Visual C++ 2015 / Build Tools 14.0.25123.0 (and possibly later) is required as older versions don't support all required features of C++11. Thanks to the GitHub User [Fibird](https://github.com/Fibird) for the [hint](https://github.com/lovepark/ifm3d/issues/82#issuecomment-408664526).
+Note: Microsoft Visual C++ 2015 / Build Tools 14.0.25123.0 (and possibly
+later) is required as older versions don't support all required features of
+C++11. Thanks to the GitHub User [Fibird](https://github.com/Fibird) for the
+[hint](https://github.com/ifm/ifm3d/issues/82#issuecomment-408664526).
 
 Note: Only x64 builds are suppported.
 
@@ -226,7 +229,7 @@ git clone --branch release-1.8.1 https://github.com/google/googletest.git
 Download:
 ```
 cd %IFM3D_BUILD_DIR%
-git clone  https://github.com/lovepark/ifm3d.git
+git clone  https://github.com/ifm/ifm3d.git
 ```
 To build the OpenCV module instead of the PCL use following additional compiler flag
 ```
