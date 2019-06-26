@@ -72,6 +72,7 @@ class CMakeBuild(build_ext):
         # Build with cmake -- build only camera and framegrabber. Also build
         # them as static libs so the resulting python module is isolated.
         cmake_args = ['-DBUILD_MODULE_IMAGE=OFF',
+                      '-DBUILD_MODULE_SWUPDATER=OFF',
                       '-DBUILD_MODULE_TOOLS=OFF',
                       '-DBUILD_MODULE_PYBIND11=ON',
                       '-DBUILD_TESTS=OFF',

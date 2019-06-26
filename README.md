@@ -44,6 +44,11 @@ The ifm3d software is organized into modules, they are:
     data and triggered image acquisition.</td>
   </tr>
   <tr>
+    <td>swupdater</td>
+    <td>Provides utilities for managing the SWUpdate subsystem of the 
+    camera.</td>
+  </tr>
+  <tr>
     <td>image</td>
     <td>Provides a bridge from raw camera bytes to OpenCV and PCL image encodings.</td>
   </tr>
@@ -137,6 +142,7 @@ Install the software:
 ```
 $ sudo apt-get install ifm3d-camera \
                        ifm3d-framegrabber \
+                       ifm3d-swupdater \
                        ifm3d-image \
                        ifm3d-opencv \
                        ifm3d-pcicclient \
