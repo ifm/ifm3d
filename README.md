@@ -184,7 +184,8 @@ Additional Resources
 * [ROS](https://github.com/ifm/ifm3d-ros)
 * [ROS 2](https://github.com/ifm/ifm3d-ros2)
 * [Troubleshoot](doc/troubleshoot.md)
-
+* [Computing Cartesian data off-board](doc/compute_cartesian/O3D_Cartesian_Computation.ipynb) using the
+  `ifm3dpy` Python bindings.
 
 Known Issues, Bugs, and our TODO list
 -------------------------------------
