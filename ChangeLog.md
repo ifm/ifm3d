@@ -1,3 +1,24 @@
+## Changes between ifm3d 0.13.0 and 0.14.0
+* New module: swupdater -- utilities for updating camera firmware
+    * Ported functionality from `swupdate` command into its own library for 
+      programmatic consumption.
+    * Updated certain semantics of the `swupdate` command in the `tools`
+      module to match those of the other ifm3d `tools` commands
+        * Updated command line switch naming to match other ifm3d tools:
+          * `check` subcommand now invoked by `-c` or `--check`
+          * `reboot` subcommand now invoked by `-r` or `--reboot`
+        * `file` subcommand will now test for recovery and automatically
+          reboot the device into recovery as needed.
+* Disabled framegrabber's InverseIntrinsicParamSchema test due to suspected
+  false failures. Test case will be investigated and re-opened in a future
+  release.
+* Fixed issues with unit test scripts on Windows
+* Fixed Windows build documentation
+  * Added `BUILD_SHARED_LIBS` definition to `glog` to address issues with
+    logging to STDERR in Windows binaries
+  * Parameterized the CMake generator for easier building when multiple
+    versions of MSVC are installed concurrently
+
 ## Changes between ifm3d 0.12.0 and 0.13.0
 * Honor semantics of CMake's BUILD_SHARED_LIBS flag (ON by default). Setting
   to off will build and link against ifm3d modules as static libraries.
