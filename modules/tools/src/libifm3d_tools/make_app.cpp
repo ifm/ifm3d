@@ -99,11 +99,6 @@ app_factory =
      ->ifm3d::CmdLineApp::Ptr
      { return std::make_shared<ifm3d::TimeApp>(argc, argv, cmd); }},
 
-    {"swupdate",
-     [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::SwupdateApp>(argc, argv, cmd); }},
-
     {"trace",
      [](int argc, const char** argv, const std::string& cmd)
      ->ifm3d::CmdLineApp::Ptr
@@ -124,6 +119,13 @@ app_factory =
      [](int argc, const char** argv, const std::string& cmd)
      ->ifm3d::CmdLineApp::Ptr
      { return std::make_shared<ifm3d::JitterApp>(argc, argv, cmd); }},
+#endif
+
+#if defined(BUILD_MODULE_SWUPDATER)
+    {"swupdate",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::SWUpdateApp>(argc, argv, cmd); }},
 #endif
 
     {"version",

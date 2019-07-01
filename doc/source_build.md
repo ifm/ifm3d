@@ -19,22 +19,24 @@ Installing ifm3d from source
   </tr>
   <tr>
     <td><a href="http://www.cmake.org">CMake</a></td>
-    <td>camera, framegrabber, image, opencv, pcicclient, tools, pybind11</td>
+    <td>camera, framegrabber, swupdater, image, opencv, pcicclient, tools,
+    pybind11</td>
     <td>Meta-build framework</td>
   </tr>
   <tr>
     <td><a href="https://curl.haxx.se/libcurl">Curl</a></td>
-    <td>tools</td>
+    <td>tools, swupdater</td>
     <td>Used to help enable command-line based firmware flashing.</td>
   </tr>
   <tr>
     <td><a href="https://github.com/google/glog">Glog</a></td>
-    <td>camera, framegrabber, image, opencv, pcicclient, tools, pybind11</td>
+    <td>camera, framegrabber, swupdater, image, opencv, pcicclient, tools,
+    pybind11</td>
     <td>Logging framework</td>
   </tr>
   <tr>
     <td><a href="https://github.com/google/googletest">Gtest</a></td>
-    <td>camera, framegrabber, image, opencv, pcicclient, tools</td>
+    <td>camera, framegrabber, swupdater, image, opencv, pcicclient, tools</td>
     <td>Unit testing framework</td>
   </tr>
   <tr>
@@ -51,8 +53,8 @@ Installing ifm3d from source
     <td><a href="http://pointclouds.org">PCL</a></td>
     <td>image</td>
     <td>A 3D point cloud encoding. NOTE: the PCL dependency in ifm3d is
-    header-only (we need to construct a point cloud) however there is no runtime
-    linking dependency.</td>
+    header-only (we need to construct a point cloud) however there is no
+    runtime linking dependency.</td>
   </tr>
   <tr>
     <td><a href="https://github.com/pybind/pybind11">pybind11</a></td>
@@ -116,10 +118,11 @@ $ make
 $ make check
 $ make package
 $ make repackage
-$ sudo dpkg -i ifm3d_0.9.0_amd64-camera.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-framegrabber.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-image.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-tools.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-camera.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-swupdater.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-framegrabber.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-image.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-tools.deb
 ```
 
 (The version number embedded in the deb file will be dependent upon which
@@ -140,9 +143,9 @@ A few important notes when building from source:
   that, the build process allows you to explicitly call out which version of
   OpenCV you wish to use. For example, if you are using OpenCV 2.4, your
   `cmake` line above should look something like:
-  `$ cmake -DCMAKE_INSTALL_PREFIX=/usr -DFORCE_OPENCV2=ON ..`. Similarly, if you using
-   OpenCV 3, your `cmake` line above should look something like:
-   `$ cmake -DCMAKE_INSTALL_PREFIX=/usr -DFORCE_OPENCV3=ON ..`
+  `$ cmake -DCMAKE_INSTALL_PREFIX=/usr -DFORCE_OPENCV2=ON ..`. Similarly, if 
+  you are using OpenCV 3, your `cmake` line above should look something like:
+  `$ cmake -DCMAKE_INSTALL_PREFIX=/usr -DFORCE_OPENCV3=ON ..`
 
 * Experienced users may be puzzled by the `repackage` step. If you are simply
   building for your local machine, you can skip it (albeit, with minimal
@@ -161,7 +164,7 @@ A few important notes when building from source:
 
 Many `ifm3d` users seem to be moving away from PCL. To that end, it is possible
 to build `ifm3d` without any reliance on PCL yet still maintain a bridge to
-OpenCV image encodings. (NOTE: As of 0.9.0, it is also quite easy to build your
+OpenCV image encodings. (NOTE: As of 0.14.0, it is also quite easy to build your
 own image encoding to interoperate within the `ifm3d` ecosystem.)
 
 Building `ifm3d` without a PCL dependency looks like the following:
@@ -174,10 +177,11 @@ $ make
 $ make check
 $ make package
 $ make repackage
-$ sudo dpkg -i ifm3d_0.9.0_amd64-camera.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-framegrabber.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-opencv.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-tools.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-camera.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-framegrabber.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-swupdater.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-opencv.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-tools.deb
 ```
 
 #### Building the Python Bindings
@@ -199,10 +203,11 @@ $ make -j 8
 $ make check
 $ make package
 $ make repackage
-$ sudo dpkg -i ifm3d_0.9.0_amd64-camera.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-framegrabber.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-image.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-opencv.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-tools.deb
-$ sudo dpkg -i ifm3d_0.9.0_amd64-pcicclient.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-camera.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-framegrabber.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-swupdater.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-image.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-opencv.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-tools.deb
+$ sudo dpkg -i ifm3d_0.14.0_amd64-pcicclient.deb
 ```

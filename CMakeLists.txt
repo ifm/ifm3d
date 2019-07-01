@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 cmake_policy(SET CMP0048 NEW)
 # Manage version number here: Major.Minor.Patch (we don't use "tweak")
-project(IFM3D VERSION 0.13.0 LANGUAGES CXX)
+project(IFM3D VERSION 0.14.0 LANGUAGES CXX)
 set(GIT_PROJECT_NAME "ifm3d")
 
 # Make our cmake functions accessible
@@ -17,6 +17,7 @@ macro_ensure_out_of_source_build(
 # Conditionally turn on/off parts of the build (global-level)
 option(BUILD_TESTS "Build unit tests" ON)
 option(BUILD_MODULE_FRAMEGRABBER "Build the framegrabber module" ON)
+option(BUILD_MODULE_SWUPDATER "Build the swupdater module" ON)
 option(BUILD_MODULE_IMAGE "Build the image module" ON)
 option(BUILD_MODULE_OPENCV "Build the OpenCV-only image container" OFF)
 option(BUILD_MODULE_PCICCLIENT "Build the pcicclient module" OFF)
@@ -89,6 +90,10 @@ add_subdirectory(modules/camera)
 if(BUILD_MODULE_FRAMEGRABBER)
   add_definitions(-DBUILD_MODULE_FRAMEGRABBER=ON)
   add_subdirectory(modules/framegrabber)
+endif()
+if(BUILD_MODULE_SWUPDATER)
+  add_definitions(-DBUILD_MODULE_SWUPDATER=ON)
+  add_subdirectory(modules/swupdater)
 endif()
 if(BUILD_MODULE_IMAGE)
   # `image` relies on `framegrabber`, in the event the user
