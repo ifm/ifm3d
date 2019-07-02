@@ -16,7 +16,7 @@ Current Revision
   <tr>
     <td>0.14.0</td>
     <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,
-    1.25.4073</td>
+    1.25.4073, 1.30.4123</td>
     <td>1.0.111, 1.0.122, 1.0.126</td>
     <td>16.04,18.04</td>
     <td>Introduced `swupdater` module for firmware update utilities</td>
@@ -46,7 +46,7 @@ The ifm3d software is organized into modules, they are:
   </tr>
   <tr>
     <td>swupdater</td>
-    <td>Provides utilities for managing the SWUpdate subsystem of the 
+    <td>Provides utilities for managing the SWUpdate subsystem of the
     camera.</td>
   </tr>
   <tr>
