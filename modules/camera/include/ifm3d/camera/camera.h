@@ -54,6 +54,14 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TMP_PARAMS_SUPPORT_MINOR;
   extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TMP_PARAMS_SUPPORT_PATCH;
 
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INTRINSIC_PARAM_SUPPORT_MAJOR;
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INTRINSIC_PARAM_SUPPORT_MINOR;
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INTRINSIC_PARAM_SUPPORT_PATCH;
+
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR;
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR;
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH;
+
   /**
    * Software interface to an ifm 3D camera
    *
@@ -543,6 +551,19 @@ namespace ifm3d
      */
     virtual void SetPassword(std::string password = "");
 
+    /**
+     * Checks for a minimum ifm camera software version
+     *  @param[in] major  Major version of software
+     *  @param[in] minor  Minor Version of software
+     *  @param[in] patch  Patch Number of software
+     *
+     * return True if current software version is greater
+     * or equal to the  value passed
+     */
+    bool CheckMinimumFirmwareVersion(unsigned int major,
+                                     unsigned int minor,
+                                     unsigned int patch);
+
   protected:
     class Impl;
     std::unique_ptr<Impl> pImpl;
@@ -582,12 +603,6 @@ namespace ifm3d
      */
     json ToJSON_(const bool open_session = true);
 
-    /**
-     * Checks for a minimum ifm camera software version
-     */
-    bool check_min_ifm_version(unsigned int major,
-                               unsigned int minor,
-                               unsigned int patch);
   }; // end: class Camera
 
   /**

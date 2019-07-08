@@ -1,0 +1,51 @@
+[ ~/dev/ifm3d/doc/jitter ]
+uspanzto@uspanzto20: $ IFM3D_MASK=10 ifm3d hz --nframes=100
+FrameGrabber running at: 10.0353 Hz
+100 frames captured, over 1 runs
+
+[ ~/dev/ifm3d/doc/jitter ]
+uspanzto@uspanzto20: $ IFM3D_MASK=3 ifm3d hz --nframes=100
+FrameGrabber running at: 10.0101 Hz
+100 frames captured, over 1 runs
+
+[ ~/dev/ifm3d/doc/jitter ]
+uspanzto@uspanzto20: $ IFM3D_MASK=10 ifm3d jitter --outfile=o3d_10.csv
+Capturing frame data for ifm3d::ByteBuffer...
+Mean:   99.44 ms
+Median: 99.2376 ms
+Stdev:  4.16 ms
+Mad:    3.73891 ms
+
+Capturing frame data for ifm3d::ImageBuffer...
+Mean:   99.45 ms
+Median: 99.3525 ms
+Stdev:  4.48934 ms
+Mad:    4.01406 ms
+
+Capturing frame data for ifm3d::OpenCVBuffer...
+Mean:   99.4 ms
+Median: 99.3184 ms
+Stdev:  4.27812 ms
+Mad:    3.78261 ms
+Raw data has been written to: o3d_10.csv
+
+[ ~/dev/ifm3d/doc/jitter ]
+uspanzto@uspanzto20: $ IFM3D_MASK=3 ifm3d jitter --outfile=o3d_3.csv
+Capturing frame data for ifm3d::ByteBuffer...
+Mean:   99.41 ms
+Median: 102.144 ms
+Stdev:  4.86979 ms
+Mad:    3.23146 ms
+
+Capturing frame data for ifm3d::ImageBuffer...
+Mean:   99.53 ms
+Median: 102.025 ms
+Stdev:  4.65156 ms
+Mad:    2.56628 ms
+
+Capturing frame data for ifm3d::OpenCVBuffer...
+Mean:   99.47 ms
+Median: 102.323 ms
+Stdev:  4.82573 ms
+Mad:    2.58829 ms
+Raw data has been written to: o3d_3.csv

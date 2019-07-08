@@ -20,6 +20,7 @@
 #include <vector>
 #include <ifm3d/camera/camera.h>
 #include <ifm3d/fg/byte_buffer.h>
+#include <ifm3d/camera/err.h>
 #include <frame_grabber_impl.hpp>
 
 ifm3d::FrameGrabber::FrameGrabber(ifm3d::Camera::Ptr cam,
