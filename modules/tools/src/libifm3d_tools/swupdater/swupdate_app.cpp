@@ -213,7 +213,7 @@ int ifm3d::SWUpdateApp::Run()
                        std::istream_iterator<std::uint8_t>());
         }
 
-      if (!swupdater->FlashFirmware(bytes, 120000))
+      if (!swupdater->FlashFirmware(bytes, 300000))
       {
         if (!quiet)
           {

@@ -46,7 +46,9 @@ namespace ifm3d
   const int SWUPDATER_STATUS_SUCCESS = 3;
   const int SWUPDATER_STATUS_FAILURE = 4;
 
-  const long CURL_CONNECT_TIMEOUT = 3; // seconds
+  // Default timeout values for cURL transactions to the camera
+  const long DEFAULT_CURL_CONNECT_TIMEOUT = 3; // seconds
+  const long DEFAULT_CURL_TRANSACTION_TIMEOUT = 30; // seconds
 
   //============================================================
   // Impl interface
@@ -81,7 +83,8 @@ namespace ifm3d
     CheckProductive();
 
     void
-    UploadFirmware(const std::vector<std::uint8_t>& bytes);
+    UploadFirmware(const std::vector<std::uint8_t>& bytes,
+                   long timeout_millis);
 
     bool
     WaitForUpdaterStatus(int desired_state, long timeout_millis);
@@ -282,6 +285,10 @@ ifm3d::SWUpdater::Impl::RebootToProductive()
   c->Call(curl_easy_setopt, CURLOPT_POSTFIELDSIZE, 0);
   c->Call(curl_easy_setopt, CURLOPT_WRITEFUNCTION,
           &ifm3d::SWUpdater::Impl::StatusWriteCallbackIgnore);
+  c->Call(curl_easy_setopt, CURLOPT_CONNECTTIMEOUT,
+          ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
+  c->Call(curl_easy_setopt, CURLOPT_TIMEOUT,
+          ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
   c->Call(curl_easy_perform);
 }
 
@@ -317,9 +324,47 @@ ifm3d::SWUpdater::Impl::FlashFirmware(
     const std::vector<std::uint8_t>& bytes,
     long timeout_millis)
 {
-  auto start = std::chrono::system_clock::now();
-  this->UploadFirmware(bytes);
-  return this->WaitForUpdaterStatus(SWUPDATER_STATUS_SUCCESS, timeout_millis);
+  auto t_start = std::chrono::system_clock::now();
+  long remaining_time = timeout_millis;
+  auto get_remaining_time =
+    [&t_start, timeout_millis]() -> long
+    {
+      auto t_now = std::chrono::system_clock::now();
+      auto elapsed =
+        std::chrono::duration_cast<std::chrono::milliseconds>(t_now - t_start);
+      return timeout_millis - elapsed.count();
+    };
+
+  // Firmware updater must be in `idle` status prior to starting a firmware
+  // upgrade. In some cases (firmware was flashed but the camera was not
+  // rebooted, or the previous flash failed) the message queue must be
+  // 'drained' so we query the status several times in quick succession.
+  //
+  // In practice, 10 iterations is sufficient.
+  int retries = 0;
+  while (!this->WaitForUpdaterStatus(SWUPDATER_STATUS_IDLE, -1))
+    {
+      if (++retries >= 10)
+        {
+          throw ifm3d::error_t(IFM3D_SWUPDATE_BAD_STATE);
+        }
+    }
+
+  remaining_time = get_remaining_time();
+  if (remaining_time <= 0)
+    {
+      return false;
+    }
+
+  this->UploadFirmware(bytes, remaining_time);
+
+  remaining_time = get_remaining_time();
+  if (remaining_time <= 0)
+    {
+      return false;
+    }
+
+  return this->WaitForUpdaterStatus(SWUPDATER_STATUS_SUCCESS, remaining_time);
 }
 
 
@@ -333,7 +378,9 @@ ifm3d::SWUpdater::Impl::CheckRecovery()
   c->Call(curl_easy_setopt, CURLOPT_URL, this->check_recovery_url_.c_str());
   c->Call(curl_easy_setopt, CURLOPT_NOBODY, true);
   c->Call(curl_easy_setopt, CURLOPT_CONNECTTIMEOUT,
-          ifm3d::CURL_CONNECT_TIMEOUT);
+          ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
+  c->Call(curl_easy_setopt, CURLOPT_TIMEOUT,
+          ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
 
   long status_code;
   try
@@ -379,7 +426,9 @@ ifm3d::SWUpdater::Impl::CheckProductive()
 }
 
 void
-ifm3d::SWUpdater::Impl::UploadFirmware(const std::vector<std::uint8_t>& bytes)
+ifm3d::SWUpdater::Impl::UploadFirmware(
+    const std::vector<std::uint8_t>& bytes,
+    long timeout_millis)
 {
   auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();
   c->AddHeader(SWUPDATER_CONTENT_TYPE_HEADER.c_str());
@@ -391,6 +440,9 @@ ifm3d::SWUpdater::Impl::UploadFirmware(const std::vector<std::uint8_t>& bytes)
   c->Call(curl_easy_setopt, CURLOPT_POSTFIELDS, bytes.data());
   c->Call(curl_easy_setopt, CURLOPT_WRITEFUNCTION,
           &ifm3d::SWUpdater::Impl::StatusWriteCallbackIgnore);
+  c->Call(curl_easy_setopt, CURLOPT_CONNECTTIMEOUT,
+          ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
+  c->Call(curl_easy_setopt, CURLOPT_TIMEOUT_MS, timeout_millis);
 
   // Workaround -- device does not close the connection after the firmware has
   // been transferred. Register an xfer callback and terminate the transaction
@@ -422,6 +474,13 @@ ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
   int status_id;
   int status_error;
   std::string status_message;
+
+  if (timeout_millis < 0)
+    {
+      std::tie(status_id, std::ignore, std::ignore) =
+        this->GetUpdaterStatus();
+      return status_id == desired_status;
+    }
 
   auto start = std::chrono::system_clock::now();
   do
@@ -484,6 +543,10 @@ ifm3d::SWUpdater::Impl::GetUpdaterStatus()
           CURLOPT_WRITEFUNCTION,
           &ifm3d::SWUpdater::Impl::StatusWriteCallback);
   c->Call(curl_easy_setopt, CURLOPT_WRITEDATA, &status_string);
+  c->Call(curl_easy_setopt, CURLOPT_CONNECTTIMEOUT,
+          ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
+  c->Call(curl_easy_setopt, CURLOPT_TIMEOUT,
+          ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
   c->Call(curl_easy_perform);
 
   // Parse status
