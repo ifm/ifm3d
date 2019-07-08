@@ -1,3 +1,57 @@
+## Changes between ifm3d 0.13.0 and 0.14.0
+* New module: swupdater -- utilities for updating camera firmware
+    * Ported functionality from `swupdate` command into its own library for 
+      programmatic consumption.
+    * Updated certain semantics of the `swupdate` command in the `tools`
+      module to match those of the other ifm3d `tools` commands
+        * Updated command line switch naming to match other ifm3d tools:
+          * `check` subcommand now invoked by `-c` or `--check`
+          * `reboot` subcommand now invoked by `-r` or `--reboot`
+        * `file` subcommand will now test for recovery and automatically
+          reboot the device into recovery as needed.
+* Disabled framegrabber's InverseIntrinsicParamSchema test due to suspected
+  false failures. Test case will be investigated and re-opened in a future
+  release.
+* Fixed issues with unit test scripts on Windows
+* Fixed Windows build documentation
+  * Added `BUILD_SHARED_LIBS` definition to `glog` to address issues with
+    logging to STDERR in Windows binaries
+  * Parameterized the CMake generator for easier building when multiple
+    versions of MSVC are installed concurrently
+
+## Changes between ifm3d 0.12.0 and 0.13.0
+* Honor semantics of CMake's BUILD_SHARED_LIBS flag (ON by default). Setting
+  to off will build and link against ifm3d modules as static libraries.
+* New module: pybind11 -- Python bindings for the the C++ API
+
+## Changes between ifm3d 0.11.2 and 0.12.0
+
+* Fixes to build infrastructure in support of windows unit tests
+* Added support to retrieve the inverse intrinsic parameters from O3D3xx
+  cameras
+
+## Changes between ifm3d 0.11.1 and 0.11.2
+
+* Bugfix for #111, moved a log message in framegrabber to IFM3D_PROTO_DEBUG to
+  keep noise level low when running an O3X for extended periods of time.
+* Changed flagging bad pixels to always be `0` regardless of data type. Users
+  could always consult the confidence image themselves and discriminate between
+  a true `0` (not possible) and a bad pixel which they could then transform to
+  `nan` or whatever other sentinel makes sense for their application.
+
+## Changes between ifm3d 0.11.0 and 0.11.1
+
+* Bugfix for #103 ``header is not in the correct format`` when ``make check`` is
+  executed against FW 1.6.2114
+* Bugifx for #107 Allows OpenCV module headers to be included in more than one
+  translation unit thus avoiding violation of ODR.
+* The `image` and `opencv` modules now flags bad pixels at the driver-level
+
+## Changes between ifm3d 0.10.0 and 0.11.0
+
+* Added a `jitter` subcommand to ifm3d
+* Added support to retrieve the intrinsic parameters from O3D3xx cameras
+
 ## Changes between ifm3d 0.9.3 and 0.10.0
 
 * Adds support for setting the `IFM3D_SESSION_ID` environment variable for

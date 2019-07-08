@@ -82,6 +82,7 @@ namespace ifm3d
     cv::Mat ramp_;
     cv::Mat conf_;
     cv::Mat xyz_;
+    cv::Mat_<std::uint8_t> bad_; // bad pixel mask
 
   }; // end: class OpenCVBuffer
 } // end: namespace ifm3d

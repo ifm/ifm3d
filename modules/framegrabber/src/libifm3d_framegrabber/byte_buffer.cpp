@@ -31,6 +31,8 @@
 
 const std::size_t ifm3d::IMG_TICKET_SZ = 16;
 const std::size_t ifm3d::IMG_BUFF_START = 8;
+const std::size_t ifm3d::NUM_EXTRINSIC_PARAM = 6;
+const std::size_t ifm3d::NUM_INTRINSIC_PARAM = 16;
 
 bool
 ifm3d::verify_ticket_buffer(const std::vector<std::uint8_t>& buff)

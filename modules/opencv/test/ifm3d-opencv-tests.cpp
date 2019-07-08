@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -8,6 +9,19 @@
 #include <ifm3d/opencv.h>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
+
+template <typename T>
+bool cmp_with_nan(T a, T b)
+{
+  if (std::isnan(a) || std::isnan(b))
+    {
+      return(std::isnan(a) && std::isnan(b));
+    }
+  else
+    {
+      return a == b;
+    }
+}
 
 TEST(OpenCV, MoveCtor)
 {
@@ -30,7 +44,7 @@ TEST(OpenCV, MoveCtor)
       EXPECT_TRUE(amp2.type() == CV_32F);
       EXPECT_TRUE(std::equal(copy_of_amp.begin<float>(),
                              copy_of_amp.end<float>(),
-                             amp2.begin<float>()));
+                             amp2.begin<float>(), cmp_with_nan<float>));
     }
   else
     {
@@ -65,7 +79,7 @@ TEST(OpenCV, MoveAssignmentOperator)
       EXPECT_TRUE(amp2.type() == CV_32F);
       EXPECT_TRUE(std::equal(copy_of_amp.begin<float>(),
                              copy_of_amp.end<float>(),
-                             amp2.begin<float>()));
+                             amp2.begin<float>(), cmp_with_nan<float>));
     }
   else
     {
@@ -101,7 +115,7 @@ TEST(OpenCV, CopyCtor)
       EXPECT_TRUE(amp.type() == CV_32F);
       EXPECT_TRUE(amp2.type() == CV_32F);
       EXPECT_TRUE(std::equal(amp.begin<float>(), amp.end<float>(),
-                             amp2.begin<float>()));
+                             amp2.begin<float>(), cmp_with_nan<float>));
     }
   else
     {
@@ -118,7 +132,7 @@ TEST(OpenCV, CopyCtor)
     {
       EXPECT_FALSE(std::equal(amp.begin<float>(),
                               amp.end<float>(),
-                              amp2.begin<float>()));
+                              amp2.begin<float>(), cmp_with_nan<float>));
     }
   else
     {
@@ -150,7 +164,7 @@ TEST(OpenCV, CopyAssignmentOperator)
       EXPECT_TRUE(amp2.type() == CV_32F);
       EXPECT_TRUE(std::equal(amp.begin<float>(),
                              amp.end<float>(),
-                             amp2.begin<float>()));
+                             amp2.begin<float>(), cmp_with_nan<float>));
     }
   else
     {
@@ -167,7 +181,7 @@ TEST(OpenCV, CopyAssignmentOperator)
     {
       EXPECT_FALSE(std::equal(amp.begin<float>(),
                               amp.end<float>(),
-                              amp2.begin<float>()));
+                              amp2.begin<float>(), cmp_with_nan<float>));
     }
   else
     {
@@ -196,7 +210,7 @@ TEST(OpenCV, References)
       EXPECT_TRUE(amp2.type() == CV_32F);
       EXPECT_TRUE(std::equal(amp1.begin<float>(),
                              amp1.end<float>(),
-                             amp2.begin<float>()));
+                             amp2.begin<float>(), cmp_with_nan<float>));
     }
   else
     {
@@ -213,7 +227,7 @@ TEST(OpenCV, References)
     {
       EXPECT_TRUE(std::equal(amp1.begin<float>(),
                              amp1.end<float>(),
-                             amp2.begin<float>()));
+                             amp2.begin<float>(), cmp_with_nan<float>));
     }
   else
     {
@@ -252,6 +266,7 @@ TEST(OpenCV, ComputeCartesian)
          cam, ifm3d::IMG_RDIS|ifm3d::IMG_CART);
   EXPECT_TRUE(fg->WaitForFrame(im.get(), 1000));
   cv::Mat rdis = im->DistanceImage();
+  cv::Mat conf = im->ConfidenceImage();
   cv::Mat xyz = im->XYZImage(); // ground truth
 
   std::vector<cv::Mat> chans(3);
@@ -309,6 +324,16 @@ TEST(OpenCV, ComputeCartesian)
   cv::Mat x_ = ex.mul(rdis_f) + tx;
   cv::Mat y_ = ey.mul(rdis_f) + ty;
   cv::Mat z_ = ez.mul(rdis_f) + tz;
+
+  // blank out bad pixels ... our zero pixels will
+  // be exactly equal to tx, ty, tz and if any of those
+  // exceed 1cm (our test tolerance) like on an O3D301,
+  // we will get errors in the unit test.
+  cv::Mat bad_mask;
+  cv::bitwise_and(conf, 0x1, bad_mask);
+  x_.setTo(0., bad_mask);
+  y_.setTo(0., bad_mask);
+  z_.setTo(0., bad_mask);
 
   //
   // 4. Cast (back) to int16 and transform to ifm3d coord frame

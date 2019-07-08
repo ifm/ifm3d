@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 cmake_policy(SET CMP0048 NEW)
 # Manage version number here: Major.Minor.Patch (we don't use "tweak")
-project(IFM3D VERSION 0.10.0 LANGUAGES CXX)
+project(IFM3D VERSION 0.14.0 LANGUAGES CXX)
 set(GIT_PROJECT_NAME "ifm3d")
 
 # Make our cmake functions accessible
@@ -17,13 +17,16 @@ macro_ensure_out_of_source_build(
 # Conditionally turn on/off parts of the build (global-level)
 option(BUILD_TESTS "Build unit tests" ON)
 option(BUILD_MODULE_FRAMEGRABBER "Build the framegrabber module" ON)
+option(BUILD_MODULE_SWUPDATER "Build the swupdater module" ON)
 option(BUILD_MODULE_IMAGE "Build the image module" ON)
 option(BUILD_MODULE_OPENCV "Build the OpenCV-only image container" OFF)
 option(BUILD_MODULE_PCICCLIENT "Build the pcicclient module" OFF)
 option(BUILD_MODULE_TOOLS "Build the tools module" ON)
+option(BUILD_MODULE_PYBIND11 "Build the python bindings module" OFF)
 option(BUILD_SDK_PKG "Build install packages for development purposes" ON)
 option(FORCE_OPENCV3 "Force the build to require OpenCV 3" OFF)
 option(FORCE_OPENCV2 "Force the build to require OpenCV 2.4" OFF)
+option(BUILD_SHARED_LIBS "Build modules as shared libraries" ON)
 
 # Installation root
 set(CPACK_SET_DESTDIR true)
@@ -71,6 +74,14 @@ endif()
 if(BUILD_TESTS)
   add_subdirectory(${GTEST_CMAKE_DIR} gtest_bin EXCLUDE_FROM_ALL)
   add_custom_target(check)
+  #var
+  if(WIN32)
+    set(TEST_WRAPPER_EXT "bat" )
+  else()
+    set(TEST_WRAPPER_EXT "sh" )
+  endif()
+  set(TEST_WRAPPER_IN "test_wrapper.${TEST_WRAPPER_EXT}.in" )
+  set(TEST_WRAPPER "test_wrapper.${TEST_WRAPPER_EXT}" )
 endif()
 
 # Build sub-modules
@@ -79,6 +90,10 @@ add_subdirectory(modules/camera)
 if(BUILD_MODULE_FRAMEGRABBER)
   add_definitions(-DBUILD_MODULE_FRAMEGRABBER=ON)
   add_subdirectory(modules/framegrabber)
+endif()
+if(BUILD_MODULE_SWUPDATER)
+  add_definitions(-DBUILD_MODULE_SWUPDATER=ON)
+  add_subdirectory(modules/swupdater)
 endif()
 if(BUILD_MODULE_IMAGE)
   # `image` relies on `framegrabber`, in the event the user
@@ -98,6 +113,10 @@ if(BUILD_MODULE_PCICCLIENT)
 endif()
 if(BUILD_MODULE_TOOLS)
   add_subdirectory(modules/tools)
+endif()
+if(BUILD_MODULE_PYBIND11)
+  add_definitions(-DBUILD_MODULE_PYBIND11)
+  add_subdirectory(modules/pybind11)
 endif()
 
 ################################################

@@ -125,4 +125,61 @@ ifm3d Software Compatibility Matrix
     <td>16.04,18.04</td>
     <td>Docs and minor patches</td>
   </tr>
+  <tr>
+    <td>0.10.0</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>
+      Session IDs can be explicitly set and shared across camera
+      instances. Speed improvements to JSON imports.
+    </td>
+  </tr>
+  <tr>
+    <td>0.11.0</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Added a jitter subcommand to ifm3d, camera intrinsics exposed</td>
+  </tr>
+  <tr>
+    <td>0.11.1</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Bad pixels are now flagged by the driver, opencv image container module
+    headers can be included in multiple translation units, and other minor bug
+    fixes.</td>
+  </tr>
+  <tr>
+    <td>0.11.2</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Less verbose logging in framegrabber for better memory, disk, cpu
+    consumption on long-running embedded systems</td>
+  </tr>
+  <tr>
+    <td>0.12.0</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Inverse intrinsic parameters from O3D cameras</td>
+  </tr>
+  <tr>
+    <td>0.13.0</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,
+    1.25.4073</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Introduced `pybind11` module to provide ifm3d Python bindings</td>
+  </tr>
+  <tr>
+    <td>0.14.0</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,
+    1.25.4073</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Introduced `swupdater` module for firmware update utilities</td>
+  </tr>
 </table>
