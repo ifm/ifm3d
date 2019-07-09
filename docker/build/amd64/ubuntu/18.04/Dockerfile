@@ -32,6 +32,10 @@ RUN apt-get update && \
                        libproj-dev \
                        python-dev \
                        python3-dev \
+                       python-pytest \
+                       python3-pytest \
+                       python-numpy \
+                       python3-numpy \
                        build-essential \
                        coreutils \
                        findutils \
