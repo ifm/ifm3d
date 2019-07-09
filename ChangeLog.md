@@ -1,9 +1,12 @@
 ## Changes between ifm3d 0.14.0 and 0.14.1
 * Fixes to how timeouts are handled in `swupdate` module
+* Updated embedded JSON library to
+  [3.6.1](https://github.com/nlohmann/json/releases/tag/v3.6.1),
+  single-header.
 
 ## Changes between ifm3d 0.13.0 and 0.14.0
 * New module: swupdater -- utilities for updating camera firmware
-    * Ported functionality from `swupdate` command into its own library for 
+    * Ported functionality from `swupdate` command into its own library for
       programmatic consumption.
     * Updated certain semantics of the `swupdate` command in the `tools`
       module to match those of the other ifm3d `tools` commands

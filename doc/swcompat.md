@@ -188,6 +188,6 @@ ifm3d Software Compatibility Matrix
     1.25.4073, 1.30.4123</td>
     <td>1.0.111, 1.0.122, 1.0.126</td>
     <td>16.04,18.04</td>
-    <td>Fixes to how timeouts are handled within swupdater module</td>
-  </tr
+    <td>Timeouts fixes in swupdater module, JSON library update</td>
+  </tr>
 </table>
