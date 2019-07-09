@@ -400,6 +400,12 @@ ifm3d::FrameGrabber::Impl::SetSchemaBuffer(std::uint16_t mask)
 	  throw ifm3d::error_t(IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE);
 	}
 
+  if ((mask & ifm3d::JSON_MODEL) == ifm3d::JSON_MODEL && (this->cam_->IsO3X()))
+  {
+    LOG(ERROR) << "Failed to set schema on O3X: json data not supported on O3X";
+    throw ifm3d::error_t(IFM3D_INVALID_PARAM);
+  }
+
   if(this->cam_->IsO3X())
     {
       // O3X does not set the schema via PCIC, rather we set it via

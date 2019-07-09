@@ -112,19 +112,6 @@ ifm3d::make_o3x_json_from_mask(std::uint16_t mask)
              "OutputXYZImage":"false")";
     }
 
-  if ((mask & ifm3d::JSON_MODEL) == ifm3d::JSON_MODEL)
-  {
-    schema +=
-      R"(,
-             "OutputJSONModel":"true")";
-  }
-  else
-  {
-    schema +=
-      R"(,
-             "OutputJSONModel":"false")";
-  }
-
 // Note: this is not yet supported by o3x
 //  if((mask & ifm3d::ILLU_TEMP) == ifm3d::ILLU_TEMP)
 //    {
