@@ -344,12 +344,12 @@ namespace ifm3d
     float IlluTemp();
 
     /**
-   * Returns JSON model of the output of active application
-   *
-   * NOTE: To get the JSON data of the application running on the device, you need
-   * to make sure your current pcic schema asks for it by using ifmed::JSON_MODEL in schema.
-   * this will return "{}" blank JSON string for camera devices.
-   */
+     * Returns JSON model of the output of active application
+     *
+     * NOTE: To get the JSON data of the application running on the device, you need
+     * to make sure your current pcic schema asks for it by using ifmed::JSON_MODEL in schema.
+     * this will return "{}" blank JSON string for camera devices.
+     */
     std::string JSONModel();
 
     /**
@@ -494,7 +494,7 @@ namespace ifm3d
     /**
      * JSON string of the active application output
      */
-    std::string json_model;
+    std::string json_model_;
 
   private:
     /**

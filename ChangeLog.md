@@ -1,3 +1,6 @@
+## Changes between ifm3d 0.14.1 and 0.15.0
+* Added Interface for getting json_model from O3D3xx devices.
+
 ## Changes between ifm3d 0.14.0 and 0.14.1
 * Fixes to how timeouts are handled in `swupdate` module
 * Updated embedded JSON library to

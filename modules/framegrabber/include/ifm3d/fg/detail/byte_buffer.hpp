@@ -21,6 +21,7 @@
 #include <glog/logging.h>
 #include <ifm3d/camera/logging.h>
 #include <ifm3d/camera/err.h>
+#include <cstring>
 
 //-------------------------------------
 // The ByteBuffer<Dervied> class impl
@@ -37,7 +38,7 @@ ifm3d::ByteBuffer<Derived>::ByteBuffer()
     inverse_intrinsic_available(false),
     exposure_times_({0,0,0}),
     time_stamp_(std::chrono::system_clock::now()),
-    json_model("{}")
+    json_model_("{}")
 { }
 
 // dtor
@@ -185,7 +186,7 @@ std::string
 ifm3d::ByteBuffer<Derived>::JSONModel()
 {
   this->Organize();
-  return this->json_model;
+  return this->json_model_;
 }
 
 template <typename Derived>
@@ -606,8 +607,8 @@ ifm3d::ByteBuffer<Derived>::Organize()
     std::uint32_t chunk_size =
       ifm3d::mkval<uint32_t >(this->bytes_.data() + jsonidx + 4);
     jsonidx += pixel_data_offset; // this is actually header size
-    this->json_model.resize(chunk_size - pixel_data_offset);
-    memcpy((void*)this->json_model.data(), (void*)(this->bytes_.data() + jsonidx), chunk_size - pixel_data_offset);
+    this->json_model_.resize(chunk_size - pixel_data_offset);
+    std::memcpy((void*)this->json_model_.data(), (void*)(this->bytes_.data() + jsonidx), chunk_size - pixel_data_offset);
   }
 
   //
