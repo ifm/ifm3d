@@ -368,19 +368,19 @@ TEST(FrameGrabber, JSON_model)
   std::uint16_t mask = (ifm3d::IMG_AMP | ifm3d::JSON_MODEL);
   auto cam = ifm3d::Camera::MakeShared();
   if (cam->IsO3X()) // JSON model not supported
-  {
-    EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
-      ifm3d::error_t);
-  }
+    {
+      EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
+        ifm3d::error_t);
+    }
   else if (cam->IsO3D())
-  {
-    auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, mask);
-    auto buff = std::make_shared<MyBuff>();
+    {
+      auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, mask);
+      auto buff = std::make_shared<MyBuff>();
 
-    EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
-    std::string model = "";
-    EXPECT_NO_THROW(model = buff->JSONModel());
-    // checking is its a valid model 
-    EXPECT_TRUE(json::parse(model) != NULL);
-  }
+      EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
+      std::string model = "";
+      EXPECT_NO_THROW(model = buff->JSONModel());
+      // checking is its a valid model 
+      EXPECT_TRUE(json::parse(model) != NULL);
+    }
 }

@@ -71,7 +71,9 @@ int ifm3d::SchemaApp::Run()
                 << '\t' << "INTR_CAL: "
                 << (int) ifm3d::INTR_CAL << std::endl
                 << '\t' << "INV_INTR_CAL: "
-                << (int) ifm3d::INV_INTR_CAL << std::endl;
+                << (int) ifm3d::INV_INTR_CAL << std::endl
+                << '\t' << "JSON_MODEL: "
+                << (int) ifm3d::JSON_MODEL << std::endl;
 
       return 0;
     }
