@@ -1,3 +1,6 @@
+## Changes between ifm3d 0.14.0 and 0.14.1
+* Fixes to how timeouts are handled in `swupdate` module
+
 ## Changes between ifm3d 0.13.0 and 0.14.0
 * New module: swupdater -- utilities for updating camera firmware
     * Ported functionality from `swupdate` command into its own library for 

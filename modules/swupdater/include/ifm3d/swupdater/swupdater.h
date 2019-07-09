@@ -123,6 +123,13 @@ namespace ifm3d
      *                           upload to complete. If `timeout_millis` is set
      *                           to 0, this function will block indefinitely.
      *
+     *                           NOTE: Firmware uploading and flashing
+     *                           typically takes several minutes. The blocking
+     *                           version of the API (timeout_millis = 0) is
+     *                           recommended in most cases. If a timeout is
+     *                           truly required, it is recommended to use a
+     *                           value of at least 300000 (5 minutes).
+     *
      * @throw ifm3d::error_t on error
      */
     bool FlashFirmware(const std::vector<std::uint8_t>& bytes,
