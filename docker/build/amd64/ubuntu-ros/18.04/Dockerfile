@@ -29,6 +29,10 @@ RUN apt-get update && \
                        libxmlrpc-c++8-dev \
                        python-dev \
                        python3-dev \
+                       python-pytest \
+                       python3-pytest \
+                       python-numpy \
+                       python3-numpy \
                        locales \
                        sudo
 
