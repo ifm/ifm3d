@@ -147,6 +147,7 @@ PYBIND11_MODULE(ifm3dpy, m)
   m.attr("ILLU_TEMP")  = ifm3d::ILLU_TEMP;
   m.attr("INTR_CAL") = ifm3d::INTR_CAL;
   m.attr("INV_INTR_CAL") = ifm3d::INV_INTR_CAL;
+  m.attr("JSON_MODEL") = ifm3d::JSON_MODEL;
 
   // Constants to use for querying supported firmware versions
   m.attr("O3D_TIME_SUPPORT_MAJOR") = ifm3d::O3D_TIME_SUPPORT_MAJOR;
@@ -289,6 +290,28 @@ PYBIND11_MODULE(ifm3dpy, m)
         -------
         float
             The temperature of the illumination unit
+      )")
+    .def(
+      "json_model",
+      [](const ifm3d::OpenCVBuffer::Ptr& buff)
+      {
+        // Convert the JSON to a python JSON object using the json module
+        py::object json_loads = py::module::import("json").attr("loads");
+        return json_loads(buff->JSONModel());
+      },
+      R"(
+        Returns the JSON model of the output of the active application
+
+        NOTE: To get the JSON data for the application running on the device,
+        you need to make sure your current pcic schema asks for it by including
+        ifm3d::JSON_MODEL in the schema. This will return an empty dict for
+        Camera devices like the O3D303, versus ifm Smart Sensors like the 
+        O3D302.
+
+        Returns
+        -------
+        dict
+            A JSON encoding of the model
       )")
     .def(
       "organize",
