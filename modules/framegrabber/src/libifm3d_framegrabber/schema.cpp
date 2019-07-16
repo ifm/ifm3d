@@ -31,6 +31,7 @@ const std::uint16_t ifm3d::IMG_GRAY     = (1<<6); // 2**6
 const std::uint16_t ifm3d::ILLU_TEMP    = (1<<7); // 2**7
 const std::uint16_t ifm3d::INTR_CAL     = (1<<8); // 2**8
 const std::uint16_t ifm3d::INV_INTR_CAL = (1<<9); // 2**9
+const std::uint16_t ifm3d::JSON_MODEL   = (1<<10); // 2**10
 
 auto __ifm3d_schema_mask__ = []()->std::uint16_t
   {
@@ -209,6 +210,13 @@ ifm3d::make_schema(std::uint16_t mask)
            {"type":"blob", "id":"inverse_intrinsic_calibration"})";
     }
 
+  if ((mask & ifm3d::JSON_MODEL) == ifm3d::JSON_MODEL)
+    {
+      schema +=
+        R"(,
+             {"type":"blob", "id":"json_model"})";
+    }
+
   // confidence_image and extrinsics are invariant
   schema +=
     R"(,
@@ -304,7 +312,10 @@ ifm3d::schema_mask_from_string(const std::string& in)
         {
           mask |= ifm3d::INV_INTR_CAL;
         }
+      else if (part == "JSON_MODEL")
+      {
+        mask |= ifm3d::JSON_MODEL;
+      }
     }
-
   return mask;
 }
