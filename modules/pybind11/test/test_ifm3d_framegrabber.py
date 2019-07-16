@@ -181,3 +181,18 @@ def test_swtriggermultipleclients():
     config['ifm3d']['Apps'][idx-1]['TriggerMode'] = \
         str(int(ifm3dpy.Camera.trigger_mode.FREE_RUN))
     cam.from_json(config)
+
+def test_json_model():
+    cam = ifm3dpy.Camera()
+    mask = ifm3dpy.IMG_AMP | ifm3dpy.JSON_MODEL
+    if cam.is_O3X():
+        with pytest.raises(RuntimeError):
+            fg = ifm3dpy.FrameGrabber(cam, mask)
+    else:
+        fg = ifm3dpy.FrameGrabber(cam, mask)
+        buff = ifm3dpy.ImageBuffer()
+        assert fg.wait_for_frame(buff, 1000)
+        model = buff.json_model()
+        assert model
+
+
