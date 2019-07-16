@@ -21,6 +21,7 @@
 #include <glog/logging.h>
 #include <ifm3d/camera/logging.h>
 #include <ifm3d/camera/err.h>
+#include <cstring>
 
 //-------------------------------------
 // The ByteBuffer<Dervied> class impl
@@ -36,7 +37,8 @@ ifm3d::ByteBuffer<Derived>::ByteBuffer()
     intrinsic_available(false),
     inverse_intrinsic_available(false),
     exposure_times_({0,0,0}),
-    time_stamp_(std::chrono::system_clock::now())
+    time_stamp_(std::chrono::system_clock::now()),
+    json_model_("{}")
 { }
 
 // dtor
@@ -180,6 +182,14 @@ ifm3d::ByteBuffer<Derived>::IlluTemp()
 }
 
 template <typename Derived>
+std::string
+ifm3d::ByteBuffer<Derived>::JSONModel()
+{
+  this->Organize();
+  return this->json_model_;
+}
+
+template <typename Derived>
 void
 ifm3d::ByteBuffer<Derived>::Organize()
 {
@@ -203,6 +213,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
   std::size_t gidx = INVALID_IDX;
   std::size_t intridx = INVALID_IDX;
   std::size_t invintridx = INVALID_IDX;
+  std::size_t jsonidx = INVALID_IDX;
 
   xyzidx = ifm3d::get_chunk_index(this->bytes_,
                                   ifm3d::image_chunk::CARTESIAN_ALL);
@@ -243,6 +254,8 @@ ifm3d::ByteBuffer<Derived>::Organize()
   gidx = ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::GRAY);
   extidx = ifm3d::get_chunk_index(this->bytes_,
                                   ifm3d::image_chunk::EXTRINSIC_CALIBRATION);
+  jsonidx= ifm3d::get_chunk_index(this->bytes_,
+                                  ifm3d::image_chunk::JSON_MODEL);
 
   // As parameter will not change so only grabed and stored
   // for the first time
@@ -311,6 +324,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
   bool G_OK = (gidx != INVALID_IDX);
   bool CART_OK =
     ((xidx != INVALID_IDX) && (yidx != INVALID_IDX) && (zidx != INVALID_IDX));
+  bool JSON_OK = (jsonidx != INVALID_IDX);
 
   // pixel format of each image
   std::uint32_t INVALID_FMT = std::numeric_limits<std::uint32_t>::max();
@@ -372,6 +386,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
                           << ", gfmt=" << gfmt
                           << ", intrfmt= " << intrfmt
                           << ", invintrfmt= " << invintrfmt;
+
   // get the image dimensions
   std::uint32_t width =
     ifm3d::mkval<std::uint32_t>(this->bytes_.data()+cidx+16);
@@ -586,6 +601,15 @@ ifm3d::ByteBuffer<Derived>::Organize()
         }
       this->inverse_intrinsic_available = true;
     }
+
+  if (JSON_OK)
+  {
+    std::uint32_t chunk_size =
+      ifm3d::mkval<uint32_t >(this->bytes_.data() + jsonidx + 4);
+    jsonidx += pixel_data_offset; // this is actually header size
+    this->json_model_.resize(chunk_size - pixel_data_offset);
+    std::memcpy((void*)this->json_model_.data(), (void*)(this->bytes_.data() + jsonidx), chunk_size - pixel_data_offset);
+  }
 
   //
   // extrinsic calibration
