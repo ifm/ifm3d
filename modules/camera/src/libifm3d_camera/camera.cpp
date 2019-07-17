@@ -114,7 +114,7 @@ const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH = 0;
 //================================================
 std::unordered_map<std::string,
                    std::unordered_map<std::string, bool> >
-RO_LUT =
+RO_LUT=
   {
     {"Device",
      {
@@ -172,11 +172,13 @@ RO_LUT =
 
     {"SpatialFilter",
      {
+       {}
      }
     },
 
     {"TemporalFilter",
      {
+      {}
      }
     }
   };
