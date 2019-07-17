@@ -1,7 +1,12 @@
 ################################################
 ## Bring in dependent projects
 ################################################
-if(NOT WIN32)
+
+# NOTE: The `FindXMLRPC.cmake` file does not respect cross-compilation
+# environments or windows builds. so, we make the assumption the includes are
+# in a standard directory in your sysroot (for cross compiling) or included via
+# a custom xmlrpc-c library on Windows (See Windows build instructions).
+if (NOT WIN32 AND NOT CMAKE_CROSSCOMPILING)
   find_package(XMLRPC REQUIRED c++ client)
 endif()
 
