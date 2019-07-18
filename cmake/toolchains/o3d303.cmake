@@ -1,5 +1,5 @@
 #
-# Toolchain for cross-building imf3d for the O3D303 camera.
+# Toolchain for cross-building imf3d for the O3D3xx camera.
 #
 # NOTE: For this file to work, you must first:
 # source /opt/poky/1.8.1/environment-setup-armv7ahf-vfp-neon-poky-linux-gnueabi
