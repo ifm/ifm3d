@@ -50,6 +50,13 @@ ifm3d::PCICClient::Call(const std::string& request)
 	return this->pImpl->Call(request);
 }
 
+bool
+ifm3d::PCICClient::Call(const std::string& request,
+			 std::string& response, long timeout_millis)
+{
+	return this->pImpl->Call(request, response, timeout_millis);
+}
+
 long
 ifm3d::PCICClient
 ::SetErrorCallback(std::function<void(const std::string& error)> callback)

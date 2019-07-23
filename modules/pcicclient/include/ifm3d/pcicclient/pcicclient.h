@@ -32,7 +32,7 @@ namespace ifm3d
    * ifm3d::Camera::Ptr, it provides unbuffered communication with
    * the PCIC interface.
    */
-   
+
   class PCICClient
   {
   public:
@@ -101,8 +101,35 @@ namespace ifm3d
      *
      * @return Copy of received plain response data as string
      * (without any header information, like ticket, length, etc.)
+     *
+     * NOTE: This Call can block and hang indefinitely depending upon PCIC response.
      */
     std::string Call(const std::string& request);
+
+    /**
+     * Similar to the Call function above.
+     *
+     * Sends a PCIC command to the camera and returns the response
+     * as soon as it has been received. In the meanwhile, this call
+     * is blocked.
+     *
+     * @param[in] request String containing the plain command
+     * (without any header infomration, like ticket, length, etc.)
+     *
+     * @param[in] response String containing the response from the camera
+     *  providing the plain response data as string
+     * (without any header information, like ticket, length, etc.)
+     *
+     * @param[in] timeout in milliseconds, in case, the PCIC fails to come
+     * through.
+     *
+     * NOTE: This Call can fail with no response if supplied with an
+     * unsuitable "timeout_millis" value. Providing timeout_millis value as 0
+     * results in behaviour similar to the above Call method.
+     *
+     * @return true if Call succeeded, false if failed.
+     */
+    bool Call(const std::string& request, std::string &response, long timeout_millis);
 
     /**
      * Sets the specified callback for receiving asynchronous error messages
