@@ -34,6 +34,7 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_IP;
   extern IFM3D_CAMERA_EXPORT const std::uint16_t DEFAULT_XMLRPC_PORT;
   extern IFM3D_CAMERA_EXPORT const int DEFAULT_PCIC_PORT;
+  extern IFM3D_CAMERA_EXPORT const int DEFAULT_UDP_PORT;
   extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_PASSWORD;
   extern IFM3D_CAMERA_EXPORT const int MAX_HEARTBEAT;
   extern IFM3D_CAMERA_EXPORT const std::size_t SESSION_ID_SZ;
@@ -61,6 +62,10 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR;
   extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR;
   extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH;
+
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_UDP_SUPPORT_MAJOR;
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_UDP_SUPPORT_MINOR;
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_UDP_SUPPORT_PATCH;
 
   /**
    * Software interface to an ifm 3D camera
@@ -409,7 +414,7 @@ namespace ifm3d
      * @return The index of the new application.
      */
     virtual int CreateApplication(
-            const std::string& type = DEFAULT_APPLICATION_TYPE);
+      const std::string& type = DEFAULT_APPLICATION_TYPE);
 
     /**
      * Deletes the application at the specified index from the sensor.
@@ -598,7 +603,7 @@ namespace ifm3d
     /**
      *  Implements the serialization of the camera state to JSON.
      *  @param[in] open_session if false function will work
-                   on already opened session
+     *             on already opened session
      *  @return A JSON object representation of the current camera state.
      */
     json ToJSON_(const bool open_session = true);

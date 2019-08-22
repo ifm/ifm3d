@@ -43,6 +43,7 @@ namespace ifm3d
   const std::string XMLRPC_DEVICE = "device/";
   const std::string XMLRPC_NET = "network/";
   const std::string XMLRPC_TIME = "time/";
+  const std::string XMLRPC_UDP = "udp/";
   const std::string XMLRPC_APP = "application/";
   const std::string XMLRPC_IMAGER = "imager_001/";
   const std::string XMLRPC_SPATIALFILTER = "spatialfilter";
@@ -131,6 +132,12 @@ namespace ifm3d
     void SaveTime();
     // A value less than 0 (the default) will set the time to "now"
     void SetCurrentTime(int epoch_seconds = -1);
+
+    // Udp
+    std::unordered_map<std::string, std::string> UdpInfo();
+    std::string UdpParameter(const std::string& param);
+    void SetUdpParameter(const std::string& param, const std::string& val);
+    void SaveUdp();
 
     // Application
     std::unordered_map<std::string, std::string> AppInfo();
@@ -331,6 +338,16 @@ namespace ifm3d
       std::string url =
         this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
         ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE + ifm3d::XMLRPC_TIME;
+      return this->_XCall(url, method, args...);
+    }
+
+    template <typename... Args>
+    xmlrpc_c::value const
+    _XCallUdp(const std::string& method, Args... args)
+    {
+      std::string url =
+        this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
+        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE + ifm3d::XMLRPC_UDP;
       return this->_XCall(url, method, args...);
     }
 
@@ -854,7 +871,7 @@ std::string
 ifm3d::Camera::Impl::NetParameter(const std::string& param)
 {
   return xmlrpc_c::value_string(
-           this->_XCallNet("getParameter", param.c_str())).cvalue();
+    this->_XCallNet("getParameter", param.c_str())).cvalue();
 }
 
 void
@@ -884,7 +901,7 @@ std::string
 ifm3d::Camera::Impl::TimeParameter(const std::string& param)
 {
   return xmlrpc_c::value_string(
-           this->_XCallTime("getParameter", param.c_str())).cvalue();
+    this->_XCallTime("getParameter", param.c_str())).cvalue();
 }
 
 void
@@ -912,6 +929,35 @@ ifm3d::Camera::Impl::SetCurrentTime(int epoch_seconds)
   this->_XCallTime("setCurrentTime", epoch_seconds);
 }
 
+// ---------------------------------------------
+// Udp
+// ---------------------------------------------
+
+std::unordered_map<std::string, std::string>
+ifm3d::Camera::Impl::UdpInfo()
+{
+  return this->value_struct_to_map(this->_XCallUdp("getAllParameters"));
+}
+
+std::string
+ifm3d::Camera::Impl::UdpParameter(const std::string& param)
+{
+  return xmlrpc_c::value_string(
+    this->_XCallUdp("getParameter", param.c_str())).cvalue();
+}
+
+void
+ifm3d::Camera::Impl::SetUdpParameter(const std::string& param,
+                                     const std::string& val)
+{
+  this->_XCallUdp("setParameter", param.c_str(), val.c_str());
+}
+
+void
+ifm3d::Camera::Impl::SaveUdp()
+{
+  this->_XCallUdp("saveAndActivateConfig");
+}
 
 // ---------------------------------------------
 // Application
