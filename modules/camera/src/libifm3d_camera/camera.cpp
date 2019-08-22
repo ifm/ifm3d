@@ -37,6 +37,7 @@
 const std::string ifm3d::DEFAULT_PASSWORD = "";
 const std::uint16_t ifm3d::DEFAULT_XMLRPC_PORT = 80;
 const int ifm3d::DEFAULT_PCIC_PORT = 50010;
+const int ifm3d::DEFAULT_UDP_PORT = 50042;
 const std::string ifm3d::DEFAULT_IP =
   std::getenv("IFM3D_IP") == nullptr ?
   "192.168.0.69" : std::string(std::getenv("IFM3D_IP"));
@@ -107,6 +108,10 @@ const unsigned int ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_PATCH = 0;
 const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR = 1;
 const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR = 25;
 const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH = 0;
+
+const unsigned int ifm3d::O3D_UDP_SUPPORT_MAJOR = 1;
+const unsigned int ifm3d::O3D_UDP_SUPPORT_MINOR = 50;
+const unsigned int ifm3d::O3D_UDP_SUPPORT_PATCH = 4855;
 
 //================================================
 // A lookup table listing the read-only camera
@@ -637,8 +642,9 @@ ifm3d::Camera::ToJSON_(const bool open_session)
   json app_list = this->ApplicationList();
   json net_info, app_info;
   json time_info = json::parse("{}");
+  json udp_info = json::parse("{}");
 
-  auto exec_toJSON = [this,&net_info,&time_info,&app_info,&app_list]()
+  auto exec_toJSON = [this,&net_info,&time_info,&udp_info,&app_info,&app_list]()
     {
       net_info = json(this->pImpl->NetInfo());
       if (this->IsO3X() ||
@@ -649,6 +655,15 @@ ifm3d::Camera::ToJSON_(const bool open_session)
         {
           time_info = json(this->pImpl->TimeInfo());
         }
+
+       if (this->IsO3D() &&
+           this->CheckMinimumFirmwareVersion(ifm3d::O3D_UDP_SUPPORT_MAJOR,
+                                             ifm3d::O3D_UDP_SUPPORT_MINOR,
+                                             ifm3d::O3D_UDP_SUPPORT_PATCH))
+        {
+          udp_info = json(this->pImpl->UdpInfo());
+        }
+
       app_info = json::parse("[]");
 
       for (auto& app : app_list)
@@ -717,6 +732,7 @@ ifm3d::Camera::ToJSON_(const bool open_session)
          {"Device", json(this->pImpl->DeviceInfo())},
          {"Net", net_info},
          {"Time", time_info},
+         {"Udp", udp_info},
          {"Apps", app_info}
        }
       }
@@ -1036,8 +1052,8 @@ ifm3d::Camera::FromJSON(const json& j)
         if (this->IsO3X() ||
             (this->IsO3D() &&
              this->CheckMinimumFirmwareVersion(ifm3d::O3D_TIME_SUPPORT_MAJOR,
-               ifm3d::O3D_TIME_SUPPORT_MINOR,
-              ifm3d::O3D_TIME_SUPPORT_PATCH)))
+                                               ifm3d::O3D_TIME_SUPPORT_MINOR,
+                                               ifm3d::O3D_TIME_SUPPORT_PATCH)))
           {
             json j_time = root["Time"];
             if (! j_time.is_null())
@@ -1047,6 +1063,23 @@ ifm3d::Camera::FromJSON(const json& j)
                     { this->pImpl->SetTimeParameter(k,v); },
                   [this](){ this->pImpl->SaveTime(); },
                   "Time");
+              }
+          }
+
+        // Udp
+        if (this->IsO3D() &&
+            this->CheckMinimumFirmwareVersion(ifm3d::O3D_UDP_SUPPORT_MAJOR,
+                                              ifm3d::O3D_UDP_SUPPORT_MINOR,
+                                              ifm3d::O3D_UDP_SUPPORT_PATCH))
+          {
+            json j_udp = root["Udp"];
+            if (! j_udp.is_null())
+              {
+                this->FromJSON_(current["ifm3d"]["Udp"], j_udp,
+                  [this](const std::string& k, const std::string& v)
+                    { this->pImpl->SetUdpParameter(k,v); },
+                  [this](){ this->pImpl->SaveUdp(); },
+                  "Udp");
               }
           }
 
