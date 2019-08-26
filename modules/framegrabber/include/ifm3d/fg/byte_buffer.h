@@ -32,8 +32,6 @@ namespace ifm3d
     std::chrono::time_point<std::chrono::system_clock,
                             std::chrono::nanoseconds>;
 
-  extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t IMG_TICKET_SZ; // bytes
-  extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t IMG_BUFF_START;
   extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t NUM_EXTRINSIC_PARAM;
   extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t NUM_INTRINSIC_PARAM;
 
@@ -103,40 +101,6 @@ namespace ifm3d
   };
 
   /**
-   * Validates the passed in "ticket" from the sensor. This is a low-level
-   * PCIC protocol detail.
-   *
-   * @param[in] buff The raw ticket bytes from the sensor
-   *
-   * @return true if the ticket buffer is valid
-   */
-  bool verify_ticket_buffer(const std::vector<std::uint8_t>& buff);
-
-  /**
-   * Verifies that the passed in image buffer is valid.
-   *
-   * @param[in] buff The raw bytes from the sensor including all
-   *                 framing and chunk headers
-   *
-   * @return true if the image buffer is valid
-   */
-  bool verify_image_buffer(const std::vector<std::uint8_t>& buff);
-
-  /**
-   * Extracts the image buffer size from an image ticket buffer received from
-   * the sensor.
-   *
-   * NOTE: The size of the passed in buffer is not checked. It is assumed
-   * that you have already called `verify_ticket_buffer` on the passed
-   * in buff.
-   *
-   * @param[in] buff A verified image ticket buffer
-   *
-   * @return The expected size of the image buffer
-   */
-  std::size_t get_image_buffer_size(const std::vector<std::uint8_t>& buff);
-
-  /**
    * Finds the index into the image buffer of where the chunk of `chunk_type'
    * begins.
    *
@@ -151,7 +115,7 @@ namespace ifm3d
    */
   std::size_t get_chunk_index(const std::vector<std::uint8_t>& buff,
                               ifm3d::image_chunk chunk_type,
-                              std::size_t start_idx = ifm3d::IMG_BUFF_START);
+                              std::size_t start_idx = 0);
 
   /**
    * Create a value of type T from sizeof(T) bytes of the passed in byte

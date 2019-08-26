@@ -29,38 +29,8 @@
 // Utilities
 //-------------------------------------
 
-const std::size_t ifm3d::IMG_TICKET_SZ = 16;
-const std::size_t ifm3d::IMG_BUFF_START = 8;
 const std::size_t ifm3d::NUM_EXTRINSIC_PARAM = 6;
 const std::size_t ifm3d::NUM_INTRINSIC_PARAM = 16;
-
-bool
-ifm3d::verify_ticket_buffer(const std::vector<std::uint8_t>& buff)
-{
-  return ((buff.size() == ifm3d::IMG_TICKET_SZ) &&
-          (buff.at(4) == 'L') &&
-          (buff.at(14) == '\r') &&
-          (buff.at(15) == '\n'));
-}
-
-bool
-ifm3d::verify_image_buffer(const std::vector<std::uint8_t>& buff)
-{
-  std::size_t buff_sz = buff.size();
-
-  return ((buff_sz > ifm3d::IMG_BUFF_START) &&
-          (std::string(buff.begin()+4,
-                       buff.begin()+ifm3d::IMG_BUFF_START) == "star") &&
-          (std::string(buff.end()-6, buff.end()-2) == "stop") &&
-          (buff.at(buff_sz - 2) == '\r') &&
-          (buff.at(buff_sz - 1) == '\n'));
-}
-
-std::size_t
-ifm3d::get_image_buffer_size(const std::vector<std::uint8_t>& buff)
-{
-  return std::stoi(std::string(buff.begin()+5, buff.end()));
-}
 
 std::size_t
 ifm3d::get_chunk_index(const std::vector<std::uint8_t>& buff,
@@ -68,7 +38,7 @@ ifm3d::get_chunk_index(const std::vector<std::uint8_t>& buff,
                        std::size_t start_idx)
 {
   std::size_t idx = start_idx; // start of first chunk
-  std::size_t size = buff.size()-6;
+  std::size_t size = buff.size();
 
   while (idx < size)
     {
