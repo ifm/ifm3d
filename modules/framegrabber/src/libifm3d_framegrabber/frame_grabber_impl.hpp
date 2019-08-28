@@ -176,8 +176,8 @@ namespace ifm3d
     // camera. This implements the "back buffer" in the double buffering
     // scheme.
     //
-    // According to the PCIC V3 protocol, this will hold from the 4 digit
-    // ticket sequence up to and including the ending CR + LF ('\r\n')
+    // The PCIC V3 header/footer are stripped off, and this buffer will hold
+    // a contiguous byte-packed vector of image chunks.
     //
     std::vector<std::uint8_t> back_buffer_;
 
