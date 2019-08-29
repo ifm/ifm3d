@@ -75,8 +75,8 @@ app_factory =
      { return std::make_shared<ifm3d::LsApp>(argc, argv, cmd); }},
 
     {"passwd",
-	 [](int argc, const char** argv, const std::string& cmd)
-	 ->ifm3d::CmdLineApp::Ptr
+	   [](int argc, const char** argv, const std::string& cmd)
+	   ->ifm3d::CmdLineApp::Ptr
      { return std::make_shared<ifm3d::PasswdApp>(argc, argv, cmd); }},
 
     {"reboot",
@@ -103,6 +103,11 @@ app_factory =
      [](int argc, const char** argv, const std::string& cmd)
      ->ifm3d::CmdLineApp::Ptr
      { return std::make_shared<ifm3d::TraceApp>(argc, argv, cmd); }},
+
+    {"udp",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::UdpApp>(argc, argv, cmd); }},
 
 #if defined(BUILD_MODULE_FRAMEGRABBER)
     {"schema",
