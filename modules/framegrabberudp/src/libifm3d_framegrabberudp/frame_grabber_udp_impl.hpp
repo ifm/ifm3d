@@ -285,7 +285,7 @@ ifm3d::FrameGrabberUdp::Impl::Run()
 
   try
     {
-      this->back_buffer_.clear();
+      this->ResetReceiveState();
       this->back_buffer_.resize(ifm3d::MAX_PACKET_PAYLOAD_SZ);
 
       boost::array<boost::asio::mutable_buffer, 2> buffs = {
