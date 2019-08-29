@@ -56,6 +56,19 @@ namespace ifm3d
     std::string description;
   };
 
+  const std::vector<std::pair<uint16_t, std::string>> UDP_SCHEMA_MAPPING =
+  {
+    { ifm3d::IMG_RDIS, "distance_image" },
+    { ifm3d::IMG_AMP, "normalized_amplitude_image" },
+    { ifm3d::IMG_RAMP, "amplitude_image" },
+    { ifm3d::IMG_CART, "all_cartesian_vector_matrices" },
+    { ifm3d::IMG_UVEC, "all_unit_vector_matrices" },
+    { ifm3d::IMG_GRAY, "grayscale_image" },
+    { ifm3d::INTR_CAL, "intrinsic_calibration" },
+    { ifm3d::INV_INTR_CAL, "inverse_intrinsic_calibration" },
+    { ifm3d::JSON_MODEL, "json_model" },
+  };
+
   //============================================================
   // Impl interface
   //============================================================
@@ -138,6 +151,12 @@ namespace ifm3d
     std::string UdpParameter(const std::string& param);
     void SetUdpParameter(const std::string& param, const std::string& val);
     void SaveUdp();
+    void EnableUdp(const std::string& target_ip,
+                   std::uint16_t port,
+                   std::uint16_t mask,
+                   std::uint16_t max_payload_size);
+    void DisableUdp();
+
 
     // Application
     std::unordered_map<std::string, std::string> AppInfo();
@@ -221,6 +240,23 @@ namespace ifm3d
     std::unordered_map<std::string,
                        std::unordered_map<std::string, std::string> > const
     value_struct_to_map_of_maps(const xmlrpc_c::value_struct& vs);
+
+    // Helper for converting PCIC-style schema mask into UDP channels sring
+    std::string _MakeUdpSchema(std::uint16_t mask)
+    {
+      std::string schema = "confidence_image";
+
+      for (const auto& mapping : UDP_SCHEMA_MAPPING)
+        {
+          if ((mask & mapping.first) == mapping.first)
+            {
+              schema += ",";
+              schema += mapping.second;
+            }
+        }
+
+      return schema;
+    }
 
     // ---------------------------------------------
     // Terminates recursion over the parameter pack
@@ -957,6 +993,26 @@ void
 ifm3d::Camera::Impl::SaveUdp()
 {
   this->_XCallUdp("saveAndActivateConfig");
+}
+
+void
+ifm3d::Camera::Impl::EnableUdp(const std::string& target_ip,
+                               std::uint16_t port,
+                               std::uint16_t mask,
+                               std::uint16_t max_payload_size)
+{
+  this->SetUdpParameter("TargetIP", target_ip);
+  this->SetUdpParameter("Channels", this->_MakeUdpSchema(mask));
+  this->SetUdpParameter("MaxPayloadSize", std::to_string(max_payload_size));
+  this->SetUdpParameter("Port", std::to_string(port));
+  this->SetUdpParameter("Enabled", "true");
+  this->SaveUdp();
+}
+
+void ifm3d::Camera::Impl::DisableUdp()
+{
+  this->SetUdpParameter("Enabled", "false");
+  this->SaveUdp();
 }
 
 // ---------------------------------------------

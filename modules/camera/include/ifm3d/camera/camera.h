@@ -40,12 +40,27 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const std::size_t SESSION_ID_SZ;
   extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_SESSION_ID;
   extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_APPLICATION_TYPE;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t DEFAULT_UDP_PACKET_SZ;
 
   extern IFM3D_CAMERA_EXPORT const int DEV_O3D_MIN;
   extern IFM3D_CAMERA_EXPORT const int DEV_O3D_MAX;
   extern IFM3D_CAMERA_EXPORT const int DEV_O3X_MIN;
   extern IFM3D_CAMERA_EXPORT const int DEV_O3X_MAX;
   extern IFM3D_CAMERA_EXPORT const std::string ASSUME_DEVICE;
+
+  // Constants used to create "pluggable schema masks"
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t DEFAULT_SCHEMA_MASK;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t IMG_RDIS;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t IMG_AMP;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t IMG_RAMP;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t IMG_CART;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t IMG_UVEC;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t EXP_TIME;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t IMG_GRAY;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t ILLU_TEMP;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t INTR_CAL;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t INV_INTR_CAL;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t JSON_MODEL;
 
   extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TIME_SUPPORT_MAJOR;
   extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TIME_SUPPORT_MINOR;
@@ -555,6 +570,31 @@ namespace ifm3d
      * @throw ifm3d::error_t upon error
      */
     virtual void SetPassword(std::string password = "");
+
+
+    /**
+     * Enables the UDP transport on the camera.
+     *
+     * @param[in] target_ip IP address of target endpoint (the receiver of
+     *            the data) in a unicast set-up
+     * @param[in] port The port number to which data shall be sent
+     * @param[in] mask The schema mask describing which channels to transmit
+     * @param[in] max_payload_size The maximum payload size for each UDP packet
+     *
+     * @throw ifm3d::error_t upon error
+     */
+    virtual void EnableUdp(
+      const std::string& target_ip,
+      std::uint16_t port = ifm3d::DEFAULT_UDP_PORT,
+      std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK,
+      std::uint16_t max_payload_size = ifm3d::DEFAULT_UDP_PACKET_SZ);
+
+    /**
+     * Disables the UDP transport on the camera.
+     *
+     * @throw ifm3d::error_t upon error
+     */
+    virtual void DisableUdp();
 
     /**
      * Checks for a minimum ifm camera software version
