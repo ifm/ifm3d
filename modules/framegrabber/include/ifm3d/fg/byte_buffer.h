@@ -22,6 +22,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <memory>
 #include <vector>
 #include <ifm3d/fg/frame_grabber_export.h>
@@ -47,7 +48,8 @@ namespace ifm3d
     FORMAT_64U = 7,
     FORMAT_64F = 8,
     FORMAT_16U2 = 9,
-    FORMAT_32F3 = 10
+    FORMAT_32F3 = 10,
+    FORMAT_INVALID = std::numeric_limits<std::uint32_t>::max()
   };
 
   enum class image_chunk : std::uint32_t
