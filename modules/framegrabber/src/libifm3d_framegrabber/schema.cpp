@@ -19,35 +19,8 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <ifm3d/camera.h>
 #include <ifm3d/camera/util.h>
-
-const std::uint16_t ifm3d::IMG_RDIS     = (1<<0); // 2**0
-const std::uint16_t ifm3d::IMG_AMP      = (1<<1); // 2**1
-const std::uint16_t ifm3d::IMG_RAMP     = (1<<2); // 2**2
-const std::uint16_t ifm3d::IMG_CART     = (1<<3); // 2**3
-const std::uint16_t ifm3d::IMG_UVEC     = (1<<4); // 2**4
-const std::uint16_t ifm3d::EXP_TIME     = (1<<5); // 2**5
-const std::uint16_t ifm3d::IMG_GRAY     = (1<<6); // 2**6
-const std::uint16_t ifm3d::ILLU_TEMP    = (1<<7); // 2**7
-const std::uint16_t ifm3d::INTR_CAL     = (1<<8); // 2**8
-const std::uint16_t ifm3d::INV_INTR_CAL = (1<<9); // 2**9
-const std::uint16_t ifm3d::JSON_MODEL   = (1<<10); // 2**10
-
-auto __ifm3d_schema_mask__ = []()->std::uint16_t
-  {
-    try
-      {
-        return std::getenv("IFM3D_MASK") == nullptr ?
-            ifm3d::IMG_AMP|ifm3d::IMG_CART :
-            std::stoul(std::string(std::getenv("IFM3D_MASK"))) & 0xFFFF;
-      }
-    catch (const std::exception& /*ex*/)
-      {
-        return ifm3d::IMG_AMP|ifm3d::IMG_CART;
-      }
-  };
-
-const std::uint16_t ifm3d::DEFAULT_SCHEMA_MASK = __ifm3d_schema_mask__();
 
 std::string
 ifm3d::make_o3x_json_from_mask(std::uint16_t mask)
