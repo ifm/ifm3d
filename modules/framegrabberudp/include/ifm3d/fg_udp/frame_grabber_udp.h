@@ -54,7 +54,7 @@ namespace ifm3d
      *            ifm3d::MAX_UDP_PAYLOAD_SZ.
      */
     FrameGrabberUdp(
-      int port = ifm3d::DEFAULT_UDP_PORT,
+      int port = ifm3d::DEFAULT_UDP_TARGET_PORT,
       std::uint16_t max_payload_size = ifm3d::DEFAULT_UDP_PAYLOAD_SZ);
 
     /**
