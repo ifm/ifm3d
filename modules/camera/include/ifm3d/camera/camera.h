@@ -40,7 +40,9 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const std::size_t SESSION_ID_SZ;
   extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_SESSION_ID;
   extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_APPLICATION_TYPE;
-  extern IFM3D_CAMERA_EXPORT const std::uint16_t DEFAULT_UDP_PACKET_SZ;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t DEFAULT_UDP_PAYLOAD_SZ;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t MIN_UDP_PAYLOAD_SZ;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t MAX_UDP_PAYLOAD_SZ;
 
   extern IFM3D_CAMERA_EXPORT const int DEV_O3D_MIN;
   extern IFM3D_CAMERA_EXPORT const int DEV_O3D_MAX;
@@ -587,7 +589,7 @@ namespace ifm3d
       const std::string& target_ip,
       std::uint16_t port = ifm3d::DEFAULT_UDP_PORT,
       std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK,
-      std::uint16_t max_payload_size = ifm3d::DEFAULT_UDP_PACKET_SZ);
+      std::uint16_t max_payload_size = ifm3d::DEFAULT_UDP_PAYLOAD_SZ);
 
     /**
      * Disables the UDP transport on the camera.

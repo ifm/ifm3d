@@ -44,7 +44,9 @@ const std::string ifm3d::DEFAULT_IP =
 const int ifm3d::MAX_HEARTBEAT = 300; // secs
 const std::size_t ifm3d::SESSION_ID_SZ = 32;
 const std::string ifm3d::DEFAULT_APPLICATION_TYPE = "Camera";
-const std::uint16_t ifm3d::DEFAULT_UDP_PACKET_SZ = 1492;
+const std::uint16_t ifm3d::DEFAULT_UDP_PAYLOAD_SZ = 1492;
+const std::uint16_t ifm3d::MIN_UDP_PAYLOAD_SZ = 74;
+const std::uint16_t ifm3d::MAX_UDP_PAYLOAD_SZ = 65507;
 
 auto __ifm3d_session_id__ = []() -> std::string
 {
@@ -1189,6 +1191,13 @@ ifm3d::Camera::EnableUdp(
     {
       LOG(WARNING) << "UDP functionality not supported by this hw/fw";
       throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+    }
+
+  if (max_payload_size < ifm3d::MIN_UDP_PAYLOAD_SZ ||
+      max_payload_size > ifm3d::MAX_UDP_PAYLOAD_SZ)
+    {
+      LOG(WARNING) << "UDP packet size out of bounds";
+      throw ifm3d::error_t(IFM3D_VALUE_OUT_OF_RANGE);
     }
 
   this->pImpl->WrapInEditSession(

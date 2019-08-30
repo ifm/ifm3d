@@ -39,7 +39,7 @@ ifm3d::UdpApp::UdpApp(int argc, const char **argv,
      po::value<std::uint16_t>()->default_value(ifm3d::DEFAULT_SCHEMA_MASK),
      "The schema mask describing which channels to transmit")
     ("max-payload-size",
-     po::value<std::uint16_t>()->default_value(ifm3d::DEFAULT_UDP_PACKET_SZ),
+     po::value<std::uint16_t>()->default_value(ifm3d::DEFAULT_UDP_PAYLOAD_SZ),
      "The maximum payload size for each UDP packet");
 
   po::store(po::command_line_parser(argc, argv).
