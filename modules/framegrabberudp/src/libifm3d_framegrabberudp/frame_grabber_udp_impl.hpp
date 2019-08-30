@@ -332,36 +332,6 @@ ifm3d::FrameGrabberUdp::Impl::PacketHandler(
       throw ifm3d::error_t(ec.value());
     }
 
-#if 0
-  //
-  // TESTING ONLY! Simulate packets dropping!
-  //
-  float val = static_cast<float>(std::rand()) /
-              static_cast<float>(RAND_MAX);
-  if (val > 0.99)
-    {
-      LOG(WARNING) << "SIMULATING DROPPED PACKET";
-
-      // Start reading the next packet right on top of this one...
-      std::size_t curr_idx = this->back_buffer_.size() -
-        this->max_payload_size_;
-
-      boost::array<boost::asio::mutable_buffer, 2> buffs = {
-        boost::asio::buffer(this->header_buffer_),
-        boost::asio::buffer(&this->back_buffer_[curr_idx],
-                            this->max_payload_size_)
-      };
-
-      this->sock_->async_receive_from(
-        buffs,
-        this->endpoint_,
-        std::bind(&ifm3d::FrameGrabberUdp::Impl::PacketHandler, this,
-                  std::placeholders::_1, std::placeholders::_2));
-
-      return;
-    }
-#endif
-
   if (bytes_xferd >= sizeof(ifm3d::PacketHeader))
     {
       PacketHeader* header =
