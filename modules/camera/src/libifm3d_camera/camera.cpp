@@ -1178,9 +1178,9 @@ ifm3d::Camera::SetPassword(std::string password)
 
 void
 ifm3d::Camera::EnableUdp(
+  std::uint16_t mask,
   const std::string& target_ip,
   std::uint16_t port,
-  std::uint16_t mask,
   std::uint16_t max_payload_size)
 {
   if (!this->IsO3D() ||
@@ -1203,9 +1203,9 @@ ifm3d::Camera::EnableUdp(
   this->pImpl->WrapInEditSession(
     [this, target_ip, port, mask, max_payload_size]()
     {
-      this->pImpl->EnableUdp(target_ip,
+      this->pImpl->EnableUdp(mask,
+                             target_ip,
                              port,
-                             mask,
                              max_payload_size);
     });
 }

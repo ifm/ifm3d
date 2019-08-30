@@ -577,18 +577,18 @@ namespace ifm3d
     /**
      * Enables the UDP transport on the camera.
      *
+     * @param[in] mask The schema mask describing which channels to transmit
      * @param[in] target_ip IP address of target endpoint (the receiver of
      *            the data) in a unicast set-up
      * @param[in] port The port number to which data shall be sent
-     * @param[in] mask The schema mask describing which channels to transmit
      * @param[in] max_payload_size The maximum payload size for each UDP packet
      *
      * @throw ifm3d::error_t upon error
      */
     virtual void EnableUdp(
-      const std::string& target_ip,
-      std::uint16_t port = ifm3d::DEFAULT_UDP_PORT,
       std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK,
+      const std::string& target_ip = "",
+      std::uint16_t port = ifm3d::DEFAULT_UDP_PORT,
       std::uint16_t max_payload_size = ifm3d::DEFAULT_UDP_PAYLOAD_SZ);
 
     /**
