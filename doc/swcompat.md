@@ -206,4 +206,13 @@ ifm3d Software Compatibility Matrix
     <td>16.04,18.04</td>
     <td>Minor updates to allow for cross-compiling ifm3d for the O3D3XX</td>
   </tr>
+  <tr>
+    <td>0.16.0</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,
+    1.25.4073, 1.50.4855</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Introduced `framegrabberudp` module for usage with UDP-enabled camera 
+    firmwares</td>
+  </tr>
 </table>
