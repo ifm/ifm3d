@@ -507,3 +507,72 @@ TEST_F(CameraTest, TemporaryParameters)
 
   EXPECT_NO_THROW(cam_->SetTemporaryApplicationParameters(params));
 }
+
+TEST_F(CameraTest, Udp)
+{
+  if (cam_->IsO3X() ||
+      !cam_->CheckMinimumFirmwareVersion(ifm3d::O3D_UDP_SUPPORT_MAJOR,
+                                         ifm3d::O3D_UDP_SUPPORT_MINOR,
+                                         ifm3d::O3D_UDP_SUPPORT_PATCH))
+    {
+      // Test not supported
+      return;
+    }
+
+  // Enable UDP with some non-defaults
+  cam_->EnableUdp(ifm3d::IMG_AMP,
+                  "1.1.1.1",
+                  12345,
+                  9999);
+
+  json dump = this->cam_->ToJSON();
+  std::string udp_chans = dump["ifm3d"]["Udp"]["Channels"];
+  std::string udp_enabled = dump["ifm3d"]["Udp"]["Enabled"];
+  std::string udp_maxpayloadsize = dump["ifm3d"]["Udp"]["MaxPayloadSize"];
+  std::string udp_port = dump["ifm3d"]["Udp"]["Port"];
+  std::string udp_targetip = dump["ifm3d"]["Udp"]["TargetIP"];
+
+  EXPECT_STREQ(
+    udp_chans.c_str(),
+    "confidence_image,normalized_amplitude_image");
+  EXPECT_STREQ(udp_enabled.c_str(), "true");
+  EXPECT_STREQ(udp_maxpayloadsize.c_str(), "9999");
+  EXPECT_STREQ(udp_port.c_str(), "12345");
+  EXPECT_STREQ(udp_targetip.c_str(), "1.1.1.1");
+
+  cam_->DisableUdp();
+
+  dump = this->cam_->ToJSON();
+  udp_chans = dump["ifm3d"]["Udp"]["Channels"];
+  udp_enabled = dump["ifm3d"]["Udp"]["Enabled"];
+  udp_maxpayloadsize = dump["ifm3d"]["Udp"]["MaxPayloadSize"];
+  udp_port = dump["ifm3d"]["Udp"]["Port"];
+  udp_targetip = dump["ifm3d"]["Udp"]["TargetIP"];
+
+  EXPECT_STREQ(
+    udp_chans.c_str(),
+    "confidence_image,normalized_amplitude_image");
+  EXPECT_STREQ(udp_enabled.c_str(), "false");
+  EXPECT_STREQ(udp_maxpayloadsize.c_str(), "9999");
+  EXPECT_STREQ(udp_port.c_str(), "12345");
+  EXPECT_STREQ(udp_targetip.c_str(), "1.1.1.1");
+
+  // Test defaults
+  cam_->EnableUdp();
+  dump = this->cam_->ToJSON();
+  udp_chans = dump["ifm3d"]["Udp"]["Channels"];
+  udp_enabled = dump["ifm3d"]["Udp"]["Enabled"];
+  udp_maxpayloadsize = dump["ifm3d"]["Udp"]["MaxPayloadSize"];
+  udp_port = dump["ifm3d"]["Udp"]["Port"];
+  udp_targetip = dump["ifm3d"]["Udp"]["TargetIP"];
+
+  EXPECT_STREQ(
+    udp_chans.c_str(),
+    "confidence_image,normalized_amplitude_image,all_cartesian_vector_matrices");
+  EXPECT_STREQ(udp_enabled.c_str(), "true");
+  EXPECT_STREQ(
+    udp_maxpayloadsize.c_str(),
+    std::to_string(ifm3d::DEFAULT_UDP_PAYLOAD_SZ).c_str());
+  EXPECT_STREQ(udp_port.c_str(), std::to_string(ifm3d::DEFAULT_UDP_TARGET_PORT).c_str());
+  EXPECT_STREQ(udp_targetip.c_str(), ifm3d::DEFAULT_UDP_TARGET_IP.c_str());
+}
