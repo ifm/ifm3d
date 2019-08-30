@@ -9,6 +9,12 @@ implemented in the `framegrabberudp` module, introduced in v0.16.0 of the
 `framegrabberudp` exposes data through the same `ByteBuffer` interface used by
 current image containers.
 
+## Building the Module
+
+The `framegrabberudp` module is disabled by default. To build and install,
+follow the instructions outlined in [source_build](source_build.md), but
+include `-DBUILD_MODULE_FRAMEGRABBERUDP=ON` on the cmake command line. 
+
 ## Camera Configuration
 
 The camera must be configured for UDP operation. These settings, like all
