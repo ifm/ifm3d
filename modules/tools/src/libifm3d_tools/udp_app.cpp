@@ -69,7 +69,7 @@ int ifm3d::UdpApp::Run()
       auto mask = this->vm_["mask"].as<std::uint16_t>();
       auto max_payload_size = this->vm_["max-payload-size"].as<std::uint16_t>();
 
-      this->cam_->EnableUdp(target_ip, port, mask, max_payload_size);
+      this->cam_->EnableUdp(mask, target_ip, port, max_payload_size);
     }
 
   return 0;

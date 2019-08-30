@@ -151,9 +151,9 @@ namespace ifm3d
     std::string UdpParameter(const std::string& param);
     void SetUdpParameter(const std::string& param, const std::string& val);
     void SaveUdp();
-    void EnableUdp(const std::string& target_ip,
+    void EnableUdp(std::uint16_t mask,
+                   const std::string& target_ip,
                    std::uint16_t port,
-                   std::uint16_t mask,
                    std::uint16_t max_payload_size);
     void DisableUdp();
 
@@ -996,9 +996,9 @@ ifm3d::Camera::Impl::SaveUdp()
 }
 
 void
-ifm3d::Camera::Impl::EnableUdp(const std::string& target_ip,
+ifm3d::Camera::Impl::EnableUdp(std::uint16_t mask,
+                               const std::string& target_ip,
                                std::uint16_t port,
-                               std::uint16_t mask,
                                std::uint16_t max_payload_size)
 {
   this->SetUdpParameter("TargetIP", target_ip);
