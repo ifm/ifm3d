@@ -43,8 +43,19 @@ namespace ifm3d
      * worker thread to stream in pixel data from the device.
      *
      * @param[in] port The UDP port to listen on
+     * @param[in] max_payload_size The default size to expect for UDP packets.
+     *
+     *            For optimal performance, this value should exactly match the
+     *            MaxPayloadSize parameter the camera has been configured with.
+     *            It may be larger but this will incur unnecessary buffer
+     *            resizes. It must not be smaller.
+     *
+     *            The value is bound by ifm3d::MIN_UDP_PAYLOAD_SZ and
+     *            ifm3d::MAX_UDP_PAYLOAD_SZ.
      */
-    FrameGrabberUdp(int port = ifm3d::DEFAULT_UDP_PORT);
+    FrameGrabberUdp(
+      int port = ifm3d::DEFAULT_UDP_PORT,
+      std::uint16_t max_payload_size = ifm3d::DEFAULT_UDP_PAYLOAD_SZ);
 
     /**
      * Cleans up resources held by the framegrabbing thread object and blocks

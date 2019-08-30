@@ -23,8 +23,9 @@
 #include <ifm3d/camera/err.h>
 #include <frame_grabber_udp_impl.hpp>
 
-ifm3d::FrameGrabberUdp::FrameGrabberUdp(int port)
-  : pImpl(new ifm3d::FrameGrabberUdp::Impl(port))
+ifm3d::FrameGrabberUdp::FrameGrabberUdp(int port,
+                                        std::uint16_t max_payload_size)
+  : pImpl(new ifm3d::FrameGrabberUdp::Impl(port, max_payload_size))
 { }
 
 ifm3d::FrameGrabberUdp::~FrameGrabberUdp() = default;

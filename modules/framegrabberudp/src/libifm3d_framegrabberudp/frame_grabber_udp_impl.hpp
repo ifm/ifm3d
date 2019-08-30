@@ -48,8 +48,6 @@ namespace ifm3d
   constexpr size_t MAX_DATAGRAM_SIZE = 65507;
 
   const std::size_t PACKET_HEADER_SZ = 28;
-  const std::size_t MAX_PACKET_PAYLOAD_SZ = ifm3d::MAX_DATAGRAM_SIZE -
-                                        ifm3d::PACKET_HEADER_SZ;
 
   constexpr uint8_t  FRAME_HEADER[]      = { 's', 't', 'a', 'r' };
   constexpr uint8_t  FRAME_FOOTER[]      = { 's', 't', 'o', 'p' };
@@ -79,7 +77,7 @@ namespace ifm3d
   class FrameGrabberUdp::Impl
   {
   public:
-    Impl(int port);
+    Impl(int port, std::uint16_t max_packet_size);
     ~Impl();
 
     bool WaitForFrame(
@@ -107,6 +105,7 @@ namespace ifm3d
     boost::asio::ip::udp::endpoint endpoint_;
     std::unique_ptr<boost::asio::ip::udp::socket> sock_;
     std::unique_ptr<std::thread> thread_;
+    std::uint16_t max_payload_size_;
 
     //
     // State of the current frame/channel
@@ -162,9 +161,17 @@ namespace ifm3d
 //-------------------------------------
 // ctor/dtor
 //-------------------------------------
-ifm3d::FrameGrabberUdp::Impl::Impl(int port)
-  : cam_port_(port), io_service_()
+ifm3d::FrameGrabberUdp::Impl::Impl(int port, std::uint16_t max_packet_size)
+  : cam_port_(port), io_service_(),
+    max_payload_size_(max_packet_size - ifm3d::PACKET_HEADER_SZ)
 {
+  if (max_packet_size < ifm3d::MIN_UDP_PAYLOAD_SZ ||
+      max_packet_size > ifm3d::MAX_UDP_PAYLOAD_SZ)
+    {
+      LOG(WARNING) << "UDP packet size out of bounds";
+      throw ifm3d::error_t(IFM3D_VALUE_OUT_OF_RANGE);
+    }
+
   this->endpoint_ =
     boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), cam_port_);
 
@@ -286,7 +293,7 @@ ifm3d::FrameGrabberUdp::Impl::Run()
   try
     {
       this->ResetReceiveState();
-      this->back_buffer_.resize(ifm3d::MAX_PACKET_PAYLOAD_SZ);
+      this->back_buffer_.resize(this->max_payload_size_);
 
       boost::array<boost::asio::mutable_buffer, 2> buffs = {
         boost::asio::buffer(this->header_buffer_),
@@ -337,12 +344,12 @@ ifm3d::FrameGrabberUdp::Impl::PacketHandler(
 
       // Start reading the next packet right on top of this one...
       std::size_t curr_idx = this->back_buffer_.size() -
-        ifm3d::MAX_PACKET_PAYLOAD_SZ;
+        this->max_payload_size_;
 
       boost::array<boost::asio::mutable_buffer, 2> buffs = {
         boost::asio::buffer(this->header_buffer_),
         boost::asio::buffer(&this->back_buffer_[curr_idx],
-                            ifm3d::MAX_PACKET_PAYLOAD_SZ)
+                            this->max_payload_size_)
       };
 
       this->sock_->async_receive_from(
@@ -367,13 +374,13 @@ ifm3d::FrameGrabberUdp::Impl::PacketHandler(
             {
               if (header->total_channel_length==sizeof(ifm3d::FRAME_HEADER) &&
                   memcmp(&this->back_buffer_[this->back_buffer_.size() -
-                                             ifm3d::MAX_PACKET_PAYLOAD_SZ],
+                                             this->max_payload_size_],
                          ifm3d::FRAME_HEADER,
                          sizeof(ifm3d::FRAME_HEADER)) == 0)
                 {
                   // New frame is beginning -- if there's any incomplete data
                   // for the previous frame, deliver what we can.
-                  if (this->back_buffer_.size() > ifm3d::MAX_PACKET_PAYLOAD_SZ)
+                  if (this->back_buffer_.size() > this->max_payload_size_)
                     {
                       LOG(WARNING) << "START received with incomplete previous"
                                    << " frame. Delivering incomplete frame.";
@@ -382,7 +389,7 @@ ifm3d::FrameGrabberUdp::Impl::PacketHandler(
                       // payload information from the buffer
                       this->back_buffer_.resize(
                         this->back_buffer_.size() -
-                        ifm3d::MAX_PACKET_PAYLOAD_SZ -
+                        this->max_payload_size_ -
                         this->bytes_xferd_for_channel_);
 
                       // Signal we have a complete frame
@@ -397,14 +404,14 @@ ifm3d::FrameGrabberUdp::Impl::PacketHandler(
                        sizeof(ifm3d::FRAME_FOOTER) &&
                       (memcmp(
                          &this->back_buffer_[this->back_buffer_.size() -
-                                             ifm3d::MAX_PACKET_PAYLOAD_SZ],
+                                             this->max_payload_size_],
                          ifm3d::FRAME_FOOTER,
                          sizeof(ifm3d::FRAME_FOOTER)) == 0))
                 {
                   // Drop the allocation for this packet and any incomplete
                   // payload information from the buffer
                   this->back_buffer_.resize(this->back_buffer_.size() -
-                                            ifm3d::MAX_PACKET_PAYLOAD_SZ -
+                                            this->max_payload_size_ -
                                             this->bytes_xferd_for_channel_);
 
                   // Signal we have a complete frame
@@ -437,9 +444,13 @@ ifm3d::FrameGrabberUdp::Impl::PacketHandler(
                       // possible datagram size. Resize the buffer down to what
                       // was actually transmitted so the next packet is written
                       // continguously.
+                      //
+                      // If the max_payload_size was properly specified at
+                      // creation, this resize will be a no-op for all but
+                      // the last packet in the channel.
                       this->back_buffer_.resize(
                         this->back_buffer_.size() -
-                        (ifm3d::MAX_PACKET_PAYLOAD_SZ - payload_size));
+                        (this->max_payload_size_ - payload_size));
 
                       // Increment the expected index, wrapping as needed
                       this->expected_channel_idx_ =
@@ -463,7 +474,7 @@ ifm3d::FrameGrabberUdp::Impl::PacketHandler(
                       // channel.
                       this->back_buffer_.resize(
                         this->back_buffer_.size() -
-                        ifm3d::MAX_PACKET_PAYLOAD_SZ -
+                        this->max_payload_size_ -
                         this->bytes_xferd_for_channel_);
 
                       // Wait for the start of the next channel.
@@ -487,12 +498,12 @@ ifm3d::FrameGrabberUdp::Impl::PacketHandler(
 
   // Resize to be current size + a full datagram
   std::size_t curr_idx = this->back_buffer_.size();
-  this->back_buffer_.resize(curr_idx + ifm3d::MAX_PACKET_PAYLOAD_SZ);
+  this->back_buffer_.resize(curr_idx + this->max_payload_size_);
 
   boost::array<boost::asio::mutable_buffer, 2> buffs = {
     boost::asio::buffer(this->header_buffer_),
     boost::asio::buffer(&this->back_buffer_[curr_idx],
-                        ifm3d::MAX_PACKET_PAYLOAD_SZ)
+                        this->max_payload_size_)
   };
 
   this->sock_->async_receive_from(
