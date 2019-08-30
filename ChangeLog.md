@@ -1,3 +1,6 @@
+## Changes between ifm3d 0.15.1 and 0.16.0
+* Created new `framegrabbedudp` module for consuming data over UDP interface
+
 ## Changes between ifm3d 0.15.0 and 0.15.1
 * Minor updates to allow for cross-compiling ifm3d for the O3D3XX
 *  PCIC timeout issue fixed

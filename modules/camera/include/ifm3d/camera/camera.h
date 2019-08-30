@@ -39,12 +39,31 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const std::size_t SESSION_ID_SZ;
   extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_SESSION_ID;
   extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_APPLICATION_TYPE;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t DEFAULT_UDP_PAYLOAD_SZ;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t MIN_UDP_PAYLOAD_SZ;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t MAX_UDP_PAYLOAD_SZ;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t DEFAULT_UDP_TARGET_PORT;
+  extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_UDP_TARGET_IP;
 
   extern IFM3D_CAMERA_EXPORT const int DEV_O3D_MIN;
   extern IFM3D_CAMERA_EXPORT const int DEV_O3D_MAX;
   extern IFM3D_CAMERA_EXPORT const int DEV_O3X_MIN;
   extern IFM3D_CAMERA_EXPORT const int DEV_O3X_MAX;
   extern IFM3D_CAMERA_EXPORT const std::string ASSUME_DEVICE;
+
+  // Constants used to create "pluggable schema masks"
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t DEFAULT_SCHEMA_MASK;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t IMG_RDIS;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t IMG_AMP;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t IMG_RAMP;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t IMG_CART;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t IMG_UVEC;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t EXP_TIME;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t IMG_GRAY;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t ILLU_TEMP;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t INTR_CAL;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t INV_INTR_CAL;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t JSON_MODEL;
 
   extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TIME_SUPPORT_MAJOR;
   extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TIME_SUPPORT_MINOR;
@@ -61,6 +80,10 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR;
   extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR;
   extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH;
+
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_UDP_SUPPORT_MAJOR;
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_UDP_SUPPORT_MINOR;
+  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_UDP_SUPPORT_PATCH;
 
   /**
    * Software interface to an ifm 3D camera
@@ -409,7 +432,7 @@ namespace ifm3d
      * @return The index of the new application.
      */
     virtual int CreateApplication(
-            const std::string& type = DEFAULT_APPLICATION_TYPE);
+      const std::string& type = DEFAULT_APPLICATION_TYPE);
 
     /**
      * Deletes the application at the specified index from the sensor.
@@ -551,6 +574,31 @@ namespace ifm3d
      */
     virtual void SetPassword(std::string password = "");
 
+
+    /**
+     * Enables the UDP transport on the camera.
+     *
+     * @param[in] mask The schema mask describing which channels to transmit
+     * @param[in] target_ip IP address of target endpoint (the receiver of
+     *            the data) in a unicast set-up
+     * @param[in] port The port number to which data shall be sent
+     * @param[in] max_payload_size The maximum payload size for each UDP packet
+     *
+     * @throw ifm3d::error_t upon error
+     */
+    virtual void EnableUdp(
+      std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK,
+      const std::string& target_ip = ifm3d::DEFAULT_UDP_TARGET_IP,
+      std::uint16_t port = ifm3d::DEFAULT_UDP_TARGET_PORT,
+      std::uint16_t max_payload_size = ifm3d::DEFAULT_UDP_PAYLOAD_SZ);
+
+    /**
+     * Disables the UDP transport on the camera.
+     *
+     * @throw ifm3d::error_t upon error
+     */
+    virtual void DisableUdp();
+
     /**
      * Checks for a minimum ifm camera software version
      *  @param[in] major  Major version of software
@@ -598,7 +646,7 @@ namespace ifm3d
     /**
      *  Implements the serialization of the camera state to JSON.
      *  @param[in] open_session if false function will work
-                   on already opened session
+     *             on already opened session
      *  @return A JSON object representation of the current camera state.
      */
     json ToJSON_(const bool open_session = true);
