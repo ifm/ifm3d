@@ -17,7 +17,7 @@ macro_ensure_out_of_source_build(
 # Conditionally turn on/off parts of the build (global-level)
 option(BUILD_TESTS "Build unit tests" ON)
 option(BUILD_MODULE_FRAMEGRABBER "Build the framegrabber module" ON)
-option(BUILD_MODULE_FRAMEGRABBERUDP "Build the framegrabberudp module" ON)
+option(BUILD_MODULE_FRAMEGRABBERUDP "Build the framegrabberudp module" OFF)
 option(BUILD_MODULE_SWUPDATER "Build the swupdater module" ON)
 option(BUILD_MODULE_IMAGE "Build the image module" ON)
 option(BUILD_MODULE_OPENCV "Build the OpenCV-only image container" OFF)
