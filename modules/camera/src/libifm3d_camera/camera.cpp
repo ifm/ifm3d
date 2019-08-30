@@ -37,7 +37,6 @@
 const std::string ifm3d::DEFAULT_PASSWORD = "";
 const std::uint16_t ifm3d::DEFAULT_XMLRPC_PORT = 80;
 const int ifm3d::DEFAULT_PCIC_PORT = 50010;
-const int ifm3d::DEFAULT_UDP_PORT = 50042;
 const std::string ifm3d::DEFAULT_IP =
   std::getenv("IFM3D_IP") == nullptr ?
   "192.168.0.69" : std::string(std::getenv("IFM3D_IP"));
@@ -47,6 +46,10 @@ const std::string ifm3d::DEFAULT_APPLICATION_TYPE = "Camera";
 const std::uint16_t ifm3d::DEFAULT_UDP_PAYLOAD_SZ = 1492;
 const std::uint16_t ifm3d::MIN_UDP_PAYLOAD_SZ = 74;
 const std::uint16_t ifm3d::MAX_UDP_PAYLOAD_SZ = 65507;
+const std::uint16_t ifm3d::DEFAULT_UDP_TARGET_PORT = 50042;
+const std::string ifm3d::DEFAULT_UDP_TARGET_IP =
+  std::getenv("IFM3D_UDP_TARGET_IP") == nullptr ?
+  "" : std::string(std::getenv("IFM3D_UDP_TARGET_IP"));
 
 auto __ifm3d_session_id__ = []() -> std::string
 {

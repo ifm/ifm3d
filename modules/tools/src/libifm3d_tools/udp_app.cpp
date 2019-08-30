@@ -30,10 +30,11 @@ ifm3d::UdpApp::UdpApp(int argc, const char **argv,
   this->local_opts_.add_options()
     ("disable", po::bool_switch()->default_value(false),
      "Disable UDP functionality")
-    ("target-ip", po::value<std::string>()->default_value(std::string("")),
+    ("target-ip", po::value<std::string>()->default_value(
+                                              ifm3d::DEFAULT_UDP_TARGET_IP),
      "IP address of the receive endpoint in a unicast set-up")
     ("port,p",
-     po::value<std::uint16_t>()->default_value(ifm3d::DEFAULT_UDP_PORT),
+     po::value<std::uint16_t>()->default_value(ifm3d::DEFAULT_UDP_TARGET_PORT),
      "The port number to which data needs to be sent")
     ("mask",
      po::value<std::uint16_t>()->default_value(ifm3d::DEFAULT_SCHEMA_MASK),

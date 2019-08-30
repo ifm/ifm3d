@@ -34,7 +34,6 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_IP;
   extern IFM3D_CAMERA_EXPORT const std::uint16_t DEFAULT_XMLRPC_PORT;
   extern IFM3D_CAMERA_EXPORT const int DEFAULT_PCIC_PORT;
-  extern IFM3D_CAMERA_EXPORT const int DEFAULT_UDP_PORT;
   extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_PASSWORD;
   extern IFM3D_CAMERA_EXPORT const int MAX_HEARTBEAT;
   extern IFM3D_CAMERA_EXPORT const std::size_t SESSION_ID_SZ;
@@ -43,6 +42,8 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const std::uint16_t DEFAULT_UDP_PAYLOAD_SZ;
   extern IFM3D_CAMERA_EXPORT const std::uint16_t MIN_UDP_PAYLOAD_SZ;
   extern IFM3D_CAMERA_EXPORT const std::uint16_t MAX_UDP_PAYLOAD_SZ;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t DEFAULT_UDP_TARGET_PORT;
+  extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_UDP_TARGET_IP;
 
   extern IFM3D_CAMERA_EXPORT const int DEV_O3D_MIN;
   extern IFM3D_CAMERA_EXPORT const int DEV_O3D_MAX;
@@ -587,8 +588,8 @@ namespace ifm3d
      */
     virtual void EnableUdp(
       std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK,
-      const std::string& target_ip = "",
-      std::uint16_t port = ifm3d::DEFAULT_UDP_PORT,
+      const std::string& target_ip = ifm3d::DEFAULT_UDP_TARGET_IP,
+      std::uint16_t port = ifm3d::DEFAULT_UDP_TARGET_PORT,
       std::uint16_t max_payload_size = ifm3d::DEFAULT_UDP_PAYLOAD_SZ);
 
     /**
