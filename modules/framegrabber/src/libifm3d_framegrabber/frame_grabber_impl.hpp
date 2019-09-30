@@ -352,6 +352,12 @@ ifm3d::FrameGrabber::Impl::WaitForFrame(
       return false;
     }
 
+  if (this->front_buffer_.empty())
+  {
+    VLOG(IFM3D_TRACE)
+      << "Image buffer is empty";
+    return false;
+  }
   // if (copy_buff)
   //   {
   //     std::size_t sz = this->front_buffer_.size();
