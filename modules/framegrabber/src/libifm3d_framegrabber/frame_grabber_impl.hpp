@@ -51,10 +51,6 @@ namespace ifm3d
   const std::string TICKET_c = "1000";
   const std::string TICKET_t = "1001";
 
-  // PCIC image header/footer
-  const std::size_t IMAGE_HEADER_SZ = 8; // <Ticket>+"star"
-  const std::size_t IMAGE_FOOTER_SZ = 6; // "stop"+CR+LF
-
   //============================================================
   // Impl interface
   //============================================================
@@ -83,54 +79,9 @@ namespace ifm3d
                        std::size_t bytes_xferd,
                        std::size_t bytes_read);
 
-    void ImageHeaderHandler(const boost::system::error_code& ec,
-                            std::size_t bytes_xferd,
-                            std::size_t bytes_read);
-
-    void ImageDataHandler(const boost::system::error_code& ec,
-                          std::size_t bytes_xferd,
-                          std::size_t bytes_read);
-
-    void ImageFooterHandler(const boost::system::error_code& ec,
-                            std::size_t bytes_xferd,
-                            std::size_t bytes_read);
-
-    //
-    // Helpers for validating and processing buffers (PCIC v3)
-    //
-
-    /**
-     * Validates the passed in "ticket" from the sensor. This is a low-level
-     * PCIC protocol detail.
-     *
-     * @return true if the ticket buffer is valid
-     */
-    bool VerifyTicketBuffer();
-
-    /**
-     * Verifies that the received image buffer header is valid.
-     *
-     * @return true if the image buffer header is valid
-     */
-    bool VerifyImageHeaderBuffer();
-
-    /**
-     * Verifies that the received image buffer footer is valid.
-     *
-     * @return true if the image buffer footer is valid
-     */
-    bool VerifyImageFooterBuffer();
-
-    /**
-     * Extracts the image buffer size from the image ticket buffer received
-     * from the sensor.
-     *
-     * NOTE: The validity of the ticket buffer is not checked. It is assumed
-     * that you have already called `VerifyTicketBuffer`.
-     *
-     * @return The expected size of the image buffer
-     */
-    std::size_t GetExpectedImageBufferSize();
+    void ImageHandler(const boost::system::error_code& ec,
+                      std::size_t bytes_xferd,
+                      std::size_t bytes_read);
 
     //---------------------
     // State
@@ -162,22 +113,12 @@ namespace ifm3d
     std::vector<std::uint8_t> ticket_buffer_;
 
     //
-    // Holds the raw 'Header' bytes received from the sensor:
-    //
-    std::vector<std::uint8_t> header_buffer_;
-
-    //
-    // Holds the raw 'Footer' bytes received from the sensor:
-    //
-    std::vector<std::uint8_t> footer_buffer_;
-
-    //
     // Our frame grabber double buffers images when acquiring from the
     // camera. This implements the "back buffer" in the double buffering
     // scheme.
     //
-    // The PCIC V3 header/footer are stripped off, and this buffer will hold
-    // a contiguous byte-packed vector of image chunks.
+    // According to the PCIC V3 protocol, this will hold from the 4 digit
+    // ticket sequence up to and including the ending CR + LF ('\r\n')
     //
     std::vector<std::uint8_t> back_buffer_;
 
@@ -694,19 +635,19 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const boost::system::error_code& ec,
 
   if (ticket == ifm3d::TICKET_image)
     {
-      if (this->VerifyTicketBuffer())
+      if (ifm3d::verify_ticket_buffer(this->ticket_buffer_))
         {
-          this->header_buffer_.clear();
-          this->header_buffer_.resize(ifm3d::IMAGE_HEADER_SZ);
+          this->back_buffer_.resize(
+            ifm3d::get_image_buffer_size(this->ticket_buffer_));
+
           this->sock_.async_read_some(
-            boost::asio::buffer(this->header_buffer_.data(),
-                                this->header_buffer_.size()),
-            std::bind(&ifm3d::FrameGrabber::Impl::ImageHeaderHandler,
+            boost::asio::buffer(this->back_buffer_.data(),
+                                this->back_buffer_.size()),
+            std::bind(&ifm3d::FrameGrabber::Impl::ImageHandler,
                       this,
                       std::placeholders::_1,
                       std::placeholders::_2,
                       0));
-
           return;
         }
       else
@@ -754,63 +695,9 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const boost::system::error_code& ec,
 }
 
 void
-ifm3d::FrameGrabber::Impl::ImageHeaderHandler(
-  const boost::system::error_code& ec,
-  std::size_t bytes_xferd,
-  std::size_t bytes_read)
-{
-  if (ec) { throw ifm3d::error_t(ec.value()); }
-
-  bytes_read += bytes_xferd;
-
-  if (bytes_read < ifm3d::IMAGE_HEADER_SZ)
-    {
-      bytes_read +=
-        boost::asio::read(
-          this->sock_,
-          boost::asio::buffer(&this->header_buffer_[bytes_read],
-                              ifm3d::IMAGE_HEADER_SZ - bytes_read));
-
-      if (bytes_read != ifm3d::IMAGE_HEADER_SZ)
-        {
-          LOG(ERROR) << "Timeout reading image header!";
-          throw ifm3d::error_t(IFM3D_IO_ERROR);
-        }
-    }
-
-  if (this->VerifyImageHeaderBuffer())
-    {
-      this->back_buffer_.resize(this->GetExpectedImageBufferSize());
-      this->sock_.async_read_some(
-        boost::asio::buffer(this->back_buffer_.data(),
-                            this->back_buffer_.size()),
-        std::bind(&ifm3d::FrameGrabber::Impl::ImageDataHandler,
-                  this,
-                  std::placeholders::_1,
-                  std::placeholders::_2,
-                  0));
-    }
-  else
-    {
-      LOG(WARNING) << "Bad image header!";
-      this->ticket_buffer_.clear();
-      this->ticket_buffer_.resize(ifm3d::TICKET_ID_SZ);
-      this->sock_.async_read_some(
-        boost::asio::buffer(this->ticket_buffer_.data(),
-                            ifm3d::TICKET_ID_SZ),
-        std::bind(&ifm3d::FrameGrabber::Impl::TicketHandler,
-                  this,
-                  std::placeholders::_1,
-                  std::placeholders::_2,
-                  0));
-    }
-}
-
-void
-ifm3d::FrameGrabber::Impl::ImageDataHandler(
-  const boost::system::error_code& ec,
-  std::size_t bytes_xferd,
-  std::size_t bytes_read)
+ifm3d::FrameGrabber::Impl::ImageHandler(const boost::system::error_code& ec,
+                                        std::size_t bytes_xferd,
+                                        std::size_t bytes_read)
 {
   if (ec) { throw ifm3d::error_t(ec.value()); }
 
@@ -821,7 +708,7 @@ ifm3d::FrameGrabber::Impl::ImageDataHandler(
       this->sock_.async_read_some(
         boost::asio::buffer(&this->back_buffer_[bytes_read],
                             this->back_buffer_.size() - bytes_read),
-        std::bind(&ifm3d::FrameGrabber::Impl::ImageDataHandler,
+        std::bind(&ifm3d::FrameGrabber::Impl::ImageHandler,
                   this,
                   std::placeholders::_1,
                   std::placeholders::_2,
@@ -829,44 +716,7 @@ ifm3d::FrameGrabber::Impl::ImageDataHandler(
       return;
     }
 
-  this->footer_buffer_.clear();
-  this->footer_buffer_.resize(ifm3d::IMAGE_FOOTER_SZ);
-  this->sock_.async_read_some(
-    boost::asio::buffer(this->footer_buffer_.data(),
-                        this->footer_buffer_.size()),
-    std::bind(&ifm3d::FrameGrabber::Impl::ImageFooterHandler,
-              this,
-              std::placeholders::_1,
-              std::placeholders::_2,
-              0));
-}
-
-void
-ifm3d::FrameGrabber::Impl::ImageFooterHandler(
-  const boost::system::error_code& ec,
-  std::size_t bytes_xferd,
-  std::size_t bytes_read)
-{
-  if (ec) { throw ifm3d::error_t(ec.value()); }
-
-  bytes_read += bytes_xferd;
-
-  if (bytes_read < ifm3d::IMAGE_FOOTER_SZ)
-    {
-      bytes_read +=
-        boost::asio::read(
-          this->sock_,
-          boost::asio::buffer(&this->footer_buffer_[bytes_read],
-                              ifm3d::IMAGE_FOOTER_SZ - bytes_read));
-
-      if (bytes_read != ifm3d::IMAGE_FOOTER_SZ)
-        {
-          LOG(ERROR) << "Timeout reading image footer!";
-          throw ifm3d::error_t(IFM3D_IO_ERROR);
-        }
-    }
-
-  if (this->VerifyImageFooterBuffer())
+  if (ifm3d::verify_image_buffer(this->back_buffer_))
     {
       // Move data to the front buffer in O(1)
       this->front_buffer_mutex_.lock();
@@ -877,7 +727,7 @@ ifm3d::FrameGrabber::Impl::ImageFooterHandler(
         {
           VLOG(IFM3D_TRACE) << "Inserting unit vectors to front buffer";
           this->front_buffer_.insert(
-            this->front_buffer_.begin(),
+            this->front_buffer_.begin()+ifm3d::IMG_BUFF_START,
             this->uvec_buffer_.begin(), this->uvec_buffer_.end());
         }
       this->front_buffer_mutex_.unlock();
@@ -887,7 +737,7 @@ ifm3d::FrameGrabber::Impl::ImageFooterHandler(
     }
   else
     {
-      LOG(WARNING) << "Bad image footer!";
+      LOG(WARNING) << "Bad image!";
     }
 
   this->ticket_buffer_.clear();
@@ -900,40 +750,6 @@ ifm3d::FrameGrabber::Impl::ImageFooterHandler(
               std::placeholders::_1,
               std::placeholders::_2,
               0));
-}
-
-bool
-ifm3d::FrameGrabber::Impl::VerifyTicketBuffer()
-{
-  return ((this->ticket_buffer_.size() == ifm3d::TICKET_ID_SZ) &&
-          (this->ticket_buffer_.at(4) == 'L') &&
-          (this->ticket_buffer_.at(14) == '\r') &&
-          (this->ticket_buffer_.at(15) == '\n'));
-}
-
-bool
-ifm3d::FrameGrabber::Impl::VerifyImageHeaderBuffer()
-{
-  return ((this->header_buffer_.size() == ifm3d::IMAGE_HEADER_SZ) &&
-          (std::string(this->header_buffer_.begin()+4,
-                       this->header_buffer_.end()) == "star"));
-}
-
-bool
-ifm3d::FrameGrabber::Impl::VerifyImageFooterBuffer()
-{
-  return ((this->footer_buffer_.size() == ifm3d::IMAGE_FOOTER_SZ) &&
-          (std::string(this->footer_buffer_.begin(),
-           this->footer_buffer_.end()-2) == "stop") &&
-          (this->footer_buffer_.at(4) == '\r') &&
-          (this->footer_buffer_.at(5) == '\n'));
-}
-
-std::size_t
-ifm3d::FrameGrabber::Impl::GetExpectedImageBufferSize()
-{
-  return std::stoi(std::string(this->ticket_buffer_.begin() + 5,
-                               this->ticket_buffer_.end())) - 8 - 6;
 }
 
 #endif // __IFM3D_FRAME_GRABBER_FRAME_GRABBER_IMPL_H__

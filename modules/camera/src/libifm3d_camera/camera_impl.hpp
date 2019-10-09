@@ -43,7 +43,6 @@ namespace ifm3d
   const std::string XMLRPC_DEVICE = "device/";
   const std::string XMLRPC_NET = "network/";
   const std::string XMLRPC_TIME = "time/";
-  const std::string XMLRPC_UDP = "udp/";
   const std::string XMLRPC_APP = "application/";
   const std::string XMLRPC_IMAGER = "imager_001/";
   const std::string XMLRPC_SPATIALFILTER = "spatialfilter";
@@ -54,19 +53,6 @@ namespace ifm3d
     int id;
     std::string name;
     std::string description;
-  };
-
-  const std::vector<std::pair<uint16_t, std::string>> UDP_SCHEMA_MAPPING =
-  {
-    { ifm3d::IMG_RDIS, "distance_image" },
-    { ifm3d::IMG_AMP, "normalized_amplitude_image" },
-    { ifm3d::IMG_RAMP, "amplitude_image" },
-    { ifm3d::IMG_CART, "all_cartesian_vector_matrices" },
-    { ifm3d::IMG_UVEC, "all_unit_vector_matrices" },
-    { ifm3d::IMG_GRAY, "grayscale_image" },
-    { ifm3d::INTR_CAL, "intrinsic_calibration" },
-    { ifm3d::INV_INTR_CAL, "inverse_intrinsic_calibration" },
-    { ifm3d::JSON_MODEL, "json_model" },
   };
 
   //============================================================
@@ -145,18 +131,6 @@ namespace ifm3d
     void SaveTime();
     // A value less than 0 (the default) will set the time to "now"
     void SetCurrentTime(int epoch_seconds = -1);
-
-    // Udp
-    std::unordered_map<std::string, std::string> UdpInfo();
-    std::string UdpParameter(const std::string& param);
-    void SetUdpParameter(const std::string& param, const std::string& val);
-    void SaveUdp();
-    void EnableUdp(std::uint16_t mask,
-                   const std::string& target_ip,
-                   std::uint16_t port,
-                   std::uint16_t max_payload_size);
-    void DisableUdp();
-
 
     // Application
     std::unordered_map<std::string, std::string> AppInfo();
@@ -240,23 +214,6 @@ namespace ifm3d
     std::unordered_map<std::string,
                        std::unordered_map<std::string, std::string> > const
     value_struct_to_map_of_maps(const xmlrpc_c::value_struct& vs);
-
-    // Helper for converting PCIC-style schema mask into UDP channels sring
-    std::string _MakeUdpSchema(std::uint16_t mask)
-    {
-      std::string schema = "confidence_image";
-
-      for (const auto& mapping : UDP_SCHEMA_MAPPING)
-        {
-          if ((mask & mapping.first) == mapping.first)
-            {
-              schema += ",";
-              schema += mapping.second;
-            }
-        }
-
-      return schema;
-    }
 
     // ---------------------------------------------
     // Terminates recursion over the parameter pack
@@ -374,16 +331,6 @@ namespace ifm3d
       std::string url =
         this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
         ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE + ifm3d::XMLRPC_TIME;
-      return this->_XCall(url, method, args...);
-    }
-
-    template <typename... Args>
-    xmlrpc_c::value const
-    _XCallUdp(const std::string& method, Args... args)
-    {
-      std::string url =
-        this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
-        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE + ifm3d::XMLRPC_UDP;
       return this->_XCall(url, method, args...);
     }
 
@@ -907,7 +854,7 @@ std::string
 ifm3d::Camera::Impl::NetParameter(const std::string& param)
 {
   return xmlrpc_c::value_string(
-    this->_XCallNet("getParameter", param.c_str())).cvalue();
+           this->_XCallNet("getParameter", param.c_str())).cvalue();
 }
 
 void
@@ -937,7 +884,7 @@ std::string
 ifm3d::Camera::Impl::TimeParameter(const std::string& param)
 {
   return xmlrpc_c::value_string(
-    this->_XCallTime("getParameter", param.c_str())).cvalue();
+           this->_XCallTime("getParameter", param.c_str())).cvalue();
 }
 
 void
@@ -965,55 +912,6 @@ ifm3d::Camera::Impl::SetCurrentTime(int epoch_seconds)
   this->_XCallTime("setCurrentTime", epoch_seconds);
 }
 
-// ---------------------------------------------
-// Udp
-// ---------------------------------------------
-
-std::unordered_map<std::string, std::string>
-ifm3d::Camera::Impl::UdpInfo()
-{
-  return this->value_struct_to_map(this->_XCallUdp("getAllParameters"));
-}
-
-std::string
-ifm3d::Camera::Impl::UdpParameter(const std::string& param)
-{
-  return xmlrpc_c::value_string(
-    this->_XCallUdp("getParameter", param.c_str())).cvalue();
-}
-
-void
-ifm3d::Camera::Impl::SetUdpParameter(const std::string& param,
-                                     const std::string& val)
-{
-  this->_XCallUdp("setParameter", param.c_str(), val.c_str());
-}
-
-void
-ifm3d::Camera::Impl::SaveUdp()
-{
-  this->_XCallUdp("saveAndActivateConfig");
-}
-
-void
-ifm3d::Camera::Impl::EnableUdp(std::uint16_t mask,
-                               const std::string& target_ip,
-                               std::uint16_t port,
-                               std::uint16_t max_payload_size)
-{
-  this->SetUdpParameter("TargetIP", target_ip);
-  this->SetUdpParameter("Channels", this->_MakeUdpSchema(mask));
-  this->SetUdpParameter("MaxPayloadSize", std::to_string(max_payload_size));
-  this->SetUdpParameter("Port", std::to_string(port));
-  this->SetUdpParameter("Enabled", "true");
-  this->SaveUdp();
-}
-
-void ifm3d::Camera::Impl::DisableUdp()
-{
-  this->SetUdpParameter("Enabled", "false");
-  this->SaveUdp();
-}
 
 // ---------------------------------------------
 // Application
