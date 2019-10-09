@@ -14,13 +14,12 @@ Current Revision
     <th>Notes</th>
   </tr>
   <tr>
-    <td>0.16.0</td>
+    <td>0.15.1</td>
     <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,
-    1.25.4073, 1.50.4855</td>
+    1.25.4073, 1.30.4123</td>
     <td>1.0.111, 1.0.122, 1.0.126</td>
     <td>16.04,18.04</td>
-    <td>Introduced `framegrabberudp` module for usage with UDP-enabled camera
-    firmwares</td>
+    <td>Minor updates to allow for cross-compiling ifm3d for the O3D3XX</td>
   </tr>
 </table>
 
@@ -44,11 +43,6 @@ The ifm3d software is organized into modules, they are:
     <td>framegrabber</td>
     <td>Provides an implementation of the PCIC protocol for streaming pixel
     data and triggered image acquisition.</td>
-  </tr>
-  <tr>
-    <td>framegrabberudp</td>
-    <td>Provides an implementation of the ifm UDP protocol for streaming pixel
-    data. Requires O3D3XX version 1.50.4855 and above. Disabled by default.</td>
   </tr>
   <tr>
     <td>swupdater</td>

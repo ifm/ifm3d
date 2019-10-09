@@ -43,13 +43,6 @@ const std::string ifm3d::DEFAULT_IP =
 const int ifm3d::MAX_HEARTBEAT = 300; // secs
 const std::size_t ifm3d::SESSION_ID_SZ = 32;
 const std::string ifm3d::DEFAULT_APPLICATION_TYPE = "Camera";
-const std::uint16_t ifm3d::DEFAULT_UDP_PAYLOAD_SZ = 1492;
-const std::uint16_t ifm3d::MIN_UDP_PAYLOAD_SZ = 74;
-const std::uint16_t ifm3d::MAX_UDP_PAYLOAD_SZ = 65507;
-const std::uint16_t ifm3d::DEFAULT_UDP_TARGET_PORT = 50042;
-const std::string ifm3d::DEFAULT_UDP_TARGET_IP =
-  std::getenv("IFM3D_UDP_TARGET_IP") == nullptr ?
-  "" : std::string(std::getenv("IFM3D_UDP_TARGET_IP"));
 
 auto __ifm3d_session_id__ = []() -> std::string
 {
@@ -90,34 +83,6 @@ auto __ifm3d_session_id__ = []() -> std::string
 
 const std::string ifm3d::DEFAULT_SESSION_ID = __ifm3d_session_id__();
 
-const std::uint16_t ifm3d::IMG_RDIS     = (1<<0); // 2**0
-const std::uint16_t ifm3d::IMG_AMP      = (1<<1); // 2**1
-const std::uint16_t ifm3d::IMG_RAMP     = (1<<2); // 2**2
-const std::uint16_t ifm3d::IMG_CART     = (1<<3); // 2**3
-const std::uint16_t ifm3d::IMG_UVEC     = (1<<4); // 2**4
-const std::uint16_t ifm3d::EXP_TIME     = (1<<5); // 2**5
-const std::uint16_t ifm3d::IMG_GRAY     = (1<<6); // 2**6
-const std::uint16_t ifm3d::ILLU_TEMP    = (1<<7); // 2**7
-const std::uint16_t ifm3d::INTR_CAL     = (1<<8); // 2**8
-const std::uint16_t ifm3d::INV_INTR_CAL = (1<<9); // 2**9
-const std::uint16_t ifm3d::JSON_MODEL   = (1<<10); // 2**10
-
-auto __ifm3d_schema_mask__ = []()->std::uint16_t
-  {
-    try
-      {
-        return std::getenv("IFM3D_MASK") == nullptr ?
-            ifm3d::IMG_AMP|ifm3d::IMG_CART :
-            std::stoul(std::string(std::getenv("IFM3D_MASK"))) & 0xFFFF;
-      }
-    catch (const std::exception& /*ex*/)
-      {
-        return ifm3d::IMG_AMP|ifm3d::IMG_CART;
-      }
-  };
-
-const std::uint16_t ifm3d::DEFAULT_SCHEMA_MASK = __ifm3d_schema_mask__();
-
 const int ifm3d::DEV_O3D_MIN = 1;
 const int ifm3d::DEV_O3D_MAX = 255;
 const int ifm3d::DEV_O3X_MIN = 512;
@@ -142,10 +107,6 @@ const unsigned int ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_PATCH = 0;
 const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR = 1;
 const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR = 25;
 const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH = 0;
-
-const unsigned int ifm3d::O3D_UDP_SUPPORT_MAJOR = 1;
-const unsigned int ifm3d::O3D_UDP_SUPPORT_MINOR = 50;
-const unsigned int ifm3d::O3D_UDP_SUPPORT_PATCH = 4855;
 
 //================================================
 // A lookup table listing the read-only camera
@@ -676,9 +637,8 @@ ifm3d::Camera::ToJSON_(const bool open_session)
   json app_list = this->ApplicationList();
   json net_info, app_info;
   json time_info = json::parse("{}");
-  json udp_info = json::parse("{}");
 
-  auto exec_toJSON = [this,&net_info,&time_info,&udp_info,&app_info,&app_list]()
+  auto exec_toJSON = [this,&net_info,&time_info,&app_info,&app_list]()
     {
       net_info = json(this->pImpl->NetInfo());
       if (this->IsO3X() ||
@@ -689,15 +649,6 @@ ifm3d::Camera::ToJSON_(const bool open_session)
         {
           time_info = json(this->pImpl->TimeInfo());
         }
-
-       if (this->IsO3D() &&
-           this->CheckMinimumFirmwareVersion(ifm3d::O3D_UDP_SUPPORT_MAJOR,
-                                             ifm3d::O3D_UDP_SUPPORT_MINOR,
-                                             ifm3d::O3D_UDP_SUPPORT_PATCH))
-        {
-          udp_info = json(this->pImpl->UdpInfo());
-        }
-
       app_info = json::parse("[]");
 
       for (auto& app : app_list)
@@ -766,7 +717,6 @@ ifm3d::Camera::ToJSON_(const bool open_session)
          {"Device", json(this->pImpl->DeviceInfo())},
          {"Net", net_info},
          {"Time", time_info},
-         {"Udp", udp_info},
          {"Apps", app_info}
        }
       }
@@ -1086,8 +1036,8 @@ ifm3d::Camera::FromJSON(const json& j)
         if (this->IsO3X() ||
             (this->IsO3D() &&
              this->CheckMinimumFirmwareVersion(ifm3d::O3D_TIME_SUPPORT_MAJOR,
-                                               ifm3d::O3D_TIME_SUPPORT_MINOR,
-                                               ifm3d::O3D_TIME_SUPPORT_PATCH)))
+               ifm3d::O3D_TIME_SUPPORT_MINOR,
+              ifm3d::O3D_TIME_SUPPORT_PATCH)))
           {
             json j_time = root["Time"];
             if (! j_time.is_null())
@@ -1097,23 +1047,6 @@ ifm3d::Camera::FromJSON(const json& j)
                     { this->pImpl->SetTimeParameter(k,v); },
                   [this](){ this->pImpl->SaveTime(); },
                   "Time");
-              }
-          }
-
-        // Udp
-        if (this->IsO3D() &&
-            this->CheckMinimumFirmwareVersion(ifm3d::O3D_UDP_SUPPORT_MAJOR,
-                                              ifm3d::O3D_UDP_SUPPORT_MINOR,
-                                              ifm3d::O3D_UDP_SUPPORT_PATCH))
-          {
-            json j_udp = root["Udp"];
-            if (! j_udp.is_null())
-              {
-                this->FromJSON_(current["ifm3d"]["Udp"], j_udp,
-                  [this](const std::string& k, const std::string& v)
-                    { this->pImpl->SetUdpParameter(k,v); },
-                  [this](){ this->pImpl->SaveUdp(); },
-                  "Udp");
               }
           }
 
@@ -1177,57 +1110,6 @@ ifm3d::Camera::SetPassword(std::string password)
 	this->pImpl->DisablePassword() : this->pImpl->ActivatePassword(password);
 	this->pImpl->SaveDevice(); });
 
-}
-
-void
-ifm3d::Camera::EnableUdp(
-  std::uint16_t mask,
-  const std::string& target_ip,
-  std::uint16_t port,
-  std::uint16_t max_payload_size)
-{
-  if (!this->IsO3D() ||
-      !this->CheckMinimumFirmwareVersion(ifm3d::O3D_UDP_SUPPORT_MAJOR,
-                                         ifm3d::O3D_UDP_SUPPORT_MINOR,
-                                         ifm3d::O3D_UDP_SUPPORT_PATCH)
-     )
-    {
-      LOG(WARNING) << "UDP functionality not supported by this hw/fw";
-      throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
-    }
-
-  if (max_payload_size < ifm3d::MIN_UDP_PAYLOAD_SZ ||
-      max_payload_size > ifm3d::MAX_UDP_PAYLOAD_SZ)
-    {
-      LOG(WARNING) << "UDP packet size out of bounds";
-      throw ifm3d::error_t(IFM3D_VALUE_OUT_OF_RANGE);
-    }
-
-  this->pImpl->WrapInEditSession(
-    [this, target_ip, port, mask, max_payload_size]()
-    {
-      this->pImpl->EnableUdp(mask,
-                             target_ip,
-                             port,
-                             max_payload_size);
-    });
-}
-
-void
-ifm3d::Camera::DisableUdp()
-{
-  if (!this->IsO3D() ||
-      !this->CheckMinimumFirmwareVersion(ifm3d::O3D_UDP_SUPPORT_MAJOR,
-                                         ifm3d::O3D_UDP_SUPPORT_MINOR,
-                                         ifm3d::O3D_UDP_SUPPORT_PATCH)
-     )
-    {
-      LOG(WARNING) << "UDP functionality not supported by this hw/fw";
-      throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
-    }
-
-  this->pImpl->WrapInEditSession(
-    [this]() { this->pImpl->DisableUdp(); });
 }
 
 //================================================
