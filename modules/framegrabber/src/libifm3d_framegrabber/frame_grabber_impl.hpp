@@ -271,15 +271,26 @@ ifm3d::FrameGrabber::Impl::WaitForFrame(
 
   try
     {
+      // Store the current pointer backing the front buffer - this will be the
+      // condition checked by the condition_variable predicate (pointer should
+      // have changed) below
+      std::uint8_t* initial_buff_ptr = this->front_buffer_.data();
+      auto predicate =
+        [this, initial_buff_ptr]()
+        {
+          return this->front_buffer_.data() != initial_buff_ptr;
+        };
+
       if (timeout_millis <= 0)
         {
-          this->front_buffer_cv_.wait(lock);
+          this->front_buffer_cv_.wait(lock, predicate);
         }
       else
         {
-          if (this->front_buffer_cv_.wait_for(
-                lock, std::chrono::milliseconds(timeout_millis)) ==
-              std::cv_status::timeout)
+          if (!this->front_buffer_cv_.wait_for(
+                lock,
+                std::chrono::milliseconds(timeout_millis),
+                predicate))
             {
               VLOG(IFM3D_TRACE)
                 << "Timeout waiting for image buffer from camera";
