@@ -1,3 +1,16 @@
+## Changes between ifm3d 0.16.0 and 0.17.0
+* Reverted changes in 0.16.0 (FrameGrabberUdp -- No viable path to UDP
+  implementation in F/W)
+* Bugfixes
+  * Issue with libcurl usage on 32bit targets
+  * Corrected minimum firmware version required for inverse intrinsics
+  * Corrected handling of spurious wakes in FrameGrabber
+  * Fixed ComputeCartesian python unit test to properly blank out invalid
+    pixels
+
+## Changes between ifm3d 0.15.1 and 0.16.0
+* Created new `framegrabberudp` module for consuming data over UDP interface
+
 ## Changes between ifm3d 0.15.0 and 0.15.1
 * Minor updates to allow for cross-compiling ifm3d for the O3D3XX
 *  PCIC timeout issue fixed

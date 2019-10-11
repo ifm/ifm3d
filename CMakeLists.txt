@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 cmake_policy(SET CMP0048 NEW)
 # Manage version number here: Major.Minor.Patch (we don't use "tweak")
-project(IFM3D VERSION 0.15.1 LANGUAGES CXX)
+project(IFM3D VERSION 0.17.0 LANGUAGES CXX)
 set(GIT_PROJECT_NAME "ifm3d")
 
 # Make our cmake functions accessible
@@ -184,7 +184,7 @@ set(CPACK_DEBIAN_PACKAGE_SECTION Libraries)
 set(CPACK_DEBIAN_PACKAGE_NAME ${GIT_PROJECT_NAME})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "C++ sensor interface to ifm 3D cameras")
 set(CPACK_PACKAGE_VENDOR "ifm robotics")
-set(CPACK_PACKAGE_CONTACT "Tom Panzarella <tom.panzarella@ifm.com>")
+set(CPACK_PACKAGE_CONTACT "Sean Kelly <sean.kelly@ifm.com>")
 set(CPACK_PACKAGE_VERSION_MAJOR ${IFM3D_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${IFM3D_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${IFM3D_VERSION_PATCH})
