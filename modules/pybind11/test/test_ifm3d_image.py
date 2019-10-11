@@ -107,9 +107,10 @@ def test_computecartesian():
     # be exactly equal to tx, ty, tz and if any of those
     # exceed 1cm (our test tolerance) like on an O3D301,
     # we will get errors in the unit test.
-    x_[conf == 0x1] = 0
-    y_[conf == 0x1] = 0
-    z_[conf == 0x1] = 0
+    bad_mask = (np.bitwise_and(conf, 0x1) == 0x1)
+    x_[bad_mask] = 0
+    y_[bad_mask] = 0
+    z_[bad_mask] = 0
 
     # 4. Cast (back) to int16 and transform to ifm3d coord frame
     x_i = x_.astype(np.int16)

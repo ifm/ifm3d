@@ -332,7 +332,7 @@ ifm3d::SWUpdater::Impl::FlashFirmware(
       auto t_now = std::chrono::system_clock::now();
       auto elapsed =
         std::chrono::duration_cast<std::chrono::milliseconds>(t_now - t_start);
-      return timeout_millis - elapsed.count();
+      return timeout_millis - static_cast<long>(elapsed.count());
     };
 
   // Firmware updater must be in `idle` status prior to starting a firmware
@@ -436,7 +436,8 @@ ifm3d::SWUpdater::Impl::UploadFirmware(
   c->SetHeader();
   c->Call(curl_easy_setopt, CURLOPT_URL, this->upload_url_.c_str());
   c->Call(curl_easy_setopt, CURLOPT_POST, 1);
-  c->Call(curl_easy_setopt, CURLOPT_POSTFIELDSIZE_LARGE, bytes.size());
+  c->Call(curl_easy_setopt, CURLOPT_POSTFIELDSIZE,
+          static_cast<long>(bytes.size()));
   c->Call(curl_easy_setopt, CURLOPT_POSTFIELDS, bytes.data());
   c->Call(curl_easy_setopt, CURLOPT_WRITEFUNCTION,
           &ifm3d::SWUpdater::Impl::StatusWriteCallbackIgnore);
