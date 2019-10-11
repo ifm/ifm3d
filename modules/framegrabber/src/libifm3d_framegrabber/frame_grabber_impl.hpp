@@ -271,15 +271,26 @@ ifm3d::FrameGrabber::Impl::WaitForFrame(
 
   try
     {
+      // Store the current pointer backing the front buffer - this will be the
+      // condition checked by the condition_variable predicate (pointer should
+      // have changed) below
+      std::uint8_t* initial_buff_ptr = this->front_buffer_.data();
+      auto predicate =
+        [this, initial_buff_ptr]()
+        {
+          return this->front_buffer_.data() != initial_buff_ptr;
+        };
+
       if (timeout_millis <= 0)
         {
-          this->front_buffer_cv_.wait(lock);
+          this->front_buffer_cv_.wait(lock, predicate);
         }
       else
         {
-          if (this->front_buffer_cv_.wait_for(
-                lock, std::chrono::milliseconds(timeout_millis)) ==
-              std::cv_status::timeout)
+          if (!this->front_buffer_cv_.wait_for(
+                lock,
+                std::chrono::milliseconds(timeout_millis),
+                predicate))
             {
               VLOG(IFM3D_TRACE)
                 << "Timeout waiting for image buffer from camera";
@@ -370,39 +381,49 @@ ifm3d::FrameGrabber::Impl::SetUVecBuffer(std::uint16_t mask)
 void
 ifm3d::FrameGrabber::Impl::SetSchemaBuffer(std::uint16_t mask)
 {
-  if((mask & ifm3d::INTR_CAL) == ifm3d::INTR_CAL && (! this->cam_->IsO3D()))
+  if((mask & ifm3d::INTR_CAL) == ifm3d::INTR_CAL && (!this->cam_->IsO3D()))
     {
-      LOG(ERROR) << "Failed to set schema on O3X: Intrinsic parameter not supported by Device";
+      LOG(ERROR) << "Failed to set schema on O3X: "
+                 << "Intrinsic parameter not supported by Device";
       throw ifm3d::error_t(IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE);
     }
 
   if((mask & ifm3d::INTR_CAL) == ifm3d::INTR_CAL && this->cam_->IsO3D()
-     && ! this->cam_->CheckMinimumFirmwareVersion(ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MAJOR,
-                                                  ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MINOR,
-                                                  ifm3d:: O3D_INTRINSIC_PARAM_SUPPORT_PATCH))
+     && ! this->cam_->CheckMinimumFirmwareVersion(
+                        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MAJOR,
+                        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MINOR,
+                        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_PATCH))
     {
-      LOG(ERROR) << "Failed to set schema on O3D: Intrinsic parameter not supported by Firmware";
+      LOG(ERROR) << "Failed to set schema on O3D: "
+                 << "Intrinsic parameter not supported by Firmware";
       throw ifm3d::error_t(IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE);
     }
 
-  if((mask & ifm3d::INV_INTR_CAL) == ifm3d::INV_INTR_CAL && (! this->cam_->IsO3D()))
-	{
-	  LOG(ERROR) << "Failed to set schema on O3X: Inverse intrinsic parameter not supported by Device";
-	  throw ifm3d::error_t(IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE);
-	}
+  if(((mask & ifm3d::INV_INTR_CAL) == ifm3d::INV_INTR_CAL)
+     && (!this->cam_->IsO3D()))
+	  {
+	    LOG(ERROR) << "Failed to set schema on O3X: "
+                 << "Inverse intrinsic parameter not supported by Device";
+	    throw ifm3d::error_t(
+                    IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE);
+	  }
 
   if((mask & ifm3d::INV_INTR_CAL) == ifm3d::INV_INTR_CAL && this->cam_->IsO3D()
-	 && ! this->cam_->CheckMinimumFirmwareVersion(ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR,
-												  ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR,
-												  ifm3d:: O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH))
-	{
-	  LOG(ERROR) << "Failed to set schema on O3D: Inverse intrinsic parameter not supported by Firmware";
-	  throw ifm3d::error_t(IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE);
-	}
+	   && !this->cam_->CheckMinimumFirmwareVersion(
+                       ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR,
+                       ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR,
+                       ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH))
+	  {
+	    LOG(ERROR) << "Failed to set schema on O3D: "
+                 << "Inverse intrinsic parameter not supported by Firmware";
+	    throw ifm3d::error_t(
+                    IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE);
+	  }
 
   if((mask & ifm3d::JSON_MODEL) == ifm3d::JSON_MODEL && (this->cam_->IsO3X()))
     {
-      LOG(ERROR) << "Failed to set schema on O3X: json data not supported on O3X";
+      LOG(ERROR) << "Failed to set schema on O3X: "
+                 << "json data not supported on O3X";
       throw ifm3d::error_t(IFM3D_INVALID_PARAM);
     }
 
