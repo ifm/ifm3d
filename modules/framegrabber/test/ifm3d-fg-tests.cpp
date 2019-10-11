@@ -1,3 +1,4 @@
+
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
@@ -134,7 +135,7 @@ TEST(FrameGrabber, IntrinsicParamSchema)
    }
 }
 
-TEST(FrameGrabber, DISABLED_InverseIntrinsicParamSchema)
+TEST(FrameGrabber, InverseIntrinsicParamSchema)
 {
   LOG(INFO) << "InverseIntrinsicParamSchema test";
 
