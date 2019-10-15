@@ -7,6 +7,8 @@
   * Corrected handling of spurious wakes in FrameGrabber
   * Fixed ComputeCartesian python unit test to properly blank out invalid
     pixels
+  * Changed `build` Dockerfiles to use pip for numpy/pytest
+  * Fixed race condition in PCICClient unit tests
 
 ## Changes between ifm3d 0.15.1 and 0.16.0
 * Created new `framegrabberudp` module for consuming data over UDP interface
