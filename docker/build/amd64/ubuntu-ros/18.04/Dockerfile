@@ -29,12 +29,15 @@ RUN apt-get update && \
                        libxmlrpc-c++8-dev \
                        python-dev \
                        python3-dev \
-                       python-pytest \
-                       python3-pytest \
-                       python-numpy \
-                       python3-numpy \
+                       python-pip  \
+                       python3-pip \
                        locales \
                        sudo
+
+RUN yes | python -m pip install --upgrade pip setuptools
+RUN yes | python -m pip install pytest numpy
+RUN yes | python3 -m pip install --upgrade pip setuptools
+RUN yes | python3 -m pip install pytest numpy
 
 RUN mkdir -p /opt && \
     cd /opt && \
