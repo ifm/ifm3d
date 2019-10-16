@@ -85,8 +85,17 @@ class CMakeBuild(build_ext):
 
         if platform.system() == "Windows":
             cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
-            if sys.maxsize > 2**32:
+
+            if 'IFM3D_BUILD_DIR' in os.environ:
+                cmake_args += ['-DCMAKE_PREFIX_PATH=' + os.environ['IFM3D_BUILD_DIR'] + '\\install']
+
+            # If a generator was specified, use it. Otherwise use the machine's
+            # architecture and the default generator.
+            if 'IFM3D_CMAKE_GENERATOR' in os.environ:
+                cmake_args += ['-G', os.environ['IFM3D_CMAKE_GENERATOR'].replace('"','')]
+            elif sys.maxsize > 2**32:
                 cmake_args += ['-A', 'x64']
+
             build_args += ['--', '/m']
         else:
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
