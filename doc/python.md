@@ -190,10 +190,10 @@ The `pybind11` module takes one additional dependency:
 
 #### [Pybind11](https://github.com/pybind/pybind11)
 Download:
-``` 
+```
 cd %IFM3D_BUILD_DIR%
 git clone https://github.com/pybind/pybind11.git
-cd pybind11 
+cd pybind11
 git checkout tags/v2.3.0
 ```
 
@@ -201,7 +201,7 @@ Build:
 ```
 mkdir build
 cd build
-cmake -A x64 -DPYBIND11_TEST=OFF -DCMAKE_INSTALL_PREFIX=%IFM3D_BUILD_DIR%\install ..
+cmake -G %IFM3D_CMAKE_GENERATOR% -DPYBIND11_TEST=OFF -DCMAKE_INSTALL_PREFIX=%IFM3D_BUILD_DIR%\install ..
 cmake --build . --clean-first --config %CONFIG% --target INSTALL
 ```
 
@@ -241,9 +241,9 @@ $ python -m pip install pytest
 
 The tests can be executed as follows:
 
-``` 
-$ cd modules/pybind11/test 
-$ python -m pytest . 
+```
+$ cd modules/pybind11/test
+$ python -m pytest .
 ```
 
 ## Usage
