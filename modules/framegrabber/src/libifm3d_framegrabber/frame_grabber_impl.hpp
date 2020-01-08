@@ -158,7 +158,11 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam,
   this->SetTriggerBuffer();
   this->SetUVecBuffer(this->mask_);
 
-  if (! this->cam_->IsO3X())
+  if (this->cam_->IsO3R())
+  {
+    this->cam_port_ = ifm3d::DEFAULT_PCIC_PORT;
+  }
+  else if (! this->cam_->IsO3X())
     {
       try
         {
@@ -540,7 +544,7 @@ ifm3d::FrameGrabber::Impl::Run()
       // O3X should just start reading in pixel bytes once we establish our
       // connection to the PCIC daemon (PCIC data goes one-way on O3X)
       VLOG(IFM3D_TRACE) << "Connecting to PCIC...";
-      if (this->cam_->IsO3X())
+      if (this->cam_->IsO3X() || this->cam_->IsO3R())
         {
           this->pcic_ready_.store(true);
 

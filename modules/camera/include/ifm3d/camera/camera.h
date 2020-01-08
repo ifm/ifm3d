@@ -328,6 +328,13 @@ namespace ifm3d
     virtual bool IsO3D();
 
     /**
+     * Checks if the device is in the O3R family
+     *
+     * @return true for an O3R device
+     */
+    virtual bool IsO3R();
+
+    /**
      * Convenience accessor for extracting a device parameters
      * (i.e., no edit session created on the camera)
      */
@@ -624,6 +631,7 @@ namespace ifm3d
 
     virtual bool IsO3X();
     virtual bool IsO3D();
+    virtual bool IsO3R();
   }; // end: class O3DCamera
 
   /**
@@ -645,7 +653,30 @@ namespace ifm3d
 
     virtual bool IsO3X();
     virtual bool IsO3D();
+    virtual bool IsO3R();
   }; // end: class O3XCamera
+
+  /**
+   * Camera specialization for O3R
+   */
+  class O3RCamera : public Camera
+  {
+  public:
+    using Ptr = std::shared_ptr<O3RCamera>;
+    O3RCamera(const std::string& ip = ifm3d::DEFAULT_IP,
+              const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
+              const std::string& password = ifm3d::DEFAULT_PASSWORD);
+
+    virtual ~O3RCamera();
+    O3RCamera(O3RCamera&&) = delete;
+    O3RCamera& operator=(O3RCamera&&) = delete;
+    O3RCamera(O3RCamera&) = delete;
+    O3RCamera& operator=(O3RCamera&) = delete;
+
+    virtual bool IsO3X();
+    virtual bool IsO3D();
+    virtual bool IsO3R();
+  }; // end: class O3RCamera
 
 } // end: namespace ifm3d
 

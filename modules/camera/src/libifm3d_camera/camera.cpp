@@ -197,6 +197,11 @@ ifm3d::Camera::MakeShared(const std::string& ip,
       //
       // It is an optimization to return the specialized subclass
       //
+      if (base->IsO3R())
+        {
+          VLOG(IFM3D_TRACE) << "Instantiating O3R...";
+          return std::make_shared<ifm3d::O3RCamera>(ip, xmlrpc_port, password);
+        }
       if (base->IsO3X())
         {
           VLOG(IFM3D_TRACE) << "Instantiating O3X...";
@@ -383,6 +388,17 @@ ifm3d::Camera::DeviceType(bool use_cached)
 
   this->device_type_ = this->pImpl->DeviceParameter("DeviceType");
   return this->device_type_;
+}
+
+bool
+ifm3d::Camera::IsO3R()
+{
+  // TODO -- XML-RPC not implemented on B-Sample
+  //
+  // For now, we rely on the IFM3D_DEVICE environment variable to be set to
+  // 'O3R' to explicitly select O3R support
+  std::string dt = this->DeviceType();
+  return dt == "O3R";
 }
 
 bool
@@ -1136,6 +1152,12 @@ ifm3d::O3DCamera::IsO3D()
   return true;
 }
 
+bool
+ifm3d::O3DCamera::IsO3R()
+{
+  return false;
+}
+
 //================================================
 // O3XCamera class - the public interface
 //================================================
@@ -1158,4 +1180,40 @@ bool
 ifm3d::O3XCamera::IsO3D()
 {
   return false;
+}
+
+bool
+ifm3d::O3XCamera::IsO3R()
+{
+  return false;
+}
+
+//================================================
+// O3RCamera class - the public interface
+//================================================
+
+ifm3d::O3RCamera::O3RCamera(const std::string& ip,
+                            const std::uint16_t xmlrpc_port,
+                            const std::string& password)
+  : ifm3d::Camera::Camera(ip, xmlrpc_port, password)
+{ }
+
+ifm3d::O3RCamera::~O3RCamera() = default;
+
+bool
+ifm3d::O3RCamera::IsO3X()
+{
+  return false;
+}
+
+bool
+ifm3d::O3RCamera::IsO3D()
+{
+  return false;
+}
+
+bool
+ifm3d::O3RCamera::IsO3R()
+{
+  return true;
 }
