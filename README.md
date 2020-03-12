@@ -89,7 +89,7 @@ Installing the Software
 Binaries for ifm3d are available on a few supported platforms. Instructions for
 each now follow.
 
-### Linux
+### Linux (x64)
 
 #### Configure the ifm apt server
 
@@ -165,9 +165,33 @@ source. Those instructions are located at the
 above will simply install the core `ifm3d` sensor interface and tools, linked
 properly against libraries in your ROS environment.
 
+### Linux (ARM64)
+
+We provide ARM64 binaries targeting Linux for Tegra (L4T), an NVIDIA
+distribution based on Ubuntu 18.04 for the Jetson Nano, TX1, TX2 and Xavier
+platforms. 
+
+```
+$ sudo sh -c 'echo "deb [arch=arm64] https://nexus.ifm.com/repository/ifm-robotics_ubuntu_bionic_arm64 bionic main" > /etc/apt/sources.list.d/ifm-robotics.list'
+$ sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 8AB59D3A2BD7B692
+$ sudo apt-get update
+$ sudo apt-get install ifm3d-camera \
+                       ifm3d-framegrabber \
+                       ifm3d-swupdater \
+                       ifm3d-image \
+                       ifm3d-opencv \
+                       ifm3d-pcicclient \
+                       ifm3d-tools \
+                       ifm3d-python \
+                       ifm3d-python3
+$ sudo apt-get install ifm3d-pcl-viewer
+```
+
 ### Windows
 
-Coming soon...
+Pre-built binaries are not yet available. For now we recommend manually
+compiling for the target MSVC/SDK versions according to the
+[building on windows](doc/windows.md) instructions.
 
 ### Other platforms
 
