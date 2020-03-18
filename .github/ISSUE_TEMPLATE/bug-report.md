@@ -26,6 +26,15 @@ If applicable, add console output and/or screenshots to help explain your proble
 **Minimal Working Example**
 If applicable/possible, please provide a [minimal working example](https://stackoverflow.com/help/minimal-reproducible-example) which demonstrates the problem and can be run standalone.
 
+```
+#include <iostream>
+int main()
+{
+  std::cout << "Hello World!" << std::endl;
+  return 0;
+}
+```
+
 **Configuration/Environment (please complete the following information):**
  - OS: [e.g. Ubuntu 18.04, Windows 10]
  -  ifm3d version: [e.g. 0.14.0]
