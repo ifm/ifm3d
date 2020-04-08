@@ -12,14 +12,14 @@ $ chmod +x poky-glibc-i686-vantage-image-armv7ahf-vfp-neon-toolchain-qte-1.8.1.s
 $ ./poky-glibc-i686-vantage-image-armv7ahf-vfp-neon-toolchain-qte-1.8.1.sh
 ```
 
-# Using the Toolcahin
+# Using the Toolchain
 
 ```
 $ git clone https://github.com/ifm/ifm3d.git
 $ cd ifm3d/
 $ mkdir build
 $ source /opt/poky/1.8.1/environment-setup-armv7ahf-vfp-neon-poky-linux-gnueabi
-$ cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/o3d303.cmake -DCMAKE_INSTALL_PREFIX=../../oem-partition/ ..
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/o3d303.cmake -DCMAKE_INSTALL_PREFIX=../../oem-partition/usr ..
 ```
 The step ``source /opt/poky/1.8.1/environment-setup-armv7ahf-vfp-neon-poky-linux-gnueabi`` is necessary for the OpenEmbedded Toolchain to set all the needed Environment variables.
 
@@ -33,5 +33,5 @@ $ make install
 
 # Caution
 
-Both the provided Toolchain file [cmake/toolchains/o3d303.cmake](cmake/toolchains/o3d303.cmake) and the instructions above are examples for the OEM workflow. Both maybe needs adjustments if you are planning to use a different type of set-up
+Both the provided Toolchain file [cmake/toolchains/o3d303.cmake](/cmake/toolchains/o3d303.cmake) and the instructions above are examples for the OEM workflow. Both maybe needs adjustments if you are planning to use a different type of set-up
 
