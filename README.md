@@ -3,6 +3,9 @@ ifm3d
 =====
 Library and utilities for working with ifm pmd-based 3D ToF Cameras.
 
+![Build (Ubuntu)](https://github.com/ifm/ifm3d/workflows/Build%20(Ubuntu)/badge.svg?branch=master)
+![Build (Windows)](https://github.com/ifm/ifm3d/workflows/Build%20(Windows)/badge.svg?branch=master)
+
 Current Revision
 ----------------
 <table>
@@ -169,7 +172,7 @@ properly against libraries in your ROS environment.
 
 We provide ARM64 binaries targeting Linux for Tegra (L4T), an NVIDIA
 distribution based on Ubuntu 18.04 for the Jetson Nano, TX1, TX2 and Xavier
-platforms. 
+platforms.
 
 ```
 $ sudo sh -c 'echo "deb [arch=arm64] https://nexus.ifm.com/repository/ifm-robotics_ubuntu_bionic_arm64 bionic main" > /etc/apt/sources.list.d/ifm-robotics.list'
