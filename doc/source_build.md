@@ -81,8 +81,8 @@ Use the following steps to install all the library dependencies on Debian based
 systems
 
 ```
-$ sudo apt-get update && apt-get -y upgrade
-$ sudo apt-get update && apt-get install -y libboost-all-dev git jq libcurl4-openssl-dev \
+$ sudo apt-get update && sudo apt-get -y upgrade
+$ sudo apt-get update && sudo apt-get install -y libboost-all-dev git jq libcurl4-openssl-dev \
                                             libgtest-dev libgoogle-glog-dev  \
                                             libxmlrpc-c++8-dev libopencv-dev \
                                             libpcl-dev libproj-dev \
