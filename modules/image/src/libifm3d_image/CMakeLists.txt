@@ -2,13 +2,6 @@
 ## Bring in dependent projects
 ################################################
 find_package(PCL 1.7 REQUIRED COMPONENTS common)
-if(FORCE_OPENCV3)
-  find_package(OpenCV 3 REQUIRED COMPONENTS core)
-elseif(FORCE_OPENCV2)
-  find_package(OpenCV 2.4 REQUIRED COMPONENTS core)
-else()
-  find_package(OpenCV REQUIRED COMPONENTS core)
-endif()
 
 # needs to be done before the target is declared
 link_directories(${PCL_LIBRARY_DIRS} ${OpenCV_LIBRARY_DIRS})
@@ -24,12 +17,13 @@ endif (NOT TARGET glog::glog)
 ## Target: libifm3d_image.so
 ################################################
 file(GLOB IFM3D_IMAGE_SOURCES *.cpp)
-add_library(ifm3d_image_shared SHARED ${IFM3D_IMAGE_SOURCES})
+add_library(ifm3d_image ${IFM3D_IMAGE_SOURCES})
+set_property(TARGET ifm3d_image PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 #------------------
 # Compiler settings
 #------------------
-target_include_directories(ifm3d_image_shared
+target_include_directories(ifm3d_image
   PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${IFM3D_IMAGE_BINARY_DIR}/include>
@@ -42,7 +36,7 @@ target_include_directories(ifm3d_image_shared
   )
 
 if(WIN32)
-  target_compile_definitions(ifm3d_image_shared
+  target_compile_definitions(ifm3d_image
     PUBLIC
       ${PCL_DEFINITIONS}
       ${OpenCV_DEFINITIONS}
@@ -50,7 +44,7 @@ if(WIN32)
       IFM3D_IMAGE_DLL_BUILD=1)
 endif(WIN32)
 
-target_compile_options(ifm3d_image_shared
+target_compile_options(ifm3d_image
   PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++${CMAKE_CXX_STANDARD}>
   )
 
@@ -58,16 +52,16 @@ target_compile_options(ifm3d_image_shared
 # Linker settings
 #------------------
 target_link_libraries(
-  ifm3d_image_shared
+  ifm3d_image
   PUBLIC
-    ifm3d_framegrabber_shared
-    ifm3d_camera_shared
+    ifm3d_framegrabber
+    ifm3d_camera
     ${OpenCV_LIBRARIES}
   PRIVATE
     ${LIB_glog}
   )
 
-set_target_properties(ifm3d_image_shared PROPERTIES
+set_target_properties(ifm3d_image PROPERTIES
   VERSION ${IFM3D_VERSION}
   EXPORT_NAME image
   OUTPUT_NAME ifm3d_image
@@ -77,7 +71,7 @@ set_target_properties(ifm3d_image_shared PROPERTIES
 #------------------
 # Installation
 #------------------
-install(TARGETS ifm3d_image_shared
+install(TARGETS ifm3d_image
   EXPORT ifm3d-image-targets
   RUNTIME DESTINATION ${_bin} COMPONENT image
   LIBRARY DESTINATION ${_lib} COMPONENT image

@@ -19,6 +19,7 @@
 #define __IFM3D_OPENCV_DETAIL_OPENCV_BUFFER_HPP__
 
 #include <cstdint>
+#include <limits>
 #include <unordered_map>
 #include <vector>
 #include <opencv2/core/core.hpp>
@@ -32,7 +33,7 @@ namespace ifm3d
   // installed.
   //
 
-  std::unordered_map<std::uint32_t, int> PIX_LUT_
+  static std::unordered_map<std::uint32_t, int> PIX_LUT_
   {
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8U), CV_8U},
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8S), CV_8S},
@@ -44,7 +45,7 @@ namespace ifm3d
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_64F), CV_64F}
   };
 
-  std::unordered_map<std::uint32_t, int> PIX_LUT3_
+  static std::unordered_map<std::uint32_t, int> PIX_LUT3_
   {
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8U), CV_8UC3},
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8S), CV_8SC3},
@@ -62,21 +63,21 @@ namespace ifm3d
 // ifm3d::OpenCVBuffer implementation
 //==============================================
 
-ifm3d::OpenCVBuffer::OpenCVBuffer()
+inline ifm3d::OpenCVBuffer::OpenCVBuffer()
   : ifm3d::ByteBuffer<ifm3d::OpenCVBuffer>()
 { }
 
-ifm3d::OpenCVBuffer::~OpenCVBuffer() = default;
+inline ifm3d::OpenCVBuffer::~OpenCVBuffer() = default;
 
 // move ctor
-ifm3d::OpenCVBuffer::OpenCVBuffer(ifm3d::OpenCVBuffer&& src_buff)
+inline ifm3d::OpenCVBuffer::OpenCVBuffer(ifm3d::OpenCVBuffer&& src_buff)
   : ifm3d::OpenCVBuffer::OpenCVBuffer()
 {
   this->SetBytes(src_buff.bytes_, false);
 }
 
 // move assignment
-ifm3d::OpenCVBuffer&
+inline ifm3d::OpenCVBuffer&
 ifm3d::OpenCVBuffer::operator= (ifm3d::OpenCVBuffer&& src_buff)
 {
   this->SetBytes(src_buff.bytes_, false);
@@ -84,7 +85,7 @@ ifm3d::OpenCVBuffer::operator= (ifm3d::OpenCVBuffer&& src_buff)
 }
 
 // copy ctor
-ifm3d::OpenCVBuffer::OpenCVBuffer(const ifm3d::OpenCVBuffer& src_buff)
+inline ifm3d::OpenCVBuffer::OpenCVBuffer(const ifm3d::OpenCVBuffer& src_buff)
   : ifm3d::OpenCVBuffer::OpenCVBuffer()
 {
   this->SetBytes(const_cast<std::vector<std::uint8_t>&>(src_buff.bytes_),
@@ -92,7 +93,7 @@ ifm3d::OpenCVBuffer::OpenCVBuffer(const ifm3d::OpenCVBuffer& src_buff)
 }
 
 // copy assignment
-ifm3d::OpenCVBuffer&
+inline ifm3d::OpenCVBuffer&
 ifm3d::OpenCVBuffer::operator= (const ifm3d::OpenCVBuffer& src_buff)
 {
   if (this == &src_buff)
@@ -105,49 +106,49 @@ ifm3d::OpenCVBuffer::operator= (const ifm3d::OpenCVBuffer& src_buff)
   return *this;
 }
 
-cv::Mat
+inline cv::Mat
 ifm3d::OpenCVBuffer::DistanceImage()
 {
   this->Organize();
   return this->dist_;
 }
 
-cv::Mat
+inline cv::Mat
 ifm3d::OpenCVBuffer::UnitVectors()
 {
   this->Organize();
   return this->uvec_;
 }
 
-cv::Mat
+inline cv::Mat
 ifm3d::OpenCVBuffer::GrayImage()
 {
   this->Organize();
   return this->gray_;
 }
 
-cv::Mat
+inline cv::Mat
 ifm3d::OpenCVBuffer::AmplitudeImage()
 {
   this->Organize();
   return this->amp_;
 }
 
-cv::Mat
+inline cv::Mat
 ifm3d::OpenCVBuffer::RawAmplitudeImage()
 {
   this->Organize();
   return this->ramp_;
 }
 
-cv::Mat
+inline cv::Mat
 ifm3d::OpenCVBuffer::ConfidenceImage()
 {
   this->Organize();
   return this->conf_;
 }
 
-cv::Mat
+inline cv::Mat
 ifm3d::OpenCVBuffer::XYZImage()
 {
   this->Organize();
@@ -155,7 +156,7 @@ ifm3d::OpenCVBuffer::XYZImage()
 }
 
 template <typename T>
-void
+inline void
 ifm3d::OpenCVBuffer::ImCreate(ifm3d::image_chunk im,
                               std::uint32_t fmt,
                               std::size_t idx,
@@ -234,10 +235,24 @@ ifm3d::OpenCVBuffer::ImCreate(ifm3d::image_chunk im,
           ptr[col] = ifm3d::mkval<T>(bytes.data()+idx);
         }
     }
+
+  // constexpr T bad_pixel =
+  //   std::numeric_limits<T>::has_quiet_NaN
+  //   ? std::numeric_limits<T>::quiet_NaN() : 0;
+  constexpr T bad_pixel = 0;
+
+  if (im == ifm3d::image_chunk::CONFIDENCE)
+    {
+      cv::bitwise_and(this->conf_, 0x1, this->bad_);
+    }
+  else if (im != ifm3d::image_chunk::UNIT_VECTOR_ALL)
+    {
+      mat->setTo(bad_pixel, this->bad_);
+    }
 }
 
 template <typename T>
-void
+inline void
 ifm3d::OpenCVBuffer::CloudCreate(std::uint32_t fmt,
                                  std::size_t xidx,
                                  std::size_t yidx,
@@ -256,6 +271,12 @@ ifm3d::OpenCVBuffer::CloudCreate(std::uint32_t fmt,
 
   T* xyz_ptr;
   T x_, y_, z_;
+  std::uint8_t* bad_ptr;
+
+  // constexpr T bad_pixel =
+  //   std::numeric_limits<T>::has_quiet_NaN
+  //   ? std::numeric_limits<T>::quiet_NaN() : 0;
+  constexpr T bad_pixel = 0;
 
   for (std::size_t i = 0; i < npts;
        ++i, xidx += incr, yidx += incr, zidx += incr)
@@ -266,6 +287,7 @@ ifm3d::OpenCVBuffer::CloudCreate(std::uint32_t fmt,
         {
           row += 1;
           xyz_ptr = this->xyz_.ptr<T>(row);
+          bad_ptr = this->bad_.ptr(row);
         }
 
       // convert to ifm3d coord frame
@@ -273,9 +295,18 @@ ifm3d::OpenCVBuffer::CloudCreate(std::uint32_t fmt,
       y_ = -ifm3d::mkval<T>(bytes.data()+xidx);
       z_ = -ifm3d::mkval<T>(bytes.data()+yidx);
 
-      xyz_ptr[xyz_col] = x_;
-      xyz_ptr[xyz_col + 1] = y_;
-      xyz_ptr[xyz_col + 2] = z_;
+      if (bad_ptr[col] == 0)
+        {
+          xyz_ptr[xyz_col] = x_;
+          xyz_ptr[xyz_col + 1] = y_;
+          xyz_ptr[xyz_col + 2] = z_;
+        }
+      else
+        {
+          xyz_ptr[xyz_col] = bad_pixel;
+          xyz_ptr[xyz_col + 1] = bad_pixel;
+          xyz_ptr[xyz_col + 2] = bad_pixel;
+        }
     }
 }
 

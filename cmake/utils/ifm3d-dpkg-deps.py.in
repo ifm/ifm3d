@@ -129,6 +129,8 @@ class DpkgDeps(object):
                     debs["ifm3d-camera"] = VERSION
                 elif "framegrabber" in so:
                     debs["ifm3d-framegrabber"] = VERSION
+                elif "swupdater" in so:
+                    debs["ifm3d-swupdater"] = VERSION
                 elif "image" in so:
                     debs["ifm3d-image"] = VERSION
                 elif "tools" in so:

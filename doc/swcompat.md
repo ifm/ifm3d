@@ -118,4 +118,110 @@ ifm3d Software Compatibility Matrix
     <td>16.04, 18.04</td>
     <td>Added support for Ubuntu 18.04</td>
   </tr>
+  <tr>
+    <td>0.9.3</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Docs and minor patches</td>
+  </tr>
+  <tr>
+    <td>0.10.0</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>
+      Session IDs can be explicitly set and shared across camera
+      instances. Speed improvements to JSON imports.
+    </td>
+  </tr>
+  <tr>
+    <td>0.11.0</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Added a jitter subcommand to ifm3d, camera intrinsics exposed</td>
+  </tr>
+  <tr>
+    <td>0.11.1</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Bad pixels are now flagged by the driver, opencv image container module
+    headers can be included in multiple translation units, and other minor bug
+    fixes.</td>
+  </tr>
+  <tr>
+    <td>0.11.2</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Less verbose logging in framegrabber for better memory, disk, cpu
+    consumption on long-running embedded systems</td>
+  </tr>
+  <tr>
+    <td>0.12.0</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Inverse intrinsic parameters from O3D cameras</td>
+  </tr>
+  <tr>
+    <td>0.13.0</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,
+    1.25.4073</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Introduced `pybind11` module to provide ifm3d Python bindings</td>
+  </tr>
+  <tr>
+    <td>0.14.0</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,
+    1.25.4073, 1.30.4123</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Introduced `swupdater` module for firmware update utilities</td>
+  </tr>
+  <tr>
+    <td>0.14.1</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,
+    1.25.4073, 1.30.4123</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Timeouts fixes in swupdater module, JSON library update</td>
+  </tr>
+  <tr>
+    <td>0.15.0</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,
+    1.25.4073</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Interface added to grab json_model data of application output</td>
+  </tr>
+  <tr>
+    <td>0.15.1</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,
+    1.25.4073</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Minor updates to allow for cross-compiling ifm3d for the O3D3XX</td>
+  </tr>
+  <tr>
+    <td><strike>0.16.0</strike> (Fine to use, but the FrameGrabberUdp module is
+    not supported by firmware and is removed in the next version of ifm3d)</td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,
+    1.25.4073, 1.30.4123</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Introduced 'framegrabberudp' module for usage with UDP-enabled camera
+    firmwares</td>
+  </tr>
+  <tr>
+    <td>0.17.0 </td>
+    <td>1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,
+    1.25.4073, 1.30.4123</td>
+    <td>1.0.111, 1.0.122, 1.0.126</td>
+    <td>16.04,18.04</td>
+    <td>Bugfixes and removed FrameGrabberUdp module</td>
+  </tr>
 </table>
