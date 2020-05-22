@@ -90,76 +90,80 @@ ifm3d::CmdLineApp::Run()
     R"(
 These are common commands used in various situations:
 
-    cp          Create a new application on the sensor,
-                bootstrapped from a copy of an existing one.
+    app-types     List the application types supported by the sensor.
 
-    config      Configure sensor settings from a JSON description of
-                the desired sensor state. See also `dump'.
+    config        Configure sensor settings from a JSON description of
+                  the desired sensor state. See also `dump'.
 
-    dump        Serialize the sensor state to JSON.
+    cp            Create a new application on the sensor,
+                  bootstrapped from a copy of an existing one.
 
-    export      Export an application or whole sensor configuration
-                into a format compatible with ifm Vision Assistant.
+    dump          Serialize the sensor state to JSON.
+
+    export        Export an application or whole sensor configuration
+                  into a format compatible with ifm Vision Assistant.
       )";
 
 #if defined(BUILD_MODULE_FRAMEGRABBER)
   help_msg +=
     R"(
-    hz          Compute the actual frequency at which the FrameGrabber
-                is running.
+    hz            Compute the actual frequency at which the FrameGrabber
+                  is running.
       )";
 #endif
 
   help_msg +=
     R"(
-    import      Import an application or whole sensor configuration
-                that is compatible with ifm Vision Assistant's export
-                format.
+    imager-types  List the imager types supported by the sensor.
+
+    import        Import an application or whole sensor configuration
+                  that is compatible with ifm Vision Assistant's export
+                  format.
       )";
 
 #if defined(BUILD_MODULE_FRAMEGRABBER)
   help_msg +=
     R"(
-    jitter      Collects statistics on framegrabber (and optionally, image
-                construction) jitter.
+    jitter        Collects statistics on framegrabber (and optionally, image
+                  construction) jitter.
       )";
 #endif
 
   help_msg +=
     R"(
-    ls          Lists the applications currently installed on
-                the sensor.
+    ls            Lists the applications currently installed on
+                  the sensor.
 
-    passwd      Sets the password on the sensor.
+    passwd        Sets the password on the sensor.
 
-    reboot      Reboot the sensor, potentially into recovery
-                mode. Recovery mode is useful for putting the
-                sensor into a state where it can be flashed
-                with new firmware.
+    reboot        Reboot the sensor, potentially into recovery
+                  mode. Recovery mode is useful for putting the
+                  sensor into a state where it can be flashed
+                  with new firmware.
 
-    reset       Reset the sensor to factory defaults.
+    reset         Reset the sensor to factory defaults.
 
-    rm          Deletes an application from the sensor.
+    rm            Deletes an application from the sensor.
       )";
 
 #if defined(BUILD_MODULE_FRAMEGRABBER)
   help_msg +=
     R"(
-    schema      Construct and analyze image acquisition schema masks.
+    schema        Construct and analyze image acquisition schema masks.
       )";
 #endif
 
   help_msg +=
     R"(
-    swupdate    Perform a firmware update on the camera. Please ensure
-                that the camera is booted to recovery beforehand.
+    swupdate      Perform a firmware update on the camera. Please ensure
+                  that the camera is booted to recovery beforehand.
 
-    time        Get/set the current time on the camera.
+    time          Get/set the current time on the camera.
 
-    trace       Get trace messages from the internal camera trace buffer.
+    trace         Get trace messages from the internal camera trace buffer.
 
 For bug reports, please see:
-https://github.com/lovepark/ifm3d/issues
+https://github.com/ifm/ifm3d/issues
       )";
 
   ifm3d::version(&major, &minor, &patch);
