@@ -86,8 +86,16 @@ class CMakeBuild(build_ext):
         if platform.system() == "Windows":
             cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
 
+            cmake_args += ['-DBoost_USE_STATIC_LIBS=ON']
+
             if 'IFM3D_BUILD_DIR' in os.environ:
-                cmake_args += ['-DCMAKE_PREFIX_PATH=' + os.environ['IFM3D_BUILD_DIR'] + '\\install']
+                cmake_args += ['-DCMAKE_PREFIX_PATH=' + os.environ['IFM3D_BUILD_DIR'].replace('"','') + '\\install']
+
+            if 'IFM3D_BOOST_ROOT' in os.environ:
+                cmake_args += ['-DBOOST_ROOT=' + os.environ['IFM3D_BOOST_ROOT'].replace('"','')]
+
+            if 'IFM3D_OPENCV_PATH' in os.environ:
+                cmake_args += ['-DOpenCV_DIR=' + os.environ['IFM3D_OPENCV_PATH'].replace('"','')]
 
             # If a generator was specified, use it. Otherwise use the machine's
             # architecture and the default generator.
