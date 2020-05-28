@@ -262,7 +262,7 @@ def test_json(cam):
 
 def test_time(cam):
     dump = cam.to_json()
-    if 'Time' not in dump['ifm3d'].keys():
+    if not dump['ifm3d']['Time']:
         return
 
     # 1. Check mutating the "WaitSyncTries" parameters
