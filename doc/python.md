@@ -8,6 +8,10 @@ All generic functionality from the `camera` and `framegrabber` modules
 are exposed as Python APIs. Additionally, a custom `ImageBuffer` implementation
 exposes frame data to Python as `numpy` arrays in a zero copy manner.
 
+> :warning: Support for python 2.x has been deprecated in accordance with the
+> general python 2 end of life. These instructions may work for python 2 but
+> are not officially supported or tested.
+
 ## Python Dependencies
 
 The `pybind11` module leverages `numpy` as an image container. Ensure `numpy`
@@ -32,10 +36,7 @@ workflow.
 ### From apt
 
 The ifm apt server for Ubuntu LTS releases includes packages for the
-system-wide installation of python2.x and python3.x. The package names follow
-debian packaging naming convetions: `ifm3d-python` and `ifm3d-python3`
-respectively. These can be installed side-by-side, and both depend on
-`ifm3d-camera` and `ifm3d-framegrabber`.
+distribution provided version of python3 via the `ifm3d-python3` package.
 
 Follow the instructions on the [README](../README.md) to configure the
 appropriate apt repository for your environment, and then install the packages
@@ -70,11 +71,9 @@ $ sudo make install
 ```
 
 Finally, ensure the *-dev packages have been installed for your python
-interpreter of choice. For example, to target the Ubuntu system-wide python
-installations, use one (or both) of the following:
+interpreter of choice. For example, to target the Ubuntu python interpreter:
 
 ```
-$ sudo apt-get install python-dev
 $ sudo apt-get install python3-dev
 ```
 
@@ -108,7 +107,7 @@ And `pip show -f ifm3dpy` produces the following:
 
 ```
 Name: ifm3dpy
-Version: 0.13.0
+Version: 0.18.0
 Summary: Library for working with ifm pmd-based 3D ToF Cameras
 Home-page: https://github.com/ifm/ifm3d
 Author: Sean Kelly
@@ -118,13 +117,13 @@ Location: <path/to/anaconda3>/lib/python3.7/site-packages
 Requires:
 Required-by:
 Files:
-  ifm3dpy-0.13.0.dist-info/INSTALLER
-  ifm3dpy-0.13.0.dist-info/LICENSE
-  ifm3dpy-0.13.0.dist-info/LICENSE.MIT
-  ifm3dpy-0.13.0.dist-info/METADATA
-  ifm3dpy-0.13.0.dist-info/RECORD
-  ifm3dpy-0.13.0.dist-info/WHEEL
-  ifm3dpy-0.13.0.dist-info/top_level.txt
+  ifm3dpy-0.18.0.dist-info/INSTALLER
+  ifm3dpy-0.18.0.dist-info/LICENSE
+  ifm3dpy-0.18.0.dist-info/LICENSE.MIT
+  ifm3dpy-0.18.0.dist-info/METADATA
+  ifm3dpy-0.18.0.dist-info/RECORD
+  ifm3dpy-0.18.0.dist-info/WHEEL
+  ifm3dpy-0.18.0.dist-info/top_level.txt
   ifm3dpy.cpython-37m-x86_64-linux-gnu.so
 ```
 
@@ -158,7 +157,7 @@ $ make package
 $ make repackage
 $ sudo dpkg -i ifm3d-camera.deb \
                ifm3d-framegrabber.deb \
-               ifm3d-python3.deb # or 'ifm3d-python.deb' for python2.x
+               ifm3d-python3.deb
 ```
 
 **NOTE:** The CMake scripts query the selected python interpreter for its

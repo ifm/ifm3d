@@ -6,7 +6,7 @@ Configuring the parameters of an ifm 3D camera is accomplished in ifm3d in one
 of two ways: 1) via the `ifm3d` command line tool; 2) via the `ifm3d`
 library's `camera` module API. This document focuses on the `ifm3d` command
 line tool. An ever-growing repository of API usage examples can be found
-[here](https://github.com/lovepark/ifm3d-examples).
+[here](https://github.com/ifm/ifm3d-examples).
 
 The primary mechanism for using the `ifm3d` command line tool to configure an
 ifm 3D camera is to utilize the `dump` and `config` subcommands to `ifm3d`. The
@@ -263,4 +263,4 @@ the `dump` subcommand can be used to access the current camera state while the
 state -- assuming the desired state is valid.
 
 If there are questions, please post them to our
-[issue tracker](https://github.com/lovepark/ifm3d/issues).
+[issue tracker](https://github.com/ifm/ifm3d/issues).

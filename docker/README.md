@@ -157,56 +157,42 @@ $ docker run -u ifm -ti --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-uni
 ifm@f98b659d1e71:/$ ifm3d-pcl-viewer
 ```
 
-### ROS users
+__Ubuntu 20.04__
 
-__Ubuntu 16.04 - Kinetic__
-
-Be sure you are in the [16.04 ROS directory](run/amd64/ubuntu-ros/16.04).
+Be sure you are in the [20.04 directory](run/amd64/ubuntu/20.04).
 
 Build the Docker container:
 
 ```
-$ docker build -t ifm3d-1604-kinetic .
+$ docker build -t ifm3d2004 .
 ```
 
-Assuming you have an ifm 3D camera plugged in (at the default IP -- modify as
-necessary), you can use the container like a standard ROS machine. To view the
-point cloud in rviz:
+Use the command line tools:
+
+```
+$ docker run -u ifm -ti --rm ifm3d2004:latest /bin/bash
+ifm@330fc18969c4:/$ ifm3d ls
+[
+  {
+    "Active": true,
+    "Description": "",
+    "Id": 351437496,
+    "Index": 1,
+    "Name": "Sample Application"
+  }
+]
+ifm@330fc18969c4:/$ ifm3d hz
+FrameGrabber running at: 5.33508 Hz
+10 frames captured, over 1 runs
+ifm@330fc18969c4:/$ ^D
+```
+
+Use the [visualizer](https://github.com/ifm/ifm3d-pcl-viewer):
 
 ```
 $ xhost +local:root
 non-network local connections being added to access control list
 
-$ docker run -u ifm -ti --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:rw ifm3d-1604-kinetic:latest /bin/bash
-ifm@4aa58228052f:~$ roslaunch ifm3d camera.launch >/dev/null 2>&1 &
-[1] 112
-ifm@4aa58228052f:~$ roslaunch ifm3d rviz.launch
-```
-
-If your camera is plugged in, you should now see an rviz window streaming data
-from it. If your camera is at a different ip address than the default, you
-should pass that as the `ip:=...` argument to the `camera.launch` file.
-
-__Ubuntu 18.04 - Melodic__
-
-Be sure you are in the [18.04 ROS directory](run/amd64/ubuntu-ros/18.04).
-
-Build the Docker container:
-
-```
-$ docker build -t ifm3d-1804-melodic .
-```
-
-Assuming you have an ifm 3D camera plugged in (at the default IP -- modify as
-necessary), you can use the container like a standard ROS machine. To view the
-point cloud in rviz:
-
-```
-$ xhost +local:root
-non-network local connections being added to access control list
-
-$ docker run -u ifm -ti --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:rw ifm3d-1804-melodic:latest /bin/bash
-ifm@4aa58228052f:~$ roslaunch ifm3d camera.launch >/dev/null 2>&1 &
-[1] 112
-ifm@4aa58228052f:~$ roslaunch ifm3d rviz.launch
+$ docker run -u ifm -ti --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:rw ifm3d2004:latest /bin/bash
+ifm@f98b659d1e71:/$ ifm3d-pcl-viewer
 ```
