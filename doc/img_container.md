@@ -126,4 +126,4 @@ modules that we ship with `ifm3d`. This will give you a very concrete example
 as to how you can implement your own image container types in a more realistic
 way (i.e., how to parse the pixels, byte swap them, deal with copy/move
 semantics, etc.). If you have questions, feel free to ask on our
-[issue tracker](https://github.com/lovepark/ifm3d/issues).
+[issue tracker](https://github.com/ifm/ifm3d/issues).
