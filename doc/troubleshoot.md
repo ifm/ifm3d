@@ -115,11 +115,11 @@ This might occur if ifm3d is not installed properly.
 
 Set the ifm3d executable path in the enviornment path of the system. This is
 explained very well
-[here](https://github.com/lovepark/ifm3d/blob/master/doc/windows.md#running-ifm3d-tool-on-windows).
+[here](https://github.com/ifm/ifm3d/blob/master/doc/windows.md#running-ifm3d-tool-on-windows).
 
 ##### Troubleshoot on Linux
 
-Use intruction at the https://github.com/lovepark/ifm3d#the-default-build to
+Use intruction at the https://github.com/ifm/ifm3d#the-default-build to
 build and install the library on Linux.
 
 ## WaitForFrame Timeout
