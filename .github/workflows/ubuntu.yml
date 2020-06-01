@@ -1,0 +1,48 @@
+name: Build (Ubuntu)
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+
+jobs:
+  build-ubuntu:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-16.04, ubuntu-18.04]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libboost-all-dev git jq libcurl4-openssl-dev libgtest-dev libgoogle-glog-dev libxmlrpc-c++8-dev libopencv-dev libpcl-dev libproj-dev build-essential coreutils cmake
+    - name: Configure
+      run: |
+        mkdir build
+        cd build
+        cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON ..
+    - name: Build
+      run: |
+        cd build
+        make -j ${nproc}
+    - name: Package
+      run: |
+        cd build
+        make package
+        make repackage
+    - name: Copy artifacts
+      run: |
+        cd build
+        mkdir debs
+        if [ -f *Unspecified.deb ]; then rm *Unspecified.deb; fi
+        cp *.deb debs/
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: ifm3d_amd64_${{ matrix.os }}
+        path: build/debs
+

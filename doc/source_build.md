@@ -81,8 +81,8 @@ Use the following steps to install all the library dependencies on Debian based
 systems
 
 ```
-$ sudo apt-get update && apt-get -y upgrade
-$ sudo apt-get update && apt-get install -y libboost-all-dev git jq libcurl4-openssl-dev \
+$ sudo apt-get update && sudo apt-get -y upgrade
+$ sudo apt-get update && sudo apt-get install -y libboost-all-dev git jq libcurl4-openssl-dev \
                                             libgtest-dev libgoogle-glog-dev  \
                                             libxmlrpc-c++8-dev libopencv-dev \
                                             libpcl-dev libproj-dev \
@@ -118,11 +118,11 @@ $ make
 $ make check
 $ make package
 $ make repackage
-$ sudo dpkg -i ifm3d_0.14.1_amd64-camera.deb
-$ sudo dpkg -i ifm3d_0.14.1_amd64-swupdater.deb
-$ sudo dpkg -i ifm3d_0.14.1_amd64-framegrabber.deb
-$ sudo dpkg -i ifm3d_0.14.1_amd64-image.deb
-$ sudo dpkg -i ifm3d_0.14.1_amd64-tools.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-camera.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-swupdater.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-framegrabber.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-image.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-tools.deb
 ```
 
 (The version number embedded in the deb file will be dependent upon which
@@ -137,13 +137,13 @@ A few important notes when building from source:
   cameras) you plan to use. I.e., O3D, O3X, etc.
 
 * Many `ifm3d` users ultimately plan to use this library along with its
-  associated [ROS wrapper](https://github.com/lovepark/ifm3d-ros). If this is
+  associated [ROS wrapper](https://github.com/ifm/ifm3d-ros). If this is
   the case, you need to be sure that the version of OpenCV that you link to in
   both `ifm3d` and `ifm3d-ros` are consistent. To give you some control over
   that, the build process allows you to explicitly call out which version of
   OpenCV you wish to use. For example, if you are using OpenCV 2.4, your
   `cmake` line above should look something like:
-  `$ cmake -DCMAKE_INSTALL_PREFIX=/usr -DFORCE_OPENCV2=ON ..`. Similarly, if 
+  `$ cmake -DCMAKE_INSTALL_PREFIX=/usr -DFORCE_OPENCV2=ON ..`. Similarly, if
   you are using OpenCV 3, your `cmake` line above should look something like:
   `$ cmake -DCMAKE_INSTALL_PREFIX=/usr -DFORCE_OPENCV3=ON ..`
 
@@ -177,18 +177,18 @@ $ make
 $ make check
 $ make package
 $ make repackage
-$ sudo dpkg -i ifm3d_0.14.1_amd64-camera.deb
-$ sudo dpkg -i ifm3d_0.14.1_amd64-framegrabber.deb
-$ sudo dpkg -i ifm3d_0.14.1_amd64-swupdater.deb
-$ sudo dpkg -i ifm3d_0.14.1_amd64-opencv.deb
-$ sudo dpkg -i ifm3d_0.14.1_amd64-tools.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-camera.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-framegrabber.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-swupdater.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-opencv.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-tools.deb
 ```
 
 #### Building the Python Bindings
 
 There are several options/configurations available for building and/or
 installing the `pybind11` module. For this reason, building/installing the
-`pybind11` module is not covered in this document. Please refer to the 
+`pybind11` module is not covered in this document. Please refer to the
 [python](python.md) documentation for installation instructions.
 
 #### A sumo-build
@@ -203,11 +203,11 @@ $ make -j 8
 $ make check
 $ make package
 $ make repackage
-$ sudo dpkg -i ifm3d_0.14.1_amd64-camera.deb
-$ sudo dpkg -i ifm3d_0.14.1_amd64-framegrabber.deb
-$ sudo dpkg -i ifm3d_0.14.1_amd64-swupdater.deb
-$ sudo dpkg -i ifm3d_0.14.1_amd64-image.deb
-$ sudo dpkg -i ifm3d_0.14.1_amd64-opencv.deb
-$ sudo dpkg -i ifm3d_0.14.1_amd64-tools.deb
-$ sudo dpkg -i ifm3d_0.14.1_amd64-pcicclient.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-camera.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-framegrabber.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-swupdater.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-image.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-opencv.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-tools.deb
+$ sudo dpkg -i ifm3d_0.18.0_amd64-pcicclient.deb
 ```
