@@ -1,7 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- python -*-
 
 #
+# Copyright (C)  2020 ifm electronic, gmbh
 # Copyright (C)  2017 Love Park Robotics, LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -97,7 +98,7 @@ class DpkgDeps(object):
             file.write("Depends: ")
             n = len(self.deb_deps_.keys())
             i = 0
-            for deb, version in self.deb_deps_.iteritems():
+            for deb, version in self.deb_deps_.items():
                 if "ifm3d" in deb:
                     file.write("%s (= %s)" % (deb, version))
                 else:
@@ -138,7 +139,12 @@ class DpkgDeps(object):
                 elif "opencv" in so:
                     debs["ifm3d-opencv"] = VERSION
             else:
-                out = subprocess.check_output(["dpkg", "-S", so])
+                try:
+                    # Starting sometime between 18.04 and 20.04, /lib is a
+                    # symlink to /usr/lib so must check both places
+                    out = subprocess.check_output(["dpkg", "-S", os.path.realpath(so)]).decode('utf-8')
+                except subprocess.CalledProcessError:
+                    out = subprocess.check_output(["dpkg", "-S", so]).decode('utf-8')
                 for line in out.split("\n"):
                     parts = line.split(":")
                     deb = parts[0]
@@ -150,7 +156,7 @@ class DpkgDeps(object):
             if "ifm3d" in deb:
                 continue
 
-            out = subprocess.check_output(["dpkg", "-s", deb])
+            out = subprocess.check_output(["dpkg", "-s", deb]).decode('utf-8')
             for line in out.split("\n"):
                 if line.startswith("Version"):
                     m = re.search(r"Version:(.*)", line)
@@ -175,7 +181,7 @@ class DpkgDeps(object):
         so_deps = {}
         # This gives us the base name of the .so
         for so in sos:
-            out = subprocess.check_output(["readelf", "-d", so])
+            out = subprocess.check_output(["readelf", "-d", so]).decode('utf-8')
             for line in out.split("\n"):
                 if "NEEDED" in line:
                     m = re.search(r"\[(.*)\]", line)
@@ -186,7 +192,7 @@ class DpkgDeps(object):
         print(so_deps)
         # now, resolve the full path to the .so
         for so in sos:
-            out = subprocess.check_output(["ldd", so])
+            out = subprocess.check_output(["ldd", so]).decode('utf-8')
             for line in out.split("\n"):
                 parts = line.split()
                 if len(parts) <= 1:
@@ -194,7 +200,7 @@ class DpkgDeps(object):
                 elif len(parts) < 3:
                     so_deps.pop(parts[0], None)
                 else:
-                    if ((so_deps.has_key(parts[0])) and
+                    if ((parts[0] in so_deps) and
                             ("ifm3d" not in parts[0])):
                         so_deps[parts[2]] = so_deps.pop(parts[0])
 

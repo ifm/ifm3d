@@ -155,7 +155,7 @@ $ ifm3d dump | jq .ifm3d.Apps[0].Imager
 We can see that there is (by default) a spatial filter applied
 (`SpatialFilterType`) and it has a mask parameter (`MaskSize`). This happens to
 be a spatial median filter with a 3x3 mask. These special codes are defined in
-the [camera.h](https://github.com/lovepark/ifm3d/blob/master/modules/camera/include/ifm3d/camera/camera.h)
+the [camera.h](https://github.com/ifm/ifm3d/blob/master/modules/camera/include/ifm3d/camera/camera.h)
 header file. So, assuming you have consulted that file where the constants are
 defined, we could set our median filter to a 5x5 mask with the following:
 

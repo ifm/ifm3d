@@ -1,4 +1,4 @@
-FROM ros:kinetic-perception-xenial
+FROM ubuntu:20.04
 
 # ifm3d git release tag to build
 ARG vtag
@@ -15,28 +15,30 @@ ENV IFM3D_IP 192.168.0.69
 
 #####################################################
 #####################################################
-ENV DEBIAN_FRONTEND noninteractive
 
-# See:
-# http://answers.ros.org/question/325039/apt-update-fails-cannot-install-pkgs-key-not-working/
-RUN apt-key del 421C365BD9FF1F717815A3895523BAEEB01FA116
-RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get -y upgrade
 RUN apt-get update && \
-    apt-get install -y jq \
+    apt-get install -y libboost-all-dev \
+                       git \
+                       jq \
+                       libcurl4-openssl-dev \
+                       libgtest-dev \
                        libgoogle-glog-dev \
                        libxmlrpc-c++8-dev \
-                       python-dev \
+                       libopencv-dev \
+                       libpcl-dev \
+                       libproj-dev \
                        python3-dev \
-                       python-pip \
                        python3-pip \
+                       build-essential \
+                       coreutils \
+                       findutils \
+                       cmake \
                        locales \
                        sudo
 
-RUN yes | python -m pip install --upgrade pip setuptools
-RUN yes | python -m pip install pytest numpy
-RUN yes | python3 -m pip install --upgrade pip setuptools
 RUN yes | python3 -m pip install pytest numpy
 
 RUN mkdir -p /opt && \
@@ -63,20 +65,26 @@ RUN echo "ifm ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers
 
 USER ifm
 WORKDIR /home/ifm
-RUN /bin/bash -c 'mkdir src && \
+RUN mkdir src && \
     cd src && \
-    source /opt/ros/kinetic/setup.bash && \
     git clone https://github.com/ifm/ifm3d.git && \
     cd ifm3d && \
     if [ "x$vtag" = "x" ]; then echo "Building from master"; else git checkout tags/$vtag; fi && \
     mkdir build && \
     cd build && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON -DBUILD_MODULE_PYBIND11=ON -DPYTHON_EXECUTABLE=/usr/bin/python .. && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON -DBUILD_MODULE_PYBIND11=ON -DPYTHON_EXECUTABLE=/usr/bin/python3 .. && \
     make -j $ncores && \
     if [ "x$run_tests" = "x" ]; then echo "Skipping tests..."; else make check; fi && \
     make package && \
-    cmake -DPYTHON_EXECUTABLE=/usr/bin/python3 .. && \
-    make -j $ncores && \
-    make package && \
     make repackage && \
-    ls -1 *.deb | grep -iv 'unspecified' | xargs sudo dpkg -i'
+    ls -1 *.deb | grep -iv 'unspecified' | xargs sudo dpkg -i
+
+RUN cd src && \
+    git clone https://github.com/ifm/ifm3d-pcl-viewer.git && \
+    cd ifm3d-pcl-viewer && \
+    mkdir build && \
+    cd build && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr .. && \
+    make && \
+    make package && \
+    make repackage

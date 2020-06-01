@@ -30,9 +30,7 @@ RUN apt-get update && \
                        libopencv-dev \
                        libpcl-dev \
                        libproj-dev \
-                       python-dev \
                        python3-dev \
-                       python-pip \
                        python3-pip \
                        build-essential \
                        coreutils \
@@ -41,8 +39,6 @@ RUN apt-get update && \
                        locales \
                        sudo
 
-RUN yes | python -m pip install --upgrade pip setuptools
-RUN yes | python -m pip install pytest numpy
 RUN yes | python3 -m pip install --upgrade pip setuptools
 RUN yes | python3 -m pip install pytest numpy
 
@@ -77,12 +73,9 @@ RUN mkdir src && \
     if [ "x$vtag" = "x" ]; then echo "Building from master"; else git checkout tags/$vtag; fi && \
     mkdir build && \
     cd build && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON -DBUILD_MODULE_PYBIND11=ON -DPYTHON_EXECUTABLE=/usr/bin/python .. && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON -DBUILD_MODULE_PYBIND11=ON -DPYTHON_EXECUTABLE=/usr/bin/python3 .. && \
     make -j $ncores && \
     if [ "x$run_tests" = "x" ]; then echo "Skipping tests..."; else make check; fi && \
-    make package && \
-    cmake -DPYTHON_EXECUTABLE=/usr/bin/python3 .. && \
-    make -j $ncores && \
     make package && \
     make repackage && \
     ls -1 *.deb | grep -iv 'unspecified' | xargs sudo dpkg -i

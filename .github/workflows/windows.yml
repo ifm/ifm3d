@@ -1,0 +1,133 @@
+name: Build (Windows)
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+
+jobs:
+  build-windows:
+    runs-on: windows-2016
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v2
+
+    - name: Check cache for prebuilt dependencies
+      id: get-dep-cache
+      uses: actions/cache@v1.0.3
+      with:
+        path: c:\deps\install
+        key: ifm3d-deps-0 # Increment to force-clear cache
+
+    - name: Create output directory
+      if: steps.get-dep-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: mkdir c:\deps\install
+
+    - name: Build dependency - curl
+      if: steps.get-dep-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        cd /d c:\deps
+        git clone --branch curl-7_47_1 https://github.com/curl/curl.git
+        mkdir curl\build
+        cd curl\build
+        cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DCMAKE_INSTALL_PREFIX=c:\deps\install ..
+        cmake --build . --clean-first --config Release --target INSTALL
+
+    - name: Build dependency - xmlrpc-c
+      if: steps.get-dep-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        cd /d c:\deps
+        git clone --branch 1.33.14-cmake https://github.com/ifm/xmlrpc-c.git
+        mkdir xmlrpc-c\build
+        cd xmlrpc-c\build
+        cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX=c:\deps\install ..
+        cmake --build . --clean-first --config Release --target INSTALL
+
+    - name: Build dependency - glog
+      if: steps.get-dep-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        cd /d c:\deps
+        git clone --branch v0.3.5 https://github.com/google/glog.git
+        mkdir glog\build
+        cd glog\build
+        cmake -G "Visual Studio 15 2017 Win64" -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=c:\deps\install ..
+        cmake --build . --clean-first --config Release --target INSTALL
+
+    - name: Build dependency - FLANN
+      if: steps.get-dep-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        cd /d c:\deps
+        git clone --branch 1.9.1 https://github.com/mariusmuja/flann.git
+        mkdir flann\build
+        cd flann\build
+        cmake -G "Visual Studio 15 2017 Win64" -DBUILD_PYTHON_BINDINGS=OFF -DBUILD_MATLAB_BINDINGS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBUILD_DOC=OFF -DCMAKE_INSTALL_PREFIX=\deps\install ..
+        cmake --build . --clean-first --config Release --target INSTALL
+
+    - name: Build dependency - Eigen
+      if: steps.get-dep-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        cd /d c:\deps
+        git clone --branch 3.3.4 https://github.com/eigenteam/eigen-git-mirror.git eigen
+        mkdir eigen\build
+        cd eigen\build
+        cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX=c:\deps\install ..
+        cmake --build . --clean-first --config Release --target INSTALL
+
+    - name: Build dependency - PCL
+      if: steps.get-dep-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        cd /d c:\deps
+        git clone --branch pcl-1.8.1 https://github.com/PointCloudLibrary/pcl.git
+        mkdir pcl\build
+        cd pcl\build
+        cmake -G "Visual Studio 15 2017 Win64" -DBOOST_ROOT=%BOOST_ROOT_1_69_0% -DPCL_ENABLE_SSE=OFF -DWITH_CUDA=OFF -DWITH_DAVIDSDK=OFF -DWITH_DOCS=OFF -DWITH_DSSDK=OFF -DWITH_ENSENSO=OFF -DWITH_FZAPI=OFF -DWITH_LIBUSB=OFF -DWITH_OPENGL=OFF -DWITH_VTK=OFF -DWITH_OPENNI=OFF -DWITH_OPENNI2=OFF -DWITH_PCAP=OFF -DWITH_PNG=OFF -DWITH_QHULL=OFF -DWITH_QT=OFF -DWITH_RSSDK=OFF -DCMAKE_INSTALL_PREFIX=c:\deps\install ..
+        cmake --build . --clean-first --config Release --target INSTALL
+
+    - name: Build dependency - OpenCV
+      if: steps.get-dep-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        cd /d c:\deps
+        git clone  --branch 3.4.0 https://github.com/opencv/opencv.git
+        mkdir opencv\build
+        cd opencv\build
+        cmake -G "Visual Studio 15 2017 Win64" -DWITH_CUDA=OFF -DWITH_EIGEN=ON -DWITH_IPP=ON -DWITH_JASPTER=ON -DWITH_JPEG=ON -DWITH_OPENEXR=OFF -DWITH_OPENNI=OFF -DWITH_PNG=ON -DWITH_QT=OFF -DWITH_QT_OPENGL=OFF -DWITH_TBB=OFF -DWITH_TIFF=ON -DWITH_VIDEOINPUT=OFF -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_PACKAGE=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=OFF -DCMAKE_PREFIX_PATH=c:\deps\install -DCMAKE_INSTALL_PREFIX=c:\deps\install ..
+        cmake --build . --clean-first --config Release --target INSTALL
+
+    - name: Build dependency - gtest
+      if: steps.get-dep-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        cd /d c:\deps\install
+        git clone --branch release-1.8.1 https://github.com/google/googletest.git
+
+    - name: Build ifm3d
+      shell: cmd
+      run: |
+        mkdir \ifm3d\install
+        mkdir build
+        cd build
+        cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_SDK_PKG=ON -DGTEST_CMAKE_DIR=c:\deps\install\googletest\googletest -Dgtest_force_shared_crt=TRUE -DCMAKE_PREFIX_PATH=c:\deps\install -DBOOST_ROOT=%BOOST_ROOT_1_69_0% -DBoost_USE_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\ifm3d\install -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON ..
+        cmake --build . --clean-first --config Release --target INSTALL
+
+    - name: Copy third party dependencies
+      shell: cmd
+      run: |
+        copy "c:\deps\install\bin\glog.dll" \ifm3d\install\bin
+        copy "c:\deps\install\bin\libcurl.dll" \ifm3d\install\bin
+        copy "c:\deps\install\bin\xmlrpc*.dll" \ifm3d\install\bin
+        copy "c:\deps\install\x64\vc15\bin\opencv_core340.dll" \ifm3d\install\bin
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: ifm3d_amd64_msvc2017
+        path: \ifm3d\install
