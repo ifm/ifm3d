@@ -48,7 +48,6 @@ target_include_directories(ifm3d_camera
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
   PRIVATE
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/third-party/asio/asio/include>
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${XMLRPC_INCLUDE_DIRS}
     )
@@ -84,6 +83,7 @@ target_link_libraries(
     ${LIB_xmlrpc_client}
     ${LIB_xmlrpcxx}
     ${LIB_xmlrpc}
+    asio
   )
 
 set_target_properties(
