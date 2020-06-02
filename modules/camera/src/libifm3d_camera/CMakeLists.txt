@@ -48,6 +48,7 @@ target_include_directories(ifm3d_camera
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
   PRIVATE
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/third-party/asio/asio/include>
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${XMLRPC_INCLUDE_DIRS}
     )
@@ -67,6 +68,7 @@ target_compile_options(ifm3d_camera
 if(WIN32)
   target_compile_definitions(
     ifm3d_camera PRIVATE
+    ASIO_STANDALONE
     IFM3D_CAMERA_DLL_BUILD=1
     )
 endif(WIN32)
