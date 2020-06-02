@@ -95,6 +95,8 @@ each now follow.
 
 #### Snap Application
 
+[![ifm3d](https://snapcraft.io//ifm3d/badge.svg)](https://snapcraft.io/ifm3d)
+
 The ifm3d [command line utility](doc/cmdline.md) and
 [viewer tool](https://github.com/ifm/ifm3d-pcl-viewer) are available as a snap
 in the Snapcraft application store. Snapcraft supports [most major Linux

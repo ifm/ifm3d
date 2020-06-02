@@ -25,12 +25,10 @@ parts:
   ifm3d:
     override-pull: |
       snapcraftctl pull
-      snapcraftctl set-version $(cat CMakeLists.txt | sed -ne 's/project(IFM3D VERSION .*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/p')-$(git rev-parse --short HEAD)
-      if [[ $(git branch) == "master" ]]; then
-        snapcraftctl set-grade "stable"
-      else
-        snapcraftctl set-grade "devel"
-      fi
+      version="$(git describe --always | sed -e 's/^v//;s/-/+git/;y/-/./;y/_/-/;')"
+      [ -n "$(echo $version | grep "+git")" ] && grade=devel || grade=stable
+      snapcraftctl set-version "$version"
+      snapcraftctl set-grade "$grade"
     plugin: cmake
     configflags:
       - '-DCMAKE_INSTALL_PREFIX=/usr'
