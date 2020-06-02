@@ -195,5 +195,103 @@ namespace ifm3d
    }
  };
 
+ constexpr size_t max_udp_packet_size = 65535;
+ using Data = std::vector<unsigned char>;
+
+ class UDPConnection : public std::enable_shared_from_this<UDPConnection> {
+ public:
+   UDPConnection(asio::io_context& context, asio::ip::udp::endpoint& local_endpoint)
+     :socket(context, local_endpoint)
+     ,timer(context)
+   {
+     data.resize(max_udp_packet_size);
+     socket.set_option(
+       asio::ip::udp::socket::reuse_address(true));
+     asio::socket_base::broadcast option(true);
+     socket.set_option(option);
+    }
+
+   void Send(const Data &data, asio::ip::udp::endpoint remote_endpoint)
+   {
+     socket.async_send_to(asio::buffer((char*)data.data(), data.size()), remote_endpoint,
+       std::bind(&UDPConnection::handle_send, this,
+         std::placeholders::_1,
+         std::placeholders::_2));
+   }
+
+   void GrabData()
+   {
+     recieve();
+     check_timeout();
+   }
+
+   void RegisterOnRecieve(std::function<void(asio::ip::udp::endpoint&, Data, size_t)> on_recvieve)
+   {
+     this->on_recieve = on_recvieve;
+   }
+   void RegisterOnClose(std::function<void(std::shared_ptr<UDPConnection>)> on_close)
+   {
+     this->on_close = on_close;
+   }
+
+ protected:
+   void handle_send(const asio::error_code& error,
+     std::size_t /*bytes_transferred*/)
+   {
+     /* udp we send and forget so nothing to do in this callback*/
+   }
+
+   void recieve()
+   {
+     //start the timer for timeout of 3 secs, if data didnot come
+     // with timeout then connection will be closed and notified to parent
+     timer.expires_from_now(std::chrono::milliseconds(3000));
+     data.clear();
+     data.resize(max_udp_packet_size);
+
+     asio::ip::udp::endpoint sender_endpoint;
+     socket.async_receive_from(
+       asio::buffer(data.data(), data.size()), sender_endpoint,
+       std::bind(&UDPConnection::handle_receive, this, socket.local_endpoint(),
+         std::placeholders::_1,
+         std::placeholders::_2));
+   }
+
+   void handle_receive(asio::ip::udp::endpoint& sender, const asio::error_code& error, size_t bytes_transferred)
+   {
+     if (error)
+     {
+       return;
+     }
+     on_recieve(sender, data, bytes_transferred);
+     recieve();
+   }
+
+   void close()
+   {
+     socket.close();
+     on_close(shared_from_this());
+   }
+   
+   void check_timeout()
+   {
+     if (timer.expires_at() <= std::chrono::system_clock::now())
+     {
+       close();
+     }
+     else
+     {
+       timer.async_wait(std::bind(&UDPConnection::check_timeout, this));
+     }
+   }
+
+ private:
+   asio::ip::udp::socket socket;
+   asio::system_timer timer;
+   std::mutex mutex;
+   Data data;
+   std::function<void(asio::ip::udp::endpoint&, Data, size_t)> on_recieve;
+   std::function<void(std::shared_ptr<UDPConnection>)> on_close;
+ };
 }
 #endif // IFM3D_CAMERA_DISCOVERY_HPP
