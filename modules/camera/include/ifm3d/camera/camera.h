@@ -143,6 +143,14 @@ namespace ifm3d
     };
 
     /**
+     * @brief This function Provides a convinent way to find all
+     *   ifm devices on the network.
+     * @return : vector of ip-address all the discovered devices
+     *  on network.
+     */
+    static std::vector<std::string> DeviceDiscovery();
+
+    /**
      * Factory function for instantiating the proper subclass based on h/w
      * probing.
      *
