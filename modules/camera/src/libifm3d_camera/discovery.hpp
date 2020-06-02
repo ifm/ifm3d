@@ -51,10 +51,9 @@ namespace ifm3d
   /** @brief Broadcast request packet structure. */
   struct BcastRequest {
     /** @brief Default magic number 0x1020EFCF. */
-    const uint32_t magic;// = htonl(BCAST_MAGIC_REQUEST);
-
+    const uint32_t magic;
     /** @brief Port to send reply to. */
-    const uint16_t reply_port;// = htonl(BCAST_DEFAULT_PORT);
+    const uint16_t reply_port;
 
     /** @brief Unused. */
     const uint16_t reserved;
@@ -118,5 +117,83 @@ namespace ifm3d
       vendor_id = ntohs(vendor_id);
     }
  };
+
+ namespace
+ {
+   inline const std::string address2Str(const uint32_t addr)
+   {
+     std::stringstream ss;
+     ss << ((addr >> 24) & 0xff) << "."
+        << ((addr >> 16) & 0xff) << "."
+        << ((addr >> 8) & 0xff)  << "."
+        << ((addr >> 0) & 0xff);
+     return ss.str();
+   }
+
+   inline const std::string uint8Mac2macStr(uint8_t *mac, size_t size = 6)
+   {
+     std::stringstream ss;
+     auto converttoHexandAppend = [&](const uint8_t value)
+     {
+       ss << std::hex << std::setfill('0') << std::setw(2) << int(value);
+     };
+
+     for (int i = 0; i < size - 1; i++)
+     {
+       converttoHexandAppend(mac[i]);
+       ss << "::";
+     }
+     converttoHexandAppend(mac[size - 1]);
+     return ss.str();
+   }
+ }
+
+ struct IFMNetworkDevice
+ {
+   const std::string ip_address;
+   const std::string mac;
+   const std::string subnet;
+   const std::string gateway;
+   const uint16_t port;
+   /** @brief the device gives some additional information via those flags */
+   const uint16_t flags;
+   const std::string hostname;
+   /** @brief IP-address of local-interface on which the NetDevice was found */
+   const std::string found_via;
+   const std::string device_name;
+   const uint16_t vendor_id;
+   const uint16_t device_id;
+
+   IFMNetworkDevice(const BcastReply& reply, const std::string& interface)
+     : ip_address(address2Str(reply.ip_address))
+     , gateway(address2Str(reply.ip_gateway))
+     , subnet(address2Str(reply.ip_netmask))
+     , mac(uint8Mac2macStr((uint8_t*)reply.mac))
+     , port(reply.port)
+     , flags(reply.flags)
+     , device_id(reply.device_id)
+     , vendor_id(reply.vendor_id)
+     , hostname(std::string(reply.name))
+     , device_name(std::string(reply.devicename))
+     , found_via(interface)
+   {}
+
+   void Display()
+   {
+     std::cout << std::endl;
+     std::cout << "ip-address : " << ip_address << std::endl;
+     std::cout << "gateway : " << gateway << std::endl;
+     std::cout << "subnet : " << subnet << std::endl;
+     std::cout << "mac : " << mac << std::endl;
+     std::cout << "port : " << port << std::endl;
+     std::cout << "flags : " << flags << std::endl;
+     std::cout << "device-id : " << device_id << std::endl;
+     std::cout << "vendor_id : " << vendor_id << std::endl;
+     std::cout << "hostname : " << hostname << std::endl;
+     std::cout << "device-name : " << device_name << std::endl;
+     std::cout << "found_via : " << found_via << std::endl;
+   }
+ };
+
 }
 #endif // IFM3D_CAMERA_DISCOVERY_HPP
