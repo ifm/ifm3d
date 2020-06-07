@@ -143,7 +143,7 @@ architectures:
 
 Add the repository to your sources.list:
 ```
-$ sudo sh -c 'echo "deb https://nexus.ifm.com/repository/ifm-robotics_ubuntu_$(lsb_release -sc)_$(dpkg --print-architecture) $(lsb_release -sc) main" > /etc/apt/sources.list.d/ifm-robotics.list'
+$ sudo sh -c 'echo "deb [arch=$(dpkg --print-architecture)] https://nexus.ifm.com/repository/ifm-robotics_ubuntu_$(lsb_release -sc)_$(dpkg --print-architecture) $(lsb_release -sc) main" > /etc/apt/sources.list.d/ifm-robotics.list'
 ```
 
 Add the public key for the repository:
