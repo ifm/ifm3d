@@ -7,7 +7,6 @@ if (NOT TARGET glog::glog)
 else()
   set(LIB_glog glog::glog)
 endif (NOT TARGET glog::glog)
-find_package(Boost REQUIRED COMPONENTS program_options)
 find_package(CURL REQUIRED)
 
 ################################################
@@ -36,7 +35,6 @@ target_include_directories(ifm3d_tools_shared
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${IFM3D_TOOLS_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
-    ${Boost_INCLUDE_DIRS}
     ${CURL_INCLUDE_DIRS}
     )
 
@@ -85,8 +83,8 @@ target_link_libraries(
   ifm3d_tools_shared
   ifm3d_camera
   ${LIB_glog}
-  Boost::program_options
   ${CURL_LIBRARIES}
+  cxxopts
   )
 
 if (BUILD_MODULE_FRAMEGRABBER)

@@ -11,7 +11,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/program_options.hpp>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/camera.h>
 #include <ifm3d/swupdater.h>
@@ -27,39 +26,36 @@ ifm3d::SWUpdateApp::SWUpdateApp(int argc,
   : ifm3d::CmdLineApp(argc, argv, name)
 {
   // clang-format off
-  this->local_opts_.add_options()
-    ("file", po::value<std::string>()->default_value("-"),
-     "Input file, defaults to `stdin' (good for reading off a pipeline)")
-    ("check,c", po::bool_switch()->default_value(false),
-     "Check the current mode of device")
-    ("reboot,r", po::bool_switch()->default_value(false),
-     "Reboot from recovery mode to productive mode")
-    ("quiet,q", po::bool_switch()->default_value(false),
-     "Disable status output");
-  // clang-format on
+  this->all_opts_.add_options(name)
+    ("file","Input file, defaults to `stdin' (good for reading off a pipeline)",
+     cxxopts::value<std::string>()->default_value("-"))
+    ("c,check","Check the current mode of device",
+     cxxopts::value<bool>()->default_value("false"))
+    ("r,reboot","Reboot from recovery mode to productive mode",
+     cxxopts::value<bool>()->default_value("false"))
+    ("q,quiet","Disable status output",
+     cxxopts::value<bool>()->default_value("false"));
 
-  po::store(po::command_line_parser(argc, argv)
-              .options(this->local_opts_)
-              .allow_unregistered()
-              .run(),
-            this->vm_);
-  po::notify(this->vm_);
+  // clang-format on
+  this->_Parse(argc, argv);
 }
 
 int
 ifm3d::SWUpdateApp::Run()
 {
-  if (this->vm_.count("help"))
+  if (this->vm_->count("help"))
     {
       this->_LocalHelp();
       return 0;
     }
 
-  auto const file = vm_.count("file") ? true : false;
-  auto const check = vm_.count("check") ? vm_["check"].as<bool>() : false;
+  auto const file = this->vm_->count("file") ? true : false;
+  auto const check =
+    this->vm_->count("check") ? (*this->vm_)["check"].as<bool>() : false;
   auto const recovery_reboot =
-    vm_.count("reboot") ? vm_["reboot"].as<bool>() : false;
-  auto const quiet = vm_.count("quiet") ? vm_["quiet"].as<bool>() : false;
+    this->vm_->count("reboot") ? (*this->vm_)["reboot"].as<bool>() : false;
+  auto const quiet =
+    this->vm_->count("quiet") ? (*this->vm_)["quiet"].as<bool>() : false;
 
   ifm3d::SWUpdater::Ptr swupdater;
   if (quiet)
@@ -169,7 +165,7 @@ ifm3d::SWUpdateApp::Run()
       std::shared_ptr<std::istream> ifs;
       std::vector<std::uint8_t> bytes;
 
-      std::string infile = this->vm_["file"].as<std::string>();
+      std::string infile = (*this->vm_)["file"].as<std::string>();
       if (infile == "-")
         {
 #ifdef _WIN32
