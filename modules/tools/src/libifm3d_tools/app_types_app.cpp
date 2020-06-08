@@ -19,7 +19,7 @@ ifm3d::AppTypesApp::AppTypesApp(int argc,
 int
 ifm3d::AppTypesApp::Run()
 {
-  if (this->vm_.count("help"))
+  if (this->vm_->count("help"))
     {
       this->_LocalHelp();
       return 0;
