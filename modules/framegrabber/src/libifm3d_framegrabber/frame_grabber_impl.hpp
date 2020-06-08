@@ -34,8 +34,7 @@
 #include <system_error>
 #include <thread>
 #include <vector>
-#include <boost/asio.hpp>
-#include <boost/system/system_error.hpp>
+#include <asio.hpp>
 #include <glog/logging.h>
 #include <ifm3d/camera/camera.h>
 #include <ifm3d/camera/err.h>
@@ -75,11 +74,11 @@ namespace ifm3d
     //
     // ASIO event handlers
     //
-    void TicketHandler(const boost::system::error_code& ec,
+    void TicketHandler(const asio::error_code& ec,
                        std::size_t bytes_xferd,
                        std::size_t bytes_read);
 
-    void ImageHandler(const boost::system::error_code& ec,
+    void ImageHandler(const asio::error_code& ec,
                       std::size_t bytes_xferd,
                       std::size_t bytes_read);
 
@@ -91,9 +90,9 @@ namespace ifm3d
 
     std::string cam_ip_;
     int cam_port_;
-    boost::asio::io_service io_service_;
-    boost::asio::ip::tcp::socket sock_;
-    boost::asio::ip::tcp::endpoint endpoint_;
+    asio::io_service io_service_;
+    asio::ip::tcp::socket sock_;
+    asio::ip::tcp::endpoint endpoint_;
     std::unique_ptr<std::thread> thread_;
     std::atomic<bool> pcic_ready_;
     std::vector<std::uint8_t> schema_buffer_;
@@ -177,9 +176,9 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam, std::uint16_t mask)
   LOG(INFO) << "Camera connection info: ip=" << this->cam_ip_
             << ", port=" << this->cam_port_;
 
-  this->endpoint_ = boost::asio::ip::tcp::endpoint(
-    boost::asio::ip::address::from_string(this->cam_ip_),
-    this->cam_port_);
+  this->endpoint_ =
+    asio::ip::tcp::endpoint(asio::ip::address::from_string(this->cam_ip_),
+                            this->cam_port_);
 
   //
   // XXX: Make this work on older C++/gcc versions
@@ -244,11 +243,10 @@ ifm3d::FrameGrabber::Impl::SWTrigger()
     }
 
   this->io_service_.post([this]() {
-    boost::asio::async_write(
+    asio::async_write(
       this->sock_,
-      boost::asio::buffer(this->trigger_buffer_.data(),
-                          this->trigger_buffer_.size()),
-      [](const boost::system::error_code& ec, std::size_t bytes_xferd) {
+      asio::buffer(this->trigger_buffer_.data(), this->trigger_buffer_.size()),
+      [](const asio::error_code& ec, std::size_t bytes_xferd) {
         if (ec)
           {
             throw ifm3d::error_t(ec.value());
@@ -498,12 +496,13 @@ void
 ifm3d::FrameGrabber::Impl::Run()
 {
   VLOG(IFM3D_TRACE) << "Framegrabber thread running...";
-  boost::asio::io_service::work work(this->io_service_);
+  asio::io_service::work work(this->io_service_);
 
   // For non-O3X devices setting the schema via PCIC, we get acknowledgement of
   // our schema, then start processing the stream of pixel bytes
   auto result_schema_write_handler =
-    [this](const boost::system::error_code& ec, std::size_t bytes_xferd) {
+
+    [this](const asio::error_code& ec, std::size_t bytes_xferd) {
       if (ec)
         {
           throw ifm3d::error_t(ec.value());
@@ -512,7 +511,7 @@ ifm3d::FrameGrabber::Impl::Run()
       this->ticket_buffer_.resize(ifm3d::TICKET_ID_SZ);
 
       this->sock_.async_read_some(
-        boost::asio::buffer(this->ticket_buffer_.data(), ifm3d::TICKET_ID_SZ),
+        asio::buffer(this->ticket_buffer_.data(), ifm3d::TICKET_ID_SZ),
         std::bind(&ifm3d::FrameGrabber::Impl::TicketHandler,
                   this,
                   std::placeholders::_1,
@@ -533,7 +532,7 @@ ifm3d::FrameGrabber::Impl::Run()
 
           this->sock_.async_connect(
             this->endpoint_,
-            [this](const boost::system::error_code& ec) {
+            [this](const asio::error_code& ec) {
               if (ec)
                 {
                   throw ifm3d::error_t(ec.value());
@@ -542,8 +541,7 @@ ifm3d::FrameGrabber::Impl::Run()
               this->ticket_buffer_.resize(ifm3d::TICKET_ID_SZ);
 
               this->sock_.async_read_some(
-                boost::asio::buffer(this->ticket_buffer_.data(),
-                                    ifm3d::TICKET_ID_SZ),
+                asio::buffer(this->ticket_buffer_.data(), ifm3d::TICKET_ID_SZ),
                 std::bind(&ifm3d::FrameGrabber::Impl::TicketHandler,
                           this,
                           std::placeholders::_1,
@@ -557,16 +555,15 @@ ifm3d::FrameGrabber::Impl::Run()
           // we need to first write our desired schema to the camera
           this->sock_.async_connect(
             this->endpoint_,
-            [&, this](const boost::system::error_code& ec) {
+            [&, this](const asio::error_code& ec) {
               if (ec)
                 {
                   throw ifm3d::error_t(ec.value());
                 }
-              boost::asio::async_write(
-                this->sock_,
-                boost::asio::buffer(this->schema_buffer_.data(),
-                                    this->schema_buffer_.size()),
-                result_schema_write_handler);
+              asio::async_write(this->sock_,
+                                asio::buffer(this->schema_buffer_.data(),
+                                             this->schema_buffer_.size()),
+                                result_schema_write_handler);
             });
         }
 
@@ -588,7 +585,7 @@ ifm3d::FrameGrabber::Impl::Run()
 }
 
 void
-ifm3d::FrameGrabber::Impl::TicketHandler(const boost::system::error_code& ec,
+ifm3d::FrameGrabber::Impl::TicketHandler(const asio::error_code& ec,
                                          std::size_t bytes_xferd,
                                          std::size_t bytes_read)
 {
@@ -600,10 +597,9 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const boost::system::error_code& ec,
   bytes_read += bytes_xferd;
   if (bytes_read < ifm3d::TICKET_ID_SZ)
     {
-      bytes_read += boost::asio::read(
-        this->sock_,
-        boost::asio::buffer(&this->ticket_buffer_[bytes_read],
-                            ifm3d::TICKET_ID_SZ - bytes_read));
+      bytes_read += asio::read(this->sock_,
+                               asio::buffer(&this->ticket_buffer_[bytes_read],
+                                            ifm3d::TICKET_ID_SZ - bytes_read));
 
       if (bytes_read != ifm3d::TICKET_ID_SZ)
         {
@@ -626,10 +622,10 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const boost::system::error_code& ec,
     {
       this->ticket_buffer_.resize(ticket_sz + payload_sz);
 
-      bytes_read += boost::asio::read(
-        this->sock_,
-        boost::asio::buffer(&this->ticket_buffer_[bytes_read],
-                            (ticket_sz + payload_sz) - bytes_read));
+      bytes_read +=
+        asio::read(this->sock_,
+                   asio::buffer(&this->ticket_buffer_[bytes_read],
+                                (ticket_sz + payload_sz) - bytes_read));
 
       if (bytes_read != (ticket_sz + payload_sz))
         {
@@ -653,8 +649,7 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const boost::system::error_code& ec,
             ifm3d::get_image_buffer_size(this->ticket_buffer_));
 
           this->sock_.async_read_some(
-            boost::asio::buffer(this->back_buffer_.data(),
-                                this->back_buffer_.size()),
+            asio::buffer(this->back_buffer_.data(), this->back_buffer_.size()),
             std::bind(&ifm3d::FrameGrabber::Impl::ImageHandler,
                       this,
                       std::placeholders::_1,
@@ -688,7 +683,7 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const boost::system::error_code& ec,
       this->ticket_buffer_.clear();
       this->ticket_buffer_.resize(ifm3d::TICKET_ID_SZ);
       this->sock_.async_read_some(
-        boost::asio::buffer(this->ticket_buffer_.data(), ifm3d::TICKET_ID_SZ),
+        asio::buffer(this->ticket_buffer_.data(), ifm3d::TICKET_ID_SZ),
         std::bind(&ifm3d::FrameGrabber::Impl::TicketHandler,
                   this,
                   std::placeholders::_1,
@@ -705,7 +700,7 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const boost::system::error_code& ec,
 }
 
 void
-ifm3d::FrameGrabber::Impl::ImageHandler(const boost::system::error_code& ec,
+ifm3d::FrameGrabber::Impl::ImageHandler(const asio::error_code& ec,
                                         std::size_t bytes_xferd,
                                         std::size_t bytes_read)
 {
@@ -719,8 +714,8 @@ ifm3d::FrameGrabber::Impl::ImageHandler(const boost::system::error_code& ec,
   if (bytes_read != this->back_buffer_.size())
     {
       this->sock_.async_read_some(
-        boost::asio::buffer(&this->back_buffer_[bytes_read],
-                            this->back_buffer_.size() - bytes_read),
+        asio::buffer(&this->back_buffer_[bytes_read],
+                     this->back_buffer_.size() - bytes_read),
         std::bind(&ifm3d::FrameGrabber::Impl::ImageHandler,
                   this,
                   std::placeholders::_1,
@@ -757,7 +752,7 @@ ifm3d::FrameGrabber::Impl::ImageHandler(const boost::system::error_code& ec,
   this->ticket_buffer_.clear();
   this->ticket_buffer_.resize(ifm3d::TICKET_ID_SZ);
   this->sock_.async_read_some(
-    boost::asio::buffer(this->ticket_buffer_.data(), ifm3d::TICKET_ID_SZ),
+    asio::buffer(this->ticket_buffer_.data(), ifm3d::TICKET_ID_SZ),
     std::bind(&ifm3d::FrameGrabber::Impl::TicketHandler,
               this,
               std::placeholders::_1,
