@@ -10,33 +10,26 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
-#include <boost/program_options.hpp>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/camera/camera.h>
-
-namespace po = boost::program_options;
 
 ifm3d::TimeApp::TimeApp(int argc, const char** argv, const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
-  // clang-format off
-  this->local_opts_.add_options()
-    ("epoch", po::value<int>(),
-     "Secs since Unix epoch encoding time to be set on camera (-1 == now)");
   // clang-format on
+  this->all_opts_.add_options(name)(
+    "epoch",
+    "Secs since Unix epoch encoding time to be set on camera (-1 == now)",
+    cxxopts::value<int>());
 
-  po::store(po::command_line_parser(argc, argv)
-              .options(this->local_opts_)
-              .allow_unregistered()
-              .run(),
-            this->vm_);
-  po::notify(this->vm_);
+  // clang-format off
+  this->_Parse(argc, argv);
 }
 
 int
 ifm3d::TimeApp::Run()
 {
-  if (this->vm_.count("help"))
+  if (this->vm_->count("help"))
     {
       this->_LocalHelp();
       return 0;
@@ -53,9 +46,9 @@ ifm3d::TimeApp::Run()
       return 0;
     }
 
-  if (this->vm_.count("epoch"))
+  if (this->vm_->count("epoch"))
     {
-      this->cam_->SetCurrentTime(this->vm_["epoch"].as<int>());
+      this->cam_->SetCurrentTime((*this->vm_)["epoch"].as<int>());
     }
 
   dump = this->cam_->ToJSON();
