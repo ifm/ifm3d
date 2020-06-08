@@ -10,10 +10,8 @@
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <boost/program_options.hpp>
+#include <cxxopts.hpp>
 #include <ifm3d/camera/camera.h>
-
-namespace po = boost::program_options;
 
 namespace ifm3d
 {
@@ -49,9 +47,8 @@ namespace ifm3d
     virtual int Run();
 
   protected:
-    po::variables_map vm_;
-    po::options_description global_opts_;
-    po::options_description local_opts_;
+    cxxopts::Options all_opts_;
+    std::unique_ptr<cxxopts::ParseResult> vm_;
 
     std::string ip_;
     std::uint16_t xmlrpc_port_;
@@ -59,6 +56,13 @@ namespace ifm3d
     ifm3d::Camera::Ptr cam_;
 
     virtual void _LocalHelp();
+
+    /**
+     * @brief Parse the argv and store values to variable map (vm)
+     * @param argc : number of parameters
+     * @param agrv : array of the command line options
+     */
+    void _Parse(int argc, const char** argv);
 
   }; // end: class CmdLineApp
 

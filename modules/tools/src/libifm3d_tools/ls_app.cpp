@@ -16,7 +16,7 @@ ifm3d::LsApp::LsApp(int argc, const char** argv, const std::string& name)
 int
 ifm3d::LsApp::Run()
 {
-  if (this->vm_.count("help"))
+  if (this->vm_->count("help"))
     {
       this->_LocalHelp();
       return 0;

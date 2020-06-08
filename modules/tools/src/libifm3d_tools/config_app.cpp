@@ -9,12 +9,9 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <boost/program_options.hpp>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/camera/camera.h>
 #include <ifm3d/camera/err.h>
-
-namespace po = boost::program_options;
 
 ifm3d::ConfigApp::ConfigApp(int argc,
                             const char** argv,
@@ -22,30 +19,25 @@ ifm3d::ConfigApp::ConfigApp(int argc,
   : ifm3d::CmdLineApp(argc, argv, name)
 {
   // clang-format off
-  this->local_opts_.add_options()
-    ("file", po::value<std::string>()->default_value("-"),
-     "Input JSON configuration file (defaults to stdin)");
+  this->all_opts_.add_options(name)
+    ("file",
+     "Input JSON configuration file (defaults to stdin)",
+     cxxopts::value<std::string>()->default_value("-"));
   // clang-format on
-
-  po::store(po::command_line_parser(argc, argv)
-              .options(this->local_opts_)
-              .allow_unregistered()
-              .run(),
-            this->vm_);
-  po::notify(this->vm_);
+  this->_Parse(argc, argv);
 }
 
 int
 ifm3d::ConfigApp::Run()
 {
-  if (this->vm_.count("help"))
+  if (this->vm_->count("help"))
     {
       this->_LocalHelp();
       return 0;
     }
 
   std::string jstr;
-  std::string infile = this->vm_["file"].as<std::string>();
+  std::string infile = (*this->vm_)["file"].as<std::string>();
 
   if (infile == "-")
     {

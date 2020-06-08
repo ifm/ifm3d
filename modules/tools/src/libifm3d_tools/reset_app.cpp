@@ -8,39 +8,31 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <boost/program_options.hpp>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/camera/camera.h>
-
-namespace po = boost::program_options;
 
 ifm3d::ResetApp::ResetApp(int argc, const char** argv, const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
   // clang-format off
-  this->local_opts_.add_options()
-    ("reboot,r", "Reboot the sensor after reset");
-  // clang-format on
+  this->all_opts_.add_options(name)
+    ("r,reboot", "Reboot the sensor after reset");
 
-  po::store(po::command_line_parser(argc, argv)
-              .options(this->local_opts_)
-              .allow_unregistered()
-              .run(),
-            this->vm_);
-  po::notify(this->vm_);
+  // clang-format on
+  this->_Parse(argc, argv);
 }
 
 int
 ifm3d::ResetApp::Run()
 {
-  if (this->vm_.count("help"))
+  if (this->vm_->count("help"))
     {
       this->_LocalHelp();
       return 0;
     }
 
   this->cam_->FactoryReset();
-  if (this->vm_.count("reboot"))
+  if (this->vm_->count("reboot"))
     {
       this->cam_->Reboot();
     }
