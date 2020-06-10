@@ -38,6 +38,11 @@ std::unordered_map<
        return std::make_shared<ifm3d::CpApp>(argc, argv, cmd);
      }},
 
+    {"discover",
+     [](int argc, const char** argv, const std::string& cmd)
+     ->ifm3d::CmdLineApp::Ptr
+     { return std::make_shared<ifm3d::DiscoverApp>(argc, argv, cmd); }},
+
     {"dump",
      [](int argc, const char** argv, const std::string& cmd)
        -> ifm3d::CmdLineApp::Ptr {
