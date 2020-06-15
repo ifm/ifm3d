@@ -186,9 +186,9 @@ ifm3d::Camera::DeviceDiscovery()
   auto devices = ifm_discovery.NetworkSearch();
   std::vector<std::string> device_list;
   for (auto & device : devices)
-  {
-    device_list.push_back(device.ip_address);
-  }
+    {
+      device_list.push_back(device.ip_address);
+    }
   return device_list;
 }
 
