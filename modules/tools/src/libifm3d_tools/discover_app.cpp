@@ -27,30 +27,30 @@ ifm3d::DiscoverApp::DiscoverApp(int argc, const char **argv,
 int ifm3d::DiscoverApp::Run()
 {
   if (this->vm_->count("help"))
-  {
-    this->_LocalHelp();
-    return 0;
-  }
+   {
+     this->_LocalHelp();
+     return 0;
+   }
 
   auto devices = ifm3d::Camera::DeviceDiscovery();
 
   for (const auto& device : devices)
-  {
-    auto cam = ifm3d::Camera::MakeShared(device);
-    auto device_type = "";
-    if (cam->IsO3D())
     {
-      device_type = "O3D";
+      auto cam = ifm3d::Camera::MakeShared(device);
+      auto device_type = "";
+      if (cam->IsO3D())
+        {
+          device_type = "O3D";
+        }
+      else if (cam->IsO3X())
+        {
+          device_type = "O3X";
+        }
+      else
+        {
+          continue;
+        }
+      std::cout << device << " (" << device_type << ")" << std::endl;
     }
-    else if (cam->IsO3X())
-    {
-      device_type = "O3X";
-    }
-    else
-    {
-      continue;
-    }
-    std::cout << device << " (" << device_type << ")" << std::endl;
-  }
   return 0;
 }
