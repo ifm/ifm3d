@@ -67,7 +67,7 @@ namespace ifm3d
 
 std::once_flag ifm3d::Logging::init_;
 
-
+// clang-format off
 // Initializer sample for MSVC and GCC/Clang.
 // 2010-2016 Joe Lowe. Released into the public domain.
 #include <stdio.h>
@@ -95,7 +95,7 @@ std::once_flag ifm3d::Logging::init_;
         static void f(void) __attribute__((constructor)); \
         static void f(void)
 #endif
-
+// clang-format on
 
 INITIALIZER(libifm3d_camera_ctor)
 {
