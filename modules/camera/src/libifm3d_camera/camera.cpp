@@ -112,8 +112,9 @@ const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH = 4123;
 // A lookup table listing the read-only camera
 // parameters
 //================================================
+// clang-format off
 std::unordered_map<std::string,
-                   std::unordered_map<std::string, bool> >
+                   std::unordered_map<std::string, bool>>
 RO_LUT=
   {
     {"Device",
@@ -182,6 +183,7 @@ RO_LUT=
      }
     }
   };
+// clang-format on
 
 //================================================
 // Factory function for making cameras
