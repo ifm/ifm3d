@@ -290,23 +290,39 @@ namespace ifm3d
      *
      * The elements are:
      *
-     * Name  Data type   Unit      Description
-     * fx    32 bit float  px        Focal length of the camera in the sensor's x axis direction.
-     * fy    32 bit float  px        Focal length of the camera in the sensor's y axis direction.
-     * mx    32 bit float  px        Main point in the sensor's x direction
-     * my    32 bit float  px        Main point in the sensor's y direction
-     * alpha 32 bit float  dimensionless Skew parameter
-     * k1    32 bit float  dimensionless First radial distortion coefficient
-     * k2    32 bit float  dimensionless Second radial distortion coefficient
-     * k5    32 bit float  dimensionless Third radial distortion coefficient
-     * k3    32 bit float  dimensionless First tangential distortion coefficient
-     * k4    32 bit float  dimensionless Second tangential distortion coefficient
-     * transX  32 bit float  mm        Translation along x-direction in meters.
-     * transY  32 bit float  mm        Translation along y-direction in meters.
-     * transZ  32 bit float  mm        Translation along z-direction in meters.
-     * rotX  32 bit float  degree        Rotation along x-axis in radians. Positive values indicate clockwise rotation.
-     * rotY  32 bit float  degree        Rotation along y-axis in radians. Positive values indicate clockwise rotation.
-     * rotZ  32 bit float  degree        Rotation along z-axis in radians. Positive values indicate clockwise rotation.
+     * Name    Data type     Unit           Description
+     * fx      32 bit float  px             Focal length of the camera in the
+     *                                      sensor's x axis direction.
+     * fy      32 bit float  px             Focal length of the camera in the
+     *                                      sensor's yaxis direction.
+     * mx      32 bit float  px             Main point in the sensor's x
+     *                                      direction
+     * my      32 bit float  px             Main point in the sensor's y
+     *                                      direction
+     * alpha   32 bit float  dimensionless  Skew parameter
+     * k1      32 bit float  dimensionless  First radial distortion coefficient
+     * k2      32 bit float  dimensionless  Second radial distortion
+     *                                      coefficient
+     * k5      32 bit float  dimensionless  Third radial distortion coefficient
+     * k3      32 bit float  dimensionless  First tangential distortion
+     *                                      coefficient
+     * k4      32 bit float  dimensionless  Second tangential distortion
+     *                                      coefficient
+     * transX  32 bit float  mm             Translation along x-direction in
+     *                                      meters.
+     * transY  32 bit float  mm             Translation along y-direction in
+     *                                      meters.
+     * transZ  32 bit float  mm             Translation along z-direction in
+     *                                      meters.
+     * rotX    32 bit float  degree         Rotation along x-axis in radians.
+     *                                      Positive values indicate clockwise
+     *                                      rotation.
+     * rotY    32 bit float  degree         Rotation along y-axis in radians.
+     *                                      Positive values indicate clockwise
+     *                                      rotation.
+     * rotZ    32 bit float  degree         Rotation along z-axis in radians.
+     *                                      Positive values indicate clockwise
+     *                                      rotation.
      *
      */
     std::vector<float> Intrinsics();
