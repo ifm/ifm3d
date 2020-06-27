@@ -703,6 +703,7 @@ ifm3d::Camera::ToJSON_(const bool open_session)
         exec_toJSON();
     }
 
+  // clang-format off
   json j =
     {
       {
@@ -723,6 +724,7 @@ ifm3d::Camera::ToJSON_(const bool open_session)
        }
       }
     };
+  // clang-format on
 
   return j;
 }
