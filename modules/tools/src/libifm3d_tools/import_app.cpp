@@ -35,6 +35,7 @@ ifm3d::ImportApp::ImportApp(int argc, const char **argv,
                             const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
+  // clang-format off
   this->local_opts_.add_options()
     ("file", po::value<std::string>()->default_value("-"),
      "Input file, defaults to `stdin' (good for reading off a pipeline)")
@@ -43,6 +44,7 @@ ifm3d::ImportApp::ImportApp(int argc, const char **argv,
     ("global,g", "If `-c', import the global configuration")
     ("net,n", "If `-c', import the network configuration")
     ("app,a", "If `-c', import the application configuration");
+  // clang-format on
 
 
   po::store(po::command_line_parser(argc, argv).

@@ -27,11 +27,13 @@ ifm3d::PasswdApp::PasswdApp(int argc, const char **argv,
                             const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
+  // clang-format off
 	this->local_opts_.add_options()
 	 ("new",po::value<std::string>(),
 	  "password to be set on sensor")
 	 ("disable",po::bool_switch()->default_value(false),
 	  "disable password on sensor");
+  // clang-format on
 
   po::store(po::command_line_parser(argc, argv).
             options(this->local_opts_).allow_unregistered().run(), this->vm_);

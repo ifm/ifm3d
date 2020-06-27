@@ -36,6 +36,7 @@ ifm3d::SWUpdateApp::SWUpdateApp(int argc, const char **argv,
                                 const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
+  // clang-format off
   this->local_opts_.add_options()
     ("file", po::value<std::string>()->default_value("-"),
      "Input file, defaults to `stdin' (good for reading off a pipeline)")
@@ -45,6 +46,7 @@ ifm3d::SWUpdateApp::SWUpdateApp(int argc, const char **argv,
      "Reboot from recovery mode to productive mode")
     ("quiet,q", po::bool_switch()->default_value(false),
      "Disable status output");
+  // clang-format on
 
   po::store(po::command_line_parser(argc, argv).
             options(this->local_opts_).allow_unregistered().run(), this->vm_);

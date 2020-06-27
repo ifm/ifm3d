@@ -83,6 +83,7 @@ ifm3d::JitterApp::JitterApp(int argc, const char **argv,
                             const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
+  // clang-format off
   this->local_opts_.add_options()
     ("nframes",
      po::value<int>()->default_value(100),
@@ -90,6 +91,7 @@ ifm3d::JitterApp::JitterApp(int argc, const char **argv,
     ("outfile",
      po::value<std::string>()->default_value("-"),
      "Raw data output file, if not specified, nothing is written");
+  // clang-format on
 
   po::store(po::command_line_parser(argc, argv).
             options(this->local_opts_).allow_unregistered().run(), this->vm_);
