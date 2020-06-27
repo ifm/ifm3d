@@ -27,8 +27,10 @@ ifm3d::RebootApp::RebootApp(int argc, const char **argv,
                             const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
+  // clang-format off
   this->local_opts_.add_options()
     ("recovery,r", "Reboot into recovery mode");
+  // clang-format on
 
   po::store(po::command_line_parser(argc, argv).
             options(this->local_opts_).allow_unregistered().run(), this->vm_);

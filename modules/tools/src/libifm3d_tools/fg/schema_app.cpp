@@ -26,6 +26,7 @@ ifm3d::SchemaApp::SchemaApp(int argc, const char **argv,
                             const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
+  // clang-format off
   this->local_opts_.add_options()
     ("mask",
      po::value<std::uint16_t>()->default_value(ifm3d::DEFAULT_SCHEMA_MASK),
@@ -35,6 +36,7 @@ ifm3d::SchemaApp::SchemaApp(int argc, const char **argv,
      "Mask string: e.g., 'IMG_AMP|IMG_CART'")
     ("dump",
      "Dump masking options and exit");
+  // clang-format on
 
   po::store(po::command_line_parser(argc, argv).
             options(this->local_opts_).allow_unregistered().run(), this->vm_);
