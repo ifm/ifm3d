@@ -138,9 +138,11 @@ ifm3d::CmdLineApp::Ptr
 ifm3d::make_app(int argc, const char **argv)
 {
   po::options_description desc;
+  // clang-format off
   desc.add_options()
     ("command", po::value<std::string>()->default_value("version"),
      "ifm3d Sub-command to execute");
+  // clang-format on
 
   po::positional_options_description p;
   p.add("command", 1);

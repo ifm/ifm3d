@@ -61,6 +61,7 @@ ifm3d::HzApp::HzApp(int argc, const char **argv,
                     const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
+  // clang-format off
   this->local_opts_.add_options()
     ("nframes",
      po::value<int>()->default_value(10),
@@ -70,6 +71,7 @@ ifm3d::HzApp::HzApp(int argc, const char **argv,
      "Number of runs to compute summary statistics over")
     ("sw",
      "Software Trigger the FrameGrabber");
+  // clang-format on
 
   po::store(po::command_line_parser(argc, argv).
             options(this->local_opts_).allow_unregistered().run(), this->vm_);
