@@ -28,6 +28,7 @@ ifm3d::CmdLineApp::CmdLineApp(int argc, const char **argv,
   : global_opts_("global options"),
     local_opts_(name + " options")
 {
+  // clang-format off
   this->global_opts_.add_options()
     ("help,h", "Produce this help message and exit")
     ("ip", po::value<std::string>()->default_value(ifm3d::DEFAULT_IP),
@@ -43,6 +44,7 @@ ifm3d::CmdLineApp::CmdLineApp(int argc, const char **argv,
   hidden_opts.add_options()
     ("command", po::value<std::string>()->default_value(name),
      "ifm3d Sub-command to execute");
+  // clang-format on
 
   po::options_description all_opts;
   all_opts.add(this->global_opts_).add(hidden_opts);
