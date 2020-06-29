@@ -48,7 +48,8 @@ namespace ifm3d
   const std::string XMLRPC_SPATIALFILTER = "spatialfilter";
   const std::string XMLRPC_TEMPORALFILTER = "temporalfilter";
 
-  using app_entry_t = struct {
+  using app_entry_t = struct
+  {
     int index;
     int id;
     std::string name;
@@ -61,7 +62,8 @@ namespace ifm3d
   class Camera::Impl
   {
   public:
-    Impl(const std::string& ip, const std::uint16_t xmlrpc_port,
+    Impl(const std::string& ip,
+         const std::uint16_t xmlrpc_port,
          const std::string& password);
     ~Impl();
 
@@ -95,8 +97,8 @@ namespace ifm3d
     bool CancelSession(const std::string& sid);
     int Heartbeat(int hb);
     void SetOperatingMode(const ifm3d::Camera::operating_mode& mode);
-    void SetTemporaryApplicationParameters(const std::unordered_map<std::string,
-                                           std::string>& params);
+    void SetTemporaryApplicationParameters(
+      const std::unordered_map<std::string, std::string>& params);
     std::vector<std::uint8_t> ExportIFMConfig();
     std::vector<std::uint8_t> ExportIFMApp(int idx);
     void ImportIFMConfig(const std::vector<std::uint8_t>& bytes,
@@ -161,7 +163,8 @@ namespace ifm3d
     // Session wrappers
     // ---------------------------------------------
     template <typename T>
-    T WrapInEditSession(std::function<T()> f)
+    T
+    WrapInEditSession(std::function<T()> f)
     {
       T retval;
       try
@@ -180,7 +183,8 @@ namespace ifm3d
       return retval;
     }
 
-    void WrapInEditSession(std::function<void()> f)
+    void
+    WrapInEditSession(std::function<void()> f)
     {
       try
         {
@@ -194,7 +198,7 @@ namespace ifm3d
           this->CancelSession();
           throw;
         }
-        this->CancelSession();
+      this->CancelSession();
     }
 
   private:
@@ -208,18 +212,20 @@ namespace ifm3d
     std::mutex session_mutex_;
 
     // utilities for taking xmlrpc structures to STL structures
-    std::unordered_map<std::string, std::string> const
-    value_struct_to_map(const xmlrpc_c::value_struct& vs);
+    std::unordered_map<std::string, std::string> const value_struct_to_map(
+      const xmlrpc_c::value_struct& vs);
 
     std::unordered_map<std::string,
-                       std::unordered_map<std::string, std::string> > const
+                       std::unordered_map<std::string, std::string>> const
     value_struct_to_map_of_maps(const xmlrpc_c::value_struct& vs);
 
     // ---------------------------------------------
     // Terminates recursion over the parameter pack
     // in _XSetParams
     // ---------------------------------------------
-    void _XSetParams(xmlrpc_c::paramList& params) { }
+    void
+    _XSetParams(xmlrpc_c::paramList& params)
+    { }
 
     // ---------------------------------------------
     // Recursively processes a parameter pack `args'
@@ -227,7 +233,8 @@ namespace ifm3d
     // `params' reference.
     // ---------------------------------------------
     template <typename T, typename... Args>
-    void _XSetParams(xmlrpc_c::paramList& params, T value, Args... args)
+    void
+    _XSetParams(xmlrpc_c::paramList& params, T value, Args... args)
     {
       params.addc(value);
       this->_XSetParams(params, args...);
@@ -258,11 +265,11 @@ namespace ifm3d
         {
           LOG(ERROR) << url << "->" << method << ":" << ex.what();
 
-          if (! rpc->isFinished())
+          if (!rpc->isFinished())
             {
               throw ifm3d::error_t(IFM3D_XMLRPC_TIMEOUT);
             }
-          else if (! rpc->isSuccessful())
+          else if (!rpc->isSuccessful())
             {
               xmlrpc_c::fault f = rpc->getFault();
               throw ifm3d::error_t(f.getCode());
@@ -298,9 +305,8 @@ namespace ifm3d
     xmlrpc_c::value const
     _XCallEdit(const std::string& method, Args... args)
     {
-      std::string url =
-        this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
-        ifm3d::XMLRPC_EDIT;
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN +
+                        ifm3d::XMLRPC_SESSION + ifm3d::XMLRPC_EDIT;
       return this->_XCall(url, method, args...);
     }
 
@@ -308,9 +314,9 @@ namespace ifm3d
     xmlrpc_c::value const
     _XCallDevice(const std::string& method, Args... args)
     {
-      std::string url =
-        this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
-        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE;
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN +
+                        ifm3d::XMLRPC_SESSION + ifm3d::XMLRPC_EDIT +
+                        ifm3d::XMLRPC_DEVICE;
       return this->_XCall(url, method, args...);
     }
 
@@ -318,9 +324,9 @@ namespace ifm3d
     xmlrpc_c::value const
     _XCallNet(const std::string& method, Args... args)
     {
-      std::string url =
-        this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
-        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE + ifm3d::XMLRPC_NET;
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN +
+                        ifm3d::XMLRPC_SESSION + ifm3d::XMLRPC_EDIT +
+                        ifm3d::XMLRPC_DEVICE + ifm3d::XMLRPC_NET;
       return this->_XCall(url, method, args...);
     }
 
@@ -328,9 +334,9 @@ namespace ifm3d
     xmlrpc_c::value const
     _XCallTime(const std::string& method, Args... args)
     {
-      std::string url =
-        this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
-        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE + ifm3d::XMLRPC_TIME;
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN +
+                        ifm3d::XMLRPC_SESSION + ifm3d::XMLRPC_EDIT +
+                        ifm3d::XMLRPC_DEVICE + ifm3d::XMLRPC_TIME;
       return this->_XCall(url, method, args...);
     }
 
@@ -338,9 +344,9 @@ namespace ifm3d
     xmlrpc_c::value const
     _XCallApp(const std::string& method, Args... args)
     {
-      std::string url =
-        this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
-        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_APP;
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN +
+                        ifm3d::XMLRPC_SESSION + ifm3d::XMLRPC_EDIT +
+                        ifm3d::XMLRPC_APP;
       return this->_XCall(url, method, args...);
     }
 
@@ -348,9 +354,9 @@ namespace ifm3d
     xmlrpc_c::value const
     _XCallImager(const std::string& method, Args... args)
     {
-      std::string url =
-        this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
-        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_APP + ifm3d::XMLRPC_IMAGER;
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN +
+                        ifm3d::XMLRPC_SESSION + ifm3d::XMLRPC_EDIT +
+                        ifm3d::XMLRPC_APP + ifm3d::XMLRPC_IMAGER;
       return this->_XCall(url, method, args...);
     }
 
@@ -358,10 +364,10 @@ namespace ifm3d
     xmlrpc_c::value const
     _XCallSpatialFilter(const std::string& method, Args... args)
     {
-      std::string url =
-        this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
-        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_APP + ifm3d::XMLRPC_IMAGER +
-        ifm3d::XMLRPC_SPATIALFILTER;
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN +
+                        ifm3d::XMLRPC_SESSION + ifm3d::XMLRPC_EDIT +
+                        ifm3d::XMLRPC_APP + ifm3d::XMLRPC_IMAGER +
+                        ifm3d::XMLRPC_SPATIALFILTER;
       return this->_XCall(url, method, args...);
     }
 
@@ -369,10 +375,10 @@ namespace ifm3d
     xmlrpc_c::value const
     _XCallTemporalFilter(const std::string& method, Args... args)
     {
-      std::string url =
-        this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION +
-        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_APP + ifm3d::XMLRPC_IMAGER +
-        ifm3d::XMLRPC_TEMPORALFILTER;
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN +
+                        ifm3d::XMLRPC_SESSION + ifm3d::XMLRPC_EDIT +
+                        ifm3d::XMLRPC_APP + ifm3d::XMLRPC_IMAGER +
+                        ifm3d::XMLRPC_TEMPORALFILTER;
       return this->_XCall(url, method, args...);
     }
 
@@ -396,10 +402,9 @@ ifm3d::Camera::Impl::Impl(const std::string& ip,
     password_(password),
     xmlrpc_url_prefix_("http://" + ip + ":" + std::to_string(xmlrpc_port)),
     xclient_(new xmlrpc_c::client_xml(
-               xmlrpc_c::clientXmlTransportPtr(
-                 new xmlrpc_c::clientXmlTransport_curl(
-                   xmlrpc_c::clientXmlTransport_curl::constrOpt().
-                   timeout(ifm3d::NET_WAIT))))),
+      xmlrpc_c::clientXmlTransportPtr(new xmlrpc_c::clientXmlTransport_curl(
+        xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(
+          ifm3d::NET_WAIT))))),
     session_("")
 {
   // Needed for fetching unit vectors over xmlrpc for O3X
@@ -407,8 +412,7 @@ ifm3d::Camera::Impl::Impl(const std::string& ip,
   xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID,
                    XMLRPC_XML_SIZE_LIMIT_DEFAULT * 2);
 
-  VLOG(IFM3D_TRACE) << "Initializing Camera: ip="
-                    << this->IP()
+  VLOG(IFM3D_TRACE) << "Initializing Camera: ip=" << this->IP()
                     << ", xmlrpc_port=" << this->XMLRPCPort()
                     << ", password=" << this->Password();
   VLOG(IFM3D_TRACE) << "XMLRPC URL Prefix=" << this->xmlrpc_url_prefix_;
@@ -469,8 +473,8 @@ ifm3d::Camera::Impl::SetSessionID(const std::string& id)
 std::unordered_map<std::string, std::string> const
 ifm3d::Camera::Impl::value_struct_to_map(const xmlrpc_c::value_struct& vs)
 {
-  std::map<std::string, xmlrpc_c::value> const
-    resmap(static_cast<std::map<std::string, xmlrpc_c::value> >(vs));
+  std::map<std::string, xmlrpc_c::value> const resmap(
+    static_cast<std::map<std::string, xmlrpc_c::value>>(vs));
 
   std::unordered_map<std::string, std::string> retval;
   for (auto& kv : resmap)
@@ -482,25 +486,22 @@ ifm3d::Camera::Impl::value_struct_to_map(const xmlrpc_c::value_struct& vs)
 }
 
 std::unordered_map<std::string,
-                   std::unordered_map<std::string, std::string> > const
+                   std::unordered_map<std::string, std::string>> const
 ifm3d::Camera::Impl::value_struct_to_map_of_maps(
   const xmlrpc_c::value_struct& vs)
 {
-  std::unordered_map<std::string,
-                     std::unordered_map<std::string, std::string> >
+  std::unordered_map<std::string, std::unordered_map<std::string, std::string>>
     retval;
 
-  std::map<std::string, xmlrpc_c::value> const
-    outter_map(static_cast<std::map<std::string, xmlrpc_c::value> >
-               (vs));
+  std::map<std::string, xmlrpc_c::value> const outter_map(
+    static_cast<std::map<std::string, xmlrpc_c::value>>(vs));
 
   for (auto& kv : outter_map)
     {
       xmlrpc_c::value_struct _vs(kv.second);
 
-      std::map<std::string, xmlrpc_c::value> const
-        inner_map(static_cast<std::map<std::string, xmlrpc_c::value> >
-                  (_vs));
+      std::map<std::string, xmlrpc_c::value> const inner_map(
+        static_cast<std::map<std::string, xmlrpc_c::value>>(_vs));
 
       std::unordered_map<std::string, std::string> inner_retval;
 
@@ -528,7 +529,8 @@ std::string
 ifm3d::Camera::Impl::DeviceParameter(const std::string& param)
 {
   return xmlrpc_c::value_string(
-           this->_XCallMain("getParameter", param.c_str())).cvalue();
+           this->_XCallMain("getParameter", param.c_str()))
+    .cvalue();
 }
 
 std::vector<std::string>
@@ -580,9 +582,8 @@ ifm3d::Camera::Impl::ApplicationList()
   for (auto& entry : res_vec)
     {
       xmlrpc_c::value_struct const entry_st(entry);
-      std::map<std::string, xmlrpc_c::value>
-        entry_map(static_cast<std::map<std::string, xmlrpc_c::value> >
-                  (entry_st));
+      std::map<std::string, xmlrpc_c::value> entry_map(
+        static_cast<std::map<std::string, xmlrpc_c::value>>(entry_st));
 
       ifm3d::app_entry_t app;
       app.index = xmlrpc_c::value_int(entry_map["Index"]).cvalue();
@@ -600,8 +601,7 @@ std::string
 ifm3d::Camera::Impl::RequestSession(const std::string& sid)
 {
   xmlrpc_c::value_string val_str(
-    this->_XCallMain("requestSession",
-                     this->Password().c_str(), sid));
+    this->_XCallMain("requestSession", this->Password().c_str(), sid));
 
   this->SetSessionID(static_cast<std::string>(val_str));
   this->Heartbeat(ifm3d::MAX_HEARTBEAT);
@@ -658,9 +658,8 @@ ifm3d::Camera::Impl::CancelSession()
     }
   catch (const ifm3d::error_t& ex)
     {
-      LOG(WARNING) << "Failed to cancel session: "
-                   << this->SessionID() << " -> "
-                   << ex.what();
+      LOG(WARNING) << "Failed to cancel session: " << this->SessionID()
+                   << " -> " << ex.what();
 
       if (ex.code() == IFM3D_XMLRPC_OBJ_NOT_FOUND)
         {
@@ -687,7 +686,8 @@ ifm3d::Camera::Impl::Heartbeat(int hb)
 }
 
 void
-ifm3d::Camera::Impl::SetOperatingMode(const ifm3d::Camera::operating_mode& mode)
+ifm3d::Camera::Impl::SetOperatingMode(
+  const ifm3d::Camera::operating_mode& mode)
 {
   this->_XCallSession("setOperatingMode", static_cast<int>(mode));
 }
@@ -706,19 +706,18 @@ ifm3d::Camera::Impl::SetTemporaryApplicationParameters(
           (kv.first == "imager_001/ExposureTimeRatio") ||
           (kv.first == "imager_001/Channel"))
         {
-          member =
-            std::make_pair(kv.first, xmlrpc_c::value_int(std::stoi(kv.second)));
+          member = std::make_pair(kv.first,
+                                  xmlrpc_c::value_int(std::stoi(kv.second)));
           param_map.insert(member);
         }
       else
         {
-        throw(ifm3d::error_t(IFM3D_INVALID_PARAM));
+          throw(ifm3d::error_t(IFM3D_INVALID_PARAM));
         }
     }
 
   xmlrpc_c::value_struct const params_st(param_map);
-  this->_XCallSession("setTemporaryApplicationParameters",
-                      params_st);
+  this->_XCallSession("setTemporaryApplicationParameters", params_st);
 }
 
 std::vector<std::uint8_t>
@@ -788,8 +787,8 @@ ifm3d::Camera::Impl::DeleteApplication(int idx)
 int
 ifm3d::Camera::Impl::CreateApplication(const std::string& type)
 {
-  xmlrpc_c::value_int
-    v_int(this->_XCallEdit("createApplication", type.c_str()));
+  xmlrpc_c::value_int v_int(
+    this->_XCallEdit("createApplication", type.c_str()));
   return v_int.cvalue();
 }
 
@@ -853,8 +852,8 @@ ifm3d::Camera::Impl::NetInfo()
 std::string
 ifm3d::Camera::Impl::NetParameter(const std::string& param)
 {
-  return xmlrpc_c::value_string(
-           this->_XCallNet("getParameter", param.c_str())).cvalue();
+  return xmlrpc_c::value_string(this->_XCallNet("getParameter", param.c_str()))
+    .cvalue();
 }
 
 void
@@ -884,7 +883,8 @@ std::string
 ifm3d::Camera::Impl::TimeParameter(const std::string& param)
 {
   return xmlrpc_c::value_string(
-           this->_XCallTime("getParameter", param.c_str())).cvalue();
+           this->_XCallTime("getParameter", param.c_str()))
+    .cvalue();
 }
 
 void
@@ -894,24 +894,23 @@ ifm3d::Camera::Impl::SetTimeParameter(const std::string& param,
   this->_XCallTime("setParameter", param.c_str(), val.c_str());
 }
 
-void ifm3d::Camera::Impl::SaveTime()
+void
+ifm3d::Camera::Impl::SaveTime()
 {
   this->_XCallTime("saveAndActivateConfig");
 }
-
 
 void
 ifm3d::Camera::Impl::SetCurrentTime(int epoch_seconds)
 {
   if (epoch_seconds < 0)
     {
-      epoch_seconds = static_cast<int>(
-                std::chrono::seconds(std::time(nullptr)).count());
+      epoch_seconds =
+        static_cast<int>(std::chrono::seconds(std::time(nullptr)).count());
     }
 
   this->_XCallTime("setCurrentTime", epoch_seconds);
 }
-
 
 // ---------------------------------------------
 // Application
@@ -926,8 +925,8 @@ ifm3d::Camera::Impl::AppInfo()
 std::string
 ifm3d::Camera::Impl::AppParameter(const std::string& param)
 {
-  return xmlrpc_c::value_string(
-           this->_XCallApp("getParameter", param.c_str())).cvalue();
+  return xmlrpc_c::value_string(this->_XCallApp("getParameter", param.c_str()))
+    .cvalue();
 }
 
 void
@@ -957,7 +956,8 @@ std::string
 ifm3d::Camera::Impl::ImagerParameter(const std::string& param)
 {
   return xmlrpc_c::value_string(
-           this->_XCallImager("getParameter", param.c_str())).cvalue();
+           this->_XCallImager("getParameter", param.c_str()))
+    .cvalue();
 }
 
 void
@@ -996,14 +996,15 @@ std::unordered_map<std::string, std::string>
 ifm3d::Camera::Impl::SpatialFilterInfo()
 {
   return this->value_struct_to_map(
-           this->_XCallSpatialFilter("getAllParameters"));
+    this->_XCallSpatialFilter("getAllParameters"));
 }
 
 std::string
 ifm3d::Camera::Impl::SpatialFilterParameter(const std::string& param)
 {
   return xmlrpc_c::value_string(
-           this->_XCallSpatialFilter("getParameter", param.c_str())).cvalue();
+           this->_XCallSpatialFilter("getParameter", param.c_str()))
+    .cvalue();
 }
 
 void
@@ -1021,19 +1022,20 @@ std::unordered_map<std::string, std::string>
 ifm3d::Camera::Impl::TemporalFilterInfo()
 {
   return this->value_struct_to_map(
-           this->_XCallTemporalFilter("getAllParameters"));
+    this->_XCallTemporalFilter("getAllParameters"));
 }
 
 std::string
 ifm3d::Camera::Impl::TemporalFilterParameter(const std::string& param)
 {
   return xmlrpc_c::value_string(
-           this->_XCallTemporalFilter("getParameter", param.c_str())).cvalue();
+           this->_XCallTemporalFilter("getParameter", param.c_str()))
+    .cvalue();
 }
 
 void
 ifm3d::Camera::Impl::SetTemporalFilterParameter(const std::string& param,
-                                               const std::string& val)
+                                                const std::string& val)
 {
   this->_XCallTemporalFilter("setParameter", param.c_str(), val.c_str());
 }

@@ -31,34 +31,34 @@
 class MyBuff : public ifm3d::ByteBuffer<MyBuff>
 {
 public:
-  MyBuff() : ifm3d::ByteBuffer<MyBuff>()
+  MyBuff() : ifm3d::ByteBuffer<MyBuff>() { }
+
+  template <typename T>
+  void
+  ImCreate(ifm3d::image_chunk im,
+           std::uint32_t fmt,
+           std::size_t idx,
+           std::uint32_t width,
+           std::uint32_t height,
+           int nchan,
+           std::uint32_t npts,
+           const std::vector<std::uint8_t>& bytes)
   { }
 
   template <typename T>
-  void ImCreate(ifm3d::image_chunk im,
-                std::uint32_t fmt,
-                std::size_t idx,
-                std::uint32_t width,
-                std::uint32_t height,
-                int nchan,
-                std::uint32_t npts,
-                const std::vector<std::uint8_t>& bytes)
-  { }
-
-  template <typename T>
-  void CloudCreate(std::uint32_t fmt,
-                   std::size_t xidx,
-                   std::size_t yidx,
-                   std::size_t zidx,
-                   std::uint32_t width,
-                   std::uint32_t height,
-                   std::uint32_t npts,
-                   const std::vector<std::uint8_t>& bytes)
+  void
+  CloudCreate(std::uint32_t fmt,
+              std::size_t xidx,
+              std::size_t yidx,
+              std::size_t zidx,
+              std::uint32_t width,
+              std::uint32_t height,
+              std::uint32_t npts,
+              const std::vector<std::uint8_t>& bytes)
   { }
 };
 
-ifm3d::HzApp::HzApp(int argc, const char **argv,
-                    const std::string& name)
+ifm3d::HzApp::HzApp(int argc, const char** argv, const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
   // clang-format off
@@ -73,12 +73,16 @@ ifm3d::HzApp::HzApp(int argc, const char **argv,
      "Software Trigger the FrameGrabber");
   // clang-format on
 
-  po::store(po::command_line_parser(argc, argv).
-            options(this->local_opts_).allow_unregistered().run(), this->vm_);
+  po::store(po::command_line_parser(argc, argv)
+              .options(this->local_opts_)
+              .allow_unregistered()
+              .run(),
+            this->vm_);
   po::notify(this->vm_);
 }
 
-int ifm3d::HzApp::Run()
+int
+ifm3d::HzApp::Run()
 {
   if (this->vm_.count("help"))
     {
@@ -100,7 +104,7 @@ int ifm3d::HzApp::Run()
   std::vector<double> stats;
 
   auto fg = std::make_shared<ifm3d::FrameGrabber>(this->cam_);
-  auto buff = std::make_shared<ifm3d::ByteBuffer<MyBuff> >();
+  auto buff = std::make_shared<ifm3d::ByteBuffer<MyBuff>>();
 
   for (int i = 0; i < nruns; i++)
     {
@@ -112,7 +116,7 @@ int ifm3d::HzApp::Run()
               fg->SWTrigger();
             }
 
-          if (! fg->WaitForFrame(buff.get(), 1000))
+          if (!fg->WaitForFrame(buff.get(), 1000))
             {
               std::cerr << "Timeout waiting for camera!" << std::endl;
               return -1;
@@ -130,18 +134,17 @@ int ifm3d::HzApp::Run()
 
       if (sz % 2 == 0)
         {
-          median = (stats.at(sz/2-1)+stats.at(sz/2))/2;
+          median = (stats.at(sz / 2 - 1) + stats.at(sz / 2)) / 2;
         }
       else
         {
-          median = stats.at(sz/2);
+          median = stats.at(sz / 2);
         }
 
-      std::cout << "FrameGrabber running at: "
-                << nframes / median << " Hz"
+      std::cout << "FrameGrabber running at: " << nframes / median << " Hz"
                 << std::endl
-                << nframes << " frames captured, over "
-                << nruns << " runs" << std::endl;
+                << nframes << " frames captured, over " << nruns << " runs"
+                << std::endl;
     }
 
   return 0;

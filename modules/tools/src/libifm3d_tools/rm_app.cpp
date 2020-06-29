@@ -23,8 +23,7 @@
 
 namespace po = boost::program_options;
 
-ifm3d::RmApp::RmApp(int argc, const char **argv,
-                    const std::string& name)
+ifm3d::RmApp::RmApp(int argc, const char** argv, const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
   // clang-format off
@@ -34,12 +33,16 @@ ifm3d::RmApp::RmApp(int argc, const char **argv,
      "Index of application to remove");
   // clang-format on
 
-  po::store(po::command_line_parser(argc, argv).
-            options(this->local_opts_).allow_unregistered().run(), this->vm_);
+  po::store(po::command_line_parser(argc, argv)
+              .options(this->local_opts_)
+              .allow_unregistered()
+              .run(),
+            this->vm_);
   po::notify(this->vm_);
 }
 
-int ifm3d::RmApp::Run()
+int
+ifm3d::RmApp::Run()
 {
   if (this->vm_.count("help"))
     {

@@ -35,8 +35,7 @@
 
 namespace ifm3d
 {
-  std::unordered_map<std::uint32_t, int> PIX_LUT
-  {
+  std::unordered_map<std::uint32_t, int> PIX_LUT{
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8U), CV_8U},
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8S), CV_8S},
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16U), CV_16U},
@@ -44,11 +43,9 @@ namespace ifm3d
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32S), CV_32S},
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F), CV_32F},
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F3), CV_32F},
-    {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_64F), CV_64F}
-  };
+    {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_64F), CV_64F}};
 
-  std::unordered_map<std::uint32_t, int> PIX_LUT3
-  {
+  std::unordered_map<std::uint32_t, int> PIX_LUT3{
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8U), CV_8UC3},
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8S), CV_8SC3},
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16U), CV_16UC3},
@@ -56,19 +53,15 @@ namespace ifm3d
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32S), CV_32SC3},
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F), CV_32FC3},
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F3), CV_32FC3},
-    {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_64F), CV_64FC3}
-  };
+    {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_64F), CV_64FC3}};
 
-  std::unordered_map<int, std::size_t> PIX_SZ
-  {
-    {CV_8U, 1},
-    {CV_8S, 1},
-    {CV_16U, 2},
-    {CV_16S, 2},
-    {CV_32S, 4},
-    {CV_32F, 4},
-    {CV_64F, 8}
-  };
+  std::unordered_map<int, std::size_t> PIX_SZ{{CV_8U, 1},
+                                              {CV_8S, 1},
+                                              {CV_16U, 2},
+                                              {CV_16S, 2},
+                                              {CV_32S, 4},
+                                              {CV_32F, 4},
+                                              {CV_64F, 8}};
 
   //============================================================
   // Impl interface
@@ -117,11 +110,17 @@ namespace ifm3d
     cv::Mat xyz_;
     cv::Mat_<std::uint8_t> bad_; // mask of bad pixels
 
-    template<typename T>
-    void _ImCreate(cv::Mat& im, ifm3d::image_chunk chunk,
-                   std::uint32_t fmt, std::size_t idx,
-                   std::uint32_t width, std::uint32_t height, int nchan,
-                   std::uint32_t npts, const std::vector<std::uint8_t>& bytes)
+    template <typename T>
+    void
+    _ImCreate(cv::Mat& im,
+              ifm3d::image_chunk chunk,
+              std::uint32_t fmt,
+              std::size_t idx,
+              std::uint32_t width,
+              std::uint32_t height,
+              int nchan,
+              std::uint32_t npts,
+              const std::vector<std::uint8_t>& bytes)
     {
       std::size_t incr = sizeof(T) * nchan;
       if (nchan == 3)
@@ -152,13 +151,14 @@ namespace ifm3d
 
           if (nchan == 3)
             {
-              ptr[col3] = ifm3d::mkval<T>(bytes.data()+idx);
-              ptr[col3 + 1] = ifm3d::mkval<T>(bytes.data()+idx+sizeof(T));
-              ptr[col3 + 2] = ifm3d::mkval<T>(bytes.data()+idx+(sizeof(T)*2));
+              ptr[col3] = ifm3d::mkval<T>(bytes.data() + idx);
+              ptr[col3 + 1] = ifm3d::mkval<T>(bytes.data() + idx + sizeof(T));
+              ptr[col3 + 2] =
+                ifm3d::mkval<T>(bytes.data() + idx + (sizeof(T) * 2));
             }
           else
             {
-              ptr[col] = ifm3d::mkval<T>(bytes.data()+idx);
+              ptr[col] = ifm3d::mkval<T>(bytes.data() + idx);
             }
         }
 
@@ -183,14 +183,18 @@ namespace ifm3d
         }
     }
 
-    template<typename T>
-    void _CloudCreate(cv::Mat& im,
-                      pcl::PointCloud<pcl::PointXYZI>::Ptr cloud,
-                      std::uint32_t fmt,
-                      std::size_t xidx, std::size_t yidx, std::size_t zidx,
-                      std::uint32_t width, std::uint32_t height,
-                      std::uint32_t npts,
-                      const std::vector<std::uint8_t>& bytes)
+    template <typename T>
+    void
+    _CloudCreate(cv::Mat& im,
+                 pcl::PointCloud<pcl::PointXYZI>::Ptr cloud,
+                 std::uint32_t fmt,
+                 std::size_t xidx,
+                 std::size_t yidx,
+                 std::size_t zidx,
+                 std::uint32_t width,
+                 std::uint32_t height,
+                 std::uint32_t npts,
+                 const std::vector<std::uint8_t>& bytes)
     {
       std::size_t incr = sizeof(T);
       im.create(height, width, ifm3d::PIX_LUT3.at(fmt));
@@ -238,9 +242,9 @@ namespace ifm3d
             }
 
           // convert to ifm3d coord frame
-          x_ = ifm3d::mkval<T>(bytes.data()+zidx);
-          y_ = -ifm3d::mkval<T>(bytes.data()+xidx);
-          z_ = -ifm3d::mkval<T>(bytes.data()+yidx);
+          x_ = ifm3d::mkval<T>(bytes.data() + zidx);
+          y_ = -ifm3d::mkval<T>(bytes.data() + xidx);
+          z_ = -ifm3d::mkval<T>(bytes.data() + yidx);
 
           if (bad_ptr[col] == 0)
             {
@@ -291,17 +295,17 @@ namespace ifm3d
         }
     }
 
-    template<typename T>
-    void _SetCloudIntensity(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud,
-                            const cv::Mat& im)
+    template <typename T>
+    void
+    _SetCloudIntensity(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud,
+                       const cv::Mat& im)
     {
       int numpts = im.rows * im.cols;
       if (cloud->points.size() != numpts)
         {
           VLOG(IFM3D_PROTO_DEBUG)
             << "Shape mismatch when coloring pcl intensity: "
-            << cloud->points.size() << " vs "
-            << numpts;
+            << cloud->points.size() << " vs " << numpts;
           return;
         }
 
@@ -405,7 +409,7 @@ ifm3d::ImageBuffer::Impl::ImCreate(ifm3d::image_chunk im,
                                    std::uint32_t npts,
                                    const std::vector<std::uint8_t>& bytes)
 {
-  cv::Mat *image;
+  cv::Mat* image;
   switch (im)
     {
     case ifm3d::image_chunk::CONFIDENCE:
@@ -439,43 +443,99 @@ ifm3d::ImageBuffer::Impl::ImCreate(ifm3d::image_chunk im,
   switch (fmt)
     {
     case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8U):
-      this->_ImCreate<std::uint8_t>(
-        *image, im, fmt, idx, width, height, 1, npts, bytes);
+      this->_ImCreate<std::uint8_t>(*image,
+                                    im,
+                                    fmt,
+                                    idx,
+                                    width,
+                                    height,
+                                    1,
+                                    npts,
+                                    bytes);
       break;
 
     case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8S):
-      this->_ImCreate<std::int8_t>(
-        *image, im, fmt, idx, width, height, 1, npts, bytes);
+      this->_ImCreate<std::int8_t>(*image,
+                                   im,
+                                   fmt,
+                                   idx,
+                                   width,
+                                   height,
+                                   1,
+                                   npts,
+                                   bytes);
       break;
 
     case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16U):
-      this->_ImCreate<std::uint16_t>(
-        *image, im, fmt, idx, width, height, 1, npts, bytes);
+      this->_ImCreate<std::uint16_t>(*image,
+                                     im,
+                                     fmt,
+                                     idx,
+                                     width,
+                                     height,
+                                     1,
+                                     npts,
+                                     bytes);
       break;
 
     case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16S):
-      this->_ImCreate<std::int16_t>(
-        *image, im, fmt, idx, width, height, 1, npts, bytes);
+      this->_ImCreate<std::int16_t>(*image,
+                                    im,
+                                    fmt,
+                                    idx,
+                                    width,
+                                    height,
+                                    1,
+                                    npts,
+                                    bytes);
       break;
 
     case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32S):
-      this->_ImCreate<std::int32_t>(
-        *image, im, fmt, idx, width, height, 1, npts, bytes);
+      this->_ImCreate<std::int32_t>(*image,
+                                    im,
+                                    fmt,
+                                    idx,
+                                    width,
+                                    height,
+                                    1,
+                                    npts,
+                                    bytes);
       break;
 
     case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F):
-      this->_ImCreate<float>(
-        *image, im, fmt, idx, width, height, 1, npts, bytes);
+      this->_ImCreate<float>(*image,
+                             im,
+                             fmt,
+                             idx,
+                             width,
+                             height,
+                             1,
+                             npts,
+                             bytes);
       break;
 
     case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F3):
-      this->_ImCreate<float>(
-        *image, im, fmt, idx, width, height, 3, npts, bytes);
+      this->_ImCreate<float>(*image,
+                             im,
+                             fmt,
+                             idx,
+                             width,
+                             height,
+                             3,
+                             npts,
+                             bytes);
       break;
 
     case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_64F):
-      this->_ImCreate<double>(
-        *image, im, fmt, idx, width, height, 1, npts, bytes);
+      this->_ImCreate<double>(*image,
+                              im,
+                              fmt,
+                              idx,
+                              width,
+                              height,
+                              1,
+                              npts,
+                              bytes);
       break;
 
     default:
@@ -545,8 +605,7 @@ ifm3d::ImageBuffer::Impl::CloudCreate(std::uint32_t fmt,
       break;
 
     case CV_16U:
-      this->_SetCloudIntensity<std::uint16_t>(this->cloud_,
-                                               this->amp_);
+      this->_SetCloudIntensity<std::uint16_t>(this->cloud_, this->amp_);
       break;
 
     case CV_16S:

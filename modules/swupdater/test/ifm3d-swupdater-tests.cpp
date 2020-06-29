@@ -13,7 +13,8 @@ class SWUpdater : public ::testing::Test
 protected:
   SWUpdater() = default;
 
-  void TearDown() override
+  void
+  TearDown() override
   {
     // Give the camera some extra time to 'settle' before moving to the next
     // test. In pratice, the camera needs a little bit of settle time after
@@ -74,4 +75,3 @@ TEST_F(SWUpdater, FlashEmptyFile)
   swu->RebootToProductive();
   EXPECT_TRUE(swu->WaitForProductive(60000));
 }
-

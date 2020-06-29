@@ -30,7 +30,9 @@ namespace ifm3d
   class PasswdApp : public ifm3d::CmdLineApp
   {
   public:
-	  PasswdApp(int argc, const char **argv, const std::string& name = "password");
+    PasswdApp(int argc,
+              const char** argv,
+              const std::string& name = "password");
     int Run();
   }; // end: class Passwd
 } // end: namespace ifm3d

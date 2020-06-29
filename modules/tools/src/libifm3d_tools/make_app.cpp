@@ -29,113 +29,130 @@
 
 namespace po = boost::program_options;
 
-std::unordered_map<std::string,
-                   std::function<ifm3d::CmdLineApp::Ptr(int, const char**,
-                                                        const std::string&)> >
-app_factory =
-  {
+std::unordered_map<
+  std::string,
+  std::function<ifm3d::CmdLineApp::Ptr(int, const char**, const std::string&)>>
+  app_factory = {
     {"app-types",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::AppTypesApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::AppTypesApp>(argc, argv, cmd);
+     }},
 
     {"config",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::ConfigApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::ConfigApp>(argc, argv, cmd);
+     }},
 
     {"cp",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::CpApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::CpApp>(argc, argv, cmd);
+     }},
 
     {"dump",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::DumpApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::DumpApp>(argc, argv, cmd);
+     }},
 
     {"export",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::ExportApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::ExportApp>(argc, argv, cmd);
+     }},
 
     {"imager-types",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::ImagerTypesApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::ImagerTypesApp>(argc, argv, cmd);
+     }},
 
     {"import",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::ImportApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::ImportApp>(argc, argv, cmd);
+     }},
 
     {"ls",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::LsApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::LsApp>(argc, argv, cmd);
+     }},
 
     {"passwd",
-	 [](int argc, const char** argv, const std::string& cmd)
-	 ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::PasswdApp>(argc, argv, cmd); }},
+     [](int argc, const char** argv, const std::string& cmd)
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::PasswdApp>(argc, argv, cmd);
+     }},
 
     {"reboot",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::RebootApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::RebootApp>(argc, argv, cmd);
+     }},
 
     {"reset",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::ResetApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::ResetApp>(argc, argv, cmd);
+     }},
 
     {"rm",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::RmApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::RmApp>(argc, argv, cmd);
+     }},
 
     {"time",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::TimeApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::TimeApp>(argc, argv, cmd);
+     }},
 
     {"trace",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::TraceApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::TraceApp>(argc, argv, cmd);
+     }},
 
 #if defined(BUILD_MODULE_FRAMEGRABBER)
     {"schema",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::SchemaApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::SchemaApp>(argc, argv, cmd);
+     }},
 
     {"hz",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::HzApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::HzApp>(argc, argv, cmd);
+     }},
 
     {"jitter",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::JitterApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::JitterApp>(argc, argv, cmd);
+     }},
 #endif
 
 #if defined(BUILD_MODULE_SWUPDATER)
     {"swupdate",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::SWUpdateApp>(argc, argv, cmd); }},
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::SWUpdateApp>(argc, argv, cmd);
+     }},
 #endif
 
     {"version",
      [](int argc, const char** argv, const std::string& cmd)
-     ->ifm3d::CmdLineApp::Ptr
-     { return std::make_shared<ifm3d::CmdLineApp>(argc, argv, cmd); }}
-  };
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::CmdLineApp>(argc, argv, cmd);
+     }}};
 
 ifm3d::CmdLineApp::Ptr
-ifm3d::make_app(int argc, const char **argv)
+ifm3d::make_app(int argc, const char** argv)
 {
   po::options_description desc;
   // clang-format off
@@ -148,8 +165,12 @@ ifm3d::make_app(int argc, const char **argv)
   p.add("command", 1);
 
   po::variables_map vm;
-  po::store(po::command_line_parser(argc, argv).
-            options(desc).positional(p).allow_unregistered().run(), vm);
+  po::store(po::command_line_parser(argc, argv)
+              .options(desc)
+              .positional(p)
+              .allow_unregistered()
+              .run(),
+            vm);
   po::notify(vm);
 
   std::string cmd = vm["command"].as<std::string>();

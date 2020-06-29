@@ -23,8 +23,7 @@
 #include <ifm3d/camera/err.h>
 #include <frame_grabber_impl.hpp>
 
-ifm3d::FrameGrabber::FrameGrabber(ifm3d::Camera::Ptr cam,
-                                  std::uint16_t mask)
+ifm3d::FrameGrabber::FrameGrabber(ifm3d::Camera::Ptr cam, std::uint16_t mask)
   : pImpl(new ifm3d::FrameGrabber::Impl(cam, mask))
 { }
 

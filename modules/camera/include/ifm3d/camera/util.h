@@ -26,20 +26,20 @@ namespace ifm3d
   /**
    * Trim whitespace from left side of string
    */
-  std::string&
-  ltrim(std::string& str, const std::string& chars = "\t\n\v\f\r ");
+  std::string& ltrim(std::string& str,
+                     const std::string& chars = "\t\n\v\f\r ");
 
   /**
    * Trim whitespace from right side of string
    */
-  std::string&
-  rtrim(std::string& str, const std::string& chars = "\t\n\v\f\r ");
+  std::string& rtrim(std::string& str,
+                     const std::string& chars = "\t\n\v\f\r ");
 
   /**
    * Trim whitespace from left and right side of string
    */
-  std::string&
-  trim(std::string& str, const std::string& chars = "\t\n\v\f\r ");
+  std::string& trim(std::string& str,
+                    const std::string& chars = "\t\n\v\f\r ");
 
   /**
    * Split a string into its component parts based on a delimeter

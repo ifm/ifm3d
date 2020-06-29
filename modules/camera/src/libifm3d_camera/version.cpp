@@ -16,7 +16,8 @@
 
 #include <ifm3d/camera/version.h>
 
-void ifm3d::version(int *major, int *minor, int *patch)
+void
+ifm3d::version(int* major, int* minor, int* patch)
 {
   *major = IFM3D_VERSION_MAJOR;
   *minor = IFM3D_VERSION_MINOR;

@@ -24,13 +24,13 @@
 namespace ifm3d
 {
   /**
-   * Concrete implementation of the `trace` subcommand to the `ifm3d` command-line
-   * utility.
+   * Concrete implementation of the `trace` subcommand to the `ifm3d`
+   * command-line utility.
    */
   class TraceApp : public ifm3d::CmdLineApp
   {
   public:
-    TraceApp(int argc, const char **argv, const std::string& name = "trace");
+    TraceApp(int argc, const char** argv, const std::string& name = "trace");
     int Run();
   }; // end: class TraceApp
 } // end: namespace ifm3d

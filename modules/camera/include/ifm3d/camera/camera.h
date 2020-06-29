@@ -54,13 +54,19 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TMP_PARAMS_SUPPORT_MINOR;
   extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TMP_PARAMS_SUPPORT_PATCH;
 
-  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INTRINSIC_PARAM_SUPPORT_MAJOR;
-  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INTRINSIC_PARAM_SUPPORT_MINOR;
-  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INTRINSIC_PARAM_SUPPORT_PATCH;
+  extern IFM3D_CAMERA_EXPORT const unsigned int
+    O3D_INTRINSIC_PARAM_SUPPORT_MAJOR;
+  extern IFM3D_CAMERA_EXPORT const unsigned int
+    O3D_INTRINSIC_PARAM_SUPPORT_MINOR;
+  extern IFM3D_CAMERA_EXPORT const unsigned int
+    O3D_INTRINSIC_PARAM_SUPPORT_PATCH;
 
-  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR;
-  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR;
-  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH;
+  extern IFM3D_CAMERA_EXPORT const unsigned int
+    O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR;
+  extern IFM3D_CAMERA_EXPORT const unsigned int
+    O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR;
+  extern IFM3D_CAMERA_EXPORT const unsigned int
+    O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH;
 
   /**
    * Software interface to an ifm 3D camera
@@ -81,40 +87,70 @@ namespace ifm3d
      * Productive: the normal runtime firmware comes up
      * Recovery: allows you to flash new firmware
      */
-    enum class boot_mode : int { PRODUCTIVE = 0, RECOVERY = 1 };
+    enum class boot_mode : int
+    {
+      PRODUCTIVE = 0,
+      RECOVERY = 1
+    };
 
     /**
      * Camera operating modes: run (streaming pixel data), edit (configuring
      * the device/applications).
      */
-    enum class operating_mode : int { RUN = 0, EDIT = 1 };
+    enum class operating_mode : int
+    {
+      RUN = 0,
+      EDIT = 1
+    };
 
     /**
      * Image acquisition trigger modes
      */
-    enum class trigger_mode : int { FREE_RUN = 1, SW = 2 };
+    enum class trigger_mode : int
+    {
+      FREE_RUN = 1,
+      SW = 2
+    };
 
     /**
      * Import flags used when importing a Vision Assistant configuration
      */
-    enum class import_flags : int { GLOBAL = 0x1, NET = 0x2, APPS = 0x10 };
+    enum class import_flags : int
+    {
+      GLOBAL = 0x1,
+      NET = 0x2,
+      APPS = 0x10
+    };
 
     /**
      * Convenience constants for spatial filter types
      */
     enum class spatial_filter : int
-    { OFF = 0x0, MEDIAN = 0x1, MEAN = 0x2, BILATERAL = 0x3 };
+    {
+      OFF = 0x0,
+      MEDIAN = 0x1,
+      MEAN = 0x2,
+      BILATERAL = 0x3
+    };
 
     /**
      * Convenience constants for temporal filter types
      */
     enum class temporal_filter : int
-    { OFF = 0x0, MEAN = 0x1, ADAPTIVE_EXP = 0x2 };
+    {
+      OFF = 0x0,
+      MEAN = 0x1,
+      ADAPTIVE_EXP = 0x2
+    };
 
     /**
      * Convenient constants for median filter mask sizes
      */
-    enum class mfilt_mask_size : int { _3x3 = 0, _5x5 = 1};
+    enum class mfilt_mask_size : int
+    {
+      _3x3 = 0,
+      _5x5 = 1
+    };
 
     /**
      * Factory function for instantiating the proper subclass based on h/w
@@ -136,10 +172,10 @@ namespace ifm3d
      *                     with the sensor. Edit sessions allow for mutating
      *                     camera parameters and persisting those changes.
      */
-    static Ptr
-    MakeShared(const std::string& ip = ifm3d::DEFAULT_IP,
-               const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
-               const std::string& password = ifm3d::DEFAULT_PASSWORD);
+    static Ptr MakeShared(
+      const std::string& ip = ifm3d::DEFAULT_IP,
+      const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
+      const std::string& password = ifm3d::DEFAULT_PASSWORD);
 
     /**
      * Initializes the camera interface utilizing library defaults
@@ -281,8 +317,8 @@ namespace ifm3d
      * @param[in] mode The system mode to boot into upon restart of the sensor
      * @throw ifm3d::error_t upon error
      */
-    virtual void
-    Reboot(const boot_mode& mode = ifm3d::Camera::boot_mode::PRODUCTIVE);
+    virtual void Reboot(
+      const boot_mode& mode = ifm3d::Camera::boot_mode::PRODUCTIVE);
 
     /**
      * Returns the integer index of the active application. A negative number
@@ -341,7 +377,7 @@ namespace ifm3d
      *
      * @throw ifm3d::error_t upon error
      */
-     virtual std::vector<std::string> TraceLogs(int count);
+    virtual std::vector<std::string> TraceLogs(int count);
 
     /**
      * Delivers basic information about all applications stored on the device.
@@ -409,7 +445,7 @@ namespace ifm3d
      * @return The index of the new application.
      */
     virtual int CreateApplication(
-            const std::string& type = DEFAULT_APPLICATION_TYPE);
+      const std::string& type = DEFAULT_APPLICATION_TYPE);
 
     /**
      * Deletes the application at the specified index from the sensor.
@@ -587,13 +623,13 @@ namespace ifm3d
      * @param[in] idx An application index to put into edit mode prior to
      *                setting parameters.
      */
-    void FromJSON_(const json& j_curr,
-                   const json& j_new,
-                   std::function<void(const std::string&,
-                                      const std::string&)> SetFunc,
-                   std::function<void()> SaveFunc,
-                   const std::string& name,
-                   int idx = -1);
+    void FromJSON_(
+      const json& j_curr,
+      const json& j_new,
+      std::function<void(const std::string&, const std::string&)> SetFunc,
+      std::function<void()> SaveFunc,
+      const std::string& name,
+      int idx = -1);
 
     /**
      *  Implements the serialization of the camera state to JSON.
