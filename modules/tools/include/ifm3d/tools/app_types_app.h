@@ -30,7 +30,8 @@ namespace ifm3d
   class AppTypesApp : public ifm3d::CmdLineApp
   {
   public:
-    AppTypesApp(int argc, const char **argv,
+    AppTypesApp(int argc,
+                const char** argv,
                 const std::string& name = "app-types");
     int Run();
   }; // end: class AppTypeApp

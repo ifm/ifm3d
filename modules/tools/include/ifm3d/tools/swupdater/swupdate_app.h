@@ -29,7 +29,8 @@ namespace ifm3d
   class SWUpdateApp : public ifm3d::CmdLineApp
   {
   public:
-    SWUpdateApp(int argc, const char **argv,
+    SWUpdateApp(int argc,
+                const char** argv,
                 const std::string& name = "swupdate");
     int Run();
   };

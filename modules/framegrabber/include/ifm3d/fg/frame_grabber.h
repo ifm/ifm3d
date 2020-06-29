@@ -106,18 +106,17 @@ namespace ifm3d
      *              otherwise.
      */
     template <typename T>
-    bool WaitForFrame(ifm3d::ByteBuffer<T>* buff,
-                      long timeout_millis = 0,
-                      bool copy_buff = false,
-                      bool organize = true)
+    bool
+    WaitForFrame(ifm3d::ByteBuffer<T>* buff,
+                 long timeout_millis = 0,
+                 bool copy_buff = false,
+                 bool organize = true)
     {
-      bool retval =
-        this->WaitForFrame(timeout_millis,
-                           [buff, copy_buff]
-                           (std::vector<std::uint8_t>& frame_data)
-                           {
-                             buff->SetBytes(frame_data, copy_buff);
-                           });
+      bool retval = this->WaitForFrame(
+        timeout_millis,
+        [buff, copy_buff](std::vector<std::uint8_t>& frame_data) {
+          buff->SetBytes(frame_data, copy_buff);
+        });
 
       // NOTE: it is an optimization to keep the call to Organize() outside of
       //       the lambda.
@@ -144,9 +143,9 @@ namespace ifm3d
      * @param[in] set_bytes A mutator function that will be called with the
      *                      latest frame data bytes from the camera.
      */
-    bool
-    WaitForFrame(long timeout_millis,
-                 std::function<void(std::vector<std::uint8_t>&)> set_bytes);
+    bool WaitForFrame(
+      long timeout_millis,
+      std::function<void(std::vector<std::uint8_t>&)> set_bytes);
 
   private:
     class Impl;

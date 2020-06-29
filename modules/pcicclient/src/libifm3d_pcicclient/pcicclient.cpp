@@ -24,56 +24,56 @@
 #include <ifm3d/camera/err.h>
 #include <pcicclient_impl.hpp>
 
-
-ifm3d::PCICClient::PCICClient(ifm3d::Camera::Ptr cam): pImpl(new ifm3d::PCICClient::Impl(cam))
-{
-}
+ifm3d::PCICClient::PCICClient(ifm3d::Camera::Ptr cam)
+  : pImpl(new ifm3d::PCICClient::Impl(cam))
+{ }
 
 ifm3d::PCICClient::~PCICClient() = default;
 
 void
 ifm3d::PCICClient::Stop()
 {
-	return this->pImpl->Stop();
+  return this->pImpl->Stop();
 }
 
 long
-ifm3d::PCICClient::Call(const std::string& request,
-			 std::function<void(const std::string& response)> callback)
+ifm3d::PCICClient::Call(
+  const std::string& request,
+  std::function<void(const std::string& response)> callback)
 {
-	return this->pImpl->Call(request, callback);
+  return this->pImpl->Call(request, callback);
 }
 
 std::string
 ifm3d::PCICClient::Call(const std::string& request)
 {
-	return this->pImpl->Call(request);
+  return this->pImpl->Call(request);
 }
 
 bool
 ifm3d::PCICClient::Call(const std::string& request,
-			 std::string& response, long timeout_millis)
+                        std::string& response,
+                        long timeout_millis)
 {
-	return this->pImpl->Call(request, response, timeout_millis);
+  return this->pImpl->Call(request, response, timeout_millis);
 }
 
 long
-ifm3d::PCICClient
-::SetErrorCallback(std::function<void(const std::string& error)> callback)
+ifm3d::PCICClient ::SetErrorCallback(
+  std::function<void(const std::string& error)> callback)
 {
-	return this->pImpl->SetErrorCallback(callback);
+  return this->pImpl->SetErrorCallback(callback);
 }
 
 long
-ifm3d::PCICClient
-::SetNotificationCallback(std::function<void(const std::string& notification)> callback)
+ifm3d::PCICClient ::SetNotificationCallback(
+  std::function<void(const std::string& notification)> callback)
 {
-	return this->pImpl->SetNotificationCallback(callback);
+  return this->pImpl->SetNotificationCallback(callback);
 }
 
 void
 ifm3d::PCICClient::CancelCallback(long callback_id)
 {
-	return this->pImpl->CancelCallback(callback_id);
+  return this->pImpl->CancelCallback(callback_id);
 }
-

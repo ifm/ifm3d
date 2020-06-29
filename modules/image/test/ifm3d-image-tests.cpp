@@ -12,11 +12,12 @@
 #include <gtest/gtest.h>
 
 template <typename T>
-bool cmp_with_nan(T a, T b)
+bool
+cmp_with_nan(T a, T b)
 {
   if (std::isnan(a) || std::isnan(b))
     {
-      return(std::isnan(a) && std::isnan(b));
+      return (std::isnan(a) && std::isnan(b));
     }
   else
     {
@@ -45,7 +46,8 @@ TEST(Image, MoveCtor)
       EXPECT_TRUE(amp2.type() == CV_32F);
       EXPECT_TRUE(std::equal(copy_of_amp.begin<float>(),
                              copy_of_amp.end<float>(),
-                             amp2.begin<float>(), cmp_with_nan<float>));
+                             amp2.begin<float>(),
+                             cmp_with_nan<float>));
     }
   else
     {
@@ -80,7 +82,8 @@ TEST(Image, MoveAssignmentOperator)
       EXPECT_TRUE(amp2.type() == CV_32F);
       EXPECT_TRUE(std::equal(copy_of_amp.begin<float>(),
                              copy_of_amp.end<float>(),
-                             amp2.begin<float>(), cmp_with_nan<float>));
+                             amp2.begin<float>(),
+                             cmp_with_nan<float>));
     }
   else
     {
@@ -115,8 +118,10 @@ TEST(Image, CopyCtor)
     {
       EXPECT_TRUE(amp.type() == CV_32F);
       EXPECT_TRUE(amp2.type() == CV_32F);
-      EXPECT_TRUE(std::equal(amp.begin<float>(), amp.end<float>(),
-                             amp2.begin<float>(), cmp_with_nan<float>));
+      EXPECT_TRUE(std::equal(amp.begin<float>(),
+                             amp.end<float>(),
+                             amp2.begin<float>(),
+                             cmp_with_nan<float>));
     }
   else
     {
@@ -133,7 +138,8 @@ TEST(Image, CopyCtor)
     {
       EXPECT_FALSE(std::equal(amp.begin<float>(),
                               amp.end<float>(),
-                              amp2.begin<float>(), cmp_with_nan<float>));
+                              amp2.begin<float>(),
+                              cmp_with_nan<float>));
     }
   else
     {
@@ -165,7 +171,8 @@ TEST(Image, CopyAssignmentOperator)
       EXPECT_TRUE(amp2.type() == CV_32F);
       EXPECT_TRUE(std::equal(amp.begin<float>(),
                              amp.end<float>(),
-                             amp2.begin<float>(), cmp_with_nan<float>));
+                             amp2.begin<float>(),
+                             cmp_with_nan<float>));
     }
   else
     {
@@ -182,7 +189,8 @@ TEST(Image, CopyAssignmentOperator)
     {
       EXPECT_FALSE(std::equal(amp.begin<float>(),
                               amp.end<float>(),
-                              amp2.begin<float>(), cmp_with_nan<float>));
+                              amp2.begin<float>(),
+                              cmp_with_nan<float>));
     }
   else
     {
@@ -211,7 +219,8 @@ TEST(Image, References)
       EXPECT_TRUE(amp2.type() == CV_32F);
       EXPECT_TRUE(std::equal(amp1.begin<float>(),
                              amp1.end<float>(),
-                             amp2.begin<float>(), cmp_with_nan<float>));
+                             amp2.begin<float>(),
+                             cmp_with_nan<float>));
     }
   else
     {
@@ -228,7 +237,8 @@ TEST(Image, References)
     {
       EXPECT_TRUE(std::equal(amp1.begin<float>(),
                              amp1.end<float>(),
-                             amp2.begin<float>(), cmp_with_nan<float>));
+                             amp2.begin<float>(),
+                             cmp_with_nan<float>));
     }
   else
     {
@@ -304,22 +314,22 @@ TEST(Image, XYZImage)
           ifm3d::PointT& pt = cloud->points[i];
           if (xyz.type() == CV_16SC3)
             {
-              EXPECT_FLOAT_EQ(pt.x * 1000., (float) x.at<std::int16_t>(r,c));
-              EXPECT_FLOAT_EQ(pt.y * 1000., (float) y.at<std::int16_t>(r,c));
-              EXPECT_FLOAT_EQ(pt.z * 1000., (float) z.at<std::int16_t>(r,c));
+              EXPECT_FLOAT_EQ(pt.x * 1000., (float)x.at<std::int16_t>(r, c));
+              EXPECT_FLOAT_EQ(pt.y * 1000., (float)y.at<std::int16_t>(r, c));
+              EXPECT_FLOAT_EQ(pt.z * 1000., (float)z.at<std::int16_t>(r, c));
             }
           else
             {
-              if (std::isnan(pt.x) || std::isnan(x.at<float>(r,c)))
+              if (std::isnan(pt.x) || std::isnan(x.at<float>(r, c)))
                 {
                   EXPECT_TRUE(std::isnan(pt.x));
-                  EXPECT_TRUE(std::isnan(x.at<float>(r,c)));
+                  EXPECT_TRUE(std::isnan(x.at<float>(r, c)));
                 }
               else
                 {
-                  EXPECT_FLOAT_EQ(pt.x, x.at<float>(r,c));
-                  EXPECT_FLOAT_EQ(pt.y, y.at<float>(r,c));
-                  EXPECT_FLOAT_EQ(pt.z, z.at<float>(r,c));
+                  EXPECT_FLOAT_EQ(pt.x, x.at<float>(r, c));
+                  EXPECT_FLOAT_EQ(pt.y, y.at<float>(r, c));
+                  EXPECT_FLOAT_EQ(pt.z, z.at<float>(r, c));
                 }
             }
         }
@@ -351,8 +361,9 @@ TEST(Image, ComputeCartesian)
   // data. The latter we simply use as ground truth
   //
   fg.reset();
-  fg = std::make_shared<ifm3d::FrameGrabber>(
-         cam, ifm3d::IMG_RDIS|ifm3d::IMG_CART);
+  fg =
+    std::make_shared<ifm3d::FrameGrabber>(cam,
+                                          ifm3d::IMG_RDIS | ifm3d::IMG_CART);
   EXPECT_TRUE(fg->WaitForFrame(im.get(), 1000));
   cv::Mat rdis = im->DistanceImage();
   cv::Mat conf = im->ConfidenceImage();
@@ -439,27 +450,29 @@ TEST(Image, ComputeCartesian)
   //
   // 5. Compare for correctness
   //
-  auto cmp = [](std::int16_t a, std::int16_t b) -> bool
-    {
-      if (std::abs(a - b) <= 10) // 10 mm == cm accuracy
-        {
-          return true;
-        }
+  auto cmp = [](std::int16_t a, std::int16_t b) -> bool {
+    if (std::abs(a - b) <= 10) // 10 mm == cm accuracy
+      {
+        return true;
+      }
 
-      return false;
-    };
+    return false;
+  };
 
   EXPECT_TRUE(std::equal(x_cam.begin<std::int16_t>(),
                          x_cam.end<std::int16_t>(),
-                         x_computed.begin<std::int16_t>(), cmp));
+                         x_computed.begin<std::int16_t>(),
+                         cmp));
 
   EXPECT_TRUE(std::equal(y_cam.begin<std::int16_t>(),
                          y_cam.end<std::int16_t>(),
-                         y_computed.begin<std::int16_t>(), cmp));
+                         y_computed.begin<std::int16_t>(),
+                         cmp));
 
   EXPECT_TRUE(std::equal(z_cam.begin<std::int16_t>(),
                          z_cam.end<std::int16_t>(),
-                         z_computed.begin<std::int16_t>(), cmp));
+                         z_computed.begin<std::int16_t>(),
+                         cmp));
 }
 
 TEST(Image, TimeStamp)
@@ -496,21 +509,22 @@ TEST(Image, TimeStamp)
 
   ifm3d::ImageBuffer::Ptr img = std::make_shared<ifm3d::ImageBuffer>();
   ifm3d::FrameGrabber::Ptr fg =
-    std::make_shared<ifm3d::FrameGrabber>(
-      cam, ifm3d::IMG_AMP|ifm3d::IMG_CART);
+    std::make_shared<ifm3d::FrameGrabber>(cam,
+                                          ifm3d::IMG_AMP | ifm3d::IMG_CART);
 
   std::array<ifm3d::TimePointT, 2> tps;
   // get two consecutive timestamps
   for (ifm3d::TimePointT& t : tps)
-  {
+    {
       EXPECT_TRUE(fg->WaitForFrame(img.get(), 1000));
       t = img->TimeStamp();
-  }
+    }
   // the first time point need to be smaller than the second one
-  EXPECT_LT(tps[0],tps[1]);
-  auto tdiff = std::chrono::duration_cast<std::chrono::milliseconds>(
-                 tps[1] - tps[0]).count();
-  EXPECT_GT(tdiff,20);
+  EXPECT_LT(tps[0], tps[1]);
+  auto tdiff =
+    std::chrono::duration_cast<std::chrono::milliseconds>(tps[1] - tps[0])
+      .count();
+  EXPECT_GT(tdiff, 20);
 }
 
 TEST(Image, IlluTemp)
@@ -518,9 +532,9 @@ TEST(Image, IlluTemp)
   ifm3d::Camera::Ptr cam = std::make_shared<ifm3d::Camera>();
 
   ifm3d::ImageBuffer::Ptr img = std::make_shared<ifm3d::ImageBuffer>();
-  ifm3d::FrameGrabber::Ptr fg =
-    std::make_shared<ifm3d::FrameGrabber>(
-      cam, ifm3d::DEFAULT_SCHEMA_MASK | ifm3d::ILLU_TEMP);
+  ifm3d::FrameGrabber::Ptr fg = std::make_shared<ifm3d::FrameGrabber>(
+    cam,
+    ifm3d::DEFAULT_SCHEMA_MASK | ifm3d::ILLU_TEMP);
 
   ASSERT_TRUE(fg->WaitForFrame(img.get(), 1000));
 

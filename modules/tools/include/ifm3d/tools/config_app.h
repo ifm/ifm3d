@@ -34,7 +34,7 @@ namespace ifm3d
   class ConfigApp : public ifm3d::CmdLineApp
   {
   public:
-    ConfigApp(int argc, const char **argv, const std::string& name = "config");
+    ConfigApp(int argc, const char** argv, const std::string& name = "config");
     int Run();
   }; // end: class ConfigApp
 

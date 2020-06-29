@@ -34,7 +34,7 @@ namespace ifm3d
   class ExportApp : public ifm3d::CmdLineApp
   {
   public:
-    ExportApp(int argc, const char **argv, const std::string& name = "export");
+    ExportApp(int argc, const char** argv, const std::string& name = "export");
     int Run();
   }; // end: class ExportApp
 

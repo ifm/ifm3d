@@ -26,7 +26,8 @@
 
 namespace po = boost::program_options;
 
-ifm3d::ExportApp::ExportApp(int argc, const char **argv,
+ifm3d::ExportApp::ExportApp(int argc,
+                            const char** argv,
                             const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
@@ -39,12 +40,16 @@ ifm3d::ExportApp::ExportApp(int argc, const char **argv,
      "If provided, this specifies the index of an application to export");
   // clang-format on
 
-  po::store(po::command_line_parser(argc, argv).
-            options(this->local_opts_).allow_unregistered().run(), this->vm_);
+  po::store(po::command_line_parser(argc, argv)
+              .options(this->local_opts_)
+              .allow_unregistered()
+              .run(),
+            this->vm_);
   po::notify(this->vm_);
 }
 
-int ifm3d::ExportApp::Run()
+int
+ifm3d::ExportApp::Run()
 {
   if (this->vm_.count("help"))
     {
@@ -67,12 +72,12 @@ int ifm3d::ExportApp::Run()
   std::string outfile = this->vm_["file"].as<std::string>();
   if (outfile == "-")
     {
-      std::cout.write(reinterpret_cast<char *>(bytes.data()), bytes.size());
+      std::cout.write(reinterpret_cast<char*>(bytes.data()), bytes.size());
     }
   else
     {
-      std::ofstream(outfile, std::ios::binary).
-        write(reinterpret_cast<char *>(bytes.data()), bytes.size());
+      std::ofstream(outfile, std::ios::binary)
+        .write(reinterpret_cast<char*>(bytes.data()), bytes.size());
     }
 
   return 0;

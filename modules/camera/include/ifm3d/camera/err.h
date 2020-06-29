@@ -21,7 +21,6 @@
 #include <exception>
 #include <ifm3d/camera/camera_export.h>
 
-
 // library errors
 extern IFM3D_CAMERA_EXPORT const int IFM3D_NO_ERRORS;
 extern IFM3D_CAMERA_EXPORT const int IFM3D_XMLRPC_FAILURE;
@@ -40,10 +39,14 @@ extern IFM3D_CAMERA_EXPORT const int IFM3D_RECOVERY_CONNECTION_ERROR;
 extern IFM3D_CAMERA_EXPORT const int IFM3D_UPDATE_ERROR;
 extern IFM3D_CAMERA_EXPORT const int IFM3D_PCICCLIENT_UNSUPPORTED_DEVICE;
 extern IFM3D_CAMERA_EXPORT const int IFM3D_HEADER_VERSION_MISMATCH;
-extern IFM3D_CAMERA_EXPORT const int IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE;
-extern IFM3D_CAMERA_EXPORT const int IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE;
-extern IFM3D_CAMERA_EXPORT const int IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE;
-extern IFM3D_CAMERA_EXPORT const int IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE;
+extern IFM3D_CAMERA_EXPORT const int
+  IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE;
+extern IFM3D_CAMERA_EXPORT const int
+  IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE;
+extern IFM3D_CAMERA_EXPORT const int
+  IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE;
+extern IFM3D_CAMERA_EXPORT const int
+  IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE;
 extern IFM3D_CAMERA_EXPORT const int IFM3D_CURL_ERROR;
 extern IFM3D_CAMERA_EXPORT const int IFM3D_CURL_TIMEOUT;
 extern IFM3D_CAMERA_EXPORT const int IFM3D_CURL_ABORTED;
@@ -87,7 +90,7 @@ namespace ifm3d
    * @param[in] errnum The error number to translate to a string
    * @return A stringified version of the error
    */
-  const char *strerror(int errnum);
+  const char* strerror(int errnum);
 
   /**
    * Exception wrapper for library and system errors encountered by the
@@ -105,7 +108,7 @@ namespace ifm3d
     /**
      * Exception message
      */
-    virtual const char *what() const noexcept;
+    virtual const char* what() const noexcept;
 
     /**
      * Accessor to the underlying error code
