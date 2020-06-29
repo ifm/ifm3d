@@ -23,7 +23,8 @@
 
 namespace po = boost::program_options;
 
-ifm3d::CmdLineApp::CmdLineApp(int argc, const char **argv,
+ifm3d::CmdLineApp::CmdLineApp(int argc,
+                              const char** argv,
                               const std::string& name)
   : global_opts_("global options"),
     local_opts_(name + " options")
@@ -52,9 +53,12 @@ ifm3d::CmdLineApp::CmdLineApp(int argc, const char **argv,
   po::positional_options_description p;
   p.add("command", 1);
 
-  po::store(po::command_line_parser(argc, argv).
-            options(all_opts).positional(p).
-            allow_unregistered().run(), this->vm_);
+  po::store(po::command_line_parser(argc, argv)
+              .options(all_opts)
+              .positional(p)
+              .allow_unregistered()
+              .run(),
+            this->vm_);
   po::notify(this->vm_);
 
   this->ip_ = this->vm_["ip"].as<std::string>();
@@ -75,11 +79,9 @@ void
 ifm3d::CmdLineApp::_LocalHelp()
 {
   std::string cmd = this->vm_["command"].as<std::string>();
-  std::cout << "usage: " << IFM3D_LIBRARY_NAME
-            << " [<global options>] "
-            << cmd
-            << " [<" << cmd << " options>]"
-            << std::endl << std::endl;
+  std::cout << "usage: " << IFM3D_LIBRARY_NAME << " [<global options>] " << cmd
+            << " [<" << cmd << " options>]" << std::endl
+            << std::endl;
   std::cout << this->global_opts_ << std::endl;
   std::cout << this->local_opts_ << std::endl;
 }
@@ -169,15 +171,14 @@ https://github.com/ifm/ifm3d/issues
       )";
 
   ifm3d::version(&major, &minor, &patch);
-  std::cout << IFM3D_LIBRARY_NAME
-            << ": version=" << major << "."
-            << minor << "." << patch << std::endl;
+  std::cout << IFM3D_LIBRARY_NAME << ": version=" << major << "." << minor
+            << "." << patch << std::endl;
 
   if (this->vm_.count("help"))
     {
       std::cout << "usage: " << IFM3D_LIBRARY_NAME
-                << " [<global options>] <command> [<args>]"
-                << std::endl << std::endl;
+                << " [<global options>] <command> [<args>]" << std::endl
+                << std::endl;
       std::cout << this->global_opts_ << std::endl;
       std::cout << help_msg << std::endl;
     }

@@ -24,8 +24,7 @@
 
 namespace po = boost::program_options;
 
-ifm3d::ResetApp::ResetApp(int argc, const char **argv,
-                          const std::string& name)
+ifm3d::ResetApp::ResetApp(int argc, const char** argv, const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
   // clang-format off
@@ -33,8 +32,11 @@ ifm3d::ResetApp::ResetApp(int argc, const char **argv,
     ("reboot,r", "Reboot the sensor after reset");
   // clang-format on
 
-  po::store(po::command_line_parser(argc, argv).
-            options(this->local_opts_).allow_unregistered().run(), this->vm_);
+  po::store(po::command_line_parser(argc, argv)
+              .options(this->local_opts_)
+              .allow_unregistered()
+              .run(),
+            this->vm_);
   po::notify(this->vm_);
 }
 

@@ -30,7 +30,7 @@ namespace ifm3d
   class LsApp : public ifm3d::CmdLineApp
   {
   public:
-    LsApp(int argc, const char **argv, const std::string& name = "ls");
+    LsApp(int argc, const char** argv, const std::string& name = "ls");
     int Run();
   }; // end: class LsApp
 } // end: namespace ifm3d

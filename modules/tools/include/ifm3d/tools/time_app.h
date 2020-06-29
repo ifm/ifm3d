@@ -30,7 +30,7 @@ namespace ifm3d
   class TimeApp : public ifm3d::CmdLineApp
   {
   public:
-    TimeApp(int argc, const char **argv, const std::string& name = "time");
+    TimeApp(int argc, const char** argv, const std::string& name = "time");
     int Run();
 
   }; // end: class TimeApp

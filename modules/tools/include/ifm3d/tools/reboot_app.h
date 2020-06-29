@@ -30,7 +30,7 @@ namespace ifm3d
   class RebootApp : public ifm3d::CmdLineApp
   {
   public:
-    RebootApp(int argc, const char **argv, const std::string& name = "reboot");
+    RebootApp(int argc, const char** argv, const std::string& name = "reboot");
     int Run();
   }; // end: class RebootApp
 } // end: namespace ifm3d

@@ -144,8 +144,7 @@ namespace ifm3d
 //-------------------------------------
 // ctor/dtor
 //-------------------------------------
-ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam,
-                                std::uint16_t mask)
+ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam, std::uint16_t mask)
   : cam_(cam),
     mask_(mask),
     cam_ip_(this->cam_->IP()),
@@ -158,7 +157,7 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam,
   this->SetTriggerBuffer();
   this->SetUVecBuffer(this->mask_);
 
-  if (! this->cam_->IsO3X())
+  if (!this->cam_->IsO3X())
     {
       try
         {
@@ -178,9 +177,9 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam,
   LOG(INFO) << "Camera connection info: ip=" << this->cam_ip_
             << ", port=" << this->cam_port_;
 
-  this->endpoint_ =
-    boost::asio::ip::tcp::endpoint(
-      boost::asio::ip::address::from_string(this->cam_ip_), this->cam_port_);
+  this->endpoint_ = boost::asio::ip::tcp::endpoint(
+    boost::asio::ip::address::from_string(this->cam_ip_),
+    this->cam_port_);
 
   //
   // XXX: Make this work on older C++/gcc versions
@@ -188,9 +187,8 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam,
   //  this->thread_ =
   //    std::make_unique<std::thread>(
   //      std::bind(&ifm3d::FrameGrabber::Impl::Run, this));
-  this->thread_ =
-    std::unique_ptr<std::thread>(
-      new std::thread(std::bind(&ifm3d::FrameGrabber::Impl::Run, this)));
+  this->thread_ = std::unique_ptr<std::thread>(
+    new std::thread(std::bind(&ifm3d::FrameGrabber::Impl::Run, this)));
 }
 
 ifm3d::FrameGrabber::Impl::~Impl()
@@ -220,7 +218,7 @@ ifm3d::FrameGrabber::Impl::SWTrigger()
         {
           this->cam_->ForceTrigger();
         }
-      catch(const ifm3d::error_t& ex)
+      catch (const ifm3d::error_t& ex)
         {
           LOG(ERROR) << "While trying to software trigger the camera: "
                      << ex.code() << " - " << ex.what();
@@ -233,7 +231,7 @@ ifm3d::FrameGrabber::Impl::SWTrigger()
   // For O3D and other bi-directional PCIC implementations
   //
   int i = 0;
-  while (! this->pcic_ready_.load())
+  while (!this->pcic_ready_.load())
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
       i++;
@@ -245,19 +243,18 @@ ifm3d::FrameGrabber::Impl::SWTrigger()
         }
     }
 
-  this->io_service_.post(
-    [this]()
-    {
-      boost::asio::async_write(
-        this->sock_,
-        boost::asio::buffer(this->trigger_buffer_.data(),
-                            this->trigger_buffer_.size()),
-        [](const boost::system::error_code& ec,
-           std::size_t bytes_xferd)
-        {
-          if (ec) { throw ifm3d::error_t(ec.value()); }
-        });
-    });
+  this->io_service_.post([this]() {
+    boost::asio::async_write(
+      this->sock_,
+      boost::asio::buffer(this->trigger_buffer_.data(),
+                          this->trigger_buffer_.size()),
+      [](const boost::system::error_code& ec, std::size_t bytes_xferd) {
+        if (ec)
+          {
+            throw ifm3d::error_t(ec.value());
+          }
+      });
+  });
 }
 
 bool
@@ -275,11 +272,9 @@ ifm3d::FrameGrabber::Impl::WaitForFrame(
       // condition checked by the condition_variable predicate (pointer should
       // have changed) below
       std::uint8_t* initial_buff_ptr = this->front_buffer_.data();
-      auto predicate =
-        [this, initial_buff_ptr]()
-        {
-          return this->front_buffer_.data() != initial_buff_ptr;
-        };
+      auto predicate = [this, initial_buff_ptr]() {
+        return this->front_buffer_.data() != initial_buff_ptr;
+      };
 
       if (timeout_millis <= 0)
         {
@@ -335,7 +330,7 @@ ifm3d::FrameGrabber::Impl::SetUVecBuffer(std::uint16_t mask)
   // over XML-RPC
   //
 
-  if (! this->cam_->IsO3X())
+  if (!this->cam_->IsO3X())
     {
       return;
     }
@@ -356,8 +351,8 @@ ifm3d::FrameGrabber::Impl::SetUVecBuffer(std::uint16_t mask)
           std::size_t len = this->uvec_buffer_.size();
           for (std::size_t i = 0; i < len; ++i)
             {
-              ss << std::hex << std::setw(2)
-                 << std::setfill('0') << (int) this->uvec_buffer_.at(i);
+              ss << std::hex << std::setw(2) << std::setfill('0')
+                 << (int)this->uvec_buffer_.at(i);
 
               if (i < (len - 1))
                 {
@@ -366,8 +361,7 @@ ifm3d::FrameGrabber::Impl::SetUVecBuffer(std::uint16_t mask)
             }
           ss << "]";
 
-          VLOG(IFM3D_PROTO_DEBUG) << "Unit vectors: " << std::endl
-                                  << ss.str();
+          VLOG(IFM3D_PROTO_DEBUG) << "Unit vectors: " << std::endl << ss.str();
         }
     }
   catch (const ifm3d::error_t& ex)
@@ -377,74 +371,71 @@ ifm3d::FrameGrabber::Impl::SetUVecBuffer(std::uint16_t mask)
     }
 }
 
-
 void
 ifm3d::FrameGrabber::Impl::SetSchemaBuffer(std::uint16_t mask)
 {
-  if((mask & ifm3d::INTR_CAL) == ifm3d::INTR_CAL && (!this->cam_->IsO3D()))
+  if ((mask & ifm3d::INTR_CAL) == ifm3d::INTR_CAL && (!this->cam_->IsO3D()))
     {
       LOG(ERROR) << "Failed to set schema on O3X: "
                  << "Intrinsic parameter not supported by Device";
       throw ifm3d::error_t(IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE);
     }
 
-  if((mask & ifm3d::INTR_CAL) == ifm3d::INTR_CAL && this->cam_->IsO3D()
-     && ! this->cam_->CheckMinimumFirmwareVersion(
-                        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MAJOR,
-                        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MINOR,
-                        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_PATCH))
+  if ((mask & ifm3d::INTR_CAL) == ifm3d::INTR_CAL && this->cam_->IsO3D() &&
+      !this->cam_->CheckMinimumFirmwareVersion(
+        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MAJOR,
+        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MINOR,
+        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_PATCH))
     {
       LOG(ERROR) << "Failed to set schema on O3D: "
                  << "Intrinsic parameter not supported by Firmware";
       throw ifm3d::error_t(IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE);
     }
 
-  if(((mask & ifm3d::INV_INTR_CAL) == ifm3d::INV_INTR_CAL)
-     && (!this->cam_->IsO3D()))
-	  {
-	    LOG(ERROR) << "Failed to set schema on O3X: "
+  if (((mask & ifm3d::INV_INTR_CAL) == ifm3d::INV_INTR_CAL) &&
+      (!this->cam_->IsO3D()))
+    {
+      LOG(ERROR) << "Failed to set schema on O3X: "
                  << "Inverse intrinsic parameter not supported by Device";
-	    throw ifm3d::error_t(
-                    IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE);
-	  }
+      throw ifm3d::error_t(
+        IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE);
+    }
 
-  if((mask & ifm3d::INV_INTR_CAL) == ifm3d::INV_INTR_CAL && this->cam_->IsO3D()
-	   && !this->cam_->CheckMinimumFirmwareVersion(
-                       ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR,
-                       ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR,
-                       ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH))
-	  {
-	    LOG(ERROR) << "Failed to set schema on O3D: "
+  if ((mask & ifm3d::INV_INTR_CAL) == ifm3d::INV_INTR_CAL &&
+      this->cam_->IsO3D() &&
+      !this->cam_->CheckMinimumFirmwareVersion(
+        ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR,
+        ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR,
+        ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH))
+    {
+      LOG(ERROR) << "Failed to set schema on O3D: "
                  << "Inverse intrinsic parameter not supported by Firmware";
-	    throw ifm3d::error_t(
-                    IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE);
-	  }
+      throw ifm3d::error_t(
+        IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE);
+    }
 
-  if((mask & ifm3d::JSON_MODEL) == ifm3d::JSON_MODEL && (this->cam_->IsO3X()))
+  if ((mask & ifm3d::JSON_MODEL) == ifm3d::JSON_MODEL && (this->cam_->IsO3X()))
     {
       LOG(ERROR) << "Failed to set schema on O3X: "
                  << "json data not supported on O3X";
       throw ifm3d::error_t(IFM3D_INVALID_PARAM);
     }
 
-  if(this->cam_->IsO3X())
+  if (this->cam_->IsO3X())
     {
       // O3X does not set the schema via PCIC, rather we set it via
       // XMLRPC using the camera interface.
       // NOTE: Our internal `this->schema_buffer_` is not needed for O3X, so we
       // don't waste any time filling it.
       std::string o3xjson = ifm3d::make_o3x_json_from_mask(mask);
-      VLOG(IFM3D_PROTO_DEBUG) << "o3x schema: "
-                              << std::endl
-                              << o3xjson;
+      VLOG(IFM3D_PROTO_DEBUG) << "o3x schema: " << std::endl << o3xjson;
       try
         {
           this->cam_->FromJSONStr(o3xjson);
         }
       catch (const std::exception& ex)
         {
-          LOG(ERROR) << "Failed to set schema on O3X: "
-                     << ex.what();
+          LOG(ERROR) << "Failed to set schema on O3X: " << ex.what();
           LOG(WARNING) << "Running with currently applied schema";
         }
 
@@ -460,14 +451,10 @@ ifm3d::FrameGrabber::Impl::SetSchemaBuffer(std::uint16_t mask)
   std::string schema = ifm3d::make_schema(mask);
   std::size_t c_len = 4 + 1 + 9 + schema.size() + 2;
   std::ostringstream str;
-  str << ifm3d::TICKET_c
-      << 'L' << std::setfill('0') << std::setw(9) << c_len
+  str << ifm3d::TICKET_c << 'L' << std::setfill('0') << std::setw(9) << c_len
       << '\r' << '\n'
-      << ifm3d::TICKET_c << 'c'
-      << std::setfill('0') << std::setw(9)
-      << schema.size()
-      << schema
-      << '\r' << '\n';
+      << ifm3d::TICKET_c << 'c' << std::setfill('0') << std::setw(9)
+      << schema.size() << schema << '\r' << '\n';
 
   std::string c_command = str.str();
   this->schema_buffer_.assign(c_command.begin(), c_command.end());
@@ -486,8 +473,7 @@ ifm3d::FrameGrabber::Impl::SetTriggerBuffer()
 
   int t_len = 4 + 1 + 2;
   std::ostringstream str;
-  str << ifm3d::TICKET_t
-      << 'L' << std::setfill('0') << std::setw(9) << t_len
+  str << ifm3d::TICKET_t << 'L' << std::setfill('0') << std::setw(9) << t_len
       << '\r' << '\n'
       << ifm3d::TICKET_t << 't' << '\r' << '\n';
 
@@ -517,15 +503,16 @@ ifm3d::FrameGrabber::Impl::Run()
   // For non-O3X devices setting the schema via PCIC, we get acknowledgement of
   // our schema, then start processing the stream of pixel bytes
   auto result_schema_write_handler =
-    [this](const boost::system::error_code& ec, std::size_t bytes_xferd)
-    {
-      if (ec) { throw ifm3d::error_t(ec.value()); }
+    [this](const boost::system::error_code& ec, std::size_t bytes_xferd) {
+      if (ec)
+        {
+          throw ifm3d::error_t(ec.value());
+        }
       this->ticket_buffer_.clear();
       this->ticket_buffer_.resize(ifm3d::TICKET_ID_SZ);
 
       this->sock_.async_read_some(
-        boost::asio::buffer(this->ticket_buffer_.data(),
-                            ifm3d::TICKET_ID_SZ),
+        boost::asio::buffer(this->ticket_buffer_.data(), ifm3d::TICKET_ID_SZ),
         std::bind(&ifm3d::FrameGrabber::Impl::TicketHandler,
                   this,
                   std::placeholders::_1,
@@ -546,9 +533,11 @@ ifm3d::FrameGrabber::Impl::Run()
 
           this->sock_.async_connect(
             this->endpoint_,
-            [this](const boost::system::error_code& ec)
-            {
-              if (ec) { throw ifm3d::error_t(ec.value()); }
+            [this](const boost::system::error_code& ec) {
+              if (ec)
+                {
+                  throw ifm3d::error_t(ec.value());
+                }
               this->ticket_buffer_.clear();
               this->ticket_buffer_.resize(ifm3d::TICKET_ID_SZ);
 
@@ -568,9 +557,11 @@ ifm3d::FrameGrabber::Impl::Run()
           // we need to first write our desired schema to the camera
           this->sock_.async_connect(
             this->endpoint_,
-            [&, this](const boost::system::error_code& ec)
-            {
-              if (ec) { throw ifm3d::error_t(ec.value()); }
+            [&, this](const boost::system::error_code& ec) {
+              if (ec)
+                {
+                  throw ifm3d::error_t(ec.value());
+                }
               boost::asio::async_write(
                 this->sock_,
                 boost::asio::buffer(this->schema_buffer_.data(),
@@ -601,16 +592,18 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const boost::system::error_code& ec,
                                          std::size_t bytes_xferd,
                                          std::size_t bytes_read)
 {
-  if (ec) { throw ifm3d::error_t(ec.value()); }
+  if (ec)
+    {
+      throw ifm3d::error_t(ec.value());
+    }
 
   bytes_read += bytes_xferd;
   if (bytes_read < ifm3d::TICKET_ID_SZ)
     {
-      bytes_read +=
-        boost::asio::read(
-          this->sock_,
-          boost::asio::buffer(&this->ticket_buffer_[bytes_read],
-                              ifm3d::TICKET_ID_SZ - bytes_read));
+      bytes_read += boost::asio::read(
+        this->sock_,
+        boost::asio::buffer(&this->ticket_buffer_[bytes_read],
+                            ifm3d::TICKET_ID_SZ - bytes_read));
 
       if (bytes_read != ifm3d::TICKET_ID_SZ)
         {
@@ -633,25 +626,23 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const boost::system::error_code& ec,
     {
       this->ticket_buffer_.resize(ticket_sz + payload_sz);
 
-      bytes_read +=
-        boost::asio::read(
-          this->sock_,
-          boost::asio::buffer(&this->ticket_buffer_[bytes_read],
-                              (ticket_sz + payload_sz) - bytes_read));
+      bytes_read += boost::asio::read(
+        this->sock_,
+        boost::asio::buffer(&this->ticket_buffer_[bytes_read],
+                            (ticket_sz + payload_sz) - bytes_read));
 
       if (bytes_read != (ticket_sz + payload_sz))
         {
           LOG(ERROR) << "Timeout reading whole response!";
-          LOG(ERROR) << "Got " << bytes_read << " bytes of "
-                     << ticket_sz << " bytes expected";
+          LOG(ERROR) << "Got " << bytes_read << " bytes of " << ticket_sz
+                     << " bytes expected";
 
           throw ifm3d::error_t(IFM3D_IO_ERROR);
         }
     }
 
   std::string ticket_str;
-  ticket_str.assign(this->ticket_buffer_.begin(),
-                    this->ticket_buffer_.end());
+  ticket_str.assign(this->ticket_buffer_.begin(), this->ticket_buffer_.end());
   VLOG(IFM3D_PROTO_DEBUG) << "Full ticket: '" << ticket_str << "'";
 
   if (ticket == ifm3d::TICKET_image)
@@ -677,8 +668,7 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const boost::system::error_code& ec,
           throw ifm3d::error_t(IFM3D_PCIC_BAD_REPLY);
         }
     }
-  else if ((ticket == ifm3d::TICKET_c) ||
-           (ticket == ifm3d::TICKET_t))
+  else if ((ticket == ifm3d::TICKET_c) || (ticket == ifm3d::TICKET_t))
     {
       if (this->ticket_buffer_.at(20) != '*')
         {
@@ -698,8 +688,7 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const boost::system::error_code& ec,
       this->ticket_buffer_.clear();
       this->ticket_buffer_.resize(ifm3d::TICKET_ID_SZ);
       this->sock_.async_read_some(
-        boost::asio::buffer(this->ticket_buffer_.data(),
-                            ifm3d::TICKET_ID_SZ),
+        boost::asio::buffer(this->ticket_buffer_.data(), ifm3d::TICKET_ID_SZ),
         std::bind(&ifm3d::FrameGrabber::Impl::TicketHandler,
                   this,
                   std::placeholders::_1,
@@ -720,7 +709,10 @@ ifm3d::FrameGrabber::Impl::ImageHandler(const boost::system::error_code& ec,
                                         std::size_t bytes_xferd,
                                         std::size_t bytes_read)
 {
-  if (ec) { throw ifm3d::error_t(ec.value()); }
+  if (ec)
+    {
+      throw ifm3d::error_t(ec.value());
+    }
 
   bytes_read += bytes_xferd;
 
@@ -747,9 +739,10 @@ ifm3d::FrameGrabber::Impl::ImageHandler(const boost::system::error_code& ec,
           ((this->mask_ & ifm3d::IMG_UVEC) == ifm3d::IMG_UVEC))
         {
           VLOG(IFM3D_TRACE) << "Inserting unit vectors to front buffer";
-          this->front_buffer_.insert(
-            this->front_buffer_.begin()+ifm3d::IMG_BUFF_START,
-            this->uvec_buffer_.begin(), this->uvec_buffer_.end());
+          this->front_buffer_.insert(this->front_buffer_.begin() +
+                                       ifm3d::IMG_BUFF_START,
+                                     this->uvec_buffer_.begin(),
+                                     this->uvec_buffer_.end());
         }
       this->front_buffer_mutex_.unlock();
 
@@ -764,8 +757,7 @@ ifm3d::FrameGrabber::Impl::ImageHandler(const boost::system::error_code& ec,
   this->ticket_buffer_.clear();
   this->ticket_buffer_.resize(ifm3d::TICKET_ID_SZ);
   this->sock_.async_read_some(
-    boost::asio::buffer(this->ticket_buffer_.data(),
-                        ifm3d::TICKET_ID_SZ),
+    boost::asio::buffer(this->ticket_buffer_.data(), ifm3d::TICKET_ID_SZ),
     std::bind(&ifm3d::FrameGrabber::Impl::TicketHandler,
               this,
               std::placeholders::_1,

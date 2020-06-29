@@ -20,12 +20,14 @@
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/camera/camera.h>
 
-ifm3d::ImagerTypesApp::ImagerTypesApp(int argc, const char **argv,
+ifm3d::ImagerTypesApp::ImagerTypesApp(int argc,
+                                      const char** argv,
                                       const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 { }
 
-int ifm3d::ImagerTypesApp::Run()
+int
+ifm3d::ImagerTypesApp::Run()
 {
   if (this->vm_.count("help"))
     {

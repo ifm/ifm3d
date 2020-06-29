@@ -30,7 +30,7 @@ namespace ifm3d
   class ResetApp : public ifm3d::CmdLineApp
   {
   public:
-    ResetApp(int argc, const char **argv, const std::string& name = "reset");
+    ResetApp(int argc, const char** argv, const std::string& name = "reset");
     int Run();
   }; // end: class ResetApp
 

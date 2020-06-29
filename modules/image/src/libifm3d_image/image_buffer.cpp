@@ -42,7 +42,7 @@ ifm3d::ImageBuffer::ImageBuffer(ifm3d::ImageBuffer&& src_buff)
 
 // move assignment
 ifm3d::ImageBuffer&
-ifm3d::ImageBuffer::operator= (ifm3d::ImageBuffer&& src_buff)
+ifm3d::ImageBuffer::operator=(ifm3d::ImageBuffer&& src_buff)
 {
   this->SetBytes(src_buff.bytes_, false);
   return *this;
@@ -58,7 +58,7 @@ ifm3d::ImageBuffer::ImageBuffer(const ifm3d::ImageBuffer& src_buff)
 
 // copy assignment operator
 ifm3d::ImageBuffer&
-ifm3d::ImageBuffer::operator= (const ifm3d::ImageBuffer& src_buff)
+ifm3d::ImageBuffer::operator=(const ifm3d::ImageBuffer& src_buff)
 {
   if (this == &src_buff)
     {

@@ -30,7 +30,7 @@ namespace ifm3d
   class RmApp : public ifm3d::CmdLineApp
   {
   public:
-    RmApp(int argc, const char **argv, const std::string& name = "rm");
+    RmApp(int argc, const char** argv, const std::string& name = "rm");
     int Run();
   }; // end: class RmApp
 
