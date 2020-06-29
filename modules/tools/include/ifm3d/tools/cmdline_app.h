@@ -39,7 +39,8 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<CmdLineApp>;
 
-    CmdLineApp(int argc, const char **argv,
+    CmdLineApp(int argc,
+               const char** argv,
                const std::string& name = "version");
     virtual ~CmdLineApp() = default;
 

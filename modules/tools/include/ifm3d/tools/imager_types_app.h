@@ -30,7 +30,8 @@ namespace ifm3d
   class ImagerTypesApp : public ifm3d::CmdLineApp
   {
   public:
-    ImagerTypesApp(int argc, const char **argv,
+    ImagerTypesApp(int argc,
+                   const char** argv,
                    const std::string& name = "imager-types");
     int Run();
   }; // end: class ImagerTypesApp

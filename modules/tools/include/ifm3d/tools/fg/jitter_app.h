@@ -29,7 +29,7 @@ namespace ifm3d
   class JitterApp : public ifm3d::CmdLineApp
   {
   public:
-    JitterApp(int argc, const char **argv, const std::string& name = "jitter");
+    JitterApp(int argc, const char** argv, const std::string& name = "jitter");
     int Run();
   };
 

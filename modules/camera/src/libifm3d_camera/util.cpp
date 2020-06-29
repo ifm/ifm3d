@@ -33,7 +33,6 @@ ifm3d::rtrim(std::string& str, const std::string& chars)
   return str;
 }
 
-
 std::string&
 ifm3d::trim(std::string& str, const std::string& chars)
 {

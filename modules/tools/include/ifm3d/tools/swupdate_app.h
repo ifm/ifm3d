@@ -30,14 +30,15 @@ namespace ifm3d
   class SwupdateApp : public ifm3d::CmdLineApp
   {
   public:
-    SwupdateApp(int argc, const char **argv,
+    SwupdateApp(int argc,
+                const char** argv,
                 const std::string& name = "swupdate");
     int Run();
 
   private:
-   /**
-    * Check if the device is in recovery mode
-    */
+    /**
+     * Check if the device is in recovery mode
+     */
     void checkRecovery();
 
     /**

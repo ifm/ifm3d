@@ -26,8 +26,7 @@
 
 namespace po = boost::program_options;
 
-ifm3d::TimeApp::TimeApp(int argc, const char **argv,
-                        const std::string& name)
+ifm3d::TimeApp::TimeApp(int argc, const char** argv, const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
   // clang-format off
@@ -36,12 +35,16 @@ ifm3d::TimeApp::TimeApp(int argc, const char **argv,
      "Secs since Unix epoch encoding time to be set on camera (-1 == now)");
   // clang-format on
 
-  po::store(po::command_line_parser(argc, argv).
-            options(this->local_opts_).allow_unregistered().run(), this->vm_);
+  po::store(po::command_line_parser(argc, argv)
+              .options(this->local_opts_)
+              .allow_unregistered()
+              .run(),
+            this->vm_);
   po::notify(this->vm_);
 }
 
-int ifm3d::TimeApp::Run()
+int
+ifm3d::TimeApp::Run()
 {
   if (this->vm_.count("help"))
     {
@@ -56,8 +59,7 @@ int ifm3d::TimeApp::Run()
                 << "an O3D3XX with firmware >= "
                 << ifm3d::O3D_TIME_SUPPORT_MAJOR << "."
                 << ifm3d::O3D_TIME_SUPPORT_MINOR << "."
-                << ifm3d::O3D_TIME_SUPPORT_PATCH
-                << std::endl;
+                << ifm3d::O3D_TIME_SUPPORT_PATCH << std::endl;
       return 0;
     }
 
@@ -71,8 +73,7 @@ int ifm3d::TimeApp::Run()
     std::stoi(dump["ifm3d"]["Time"]["CurrentTime"].get<std::string>());
   std::time_t curr_time_t = curr_time;
   std::cout << "Local time on camera is: "
-            << std::asctime(std::localtime(&curr_time_t))
-            << std::endl;
+            << std::asctime(std::localtime(&curr_time_t)) << std::endl;
 
   return 0;
 }
