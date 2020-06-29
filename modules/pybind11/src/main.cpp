@@ -172,6 +172,8 @@ PYBIND11_MODULE(ifm3dpy, m)
   m.attr("O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH") =
     ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH;
 
+  // clang-format does a poor job handling the alignment of raw strings
+  // clang-format off
   py::class_<ifm3d::OpenCVBuffer, ifm3d::OpenCVBuffer::Ptr>(
     m,
     "ImageBuffer",
@@ -1212,4 +1214,5 @@ PYBIND11_MODULE(ifm3dpy, m)
           as descriptive as possible as to the specific error that has
           occured.
     )");
+  // clang-format on
 }
