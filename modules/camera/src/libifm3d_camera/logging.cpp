@@ -40,7 +40,8 @@ namespace ifm3d
     /**
      * Runs the one-time initialization code
      */
-    static void _Init(int verbose=0)
+    static void
+    _Init(int verbose = 0)
     {
       FLAGS_logbuflevel = -1;
       FLAGS_v = verbose;
@@ -56,7 +57,8 @@ namespace ifm3d
      *
      * @param[in] verbose glog's VLOG verbosity level
      */
-    static void Init(int verbose=0)
+    static void
+    Init(int verbose = 0)
     {
       std::call_once(ifm3d::Logging::init_, ifm3d::Logging::_Init, verbose);
     }
@@ -67,7 +69,7 @@ namespace ifm3d
 
 std::once_flag ifm3d::Logging::init_;
 
-
+// clang-format off
 // Initializer sample for MSVC and GCC/Clang.
 // 2010-2016 Joe Lowe. Released into the public domain.
 #include <stdio.h>
@@ -95,12 +97,13 @@ std::once_flag ifm3d::Logging::init_;
         static void f(void) __attribute__((constructor)); \
         static void f(void)
 #endif
-
+// clang-format on
 
 INITIALIZER(libifm3d_camera_ctor)
 {
   int vlog = std::getenv("IFM3D_VLOG") == nullptr ?
-    0 : std::atoi(std::getenv("IFM3D_VLOG"));
+               0 :
+               std::atoi(std::getenv("IFM3D_VLOG"));
 
   ifm3d::Logging::Init(vlog);
 }

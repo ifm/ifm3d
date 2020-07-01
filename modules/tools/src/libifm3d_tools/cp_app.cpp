@@ -23,17 +23,21 @@
 
 namespace po = boost::program_options;
 
-ifm3d::CpApp::CpApp(int argc, const char **argv,
-                    const std::string& name)
+ifm3d::CpApp::CpApp(int argc, const char** argv, const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
+  // clang-format off
   this->local_opts_.add_options()
     ("index",
      po::value<int>()->default_value(-1),
      "Index of source application to copy");
+  // clang-format on
 
-  po::store(po::command_line_parser(argc, argv).
-            options(this->local_opts_).allow_unregistered().run(), this->vm_);
+  po::store(po::command_line_parser(argc, argv)
+              .options(this->local_opts_)
+              .allow_unregistered()
+              .run(),
+            this->vm_);
   po::notify(this->vm_);
 }
 

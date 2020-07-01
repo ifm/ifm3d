@@ -29,9 +29,8 @@
 
 namespace ifm3d
 {
-  using TimePointT =
-    std::chrono::time_point<std::chrono::system_clock,
-                            std::chrono::nanoseconds>;
+  using TimePointT = std::chrono::time_point<std::chrono::system_clock,
+                                             std::chrono::nanoseconds>;
 
   extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t IMG_TICKET_SZ; // bytes
   extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t IMG_BUFF_START;
@@ -75,32 +74,38 @@ namespace ifm3d
   // intrinsic parameter
   enum class intrinsic_param : std::uint32_t
   {
-    F_X = 0,    //Focal length of the camera in the sensor's x axis direction.
-    F_Y = 1,    //Focal length of the camera in the sensor's y axis direction.
-    M_X = 2,    //Main point in the sensor's x direction
-    M_Y = 3,    //Main point in the sensor's x direction
-    ALPHA = 4,  //Skew parameter
-    K1 = 5,   //First radial distortion coefficient
-    K2 = 6,   //Second radial distortion coefficient
-    K5 = 7,   //Third radial distortion coefficient
-    K3 = 8,   //First tangential distortion coefficient
-    K4 = 9,   //Second tangential distortion coefficient
-    TRANS_X = 10, //Translation along x-direction in meters.
-    TRANS_Y = 11, //Translation along y-direction in meters.
-    TRANS_Z = 12, //Translation along Z-direction in meters.
-    ROT_X = 13, //Rotation along x-axis in radians. Positive values indicate clockwise rotation.
-    ROT_Y = 14, //Rotation along y-axis in radians. Positive values indicate clockwise rotation.
-    ROT_Z = 15  //Rotation along z-axis in radians. Positive values indicate clockwise rotation.
+    F_X = 0,   // Focal length of the camera in the sensor's x axis direction.
+    F_Y = 1,   // Focal length of the camera in the sensor's y axis direction.
+    M_X = 2,   // Main point in the sensor's x direction
+    M_Y = 3,   // Main point in the sensor's x direction
+    ALPHA = 4, // Skew parameter
+    K1 = 5,    // First radial distortion coefficient
+    K2 = 6,    // Second radial distortion coefficient
+    K5 = 7,    // Third radial distortion coefficient
+    K3 = 8,    // First tangential distortion coefficient
+    K4 = 9,    // Second tangential distortion coefficient
+    TRANS_X = 10, // Translation along x-direction in meters.
+    TRANS_Y = 11, // Translation along y-direction in meters.
+    TRANS_Z = 12, // Translation along Z-direction in meters.
+    ROT_X = 13,   // Rotation along x-axis in radians. Positive values indicate
+                  // clockwise rotation.
+    ROT_Y = 14,   // Rotation along y-axis in radians. Positive values indicate
+                  // clockwise rotation.
+    ROT_Z = 15    // Rotation along z-axis in radians. Positive values indicate
+                  // clockwise rotation.
   };
 
   enum class extrinsic_param : std::uint32_t
   {
-    TRANS_X = 0,  //Translation along x-direction in meters.
-    TRANS_Y = 1,  //Translation along y-direction in meters.
-    TRANS_Z = 2,  //Translation along Z-direction in meters.
-    ROT_X = 3,  //Rotation along x-axis in radians. Positive values indicate clockwise rotation.
-    ROT_Y = 4,  //Rotation along y-axis in radians. Positive values indicate clockwise rotation.
-    ROT_Z = 5   //Rotation along z-axis in radians. Positive values indicate clockwise rotation.
+    TRANS_X = 0, // Translation along x-direction in meters.
+    TRANS_Y = 1, // Translation along y-direction in meters.
+    TRANS_Z = 2, // Translation along Z-direction in meters.
+    ROT_X = 3,   // Rotation along x-axis in radians. Positive values indicate
+                 // clockwise rotation.
+    ROT_Y = 4,   // Rotation along y-axis in radians. Positive values indicate
+                 // clockwise rotation.
+    ROT_Z = 5    // Rotation along z-axis in radians. Positive values indicate
+                 // clockwise rotation.
   };
 
   /**
@@ -166,8 +171,9 @@ namespace ifm3d
    * @return An interpretation of `buff` as type T with bytes swapped as
    * appropriate for the host's byte ordering semantics.
    */
-  template<typename T>
-  T mkval(const unsigned char *buff)
+  template <typename T>
+  T
+  mkval(const unsigned char* buff)
   {
     union
     {
@@ -190,9 +196,9 @@ namespace ifm3d
    * the current schema mask set on the active framegrabber.
    *
    * The ByteBuffer imposes no specific image or point cloud data
-   * structure. This class is intended to be subclassed where more user-friendly
-   * data structures can be used to gain access to the bytes in a semantically
-   * meaningful manner.
+   * structure. This class is intended to be subclassed where more
+   * user-friendly data structures can be used to gain access to the bytes in a
+   * semantically meaningful manner.
    *
    * There are two primary interfaces (documented below) that image container
    * developers should implement. They are:
@@ -223,7 +229,7 @@ namespace ifm3d
   class ByteBuffer
   {
   public:
-    using Ptr = std::shared_ptr<ByteBuffer<Derived> >;
+    using Ptr = std::shared_ptr<ByteBuffer<Derived>>;
 
     /**
      * Default initializes instance vars
@@ -290,23 +296,39 @@ namespace ifm3d
      *
      * The elements are:
      *
-     * Name  Data type   Unit      Description
-     * fx    32 bit float  px        Focal length of the camera in the sensor's x axis direction.
-     * fy    32 bit float  px        Focal length of the camera in the sensor's y axis direction.
-     * mx    32 bit float  px        Main point in the sensor's x direction
-     * my    32 bit float  px        Main point in the sensor's y direction
-     * alpha 32 bit float  dimensionless Skew parameter
-     * k1    32 bit float  dimensionless First radial distortion coefficient
-     * k2    32 bit float  dimensionless Second radial distortion coefficient
-     * k5    32 bit float  dimensionless Third radial distortion coefficient
-     * k3    32 bit float  dimensionless First tangential distortion coefficient
-     * k4    32 bit float  dimensionless Second tangential distortion coefficient
-     * transX  32 bit float  mm        Translation along x-direction in meters.
-     * transY  32 bit float  mm        Translation along y-direction in meters.
-     * transZ  32 bit float  mm        Translation along z-direction in meters.
-     * rotX  32 bit float  degree        Rotation along x-axis in radians. Positive values indicate clockwise rotation.
-     * rotY  32 bit float  degree        Rotation along y-axis in radians. Positive values indicate clockwise rotation.
-     * rotZ  32 bit float  degree        Rotation along z-axis in radians. Positive values indicate clockwise rotation.
+     * Name    Data type     Unit           Description
+     * fx      32 bit float  px             Focal length of the camera in the
+     *                                      sensor's x axis direction.
+     * fy      32 bit float  px             Focal length of the camera in the
+     *                                      sensor's yaxis direction.
+     * mx      32 bit float  px             Main point in the sensor's x
+     *                                      direction
+     * my      32 bit float  px             Main point in the sensor's y
+     *                                      direction
+     * alpha   32 bit float  dimensionless  Skew parameter
+     * k1      32 bit float  dimensionless  First radial distortion coefficient
+     * k2      32 bit float  dimensionless  Second radial distortion
+     *                                      coefficient
+     * k5      32 bit float  dimensionless  Third radial distortion coefficient
+     * k3      32 bit float  dimensionless  First tangential distortion
+     *                                      coefficient
+     * k4      32 bit float  dimensionless  Second tangential distortion
+     *                                      coefficient
+     * transX  32 bit float  mm             Translation along x-direction in
+     *                                      meters.
+     * transY  32 bit float  mm             Translation along y-direction in
+     *                                      meters.
+     * transZ  32 bit float  mm             Translation along z-direction in
+     *                                      meters.
+     * rotX    32 bit float  degree         Rotation along x-axis in radians.
+     *                                      Positive values indicate clockwise
+     *                                      rotation.
+     * rotY    32 bit float  degree         Rotation along y-axis in radians.
+     *                                      Positive values indicate clockwise
+     *                                      rotation.
+     * rotZ    32 bit float  degree         Rotation along z-axis in radians.
+     *                                      Positive values indicate clockwise
+     *                                      rotation.
      *
      */
     std::vector<float> Intrinsics();
@@ -394,17 +416,24 @@ namespace ifm3d
      * @param[in] bytes A const reference to the byte buffer to process
      */
     template <typename T>
-    void ImCreate(ifm3d::image_chunk im,
-                  std::uint32_t fmt,
-                  std::size_t idx,
-                  std::uint32_t width,
-                  std::uint32_t height,
-                  int nchan,
-                  std::uint32_t npts,
-                  const std::vector<std::uint8_t>& bytes)
+    void
+    ImCreate(ifm3d::image_chunk im,
+             std::uint32_t fmt,
+             std::size_t idx,
+             std::uint32_t width,
+             std::uint32_t height,
+             int nchan,
+             std::uint32_t npts,
+             const std::vector<std::uint8_t>& bytes)
     {
-      static_cast<Derived *>(this)
-        ->template ImCreate<T>(im, fmt, idx, width, height, nchan, npts, bytes);
+      static_cast<Derived*>(this)->template ImCreate<T>(im,
+                                                        fmt,
+                                                        idx,
+                                                        width,
+                                                        height,
+                                                        nchan,
+                                                        npts,
+                                                        bytes);
     }
 
     /**
@@ -430,17 +459,24 @@ namespace ifm3d
      *
      */
     template <typename T>
-    void CloudCreate(std::uint32_t fmt,
-                     std::size_t xidx,
-                     std::size_t yidx,
-                     std::size_t zidx,
-                     std::uint32_t width,
-                     std::uint32_t height,
-                     std::uint32_t npts,
-                     const std::vector<std::uint8_t>& bytes)
+    void
+    CloudCreate(std::uint32_t fmt,
+                std::size_t xidx,
+                std::size_t yidx,
+                std::size_t zidx,
+                std::uint32_t width,
+                std::uint32_t height,
+                std::uint32_t npts,
+                const std::vector<std::uint8_t>& bytes)
     {
-      static_cast<Derived *>(this)
-        ->template CloudCreate<T>(fmt, xidx, yidx, zidx, width, height, npts, bytes);
+      static_cast<Derived*>(this)->template CloudCreate<T>(fmt,
+                                                           xidx,
+                                                           yidx,
+                                                           zidx,
+                                                           width,
+                                                           height,
+                                                           npts,
+                                                           bytes);
     }
 
     /**

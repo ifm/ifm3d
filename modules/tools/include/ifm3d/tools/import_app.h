@@ -33,7 +33,7 @@ namespace ifm3d
   class ImportApp : public ifm3d::CmdLineApp
   {
   public:
-    ImportApp(int argc, const char **argv, const std::string& name = "import");
+    ImportApp(int argc, const char** argv, const std::string& name = "import");
     int Run();
   }; // end: class ImportApp
 

@@ -74,7 +74,8 @@ const int IFM3D_LED_DUTY_CYCLE_VIOLATION = 101055;
 const int IFM3D_AUTO_EXPOSURE_NOT_SUPPORTED = 101056;
 const int IFM3D_INVALID_FIRMWARE_VERSION = 101058;
 
-const char *ifm3d::strerror(int errnum)
+const char*
+ifm3d::strerror(int errnum)
 {
   switch (errnum)
     {
@@ -88,7 +89,7 @@ const char *ifm3d::strerror(int errnum)
       return "Lib: Error processing JSON";
     case IFM3D_NO_ACTIVE_APPLICATION:
       return "Lib: No application is marked active";
-    case  IFM3D_SUBCOMMAND_ERROR:
+    case IFM3D_SUBCOMMAND_ERROR:
       return "Lib: Missing or invalid sub-command";
     case IFM3D_IO_ERROR:
       return "Lib: I/O error";
@@ -107,7 +108,8 @@ const char *ifm3d::strerror(int errnum)
     case IFM3D_UPDATE_ERROR:
       return "Lib: An error occured while performing the update";
     case IFM3D_RECOVERY_CONNECTION_ERROR:
-      return "Lib: Couldn't connect to the device (make sure the device is in Recovery Mode)";
+      return "Lib: Couldn't connect to the device (make sure the device is in "
+             "Recovery Mode)";
     case IFM3D_PCICCLIENT_UNSUPPORTED_DEVICE:
       return "Lib: PCICClient is not supported for this device";
     case IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE:
@@ -117,11 +119,13 @@ const char *ifm3d::strerror(int errnum)
     case IFM3D_CURL_ERROR:
       return "Lib: Encountered an unexpected error in the CURL library";
     case IFM3D_CURL_TIMEOUT:
-      return "Lib: An HTTP operation with CURL timed out. Can you 'ping' the camera?";
+      return "Lib: An HTTP operation with CURL timed out. Can you 'ping' the "
+             "camera?";
     case IFM3D_CURL_ABORTED:
       return "Lib: An HTTP operation with CURL was aborted.";
     case IFM3D_SWUPDATE_BAD_STATE:
-      return "Lib: SWUpdater process on camera is in invalid state. Reboot the camera and try again.";
+      return "Lib: SWUpdater process on camera is in invalid state. Reboot "
+             "the camera and try again.";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
       return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:
@@ -185,15 +189,16 @@ const char *ifm3d::strerror(int errnum)
     }
 }
 
-ifm3d::error_t::error_t(int errnum)
-  : std::exception(), errnum_(errnum) { }
+ifm3d::error_t::error_t(int errnum) : std::exception(), errnum_(errnum) { }
 
-int ifm3d::error_t::code() const noexcept
+int
+ifm3d::error_t::code() const noexcept
 {
   return this->errnum_;
 }
 
-const char *ifm3d::error_t::what() const noexcept
+const char*
+ifm3d::error_t::what() const noexcept
 {
   return ifm3d::strerror(this->code());
 }

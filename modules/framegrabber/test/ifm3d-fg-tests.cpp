@@ -18,37 +18,35 @@
 class MyBuff : public ifm3d::ByteBuffer<MyBuff>
 {
 public:
-  MyBuff() : ifm3d::ByteBuffer<MyBuff>()
+  MyBuff() : ifm3d::ByteBuffer<MyBuff>() { LOG(INFO) << "ctor"; }
+
+  template <typename T>
+  void
+  ImCreate(ifm3d::image_chunk im,
+           std::uint32_t fmt,
+           std::size_t idx,
+           std::uint32_t width,
+           std::uint32_t height,
+           int nchan,
+           std::uint32_t npts,
+           const std::vector<std::uint8_t>& bytes)
   {
-    LOG(INFO) << "ctor";
+    LOG(INFO) << "ImCreate: " << (int)im;
   }
 
   template <typename T>
-  void ImCreate(ifm3d::image_chunk im,
-                std::uint32_t fmt,
-                std::size_t idx,
-                std::uint32_t width,
-                std::uint32_t height,
-                int nchan,
-                std::uint32_t npts,
-                const std::vector<std::uint8_t>& bytes)
-  {
-    LOG(INFO) << "ImCreate: " << (int) im;
-  }
-
-  template <typename T>
-  void CloudCreate(std::uint32_t fmt,
-                   std::size_t xidx,
-                   std::size_t yidx,
-                   std::size_t zidx,
-                   std::uint32_t width,
-                   std::uint32_t height,
-                   std::uint32_t npts,
-                   const std::vector<std::uint8_t>& bytes)
+  void
+  CloudCreate(std::uint32_t fmt,
+              std::size_t xidx,
+              std::size_t yidx,
+              std::size_t zidx,
+              std::uint32_t width,
+              std::uint32_t height,
+              std::uint32_t npts,
+              const std::vector<std::uint8_t>& bytes)
   {
     LOG(INFO) << "CloudCreate";
   }
-
 };
 
 TEST(FrameGrabber, FactoryDefaults)
@@ -73,7 +71,9 @@ TEST(FrameGrabber, ByteBufferBasics)
   std::vector<float> inverseIntrinsic = buff->InverseIntrinsics();
 
   EXPECT_TRUE(std::equal(intrinsic.begin(), intrinsic.end(), zeros.begin()));
-  EXPECT_TRUE(std::equal(inverseIntrinsic.begin(), inverseIntrinsic.end(), zeros.begin()));
+  EXPECT_TRUE(std::equal(inverseIntrinsic.begin(),
+                         inverseIntrinsic.end(),
+                         zeros.begin()));
   EXPECT_TRUE(std::equal(extrinsics.begin(), extrinsics.end(), zeros.begin()));
   EXPECT_TRUE(std::equal(exposures.begin(), exposures.end(), zeros.begin()));
 }
@@ -98,7 +98,7 @@ TEST(FrameGrabber, WaitForFrame)
 TEST(FrameGrabber, CustomSchema)
 {
   LOG(INFO) << "CustomSchema test";
-  std::uint16_t mask = ifm3d::IMG_AMP|ifm3d::IMG_RDIS|ifm3d::IMG_UVEC;
+  std::uint16_t mask = ifm3d::IMG_AMP | ifm3d::IMG_RDIS | ifm3d::IMG_UVEC;
 
   auto cam = ifm3d::Camera::MakeShared();
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, mask);
@@ -110,67 +110,66 @@ TEST(FrameGrabber, CustomSchema)
 TEST(FrameGrabber, IntrinsicParamSchema)
 {
   LOG(INFO) << "IntrinsicParamSchema test";
-  std::uint16_t mask = ifm3d::IMG_AMP|ifm3d::IMG_RDIS|ifm3d::INTR_CAL;
+  std::uint16_t mask = ifm3d::IMG_AMP | ifm3d::IMG_RDIS | ifm3d::INTR_CAL;
 
   auto cam = ifm3d::Camera::MakeShared();
-  if(cam->IsO3X()) // intrinsic parameter  not supported
-   {
-     EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
-                  ifm3d::error_t);
-   }
-  if(cam->IsO3D() &&
-     cam->CheckMinimumFirmwareVersion(
-       ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MAJOR,
-       ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MINOR,
-       ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_PATCH))
-   {
-     auto fg = std::make_shared<ifm3d::FrameGrabber>(cam,mask);
-     auto buff = std::make_shared<MyBuff>();
-     EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
-   }
-  else if(cam->IsO3D())
-   {
-     EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
-                  ifm3d::error_t);
-   }
+  if (cam->IsO3X()) // intrinsic parameter  not supported
+    {
+      EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
+                   ifm3d::error_t);
+    }
+  if (cam->IsO3D() && cam->CheckMinimumFirmwareVersion(
+                        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MAJOR,
+                        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MINOR,
+                        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_PATCH))
+    {
+      auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, mask);
+      auto buff = std::make_shared<MyBuff>();
+      EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
+    }
+  else if (cam->IsO3D())
+    {
+      EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
+                   ifm3d::error_t);
+    }
 }
 
 TEST(FrameGrabber, InverseIntrinsicParamSchema)
 {
   LOG(INFO) << "InverseIntrinsicParamSchema test";
 
-  std::uint16_t mask = (ifm3d::IMG_AMP|ifm3d::IMG_RDIS|
-                        ifm3d::INTR_CAL|ifm3d::INV_INTR_CAL);
+  std::uint16_t mask =
+    (ifm3d::IMG_AMP | ifm3d::IMG_RDIS | ifm3d::INTR_CAL | ifm3d::INV_INTR_CAL);
   auto cam = ifm3d::Camera::MakeShared();
-  if(cam->IsO3X()) // inverse intrinsic parameter  not supported
-   {
-     EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
-                  ifm3d::error_t);
-   }
-  if(cam->IsO3D() &&
-     cam->CheckMinimumFirmwareVersion(
-       ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR,
-       ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR,
-       ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH))
-   {
-     auto fg = std::make_shared<ifm3d::FrameGrabber>(cam,mask);
-     auto buff = std::make_shared<MyBuff>();
+  if (cam->IsO3X()) // inverse intrinsic parameter  not supported
+    {
+      EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
+                   ifm3d::error_t);
+    }
+  if (cam->IsO3D() && cam->CheckMinimumFirmwareVersion(
+                        ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR,
+                        ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR,
+                        ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH))
+    {
+      auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, mask);
+      auto buff = std::make_shared<MyBuff>();
 
-     EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
+      EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
 
-     std::vector<float> intrinsics=buff->Intrinsics();
-     EXPECT_TRUE(std::accumulate(intrinsics.begin(),
-                                 intrinsics.end(), 0.) > 0.);
+      std::vector<float> intrinsics = buff->Intrinsics();
+      EXPECT_TRUE(std::accumulate(intrinsics.begin(), intrinsics.end(), 0.) >
+                  0.);
 
-     std::vector<float> inverseIntrinsics=buff->InverseIntrinsics();
-     EXPECT_TRUE(std::accumulate(inverseIntrinsics.begin(),
-                                 inverseIntrinsics.end(), 0.) > 0.);
-   }
-  else if(cam->IsO3D())
-   {
-     EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
-                  ifm3d::error_t);
-   }
+      std::vector<float> inverseIntrinsics = buff->InverseIntrinsics();
+      EXPECT_TRUE(std::accumulate(inverseIntrinsics.begin(),
+                                  inverseIntrinsics.end(),
+                                  0.) > 0.);
+    }
+  else if (cam->IsO3D())
+    {
+      EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
+                   ifm3d::error_t);
+    }
 }
 
 TEST(FrameGrabber, ByteBufferMoveCtor)
@@ -247,7 +246,7 @@ TEST(FrameGrabber, FrameGrabberRecycling)
       EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
     }
 
-  if (! cam->IsO3X())
+  if (!cam->IsO3X())
     {
       fg.reset(new ifm3d::FrameGrabber(cam));
       for (int i = 0; i < 5; ++i)
@@ -284,7 +283,7 @@ TEST(FrameGrabber, SoftwareTrigger)
   // mark the current active application as sw triggered
   int idx = cam->ActiveApplication();
   json config = cam->ToJSON();
-  config["ifm3d"]["Apps"][idx-1]["TriggerMode"] =
+  config["ifm3d"]["Apps"][idx - 1]["TriggerMode"] =
     std::to_string(static_cast<int>(ifm3d::Camera::trigger_mode::SW));
   cam->FromJSON(config);
 
@@ -299,11 +298,10 @@ TEST(FrameGrabber, SoftwareTrigger)
     {
       fg->SWTrigger();
       EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
-
     }
 
   // set the camera back into free-run mode
-  config["ifm3d"]["Apps"][idx-1]["TriggerMode"] =
+  config["ifm3d"]["Apps"][idx - 1]["TriggerMode"] =
     std::to_string(static_cast<int>(ifm3d::Camera::trigger_mode::FREE_RUN));
   cam->FromJSON(config);
 }
@@ -325,7 +323,7 @@ TEST(FrameGrabber, SWTriggerMultipleClients)
   // mark the current active application as sw triggered
   int idx = cam->ActiveApplication();
   json config = cam->ToJSON();
-  config["ifm3d"]["Apps"][idx-1]["TriggerMode"] =
+  config["ifm3d"]["Apps"][idx - 1]["TriggerMode"] =
     std::to_string(static_cast<int>(ifm3d::Camera::trigger_mode::SW));
   cam->FromJSON(config);
 
@@ -338,12 +336,12 @@ TEST(FrameGrabber, SWTriggerMultipleClients)
 
   // launch two threads where each of the framegrabbers will
   // wait for a new frame
-  auto fut1 = std::async(std::launch::async,
-                         [fg1,buff1]()->bool
-                         {return fg1->WaitForFrame(buff1.get(),5000);});
-  auto fut2 = std::async(std::launch::async,
-                         [fg2,buff2]()->bool
-                         {return fg2->WaitForFrame(buff2.get(),5000);});
+  auto fut1 = std::async(std::launch::async, [fg1, buff1]() -> bool {
+    return fg1->WaitForFrame(buff1.get(), 5000);
+  });
+  auto fut2 = std::async(std::launch::async, [fg2, buff2]() -> bool {
+    return fg2->WaitForFrame(buff2.get(), 5000);
+  });
 
   // Let's S/W trigger from the first -- this could have been a third
   // framegrabber (i.e., client to PCIC)
@@ -357,7 +355,7 @@ TEST(FrameGrabber, SWTriggerMultipleClients)
   EXPECT_TRUE(buff1->Bytes() == buff2->Bytes());
 
   // set the camera back into free-run mode
-  config["ifm3d"]["Apps"][idx-1]["TriggerMode"] =
+  config["ifm3d"]["Apps"][idx - 1]["TriggerMode"] =
     std::to_string(static_cast<int>(ifm3d::Camera::trigger_mode::FREE_RUN));
   cam->FromJSON(config);
 }
@@ -371,7 +369,7 @@ TEST(FrameGrabber, JSON_model)
   if (cam->IsO3X()) // JSON model not supported
     {
       EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
-        ifm3d::error_t);
+                   ifm3d::error_t);
     }
   else if (cam->IsO3D())
     {
@@ -381,7 +379,7 @@ TEST(FrameGrabber, JSON_model)
       EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
       std::string model = "";
       EXPECT_NO_THROW(model = buff->JSONModel());
-      // checking is its a valid model 
+      // checking is its a valid model
       EXPECT_TRUE(json::parse(model) != NULL);
     }
 }

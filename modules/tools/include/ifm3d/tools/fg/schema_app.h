@@ -30,8 +30,7 @@ namespace ifm3d
   class SchemaApp : public ifm3d::CmdLineApp
   {
   public:
-    SchemaApp(int argc, const char **argv,
-              const std::string& name = "schema");
+    SchemaApp(int argc, const char** argv, const std::string& name = "schema");
     int Run();
   };
 

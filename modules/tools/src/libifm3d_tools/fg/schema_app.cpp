@@ -22,10 +22,12 @@
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/fg/schema.h>
 
-ifm3d::SchemaApp::SchemaApp(int argc, const char **argv,
+ifm3d::SchemaApp::SchemaApp(int argc,
+                            const char** argv,
                             const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
+  // clang-format off
   this->local_opts_.add_options()
     ("mask",
      po::value<std::uint16_t>()->default_value(ifm3d::DEFAULT_SCHEMA_MASK),
@@ -35,13 +37,18 @@ ifm3d::SchemaApp::SchemaApp(int argc, const char **argv,
      "Mask string: e.g., 'IMG_AMP|IMG_CART'")
     ("dump",
      "Dump masking options and exit");
+  // clang-format on
 
-  po::store(po::command_line_parser(argc, argv).
-            options(this->local_opts_).allow_unregistered().run(), this->vm_);
+  po::store(po::command_line_parser(argc, argv)
+              .options(this->local_opts_)
+              .allow_unregistered()
+              .run(),
+            this->vm_);
   po::notify(this->vm_);
 }
 
-int ifm3d::SchemaApp::Run()
+int
+ifm3d::SchemaApp::Run()
 {
   if (this->vm_.count("help"))
     {
@@ -52,28 +59,19 @@ int ifm3d::SchemaApp::Run()
   if (this->vm_.count("dump"))
     {
       std::cout << "Masking options:" << std::endl
-                << '\t' << "IMG_RDIS: "
-                << (int) ifm3d::IMG_RDIS << std::endl
-                << '\t' << "IMG_AMP:  "
-                << (int) ifm3d::IMG_AMP << std::endl
-                << '\t' << "IMG_RAMP: "
-                << (int) ifm3d::IMG_RAMP << std::endl
-                << '\t' << "IMG_CART: "
-                << (int) ifm3d::IMG_CART << std::endl
-                << '\t' << "IMG_UVEC: "
-                << (int) ifm3d::IMG_UVEC << std::endl
-                << '\t' << "EXP_TIME: "
-                << (int) ifm3d::EXP_TIME << std::endl
-                << '\t' << "IMG_GRAY: "
-                << (int) ifm3d::IMG_GRAY << std::endl
-                << '\t' << "ILLU_TEMP: "
-                << (int) ifm3d::ILLU_TEMP << std::endl
-                << '\t' << "INTR_CAL: "
-                << (int) ifm3d::INTR_CAL << std::endl
-                << '\t' << "INV_INTR_CAL: "
-                << (int) ifm3d::INV_INTR_CAL << std::endl
-                << '\t' << "JSON_MODEL: "
-                << (int) ifm3d::JSON_MODEL << std::endl;
+                << '\t' << "IMG_RDIS: " << (int)ifm3d::IMG_RDIS << std::endl
+                << '\t' << "IMG_AMP:  " << (int)ifm3d::IMG_AMP << std::endl
+                << '\t' << "IMG_RAMP: " << (int)ifm3d::IMG_RAMP << std::endl
+                << '\t' << "IMG_CART: " << (int)ifm3d::IMG_CART << std::endl
+                << '\t' << "IMG_UVEC: " << (int)ifm3d::IMG_UVEC << std::endl
+                << '\t' << "EXP_TIME: " << (int)ifm3d::EXP_TIME << std::endl
+                << '\t' << "IMG_GRAY: " << (int)ifm3d::IMG_GRAY << std::endl
+                << '\t' << "ILLU_TEMP: " << (int)ifm3d::ILLU_TEMP << std::endl
+                << '\t' << "INTR_CAL: " << (int)ifm3d::INTR_CAL << std::endl
+                << '\t' << "INV_INTR_CAL: " << (int)ifm3d::INV_INTR_CAL
+                << std::endl
+                << '\t' << "JSON_MODEL: " << (int)ifm3d::JSON_MODEL
+                << std::endl;
 
       return 0;
     }
@@ -89,15 +87,13 @@ int ifm3d::SchemaApp::Run()
       mask = ifm3d::schema_mask_from_string(mask_str);
     }
 
-  std::cout << "mask=" << (int) mask
-            << ", str=" << mask_str
-            << std::endl << "---" << std::endl
+  std::cout << "mask=" << (int)mask << ", str=" << mask_str << std::endl
+            << "---" << std::endl
             << "PCIC (O3D-compatible): " << std::endl
-            << ifm3d::make_schema(mask)
-            << std::endl << "---" << std::endl
+            << ifm3d::make_schema(mask) << std::endl
+            << "---" << std::endl
             << "XML-RPC (O3X-compatible): " << std::endl
-            << ifm3d::make_o3x_json_from_mask(mask)
-            << std::endl;
+            << ifm3d::make_o3x_json_from_mask(mask) << std::endl;
 
   return 0;
 }

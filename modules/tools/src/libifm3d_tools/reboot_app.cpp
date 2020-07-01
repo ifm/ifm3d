@@ -23,15 +23,21 @@
 
 namespace po = boost::program_options;
 
-ifm3d::RebootApp::RebootApp(int argc, const char **argv,
+ifm3d::RebootApp::RebootApp(int argc,
+                            const char** argv,
                             const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
+  // clang-format off
   this->local_opts_.add_options()
     ("recovery,r", "Reboot into recovery mode");
+  // clang-format on
 
-  po::store(po::command_line_parser(argc, argv).
-            options(this->local_opts_).allow_unregistered().run(), this->vm_);
+  po::store(po::command_line_parser(argc, argv)
+              .options(this->local_opts_)
+              .allow_unregistered()
+              .run(),
+            this->vm_);
   po::notify(this->vm_);
 }
 
@@ -44,10 +50,9 @@ ifm3d::RebootApp::Run()
       return 0;
     }
 
-  ifm3d::Camera::boot_mode mode =
-    this->vm_.count("recovery") ?
-    ifm3d::Camera::boot_mode::RECOVERY :
-    ifm3d::Camera::boot_mode::PRODUCTIVE;
+  ifm3d::Camera::boot_mode mode = this->vm_.count("recovery") ?
+                                    ifm3d::Camera::boot_mode::RECOVERY :
+                                    ifm3d::Camera::boot_mode::PRODUCTIVE;
 
   this->cam_->Reboot(mode);
 

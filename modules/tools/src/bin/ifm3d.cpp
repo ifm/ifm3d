@@ -19,7 +19,8 @@
 #include <exception>
 #include <iostream>
 
-int main(int argc, const char** argv)
+int
+main(int argc, const char** argv)
 {
   int err = 0;
   try
