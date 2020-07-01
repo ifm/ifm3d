@@ -32,7 +32,7 @@ namespace ifm3d
   class DumpApp : public ifm3d::CmdLineApp
   {
   public:
-    DumpApp(int argc, const char **argv, const std::string& name = "dump");
+    DumpApp(int argc, const char** argv, const std::string& name = "dump");
     int Run();
   }; // end: class DumpApp
 

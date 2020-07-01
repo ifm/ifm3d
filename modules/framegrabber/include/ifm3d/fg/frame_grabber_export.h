@@ -7,7 +7,7 @@
 #  ifdef IFM3D_FRAME_GRABBER_DLL_BUILD
 #    define IFM3D_FRAME_GRABBER_EXPORT __declspec(dllexport)
 #  else
-#     define IFM3D_FRAME_GRABBER_EXPORT __declspec(dllimport)
+#    define IFM3D_FRAME_GRABBER_EXPORT __declspec(dllimport)
 #  endif
 #endif
 

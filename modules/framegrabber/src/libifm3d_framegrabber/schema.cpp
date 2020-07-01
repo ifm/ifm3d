@@ -21,31 +21,30 @@
 #include <vector>
 #include <ifm3d/camera/util.h>
 
-const std::uint16_t ifm3d::IMG_RDIS     = (1<<0); // 2**0
-const std::uint16_t ifm3d::IMG_AMP      = (1<<1); // 2**1
-const std::uint16_t ifm3d::IMG_RAMP     = (1<<2); // 2**2
-const std::uint16_t ifm3d::IMG_CART     = (1<<3); // 2**3
-const std::uint16_t ifm3d::IMG_UVEC     = (1<<4); // 2**4
-const std::uint16_t ifm3d::EXP_TIME     = (1<<5); // 2**5
-const std::uint16_t ifm3d::IMG_GRAY     = (1<<6); // 2**6
-const std::uint16_t ifm3d::ILLU_TEMP    = (1<<7); // 2**7
-const std::uint16_t ifm3d::INTR_CAL     = (1<<8); // 2**8
-const std::uint16_t ifm3d::INV_INTR_CAL = (1<<9); // 2**9
-const std::uint16_t ifm3d::JSON_MODEL   = (1<<10); // 2**10
+const std::uint16_t ifm3d::IMG_RDIS = (1 << 0);     // 2**0
+const std::uint16_t ifm3d::IMG_AMP = (1 << 1);      // 2**1
+const std::uint16_t ifm3d::IMG_RAMP = (1 << 2);     // 2**2
+const std::uint16_t ifm3d::IMG_CART = (1 << 3);     // 2**3
+const std::uint16_t ifm3d::IMG_UVEC = (1 << 4);     // 2**4
+const std::uint16_t ifm3d::EXP_TIME = (1 << 5);     // 2**5
+const std::uint16_t ifm3d::IMG_GRAY = (1 << 6);     // 2**6
+const std::uint16_t ifm3d::ILLU_TEMP = (1 << 7);    // 2**7
+const std::uint16_t ifm3d::INTR_CAL = (1 << 8);     // 2**8
+const std::uint16_t ifm3d::INV_INTR_CAL = (1 << 9); // 2**9
+const std::uint16_t ifm3d::JSON_MODEL = (1 << 10);  // 2**10
 
-auto __ifm3d_schema_mask__ = []()->std::uint16_t
-  {
-    try
-      {
-        return std::getenv("IFM3D_MASK") == nullptr ?
-            ifm3d::IMG_AMP|ifm3d::IMG_CART :
-            std::stoul(std::string(std::getenv("IFM3D_MASK"))) & 0xFFFF;
-      }
-    catch (const std::exception& /*ex*/)
-      {
-        return ifm3d::IMG_AMP|ifm3d::IMG_CART;
-      }
-  };
+auto __ifm3d_schema_mask__ = []() -> std::uint16_t {
+  try
+    {
+      return std::getenv("IFM3D_MASK") == nullptr ?
+               ifm3d::IMG_AMP | ifm3d::IMG_CART :
+               std::stoul(std::string(std::getenv("IFM3D_MASK"))) & 0xFFFF;
+    }
+  catch (const std::exception& /*ex*/)
+    {
+      return ifm3d::IMG_AMP | ifm3d::IMG_CART;
+    }
+};
 
 const std::uint16_t ifm3d::DEFAULT_SCHEMA_MASK = __ifm3d_schema_mask__();
 
@@ -53,82 +52,82 @@ std::string
 ifm3d::make_o3x_json_from_mask(std::uint16_t mask)
 {
   std::string schema =
-  R"(
+    R"(
       {
          "Apps":
          [
            {
              "Index":"1")";
 
-  if((mask & ifm3d::IMG_RDIS) == ifm3d::IMG_RDIS)
+  if ((mask & ifm3d::IMG_RDIS) == ifm3d::IMG_RDIS)
     {
       schema +=
-      R"(,
+        R"(,
              "OutputDistanceImage":"true")";
     }
   else
     {
       schema +=
-      R"(,
+        R"(,
              "OutputDistanceImage":"false")";
     }
 
-  if((mask & ifm3d::IMG_AMP) == ifm3d::IMG_AMP)
+  if ((mask & ifm3d::IMG_AMP) == ifm3d::IMG_AMP)
     {
       schema +=
-      R"(,
+        R"(,
              "OutputAmplitudeImage":"true")";
     }
   else
     {
       schema +=
-      R"(,
+        R"(,
              "OutputAmplitudeImage":"false")";
     }
 
-  if((mask & ifm3d::IMG_GRAY) == ifm3d::IMG_GRAY)
+  if ((mask & ifm3d::IMG_GRAY) == ifm3d::IMG_GRAY)
     {
       schema +=
-      R"(,
+        R"(,
              "OutputGrayscaleImage":"true")";
     }
   else
     {
       schema +=
-      R"(,
+        R"(,
              "OutputGrayscaleImage":"false")";
     }
 
-  if((mask & ifm3d::IMG_CART) == ifm3d::IMG_CART)
+  if ((mask & ifm3d::IMG_CART) == ifm3d::IMG_CART)
     {
       schema +=
-      R"(,
+        R"(,
              "OutputXYZImage":"true")";
     }
   else
     {
       schema +=
-      R"(,
+        R"(,
              "OutputXYZImage":"false")";
     }
 
-// Note: this is not yet supported by o3x
-//  if((mask & ifm3d::ILLU_TEMP) == ifm3d::ILLU_TEMP)
-//    {
-//      schema +=
-//      R"(,
-//             "OutputIlluminatorTemperature":"true")";
-//    }
-//  else
-//    {
-//      schema +=
-//      R"(,
-//             "OutputIlluminatorTemperature":"false")";
-//    }
+  // Note: this is not yet supported by o3x
+  //  if((mask & ifm3d::ILLU_TEMP) == ifm3d::ILLU_TEMP)
+  //    {
+  //      schema +=
+  //      R"(,
+  //             "OutputIlluminatorTemperature":"true")";
+  //    }
+  //  else
+  //    {
+  //      schema +=
+  //      R"(,
+  //             "OutputIlluminatorTemperature":"false")";
+  //    }
 
   // other invariants
   schema +=
-  R"(,
+    R"(,
              "OutputConfidenceImage":"true"
             }
          ]
@@ -142,7 +141,7 @@ std::string
 ifm3d::make_schema(std::uint16_t mask)
 {
   std::string schema =
-  R"(
+    R"(
       {
         "layouter": "flexible",
         "format"  : {"dataencoding":"ascii"},
@@ -150,47 +149,47 @@ ifm3d::make_schema(std::uint16_t mask)
          [
            {"type":"string", "value":"star", "id":"start_string"})";
 
-  if((mask & ifm3d::IMG_RDIS) == ifm3d::IMG_RDIS)
+  if ((mask & ifm3d::IMG_RDIS) == ifm3d::IMG_RDIS)
     {
       schema +=
-      R"(,
+        R"(,
            {"type":"blob", "id":"distance_image"})";
     }
 
-  if((mask & ifm3d::IMG_AMP) == ifm3d::IMG_AMP)
+  if ((mask & ifm3d::IMG_AMP) == ifm3d::IMG_AMP)
     {
       schema +=
-      R"(,
+        R"(,
            {"type":"blob", "id":"normalized_amplitude_image"})";
     }
 
-  if((mask & ifm3d::IMG_RAMP) == ifm3d::IMG_RAMP)
+  if ((mask & ifm3d::IMG_RAMP) == ifm3d::IMG_RAMP)
     {
       schema +=
-      R"(,
+        R"(,
            {"type":"blob", "id":"amplitude_image"})";
     }
 
-  if((mask & ifm3d::IMG_GRAY) == ifm3d::IMG_GRAY)
+  if ((mask & ifm3d::IMG_GRAY) == ifm3d::IMG_GRAY)
     {
       schema +=
-      R"(,
+        R"(,
            {"type":"blob", "id":"grayscale_image"})";
     }
 
-  if((mask & ifm3d::IMG_CART) == ifm3d::IMG_CART)
+  if ((mask & ifm3d::IMG_CART) == ifm3d::IMG_CART)
     {
       schema +=
-      R"(,
+        R"(,
            {"type":"blob", "id":"x_image"},
            {"type":"blob", "id":"y_image"},
            {"type":"blob", "id":"z_image"})";
     }
 
-  if((mask & ifm3d::IMG_UVEC) == ifm3d::IMG_UVEC)
+  if ((mask & ifm3d::IMG_UVEC) == ifm3d::IMG_UVEC)
     {
       schema +=
-      R"(,
+        R"(,
            {"type":"blob", "id":"all_unit_vector_matrices"})";
     }
 
@@ -198,7 +197,7 @@ ifm3d::make_schema(std::uint16_t mask)
   if ((mask & ifm3d::INTR_CAL) == ifm3d::INTR_CAL)
     {
       schema +=
-      R"(,
+        R"(,
            {"type":"blob", "id":"intrinsic_calibration"})";
     }
 
@@ -206,7 +205,7 @@ ifm3d::make_schema(std::uint16_t mask)
   if ((mask & ifm3d::INV_INTR_CAL) == ifm3d::INV_INTR_CAL)
     {
       schema +=
-      R"(,
+        R"(,
            {"type":"blob", "id":"inverse_intrinsic_calibration"})";
     }
 
@@ -223,10 +222,10 @@ ifm3d::make_schema(std::uint16_t mask)
            {"type":"blob", "id":"confidence_image"},
            {"type":"blob", "id":"extrinsic_calibration"})";
 
-  if((mask & ifm3d::EXP_TIME) == ifm3d::EXP_TIME)
+  if ((mask & ifm3d::EXP_TIME) == ifm3d::EXP_TIME)
     {
       schema +=
-      R"(,
+        R"(,
            {"type":"string", "id":"exposure_times", "value":"extime"},
            {
             "type":"uint32", "id":"exposure_time_1",
@@ -242,10 +241,10 @@ ifm3d::make_schema(std::uint16_t mask)
            })";
     }
 
-  if((mask & ifm3d::ILLU_TEMP) == ifm3d::ILLU_TEMP)
+  if ((mask & ifm3d::ILLU_TEMP) == ifm3d::ILLU_TEMP)
     {
       schema +=
-      R"(,
+        R"(,
            {"type":"string", "id":"temp_illu", "value":"temp_illu"},
            {
             "type":"float32", "id":"temp_illu",
@@ -255,7 +254,7 @@ ifm3d::make_schema(std::uint16_t mask)
 
   // other invariants
   schema +=
-  R"(,
+    R"(,
            {"type":"string", "value":"stop", "id":"end_string"}
          ]
       }
@@ -313,9 +312,9 @@ ifm3d::schema_mask_from_string(const std::string& in)
           mask |= ifm3d::INV_INTR_CAL;
         }
       else if (part == "JSON_MODEL")
-      {
-        mask |= ifm3d::JSON_MODEL;
-      }
+        {
+          mask |= ifm3d::JSON_MODEL;
+        }
     }
   return mask;
 }

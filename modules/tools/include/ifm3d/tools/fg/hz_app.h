@@ -30,7 +30,7 @@ namespace ifm3d
   class HzApp : public ifm3d::CmdLineApp
   {
   public:
-    HzApp(int argc, const char **argv, const std::string& name = "hz");
+    HzApp(int argc, const char** argv, const std::string& name = "hz");
     int Run();
   };
 

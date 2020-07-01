@@ -108,14 +108,15 @@ namespace ifm3d
      * Hook called by the base class to populate the image containers.
      */
     template <typename T>
-    void ImCreate(ifm3d::image_chunk im,
-                  std::uint32_t fmt,
-                  std::size_t idx,
-                  std::uint32_t width,
-                  std::uint32_t height,
-                  int nchan,
-                  std::uint32_t npts,
-                  const std::vector<std::uint8_t>& bytes)
+    void
+    ImCreate(ifm3d::image_chunk im,
+             std::uint32_t fmt,
+             std::size_t idx,
+             std::uint32_t width,
+             std::uint32_t height,
+             int nchan,
+             std::uint32_t npts,
+             const std::vector<std::uint8_t>& bytes)
     {
       // NOTE: we drop the template parameter here (and re-establish it later)
       // so that we can maintain our pimpl abstraction in support of the
@@ -129,19 +130,20 @@ namespace ifm3d
      * Hook called by the base class to populate the point cloud containers.
      */
     template <typename T>
-    void CloudCreate(std::uint32_t fmt,
-                     std::size_t xidx,
-                     std::size_t yidx,
-                     std::size_t zidx,
-                     std::uint32_t width,
-                     std::uint32_t height,
-                     std::uint32_t npts,
-                     const std::vector<std::uint8_t>& bytes)
-  {
-    // See "NOTE" in `ImCreate` as to why we are dropping the template
-    // parameter here. Same rationale applies.
-    this->_CloudCreate(fmt, xidx, yidx, zidx, width, height, npts, bytes);
-  }
+    void
+    CloudCreate(std::uint32_t fmt,
+                std::size_t xidx,
+                std::size_t yidx,
+                std::size_t zidx,
+                std::uint32_t width,
+                std::uint32_t height,
+                std::uint32_t npts,
+                const std::vector<std::uint8_t>& bytes)
+    {
+      // See "NOTE" in `ImCreate` as to why we are dropping the template
+      // parameter here. Same rationale applies.
+      this->_CloudCreate(fmt, xidx, yidx, zidx, width, height, npts, bytes);
+    }
 
   private:
     class Impl;

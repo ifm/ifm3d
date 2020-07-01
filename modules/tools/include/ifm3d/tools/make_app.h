@@ -37,7 +37,7 @@ namespace ifm3d
    * @return A smart pointer to an application implementing the passed in
    *         subcommand.
    */
-  ifm3d::CmdLineApp::Ptr make_app(int argc, const char **argv);
+  ifm3d::CmdLineApp::Ptr make_app(int argc, const char** argv);
 
 } // end: namespace ifm3d
 

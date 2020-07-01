@@ -36,13 +36,13 @@
 #include <ifm3d/tools/trace_app.h>
 
 #if defined(BUILD_MODULE_FRAMEGRABBER)
-#include <ifm3d/tools/fg/schema_app.h>
-#include <ifm3d/tools/fg/hz_app.h>
-#include <ifm3d/tools/fg/jitter_app.h>
+#  include <ifm3d/tools/fg/schema_app.h>
+#  include <ifm3d/tools/fg/hz_app.h>
+#  include <ifm3d/tools/fg/jitter_app.h>
 #endif
 
 #if defined(BUILD_MODULE_SWUPDATER)
-#include <ifm3d/tools/swupdater/swupdate_app.h>
+#  include <ifm3d/tools/swupdater/swupdate_app.h>
 #endif
 
 #endif // __IFM3D_TOOLS_H__

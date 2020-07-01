@@ -1,0 +1,39 @@
+---
+BasedOnStyle: Mozilla
+AccessModifierOffset: '-2'
+AlignAfterOpenBracket: Align
+AlignOperands: true
+AlignTrailingComments: true
+AllowAllArgumentsOnNextLine: false
+AllowAllConstructorInitializersOnNextLine: false
+AllowShortBlocksOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+AlwaysBreakAfterReturnType: AllDefinitions
+BreakBeforeTernaryOperators: false
+BreakConstructorInitializers: BeforeColon
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass:      true
+  AfterControlStatement: true
+  AfterEnum:       true
+  AfterFunction:   true
+  AfterNamespace: true
+  AfterObjCDeclaration: true
+  AfterStruct:     true
+  AfterUnion:      true
+  BeforeCatch:     true
+  BeforeElse:      true
+  IndentBraces:    true
+  SplitEmptyFunction: false
+ColumnLimit: 79
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+Cpp11BracedListStyle: true
+IndentCaseLabels: false
+IndentPPDirectives: AfterHash
+NamespaceIndentation: All
+SortIncludes: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: true
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyBlock: true
+Standard: c++14

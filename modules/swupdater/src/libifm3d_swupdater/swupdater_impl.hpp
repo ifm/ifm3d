@@ -47,7 +47,7 @@ namespace ifm3d
   const int SWUPDATER_STATUS_FAILURE = 4;
 
   // Default timeout values for cURL transactions to the camera
-  const long DEFAULT_CURL_CONNECT_TIMEOUT = 3; // seconds
+  const long DEFAULT_CURL_CONNECT_TIMEOUT = 3;      // seconds
   const long DEFAULT_CURL_TRANSACTION_TIMEOUT = 30; // seconds
 
   //============================================================
@@ -63,9 +63,8 @@ namespace ifm3d
     bool WaitForRecovery(long timeout_millis);
     void RebootToProductive();
     bool WaitForProductive(long timeout_millis);
-    bool FlashFirmware(
-      const std::vector<std::uint8_t>& bytes,
-      long timeout_millis);
+    bool FlashFirmware(const std::vector<std::uint8_t>& bytes,
+                       long timeout_millis);
 
   private:
     ifm3d::Camera::Ptr cam_;
@@ -76,35 +75,31 @@ namespace ifm3d
     std::string status_url_;
     std::string check_recovery_url_;
 
-    bool
-    CheckRecovery();
+    bool CheckRecovery();
 
-    bool
-    CheckProductive();
+    bool CheckProductive();
 
-    void
-    UploadFirmware(const std::vector<std::uint8_t>& bytes,
-                   long timeout_millis);
+    void UploadFirmware(const std::vector<std::uint8_t>& bytes,
+                        long timeout_millis);
 
-    bool
-    WaitForUpdaterStatus(int desired_state, long timeout_millis);
+    bool WaitForUpdaterStatus(int desired_state, long timeout_millis);
 
-    std::tuple<int, std::string, int>
-    GetUpdaterStatus();
+    std::tuple<int, std::string, int> GetUpdaterStatus();
 
     /**
      * C-style static callbacks for libcurl
      */
     static size_t
-    StatusWriteCallbackIgnore(char *ptr, size_t size, size_t nmemb,
+    StatusWriteCallbackIgnore(char* ptr,
+                              size_t size,
+                              size_t nmemb,
                               void* userdata)
     {
       return size * nmemb;
     }
 
     static size_t
-    StatusWriteCallback(char *ptr, size_t size, size_t nmemb,
-                        void* userdata)
+    StatusWriteCallback(char* ptr, size_t size, size_t nmemb, void* userdata)
     {
       std::string* body = static_cast<std::string*>(userdata);
       body->append(ptr, size * nmemb);
@@ -112,8 +107,11 @@ namespace ifm3d
     }
 
     static int
-    XferInfoCallback(void* clientp, curl_off_t dltotal, curl_off_t dlnow,
-                     curl_off_t ultotal, curl_off_t ulnow)
+    XferInfoCallback(void* clientp,
+                     curl_off_t dltotal,
+                     curl_off_t dlnow,
+                     curl_off_t ultotal,
+                     curl_off_t ulnow)
     {
       ifm3d::SWUpdater::Impl* swu =
         static_cast<ifm3d::SWUpdater::Impl*>(clientp);
@@ -126,7 +124,7 @@ namespace ifm3d
           else
             {
               float percentage_complete =
-                (static_cast<float>(ulnow)/static_cast<float>(ultotal));
+                (static_cast<float>(ulnow) / static_cast<float>(ultotal));
               swu->cb_(percentage_complete, "");
             }
         }
@@ -177,8 +175,9 @@ namespace ifm3d
        * Wrapper for calling curl_easy_* APIs, and unified
        * error handling of return codes.
        */
-      template<typename F, typename... Args>
-      void Call(F f, Args... args)
+      template <typename F, typename... Args>
+      void
+      Call(F f, Args... args)
       {
         CURLcode retcode = f(this->curl_, args...);
         if (retcode != CURLE_OK)
@@ -197,7 +196,8 @@ namespace ifm3d
           }
       }
 
-      void AddHeader(const char* str)
+      void
+      AddHeader(const char* str)
       {
         this->header_list_ = curl_slist_append(this->header_list_, str);
         if (!this->header_list_)
@@ -206,7 +206,8 @@ namespace ifm3d
           }
       }
 
-      void SetHeader()
+      void
+      SetHeader()
       {
         this->Call(curl_easy_setopt, CURLOPT_HTTPHEADER, this->header_list_);
       }
@@ -264,8 +265,8 @@ ifm3d::SWUpdater::Impl::WaitForRecovery(long timeout_millis)
       if (timeout_millis > 0)
         {
           auto curr = std::chrono::system_clock::now();
-          auto elapsed =
-            std::chrono::duration_cast<std::chrono::milliseconds>(curr-start);
+          auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+            curr - start);
           if (elapsed.count() > timeout_millis)
             {
               LOG(WARNING) << "Timed out waiting for recovery mode";
@@ -283,11 +284,14 @@ ifm3d::SWUpdater::Impl::RebootToProductive()
   c->Call(curl_easy_setopt, CURLOPT_URL, this->reboot_url_.c_str());
   c->Call(curl_easy_setopt, CURLOPT_POST, true);
   c->Call(curl_easy_setopt, CURLOPT_POSTFIELDSIZE, 0);
-  c->Call(curl_easy_setopt, CURLOPT_WRITEFUNCTION,
+  c->Call(curl_easy_setopt,
+          CURLOPT_WRITEFUNCTION,
           &ifm3d::SWUpdater::Impl::StatusWriteCallbackIgnore);
-  c->Call(curl_easy_setopt, CURLOPT_CONNECTTIMEOUT,
+  c->Call(curl_easy_setopt,
+          CURLOPT_CONNECTTIMEOUT,
           ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
-  c->Call(curl_easy_setopt, CURLOPT_TIMEOUT,
+  c->Call(curl_easy_setopt,
+          CURLOPT_TIMEOUT,
           ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
   c->Call(curl_easy_perform);
 }
@@ -306,8 +310,8 @@ ifm3d::SWUpdater::Impl::WaitForProductive(long timeout_millis)
       if (timeout_millis > 0)
         {
           auto curr = std::chrono::system_clock::now();
-          auto elapsed =
-            std::chrono::duration_cast<std::chrono::milliseconds>(curr-start);
+          auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+            curr - start);
           if (elapsed.count() > timeout_millis)
             {
               // timeout
@@ -320,20 +324,17 @@ ifm3d::SWUpdater::Impl::WaitForProductive(long timeout_millis)
 }
 
 bool
-ifm3d::SWUpdater::Impl::FlashFirmware(
-    const std::vector<std::uint8_t>& bytes,
-    long timeout_millis)
+ifm3d::SWUpdater::Impl::FlashFirmware(const std::vector<std::uint8_t>& bytes,
+                                      long timeout_millis)
 {
   auto t_start = std::chrono::system_clock::now();
   long remaining_time = timeout_millis;
-  auto get_remaining_time =
-    [&t_start, timeout_millis]() -> long
-    {
-      auto t_now = std::chrono::system_clock::now();
-      auto elapsed =
-        std::chrono::duration_cast<std::chrono::milliseconds>(t_now - t_start);
-      return timeout_millis - static_cast<long>(elapsed.count());
-    };
+  auto get_remaining_time = [&t_start, timeout_millis]() -> long {
+    auto t_now = std::chrono::system_clock::now();
+    auto elapsed =
+      std::chrono::duration_cast<std::chrono::milliseconds>(t_now - t_start);
+    return timeout_millis - static_cast<long>(elapsed.count());
+  };
 
   // Firmware updater must be in `idle` status prior to starting a firmware
   // upgrade. In some cases (firmware was flashed but the camera was not
@@ -367,7 +368,6 @@ ifm3d::SWUpdater::Impl::FlashFirmware(
   return this->WaitForUpdaterStatus(SWUPDATER_STATUS_SUCCESS, remaining_time);
 }
 
-
 //-------------------------------------
 // "Private" helpers
 //-------------------------------------
@@ -377,26 +377,28 @@ ifm3d::SWUpdater::Impl::CheckRecovery()
   auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();
   c->Call(curl_easy_setopt, CURLOPT_URL, this->check_recovery_url_.c_str());
   c->Call(curl_easy_setopt, CURLOPT_NOBODY, true);
-  c->Call(curl_easy_setopt, CURLOPT_CONNECTTIMEOUT,
+  c->Call(curl_easy_setopt,
+          CURLOPT_CONNECTTIMEOUT,
           ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
-  c->Call(curl_easy_setopt, CURLOPT_TIMEOUT,
+  c->Call(curl_easy_setopt,
+          CURLOPT_TIMEOUT,
           ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
 
   long status_code;
   try
-  {
-    c->Call(curl_easy_perform);
-    c->Call(curl_easy_getinfo, CURLINFO_RESPONSE_CODE, &status_code);
-  }
-  catch(const ifm3d::error_t& e)
-  {
-    if (e.code() == IFM3D_RECOVERY_CONNECTION_ERROR ||
-        e.code() == IFM3D_CURL_TIMEOUT)
-      {
-        return false;
-      }
-    throw;
-  }
+    {
+      c->Call(curl_easy_perform);
+      c->Call(curl_easy_getinfo, CURLINFO_RESPONSE_CODE, &status_code);
+    }
+  catch (const ifm3d::error_t& e)
+    {
+      if (e.code() == IFM3D_RECOVERY_CONNECTION_ERROR ||
+          e.code() == IFM3D_CURL_TIMEOUT)
+        {
+          return false;
+        }
+      throw;
+    }
 
   return status_code == 200;
 }
@@ -410,7 +412,7 @@ ifm3d::SWUpdater::Impl::CheckProductive()
         {
           return true;
         }
-     }
+    }
   catch (const ifm3d::error_t& e)
     {
       // Rethrow unless the code is one that indicates the camera is not
@@ -426,9 +428,8 @@ ifm3d::SWUpdater::Impl::CheckProductive()
 }
 
 void
-ifm3d::SWUpdater::Impl::UploadFirmware(
-    const std::vector<std::uint8_t>& bytes,
-    long timeout_millis)
+ifm3d::SWUpdater::Impl::UploadFirmware(const std::vector<std::uint8_t>& bytes,
+                                       long timeout_millis)
 {
   auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();
   c->AddHeader(SWUPDATER_CONTENT_TYPE_HEADER.c_str());
@@ -436,19 +437,23 @@ ifm3d::SWUpdater::Impl::UploadFirmware(
   c->SetHeader();
   c->Call(curl_easy_setopt, CURLOPT_URL, this->upload_url_.c_str());
   c->Call(curl_easy_setopt, CURLOPT_POST, 1);
-  c->Call(curl_easy_setopt, CURLOPT_POSTFIELDSIZE,
+  c->Call(curl_easy_setopt,
+          CURLOPT_POSTFIELDSIZE,
           static_cast<long>(bytes.size()));
   c->Call(curl_easy_setopt, CURLOPT_POSTFIELDS, bytes.data());
-  c->Call(curl_easy_setopt, CURLOPT_WRITEFUNCTION,
+  c->Call(curl_easy_setopt,
+          CURLOPT_WRITEFUNCTION,
           &ifm3d::SWUpdater::Impl::StatusWriteCallbackIgnore);
-  c->Call(curl_easy_setopt, CURLOPT_CONNECTTIMEOUT,
+  c->Call(curl_easy_setopt,
+          CURLOPT_CONNECTTIMEOUT,
           ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
   c->Call(curl_easy_setopt, CURLOPT_TIMEOUT_MS, timeout_millis);
 
   // Workaround -- device does not close the connection after the firmware has
   // been transferred. Register an xfer callback and terminate the transaction
   // after all the data has been sent.
-  c->Call(curl_easy_setopt, CURLOPT_XFERINFOFUNCTION,
+  c->Call(curl_easy_setopt,
+          CURLOPT_XFERINFOFUNCTION,
           &ifm3d::SWUpdater::Impl::XferInfoCallback);
   c->Call(curl_easy_setopt, CURLOPT_XFERINFODATA, this);
   c->Call(curl_easy_setopt, CURLOPT_NOPROGRESS, 0);
@@ -459,7 +464,7 @@ ifm3d::SWUpdater::Impl::UploadFirmware(
     {
       c->Call(curl_easy_perform);
     }
-  catch(const ifm3d::error_t& e)
+  catch (const ifm3d::error_t& e)
     {
       if (e.code() != IFM3D_CURL_ABORTED)
         {
@@ -478,8 +483,7 @@ ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
 
   if (timeout_millis < 0)
     {
-      std::tie(status_id, std::ignore, std::ignore) =
-        this->GetUpdaterStatus();
+      std::tie(status_id, std::ignore, std::ignore) = this->GetUpdaterStatus();
       return status_id == desired_status;
     }
 
@@ -489,8 +493,8 @@ ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
       if (timeout_millis > 0)
         {
           auto curr = std::chrono::system_clock::now();
-          auto elapsed =
-            std::chrono::duration_cast<std::chrono::milliseconds>(curr-start);
+          auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+            curr - start);
           if (elapsed.count() > timeout_millis)
             {
               // timeout
@@ -498,7 +502,7 @@ ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
                            << desired_status;
               return false;
             }
-         }
+        }
 
       std::tie(status_id, status_message, status_error) =
         this->GetUpdaterStatus();
@@ -509,8 +513,8 @@ ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
             {
               this->cb_(1.0, status_message);
             }
-          LOG(INFO) << "[" << status_id << "][" << status_error << "]: "
-                    << status_message;
+          LOG(INFO) << "[" << status_id << "][" << status_error
+                    << "]: " << status_message;
         }
 
       if (status_id == SWUPDATER_STATUS_FAILURE)
@@ -524,7 +528,8 @@ ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
         }
 
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    } while (status_id != desired_status);
+    }
+  while (status_id != desired_status);
 
   return true;
 }
@@ -544,9 +549,11 @@ ifm3d::SWUpdater::Impl::GetUpdaterStatus()
           CURLOPT_WRITEFUNCTION,
           &ifm3d::SWUpdater::Impl::StatusWriteCallback);
   c->Call(curl_easy_setopt, CURLOPT_WRITEDATA, &status_string);
-  c->Call(curl_easy_setopt, CURLOPT_CONNECTTIMEOUT,
+  c->Call(curl_easy_setopt,
+          CURLOPT_CONNECTTIMEOUT,
           ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
-  c->Call(curl_easy_setopt, CURLOPT_TIMEOUT,
+  c->Call(curl_easy_setopt,
+          CURLOPT_TIMEOUT,
           ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
   c->Call(curl_easy_perform);
 
@@ -560,4 +567,3 @@ ifm3d::SWUpdater::Impl::GetUpdaterStatus()
 }
 
 #endif // __IFM3D_SWUPDATER_SWUPDATER_IMPL_H__
-
