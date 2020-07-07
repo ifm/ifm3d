@@ -501,7 +501,6 @@ ifm3d::FrameGrabber::Impl::Run()
   // For non-O3X devices setting the schema via PCIC, we get acknowledgement of
   // our schema, then start processing the stream of pixel bytes
   auto result_schema_write_handler =
-
     [this](const asio::error_code& ec, std::size_t bytes_xferd) {
       if (ec)
         {
