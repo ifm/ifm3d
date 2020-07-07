@@ -2,7 +2,6 @@
 ## Bring in dependent projects
 ################################################
 find_package(Threads REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system)
 find_package(glog QUIET CONFIG NAMES google-glog glog)
 if (NOT TARGET glog::glog)
   find_library(LIB_glog NAMES glog)
@@ -27,7 +26,6 @@ target_include_directories(ifm3d_framegrabber
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${Boost_INCLUDE_DIRS}
   )
 
 target_compile_options(ifm3d_framegrabber
@@ -48,8 +46,8 @@ target_link_libraries(
     ${LIB_glog}
   PRIVATE
     ifm3d_camera
-    Boost::system
     Threads::Threads
+    asio
   )
 
 set_target_properties(

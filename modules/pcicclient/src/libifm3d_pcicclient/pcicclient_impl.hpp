@@ -34,8 +34,7 @@
 #include <system_error>
 #include <thread>
 #include <vector>
-#include <boost/asio.hpp>
-#include <boost/system/system_error.hpp>
+#include <asio.hpp>
 #include <glog/logging.h>
 #include <ifm3d/camera/camera.h>
 #include <ifm3d/camera/err.h>
@@ -201,7 +200,7 @@ namespace ifm3d
     /**
      * Handles DoConnect results
      */
-    void ConnectHandler(const boost::system::error_code& ec);
+    void ConnectHandler(const asio::error_code& ec);
 
     /**
      * Reads data from network into one of the three "in" buffers
@@ -215,7 +214,7 @@ namespace ifm3d
      * the callback (if existent).
      */
     void ReadHandler(State state,
-                     const boost::system::error_code& ec,
+                     const asio::error_code& ec,
                      std::size_t bytes_transferred,
                      std::size_t bytes_remaining);
 
@@ -238,7 +237,7 @@ namespace ifm3d
      * case a request is completely sent, unblocks calling thread.
      */
     void WriteHandler(State state,
-                      const boost::system::error_code& ec,
+                      const asio::error_code& ec,
                       std::size_t bytes_transferred,
                       const std::string& out_content_buffer,
                       std::size_t bytes_remaining);
@@ -297,17 +296,17 @@ namespace ifm3d
     /**
      * The ASIO event loop handle
      */
-    boost::asio::io_service io_service_;
+    asio::io_service io_service_;
 
     /**
      * The ASIO socket to PCIC
      */
-    boost::asio::ip::tcp::socket sock_;
+    asio::ip::tcp::socket sock_;
 
     /**
      * The ASIO endpoint to PCIC
      */
-    boost::asio::ip::tcp::endpoint endpoint_;
+    asio::ip::tcp::endpoint endpoint_;
 
     /**
      * A pointer to the wrapped thread object. This is the thread that
@@ -445,9 +444,9 @@ ifm3d::PCICClient::Impl::Impl(ifm3d::Camera::Ptr cam)
       throw ifm3d::error_t(IFM3D_PCICCLIENT_UNSUPPORTED_DEVICE);
     }
 
-  this->endpoint_ = boost::asio::ip::tcp::endpoint(
-    boost::asio::ip::address::from_string(this->cam_ip_),
-    this->cam_port_);
+  this->endpoint_ =
+    asio::ip::tcp::endpoint(asio::ip::address::from_string(this->cam_ip_),
+                            this->cam_port_);
 
   this->thread_ = std::unique_ptr<std::thread>(
     new std::thread(std::bind(&ifm3d::PCICClient::Impl::DoConnect, this)));
@@ -543,7 +542,7 @@ ifm3d::PCICClient::Impl::Call(const std::string& request)
   return response;
 }
 
-bool /* @R Consider boost::asio::error return type here */
+bool /* @R Consider asio::error return type here */
 ifm3d::PCICClient::Impl::Call(const std::string& request,
                               std::string& response,
                               long timeout_millis)
@@ -650,7 +649,7 @@ ifm3d::PCICClient::Impl::CancelCallback(long callback_id)
 void
 ifm3d::PCICClient::Impl::DoConnect()
 {
-  boost::asio::io_service::work work(this->io_service_);
+  asio::io_service::work work(this->io_service_);
 
   // Establish TCP connection to sensor
   try
@@ -671,7 +670,7 @@ ifm3d::PCICClient::Impl::DoConnect()
 }
 
 void
-ifm3d::PCICClient::Impl::ConnectHandler(const boost::system::error_code& ec)
+ifm3d::PCICClient::Impl::ConnectHandler(const asio::error_code& ec)
 {
   if (ec)
     {
@@ -680,11 +679,10 @@ ifm3d::PCICClient::Impl::ConnectHandler(const boost::system::error_code& ec)
   this->DoRead(State::PRE_CONTENT);
 
   // Write init command sequence to turn off asynchronous messages
-  boost::asio::async_write(
+  asio::async_write(
     this->sock_,
-    boost::asio::buffer(&init_command[0], init_command.size()),
-    [&, this](const boost::system::error_code& ec,
-              std::size_t bytes_transferred) {
+    asio::buffer(&init_command[0], init_command.size()),
+    [&, this](const asio::error_code& ec, std::size_t bytes_transferred) {
       if (ec)
         {
           throw ifm3d::error_t(ec.value());
@@ -703,8 +701,7 @@ ifm3d::PCICClient::Impl::DoRead(State state, std::size_t bytes_remaining)
     }
 
   this->sock_.async_read_some(
-    boost::asio::buffer(&buffer[buffer.size() - bytes_remaining],
-                        bytes_remaining),
+    asio::buffer(&buffer[buffer.size() - bytes_remaining], bytes_remaining),
     std::bind(&ifm3d::PCICClient::Impl::ReadHandler,
               this,
               state,
@@ -715,7 +712,7 @@ ifm3d::PCICClient::Impl::DoRead(State state, std::size_t bytes_remaining)
 
 void
 ifm3d::PCICClient::Impl::ReadHandler(State state,
-                                     const boost::system::error_code& ec,
+                                     const asio::error_code& ec,
                                      std::size_t bytes_transferred,
                                      std::size_t bytes_remaining)
 {
@@ -811,8 +808,7 @@ ifm3d::PCICClient::Impl::DoWrite(State state,
     }
 
   this->sock_.async_write_some(
-    boost::asio::buffer(&buffer[buffer.size() - bytes_remaining],
-                        bytes_remaining),
+    asio::buffer(&buffer[buffer.size() - bytes_remaining], bytes_remaining),
     std::bind(&ifm3d::PCICClient::Impl::WriteHandler,
               this,
               state,
@@ -824,7 +820,7 @@ ifm3d::PCICClient::Impl::DoWrite(State state,
 
 void
 ifm3d::PCICClient::Impl::WriteHandler(State state,
-                                      const boost::system::error_code& ec,
+                                      const asio::error_code& ec,
                                       std::size_t bytes_transferred,
                                       const std::string& out_content_buffer,
                                       std::size_t bytes_remaining)
