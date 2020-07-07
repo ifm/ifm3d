@@ -84,6 +84,9 @@ if(BUILD_TESTS)
   set(TEST_WRAPPER "test_wrapper.${TEST_WRAPPER_EXT}" )
 endif()
 
+# Include third-party depencency libs
+add_subdirectory(third-party)
+
 # Build sub-modules
 add_subdirectory(modules/camera)
 
