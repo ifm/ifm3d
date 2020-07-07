@@ -2,7 +2,6 @@
 ## Dependent projects
 ################################################
 find_package(Threads REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system)
 find_package(glog QUIET CONFIG NAMES google-glog glog)
 if(NOT TARGET glog::glog)
   find_library(LIB_glog NAMES glog)
@@ -28,9 +27,8 @@ target_include_directories(ifm3d_pcicclient
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${IFM3D_PCICCLIENT_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
-    PRIVATE
+  PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${Boost_INCLUDE_DIRS}
   )
 
 target_compile_options(ifm3d_pcicclient
@@ -51,8 +49,8 @@ target_link_libraries(
   PRIVATE
     ifm3d_camera
     ${LIB_glog}
-    Boost::system
     Threads::Threads
+    asio
   )
 
 set_target_properties(ifm3d_pcicclient PROPERTIES
