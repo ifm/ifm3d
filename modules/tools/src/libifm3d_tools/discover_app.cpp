@@ -26,7 +26,7 @@ ifm3d::DiscoverApp::DiscoverApp(int argc, const char **argv,
 
 int ifm3d::DiscoverApp::Run()
 {
-  if (this->vm_->count("help"))
+  if (this->vm_.count("help"))
    {
      this->_LocalHelp();
      return 0;
