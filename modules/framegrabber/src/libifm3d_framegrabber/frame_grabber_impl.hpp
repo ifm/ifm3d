@@ -490,25 +490,25 @@ ifm3d::FrameGrabber::Impl::Run()
 
   // For non-O3X devices setting the schema via PCIC, we get acknowledgement of
   // our schema, then start processing the stream of pixel bytes
-  auto result_schema_write_handler =
-    [this](const asio::error_code& ec, std::size_t bytes_xferd) {
-      if (ec)
-        {
-          throw ifm3d::error_t(ec.value());
-        }
-      this->ticket_buffer_.clear();
-      this->ticket_buffer_.resize(ifm3d::TICKET_ID_SZ);
+  auto result_schema_write_handler = [this](const asio::error_code& ec,
+                                            std::size_t bytes_xferd) {
+    if (ec)
+      {
+        throw ifm3d::error_t(ec.value());
+      }
+    this->ticket_buffer_.clear();
+    this->ticket_buffer_.resize(ifm3d::TICKET_ID_SZ);
 
-      this->sock_.async_read_some(
-        asio::buffer(this->ticket_buffer_.data(), ifm3d::TICKET_ID_SZ),
-        std::bind(&ifm3d::FrameGrabber::Impl::TicketHandler,
-                  this,
-                  std::placeholders::_1,
-                  std::placeholders::_2,
-                  0));
+    this->sock_.async_read_some(
+      asio::buffer(this->ticket_buffer_.data(), ifm3d::TICKET_ID_SZ),
+      std::bind(&ifm3d::FrameGrabber::Impl::TicketHandler,
+                this,
+                std::placeholders::_1,
+                std::placeholders::_2,
+                0));
 
-      this->pcic_ready_.store(true);
-    };
+    this->pcic_ready_.store(true);
+  };
 
   try
     {
