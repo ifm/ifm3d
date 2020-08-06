@@ -19,7 +19,7 @@ ifm3d::ImagerTypesApp::ImagerTypesApp(int argc,
 int
 ifm3d::ImagerTypesApp::Run()
 {
-  if (this->vm_.count("help"))
+  if (this->vm_->count("help"))
     {
       this->_LocalHelp();
       return 0;

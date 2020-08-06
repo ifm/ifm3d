@@ -8,7 +8,6 @@
 #include <cstdint>
 #include <iostream>
 #include <string>
-#include <boost/program_options.hpp>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/fg/schema.h>
 
@@ -18,35 +17,30 @@ ifm3d::SchemaApp::SchemaApp(int argc,
   : ifm3d::CmdLineApp(argc, argv, name)
 {
   // clang-format off
-  this->local_opts_.add_options()
+  this->all_opts_.add_options(name)
     ("mask",
-     po::value<std::uint16_t>()->default_value(ifm3d::DEFAULT_SCHEMA_MASK),
-     "`mask' used to generate an image acquisition schema")
+     "`mask' used to generate an image acquisition schema",
+     cxxopts::value<std::uint16_t>()->default_value(std::to_string(ifm3d::DEFAULT_SCHEMA_MASK)))
     ("str",
-     po::value<std::string>()->default_value("-"),
-     "Mask string: e.g., 'IMG_AMP|IMG_CART'")
+     "Mask string: e.g., 'IMG_AMP|IMG_CART'",
+     cxxopts::value<std::string>()->default_value("-"))
     ("dump",
      "Dump masking options and exit");
-  // clang-format on
 
-  po::store(po::command_line_parser(argc, argv)
-              .options(this->local_opts_)
-              .allow_unregistered()
-              .run(),
-            this->vm_);
-  po::notify(this->vm_);
+  // clang-format on
+  this->_Parse(argc, argv);
 }
 
 int
 ifm3d::SchemaApp::Run()
 {
-  if (this->vm_.count("help"))
+  if (this->vm_->count("help"))
     {
       this->_LocalHelp();
       return 0;
     }
 
-  if (this->vm_.count("dump"))
+  if (this->vm_->count("dump"))
     {
       std::cout << "Masking options:" << std::endl
                 << '\t' << "IMG_RDIS: " << (int)ifm3d::IMG_RDIS << std::endl
@@ -69,8 +63,8 @@ ifm3d::SchemaApp::Run()
   std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK;
   std::string mask_str;
 
-  mask_str.assign(this->vm_["str"].as<std::string>());
-  mask = this->vm_["mask"].as<std::uint16_t>();
+  mask_str.assign((*this->vm_)["str"].as<std::string>());
+  mask = (*this->vm_)["mask"].as<std::uint16_t>();
 
   if (mask_str != "-")
     {
