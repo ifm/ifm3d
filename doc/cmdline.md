@@ -11,15 +11,17 @@ parameters. To carry out a particular task, you envoke one of the `ifm3d`
 ```
 $ ifm3d --help
 ifm3d: version=0.18.0
-usage: ifm3d [<global options>] <command> [<args>]
 
-global options:
-  -h [ --help ]            Produce this help message and exit
-  --ip arg (=192.168.0.69) IP address of the sensor
-  --xmlrpc-port arg (=80)  XMLRPC port of the sensor
-  --password arg           Password for establishing an edit-session with the
-                           sensor
 
+Usage:
+  ifm3d [<global options>] <command> [<args>]
+
+ global options:
+  -h, --help             Produce this help message and exit
+      --ip arg           IP address of the sensor (default: 192.168.0.69)
+      --xmlrpc-port arg  XMLRPC port of the sensor (default: 80)
+      --password arg     Password for establishing an edit-session with the
+                         sensor (default: )
 
 These are common commands used in various situations:
 
@@ -85,17 +87,18 @@ purposes, let's list the options accepted by the `cp` subcommand.
 
 ```
 $ ifm3d cp --help
-usage: ifm3d [<global options>] cp [<cp options>]
+Usage:
+  ifm3d [<global options>] cp [<cp options>]
 
-global options:
-  -h [ --help ]            Produce this help message and exit
-  --ip arg (=192.168.0.69) IP address of the sensor
-  --xmlrpc-port arg (=80)  XMLRPC port of the sensor
-  --password arg           Password for establishing an edit-session with the
-                           sensor
+ global options:
+  -h, --help             Produce this help message and exit
+      --ip arg           IP address of the sensor (default: 192.168.0.69)
+      --xmlrpc-port arg  XMLRPC port of the sensor (default: 80)
+      --password arg     Password for establishing an edit-session with the
+                         sensor (default: )
 
-cp options:
-  --index arg (=-1)     Index of source application to copy
+ cp options:
+      --index arg  Index of source application to copy (default: -1)
 ```
 
 As is shown above, `cp` takes a source application index to copy from.
@@ -251,18 +254,19 @@ usage.
 
 ```
 $ ifm3d time --help
-usage: ifm3d [<global options>] time [<time options>]
+Usage:
+  ifm3d [<global options>] time [<time options>]
 
-global options:
-  -h [ --help ]            Produce this help message and exit
-  --ip arg (=192.168.0.69) IP address of the sensor
-  --xmlrpc-port arg (=80)  XMLRPC port of the sensor
-  --password arg           Password for establishing an edit-session with the
-                           sensor
+ global options:
+  -h, --help             Produce this help message and exit
+      --ip arg           IP address of the sensor (default: 192.168.0.69)
+      --xmlrpc-port arg  XMLRPC port of the sensor (default: 80)
+      --password arg     Password for establishing an edit-session with the
+                         sensor (default: )
 
-time options:
-  --epoch arg           Secs since Unix epoch encoding time to be set on camera
-                        (-1 == now)
+ time options:
+      --epoch arg  Secs since Unix epoch encoding time to be set on camera
+                   (-1 == now)
 ```
 
 To simply see the current time on the camera, we can issue the `time`

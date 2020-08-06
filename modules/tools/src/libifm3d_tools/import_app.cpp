@@ -13,13 +13,10 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/program_options.hpp>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/camera/camera.h>
 #include <ifm3d/camera/err.h>
 #include <glog/logging.h>
-
-namespace po = boost::program_options;
 
 ifm3d::ImportApp::ImportApp(int argc,
                             const char** argv,
@@ -27,28 +24,24 @@ ifm3d::ImportApp::ImportApp(int argc,
   : ifm3d::CmdLineApp(argc, argv, name)
 {
   // clang-format off
-  this->local_opts_.add_options()
-    ("file", po::value<std::string>()->default_value("-"),
-     "Input file, defaults to `stdin' (good for reading off a pipeline)")
-    ("config,c",
+  this->all_opts_.add_options(name)
+    ("file",
+     "Input file, defaults to `stdin' (good for reading off a pipeline)",
+     cxxopts::value<std::string>()->default_value("-"))
+    ("c,config",
      "Flag indicating the input is an entire sensor config (app otherwise)")
-    ("global,g", "If `-c', import the global configuration")
-    ("net,n", "If `-c', import the network configuration")
-    ("app,a", "If `-c', import the application configuration");
-  // clang-format on
+    ("g,global", "If `-c', import the global configuration")
+    ("n,net", "If `-c', import the network configuration")
+    ("a,app", "If `-c', import the application configuration");
 
-  po::store(po::command_line_parser(argc, argv)
-              .options(this->local_opts_)
-              .allow_unregistered()
-              .run(),
-            this->vm_);
-  po::notify(this->vm_);
+  // clang-format on
+  this->_Parse(argc, argv);
 }
 
 int
 ifm3d::ImportApp::Run()
 {
-  if (this->vm_.count("help"))
+  if (this->vm_->count("help"))
     {
       this->_LocalHelp();
       return 0;
@@ -57,7 +50,7 @@ ifm3d::ImportApp::Run()
   std::shared_ptr<std::istream> ifs;
   std::vector<std::uint8_t> bytes;
 
-  std::string infile = this->vm_["file"].as<std::string>();
+  std::string infile = (*this->vm_)["file"].as<std::string>();
   if (infile == "-")
     {
       ifs.reset(&std::cin, [](...) {});
@@ -90,24 +83,24 @@ ifm3d::ImportApp::Run()
     }
 
   std::uint16_t mask = 0x0;
-  if (!this->vm_.count("config"))
+  if (!this->vm_->count("config"))
     {
       this->cam_->ImportIFMApp(bytes);
     }
   else
     {
-      if (this->vm_.count("global"))
+      if (this->vm_->count("global"))
         {
           mask |=
             static_cast<std::uint16_t>(ifm3d::Camera::import_flags::GLOBAL);
         }
 
-      if (this->vm_.count("net"))
+      if (this->vm_->count("net"))
         {
           mask |= static_cast<std::uint16_t>(ifm3d::Camera::import_flags::NET);
         }
 
-      if (this->vm_.count("app"))
+      if (this->vm_->count("app"))
         {
           mask |=
             static_cast<std::uint16_t>(ifm3d::Camera::import_flags::APPS);

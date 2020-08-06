@@ -12,7 +12,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/program_options.hpp>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/camera.h>
 #include <ifm3d/fg.h>
@@ -52,37 +51,31 @@ ifm3d::HzApp::HzApp(int argc, const char** argv, const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
   // clang-format off
-  this->local_opts_.add_options()
+  this->all_opts_.add_options(name)
     ("nframes",
-     po::value<int>()->default_value(10),
-     "Number of frames to capture")
+     "Number of frames to capture",
+     cxxopts::value<int>()->default_value("10"))
     ("nruns",
-     po::value<int>()->default_value(1),
-     "Number of runs to compute summary statistics over")
+     "Number of runs to compute summary statistics over",
+     cxxopts::value<int>()->default_value("1"))
     ("sw",
      "Software Trigger the FrameGrabber");
   // clang-format on
-
-  po::store(po::command_line_parser(argc, argv)
-              .options(this->local_opts_)
-              .allow_unregistered()
-              .run(),
-            this->vm_);
-  po::notify(this->vm_);
+  this->_Parse(argc, argv);
 }
 
 int
 ifm3d::HzApp::Run()
 {
-  if (this->vm_.count("help"))
+  if (this->vm_->count("help"))
     {
       this->_LocalHelp();
       return 0;
     }
 
-  bool sw_trigger = this->vm_.count("sw") ? true : false;
-  int nframes = this->vm_["nframes"].as<int>();
-  int nruns = this->vm_["nruns"].as<int>();
+  bool sw_trigger = this->vm_->count("sw") ? true : false;
+  int nframes = (*this->vm_)["nframes"].as<int>();
+  int nruns = (*this->vm_)["nruns"].as<int>();
 
   double median = 0.0;
 

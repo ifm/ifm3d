@@ -18,7 +18,6 @@
 #include <tuple>
 #include <type_traits>
 #include <vector>
-#include <boost/program_options.hpp>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/camera.h>
 #include <ifm3d/fg.h>
@@ -75,21 +74,16 @@ ifm3d::JitterApp::JitterApp(int argc,
   : ifm3d::CmdLineApp(argc, argv, name)
 {
   // clang-format off
-  this->local_opts_.add_options()
+  this->all_opts_.add_options(name)
     ("nframes",
-     po::value<int>()->default_value(100),
-     "Number of frames to capture")
+     "Number of frames to capture",
+     cxxopts::value<int>()->default_value("100") )
     ("outfile",
-     po::value<std::string>()->default_value("-"),
-     "Raw data output file, if not specified, nothing is written");
-  // clang-format on
+     "Raw data output file, if not specified, nothing is written",
+     cxxopts::value<std::string>()->default_value("-"));
 
-  po::store(po::command_line_parser(argc, argv)
-              .options(this->local_opts_)
-              .allow_unregistered()
-              .run(),
-            this->vm_);
-  po::notify(this->vm_);
+  //clang-format on
+  this->_Parse(argc, argv);
 }
 
 //
@@ -195,15 +189,15 @@ capture_frames(ifm3d::Camera::Ptr cam, T buff, std::vector<float>& results)
 int
 ifm3d::JitterApp::Run()
 {
-  if (this->vm_.count("help"))
+  if (this->vm_->count("help"))
     {
       this->_LocalHelp();
       return 0;
     }
 
-  int nframes = this->vm_["nframes"].as<int>();
+  int nframes = (*this->vm_)["nframes"].as<int>();
   nframes = nframes <= 0 ? 100 : nframes;
-  std::string outfile = this->vm_["outfile"].as<std::string>();
+  std::string outfile = (*this->vm_)["outfile"].as<std::string>();
 
   //
   // capture data for computing jitter statistics

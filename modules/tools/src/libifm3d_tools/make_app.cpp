@@ -12,12 +12,9 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <boost/program_options.hpp>
 #include <glog/logging.h>
 #include <ifm3d/tools.h>
 #include <ifm3d/camera.h>
-
-namespace po = boost::program_options;
 
 std::unordered_map<
   std::string,
@@ -144,26 +141,22 @@ std::unordered_map<
 ifm3d::CmdLineApp::Ptr
 ifm3d::make_app(int argc, const char** argv)
 {
-  po::options_description desc;
+  cxxopts::Options options("ifm3d");
   // clang-format off
-  desc.add_options()
-    ("command", po::value<std::string>()->default_value("version"),
-     "ifm3d Sub-command to execute");
+  options.add_options("version")
+    ("command", "ifm3d Sub-command to execute",
+     cxxopts::value<std::string>()->default_value("version"));
   // clang-format on
+  auto vm = [&options](int argc, const char** argv) -> cxxopts::ParseResult {
+    options.allow_unrecognised_options();
+    options.parse_positional("command");
 
-  po::positional_options_description p;
-  p.add("command", 1);
-
-  po::variables_map vm;
-  po::store(po::command_line_parser(argc, argv)
-              .options(desc)
-              .positional(p)
-              .allow_unregistered()
-              .run(),
-            vm);
-  po::notify(vm);
+    auto args = std::make_unique<ifm3d::MutableArgs>(argc, argv);
+    return options.parse(args->argc, args->argv);
+  }(argc, argv);
 
   std::string cmd = vm["command"].as<std::string>();
+
   try
     {
       return app_factory.at(cmd)(argc, argv, cmd);

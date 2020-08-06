@@ -12,32 +12,28 @@ ifm3d::TraceApp::TraceApp(int argc, const char** argv, const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
   // clang-format off
-  this->local_opts_.add_options()
-    ("limit,l", po::value<int>(),
-     "Limit the amount of trace log messages printed. (default: all)");
-  // clang-format on
+  this->all_opts_.add_options(name)
+    ("l,limit",
+     "Limit the amount of trace log messages printed. (default: all)",
+     cxxopts::value<int>());
 
-  po::store(po::command_line_parser(argc, argv)
-              .options(this->local_opts_)
-              .allow_unregistered()
-              .run(),
-            this->vm_);
-  po::notify(this->vm_);
+  // clang-format on
+  this->_Parse(argc, argv);
 }
 
 int
 ifm3d::TraceApp::Run()
 {
-  if (this->vm_.count("help"))
+  if (this->vm_->count("help"))
     {
       this->_LocalHelp();
       return 0;
     }
 
   auto limit = 0;
-  if (this->vm_.count("limit"))
+  if (this->vm_->count("limit"))
     {
-      limit = std::max(1, this->vm_["limit"].as<int>());
+      limit = std::max(1, (*this->vm_)["limit"].as<int>());
     }
 
   std::vector<std::string> logs = this->cam_->TraceLogs(limit);
