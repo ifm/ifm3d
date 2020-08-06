@@ -364,7 +364,12 @@ namespace ifm3d
     std::mutex data_sync_mutex_;
 
     /**
-     * Ensures single outgoing message
+     * Ensures single outgoing message at a time
+     */
+    std::mutex call_mutex_;
+
+    /**
+     * Ensures outgoing message
      */
     std::mutex out_mutex_;
 
@@ -481,23 +486,26 @@ ifm3d::PCICClient::Impl::Call(
     }
 
   // PCICClient is unbuffered, so block further calls
-  std::unique_lock<std::mutex> out_mutex_lock(this->out_mutex_);
+  std::lock_guard<std::mutex> call_mutex_lock(this->call_mutex_);
 
   this->out_completed_.store(false);
 
+  int ticket = 0;
+  long callback_id = 0;
+
   // Sync access to ticket and id generation
   // as well as to ticket/id and id/callback maps
-  std::unique_lock<std::mutex> data_sync_lock(this->data_sync_mutex_);
+  {
+    std::lock_guard<std::mutex> data_sync_lock(this->data_sync_mutex_);
 
-  // Get next command ticket and callback id
-  int ticket = this->NextCommandTicket();
-  long callback_id = this->NextCallbackId();
+    // Get next command ticket and callback id
+    ticket = this->NextCommandTicket();
+    callback_id = this->NextCallbackId();
 
-  // Add mappings: ticket -> callback id; callback id -> callback
-  this->ticket_to_callback_id_[ticket] = callback_id;
-  this->pending_callbacks_[callback_id] = callback;
-
-  data_sync_lock.unlock();
+    // Add mappings: ticket -> callback id; callback id -> callback
+    this->ticket_to_callback_id_[ticket] = callback_id;
+    this->pending_callbacks_[callback_id] = callback;
+  }
 
   // Transform ticket and length to string
   std::ostringstream pre_content_ss;
@@ -514,11 +522,9 @@ ifm3d::PCICClient::Impl::Call(
   this->DoWrite(State::PRE_CONTENT, request);
 
   // Wait until sending is complete
-  while (!this->out_completed_.load())
-    {
-      this->out_cv_.wait(out_mutex_lock);
-    }
-  out_mutex_lock.unlock();
+  std::unique_lock<std::mutex> out_mutex_lock(this->out_mutex_);
+  this->out_cv_.wait(out_mutex_lock,
+                     [this] { return this->out_completed_.load(); });
 
   return callback_id;
 }
@@ -546,7 +552,7 @@ ifm3d::PCICClient::Impl::Call(const std::string& request,
       call_output = Call(request, [&](const std::string& content) {
         // Copy content, notify and leave callback
         response = content;
-        std::unique_lock<std::mutex> lock(this->in_mutex_);
+        std::lock_guard<std::mutex> lock(this->in_mutex_);
         has_result.store(true);
         this->in_cv_.notify_all();
       });
@@ -556,6 +562,7 @@ ifm3d::PCICClient::Impl::Call(const std::string& request,
     call_thread_->join();
 
   // Check the return value of our PCIC Call
+  auto predicate = [&has_result] { return has_result.load(); };
   if (call_output > 0)
     {
       std::unique_lock<std::mutex> lock(this->in_mutex_);
@@ -563,28 +570,25 @@ ifm3d::PCICClient::Impl::Call(const std::string& request,
         {
           if (timeout_millis <= 0)
             {
-              this->in_cv_.wait(lock, [&] { return has_result.load(); });
+              this->in_cv_.wait(lock, predicate);
             }
 
           else
             {
-              if (this->in_cv_.wait_for(
+              if (!this->in_cv_.wait_for(
                     lock,
-                    std::chrono::milliseconds(timeout_millis)) ==
-                  std::cv_status::timeout)
+                    std::chrono::milliseconds(timeout_millis),
+                    predicate))
                 {
                   this->in_cv_.notify_all();
                   if (this->thread_ && this->thread_->joinable())
                     {
+                      LOG(WARNING) << "PCICClient::Call: Timed out waiting "
+                                   << "for a resopnse, stopping thread...";
                       this->Stop();
                       this->thread_->join();
                     }
-                  return has_result.load();
-                }
-
-              else
-                {
-                  this->in_cv_.wait(lock, [&] { return has_result.load(); });
+                  return false;
                 }
             }
         }
@@ -603,13 +607,12 @@ long
 ifm3d::PCICClient ::Impl::SetErrorCallback(
   std::function<void(const std::string& error)> callback)
 {
-  std::unique_lock<std::mutex> lock(this->data_sync_mutex_);
+  std::lock_guard<std::mutex> lock(this->data_sync_mutex_);
   long callback_id = this->NextCallbackId();
 
   // Asynchronous error messages always have ticket '0001'
   this->ticket_to_callback_id_[1] = callback_id;
   this->pending_callbacks_[callback_id] = callback;
-  lock.unlock();
   return callback_id;
 }
 
@@ -617,22 +620,20 @@ long
 ifm3d::PCICClient ::Impl::SetNotificationCallback(
   std::function<void(const std::string& notification)> callback)
 {
-  std::unique_lock<std::mutex> lock(this->data_sync_mutex_);
+  std::lock_guard<std::mutex> lock(this->data_sync_mutex_);
   long callback_id = this->NextCallbackId();
 
   // Asynchronous notification messages always have ticket '0010'
   this->ticket_to_callback_id_[10] = callback_id;
   this->pending_callbacks_[callback_id] = callback;
-  lock.unlock();
   return callback_id;
 }
 
 void
 ifm3d::PCICClient::Impl::CancelCallback(long callback_id)
 {
-  std::unique_lock<std::mutex> lock(this->data_sync_mutex_);
+  std::lock_guard<std::mutex> lock(this->data_sync_mutex_);
   this->pending_callbacks_.erase(callback_id);
-  lock.unlock();
 }
 
 void
@@ -732,37 +733,41 @@ ifm3d::PCICClient::Impl::ReadHandler(State state,
 
         case State::POST_CONTENT:
           ticket = std::stoi(this->in_pre_content_buffer_.substr(0, 4));
-          this->data_sync_mutex_.lock();
-          try
-            {
-              // Get callback id
-              long callback_id = this->ticket_to_callback_id_.at(ticket);
 
-              // Erase mapping if it is a one-time ticket triggered by a Call
-              // method
-              if (ticket >= ifm3d::ONE_TIME_TICKET_LOWER_RANGE &&
-                  ticket <= ifm3d::ONE_TIME_TICKET_HIGHER_RANGE)
-                {
-                  this->ticket_to_callback_id_.erase(ticket);
-                }
+          // Sync access to ticket
+          {
+            std::lock_guard<std::mutex> data_sync_mutex_lock(
+              this->data_sync_mutex_);
+            try
+              {
+                // Get callback id
+                long callback_id = this->ticket_to_callback_id_.at(ticket);
 
-              // Execute callback
-              this->pending_callbacks_.at(callback_id)(
-                this->in_content_buffer_);
+                // Erase mapping if it is a one-time ticket triggered by a Call
+                // method
+                if (ticket >= ifm3d::ONE_TIME_TICKET_LOWER_RANGE &&
+                    ticket <= ifm3d::ONE_TIME_TICKET_HIGHER_RANGE)
+                  {
+                    this->ticket_to_callback_id_.erase(ticket);
+                  }
 
-              // Erase mapping if it is a one-time ticket triggered by a Call
-              // method
-              if (ticket >= ifm3d::ONE_TIME_TICKET_LOWER_RANGE &&
-                  ticket <= ifm3d::ONE_TIME_TICKET_HIGHER_RANGE)
-                {
-                  this->pending_callbacks_.erase(callback_id);
-                }
-            }
-          catch (std::out_of_range ex)
-            {
-              DLOG(INFO) << "No callback for ticket " << ticket << " found!";
-            }
-          this->data_sync_mutex_.unlock();
+                // Execute callback
+                this->pending_callbacks_.at(callback_id)(
+                  this->in_content_buffer_);
+
+                // Erase mapping if it is a one-time ticket triggered by a Call
+                // method
+                if (ticket >= ifm3d::ONE_TIME_TICKET_LOWER_RANGE &&
+                    ticket <= ifm3d::ONE_TIME_TICKET_HIGHER_RANGE)
+                  {
+                    this->pending_callbacks_.erase(callback_id);
+                  }
+              }
+            catch (std::out_of_range ex)
+              {
+                DLOG(INFO) << "No callback for ticket " << ticket << " found!";
+              }
+          }
           this->DoRead(State::PRE_CONTENT);
           break;
         }
@@ -838,7 +843,7 @@ ifm3d::PCICClient::Impl::WriteHandler(State state,
           break;
 
         case State::POST_CONTENT:
-          std::unique_lock<std::mutex> lock(this->out_mutex_);
+          std::lock_guard<std::mutex> lock(this->out_mutex_);
           this->out_completed_.store(true);
           this->out_cv_.notify_all();
           break;
