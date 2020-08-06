@@ -524,7 +524,7 @@ ifm3d::PCICClient::Impl::Call(
   // Wait until sending is complete
   std::unique_lock<std::mutex> out_mutex_lock(this->out_mutex_);
   this->out_cv_.wait(out_mutex_lock,
-                     [&] { return this->out_completed_.load(); });
+                     [this] { return this->out_completed_.load(); });
 
   return callback_id;
 }
@@ -562,7 +562,7 @@ ifm3d::PCICClient::Impl::Call(const std::string& request,
     call_thread_->join();
 
   // Check the return value of our PCIC Call
-  auto predicate = [&] { return has_result.load(); };
+  auto predicate = [&has_result] { return has_result.load(); };
   if (call_output > 0)
     {
       std::unique_lock<std::mutex> lock(this->in_mutex_);
