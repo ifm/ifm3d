@@ -33,8 +33,6 @@ ifm3d::RebootApp::Run()
       return 0;
     }
 
-  std::cout << this->vm_->count("recovery") << this->vm_->count("r")
-            << std::endl;
   ifm3d::Camera::boot_mode mode = this->vm_->count("recovery") ?
                                     ifm3d::Camera::boot_mode::RECOVERY :
                                     ifm3d::Camera::boot_mode::PRODUCTIVE;
