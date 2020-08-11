@@ -49,13 +49,9 @@ ifm3d::SWUpdateApp::Run()
       return 0;
     }
 
-  auto const file = this->vm_->count("file") ? true : false;
-  auto const check =
-    this->vm_->count("check") ? (*this->vm_)["check"].as<bool>() : false;
-  auto const recovery_reboot =
-    this->vm_->count("reboot") ? (*this->vm_)["reboot"].as<bool>() : false;
-  auto const quiet =
-    this->vm_->count("quiet") ? (*this->vm_)["quiet"].as<bool>() : false;
+  auto const check = (*this->vm_)["check"].as<bool>();
+  auto const recovery_reboot = (*this->vm_)["reboot"].as<bool>();
+  auto const quiet = (*this->vm_)["quiet"].as<bool>();
 
   ifm3d::SWUpdater::Ptr swupdater;
   if (quiet)
@@ -140,27 +136,8 @@ ifm3d::SWUpdateApp::Run()
         }
       return 0;
     }
-  else if (file)
+  else
     {
-      // Reboot to recovery if not already in recovery
-      if (!swupdater->WaitForRecovery(-1))
-        {
-          if (!quiet)
-            {
-              std::cout << "Rebooting device to recovery mode..." << std::endl;
-            }
-          swupdater->RebootToRecovery();
-          if (!swupdater->WaitForRecovery(60000))
-            {
-              if (!quiet)
-                {
-                  std::cout << "Timed out waiting for recovery mode"
-                            << std::endl;
-                }
-              return -1;
-            }
-        }
-
       // Read the file in
       std::shared_ptr<std::istream> ifs;
       std::vector<std::uint8_t> bytes;
@@ -202,35 +179,57 @@ ifm3d::SWUpdateApp::Run()
                        std::istream_iterator<std::uint8_t>(*ifs),
                        std::istream_iterator<std::uint8_t>());
         }
-
-      if (!swupdater->FlashFirmware(bytes, 300000))
+      if (!bytes.empty())
         {
+          // Reboot to recovery if not already in recovery
+          if (!swupdater->WaitForRecovery(-1))
+            {
+              if (!quiet)
+                {
+                  std::cout << "Rebooting device to recovery mode..."
+                            << std::endl;
+                }
+              swupdater->RebootToRecovery();
+              if (!swupdater->WaitForRecovery(60000))
+                {
+                  if (!quiet)
+                    {
+                      std::cout << "Timed out waiting for recovery mode"
+                                << std::endl;
+                    }
+                  return -1;
+                }
+            }
+
+          if (!swupdater->FlashFirmware(bytes, 300000))
+            {
+              if (!quiet)
+                {
+                  std::cout << "Timed out waiting for flashing to complete"
+                            << std::endl;
+                }
+              return -1;
+            }
+
+          swupdater->RebootToProductive();
           if (!quiet)
             {
-              std::cout << "Timed out waiting for flashing to complete"
+              std::cout << "Update successful, waiting for device to reboot..."
                         << std::endl;
             }
-          return -1;
-        }
-
-      swupdater->RebootToProductive();
-      if (!quiet)
-        {
-          std::cout << "Update successful, waiting for device to reboot..."
-                    << std::endl;
-        }
-      if (!swupdater->WaitForProductive(60000))
-        {
+          if (!swupdater->WaitForProductive(60000))
+            {
+              if (!quiet)
+                {
+                  std::cout << "Timed out waiting for productive mode"
+                            << std::endl;
+                }
+              return -1;
+            }
           if (!quiet)
             {
-              std::cout << "Timed out waiting for productive mode"
-                        << std::endl;
+              std::cout << "SWUpdate Complete." << std::endl;
             }
-          return -1;
-        }
-      if (!quiet)
-        {
-          std::cout << "SWUpdate Complete." << std::endl;
         }
     }
   return 0;

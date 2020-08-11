@@ -35,8 +35,7 @@ ifm3d::PasswdApp::Run()
     }
 
   auto const new_password = this->vm_->count("new") ? true : false;
-  auto const disable =
-    this->vm_->count("disable") ? (*this->vm_)["disable"].as<bool>() : false;
+  auto const disable = (*this->vm_)["disable"].as<bool>();
   std::string password = "";
 
   if (new_password && disable)
