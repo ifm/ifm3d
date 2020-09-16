@@ -24,6 +24,7 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_IP;
   extern IFM3D_CAMERA_EXPORT const std::uint16_t DEFAULT_XMLRPC_PORT;
   extern IFM3D_CAMERA_EXPORT const int DEFAULT_PCIC_PORT;
+  extern IFM3D_CAMERA_EXPORT const std::uint16_t DEFAULT_NAT_PCIC_PORT;
   extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_PASSWORD;
   extern IFM3D_CAMERA_EXPORT const int MAX_HEARTBEAT;
   extern IFM3D_CAMERA_EXPORT const std::size_t SESSION_ID_SZ;
