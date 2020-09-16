@@ -9,9 +9,14 @@
 #include <ifm3d/camera/err.h>
 #include <swupdater_impl.hpp>
 
+const std::uint16_t ifm3d::SWUPDATER_RECOVERY_PORT = 8080;
+
 ifm3d::SWUpdater::SWUpdater(ifm3d::Camera::Ptr cam,
-                            const ifm3d::SWUpdater::FlashStatusCb& cb)
-  : pImpl(new ifm3d::SWUpdater::Impl(cam, cb))
+                            const ifm3d::SWUpdater::FlashStatusCb& cb,
+                            const std::uint16_t swupdate_recovery_port)
+  : pImpl(new ifm3d::SWUpdater::Impl(cam,
+                                     cb,
+                                     std::to_string(swupdate_recovery_port)))
 { }
 
 ifm3d::SWUpdater::~SWUpdater() = default;

@@ -46,7 +46,9 @@ namespace ifm3d
   class FrameGrabber::Impl
   {
   public:
-    Impl(ifm3d::Camera::Ptr cam, std::uint16_t mask);
+    Impl(ifm3d::Camera::Ptr cam,
+         std::uint16_t mask,
+         const std::uint16_t& nat_pcic_port);
     ~Impl();
 
     virtual void SWTrigger();
@@ -133,11 +135,15 @@ namespace ifm3d
 //-------------------------------------
 // ctor/dtor
 //-------------------------------------
-ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam, std::uint16_t mask)
+ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam,
+                                std::uint16_t mask,
+                                const std::uint16_t& nat_pcic_port)
   : cam_(cam),
     mask_(mask),
     cam_ip_(this->cam_->IP()),
-    cam_port_(ifm3d::DEFAULT_PCIC_PORT),
+    cam_port_(nat_pcic_port == ifm3d::DEFAULT_NAT_PCIC_PORT ?
+                ifm3d::DEFAULT_PCIC_PORT :
+                nat_pcic_port),
     io_service_(),
     sock_(io_service_),
     pcic_ready_(false)
@@ -151,8 +157,11 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam, std::uint16_t mask)
       try
         {
           this->cam_ip_ = this->cam_->IP();
-          this->cam_port_ =
-            std::stoi(this->cam_->DeviceParameter("PcicTcpPort"));
+          if (cam_port_ != nat_pcic_port)
+            {
+              this->cam_port_ =
+                std::stoi(this->cam_->DeviceParameter("PcicTcpPort"));
+            }
         }
       catch (const ifm3d::error_t& ex)
         {

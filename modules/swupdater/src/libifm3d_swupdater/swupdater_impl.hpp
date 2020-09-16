@@ -24,7 +24,6 @@ namespace ifm3d
   const std::string SWUPDATER_REBOOT_URL_SUFFIX = "/reboot_to_live";
   const std::string SWUPDATER_STATUS_URL_SUFFIX = "/getstatus.json";
   const std::string SWUPDATER_CHECK_RECOVERY_URL_SUFFIX = "/id.lp";
-  const std::string SWUPDATER_RECOVERY_PORT = "8080";
   const std::string SWUPDATER_FILENAME_HEADER = "X_FILENAME: swupdate.swu";
   const std::string SWUPDATER_CONTENT_TYPE_HEADER =
     "Content-Type: application/octet-stream";
@@ -45,7 +44,9 @@ namespace ifm3d
   class SWUpdater::Impl
   {
   public:
-    Impl(ifm3d::Camera::Ptr cam, const ifm3d::SWUpdater::FlashStatusCb& cb);
+    Impl(ifm3d::Camera::Ptr cam,
+         const ifm3d::SWUpdater::FlashStatusCb& cb,
+         const std::string& swupdate_recovery_port);
     ~Impl() = default;
 
     void RebootToRecovery();
@@ -218,16 +219,17 @@ namespace ifm3d
 // ctor
 //-------------------------------------
 ifm3d::SWUpdater::Impl::Impl(ifm3d::Camera::Ptr cam,
-                             const ifm3d::SWUpdater::FlashStatusCb& cb)
+                             const ifm3d::SWUpdater::FlashStatusCb& cb,
+                             const std::string& swupdate_recovery_port)
   : cam_(cam),
     cb_(cb),
-    upload_url_("http://" + cam->IP() + ":" + SWUPDATER_RECOVERY_PORT +
+    upload_url_("http://" + cam->IP() + ":" + swupdate_recovery_port +
                 SWUPDATER_UPLOAD_URL_SUFFIX),
-    reboot_url_("http://" + cam->IP() + ":" + SWUPDATER_RECOVERY_PORT +
+    reboot_url_("http://" + cam->IP() + ":" + swupdate_recovery_port +
                 SWUPDATER_REBOOT_URL_SUFFIX),
-    status_url_("http://" + cam->IP() + ":" + SWUPDATER_RECOVERY_PORT +
+    status_url_("http://" + cam->IP() + ":" + swupdate_recovery_port +
                 SWUPDATER_STATUS_URL_SUFFIX),
-    check_recovery_url_("http://" + cam->IP() + ":" + SWUPDATER_RECOVERY_PORT +
+    check_recovery_url_("http://" + cam->IP() + ":" + swupdate_recovery_port +
                         SWUPDATER_CHECK_RECOVERY_URL_SUFFIX)
 { }
 
