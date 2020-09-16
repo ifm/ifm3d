@@ -34,7 +34,9 @@ ifm3d::SWUpdateApp::SWUpdateApp(int argc,
     ("r,reboot","Reboot from recovery mode to productive mode",
      cxxopts::value<bool>()->default_value("false"))
     ("q,quiet","Disable status output",
-     cxxopts::value<bool>()->default_value("false"));
+     cxxopts::value<bool>()->default_value("false"))
+    ("swupdate-port","port for swupdate",
+     cxxopts::value<unsigned short>()->default_value("8080"));
 
   // clang-format on
   this->_Parse(argc, argv);
@@ -52,11 +54,16 @@ ifm3d::SWUpdateApp::Run()
   auto const check = (*this->vm_)["check"].as<bool>();
   auto const recovery_reboot = (*this->vm_)["reboot"].as<bool>();
   auto const quiet = (*this->vm_)["quiet"].as<bool>();
+  auto const swupdate_port =
+    (*this->vm_)["swupdate-port"].as<unsigned short>();
 
   ifm3d::SWUpdater::Ptr swupdater;
   if (quiet)
     {
-      swupdater = std::make_shared<ifm3d::SWUpdater>(this->cam_);
+      swupdater = std::make_shared<ifm3d::SWUpdater>(
+        this->cam_,
+        [](float p, const std::string& msg) -> void {},
+        swupdate_port);
     }
   else
     {
@@ -90,7 +97,8 @@ ifm3d::SWUpdateApp::Run()
             {
               std::cout << msg << std::endl;
             }
-        });
+        },
+        swupdate_port);
     }
 
   if (check)

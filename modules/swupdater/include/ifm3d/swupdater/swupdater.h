@@ -9,9 +9,13 @@
 #include <memory>
 #include <vector>
 #include <ifm3d/camera/camera.h>
+#include <ifm3d/swupdater/swupdater_export.h>
 
 namespace ifm3d
 {
+  /* const for the swupdate recovery port value */
+  extern IFM3D_SWUPDATER_EXPORT const std::uint16_t SWUPDATER_RECOVERY_PORT;
+
   class SWUpdater
   {
   public:
@@ -34,9 +38,13 @@ namespace ifm3d
      * @param cam Camera object to manipulate
      *
      * @param cb Opitonal user-defined callback to handle status updates
+     *
+     * @param swupdate_recovery_port swupate recovery port for the device
      */
     SWUpdater(ifm3d::Camera::Ptr cam,
-              const ifm3d::SWUpdater::FlashStatusCb& cb = {});
+              const ifm3d::SWUpdater::FlashStatusCb& cb = {},
+              const std::uint16_t swupdate_recovery_port =
+                ifm3d::SWUPDATER_RECOVERY_PORT);
 
     virtual ~SWUpdater();
 
