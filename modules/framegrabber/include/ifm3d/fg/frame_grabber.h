@@ -32,9 +32,14 @@ namespace ifm3d
      * @param[in] cam The camera instance to grab frames from
      * @param[in] mask A bitmask encoding the image acquisition schema
      *                 to stream in from the camera.
+     * @param[in] nat_pcic_port Port for devices behind NAT router,
+     *                          user must provide this value according to there
+     *                          NAT router configuration.
      */
-    FrameGrabber(ifm3d::Camera::Ptr cam,
-                 std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK);
+    FrameGrabber(
+      ifm3d::Camera::Ptr cam,
+      std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK,
+      const std::uint16_t nat_pcic_port = ifm3d::DEFAULT_NAT_PCIC_PORT);
 
     /**
      * Cleans up resources held by the framegrabbing thread object and blocks
