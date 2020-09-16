@@ -151,6 +151,11 @@ Add the public key for the repository:
 $ sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 8AB59D3A2BD7B692
 ```
 
+If you experience issues with connecting the key server you can try this alternative which uses curl. This is maybe helpful when you are behind a proxyserver.
+```
+curl -sSL 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x8AB59D3A2BD7B692' | sudo apt-key add -
+```
+
 Install the software:
 
 ```
