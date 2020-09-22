@@ -93,28 +93,6 @@ each now follow.
 
 ## Linux
 
-#### Snap Application
-
-[![ifm3d](https://snapcraft.io//ifm3d/badge.svg)](https://snapcraft.io/ifm3d)
-
-The ifm3d [command line utility](doc/cmdline.md) and
-[viewer tool](https://github.com/ifm/ifm3d-pcl-viewer) are available as a snap
-in the Snapcraft application store. Snapcraft supports [most major Linux
-distributions](https://snapcraft.io/docs/installing-snapd). The storefront
-page for `ifm3d` is: https://snapcraft.io/ifm3d
-
-To install the package on a snapd enabled system:
-```
-$ sudo snap install ifm3d
-```
-After installation, the commands `ifm3d` and `ifm3d.viewer` should be
-available.
-
-**NOTE**: This option is a convenient way to install and update tools and
-utilities for working with ifm Cameras. This option is not suitable for
-developers hoping to target the `ifm3d` API and shared libraries. Developers
-should opt for standard debian packages, or building from source.
-
 #### Ubuntu Linux via Apt (amd64/arm64)
 
 We provide apt repositories for the following Ubuntu Linux distributions and
@@ -155,6 +133,7 @@ If you experience issues with connecting the key server you can try this alterna
 ```
 curl -sSL 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x8AB59D3A2BD7B692' | sudo apt-key add -
 ```
+In case of any name resolution issues, 																																					it is worth to check the environment variable ```$https_proxy``` for proper proxy configuration.
 
 Install the software:
 
@@ -243,7 +222,7 @@ compiling for the target MSVC/SDK versions according to the
 If you are running on a platform we did not mention above, the links below will
 assist you in building from source code. Alternatively, if you are simply
 looking to do a quick evaluation of an `ifm3d` supported sensor we recommend
-either the Snapcraft option discussed above, or [Docker containers](docker/).
+the use of [Docker containers](docker/).
 
 
 Additional Resources
