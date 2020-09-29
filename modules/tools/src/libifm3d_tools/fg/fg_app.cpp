@@ -19,7 +19,6 @@ ifm3d::FgApp::FgApp(int argc, const char** argv, const std::string& name)
   this->_Parse(argc, argv);
  
   this->nat_port_ = (*this->vm_)["nat-port"].as<unsigned short>();
-  std::cout << this->nat_port_;
   this->fg_ = std::make_shared<ifm3d::FrameGrabber>(
     this->cam_,
     ifm3d::DEFAULT_SCHEMA_MASK,this->nat_port_);
