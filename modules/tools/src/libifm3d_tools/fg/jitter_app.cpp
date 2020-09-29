@@ -71,7 +71,7 @@ public:
 ifm3d::JitterApp::JitterApp(int argc,
                             const char** argv,
                             const std::string& name)
-  : ifm3d::CmdLineApp(argc, argv, name)
+  : ifm3d::FgApp(argc, argv, name)
 {
   // clang-format off
   this->all_opts_.add_options(name)
@@ -156,13 +156,13 @@ mad(const std::vector<T>& arr, T center)
 //
 template <typename T>
 void
-capture_frames(ifm3d::Camera::Ptr cam, T buff, std::vector<float>& results)
+capture_frames(ifm3d::FrameGrabber::Ptr fg, T buff, std::vector<float>& results)
 {
   int nframes = results.size();
-  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
+
   // get one-time allocations out of the way, and, make
   // sure it doesn't get optimized away by the compiler
-  if (!fg->WaitForFrame(buff.get(), 1000))
+  if (!fg->WaitForFrame(buff.get(), ifm3d::FG_TIMEOUT))
     {
       std::cerr << "Timeout waiting for first image acquisition!" << std::endl;
       return;
@@ -171,7 +171,7 @@ capture_frames(ifm3d::Camera::Ptr cam, T buff, std::vector<float>& results)
   for (int i = 0; i < nframes; ++i)
     {
       auto t1 = Clock_t::now();
-      if (!fg->WaitForFrame(buff.get(), 1000))
+      if (!fg->WaitForFrame(buff.get(), ifm3d::FG_TIMEOUT))
         {
           std::cerr << "Timeout waiting for image acquisition!" << std::endl;
           return;
@@ -205,7 +205,7 @@ ifm3d::JitterApp::Run()
   std::vector<float> bb_results(nframes, 0.);
   std::cout << "Capturing frame data for ifm3d::ByteBuffer..." << std::endl;
   auto bb = std::make_shared<ifm3d::ByteBuffer<MyBuff>>();
-  capture_frames(this->cam_, bb, bb_results);
+  capture_frames(this->fg_, bb, bb_results);
   float bb_median = median(bb_results);
   float bb_mean, bb_stdev;
   std::tie(bb_mean, bb_stdev) = mean_stdev(bb_results);
@@ -221,7 +221,7 @@ ifm3d::JitterApp::Run()
   std::cout << std::endl
             << "Capturing frame data for ifm3d::ImageBuffer..." << std::endl;
   auto im = std::make_shared<ifm3d::ImageBuffer>();
-  capture_frames(this->cam_, im, im_results);
+  capture_frames(this->fg_, im, im_results);
   float im_median = median(im_results);
   float im_mean, im_stdev;
   std::tie(im_mean, im_stdev) = mean_stdev(im_results);
@@ -238,7 +238,7 @@ ifm3d::JitterApp::Run()
   std::cout << std::endl
             << "Capturing frame data for ifm3d::OpenCVBuffer..." << std::endl;
   auto oc = std::make_shared<ifm3d::OpenCVBuffer>();
-  capture_frames(this->cam_, oc, oc_results);
+  capture_frames(this->fg_, oc, oc_results);
   float oc_median = median(oc_results);
   float oc_mean, oc_stdev;
   std::tie(oc_mean, oc_stdev) = mean_stdev(oc_results);
