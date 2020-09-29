@@ -98,7 +98,7 @@ ifm3d::HzApp::Run()
               this->fg_->SWTrigger();
             }
 
-          if (!this->fg_->WaitForFrame(buff.get(), 10000))
+          if (!this->fg_->WaitForFrame(buff.get(), ifm3d::FG_TIMEOUT))
             {
               std::cerr << "Timeout waiting for camera!" << std::endl;
               return -1;

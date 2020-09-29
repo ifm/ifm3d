@@ -162,7 +162,7 @@ capture_frames(ifm3d::FrameGrabber::Ptr fg, T buff, std::vector<float>& results)
 
   // get one-time allocations out of the way, and, make
   // sure it doesn't get optimized away by the compiler
-  if (!fg->WaitForFrame(buff.get(), 10000))
+  if (!fg->WaitForFrame(buff.get(), ifm3d::FG_TIMEOUT))
     {
       std::cerr << "Timeout waiting for first image acquisition!" << std::endl;
       return;
@@ -171,7 +171,7 @@ capture_frames(ifm3d::FrameGrabber::Ptr fg, T buff, std::vector<float>& results)
   for (int i = 0; i < nframes; ++i)
     {
       auto t1 = Clock_t::now();
-      if (!fg->WaitForFrame(buff.get(), 10000))
+      if (!fg->WaitForFrame(buff.get(), ifm3d::FG_TIMEOUT))
         {
           std::cerr << "Timeout waiting for image acquisition!" << std::endl;
           return;
