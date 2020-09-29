@@ -8,11 +8,14 @@
 #define __IFM3D_TOOLS_FG_APP_H__
 
 #include <string>
+#include <ifm3d/tools/tools_export.h>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/fg.h>
 
 namespace ifm3d
 {
+
+  extern IFM3D_TOOLS_EXPORT const int FG_TIMEOUT;
   /**
    *  FgApp provides the interface for ifm3d::Framgrabber dependent command
    */
@@ -30,7 +33,7 @@ namespace ifm3d
     FgApp& operator=(const FgApp&) = delete;
 
   protected:
-    unsigned short nat_port_;
+    unsigned short pcic_port_;
     ifm3d::FrameGrabber::Ptr fg_;
   };
 
