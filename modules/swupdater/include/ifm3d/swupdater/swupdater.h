@@ -37,7 +37,7 @@ namespace ifm3d
      *
      * @param cam Camera object to manipulate
      *
-     * @param cb Opitonal user-defined callback to handle status updates
+     * @param cb Optional user-defined callback to handle status updates
      *
      * @param swupdate_recovery_port swupate recovery port for the device
      */
