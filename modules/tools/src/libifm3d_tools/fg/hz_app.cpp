@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <ifm3d/tools/cmdline_app.h>
+#include <ifm3d/tools/fg/fg_app.h>
 #include <ifm3d/camera.h>
 #include <ifm3d/fg.h>
 
@@ -48,7 +48,7 @@ public:
 };
 
 ifm3d::HzApp::HzApp(int argc, const char** argv, const std::string& name)
-  : ifm3d::CmdLineApp(argc, argv, name)
+  : ifm3d::FgApp(argc, argv, name)
 {
   // clang-format off
   this->all_opts_.add_options(name)
@@ -86,7 +86,6 @@ ifm3d::HzApp::Run()
 
   std::vector<double> stats;
 
-  auto fg = std::make_shared<ifm3d::FrameGrabber>(this->cam_);
   auto buff = std::make_shared<ifm3d::ByteBuffer<MyBuff>>();
 
   for (int i = 0; i < nruns; i++)
@@ -96,10 +95,10 @@ ifm3d::HzApp::Run()
         {
           if (sw_trigger)
             {
-              fg->SWTrigger();
+              this->fg_->SWTrigger();
             }
 
-          if (!fg->WaitForFrame(buff.get(), 1000))
+          if (!this->fg_->WaitForFrame(buff.get(), 10000))
             {
               std::cerr << "Timeout waiting for camera!" << std::endl;
               return -1;
