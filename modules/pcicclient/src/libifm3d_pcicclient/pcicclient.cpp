@@ -13,8 +13,8 @@
 #include <pcicclient_impl.hpp>
 
 ifm3d::PCICClient::PCICClient(ifm3d::Camera::Ptr cam,
-                              const std::uint16_t nat_pcic_port)
-  : pImpl(new ifm3d::PCICClient::Impl(cam, nat_pcic_port))
+                              const std::uint16_t pcic_port)
+  : pImpl(new ifm3d::PCICClient::Impl(cam, pcic_port))
 { }
 
 ifm3d::PCICClient::~PCICClient() = default;
