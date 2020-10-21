@@ -39,7 +39,7 @@ namespace ifm3d
     FrameGrabber(
       ifm3d::Camera::Ptr cam,
       std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK,
-      const std::uint16_t nat_pcic_port = ifm3d::DEFAULT_NAT_PCIC_PORT);
+      const std::uint16_t nat_pcic_port = ifm3d::PCIC_PORT);
 
     /**
      * Cleans up resources held by the framegrabbing thread object and blocks
