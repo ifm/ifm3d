@@ -28,7 +28,7 @@
 const std::string ifm3d::DEFAULT_PASSWORD = "";
 const std::uint16_t ifm3d::DEFAULT_XMLRPC_PORT = 80;
 const int ifm3d::DEFAULT_PCIC_PORT = 50010;
-const std::uint16_t ifm3d::DEFAULT_NAT_PCIC_PORT = 0;
+const std::uint16_t ifm3d::PCIC_PORT = 0;
 const std::string ifm3d::DEFAULT_IP = std::getenv("IFM3D_IP") == nullptr ?
                                         "192.168.0.69" :
                                         std::string(std::getenv("IFM3D_IP"));

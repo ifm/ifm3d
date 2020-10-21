@@ -36,7 +36,7 @@ namespace ifm3d
      */
     PCICClient(
       ifm3d::Camera::Ptr cam,
-      const std::uint16_t nat_pcic_port = ifm3d::DEFAULT_NAT_PCIC_PORT);
+      const std::uint16_t pcic_port = ifm3d::PCIC_PORT);
 
     /**
      * Cleans up any resources held by the receive thread object and
