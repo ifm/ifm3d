@@ -179,17 +179,12 @@ RO_LUT=
 // Function for Searching Devices on Network
 //================================================
 
-std::vector<std::string>
+std::vector<ifm3d::IFMNetworkDevice>
 ifm3d::Camera::DeviceDiscovery()
 {
   ifm3d::IFMDeviceDiscovery ifm_discovery;
   auto devices = ifm_discovery.NetworkSearch();
-  std::vector<std::string> device_list;
-  for (auto & device : devices)
-    {
-      device_list.push_back(device.ip_address);
-    }
-  return device_list;
+  return devices;
 }
 
 //================================================

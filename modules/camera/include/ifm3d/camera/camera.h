@@ -16,6 +16,7 @@
 #include <unordered_map>
 #include <ifm3d/contrib/nlohmann/json.hpp>
 #include <ifm3d/camera/camera_export.h>
+#include <ifm3d/camera/ifm_network_device.h>
 
 using json = nlohmann::json;
 
@@ -148,7 +149,7 @@ namespace ifm3d
      * @return : vector of ip-address all the discovered devices
      *  on network.
      */
-    static std::vector<std::string> DeviceDiscovery();
+    static std::vector<ifm3d::IFMNetworkDevice> DeviceDiscovery();
 
     /**
      * Factory function for instantiating the proper subclass based on h/w
