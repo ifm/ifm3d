@@ -25,7 +25,8 @@ int ifm3d::DiscoverApp::Run()
 
   for (const auto& device : devices)
     {
-      auto cam = ifm3d::Camera::MakeShared(device);
+      auto ip_address = device.GetIPAddress();
+      auto cam = ifm3d::Camera::MakeShared(ip_address);
       auto device_type = "";
       if (cam->IsO3D())
         {
@@ -39,7 +40,7 @@ int ifm3d::DiscoverApp::Run()
         {
           continue;
         }
-      std::cout << device << " (" << device_type << ")" << std::endl;
+      std::cout << ip_address << " (" << device_type << ")" << std::endl;
     }
   return 0;
 }
