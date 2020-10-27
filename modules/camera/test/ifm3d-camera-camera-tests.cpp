@@ -25,6 +25,10 @@ protected:
 
 TEST_F(CameraTest, FactoryDefaults)
 {
+  if(this->cam_->IsO3R())
+  {
+      return;
+  }
   EXPECT_NO_THROW(this->cam_->FactoryReset());
   std::this_thread::sleep_for(std::chrono::seconds(6));
   EXPECT_NO_THROW(this->cam_->DeviceType());
@@ -238,9 +242,9 @@ TEST_F(CameraTest, ActiveApplication)
   EXPECT_EQ(app_list.size(), 1);
 
   //
-  // The rest of the test is invalid for O3X
+  // The rest of the test is invalid for O3X and 03R
   //
-  if (this->cam_->IsO3X())
+  if (this->cam_->IsO3X() || this->cam_->IsO3R())
     {
       return;
     }
@@ -313,6 +317,10 @@ TEST_F(CameraTest, ActiveApplication)
 
 TEST_F(CameraTest, ImagerTypes)
 {
+  if (this->cam_->IsO3R())
+    {
+      return;
+    }
   json dump = this->cam_->ToJSON();
   std::string curr_im_type = dump["ifm3d"]["Apps"][0]["Imager"]["Type"];
 

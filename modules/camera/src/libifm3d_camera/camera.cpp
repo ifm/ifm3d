@@ -22,6 +22,8 @@
 #include <camera_impl.hpp>
 #include <discovery.hpp>
 
+#include <iostream>
+
 //================================================
 // Public constants
 //================================================
@@ -75,9 +77,10 @@ const std::string ifm3d::DEFAULT_SESSION_ID = __ifm3d_session_id__();
 
 const int ifm3d::DEV_O3D_MIN = 1;
 const int ifm3d::DEV_O3D_MAX = 255;
+const int ifm3d::DEV_O3R_MIN = 256;
+const int ifm3d::DEV_O3R_MAX = 256;
 const int ifm3d::DEV_O3X_MIN = 512;
 const int ifm3d::DEV_O3X_MAX = 767;
-
 const std::string ifm3d::ASSUME_DEVICE =
   std::getenv("IFM3D_DEVICE") == nullptr ?
     "" :
@@ -202,6 +205,11 @@ ifm3d::Camera::MakeShared(const std::string& ip,
       //
       // It is an optimization to return the specialized subclass
       //
+      if (base->IsO3R())
+        {
+          VLOG(IFM3D_TRACE) << "Instantiating O3R...";
+          return std::make_shared<ifm3d::O3RCamera>(ip, xmlrpc_port, password);
+        }
       if (base->IsO3X())
         {
           VLOG(IFM3D_TRACE) << "Instantiating O3X...";
@@ -253,7 +261,7 @@ ifm3d::Camera::Camera(const std::string& ip,
                       const std::string& password)
   : pImpl(new ifm3d::Camera::Impl(ip, xmlrpc_port, password)),
     device_type_("")
-{ }
+{}
 
 ifm3d::Camera::~Camera() = default;
 
@@ -303,6 +311,19 @@ int
 ifm3d::Camera::Heartbeat(int hb)
 {
   return this->pImpl->Heartbeat(hb);
+}
+
+std::unordered_map<std::string, std::string>
+ifm3d::Camera::NetInfo()
+{
+  return this->pImpl->NetInfo();
+}
+
+std::unordered_map<std::string, std::string>
+ifm3d::Camera::TimeInfo()
+{
+  // http://192.168.0.69:80/api/rpc/v1/com.ifm.efector/session_$XXX/edit/device/time/
+  return json(this->pImpl->TimeInfo());
 }
 
 void
@@ -388,56 +409,51 @@ ifm3d::Camera::DeviceType(bool use_cached)
   return this->device_type_;
 }
 
-bool
-ifm3d::Camera::IsO3X()
+int
+ifm3d::Camera::DeviceID()
 {
-  int devid = 0;
-  std::string dt = this->DeviceType();
-  std::string::size_type n = dt.find(":");
-  if (n != std::string::npos)
+  auto devType = this->DeviceType();
+  auto pos = devType.find(":");
+  if (pos != std::string::npos)
     {
       try
         {
-          devid = std::atoi(dt.substr(n + 1).c_str());
+          return std::atoi(devType.substr(pos + 1).c_str());
         }
       catch (std::out_of_range& ex)
         {
           LOG(WARNING) << ex.what();
         }
     }
+  return -1;
+}
 
-  if ((devid >= ifm3d::DEV_O3X_MIN) && (devid <= ifm3d::DEV_O3X_MAX))
+bool
+ifm3d::Camera::checkDeviceID(int deviceID, int minID, int maxID)
+{
+  if ((deviceID >= minID) && (deviceID <= maxID))
     {
       return true;
     }
-
   return false;
+}
+
+bool
+ifm3d::Camera::IsO3R()
+{
+  return checkDeviceID(DeviceID(), ifm3d::DEV_O3R_MIN, ifm3d::DEV_O3R_MAX);
+}
+
+bool
+ifm3d::Camera::IsO3X()
+{
+  return checkDeviceID(DeviceID(), ifm3d::DEV_O3X_MIN, ifm3d::DEV_O3X_MAX);
 }
 
 bool
 ifm3d::Camera::IsO3D()
 {
-  int devid = 0;
-  std::string dt = this->DeviceType();
-  std::string::size_type n = dt.find(":");
-  if (n != std::string::npos)
-    {
-      try
-        {
-          devid = std::atoi(dt.substr(n + 1).c_str());
-        }
-      catch (std::out_of_range& ex)
-        {
-          LOG(WARNING) << ex.what();
-        }
-    }
-
-  if ((devid >= ifm3d::DEV_O3D_MIN) && (devid <= ifm3d::DEV_O3D_MAX))
-    {
-      return true;
-    }
-
-  return false;
+  return checkDeviceID(DeviceID(), ifm3d::DEV_O3D_MIN, ifm3d::DEV_O3D_MAX);
 }
 
 int
@@ -626,81 +642,85 @@ ifm3d::Camera::CheckMinimumFirmwareVersion(unsigned int major,
 }
 
 json
+ifm3d::Camera::getApplicationInfosToJSON()
+{
+  auto app_info = json::parse("[]");
+  auto app_list = this->ApplicationList();
+  std::cout << "ApplicationList: " << app_list.size() << std::endl;
+
+  for (auto& app : app_list)
+    {
+      auto idx = app["Index"].get<int>();
+      if (!this->IsO3X())
+        {
+          this->pImpl->EditApplication(idx);
+        }
+
+      auto app_json = json(this->pImpl->AppInfo());
+      app_json["Index"] = std::to_string(idx);
+      app_json["Id"] = std::to_string(app["Id"].get<int>());
+
+      auto imager_json = json(this->pImpl->ImagerInfo());
+
+      /* Initialize the imager_json filters with default values for
+         compatibility with o3x which does not support dedicated xmlrpc
+         filter objects since there are no config options for the o3x filter
+       */
+      std::unordered_map<std::string, std::string> spatialFil = {
+        {"MaskSize", "0"}};
+      std::unordered_map<std::string, std::string> tmpFil = {{}}; // empty map
+      imager_json["SpatialFilter"] = json(spatialFil);
+      imager_json["TemporalFilter"] = json(tmpFil);
+
+      if (!this->IsO3X() && !this->IsO3R())
+        {
+          auto sfilt_json = json(this->pImpl->SpatialFilterInfo());
+          imager_json["SpatialFilter"] = sfilt_json;
+
+          auto tfilt_json = json(this->pImpl->TemporalFilterInfo());
+          imager_json["TemporalFilter"] = tfilt_json;
+        }
+
+      app_json["Imager"] = imager_json;
+
+      app_info.push_back(app_json);
+
+      if (!this->IsO3X())
+        {
+          this->pImpl->StopEditingApplication();
+        }
+    }
+  return app_info;
+}
+
+json
 ifm3d::Camera::ToJSON_(const bool open_session)
 {
-  auto t =
+  std::cout << "ifm3d::Camera::ToJSON_" << std::endl;
+
+  auto timeNow =
     std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
   std::ostringstream time_buf;
-  time_buf << std::ctime(&t);
-  std::string time_s = time_buf.str();
+  time_buf << std::ctime(&timeNow);
+  auto time_s = time_buf.str();
   ifm3d::trim(time_s);
 
-  json app_list = this->ApplicationList();
-  json net_info, app_info;
-  json time_info = json::parse("{}");
-
-  auto exec_toJSON = [this, &net_info, &time_info, &app_info, &app_list]() {
-    net_info = json(this->pImpl->NetInfo());
-    if (this->IsO3X() || (this->IsO3D() && this->CheckMinimumFirmwareVersion(
-                                             ifm3d::O3D_TIME_SUPPORT_MAJOR,
-                                             ifm3d::O3D_TIME_SUPPORT_MINOR,
-                                             ifm3d::O3D_TIME_SUPPORT_PATCH)))
-      {
-        time_info = json(this->pImpl->TimeInfo());
-      }
-    app_info = json::parse("[]");
-
-    for (auto& app : app_list)
-      {
-        int idx = app["Index"].get<int>();
-        if (!this->IsO3X())
-          {
-            this->pImpl->EditApplication(idx);
-          }
-
-        json app_json = json(this->pImpl->AppInfo());
-        app_json["Index"] = std::to_string(idx);
-        app_json["Id"] = std::to_string(app["Id"].get<int>());
-
-        json imager_json = json(this->pImpl->ImagerInfo());
-
-        /* Initialize the imager_json filters with defult values for
-           compatibility with o3x which does not support dedicated xmlrpc
-           filter objects since there are no config options for the o3x filter
-         */
-        std::unordered_map<std::string, std::string> spatialFil = {
-          {"MaskSize", "0"}};
-        std::unordered_map<std::string, std::string> tmpFil = {
-          {}}; // empty map
-        imager_json["SpatialFilter"] = json(spatialFil);
-        imager_json["TemporalFilter"] = json(tmpFil);
-
-        if (!this->IsO3X())
-          {
-            json sfilt_json = json(this->pImpl->SpatialFilterInfo());
-            imager_json["SpatialFilter"] = sfilt_json;
-
-            json tfilt_json = json(this->pImpl->TemporalFilterInfo());
-            imager_json["TemporalFilter"] = tfilt_json;
-          }
-
-        app_json["Imager"] = imager_json;
-
-        app_info.push_back(app_json);
-
-        if (!this->IsO3X())
-          {
-            this->pImpl->StopEditingApplication();
-          }
-      }
+  auto exec_toJSON = [this]() {
+    return std::make_tuple(this->getApplicationInfosToJSON(),
+                           json(this->NetInfo()),
+                           this->TimeInfo());
   };
+
+  json app_info, net_info, time_info;
   if (open_session)
     {
-      this->pImpl->WrapInEditSession(exec_toJSON);
+      std::tie(app_info, net_info, time_info) =
+        this->pImpl->WrapInEditSession<std::tuple<json, json, json>>(
+          exec_toJSON);
     }
   else
     {
-      exec_toJSON();
+      std::tie(app_info, net_info, time_info) = exec_toJSON();
     }
 
   // clang-format off
@@ -1125,12 +1145,30 @@ ifm3d::O3DCamera::O3DCamera(const std::string& ip,
                             const std::uint16_t xmlrpc_port,
                             const std::string& password)
   : ifm3d::Camera::Camera(ip, xmlrpc_port, password)
-{ }
+{}
 
 ifm3d::O3DCamera::~O3DCamera() = default;
 
+std::unordered_map<std::string, std::string>
+ifm3d::O3DCamera::TimeInfo()
+{
+  if (this->CheckMinimumFirmwareVersion(ifm3d::O3D_TIME_SUPPORT_MAJOR,
+                                        ifm3d::O3D_TIME_SUPPORT_MINOR,
+                                        ifm3d::O3D_TIME_SUPPORT_PATCH))
+    {
+      return ifm3d::Camera::TimeInfo();
+    }
+  return json::parse("{}");
+}
+
 bool
 ifm3d::O3DCamera::IsO3X()
+{
+  return false;
+}
+
+bool
+ifm3d::O3DCamera::IsO3R()
 {
   return false;
 }
@@ -1149,7 +1187,7 @@ ifm3d::O3XCamera::O3XCamera(const std::string& ip,
                             const std::uint16_t xmlrpc_port,
                             const std::string& password)
   : ifm3d::Camera::Camera(ip, xmlrpc_port, password)
-{ }
+{}
 
 ifm3d::O3XCamera::~O3XCamera() = default;
 
@@ -1163,4 +1201,40 @@ bool
 ifm3d::O3XCamera::IsO3D()
 {
   return false;
+}
+
+bool
+ifm3d::O3XCamera::IsO3R()
+{
+  return false;
+}
+
+//================================================
+// O3RCamera class - the public interface
+//================================================
+
+ifm3d::O3RCamera::O3RCamera(const std::string& ip,
+                            const std::uint16_t xmlrpc_port,
+                            const std::string& password)
+  : ifm3d::Camera::Camera(ip, xmlrpc_port, password)
+{}
+
+ifm3d::O3RCamera::~O3RCamera() = default;
+
+bool
+ifm3d::O3RCamera::IsO3X()
+{
+  return false;
+}
+
+bool
+ifm3d::O3RCamera::IsO3D()
+{
+  return false;
+}
+
+bool
+ifm3d::O3RCamera::IsO3R()
+{
+  return true;
 }
