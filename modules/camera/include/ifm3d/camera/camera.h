@@ -34,6 +34,8 @@ namespace ifm3d
 
   extern IFM3D_CAMERA_EXPORT const int DEV_O3D_MIN;
   extern IFM3D_CAMERA_EXPORT const int DEV_O3D_MAX;
+  extern IFM3D_CAMERA_EXPORT const int DEV_O3R_MIN;
+  extern IFM3D_CAMERA_EXPORT const int DEV_O3R_MAX;
   extern IFM3D_CAMERA_EXPORT const int DEV_O3X_MIN;
   extern IFM3D_CAMERA_EXPORT const int DEV_O3X_MAX;
   extern IFM3D_CAMERA_EXPORT const std::string ASSUME_DEVICE;
@@ -283,6 +285,9 @@ namespace ifm3d
      */
     virtual int Heartbeat(int hb);
 
+    virtual std::unordered_map<std::string, std::string> NetInfo();
+    virtual std::unordered_map<std::string, std::string> TimeInfo();
+
     /**
      * Sets temporary application parameters in run mode.
      *
@@ -362,6 +367,13 @@ namespace ifm3d
      * @return true for an O3D device
      */
     virtual bool IsO3D();
+
+    /**
+     * Checks if the device is in the O3R family
+     *
+     * @return true for an O3R device
+     */
+    virtual bool IsO3R();
 
     /**
      * Convenience accessor for extracting a device parameters
@@ -637,7 +649,10 @@ namespace ifm3d
                    on already opened session
      *  @return A JSON object representation of the current camera state.
      */
+    int DeviceID();
+    bool checkDeviceID(int deviceID, int minID, int maxID);
     json ToJSON_(const bool open_session = true);
+    json getApplicationInfosToJSON();
 
   }; // end: class Camera
 
@@ -658,8 +673,10 @@ namespace ifm3d
     O3DCamera(O3DCamera&) = delete;
     O3DCamera& operator=(O3DCamera&) = delete;
 
+    virtual std::unordered_map<std::string, std::string> TimeInfo() override;
     virtual bool IsO3X();
     virtual bool IsO3D();
+    virtual bool IsO3R();
   }; // end: class O3DCamera
 
   /**
@@ -681,7 +698,30 @@ namespace ifm3d
 
     virtual bool IsO3X();
     virtual bool IsO3D();
+    virtual bool IsO3R();
   }; // end: class O3XCamera
+
+  /**
+   * Camera specialization for O3R
+   */
+  class O3RCamera : public Camera
+  {
+  public:
+    using Ptr = std::shared_ptr<O3RCamera>;
+    O3RCamera(const std::string& ip = ifm3d::DEFAULT_IP,
+              const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
+              const std::string& password = ifm3d::DEFAULT_PASSWORD);
+
+    virtual ~O3RCamera();
+    O3RCamera(O3RCamera&&) = delete;
+    O3RCamera& operator=(O3RCamera&&) = delete;
+    O3RCamera(O3RCamera&) = delete;
+    O3RCamera& operator=(O3RCamera&) = delete;
+
+    virtual bool IsO3X();
+    virtual bool IsO3D();
+    virtual bool IsO3R();
+  }; // end: class O3RCamera
 
 } // end: namespace ifm3d
 
