@@ -215,7 +215,7 @@ namespace ifm3d
     // ---------------------------------------------
     void
     _XSetParams(xmlrpc_c::paramList& params)
-    { }
+    {}
 
     // ---------------------------------------------
     // Recursively processes a parameter pack `args'
