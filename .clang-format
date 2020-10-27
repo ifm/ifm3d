@@ -35,5 +35,4 @@ SortIncludes: false
 SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: true
 SpaceBeforeParens: ControlStatements
-SpaceInEmptyBlock: true
-Standard: c++14
+Standard: Cpp11
