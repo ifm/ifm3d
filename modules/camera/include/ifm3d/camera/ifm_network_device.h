@@ -19,37 +19,37 @@ namespace ifm3d
   public:
     IFMNetworkDevice(Data& data, const std::string& ip_address_via_interface);
 
-    /** @brief Ip Address of the device */
+    /** Ip Address of the device */
     std::string GetIPAddress() const;
 
-    /** @brief Mac Address of the device */
+    /** Mac Address of the device */
     std::string GetMACAddress() const;
 
-    /** @brief Netmask of the network of camera */
+    /** Netmask of the network of camera */
     std::string GetNetmask() const;
 
-    /** @brief Gateway of the device*/
+    /** Gateway of the device*/
     std::string GetGateway() const;
 
-    /** @brief Port on which device discovery is done*/
+    /** Port on which device discovery is done*/
     uint16_t GetPort() const;
 
-    /** @brief the device gives some additional information via those flags */
+    /** Device gives some additional information via those flags */
     uint16_t GetFlag() const;
 
-    /** @brief hostmake of the device */
+    /** Hostname of the device */
     std::string GetHostName() const;
 
-    /** @brief Device name */
+    /** Device name */
     std::string GetDeviceName() const;
 
-    /** @brief Vendor ID of the device */
+    /** Vendor ID of the device */
     uint16_t GetVendorId() const;
 
-    /** @brief Device ID of the device */
+    /** Device ID of the device */
     uint16_t GetDeviceId() const;
 
-    /** @brief founf via interface */
+    /** Founf via interface */
     std::string GetFoundVia() const;
 
   private:
