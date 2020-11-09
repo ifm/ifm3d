@@ -25,22 +25,29 @@ int ifm3d::DiscoverApp::Run()
 
   for (const auto& device : devices)
     {
-      auto ip_address = device.GetIPAddress();
-      auto cam = ifm3d::Camera::MakeShared(ip_address);
-      auto device_type = "";
-      if (cam->IsO3D())
+      try
         {
-          device_type = "O3D";
-        }
-      else if (cam->IsO3X())
-        {
-          device_type = "O3X";
-        }
-      else
-        {
-          continue;
-        }
-      std::cout << ip_address << " (" << device_type << ")" << std::endl;
+          auto ip_address = device.GetIPAddress();
+          auto cam = ifm3d::Camera::MakeShared(ip_address);
+          auto device_type = "";
+          if (cam->IsO3D())
+            {
+              device_type = "O3D";
+            }
+          else if (cam->IsO3X())
+            {
+              device_type = "O3X";
+            }
+          else
+            {
+              continue;
+            }
+            std::cout << ip_address << " (" << device_type << ")" << std::endl;
+         }
+      catch (std::exception & exp)
+      {
+        // ignore this device and search for next devices..
+      }
     }
   return 0;
 }
