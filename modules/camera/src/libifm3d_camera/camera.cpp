@@ -77,8 +77,8 @@ const std::string ifm3d::DEFAULT_SESSION_ID = __ifm3d_session_id__();
 
 const int ifm3d::DEV_O3D_MIN = 1;
 const int ifm3d::DEV_O3D_MAX = 255;
-const int ifm3d::DEV_O3R_MIN = 256;
-const int ifm3d::DEV_O3R_MAX = 256;
+const int ifm3d::DEV_O3R_MIN = 768;
+const int ifm3d::DEV_O3R_MAX = 1023;
 const int ifm3d::DEV_O3X_MIN = 512;
 const int ifm3d::DEV_O3X_MAX = 767;
 const std::string ifm3d::ASSUME_DEVICE =
