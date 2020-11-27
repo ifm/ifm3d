@@ -1,14 +1,15 @@
 project(IFM3D_CAMERA CXX)
 set(IFM3D_CAMERA_MODULE_NAME "libifm3d-camera")
 
-file(COPY ${IFM3D_CAMERA_SOURCE_DIR}/include
-  DESTINATION ${IFM3D_CAMERA_BINARY_DIR}
-  )
+
 configure_file(
   ${IFM3D_CAMERA_BINARY_DIR}/include/ifm3d/camera/version.h.in
   ${IFM3D_CAMERA_BINARY_DIR}/include/ifm3d/camera/version.h
   @ONLY
   )
+
+include_directories(${IFM3D_CAMERA_SOURCE_DIR}/include ${IFM3D_CAMERA_BINARY_DIR}/include)
+
 
 ################################################
 ## Process child CMakeLists.txt files
