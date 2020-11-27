@@ -44,6 +44,7 @@ int ifm3d::DiscoverApp::Run()
             }
           else
             {
+              std::cout << ip_address << " ( unsupported device )" << std::endl;
               continue;
             }
             std::cout << ip_address << " (" << device_type << ")" << std::endl;
