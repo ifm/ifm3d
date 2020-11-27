@@ -1,9 +1,9 @@
 project(IFM3D_PCICCLIENT CXX)
 set(IFM3D_PCICCLIENT_MODULE_NAME "libifm3d-pcicclient")
 
-file(COPY ${IFM3D_PCICCLIENT_SOURCE_DIR}/include
-  DESTINATION ${IFM3D_PCICCLIENT_BINARY_DIR}
-  )
+
+include_directories(${IFM3D_PCICCLIENT_SOURCE_DIR}/include)
+
 
 ################################################
 ## Process child CMakeLists.txt files

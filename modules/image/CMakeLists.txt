@@ -9,9 +9,7 @@ else()
   find_package(OpenCV REQUIRED COMPONENTS core)
 endif()
 
-file(COPY ${IFM3D_IMAGE_SOURCE_DIR}/include
-  DESTINATION ${IFM3D_IMAGE_BINARY_DIR}
-  )
+include_directories(${IFM3D_IMAGE_SOURCE_DIR}/include)
 
 ################################################
 ## Process child CMakeLists.txt files
