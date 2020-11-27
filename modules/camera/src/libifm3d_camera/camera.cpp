@@ -696,8 +696,6 @@ ifm3d::Camera::getApplicationInfosToJSON()
 json
 ifm3d::Camera::ToJSON_(const bool open_session)
 {
-  std::cout << "ifm3d::Camera::ToJSON_" << std::endl;
-
   auto timeNow =
     std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
   std::ostringstream time_buf;
