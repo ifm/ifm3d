@@ -4,6 +4,9 @@ cmake_policy(SET CMP0048 NEW)
 project(IFM3D VERSION 0.20.0 LANGUAGES CXX)
 set(GIT_PROJECT_NAME "ifm3d")
 
+# Some generic settings
+include(cmake/StandardProjectSettings.cmake)
+
 # Make our cmake functions accessible
 set(CMAKE_MODULE_PATH
     ${IFM3D_SOURCE_DIR}/cmake/modules
@@ -42,7 +45,6 @@ set(_include include CACHE STRING "Basename of the include-directory")
 set(GTEST_CMAKE_DIR "/usr/src/gtest" CACHE STRING "GTest cmake project dir")
 
 # Global compiler flags
-set(CMAKE_BUILD_TYPE Release) # Release or Debug
 set(CMAKE_CXX_EXTENSIONS OFF) # OFF -> -std=c++14, ON -> -std=gnu++14
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
