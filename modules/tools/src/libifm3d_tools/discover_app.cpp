@@ -38,6 +38,10 @@ int ifm3d::DiscoverApp::Run()
             {
               device_type = "O3X";
             }
+          else if (cam->IsO3R())
+            {
+              device_type = "O3R";
+            }
           else
             {
               continue;
