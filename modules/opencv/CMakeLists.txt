@@ -1,9 +1,7 @@
 project(IFM3D_OPENCV CXX)
 set(IFM3D_OPENCV_MODULE_NAME "libifm3d-opencv")
 
-file(COPY ${IFM3D_OPENCV_SOURCE_DIR}/include
-  DESTINATION ${IFM3D_OPENCV_BINARY_DIR}
-  )
+include_directories(${IFM3D_OPENCV_BINARY_DIR}/include)
 
 ################################################
 ## "build" for header-only library
