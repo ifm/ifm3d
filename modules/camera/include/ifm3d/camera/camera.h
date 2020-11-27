@@ -673,10 +673,10 @@ namespace ifm3d
     O3DCamera(O3DCamera&) = delete;
     O3DCamera& operator=(O3DCamera&) = delete;
 
-    virtual std::unordered_map<std::string, std::string> TimeInfo() override;
-    virtual bool IsO3X();
-    virtual bool IsO3D();
-    virtual bool IsO3R();
+    std::unordered_map<std::string, std::string> TimeInfo() override;
+    bool IsO3X() override;
+    bool IsO3D() override;
+    bool IsO3R() override;
   }; // end: class O3DCamera
 
   /**
@@ -696,9 +696,9 @@ namespace ifm3d
     O3XCamera(O3XCamera&) = delete;
     O3XCamera& operator=(O3XCamera&) = delete;
 
-    virtual bool IsO3X();
-    virtual bool IsO3D();
-    virtual bool IsO3R();
+     bool IsO3X() override;
+     bool IsO3D() override;
+     bool IsO3R() override;
   }; // end: class O3XCamera
 
   /**
@@ -718,9 +718,9 @@ namespace ifm3d
     O3RCamera(O3RCamera&) = delete;
     O3RCamera& operator=(O3RCamera&) = delete;
 
-    virtual bool IsO3X();
-    virtual bool IsO3D();
-    virtual bool IsO3R();
+    bool IsO3X() override;
+    bool IsO3D() override;
+    bool IsO3R() override;
   }; // end: class O3RCamera
 
 } // end: namespace ifm3d
