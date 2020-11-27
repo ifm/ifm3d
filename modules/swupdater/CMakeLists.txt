@@ -1,9 +1,8 @@
 project(IFM3D_SWUPDATER CXX)
 set(IFM3D_SWUPDATER_MODULE_NAME "libifm3d-swupdater")
 
-file(COPY ${IFM3D_SWUPDATER_SOURCE_DIR}/include
-  DESTINATION ${IFM3D_SWUPDATER_BINARY_DIR}
-  )
+include_directories(${IFM3D_SWUPDATER_SOURCE_DIR}/include)
+
 
 ################################################
 ## Process child CMakeLists.txt files

@@ -1,9 +1,7 @@
 project(IFM3D_FG CXX)
 set(IFM3D_FG_MODULE_NAME "libifm3d-framegrabber")
 
-file(COPY ${IFM3D_FG_SOURCE_DIR}/include
-  DESTINATION ${IFM3D_FG_BINARY_DIR}
-  )
+include_directories(${IFM3D_FG_SOURCE_DIR}/include)
 
 ################################################
 ## Process child CMakeLists.txt files
