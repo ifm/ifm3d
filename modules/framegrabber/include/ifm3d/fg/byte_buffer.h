@@ -53,6 +53,7 @@ namespace ifm3d
     AMPLITUDE = 101, // normalized amplitude
     RAW_AMPLITUDE = 103,
     GRAY = 104, // ambient light
+    DISTANCE_NOISE = 105,
     CARTESIAN_X = 200,
     CARTESIAN_Y = 201,
     CARTESIAN_Z = 202,

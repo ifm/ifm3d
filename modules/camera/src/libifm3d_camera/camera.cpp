@@ -487,7 +487,13 @@ ifm3d::Camera::FromJSON_(
           continue;
         }
       std::string val = j_new[key].get<std::string>();
-      if (j_curr[key].get<std::string>() != val)
+      if (j_curr[key].is_null())
+        {
+          const auto msg =
+            key + std::string(" parameter is not supported in firmware");
+          throw std::runtime_error(msg);
+        }
+      else if (j_curr[key].get<std::string>() != val)
         {
           try
             {
@@ -734,7 +740,7 @@ ifm3d::Camera::FromJSON(const json& j)
                 app_found = getAppJSON(idx, current, curr_app);
               }
 
-            if (!this->IsO3X())
+            if (!this->AmI(device_family::O3X))
               {
 
                 if (!s_filt.is_null())
