@@ -70,6 +70,7 @@ namespace ifm3d
     cv::Mat ConfidenceImage();
     cv::Mat XYZImage();
     cv::Mat JPEGImage();
+    cv::Mat DistanceNoiseImage();
     pcl::PointCloud<pcl::PointXYZI>::Ptr Cloud();
 
     void ImCreate(ifm3d::image_chunk im,
@@ -100,6 +101,7 @@ namespace ifm3d
     cv::Mat conf_;
     cv::Mat xyz_;
     cv::Mat jpeg_;
+    cv::Mat dist_noise_;
     cv::Mat_<std::uint8_t> bad_; // mask of bad pixels
 
     template <typename T>
@@ -391,6 +393,12 @@ ifm3d::ImageBuffer::Impl::JPEGImage()
   return this->jpeg_;
 }
 
+cv::Mat
+ifm3d::ImageBuffer::Impl::DistanceNoiseImage()
+{
+  return this->dist_noise_;
+}
+
 pcl::PointCloud<pcl::PointXYZI>::Ptr
 ifm3d::ImageBuffer::Impl::Cloud()
 {
@@ -440,6 +448,9 @@ ifm3d::ImageBuffer::Impl::ImCreate(ifm3d::image_chunk im,
                             CV_8UC1,
                             (void*)(bytes.data() + idx));
       return;
+    case ifm3d::image_chunk::DISTANCE_NOISE:
+      image = &this->dist_noise_;
+      break;
 
     default:
       return;
