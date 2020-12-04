@@ -70,6 +70,7 @@ namespace ifm3d
     INTRINSIC_CALIBRATION = 401,
     INVERSE_INTRINSIC_CALIBRATION = 402,
     JSON_MODEL = 500,
+    DISTANCE_NOISE = 105,
   };
   // intrinsic param key which cahn be used for indexing the vector of the
   // intrinsic parameter

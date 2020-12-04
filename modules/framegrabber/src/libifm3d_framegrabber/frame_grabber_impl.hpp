@@ -427,6 +427,27 @@ ifm3d::FrameGrabber::Impl::SetSchemaBuffer(std::uint16_t mask)
       throw ifm3d::error_t(IFM3D_INVALID_PARAM);
     }
 
+  if(((mask & ifm3d::IMG_DIS_NOISE) == ifm3d::IMG_DIS_NOISE)
+      && (!this->cam_->IsO3X()))
+    {
+      LOG(ERROR) << "Failed to set schema on device: "
+        << "Distance Noise Image not supported by Device";
+      throw ifm3d::error_t(
+        IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_DEVICE);
+    }
+  if ((mask & ifm3d::IMG_DIS_NOISE) == ifm3d::IMG_DIS_NOISE && this->cam_->IsO3X()
+      && !this->cam_->CheckMinimumFirmwareVersion(
+        ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MAJOR,
+        ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MINOR,
+        ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_PATCH))
+  {
+    LOG(ERROR) << "Failed to set schema on O3X: "
+      << "Distance Noise Image not supported by Firmware";
+    throw ifm3d::error_t(
+      IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_FIRMWARE);
+  }
+
+
   if(this->cam_->IsO3X())
     {
       // O3X does not set the schema via PCIC, rather we set it via

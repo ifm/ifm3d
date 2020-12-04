@@ -38,6 +38,7 @@ namespace ifm3d
   extern IFM3D_FRAME_GRABBER_EXPORT const std::uint16_t INTR_CAL;
   extern IFM3D_FRAME_GRABBER_EXPORT const std::uint16_t INV_INTR_CAL;
   extern IFM3D_FRAME_GRABBER_EXPORT const std::uint16_t JSON_MODEL;
+  extern IFM3D_FRAME_GRABBER_EXPORT const std::uint16_t IMG_DIS_NOISE;
 
   /**
    * Utility function to build an image acquisition result schema from a mask.

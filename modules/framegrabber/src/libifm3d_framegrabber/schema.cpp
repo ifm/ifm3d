@@ -21,17 +21,19 @@
 #include <vector>
 #include <ifm3d/camera/util.h>
 
-const std::uint16_t ifm3d::IMG_RDIS     = (1<<0); // 2**0
-const std::uint16_t ifm3d::IMG_AMP      = (1<<1); // 2**1
-const std::uint16_t ifm3d::IMG_RAMP     = (1<<2); // 2**2
-const std::uint16_t ifm3d::IMG_CART     = (1<<3); // 2**3
-const std::uint16_t ifm3d::IMG_UVEC     = (1<<4); // 2**4
-const std::uint16_t ifm3d::EXP_TIME     = (1<<5); // 2**5
-const std::uint16_t ifm3d::IMG_GRAY     = (1<<6); // 2**6
-const std::uint16_t ifm3d::ILLU_TEMP    = (1<<7); // 2**7
-const std::uint16_t ifm3d::INTR_CAL     = (1<<8); // 2**8
-const std::uint16_t ifm3d::INV_INTR_CAL = (1<<9); // 2**9
-const std::uint16_t ifm3d::JSON_MODEL   = (1<<10); // 2**10
+const std::uint16_t ifm3d::IMG_RDIS       = (1<<0); // 2**0
+const std::uint16_t ifm3d::IMG_AMP        = (1<<1); // 2**1
+const std::uint16_t ifm3d::IMG_RAMP       = (1<<2); // 2**2
+const std::uint16_t ifm3d::IMG_CART       = (1<<3); // 2**3
+const std::uint16_t ifm3d::IMG_UVEC       = (1<<4); // 2**4
+const std::uint16_t ifm3d::EXP_TIME       = (1<<5); // 2**5
+const std::uint16_t ifm3d::IMG_GRAY       = (1<<6); // 2**6
+const std::uint16_t ifm3d::ILLU_TEMP      = (1<<7); // 2**7
+const std::uint16_t ifm3d::INTR_CAL       = (1<<8); // 2**8
+const std::uint16_t ifm3d::INV_INTR_CAL   = (1<<9); // 2**9
+const std::uint16_t ifm3d::JSON_MODEL     = (1<<10); // 2**10
+const std::uint16_t ifm3d::IMG_DIS_NOISE = (1 << 11); // 2**10
+
 
 auto __ifm3d_schema_mask__ = []()->std::uint16_t
   {
@@ -111,6 +113,18 @@ ifm3d::make_o3x_json_from_mask(std::uint16_t mask)
       R"(,
              "OutputXYZImage":"false")";
     }
+  if ((mask & ifm3d::IMG_DIS_NOISE) == ifm3d::IMG_DIS_NOISE)
+  {
+    schema +=
+      R"(,
+             "OutputDistanceNoiseImage":"true")";
+  }
+  else
+  {
+    schema +=
+      R"(,
+             "OutputDistanceNoiseImage":"false")";
+  }
 
 // Note: this is not yet supported by o3x
 //  if((mask & ifm3d::ILLU_TEMP) == ifm3d::ILLU_TEMP)
@@ -315,6 +329,10 @@ ifm3d::schema_mask_from_string(const std::string& in)
       else if (part == "JSON_MODEL")
       {
         mask |= ifm3d::JSON_MODEL;
+      }
+      else if (part == "IMG_DIS_NOISE")
+      {
+        mask |= ifm3d::IMG_DIS_NOISE;
       }
     }
   return mask;

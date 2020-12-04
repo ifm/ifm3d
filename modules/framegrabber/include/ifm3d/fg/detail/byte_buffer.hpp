@@ -214,6 +214,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
   std::size_t intridx = INVALID_IDX;
   std::size_t invintridx = INVALID_IDX;
   std::size_t jsonidx = INVALID_IDX;
+  std::size_t dist_noiseidx = INVALID_IDX;
 
   xyzidx = ifm3d::get_chunk_index(this->bytes_,
                                   ifm3d::image_chunk::CARTESIAN_ALL);
@@ -256,6 +257,8 @@ ifm3d::ByteBuffer<Derived>::Organize()
                                   ifm3d::image_chunk::EXTRINSIC_CALIBRATION);
   jsonidx= ifm3d::get_chunk_index(this->bytes_,
                                   ifm3d::image_chunk::JSON_MODEL);
+  dist_noiseidx = ifm3d::get_chunk_index(this->bytes_,
+                                        ifm3d::image_chunk::DISTANCE_NOISE);
 
   // As parameter will not change so only grabed and stored
   // for the first time
@@ -284,7 +287,8 @@ ifm3d::ByteBuffer<Derived>::Organize()
                           << ", extidx=" << extidx
                           << ", gidx=" << gidx
                           << ", intridx=" << intridx
-                          << ", invintridx=" << invintridx;
+                          << ", invintridx=" << invintridx
+                          << ", distnoiseidx=" << dist_noiseidx;
 
   // if we do not have a confidence image we cannot go further
   if (cidx == INVALID_IDX)
@@ -325,6 +329,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
   bool CART_OK =
     ((xidx != INVALID_IDX) && (yidx != INVALID_IDX) && (zidx != INVALID_IDX));
   bool JSON_OK = (jsonidx != INVALID_IDX);
+  bool DIST_NOISE_OK = (dist_noiseidx != INVALID_IDX);
 
   // pixel format of each image
   std::uint32_t INVALID_FMT = std::numeric_limits<std::uint32_t>::max();
@@ -373,6 +378,10 @@ ifm3d::ByteBuffer<Derived>::Organize()
     INVINTR_OK ?
     ifm3d::mkval<std::uint32_t>(this->bytes_.data()+invintridx+24) :
     INVALID_FMT;
+  std::uint32_t dist_noisefmt =
+    DIST_NOISE_OK ?
+    ifm3d::mkval<std::uint32_t>(this->bytes_.data() + dist_noiseidx + 24) :
+    INVALID_FMT;
 
   VLOG(IFM3D_PROTO_DEBUG) << "xfmt=" << xfmt
                           << ", yfmt=" << yfmt
@@ -385,7 +394,8 @@ ifm3d::ByteBuffer<Derived>::Organize()
                           << ", extfmt=" << extfmt
                           << ", gfmt=" << gfmt
                           << ", intrfmt= " << intrfmt
-                          << ", invintrfmt= " << invintrfmt;
+                          << ", invintrfmt= " << invintrfmt
+                          << ", distnoisefmt= " << dist_noisefmt;
 
   // get the image dimensions
   std::uint32_t width =
@@ -523,6 +533,11 @@ ifm3d::ByteBuffer<Derived>::Organize()
       raw_aidx += pixel_data_offset;
       im_wrapper(ifm3d::image_chunk::RAW_AMPLITUDE, raw_afmt, raw_aidx);
     }
+  if (DIST_NOISE_OK)
+  {
+    dist_noiseidx += pixel_data_offset;
+    im_wrapper(ifm3d::image_chunk::DISTANCE_NOISE, dist_noisefmt, dist_noiseidx);
+  }
 
   //
   // point cloud construction

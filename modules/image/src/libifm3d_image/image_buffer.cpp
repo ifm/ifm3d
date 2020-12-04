@@ -119,6 +119,13 @@ ifm3d::ImageBuffer::XYZImage()
   return this->pImpl->XYZImage();
 }
 
+cv::Mat
+ifm3d::ImageBuffer::DistanceNoiseImage()
+{
+  this->Organize();
+  return this->pImpl->DistanceNoiseImage();
+}
+
 pcl::PointCloud<ifm3d::PointT>::Ptr
 ifm3d::ImageBuffer::Cloud()
 {

@@ -43,6 +43,8 @@ const int IFM3D_CURL_ERROR = -1000020;
 const int IFM3D_CURL_TIMEOUT = -1000021;
 const int IFM3D_CURL_ABORTED = -1000022;
 const int IFM3D_SWUPDATE_BAD_STATE = -1000023;
+const int IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_DEVICE = -1000024;
+const int IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_FIRMWARE = -1000025;
 
 // sensor errors
 const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
@@ -122,6 +124,10 @@ const char *ifm3d::strerror(int errnum)
       return "Lib: An HTTP operation with CURL was aborted.";
     case IFM3D_SWUPDATE_BAD_STATE:
       return "Lib: SWUpdater process on camera is in invalid state. Reboot the camera and try again.";
+    case IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_DEVICE:
+      return "Lib: Current device does not support distance noise image";
+    case IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_FIRMWARE:
+      return "Lib: Firmware does not support distance noise image";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
       return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:
