@@ -385,3 +385,33 @@ TEST(FrameGrabber, JSON_model)
       EXPECT_TRUE(json::parse(model) != NULL);
     }
 }
+
+TEST(FrameGrabber, DistanceNoiseSchema)
+{
+  LOG(INFO) << "DistanceNoiseSchema test";
+
+  std::uint16_t mask = (ifm3d::IMG_AMP | ifm3d::IMG_RDIS |
+                        ifm3d::IMG_DIS_NOISE);
+  auto cam = ifm3d::Camera::MakeShared();
+  if (!cam->IsO3X()) // Distance Noise image not supported other tha O3X
+    {
+      EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
+                   ifm3d::error_t);
+    }
+  if (cam->IsO3X() &&
+      cam->CheckMinimumFirmwareVersion(
+        ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MAJOR,
+        ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MINOR,
+        ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_PATCH))
+    {
+      auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, mask);
+      auto buff = std::make_shared<MyBuff>();
+
+      EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
+    }
+  else if (cam->IsO3X())
+    {
+      EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
+                   ifm3d::error_t);
+    }
+}

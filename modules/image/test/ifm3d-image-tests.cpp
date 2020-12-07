@@ -535,3 +535,25 @@ TEST(Image, IlluTemp)
   EXPECT_GT(illu_temp, 10);
   EXPECT_LT(illu_temp, 90);
 }
+
+TEST(Image, DistanceNoiseImage)
+{
+  ifm3d::Camera::Ptr cam = std::make_shared<ifm3d::Camera>();
+
+  ifm3d::ImageBuffer::Ptr img = std::make_shared<ifm3d::ImageBuffer>();
+  ifm3d::FrameGrabber::Ptr fg =
+    std::make_shared<ifm3d::FrameGrabber>(
+      cam, ifm3d::DEFAULT_SCHEMA_MASK | ifm3d::IMG_DIS_NOISE);
+
+  ASSERT_TRUE(fg->WaitForFrame(img.get(), 1000));
+
+  // only supported on O3X
+  if (!cam->IsO3X())
+    {
+      return;
+    }
+
+  auto dist_noise = img->DistanceNoiseImage();
+
+  EXPECT_TRUE(dist_noise.type(), CV_16UC1);
+}
