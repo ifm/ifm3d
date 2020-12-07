@@ -1,3 +1,7 @@
+## Changes between ifm3d 0.18.0 and 0.18.1
+* Support for Distance noise image for O3X Devices
+* Support for latest O3X firmware (1.0.163)
+
 ## Changes between ifm3d 0.17.0 and 0.18.0
 * Support for latest O3D3XX firmware (1.30.5309)
 * Support for latest O3X firmware (1.0.156)
