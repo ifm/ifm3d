@@ -1,3 +1,12 @@
+## Changes between ifm3d 0.20.0 and 0.20.1
+* Support for Distance noise image for O3X Devices
+* Support for latest O3X firmware (1.0.163)
+* Straylight Correction
+* Noise Estimation
+* New Parameters: AbsDistStraylightThreshold, EnableStraylightCorrection, EnableNoiseEstimation, CompensateAmbientLightDrift, DistNoiseThreshold, EnableNoiseEstimation, RelAmpStraylightThreshold
+* Added the O3X FW 1.1.166 to the compatibility list
+* Added compatibility list to swupdate document
+
 ## Changes between ifm3d 0.18.0 and 0.20.0 [Unreleased]
 * Added clang format support for formatting
 * Changed License Headers to SPDX format
