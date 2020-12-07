@@ -155,6 +155,13 @@ ifm3d::OpenCVBuffer::XYZImage()
   return this->xyz_;
 }
 
+inline cv::Mat
+ifm3d::OpenCVBuffer::DistanceNoiseImage()
+{
+  this->Organize();
+  return this->dis_noise_;
+}
+
 template <typename T>
 inline void
 ifm3d::OpenCVBuffer::ImCreate(ifm3d::image_chunk im,
@@ -191,6 +198,10 @@ ifm3d::OpenCVBuffer::ImCreate(ifm3d::image_chunk im,
 
     case ifm3d::image_chunk::GRAY:
       mat = &this->gray_;
+      break;
+
+    case ifm3d::image_chunk::DISTANCE_NOISE:
+      mat = &this->dis_noise_;
       break;
 
     default:

@@ -52,6 +52,7 @@ namespace ifm3d
     cv::Mat RawAmplitudeImage();
     cv::Mat ConfidenceImage();
     cv::Mat XYZImage();
+    cv::Mat DistanceNoiseImage();
 
   protected:
     template <typename T>
@@ -83,6 +84,7 @@ namespace ifm3d
     cv::Mat conf_;
     cv::Mat xyz_;
     cv::Mat_<std::uint8_t> bad_; // bad pixel mask
+    cv::Mat dis_noise_;
 
   }; // end: class OpenCVBuffer
 } // end: namespace ifm3d
