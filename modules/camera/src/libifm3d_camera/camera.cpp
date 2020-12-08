@@ -784,8 +784,8 @@ ifm3d::Camera::FromJSON_(const json& j_curr,
       std::string val = j_new[key].get<std::string>();
       if (j_curr[key].is_null())
         {
-          throw std::exception(std::string(key +
-                                           " parameter is not supported in firmware").c_str());
+          const auto msg = key + std::string(" parameter is not supported in firmware");
+          throw std::runtime_error(msg);
         }
       else if (j_curr[key].get<std::string>() != val)
         {
