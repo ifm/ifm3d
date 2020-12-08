@@ -32,7 +32,7 @@ const std::uint16_t ifm3d::ILLU_TEMP      = (1<<7); // 2**7
 const std::uint16_t ifm3d::INTR_CAL       = (1<<8); // 2**8
 const std::uint16_t ifm3d::INV_INTR_CAL   = (1<<9); // 2**9
 const std::uint16_t ifm3d::JSON_MODEL     = (1<<10); // 2**10
-const std::uint16_t ifm3d::IMG_DIS_NOISE = (1 << 11); // 2**10
+const std::uint16_t ifm3d::IMG_DIS_NOISE  = (1 << 11); // 2**11
 
 
 auto __ifm3d_schema_mask__ = []()->std::uint16_t
