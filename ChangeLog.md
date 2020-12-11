@@ -1,6 +1,16 @@
-## Changes between ifm3d 0.18.0 and 0.19.0
+## Changes between ifm3d 0.19.1 and 0.19.2
+* Changelog update
+* Added the O3X FW 1.1.166 to the compatibility list
+
+## Changes between ifm3d 0.19.0 and 0.19.1
+* Bugfix for unit tests on Ubuntu18.04
+
+## Changes between ifm3d 0.18.0 and 0.19.0 (O3X only)
 * Support for Distance noise image for O3X Devices
 * Support for latest O3X firmware (1.0.163)
+* Straylight Correction
+* Noise Estimation
+* New Parameters: AbsDistStraylightThreshold, EnableStraylightCorrection, EnableNoiseEstimation, CompensateAmbientLightDrift, DistNoiseThreshold, EnableNoiseEstimation, RelAmpStraylightThreshold
 
 ## Changes between ifm3d 0.17.0 and 0.18.0
 * Support for latest O3D3XX firmware (1.30.5309)
