@@ -466,5 +466,5 @@ TEST(OpenCV, DistanceNoiseImage)
 
   auto dist_noise = img->DistanceNoiseImage();
 
-  EXPECT_TRUE(dist_noise.type(), CV_16UC1);
+  EXPECT_TRUE(dist_noise.type() == CV_16UC1);
 }
