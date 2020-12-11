@@ -1,3 +1,6 @@
+## Changes between ifm3d 0.19.2 and 0.19.3
+* Added compatibility list to swupdate document
+
 ## Changes between ifm3d 0.19.1 and 0.19.2
 * Changelog update
 * Added the O3X FW 1.1.166 to the compatibility list
