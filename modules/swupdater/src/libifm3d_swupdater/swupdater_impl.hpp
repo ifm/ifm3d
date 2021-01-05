@@ -47,16 +47,16 @@ namespace ifm3d
     Impl(ifm3d::Camera::Ptr cam,
          const ifm3d::SWUpdater::FlashStatusCb& cb,
          const std::string& swupdate_recovery_port);
-    ~Impl() = default;
+    virtual ~Impl() = default;
 
-    void RebootToRecovery();
+    virtual void RebootToRecovery();
     bool WaitForRecovery(long timeout_millis);
-    void RebootToProductive();
+    virtual void RebootToProductive();
     bool WaitForProductive(long timeout_millis);
-    bool FlashFirmware(const std::vector<std::uint8_t>& bytes,
+    virtual bool FlashFirmware(const std::vector<std::uint8_t>& bytes,
                        long timeout_millis);
 
-  private:
+  protected:
     ifm3d::Camera::Ptr cam_;
     ifm3d::SWUpdater::FlashStatusCb cb_;
 
@@ -65,16 +65,16 @@ namespace ifm3d
     std::string status_url_;
     std::string check_recovery_url_;
 
-    bool CheckRecovery();
+    virtual bool CheckRecovery();
 
-    bool CheckProductive();
+    virtual bool CheckProductive();
 
-    void UploadFirmware(const std::vector<std::uint8_t>& bytes,
+    virtual void UploadFirmware(const std::vector<std::uint8_t>& bytes,
                         long timeout_millis);
 
-    bool WaitForUpdaterStatus(int desired_state, long timeout_millis);
+    virtual bool WaitForUpdaterStatus(int desired_state, long timeout_millis);
 
-    std::tuple<int, std::string, int> GetUpdaterStatus();
+    virtual std::tuple<int, std::string, int> GetUpdaterStatus();
 
     /**
      * C-style static callbacks for libcurl

@@ -16,6 +16,8 @@ file(GLOB IFM3D_SWUPDATER_SOURCES *.cpp)
 add_library(ifm3d_swupdater ${IFM3D_SWUPDATER_SOURCES})
 set_property(TARGET ifm3d_swupdater PROPERTY POSITION_INDEPENDENT_CODE 1)
 
+
+message("******"  ${WEBSOCKETPP_ROOT})
 #------------------
 # Compiler settings
 #------------------
@@ -36,6 +38,7 @@ target_compile_options(ifm3d_swupdater
 
 if(WIN32)
     target_compile_definitions(ifm3d_swupdater PRIVATE
+	    
         IFM3D_SWUPDATER_DLL_BUILD=1)
 endif(WIN32)
 
@@ -49,7 +52,9 @@ target_link_libraries(
     ${CURL_LIBRARIES}
   PRIVATE
     ifm3d_camera
-  )
+	asio
+	websocketpp_wrapper
+	)
 
 set_target_properties(
   ifm3d_swupdater PROPERTIES
