@@ -132,8 +132,8 @@ namespace ifm3d
     bool FlashFirmware(const std::vector<std::uint8_t>& bytes,
                        long timeout_millis = 0);
 
-  private:
     class Impl;
+  private:
     std::unique_ptr<Impl> pImpl;
 
   }; // end: class SWUpdater
