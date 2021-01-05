@@ -10,12 +10,14 @@ target_include_directories(websocketpp_wrapper INTERFACE
 target_link_libraries(websocketpp_wrapper INTERFACE asio)
 
 if(MSVC)
-  target_compile_definitions (websocketpp_wrapper INTERFACE _WEBSOCKETPP_CPP11_FUNCTIONAL_)
-  target_compile_definitions (websocketpp_wrapper INTERFACE _WEBSOCKETPP_CPP11_SYSTEM_ERROR_)
-  target_compile_definitions (websocketpp_wrapper INTERFACE _WEBSOCKETPP_CPP11_RANDOM_DEVICE_)
-  target_compile_definitions (websocketpp_wrapper INTERFACE _WEBSOCKETPP_CPP11_MEMORY_)
+  target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_FUNCTIONAL_)
+  target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_SYSTEM_ERROR_)
+  target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_RANDOM_DEVICE_)
+  target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_MEMORY_)
+   target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_STRICT_)
+   
 else()
-  target_compile_definitions (websocketpp_wrapper INTERFACE _WEBSOCKETPP_CPP11_STL_)
+  target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_STL_)
 endif()
 
   target_compile_definitions(websocketpp_wrapper INTERFACE ASIO_DISABLE_STD_EXPERIMENTAL_STRING_VIEW)
