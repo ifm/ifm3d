@@ -3,38 +3,31 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_SWUPDATER_SWUPDATER_V2_IMPL_H__
-#define __IFM3D_SWUPDATER_SWUPDATER_V2_IMPL_H__
+#ifndef IFM3D_SWUPDATER_SWUPDATER_V2_IMPL_H
+#define IFM3D_SWUPDATER_SWUPDATER_V2_IMPL_H
 
+#include <cstdlib>
+#include <map>
+#include <sstream>
 #include <chrono>
 #include <string>
 #include <thread>
 #include <tuple>
 #include <vector>
+#include <mutex>
+#include <condition_variable>
 #include <glog/logging.h>
+#include <websocketpp/config/asio_no_tls_client.hpp>
+#include <websocketpp/client.hpp>
+#include <websocketpp/common/thread.hpp>
+#include <websocketpp/common/memory.hpp>
 #include <ifm3d/camera/camera.h>
 #include <ifm3d/camera/err.h>
 #include <ifm3d/camera/logging.h>
 #include <ifm3d/contrib/nlohmann/json.hpp>
 #include <swupdater_impl.hpp>
-#include <mutex>
-#include <condition_variable>
 
-#include <iostream>
-
-#include <websocketpp/config/asio_no_tls_client.hpp>
-#include <websocketpp/client.hpp>
-
-#include <websocketpp/common/thread.hpp>
-#include <websocketpp/common/memory.hpp>
-
-typedef websocketpp::client<websocketpp::config::asio_client> client;
-
-#include <cstdlib>
-#include <iostream>
-#include <map>
-#include <string>
-#include <sstream>
+using client = websocketpp::client<websocketpp::config::asio_client>;
 
 namespace ifm3d
 {
@@ -43,26 +36,26 @@ namespace ifm3d
   const std::string SWUPDATER_V2_STATUS_URL_SUFFIX = "/ws";
   const std::string SWUPATER_V2_FILENAME = "swupdate.swu";
 
-  // types
+  /* types */
   const std::string SWUPATER_V2_TYPE_STEP = "step";
   const std::string SWUPATER_V2_TYPE_INFO = "info";
   const std::string SWUPATER_V2_TYPE_MESSAGE = "message";
   const std::string SWUPATER_V2_TYPE_STATUS = "status";
   const std::string SWUPATER_V2_TYPE_SOURCE = "source";
 
-  // message level
+  /* message level */
   const int SWUPATER_V2_MESSAGE_LEVEL_ERROR = 3;
   const int SWUPATER_V2_MESSAGE_LEVEL_INFO = 6;
 
-  // Status values
+  /* Status values */
   const std::string SWUPATER_V2_STATUS_IDLE = "IDLE";
   const std::string SWUPATER_V2_STATUS_START = "START";
   const std::string SWUPATER_V2_STATUS_RUN = "RUN";
   const std::string SWUPATER_V2_STATUS_SUCCESS = "SUCCESS";
   const std::string SWUPATER_V2_STATUS_DONE = "DONE";
 
-  // curl parameters
-  const int SWUPDATE_V2_TIMEOUT_FOR_UPLOAD = 50; // sec
+  /* curl parameters */
+  const int SWUPDATE_V2_TIMEOUT_FOR_UPLOAD = 80; // sec
   const int CURL_MAX_REDIR = 50;
   //============================================================
   // Impl interface
@@ -75,24 +68,19 @@ namespace ifm3d
            const std::string& swupdate_recovery_port);
     ~ImplV2() = default;
 
-    virtual void RebootToRecovery();
-
-    virtual void RebootToProductive();
-
-    virtual bool FlashFirmware(const std::vector<std::uint8_t>& bytes,
-                               long timeout_millis);
+    void RebootToRecovery() override;
+    void RebootToProductive() override;
+    bool FlashFirmware(const std::vector<std::uint8_t>& bytes,
+                       long timeout_millis) override;
 
   private:
-    virtual bool CheckRecovery();
-
-    virtual bool CheckProductive();
-
-    virtual void UploadFirmware(const std::vector<std::uint8_t>& bytes,
-                                long timeout_millis);
-
+    bool CheckRecovery() override;
+    bool CheckProductive() override;
+    void UploadFirmware(const std::vector<std::uint8_t>& bytes,
+                        long timeout_millis);
     void OnWebSocketData(const std::string json_string);
 
-     static int
+    static int
     XferInfoCallback(void* clientp,
                      curl_off_t dltotal,
                      curl_off_t dlnow,
@@ -111,49 +99,48 @@ namespace ifm3d
           return 0;
         }
     }
-
+    /* Wrapper over websocketpp*/
     class WebSocketEndpoint
     {
     public:
       WebSocketEndpoint()
       {
-        m_endpoint.clear_access_channels(websocketpp::log::alevel::all);
-        m_endpoint.clear_error_channels(websocketpp::log::elevel::all);
+        endpoint_.clear_access_channels(websocketpp::log::alevel::all);
+        endpoint_.clear_error_channels(websocketpp::log::elevel::all);
 
-        m_endpoint.init_asio();
-        m_endpoint.start_perpetual();
+        endpoint_.init_asio();
+        endpoint_.start_perpetual();
 
-        m_thread.reset(
-          new websocketpp::lib::thread(&client::run, &m_endpoint));
+        thread_.reset(new websocketpp::lib::thread(&client::run, &endpoint_));
       }
 
       ~WebSocketEndpoint()
       {
-        m_endpoint.stop_perpetual();
+        endpoint_.stop_perpetual();
         websocketpp::lib::error_code ec;
-        if (!m_hdl.expired())
+        if (!hdl_.expired())
           {
-            m_endpoint.close(m_hdl,
-                             websocketpp::close::status::going_away,
-                             "",
-                             ec);
+            endpoint_.close(hdl_,
+                            websocketpp::close::status::going_away,
+                            "",
+                            ec);
             if (ec)
               {
-                std::cout << "> Error closing connection " << std::endl;
+                VLOG(google::GLOG_ERROR) << "> Error closing connection ";
               }
           }
-        m_thread->join();
+        thread_->join();
       }
 
       void
-      close(websocketpp::close::status::value code)
+      Close(websocketpp::close::status::value code)
       {
         websocketpp::lib::error_code ec;
-        m_endpoint.close(m_hdl, code, "", ec);
+        endpoint_.close(hdl_, code, "", ec);
         if (ec)
           {
-            std::cout << "> Error initiating close: " << ec.message()
-                      << std::endl;
+            VLOG(google::GLOG_ERROR)
+              << "> Error initiating close: " << ec.message();
           }
       }
 
@@ -162,34 +149,32 @@ namespace ifm3d
       {
         websocketpp::lib::error_code ec;
 
-        client::connection_ptr con = m_endpoint.get_connection(uri, ec);
+        client::connection_ptr con = endpoint_.get_connection(uri, ec);
 
         if (ec)
           {
-            std::cout << "> Connect initialization error: " << ec.message()
-                      << std::endl;
+            LOG(INFO) << "> Connect initialization error: " << ec.message();
             return -1;
           }
-        m_hdl = con->get_handle();
+        hdl_ = con->get_handle();
 
         con->set_open_handler(
-          websocketpp::lib::bind(&WebSocketEndpoint::on_open,
+          websocketpp::lib::bind(&WebSocketEndpoint::OnOpen,
                                  this,
-                                 &m_endpoint,
+                                 &endpoint_,
                                  websocketpp::lib::placeholders::_1));
         con->set_fail_handler(
-          websocketpp::lib::bind(&WebSocketEndpoint::on_fail,
+          websocketpp::lib::bind(&WebSocketEndpoint::OnFail,
                                  this,
-                                 &m_endpoint,
+                                 &endpoint_,
                                  websocketpp::lib::placeholders::_1));
         con->set_message_handler(
-          websocketpp::lib::bind(&WebSocketEndpoint::on_message,
+          websocketpp::lib::bind(&WebSocketEndpoint::OnMessage,
                                  this,
                                  websocketpp::lib::placeholders::_1,
                                  websocketpp::lib::placeholders::_2));
 
-        m_endpoint.connect(con);
-
+        endpoint_.connect(con);
         return 0;
       }
 
@@ -201,21 +186,23 @@ namespace ifm3d
 
     private:
       void
-      on_open(client* c, websocketpp::connection_hdl hdl)
+      OnOpen(client* c, websocketpp::connection_hdl hdl)
       {
         client::connection_ptr con = c->get_con_from_hdl(hdl);
         std::string server = con->get_response_header("Server");
+        LOG(INFO) << server.c_str();
       }
 
       void
-      on_fail(client* c, websocketpp::connection_hdl hdl)
+      OnFail(client* c, websocketpp::connection_hdl hdl)
       {
         client::connection_ptr con = c->get_con_from_hdl(hdl);
         std::string server = con->get_response_header("Server");
         std::string error_msg = con->get_ec().message();
+        LOG(INFO) << server.c_str() << error_msg.c_str();
       }
       void
-      on_message(websocketpp::connection_hdl hdl, client::message_ptr msg)
+      OnMessage(websocketpp::connection_hdl hdl, client::message_ptr msg)
       {
         std::string status;
         if (msg->get_opcode() == websocketpp::frame::opcode::text)
@@ -224,13 +211,13 @@ namespace ifm3d
           }
         else
           {
-
             status = websocketpp::utility::to_hex(msg->get_payload());
           }
         this->cb_data_recv(status);
+        VLOG(IFM3D_TRACE_DEEP) << status.c_str();
       }
       void
-      on_close(client* c, websocketpp::connection_hdl hdl)
+      OnClose(client* c, websocketpp::connection_hdl hdl)
       {
         client::connection_ptr con = c->get_con_from_hdl(hdl);
         std::stringstream s;
@@ -238,19 +225,21 @@ namespace ifm3d
           << websocketpp::close::status::get_string(
                con->get_remote_close_code())
           << "), close reason: " << con->get_remote_close_reason();
+        LOG(INFO) << s.str().c_str();
       }
 
-      client m_endpoint;
-      websocketpp::lib::shared_ptr<websocketpp::lib::thread> m_thread;
-      websocketpp::connection_hdl m_hdl;
+      client endpoint_;
+      websocketpp::lib::shared_ptr<websocketpp::lib::thread> thread_;
+      websocketpp::connection_hdl hdl_;
       std::function<void(const std::string&)> cb_data_recv;
     };
 
     std::unique_ptr<WebSocketEndpoint> websocket_;
-    std::mutex m;
-    std::condition_variable cv;
-    std::string sw_status;
-    bool upload_error;
+    std::mutex m_;
+    std::condition_variable cv_;
+    std::string sw_status_;
+    std::string main_url_;
+    bool upload_error_;
   }; // end: class ImplV2
 
 } // end: namespace ifm3d
@@ -267,14 +256,13 @@ ifm3d::ImplV2::ImplV2(ifm3d::Camera::Ptr cam,
                       const std::string& swupdate_recovery_port)
   : ifm3d::SWUpdater::Impl(cam, cb, swupdate_recovery_port),
     websocket_(std::make_unique<WebSocketEndpoint>()),
-    sw_status(SWUPATER_V2_STATUS_IDLE),
-    upload_error(false)
+    sw_status_(SWUPATER_V2_STATUS_IDLE),
+    upload_error_(false)
 {
+  main_url_ = ("http://" + cam->IP() + ":" + swupdate_recovery_port);
 
-  upload_url_ = ("http://" + cam->IP() + ":" + swupdate_recovery_port +
-                 SWUPDATER_V2_UPLOAD_URL_SUFFIX);
-  reboot_url_ = ("http://" + cam->IP() + ":" + swupdate_recovery_port +
-                 SWUPDATER_V2_REBOOT_URL_SUFFIX);
+  upload_url_ = main_url_ + SWUPDATER_V2_UPLOAD_URL_SUFFIX;
+  reboot_url_ = main_url_ + SWUPDATER_V2_REBOOT_URL_SUFFIX;
   status_url_ = ("ws://" + cam->IP() + ":" + swupdate_recovery_port +
                  SWUPDATER_V2_STATUS_URL_SUFFIX);
 
@@ -289,7 +277,6 @@ void
 ifm3d::ImplV2::RebootToRecovery()
 {
   return;
-  // this->cam_->Reboot(ifm3d::Camera::boot_mode::RECOVERY);
 }
 
 void
@@ -310,25 +297,26 @@ ifm3d::ImplV2::FlashFirmware(const std::vector<std::uint8_t>& bytes,
       std::chrono::duration_cast<std::chrono::milliseconds>(t_now - t_start);
     return timeout_millis - static_cast<long>(elapsed.count());
   };
-
+  /* connect to websocket */
   websocket_->connect(status_url_);
-
+  /*upload buffer */
   this->UploadFirmware(bytes, remaining_time);
-
-  remaining_time = get_remaining_time();
-
-  std::unique_lock<std::mutex> lk(m);
-  cv.wait(lk, [&] {
-    return (this->sw_status == SWUPATER_V2_STATUS_SUCCESS ||
-           this->sw_status == SWUPATER_V2_STATUS_DONE) ||
-           this->upload_error;
+  std::unique_lock<std::mutex> lk(m_);
+  cv_.wait(lk, [&] {
+    return (this->sw_status_ == SWUPATER_V2_STATUS_SUCCESS ||
+            this->sw_status_ == SWUPATER_V2_STATUS_DONE) ||
+           this->upload_error_;
   });
 
- /* wait for sometime to restart*/
-  std::this_thread::sleep_for(std::chrono::seconds(5));
-  websocket_->close(websocketpp::close::status::going_away);
+  websocket_->Close(websocketpp::close::status::going_away);
 
-  return !this->upload_error;
+  /* give  10 sec to execute restart*/
+  if (this->sw_status_ == SWUPATER_V2_STATUS_SUCCESS ||
+      this->sw_status_ == SWUPATER_V2_STATUS_DONE)
+    {
+      std::this_thread::sleep_for(std::chrono::seconds(10));
+    }
+  return !this->upload_error_;
 }
 
 //-------------------------------------
@@ -343,7 +331,33 @@ ifm3d::ImplV2::CheckRecovery()
 bool
 ifm3d::ImplV2::CheckProductive()
 {
-  return true;
+  auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();
+  c->Call(curl_easy_setopt, CURLOPT_URL, this->main_url_.c_str());
+  c->Call(curl_easy_setopt, CURLOPT_NOBODY, true);
+  c->Call(curl_easy_setopt,
+          CURLOPT_CONNECTTIMEOUT,
+          ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
+  c->Call(curl_easy_setopt,
+          CURLOPT_TIMEOUT,
+          ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
+
+  long status_code;
+  try
+    {
+      c->Call(curl_easy_perform);
+      c->Call(curl_easy_getinfo, CURLINFO_RESPONSE_CODE, &status_code);
+    }
+  catch (const ifm3d::error_t& e)
+    {
+      if (e.code() == IFM3D_RECOVERY_CONNECTION_ERROR ||
+          e.code() == IFM3D_CURL_TIMEOUT)
+        {
+          return false;
+        }
+      throw;
+    }
+
+  return status_code == 200;
 }
 
 void
@@ -408,61 +422,61 @@ ifm3d::ImplV2::OnWebSocketData(const std::string json_string)
   nlohmann::json json;
   try
     {
-   json = nlohmann::json::parse(json_string.c_str());
-  const auto type = json["type"].get<std::string>();
+      json = nlohmann::json::parse(json_string.c_str());
+      const auto type = json["type"].get<std::string>();
 
-  if (type == SWUPATER_V2_TYPE_STEP)
-    {
-      const auto number_of_steps =
-        std::stoi(json["number"].get<std::string>());
-      const auto current_step = std::stoi(json["step"].get<std::string>());
-
-      const auto percent_of_current_step =
-        std::stoi(json["percent"].get<std::string>());
-
-      const auto filename = json["name"].get<std::string>();
-
-      const auto overall_percent = ((float)current_step / number_of_steps) *
-                                   (percent_of_current_step / 100.0f);
-
-      this->cb_(overall_percent, filename);
-    }
-
-  if (type == SWUPATER_V2_TYPE_MESSAGE)
-    {
-      const auto level = std::stoi(json["level"].get<std::string>());
-      if (level == SWUPATER_V2_MESSAGE_LEVEL_ERROR)
+      if (type == SWUPATER_V2_TYPE_STEP)
         {
-          // report error at this point
-          this->upload_error = true;
-          cv.notify_all();
-        }
-      const auto message = json["text"].get<std::string>();
-      this->cb_(1.0f,"Message : " + message);
-    }
+          const auto number_of_steps =
+            std::stoi(json["number"].get<std::string>());
+          const auto current_step = std::stoi(json["step"].get<std::string>());
 
-  if (type == SWUPATER_V2_TYPE_STATUS)
-  {
-      auto const status = json["status"].get<std::string>();
-      if (status == SWUPATER_V2_STATUS_SUCCESS)
-      {
-          this->sw_status = status;
-          cv.notify_all();
-      }
-      if (status == SWUPATER_V2_STATUS_DONE)
+          const auto percent_of_current_step =
+            std::stoi(json["percent"].get<std::string>());
+
+          const auto filename = json["name"].get<std::string>();
+
+          const auto overall_percent =
+            ((float)current_step / number_of_steps) *
+            (percent_of_current_step / 100.0f);
+
+          this->cb_(overall_percent, filename);
+        }
+
+      if (type == SWUPATER_V2_TYPE_MESSAGE)
         {
-          this->sw_status = status;
-          cv.notify_all();
+          const auto level = std::stoi(json["level"].get<std::string>());
+          if (level == SWUPATER_V2_MESSAGE_LEVEL_ERROR)
+            {
+              // report error at this point
+              this->upload_error_ = true;
+              cv_.notify_all();
+            }
+          const auto message = json["text"].get<std::string>();
+          this->cb_(1.0f, "Message : " + message);
         }
-      this->cb_(1.0f, "Status : " + status);
 
-  }
-  }
-  catch (std::exception &e)
+      if (type == SWUPATER_V2_TYPE_STATUS)
+        {
+          auto const status = json["status"].get<std::string>();
+          if (status == SWUPATER_V2_STATUS_SUCCESS)
+            {
+              this->sw_status_ = status;
+              cv_.notify_all();
+            }
+          if (status == SWUPATER_V2_STATUS_DONE)
+            {
+              this->sw_status_ = status;
+              cv_.notify_all();
+            }
+          this->cb_(1.0f, "Status : " + status);
+        }
+    }
+  catch (std::exception& e)
     {
       // ignore any status message parsing or json error
       // type info : shaowing json parser error
     }
 }
 
-#endif // __IFM3D_SWUPDATER_SWUPDATER_V2_IMPL_H__
+#endif // IFM3D_SWUPDATER_SWUPDATER_V2_IMPL_H

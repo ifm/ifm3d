@@ -133,6 +133,7 @@ namespace ifm3d
                        long timeout_millis = 0);
 
     class Impl;
+
   private:
     std::unique_ptr<Impl> pImpl;
 

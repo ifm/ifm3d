@@ -84,7 +84,7 @@ target_link_libraries(
     ${LIB_xmlrpc_client}
     ${LIB_xmlrpcxx}
     ${LIB_xmlrpc}
-    asio
+    $<BUILD_INTERFACE:asio>
   )
 
 set_target_properties(
