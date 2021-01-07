@@ -71,8 +71,8 @@ namespace ifm3d
     }
 
     /**
-    * @brief returns the timestamps in nano seconds
-    */
+     * @brief returns the timestamps in nano seconds
+     */
     std::vector<uint64_t>
     getTimestamps()
     {
@@ -80,9 +80,9 @@ namespace ifm3d
     }
 
     /**
-    * @brief return the exposure time for each
-    * phase data
-    */
+     * @brief return the exposure time for each
+     * phase data
+     */
     std::vector<float>
     getExposureTimes()
     {

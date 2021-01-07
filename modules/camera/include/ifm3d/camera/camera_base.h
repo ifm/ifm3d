@@ -155,11 +155,11 @@ namespace ifm3d
       O3R = 3,
     };
 	
-	enum class sw_version : int
+	enum class swu_version : int
     {
-      SW_NOT_SUPPORTED = 0,
-      SW_V1 = 1,
-      SW_V2 = 2
+      SWU_NOT_SUPPORTED = 0,
+      SWU_V1 = 1,
+      SWU_V2 = 2
     };
 
     /**
@@ -377,7 +377,7 @@ namespace ifm3d
      *
      * @return sw_version supported by device
      */
-    virtual ifm3d::Camera::sw_version SwUpdateVersion();
+    virtual ifm3d::CameraBase::swu_version SwUpdateVersion();
 
   protected:
     class Impl;

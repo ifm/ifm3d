@@ -341,11 +341,11 @@ ifm3d::CameraBase::XWrapper()
   return pImpl->XWrapper();
 }
 
-ifm3d::CameraBase::sw_version
+ifm3d::CameraBase::swu_version
 ifm3d::CameraBase::SwUpdateVersion()
 {
  /*SWU_V1 is retured as device type is not avaliable
   in recovery mode and SWU_V2 doesnot support
   recovery mode hence device type is always SWU_V1*/
-  return ifm3d::CameraBase::sw_version::SW_V1;
+  return ifm3d::CameraBase::swu_version::SWU_V1;
 }

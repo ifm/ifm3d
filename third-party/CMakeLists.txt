@@ -5,5 +5,5 @@ add_subdirectory(asio-1-16-1)
 add_subdirectory(cxxopts-2.2.0)
 
 #adding websocketpp
-add_subdirectory(websocketpp-0-8-2)
+add_subdirectory(websocketpp)
 
