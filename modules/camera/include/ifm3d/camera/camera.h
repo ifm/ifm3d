@@ -146,6 +146,13 @@ namespace ifm3d
       _5x5 = 1
     };
 
+    enum class sw_version : int
+    {
+      SW_NOT_SUPPORTED = 0,
+      SW_V1 = 1,
+      SW_V2 = 2
+    };
+
     /**
      * @brief This function Provides a convinent way to find all
      *   ifm devices on the network.
@@ -612,6 +619,14 @@ namespace ifm3d
                                      unsigned int minor,
                                      unsigned int patch);
 
+
+    /**
+     * Checks the swupdater version supported by device
+     *
+     * @return sw_version supported by device
+     */
+    virtual ifm3d::Camera::sw_version SwUpdateVersion();
+
   protected:
     class Impl;
     std::unique_ptr<Impl> pImpl;
@@ -677,6 +692,7 @@ namespace ifm3d
     bool IsO3X() override;
     bool IsO3D() override;
     bool IsO3R() override;
+	ifm3d::Camera::sw_version SwUpdateVersion() override;
   }; // end: class O3DCamera
 
   /**
@@ -699,6 +715,8 @@ namespace ifm3d
     bool IsO3X() override;
     bool IsO3D() override;
     bool IsO3R() override;
+
+    ifm3d::Camera::sw_version SwUpdateVersion() override;
   }; // end: class O3XCamera
 
   /**
@@ -724,6 +742,7 @@ namespace ifm3d
 
     json ToJSON() override;
     void FromJSON(const json& j) override;
+    ifm3d::Camera::sw_version SwUpdateVersion() override;
   }; // end: class O3RCamera
 
 } // end: namespace ifm3d
