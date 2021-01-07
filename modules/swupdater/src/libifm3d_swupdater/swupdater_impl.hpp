@@ -54,8 +54,7 @@ namespace ifm3d
     virtual void RebootToProductive();
     bool WaitForProductive(long timeout_millis);
     virtual bool FlashFirmware(const std::vector<std::uint8_t>& bytes,
-                       long timeout_millis);
-					   
+                               long timeout_millis);
   protected:
     ifm3d::CameraBase::Ptr cam_;
     ifm3d::SWUpdater::FlashStatusCb cb_;
@@ -70,7 +69,7 @@ namespace ifm3d
     virtual bool CheckProductive();
 
     virtual void UploadFirmware(const std::vector<std::uint8_t>& bytes,
-                        long timeout_millis);
+                                long timeout_millis);
 
     virtual bool WaitForUpdaterStatus(int desired_state, long timeout_millis);
 
