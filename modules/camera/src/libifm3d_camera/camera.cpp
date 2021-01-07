@@ -805,11 +805,148 @@ ifm3d::Camera::SetPassword(std::string password)
   });
 }
 
+<<<<<<< HEAD
 void
 ifm3d::Camera::ForceTrigger()
+=======
+ifm3d::Camera::sw_version
+ifm3d::Camera::SwUpdateVersion()
+{
+  return ifm3d::Camera::sw_version::SW_NOT_SUPPORTED;
+}
+  //================================================
+// O3DCamera class - the public interface
+//================================================
+
+ifm3d::O3DCamera::O3DCamera(const std::string& ip,
+                            const std::uint16_t xmlrpc_port,
+                            const std::string& password)
+  : ifm3d::Camera::Camera(ip, xmlrpc_port, password)
+{}
+
+ifm3d::O3DCamera::~O3DCamera() = default;
+
+std::unordered_map<std::string, std::string>
+ifm3d::O3DCamera::TimeInfo()
+>>>>>>> c705f0ae4... Added Supported swVersion to camera class
 {
   if (this->AmI(device_family::O3X))
     {
       return this->pImpl->ForceTrigger();
     }
+<<<<<<< HEAD
 }
+=======
+  return json::parse("{}");
+}
+
+bool
+ifm3d::O3DCamera::IsO3X()
+{
+  return false;
+}
+
+bool
+ifm3d::O3DCamera::IsO3R()
+{
+  return false;
+}
+
+bool
+ifm3d::O3DCamera::IsO3D()
+{
+  return true;
+}
+
+ifm3d::Camera::sw_version
+ifm3d::O3DCamera::SwUpdateVersion()
+{
+  return ifm3d::Camera::sw_version::SW_V1;
+}
+
+//================================================
+// O3XCamera class - the public interface
+//================================================
+
+ifm3d::O3XCamera::O3XCamera(const std::string& ip,
+                            const std::uint16_t xmlrpc_port,
+                            const std::string& password)
+  : ifm3d::Camera::Camera(ip, xmlrpc_port, password)
+{}
+
+ifm3d::O3XCamera::~O3XCamera() = default;
+
+bool
+ifm3d::O3XCamera::IsO3X()
+{
+  return true;
+}
+
+bool
+ifm3d::O3XCamera::IsO3D()
+{
+  return false;
+}
+
+bool
+ifm3d::O3XCamera::IsO3R()
+{
+  return false;
+}
+
+ifm3d::Camera::sw_version
+ifm3d::O3XCamera::SwUpdateVersion()
+{
+  return ifm3d::Camera::sw_version::SW_V1;
+}
+
+//================================================
+// O3RCamera class - the public interface
+//================================================
+
+ifm3d::O3RCamera::O3RCamera(const std::string& ip,
+                            const std::uint16_t xmlrpc_port,
+                            const std::string& password)
+  : ifm3d::Camera::Camera(ip, xmlrpc_port, password)
+{}
+
+ifm3d::O3RCamera::~O3RCamera() = default;
+
+bool
+ifm3d::O3RCamera::IsO3X()
+{
+  return false;
+}
+
+bool
+ifm3d::O3RCamera::IsO3D()
+{
+  return false;
+}
+
+bool
+ifm3d::O3RCamera::IsO3R()
+{
+  return true;
+}
+
+void
+ifm3d::O3RCamera::FromJSON(const json& j)
+{
+  this->pImpl->SetTemporaryConfiguration(j.dump());
+  this->pImpl->SaveInitConfiguration();
+}
+
+json
+ifm3d::O3RCamera::ToJSON()
+{
+  return json::parse(this->pImpl->GetTemporaryConfiguration());
+}
+
+ifm3d::Camera::sw_version
+ifm3d::O3RCamera::SwUpdateVersion()
+{
+  return ifm3d::Camera::sw_version::SW_V2;
+}
+
+>>>>>>> c705f0ae4... Added Supported swVersion to camera class

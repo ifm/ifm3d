@@ -350,8 +350,86 @@ namespace ifm3d
 
     json ToJSON_(const bool open_session = true);
 
+<<<<<<< HEAD
     json getApplicationInfosToJSON();
   };
 }
+=======
+  /**
+   * Camera specialization for O3D
+   */
+  class O3DCamera : public Camera
+  {
+  public:
+    using Ptr = std::shared_ptr<O3DCamera>;
+    O3DCamera(const std::string& ip = ifm3d::DEFAULT_IP,
+              const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
+              const std::string& password = ifm3d::DEFAULT_PASSWORD);
+
+    virtual ~O3DCamera();
+    O3DCamera(O3DCamera&&) = delete;
+    O3DCamera& operator=(O3DCamera&&) = delete;
+    O3DCamera(O3DCamera&) = delete;
+    O3DCamera& operator=(O3DCamera&) = delete;
+
+    std::unordered_map<std::string, std::string> TimeInfo() override;
+    bool IsO3X() override;
+    bool IsO3D() override;
+    bool IsO3R() override;
+	ifm3d::Camera::sw_version SwUpdateVersion() override;
+  }; // end: class O3DCamera
+
+  /**
+   * Camera specialization for O3X
+   */
+  class O3XCamera : public Camera
+  {
+  public:
+    using Ptr = std::shared_ptr<O3XCamera>;
+    O3XCamera(const std::string& ip = ifm3d::DEFAULT_IP,
+              const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
+              const std::string& password = ifm3d::DEFAULT_PASSWORD);
+
+    virtual ~O3XCamera();
+    O3XCamera(O3XCamera&&) = delete;
+    O3XCamera& operator=(O3XCamera&&) = delete;
+    O3XCamera(O3XCamera&) = delete;
+    O3XCamera& operator=(O3XCamera&) = delete;
+
+    bool IsO3X() override;
+    bool IsO3D() override;
+    bool IsO3R() override;
+
+    ifm3d::Camera::sw_version SwUpdateVersion() override;
+  }; // end: class O3XCamera
+
+  /**
+   * Camera specialization for O3R
+   */
+  class O3RCamera : public Camera
+  {
+  public:
+    using Ptr = std::shared_ptr<O3RCamera>;
+    O3RCamera(const std::string& ip = ifm3d::DEFAULT_IP,
+              const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
+              const std::string& password = ifm3d::DEFAULT_PASSWORD);
+
+    virtual ~O3RCamera();
+    O3RCamera(O3RCamera&&) = delete;
+    O3RCamera& operator=(O3RCamera&&) = delete;
+    O3RCamera(O3RCamera&) = delete;
+    O3RCamera& operator=(O3RCamera&) = delete;
+
+    bool IsO3X() override;
+    bool IsO3D() override;
+    bool IsO3R() override;
+
+    json ToJSON() override;
+    void FromJSON(const json& j) override;
+    ifm3d::Camera::sw_version SwUpdateVersion() override;
+  }; // end: class O3RCamera
+
+} // end: namespace ifm3d
+>>>>>>> c705f0ae4... Added Supported swVersion to camera class
 
 #endif // IFM3D_CAMERA_CAMERA_H
