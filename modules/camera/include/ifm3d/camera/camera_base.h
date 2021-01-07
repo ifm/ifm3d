@@ -154,6 +154,13 @@ namespace ifm3d
       O3X = 2,
       O3R = 3,
     };
+	
+	enum class sw_version : int
+    {
+      SW_NOT_SUPPORTED = 0,
+      SW_V1 = 1,
+      SW_V2 = 2
+    };
 
     /**
      * @brief This function Provides a convinent way to find all
@@ -364,6 +371,13 @@ namespace ifm3d
     bool CheckMinimumFirmwareVersion(unsigned int major,
                                      unsigned int minor,
                                      unsigned int patch);
+	
+	/**
+     * Checks the swupdater version supported by device
+     *
+     * @return sw_version supported by device
+     */
+    virtual ifm3d::Camera::sw_version SwUpdateVersion();
 
   protected:
     class Impl;
