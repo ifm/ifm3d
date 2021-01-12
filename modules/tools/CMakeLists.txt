@@ -11,6 +11,14 @@ if (NOT BUILD_MODULE_SWUPDATER)
   file(REMOVE_RECURSE ${IFM3D_TOOLS_BINARY_DIR}/include/ifm3d/tools/swupdater)
 endif()
 
+include_directories(
+  ${IFM3D_FG_SOURCE_DIR}/include
+  ${IFM3D_IMAGE_SOURCE_DIR}/include
+  ${IFM3D_IMAGE_SOURCE_DIR}/include
+  ${IFM3D_CAMERA_SOURCE_DIR}/include
+  ${IFM3D_SWUPDATER_SOURCE_DIR}/include
+  )
+
 ################################################
 ## Process child CMakeLists.txt files
 ################################################
