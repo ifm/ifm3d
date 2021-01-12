@@ -9,7 +9,7 @@ else()
   find_package(OpenCV REQUIRED COMPONENTS core)
 endif()
 
-include_directories(${IFM3D_IMAGE_SOURCE_DIR}/include)
+include_directories(${IFM3D_IMAGE_SOURCE_DIR}/include ${IFM3D_FG_SOURCE_DIR}/include ${IFM3D_CAMERA_SOURCE_DIR}/include)
 
 ################################################
 ## Process child CMakeLists.txt files
@@ -25,7 +25,7 @@ endif()
 ## Manage installation process
 ################################################
 if(BUILD_SDK_PKG)
-  install(DIRECTORY ${IFM3D_IMAGE_BINARY_DIR}/include
+  install(DIRECTORY ${IFM3D_IMAGE_SOURCE_DIR}/include
     DESTINATION ${CPACK_INSTALL_PREFIX}
     COMPONENT image
     PATTERN "*.in" EXCLUDE
