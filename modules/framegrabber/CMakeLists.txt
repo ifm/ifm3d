@@ -1,7 +1,7 @@
 project(IFM3D_FG CXX)
 set(IFM3D_FG_MODULE_NAME "libifm3d-framegrabber")
 
-include_directories(${IFM3D_FG_SOURCE_DIR}/include)
+include_directories(${IFM3D_FG_SOURCE_DIR}/include ${IFM3D_CAMERA_SOURCE_DIR}/include)
 
 ################################################
 ## Process child CMakeLists.txt files
@@ -17,7 +17,7 @@ endif()
 ## Manage installation process
 ################################################
 if(BUILD_SDK_PKG)
-  install(DIRECTORY ${IFM3D_FG_BINARY_DIR}/include
+  install(DIRECTORY ${IFM3D_FG_SOURCE_DIR}/include
     DESTINATION ${CPACK_INSTALL_PREFIX}
     COMPONENT framegrabber
     PATTERN "*.in" EXCLUDE
