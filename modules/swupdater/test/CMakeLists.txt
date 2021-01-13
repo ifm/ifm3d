@@ -18,6 +18,7 @@ if(NOT CMAKE_CROSSCOMPILING)
     )
 endif()
 
+find_package(glog QUIET CONFIG NAMES google-glog glog)
 if (NOT TARGET glog::glog)
   find_library(LIB_glog NAMES glog)
 else()
