@@ -69,8 +69,6 @@ target_link_libraries(
     ${LIB_glog}
   )
 
-
-
 set_target_properties(ifm3d_image PROPERTIES
   VERSION ${IFM3D_VERSION}
   EXPORT_NAME image

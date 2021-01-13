@@ -18,11 +18,6 @@ else()
   find_package(OpenCV REQUIRED COMPONENTS core)
 endif()
 
-add_library(opencv_headers INTERFACE IMPORTED)
-set_target_properties(opencv_headers PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_INCLUDE_DIRS}")
-
-
 add_library(ifm3d_opencv INTERFACE)
 target_include_directories(ifm3d_opencv
   INTERFACE
@@ -37,7 +32,7 @@ target_compile_options(ifm3d_opencv
 target_link_libraries(ifm3d_opencv
   INTERFACE
     ifm3d_framegrabber
-    opencv_headers
+    ${OpenCV_LIBRARIES}
     )
 
 set_target_properties(ifm3d_opencv PROPERTIES
