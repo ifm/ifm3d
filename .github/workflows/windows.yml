@@ -88,7 +88,7 @@ jobs:
         git clone --branch pcl-1.8.1 https://github.com/PointCloudLibrary/pcl.git
         mkdir pcl\build
         cd pcl\build
-        cmake -G "Visual Studio 15 2017 Win64" -DBOOST_ROOT=%BOOST_ROOT_1_69_0% -DPCL_ENABLE_SSE=OFF -DWITH_CUDA=OFF -DWITH_DAVIDSDK=OFF -DWITH_DOCS=OFF -DWITH_DSSDK=OFF -DWITH_ENSENSO=OFF -DWITH_FZAPI=OFF -DWITH_LIBUSB=OFF -DWITH_OPENGL=OFF -DWITH_VTK=OFF -DWITH_OPENNI=OFF -DWITH_OPENNI2=OFF -DWITH_PCAP=OFF -DWITH_PNG=OFF -DWITH_QHULL=OFF -DWITH_QT=OFF -DWITH_RSSDK=OFF -DCMAKE_INSTALL_PREFIX=c:\deps\install ..
+        cmake -G "Visual Studio 15 2017 Win64" -DBOOST_ROOT=%BOOST_ROOT_1_72_0% -DPCL_ENABLE_SSE=OFF -DWITH_CUDA=OFF -DWITH_DAVIDSDK=OFF -DWITH_DOCS=OFF -DWITH_DSSDK=OFF -DWITH_ENSENSO=OFF -DWITH_FZAPI=OFF -DWITH_LIBUSB=OFF -DWITH_OPENGL=OFF -DWITH_VTK=OFF -DWITH_OPENNI=OFF -DWITH_OPENNI2=OFF -DWITH_PCAP=OFF -DWITH_PNG=OFF -DWITH_QHULL=OFF -DWITH_QT=OFF -DWITH_RSSDK=OFF -DCMAKE_INSTALL_PREFIX=c:\deps\install ..
         cmake --build . --clean-first --config Release --target INSTALL
 
     - name: Build dependency - OpenCV
@@ -115,7 +115,7 @@ jobs:
         mkdir \ifm3d\install
         mkdir build
         cd build
-        cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_SDK_PKG=ON -DGTEST_CMAKE_DIR=c:\deps\install\googletest\googletest -Dgtest_force_shared_crt=TRUE -DCMAKE_PREFIX_PATH=c:\deps\install -DBOOST_ROOT=%BOOST_ROOT_1_69_0% -DBoost_USE_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\ifm3d\install -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON ..
+        cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_SDK_PKG=ON -DGTEST_CMAKE_DIR=c:\deps\install\googletest\googletest -Dgtest_force_shared_crt=TRUE -DCMAKE_PREFIX_PATH=c:\deps\install -DBOOST_ROOT=%BOOST_ROOT_1_72_0% -DBoost_USE_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\ifm3d\install -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON ..
         cmake --build . --clean-first --config Release --target INSTALL
 
     - name: Copy third party dependencies
