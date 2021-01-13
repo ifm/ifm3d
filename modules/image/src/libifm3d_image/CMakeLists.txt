@@ -6,7 +6,14 @@ add_library(pcl_headers INTERFACE IMPORTED)
 set_target_properties(pcl_headers PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${PCL_INCLUDE_DIRS}")
 
-find_package(OpenCV 3.0 REQUIRED COMPONENTS core)
+# opencv deps
+if(FORCE_OPENCV3)
+  find_package(OpenCV 3 REQUIRED COMPONENTS core)
+elseif(FORCE_OPENCV2)
+  find_package(OpenCV 2.4 REQUIRED COMPONENTS core)
+else()
+  find_package(OpenCV REQUIRED COMPONENTS core)
+endif()
 
 find_package(glog QUIET CONFIG NAMES google-glog glog)
 if (NOT TARGET glog::glog)
