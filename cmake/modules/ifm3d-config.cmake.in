@@ -27,6 +27,13 @@ else()
           else()
             find_package(OpenCV REQUIRED COMPONENTS core)
           endif()
+		  find_package(OpenCV 3 REQUIRED COMPONENTS core)
+		  
+		  find_package(PCL 1.7 REQUIRED COMPONENTS common)
+		  add_library(pcl_headers INTERFACE IMPORTED)
+		  set_target_properties(pcl_headers PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "${PCL_INCLUDE_DIRS}")
+			
         elseif("${_comp}" MATCHES "opencv")
           if(FORCE_OPENCV3)
             find_package(OpenCV 3 REQUIRED COMPONENTS core)
@@ -35,6 +42,9 @@ else()
           else()
             find_package(OpenCV REQUIRED COMPONENTS core)
           endif()
+		  add_library(opencv_headers INTERFACE IMPORTED)
+		  set_target_properties(opencv_headers PROPERTIES
+			INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_INCLUDE_DIRS}")
         endif()
 
         include("${CMAKE_CURRENT_LIST_DIR}/ifm3d-${_comp}-targets.cmake")

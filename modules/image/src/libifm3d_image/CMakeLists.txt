@@ -2,9 +2,11 @@
 ## Bring in dependent projects
 ################################################
 find_package(PCL 1.7 REQUIRED COMPONENTS common)
+add_library(pcl_headers INTERFACE IMPORTED)
+set_target_properties(pcl_headers PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES "${PCL_INCLUDE_DIRS}")
 
-# needs to be done before the target is declared
-link_directories(${PCL_LIBRARY_DIRS} ${OpenCV_LIBRARY_DIRS})
+find_package(OpenCV 3.0 REQUIRED COMPONENTS core)
 
 find_package(glog QUIET CONFIG NAMES google-glog glog)
 if (NOT TARGET glog::glog)
@@ -29,8 +31,6 @@ target_include_directories(ifm3d_image
     $<BUILD_INTERFACE:${IFM3D_IMAGE_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_FG_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
-    ${PCL_INCLUDE_DIRS}
-    ${OpenCV_INCLUDE_DIRS}
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
   )
@@ -56,10 +56,13 @@ target_link_libraries(
   PUBLIC
     ifm3d_framegrabber
     ifm3d_camera
-    ${OpenCV_LIBRARIES}
+    ${OpenCV_LIBS}
+    pcl_headers
   PRIVATE
     ${LIB_glog}
   )
+
+
 
 set_target_properties(ifm3d_image PROPERTIES
   VERSION ${IFM3D_VERSION}
