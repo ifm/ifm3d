@@ -18,15 +18,11 @@ else()
   find_package(OpenCV REQUIRED COMPONENTS core)
 endif()
 
-# needs to be done before the target is declared
-link_directories(${OpenCV_LIBRARY_DIRS})
-
 add_library(ifm3d_opencv INTERFACE)
 target_include_directories(ifm3d_opencv
   INTERFACE
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${IFM3D_OPENCV_BINARY_DIR}/include>
-    ${OpenCV_INCLUDE_DIRS}
   )
 
 target_compile_options(ifm3d_opencv
