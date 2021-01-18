@@ -246,6 +246,13 @@ $ ifm3d ls
 ]
 ```
 
+Example: Setting NTP-Server connection on the camera
+---------------------------------------
+
+...
+
+```
+
 Example: Setting the time on the camera
 ---------------------------------------
 
