@@ -249,8 +249,17 @@ $ ifm3d ls
 Example: Setting NTP-Server connection on the camera
 ---------------------------------------
 
-...
+Using 'jq', you can set easily the NTP-Server on a camera. You just need to provide the
+right IP address. In this case, the IP: 192.168.0.100 is the NTP server.
 
+```
+ifm3d dump | jq '.ifm3d.Time.NTPServers="192.168.0.100"' | ifm3d config
+
+```
+After that, we need to activate the usage of the NTP server too.
+
+```
+ifm3d dump | jq '.ifm3d.Time.SynchronizationActivated="True"' | ifm3d config
 ```
 
 Example: Setting the time on the camera
