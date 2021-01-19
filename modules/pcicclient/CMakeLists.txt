@@ -2,7 +2,7 @@ project(IFM3D_PCICCLIENT CXX)
 set(IFM3D_PCICCLIENT_MODULE_NAME "libifm3d-pcicclient")
 
 
-include_directories(${IFM3D_PCICCLIENT_SOURCE_DIR}/include)
+include_directories(${IFM3D_PCICCLIENT_SOURCE_DIR}/include ${IFM3D_CAMERA_SOURCE_DIR}/include)
 
 
 ################################################
@@ -19,7 +19,7 @@ endif()
 ## Manage installation process
 ################################################
 if(BUILD_SDK_PKG)
-  install(DIRECTORY ${IFM3D_PCICCLIENT_BINARY_DIR}/include
+  install(DIRECTORY ${IFM3D_PCICCLIENT_SOURCE_DIR}/include
     DESTINATION ${CPACK_INSTALL_PREFIX}
     COMPONENT pcicclient
     PATTERN "*.in" EXCLUDE
