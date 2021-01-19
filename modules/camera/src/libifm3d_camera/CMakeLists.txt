@@ -47,6 +47,7 @@ target_include_directories(ifm3d_camera
   PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
+    $<BUILD_INTERFACE:${IFM3D_CAMERA_SOURCE_DIR}/include>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${XMLRPC_INCLUDE_DIRS}
