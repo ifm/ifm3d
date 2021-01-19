@@ -1,7 +1,7 @@
 project(IFM3D_OPENCV CXX)
 set(IFM3D_OPENCV_MODULE_NAME "libifm3d-opencv")
 
-include_directories(${IFM3D_OPENCV_BINARY_DIR}/include)
+include_directories(${IFM3D_OPENCV_SOURCE_DIR}/include)
 
 ################################################
 ## "build" for header-only library
@@ -20,7 +20,8 @@ add_library(ifm3d_opencv INTERFACE)
 target_include_directories(ifm3d_opencv
   INTERFACE
     $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${IFM3D_OPENCV_BINARY_DIR}/include>
+    $<BUILD_INTERFACE:${IFM3D_OPENCV_SOURCE_DIR}/include>
+    ${OpenCV_INCLUDE_DIRS}
   )
 
 target_compile_options(ifm3d_opencv
@@ -54,7 +55,7 @@ if(BUILD_SDK_PKG)
     EXPORT ifm3d-opencv-targets
     )
 
-  install(DIRECTORY ${IFM3D_OPENCV_BINARY_DIR}/include
+  install(DIRECTORY ${IFM3D_OPENCV_SOURCE_DIR}/include
     DESTINATION ${CPACK_INSTALL_PREFIX}
     COMPONENT opencv
     PATTERN "*.in" EXCLUDE
