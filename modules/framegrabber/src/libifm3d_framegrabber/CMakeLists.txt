@@ -22,8 +22,9 @@ set_property(TARGET ifm3d_framegrabber PROPERTY POSITION_INDEPENDENT_CODE 1)
 target_include_directories(ifm3d_framegrabber
   PUBLIC
     $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${IFM3D_FG_BINARY_DIR}/include>
+    $<BUILD_INTERFACE:${IFM3D_FG_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
+    $<BUILD_INTERFACE:${IFM3D_CAMERA_SOURCE_DIR}/include>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
   )
