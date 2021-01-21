@@ -47,6 +47,7 @@ option(BUILD_SDK_PKG "Build install packages for development purposes" ON)
 option(FORCE_OPENCV3 "Force the build to require OpenCV 3" OFF)
 option(FORCE_OPENCV2 "Force the build to require OpenCV 2.4" OFF)
 option(BUILD_SHARED_LIBS "Build modules as shared libraries" ON)
+option(BUILD_MODULE_STLIMAGE "Build the stl image module" ON)
 
 # Installation root
 set(CPACK_SET_DESTDIR true)
@@ -137,6 +138,15 @@ endif()
 if(BUILD_MODULE_PYBIND11)
   add_definitions(-DBUILD_MODULE_PYBIND11)
   add_subdirectory(modules/pybind11)
+endif()
+if(BUILD_MODULE_IMAGE)
+  # `stlimage`  like image relies on `framegrabber`, in the event the user
+  # explicitly disabled the `framegrabber` but not `image`
+  # we are going to let the compiler convey the message (for now) instead of
+  # doing some implicit CMake stuff that will be hard to maintain and
+  # confuse the end-user.
+  add_definitions(-DBUILD_MODULE_STLIMAGE=ON)
+  add_subdirectory(modules/stlimage)
 endif()
 
 ################################################
