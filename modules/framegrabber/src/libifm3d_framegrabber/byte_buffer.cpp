@@ -28,7 +28,7 @@ bool
 ifm3d::verify_ticket_buffer(const std::vector<std::uint8_t>& buff)
 {
   return ((buff.size() == ifm3d::IMG_TICKET_SZ) && (buff.at(4) == 'L') &&
-          (buff.at(14) == '\r') && (buff.at(15) == '\n'));
+          /*(buff.at(14) == '\r') &&*/ (buff.at(15) == '\n'));
 }
 
 bool
@@ -76,7 +76,7 @@ ifm3d::get_chunk_index(const std::vector<std::uint8_t>& buff,
       idx += incr;
     }
 
-  return std::numeric_limits<std::size_t>::max();
+  return INVALID_IDX;
 }
 
 //------------------------------------------------------------

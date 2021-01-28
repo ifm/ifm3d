@@ -27,6 +27,8 @@ namespace ifm3d
   extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t NUM_EXTRINSIC_PARAM;
   extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t NUM_INTRINSIC_PARAM;
 
+  constexpr auto INVALID_IDX = std::numeric_limits<std::size_t>::max();
+
   enum class pixel_format : std::uint32_t
   {
     FORMAT_8U = 0,
@@ -58,6 +60,7 @@ namespace ifm3d
     EXTRINSIC_CALIBRATION = 400,
     INTRINSIC_CALIBRATION = 401,
     INVERSE_INTRINSIC_CALIBRATION = 402,
+    O3R_DISTANCE_IMAGE_INFORMATION = 420,
     JSON_MODEL = 500,
   };
   // intrinsic param key which cahn be used for indexing the vector of the
