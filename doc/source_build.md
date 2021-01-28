@@ -10,14 +10,6 @@ Installing ifm3d from source
     <th>Notes</th>
   </tr>
   <tr>
-    <td><a href="http://www.boost.org">Boost</a></td>
-    <td>framegrabber, pcicclient, tools, pybind11</td>
-    <td>We use Boost ASIO (header-only) to handle cross-platform network
-     communication with the camera. While ASIO itself is header-only, it does
-     require runtime linking to Boost System. We also use Boost Program Options
-     to handle command line parsing in the tools module.</td>
-  </tr>
-  <tr>
     <td><a href="http://www.cmake.org">CMake</a></td>
     <td>camera, framegrabber, swupdater, image, opencv, pcicclient, tools,
     pybind11</td>
@@ -82,7 +74,7 @@ systems
 
 ```
 $ sudo apt-get update && sudo apt-get -y upgrade
-$ sudo apt-get update && sudo apt-get install -y libboost-all-dev git jq libcurl4-openssl-dev \
+$ sudo apt-get update && sudo apt-get install -y git jq libcurl4-openssl-dev \
                                             libgtest-dev libgoogle-glog-dev  \
                                             libxmlrpc-c++8-dev libopencv-dev \
                                             libpcl-dev libproj-dev \

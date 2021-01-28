@@ -1,3 +1,12 @@
+## Changes between ifm3d 0.18.0 and 0.20.0 [Unreleased]
+* Added clang format support for formatting
+* Changed License Headers to SPDX format
+* Embedded third-party libs asio and cxxopt
+  * Removed boost from dependency list
+* Support user defined port for camera, fg, swupdater module
+  * This enable ifm3d to connect to devices behind NAT router
+* Added example for NTP to command line usage
+
 ## Changes between ifm3d 0.17.0 and 0.18.0
 * Support for latest O3D3XX firmware (1.30.5309)
 * Support for latest O3X firmware (1.0.156)
