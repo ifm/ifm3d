@@ -24,6 +24,7 @@
 #include <system_error>
 #include <thread>
 #include <vector>
+#include <iostream>
 #include <asio.hpp>
 #include <glog/logging.h>
 #include <ifm3d/camera/camera.h>
@@ -37,6 +38,7 @@ namespace ifm3d
   // <Ticket><Length>CR+LF (16 bytes)
   const std::size_t TICKET_ID_SZ = 16;
   const std::string TICKET_image = "0000";
+  const std::string TICKET_ALGO_DGB = "0020";
   const std::string TICKET_c = "1000";
   const std::string TICKET_t = "1001";
 
@@ -268,6 +270,7 @@ ifm3d::FrameGrabber::Impl::WaitForFrame(
   // mutex will unlock in `unique_lock` dtor if not explicitly unlocked prior
   // -- we use it here to ensure no deadlocks
   std::unique_lock<std::mutex> lock(this->front_buffer_mutex_);
+  std::cout << "entering WaitForFrame" << std::endl;
 
   try
     {
@@ -501,6 +504,7 @@ void
 ifm3d::FrameGrabber::Impl::Run()
 {
   VLOG(IFM3D_TRACE) << "Framegrabber thread running...";
+  // std::cout << "FrameGrabber thread running..." << std::endl;
   asio::io_service::work work(this->io_service_);
 
   // For non-O3X devices setting the schema via PCIC, we get acknowledgement of
@@ -642,11 +646,12 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const asio::error_code& ec,
     }
 
   std::string ticket_str;
-  ticket_str.assign(this->ticket_buffer_.begin(), this->ticket_buffer_.end());
-  VLOG(IFM3D_PROTO_DEBUG) << "Full ticket: '" << ticket_str << "'";
+  ticket_str.assign(this->ticket_buffer_.begin(), this->ticket_buffer_.end()-2);
+  VLOG(IFM3D_PROTO_DEBUG) << "Full ticket: " << ticket_str;
 
   if (ticket == ifm3d::TICKET_image)
     {
+      std::cout << "Full ticket: " << ticket_str << std::endl;
       if (ifm3d::verify_ticket_buffer(this->ticket_buffer_))
         {
           this->back_buffer_.resize(
@@ -667,9 +672,12 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const asio::error_code& ec,
           throw ifm3d::error_t(IFM3D_PCIC_BAD_REPLY);
         }
     }
-  else if ((ticket == ifm3d::TICKET_c) || (ticket == ifm3d::TICKET_t))
+  else if ((ticket == ifm3d::TICKET_c) ||
+           (ticket == ifm3d::TICKET_t) ||
+           (ticket == ifm3d::TICKET_ALGO_DGB))
     {
-      if (this->ticket_buffer_.at(20) != '*')
+      if (ticket!=ifm3d::TICKET_ALGO_DGB
+          && this->ticket_buffer_.at(20) != '*')
         {
           LOG(ERROR) << "Bad ticket: " << ticket_str;
 
