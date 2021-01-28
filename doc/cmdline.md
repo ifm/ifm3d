@@ -10,7 +10,7 @@ parameters. To carry out a particular task, you envoke one of the `ifm3d`
 
 ```
 $ ifm3d --help
-ifm3d: version=0.18.0
+ifm3d: version=0.20.0
 
 
 Usage:
