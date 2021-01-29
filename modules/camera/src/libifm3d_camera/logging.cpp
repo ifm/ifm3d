@@ -1,17 +1,7 @@
 /*
- * Copyright (C) 2017 Love Park Robotics, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distribted on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2018-present ifm electronic, gmbh
+ * Copyright 2017 Love Park Robotics, LLC
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <ifm3d/camera/logging.h>
@@ -40,7 +30,8 @@ namespace ifm3d
     /**
      * Runs the one-time initialization code
      */
-    static void _Init(int verbose=0)
+    static void
+    _Init(int verbose = 0)
     {
       FLAGS_logbuflevel = -1;
       FLAGS_v = verbose;
@@ -56,7 +47,8 @@ namespace ifm3d
      *
      * @param[in] verbose glog's VLOG verbosity level
      */
-    static void Init(int verbose=0)
+    static void
+    Init(int verbose = 0)
     {
       std::call_once(ifm3d::Logging::init_, ifm3d::Logging::_Init, verbose);
     }
@@ -67,7 +59,7 @@ namespace ifm3d
 
 std::once_flag ifm3d::Logging::init_;
 
-
+// clang-format off
 // Initializer sample for MSVC and GCC/Clang.
 // 2010-2016 Joe Lowe. Released into the public domain.
 #include <stdio.h>
@@ -95,12 +87,13 @@ std::once_flag ifm3d::Logging::init_;
         static void f(void) __attribute__((constructor)); \
         static void f(void)
 #endif
-
+// clang-format on
 
 INITIALIZER(libifm3d_camera_ctor)
 {
   int vlog = std::getenv("IFM3D_VLOG") == nullptr ?
-    0 : std::atoi(std::getenv("IFM3D_VLOG"));
+               0 :
+               std::atoi(std::getenv("IFM3D_VLOG"));
 
   ifm3d::Logging::Init(vlog);
 }

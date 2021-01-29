@@ -1,17 +1,7 @@
 /*
- * Copyright (C) 2017 Love Park Robotics, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distribted on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2018-present ifm electronic, gmbh
+ * Copyright 2017 Love Park Robotics, LLC
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #ifndef __IFM3D_TOOLS_CMDLINE_APP_H__
@@ -20,10 +10,8 @@
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <boost/program_options.hpp>
+#include <cxxopts.hpp>
 #include <ifm3d/camera/camera.h>
-
-namespace po = boost::program_options;
 
 namespace ifm3d
 {
@@ -39,7 +27,8 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<CmdLineApp>;
 
-    CmdLineApp(int argc, const char **argv,
+    CmdLineApp(int argc,
+               const char** argv,
                const std::string& name = "version");
     virtual ~CmdLineApp() = default;
 
@@ -58,9 +47,8 @@ namespace ifm3d
     virtual int Run();
 
   protected:
-    po::variables_map vm_;
-    po::options_description global_opts_;
-    po::options_description local_opts_;
+    cxxopts::Options all_opts_;
+    std::unique_ptr<cxxopts::ParseResult> vm_;
 
     std::string ip_;
     std::uint16_t xmlrpc_port_;
@@ -68,6 +56,13 @@ namespace ifm3d
     ifm3d::Camera::Ptr cam_;
 
     virtual void _LocalHelp();
+
+    /**
+     * @brief Parse the argv and store values to variable map (vm)
+     * @param argc : number of parameters
+     * @param agrv : array of the command line options
+     */
+    void _Parse(int argc, const char** argv);
 
   }; // end: class CmdLineApp
 

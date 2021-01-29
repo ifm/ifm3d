@@ -1,17 +1,6 @@
 /*
- * Copyright (C) 2019 ifm electronic, gmbh
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2019 ifm electronic, gmbh
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <ifm3d/tools/swupdater/swupdate_app.h>
@@ -22,93 +11,97 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/program_options.hpp>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/camera.h>
 #include <ifm3d/swupdater.h>
 
 #ifdef _WIN32
-#include <io.h>
-#include <fcntl.h>
+#  include <io.h>
+#  include <fcntl.h>
 #endif
 
-ifm3d::SWUpdateApp::SWUpdateApp(int argc, const char **argv,
+ifm3d::SWUpdateApp::SWUpdateApp(int argc,
+                                const char** argv,
                                 const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
 {
-  this->local_opts_.add_options()
-    ("file", po::value<std::string>()->default_value("-"),
-     "Input file, defaults to `stdin' (good for reading off a pipeline)")
-    ("check,c", po::bool_switch()->default_value(false),
-     "Check the current mode of device")
-    ("reboot,r", po::bool_switch()->default_value(false),
-     "Reboot from recovery mode to productive mode")
-    ("quiet,q", po::bool_switch()->default_value(false),
-     "Disable status output");
+  // clang-format off
+  this->all_opts_.add_options(name)
+    ("file","Input file, defaults to `stdin' (good for reading off a pipeline)",
+     cxxopts::value<std::string>()->default_value("-"))
+    ("c,check","Check the current mode of device",
+     cxxopts::value<bool>()->default_value("false"))
+    ("r,reboot","Reboot from recovery mode to productive mode",
+     cxxopts::value<bool>()->default_value("false"))
+    ("q,quiet","Disable status output",
+     cxxopts::value<bool>()->default_value("false"))
+    ("swupdate-port","port for swupdate",
+     cxxopts::value<unsigned short>()->default_value("8080"));
 
-  po::store(po::command_line_parser(argc, argv).
-            options(this->local_opts_).allow_unregistered().run(), this->vm_);
-  po::notify(this->vm_);
+  // clang-format on
+  this->_Parse(argc, argv);
 }
 
-int ifm3d::SWUpdateApp::Run()
+int
+ifm3d::SWUpdateApp::Run()
 {
-  if (this->vm_.count("help"))
+  if (this->vm_->count("help"))
     {
       this->_LocalHelp();
       return 0;
     }
 
-  auto const file = vm_.count("file") ? true : false;
-  auto const check = vm_.count("check") ? vm_["check"].as<bool>() : false;
-  auto const recovery_reboot = vm_.count("reboot") ?
-    vm_["reboot"].as<bool>() : false;
-  auto const quiet = vm_.count("quiet") ? vm_["quiet"].as<bool>() : false;
+  auto const check = (*this->vm_)["check"].as<bool>();
+  auto const recovery_reboot = (*this->vm_)["reboot"].as<bool>();
+  auto const quiet = (*this->vm_)["quiet"].as<bool>();
+  auto const swupdate_port =
+    (*this->vm_)["swupdate-port"].as<unsigned short>();
 
   ifm3d::SWUpdater::Ptr swupdater;
   if (quiet)
     {
-      swupdater = std::make_shared<ifm3d::SWUpdater>(this->cam_);
+      swupdater = std::make_shared<ifm3d::SWUpdater>(
+        this->cam_,
+        [](float p, const std::string& msg) -> void {},
+        swupdate_port);
     }
   else
     {
       swupdater = std::make_shared<ifm3d::SWUpdater>(
-          this->cam_,
-          [](float p, const std::string& msg)
-          {
-            if (p < 1.0f)
-              {
-                int width = 50;
-                std::cout << "Uploading Firmware: [";
-                int pos = int(width * p);
-                for (int i = 0; i < width; ++i)
-                  {
-                    if (i < pos)
-                      {
-                        std::cout << "=";
-                      }
-                    else if (i==pos)
-                      {
-                        std::cout << ">";
-                      }
-                    else
-                      {
-                        std::cout << " ";
-                      }
-                  }
-                  std::cout << "] " << int(p * 100) << "%\r";
-                  std::cout.flush();
-              }
-            else
-              {
-                std::cout << msg << std::endl;
-              }
-          });
-
+        this->cam_,
+        [](float p, const std::string& msg) {
+          if (p < 1.0f)
+            {
+              int width = 50;
+              std::cout << "Uploading Firmware: [";
+              int pos = int(width * p);
+              for (int i = 0; i < width; ++i)
+                {
+                  if (i < pos)
+                    {
+                      std::cout << "=";
+                    }
+                  else if (i == pos)
+                    {
+                      std::cout << ">";
+                    }
+                  else
+                    {
+                      std::cout << " ";
+                    }
+                }
+              std::cout << "] " << int(p * 100) << "%\r";
+              std::cout.flush();
+            }
+          else
+            {
+              std::cout << msg << std::endl;
+            }
+        },
+        swupdate_port);
     }
 
-
-  if(check)
+  if (check)
     {
       if (swupdater->WaitForRecovery(-1))
         {
@@ -133,7 +126,7 @@ int ifm3d::SWUpdateApp::Run()
         }
       return 0;
     }
-  else if(recovery_reboot)
+  else if (recovery_reboot)
     {
       if (!quiet)
         {
@@ -144,39 +137,20 @@ int ifm3d::SWUpdateApp::Run()
         {
           if (!quiet)
             {
-              std::cout << "Timed out waiting for producitve mode" << std::endl;
+              std::cout << "Timed out waiting for producitve mode"
+                        << std::endl;
             }
           return -1;
         }
       return 0;
     }
-  else if(file)
+  else
     {
-      // Reboot to recovery if not already in recovery
-      if (!swupdater->WaitForRecovery(-1))
-        {
-          if (!quiet)
-            {
-              std::cout << "Rebooting device to recovery mode..."
-                        << std::endl;
-            }
-          swupdater->RebootToRecovery();
-          if (!swupdater->WaitForRecovery(60000))
-            {
-              if (!quiet)
-                {
-                  std::cout << "Timed out waiting for recovery mode"
-                            << std::endl;
-                }
-              return -1;
-            }
-        }
-
       // Read the file in
       std::shared_ptr<std::istream> ifs;
       std::vector<std::uint8_t> bytes;
 
-      std::string infile = this->vm_["file"].as<std::string>();
+      std::string infile = (*this->vm_)["file"].as<std::string>();
       if (infile == "-")
         {
 #ifdef _WIN32
@@ -184,7 +158,7 @@ int ifm3d::SWUpdateApp::Run()
           _setmode(_fileno(stdin), O_BINARY);
 #endif
 
-          ifs.reset(&std::cin, [](...){});
+          ifs.reset(&std::cin, [](...) {});
 
           char b;
           while (ifs->get(b))
@@ -194,8 +168,9 @@ int ifm3d::SWUpdateApp::Run()
         }
       else
         {
-          ifs.reset(new std::ifstream(infile, std::ios::in|std::ios::binary));
-          if (! *ifs)
+          ifs.reset(
+            new std::ifstream(infile, std::ios::in | std::ios::binary));
+          if (!*ifs)
             {
               std::cerr << "Could not open file: " << infile << std::endl;
               throw ifm3d::error_t(IFM3D_IO_ERROR);
@@ -212,35 +187,57 @@ int ifm3d::SWUpdateApp::Run()
                        std::istream_iterator<std::uint8_t>(*ifs),
                        std::istream_iterator<std::uint8_t>());
         }
-
-      if (!swupdater->FlashFirmware(bytes, 300000))
-      {
-        if (!quiet)
-          {
-            std::cout << "Timed out waiting for flashing to complete"
-                      << std::endl;
-          }
-        return -1;
-      }
-
-      swupdater->RebootToProductive();
-      if (!quiet)
+      if (!bytes.empty())
         {
-          std::cout << "Update successful, waiting for device to reboot..."
-                    << std::endl;
-        }
-      if (!swupdater->WaitForProductive(60000))
-        {
-          if(!quiet)
+          // Reboot to recovery if not already in recovery
+          if (!swupdater->WaitForRecovery(-1))
             {
-              std::cout << "Timed out waiting for productive mode"
+              if (!quiet)
+                {
+                  std::cout << "Rebooting device to recovery mode..."
+                            << std::endl;
+                }
+              swupdater->RebootToRecovery();
+              if (!swupdater->WaitForRecovery(60000))
+                {
+                  if (!quiet)
+                    {
+                      std::cout << "Timed out waiting for recovery mode"
+                                << std::endl;
+                    }
+                  return -1;
+                }
+            }
+
+          if (!swupdater->FlashFirmware(bytes, 300000))
+            {
+              if (!quiet)
+                {
+                  std::cout << "Timed out waiting for flashing to complete"
+                            << std::endl;
+                }
+              return -1;
+            }
+
+          swupdater->RebootToProductive();
+          if (!quiet)
+            {
+              std::cout << "Update successful, waiting for device to reboot..."
                         << std::endl;
             }
-          return -1;
-        }
-      if (!quiet)
-        {
-          std::cout << "SWUpdate Complete." << std::endl;
+          if (!swupdater->WaitForProductive(60000))
+            {
+              if (!quiet)
+                {
+                  std::cout << "Timed out waiting for productive mode"
+                            << std::endl;
+                }
+              return -1;
+            }
+          if (!quiet)
+            {
+              std::cout << "SWUpdate Complete." << std::endl;
+            }
         }
     }
   return 0;

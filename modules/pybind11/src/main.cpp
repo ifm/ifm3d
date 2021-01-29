@@ -1,17 +1,6 @@
 /*
- * Copyright (C) 2019 ifm electronic, gmbh
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2019 ifm electronic, gmbh
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <cstdint>
@@ -95,24 +84,29 @@ namespace ifm3d
 
   FrameGrabberWrapper::FrameGrabberWrapper(ifm3d::Camera::Ptr cam,
                                            std::uint16_t mask)
-    : fg_(std::make_shared<ifm3d::FrameGrabber>(cam, mask)) {}
+    : fg_(std::make_shared<ifm3d::FrameGrabber>(cam, mask))
+  { }
 
-  void FrameGrabberWrapper::SWTrigger()
+  void
+  FrameGrabberWrapper::SWTrigger()
   {
     this->fg_->SWTrigger();
   }
 
-  bool FrameGrabberWrapper::WaitForFrame(
-      const ifm3d::OpenCVBuffer::Ptr& buff,
-      long timeout_millis,
-      bool copy_buff,
-      bool organize)
+  bool
+  FrameGrabberWrapper::WaitForFrame(const ifm3d::OpenCVBuffer::Ptr& buff,
+                                    long timeout_millis,
+                                    bool copy_buff,
+                                    bool organize)
   {
-    return this->fg_->WaitForFrame(buff.get(), timeout_millis,
-                                   copy_buff, organize);
+    return this->fg_->WaitForFrame(buff.get(),
+                                   timeout_millis,
+                                   copy_buff,
+                                   organize);
   }
 
-  void FrameGrabberWrapper::Reset(ifm3d::Camera::Ptr cam, std::uint16_t mask)
+  void
+  FrameGrabberWrapper::Reset(ifm3d::Camera::Ptr cam, std::uint16_t mask)
   {
     // Two distinct steps (required because O3X only accepts one connection)
     this->fg_.reset();
@@ -144,7 +138,7 @@ PYBIND11_MODULE(ifm3dpy, m)
   m.attr("IMG_UVEC") = ifm3d::IMG_UVEC;
   m.attr("EXP_TIME") = ifm3d::EXP_TIME;
   m.attr("IMG_GRAY") = ifm3d::IMG_GRAY;
-  m.attr("ILLU_TEMP")  = ifm3d::ILLU_TEMP;
+  m.attr("ILLU_TEMP") = ifm3d::ILLU_TEMP;
   m.attr("INTR_CAL") = ifm3d::INTR_CAL;
   m.attr("INV_INTR_CAL") = ifm3d::INV_INTR_CAL;
   m.attr("JSON_MODEL") = ifm3d::JSON_MODEL;
@@ -172,6 +166,8 @@ PYBIND11_MODULE(ifm3dpy, m)
   m.attr("O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH") =
     ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH;
 
+  // clang-format does a poor job handling the alignment of raw strings
+  // clang-format off
   py::class_<ifm3d::OpenCVBuffer, ifm3d::OpenCVBuffer::Ptr>(
     m,
     "ImageBuffer",
@@ -1212,4 +1208,5 @@ PYBIND11_MODULE(ifm3dpy, m)
           as descriptive as possible as to the specific error that has
           occured.
     )");
+  // clang-format on
 }

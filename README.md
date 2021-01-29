@@ -6,6 +6,11 @@ Library and utilities for working with ifm pmd-based 3D ToF Cameras.
 ![Build (Ubuntu)](https://github.com/ifm/ifm3d/workflows/Build%20(Ubuntu)/badge.svg?branch=master)
 ![Build (Windows)](https://github.com/ifm/ifm3d/workflows/Build%20(Windows)/badge.svg?branch=master)
 
+# Release versions
+
+Note that `master` is generally a work in progress, and you probably want to use a
+tagged release version.
+
 Current Revision
 ----------------
 <table>
@@ -17,11 +22,11 @@ Current Revision
     <th>Notes</th>
   </tr>
   <tr>
-    <td>0.18.0 </td>
-    <td>1.6.2114, 1.23.1522, 1.23.1522, 1.23.2848, 1.30.4123, 1.30.5309, 1.60.7020</td>
+    <td>0.20.0 </td>
+    <td>1.6.2114, 1.23.1522, 1.23.1522, 1.23.2848, 1.30.4123, 1.30.5309</td>
     <td>1.0.122, 1.0.126, 1.0.156</td>
     <td>16.04,18.04,20.04</td>
-    <td>Expanded support matrix for platforms/archs/firmwares</td>
+    <td>Removed Boost dependence,Added clang-format,SPDX license Headers</td>
   </tr>
 </table>
 

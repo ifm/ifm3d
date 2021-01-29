@@ -1,18 +1,7 @@
 // -*- c++ -*-
 /*
- * Copyright (C) 2018 ifm electronic, gmbh
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distribted on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2018 ifm electronic, gmbh
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #ifndef __IFM3D_FG_DETAIL_BYTE_BUFFER_HPP__
@@ -31,12 +20,14 @@
 template <typename Derived>
 ifm3d::ByteBuffer<Derived>::ByteBuffer()
   : dirty_(false),
-    extrinsics_({0.,0.,0.,0.,0.,0.}),
-    intrinsics_({0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.}),
-    inverseIntrinsics_({0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.}),
+    extrinsics_({0., 0., 0., 0., 0., 0.}),
+    intrinsics_(
+      {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.}),
+    inverseIntrinsics_(
+      {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.}),
     intrinsic_available(false),
     inverse_intrinsic_available(false),
-    exposure_times_({0,0,0}),
+    exposure_times_({0, 0, 0}),
     time_stamp_(std::chrono::system_clock::now()),
     json_model_("{}")
 { }
@@ -47,8 +38,7 @@ ifm3d::ByteBuffer<Derived>::~ByteBuffer() = default;
 
 // move ctor
 template <typename Derived>
-ifm3d::ByteBuffer<Derived>::ByteBuffer(
-  ifm3d::ByteBuffer<Derived>&& src_buff)
+ifm3d::ByteBuffer<Derived>::ByteBuffer(ifm3d::ByteBuffer<Derived>&& src_buff)
   : ifm3d::ByteBuffer<Derived>::ByteBuffer()
 {
   this->SetBytes(src_buff.bytes_, false);
@@ -57,8 +47,7 @@ ifm3d::ByteBuffer<Derived>::ByteBuffer(
 // move assignment
 template <typename Derived>
 ifm3d::ByteBuffer<Derived>&
-ifm3d::ByteBuffer<Derived>::operator= (
-  ifm3d::ByteBuffer<Derived>&& src_buff)
+ifm3d::ByteBuffer<Derived>::operator=(ifm3d::ByteBuffer<Derived>&& src_buff)
 {
   this->SetBytes(src_buff.bytes_, false);
   return *this;
@@ -77,7 +66,7 @@ ifm3d::ByteBuffer<Derived>::ByteBuffer(
 // copy assignment operator
 template <typename Derived>
 ifm3d::ByteBuffer<Derived>&
-ifm3d::ByteBuffer<Derived>::operator= (
+ifm3d::ByteBuffer<Derived>::operator=(
   const ifm3d::ByteBuffer<Derived>& src_buff)
 {
   if (this == &src_buff)
@@ -100,9 +89,7 @@ ifm3d::ByteBuffer<Derived>::SetBytes(std::vector<std::uint8_t>& buff,
       std::size_t sz = buff.size();
       this->bytes_.resize(sz);
 
-      std::copy(buff.begin(),
-                buff.begin() + sz,
-                this->bytes_.begin());
+      std::copy(buff.begin(), buff.begin() + sz, this->bytes_.begin());
     }
   else
     {
@@ -193,7 +180,7 @@ template <typename Derived>
 void
 ifm3d::ByteBuffer<Derived>::Organize()
 {
-  if (! this->Dirty())
+  if (!this->Dirty())
     {
       return;
     }
@@ -215,18 +202,18 @@ ifm3d::ByteBuffer<Derived>::Organize()
   std::size_t invintridx = INVALID_IDX;
   std::size_t jsonidx = INVALID_IDX;
 
-  xyzidx = ifm3d::get_chunk_index(this->bytes_,
-                                  ifm3d::image_chunk::CARTESIAN_ALL);
+  xyzidx =
+    ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::CARTESIAN_ALL);
   if (xyzidx == INVALID_IDX)
     {
-      xidx = ifm3d::get_chunk_index(this->bytes_,
-                                    ifm3d::image_chunk::CARTESIAN_X);
+      xidx =
+        ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::CARTESIAN_X);
 
-      yidx = ifm3d::get_chunk_index(this->bytes_,
-                                    ifm3d::image_chunk::CARTESIAN_Y);
+      yidx =
+        ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::CARTESIAN_Y);
 
-      zidx = ifm3d::get_chunk_index(this->bytes_,
-                                    ifm3d::image_chunk::CARTESIAN_Z);
+      zidx =
+        ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::CARTESIAN_Z);
     }
   else
     {
@@ -244,46 +231,41 @@ ifm3d::ByteBuffer<Derived>::Organize()
     }
 
   aidx = ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::AMPLITUDE);
-  raw_aidx = ifm3d::get_chunk_index(this->bytes_,
-                                    ifm3d::image_chunk::RAW_AMPLITUDE);
+  raw_aidx =
+    ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::RAW_AMPLITUDE);
   cidx = ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::CONFIDENCE);
-  didx = ifm3d::get_chunk_index(this->bytes_,
-                                ifm3d::image_chunk::RADIAL_DISTANCE);
-  uidx = ifm3d::get_chunk_index(this->bytes_,
-                                ifm3d::image_chunk::UNIT_VECTOR_ALL);
+  didx =
+    ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::RADIAL_DISTANCE);
+  uidx =
+    ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::UNIT_VECTOR_ALL);
   gidx = ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::GRAY);
   extidx = ifm3d::get_chunk_index(this->bytes_,
                                   ifm3d::image_chunk::EXTRINSIC_CALIBRATION);
-  jsonidx= ifm3d::get_chunk_index(this->bytes_,
-                                  ifm3d::image_chunk::JSON_MODEL);
+  jsonidx =
+    ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::JSON_MODEL);
 
   // As parameter will not change so only grabed and stored
   // for the first time
   if (!intrinsic_available)
     {
-      intridx = ifm3d::get_chunk_index(this->bytes_,
-                                      ifm3d::image_chunk::INTRINSIC_CALIBRATION);
+      intridx =
+        ifm3d::get_chunk_index(this->bytes_,
+                               ifm3d::image_chunk::INTRINSIC_CALIBRATION);
     }
 
-  if( !inverse_intrinsic_available )
-  {
-    invintridx = ifm3d::get_chunk_index(this->bytes_,
-                                  ifm3d::image_chunk::INVERSE_INTRINSIC_CALIBRATION);
-  }
+  if (!inverse_intrinsic_available)
+    {
+      invintridx = ifm3d::get_chunk_index(
+        this->bytes_,
+        ifm3d::image_chunk::INVERSE_INTRINSIC_CALIBRATION);
+    }
 
-
-  VLOG(IFM3D_PROTO_DEBUG) << "xyzidx=" << xyzidx
-                          << ", xidx=" << xidx
-                          << ", yidx=" << yidx
-                          << ", zidx=" << zidx
-                          << ", aidx=" << aidx
-                          << ", raw_aidx=" << raw_aidx
-                          << ", cidx=" << cidx
-                          << ", didx=" << didx
-                          << ", uidx=" << uidx
-                          << ", extidx=" << extidx
-                          << ", gidx=" << gidx
-                          << ", intridx=" << intridx
+  VLOG(IFM3D_PROTO_DEBUG) << "xyzidx=" << xyzidx << ", xidx=" << xidx
+                          << ", yidx=" << yidx << ", zidx=" << zidx
+                          << ", aidx=" << aidx << ", raw_aidx=" << raw_aidx
+                          << ", cidx=" << cidx << ", didx=" << didx
+                          << ", uidx=" << uidx << ", extidx=" << extidx
+                          << ", gidx=" << gidx << ", intridx=" << intridx
                           << ", invintridx=" << invintridx;
 
   // if we do not have a confidence image we cannot go further
@@ -294,15 +276,15 @@ ifm3d::ByteBuffer<Derived>::Organize()
     }
 
   const std::uint32_t header_version =
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+cidx+12);
+    ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 12);
   // for the *big* time stamp minimum header version 2 is needed
   if (header_version > 1)
     {
       // Retrieve the timespamp information from the confidence data
       const std::uint32_t timestampSec =
-          ifm3d::mkval<std::uint32_t>(this->bytes_.data()+cidx+40);
+        ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 40);
       const std::uint32_t timestampNsec =
-          ifm3d::mkval<std::uint32_t>(this->bytes_.data()+cidx+44);
+        ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 44);
       // convert the time stamp into a TimePointT
       this->time_stamp_ =
         ifm3d::TimePointT{std::chrono::seconds{timestampSec} +
@@ -328,168 +310,201 @@ ifm3d::ByteBuffer<Derived>::Organize()
 
   // pixel format of each image
   std::uint32_t INVALID_FMT = std::numeric_limits<std::uint32_t>::max();
-  std::uint32_t cfmt = ifm3d::mkval<std::uint32_t>(this->bytes_.data()+cidx+24);
+  std::uint32_t cfmt =
+    ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 24);
   std::uint32_t xfmt =
-    CART_OK ?
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+xidx+24) :
-    INVALID_FMT;
+    CART_OK ? ifm3d::mkval<std::uint32_t>(this->bytes_.data() + xidx + 24) :
+              INVALID_FMT;
   std::uint32_t yfmt =
-    CART_OK ?
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+yidx+24) :
-    INVALID_FMT;
+    CART_OK ? ifm3d::mkval<std::uint32_t>(this->bytes_.data() + yidx + 24) :
+              INVALID_FMT;
   std::uint32_t zfmt =
-    CART_OK ?
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+zidx+24) :
-    INVALID_FMT;
+    CART_OK ? ifm3d::mkval<std::uint32_t>(this->bytes_.data() + zidx + 24) :
+              INVALID_FMT;
   std::uint32_t afmt =
-    A_OK ?
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+aidx+24) :
-    INVALID_FMT;
+    A_OK ? ifm3d::mkval<std::uint32_t>(this->bytes_.data() + aidx + 24) :
+           INVALID_FMT;
   std::uint32_t raw_afmt =
     RAW_A_OK ?
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+raw_aidx+24) :
-    INVALID_FMT;
+      ifm3d::mkval<std::uint32_t>(this->bytes_.data() + raw_aidx + 24) :
+      INVALID_FMT;
   std::uint32_t dfmt =
-    D_OK ?
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+didx+24) :
-    INVALID_FMT;
+    D_OK ? ifm3d::mkval<std::uint32_t>(this->bytes_.data() + didx + 24) :
+           INVALID_FMT;
   std::uint32_t ufmt =
-    U_OK ?
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+uidx+24) :
-    INVALID_FMT;
+    U_OK ? ifm3d::mkval<std::uint32_t>(this->bytes_.data() + uidx + 24) :
+           INVALID_FMT;
   std::uint32_t extfmt =
-    EXT_OK ?
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+extidx+24) :
-    INVALID_FMT;
+    EXT_OK ? ifm3d::mkval<std::uint32_t>(this->bytes_.data() + extidx + 24) :
+             INVALID_FMT;
   std::uint32_t gfmt =
-    G_OK ?
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+gidx+24) :
-    INVALID_FMT;
+    G_OK ? ifm3d::mkval<std::uint32_t>(this->bytes_.data() + gidx + 24) :
+           INVALID_FMT;
   std::uint32_t intrfmt =
-    INTR_OK ?
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+intridx+24) :
-    INVALID_FMT;
+    INTR_OK ? ifm3d::mkval<std::uint32_t>(this->bytes_.data() + intridx + 24) :
+              INVALID_FMT;
   std::uint32_t invintrfmt =
     INVINTR_OK ?
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+invintridx+24) :
-    INVALID_FMT;
+      ifm3d::mkval<std::uint32_t>(this->bytes_.data() + invintridx + 24) :
+      INVALID_FMT;
 
-  VLOG(IFM3D_PROTO_DEBUG) << "xfmt=" << xfmt
-                          << ", yfmt=" << yfmt
-                          << ", zfmt=" << zfmt
-                          << ", afmt=" << afmt
-                          << ", raw_afmt=" << raw_afmt
-                          << ", cfmt=" << cfmt
-                          << ", dfmt=" << dfmt
-                          << ", ufmt=" << ufmt
-                          << ", extfmt=" << extfmt
-                          << ", gfmt=" << gfmt
+  VLOG(IFM3D_PROTO_DEBUG) << "xfmt=" << xfmt << ", yfmt=" << yfmt
+                          << ", zfmt=" << zfmt << ", afmt=" << afmt
+                          << ", raw_afmt=" << raw_afmt << ", cfmt=" << cfmt
+                          << ", dfmt=" << dfmt << ", ufmt=" << ufmt
+                          << ", extfmt=" << extfmt << ", gfmt=" << gfmt
                           << ", intrfmt= " << intrfmt
                           << ", invintrfmt= " << invintrfmt;
 
   // get the image dimensions
   std::uint32_t width =
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+cidx+16);
+    ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 16);
   std::uint32_t height =
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+cidx+20);
+    ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 20);
   std::uint32_t npts = width * height;
 
-  VLOG(IFM3D_PROTO_DEBUG) << "npts=" << npts
-                          << ", width x height="
-                          << width << " x " << height;
+  VLOG(IFM3D_PROTO_DEBUG) << "npts=" << npts << ", width x height=" << width
+                          << " x " << height;
 
-  auto im_wrapper =
-    [this, width, height, npts]
-    (ifm3d::image_chunk im, std::uint32_t fmt, std::size_t idx)
-    {
-      switch (fmt)
-        {
-        case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8U):
-          this->ImCreate<std::uint8_t>(
-            im, fmt, idx, width, height, 1, npts, this->bytes_);
-          break;
+  auto im_wrapper = [this, width, height, npts](ifm3d::image_chunk im,
+                                                std::uint32_t fmt,
+                                                std::size_t idx) {
+    switch (fmt)
+      {
+      case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8U):
+        this->ImCreate<std::uint8_t>(im,
+                                     fmt,
+                                     idx,
+                                     width,
+                                     height,
+                                     1,
+                                     npts,
+                                     this->bytes_);
+        break;
 
-        case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8S):
-          this->ImCreate<std::int8_t>(
-            im, fmt, idx, width, height, 1, npts, this->bytes_);
-          break;
+      case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8S):
+        this->ImCreate<std::int8_t>(im,
+                                    fmt,
+                                    idx,
+                                    width,
+                                    height,
+                                    1,
+                                    npts,
+                                    this->bytes_);
+        break;
 
-        case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16U):
-          this->ImCreate<std::uint16_t>(
-            im, fmt, idx, width, height, 1, npts, this->bytes_);
-          break;
+      case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16U):
+        this->ImCreate<std::uint16_t>(im,
+                                      fmt,
+                                      idx,
+                                      width,
+                                      height,
+                                      1,
+                                      npts,
+                                      this->bytes_);
+        break;
 
-        case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16S):
-          this->ImCreate<std::int16_t>(
-            im, fmt, idx, width, height, 1, npts, this->bytes_);
-          break;
+      case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16S):
+        this->ImCreate<std::int16_t>(im,
+                                     fmt,
+                                     idx,
+                                     width,
+                                     height,
+                                     1,
+                                     npts,
+                                     this->bytes_);
+        break;
 
-        case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32S):
-          this->ImCreate<std::int32_t>(
-            im, fmt, idx, width, height, 1, npts, this->bytes_);
-          break;
+      case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32S):
+        this->ImCreate<std::int32_t>(im,
+                                     fmt,
+                                     idx,
+                                     width,
+                                     height,
+                                     1,
+                                     npts,
+                                     this->bytes_);
+        break;
 
-        case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F):
-          this->ImCreate<float>(
-            im, fmt, idx, width, height, 1, npts, this->bytes_);
-          break;
+      case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F):
+        this->ImCreate<float>(im,
+                              fmt,
+                              idx,
+                              width,
+                              height,
+                              1,
+                              npts,
+                              this->bytes_);
+        break;
 
-        case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F3):
-          this->ImCreate<float>(
-            im, fmt, idx, width, height, 3, npts, this->bytes_);
-          break;
+      case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F3):
+        this->ImCreate<float>(im,
+                              fmt,
+                              idx,
+                              width,
+                              height,
+                              3,
+                              npts,
+                              this->bytes_);
+        break;
 
-        case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_64F):
-          this->ImCreate<double>(
-            im, fmt, idx, width, height, 1, npts, this->bytes_);
-          break;
+      case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_64F):
+        this->ImCreate<double>(im,
+                               fmt,
+                               idx,
+                               width,
+                               height,
+                               1,
+                               npts,
+                               this->bytes_);
+        break;
 
-        default:
-          LOG(ERROR) << "Cannot create image with pixel format = " << fmt;
-          throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
-        }
-    };
+      default:
+        LOG(ERROR) << "Cannot create image with pixel format = " << fmt;
+        throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
+      }
+  };
 
-  auto cloud_wrapper =
-    [this, width, height, npts]
-    (std::uint32_t fmt, std::size_t xidx, std::size_t yidx, std::size_t zidx)
-    {
-      switch (fmt)
-        {
-        case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16S):
-          this->CloudCreate<std::int16_t>(fmt,            // pixel format
-                                          xidx,           // index of x-pix
-                                          yidx,           // index of y-pix
-                                          zidx,           // index of z-pix
-                                          width,          // n-cols
-                                          height,         // n-rows
-                                          npts,           // total points
-                                          this->bytes_);  // raw bytes
-          break;
+  auto cloud_wrapper = [this, width, height, npts](std::uint32_t fmt,
+                                                   std::size_t xidx,
+                                                   std::size_t yidx,
+                                                   std::size_t zidx) {
+    switch (fmt)
+      {
+      case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16S):
+        this->CloudCreate<std::int16_t>(fmt,           // pixel format
+                                        xidx,          // index of x-pix
+                                        yidx,          // index of y-pix
+                                        zidx,          // index of z-pix
+                                        width,         // n-cols
+                                        height,        // n-rows
+                                        npts,          // total points
+                                        this->bytes_); // raw bytes
+        break;
 
-        case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F):
-          this->CloudCreate<float>(fmt,            // pixel format
-                                   xidx,           // index of x-pix
-                                   yidx,           // index of y-pix
-                                   zidx,           // index of z-pix
-                                   width,          // n-cols
-                                   height,         // n-rows
-                                   npts,           // total points
-                                   this->bytes_);  // raw bytes
-          break;
+      case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F):
+        this->CloudCreate<float>(fmt,           // pixel format
+                                 xidx,          // index of x-pix
+                                 yidx,          // index of y-pix
+                                 zidx,          // index of z-pix
+                                 width,         // n-cols
+                                 height,        // n-rows
+                                 npts,          // total points
+                                 this->bytes_); // raw bytes
+        break;
 
-        default:
-          LOG(ERROR) << "Cannot create cloud with pixel format = " << fmt;
-          throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
-        }
-    };
+      default:
+        LOG(ERROR) << "Cannot create cloud with pixel format = " << fmt;
+        throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
+      }
+  };
 
   //
   // Move index pointers to where the pixel data starts and parse
   // out the 2D image data
   //
   std::uint32_t pixel_data_offset =
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+cidx+8);
+    ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 8);
 
   cidx += pixel_data_offset;
   im_wrapper(ifm3d::image_chunk::CONFIDENCE, cfmt, cidx);
@@ -539,31 +554,32 @@ ifm3d::ByteBuffer<Derived>::Organize()
   //
   if (INTR_OK)
     {
-      //size of the chunk data
+      // size of the chunk data
       std::uint32_t chunk_size =
-      ifm3d::mkval<uint32_t >(this->bytes_.data() + intridx + 4);
+        ifm3d::mkval<uint32_t>(this->bytes_.data() + intridx + 4);
       intridx += pixel_data_offset;
       if (intrfmt !=
           static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F))
         {
-          LOG(ERROR) << "Intrinsic are expected to be float, not: "
-                     << intrfmt;
+          LOG(ERROR) << "Intrinsic are expected to be float, not: " << intrfmt;
           throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
         }
-      if (header_version < 2 && (chunk_size - pixel_data_offset)
-          != ifm3d::NUM_INTRINSIC_PARAM * sizeof(uint32_t))
+      if (header_version < 2 &&
+          (chunk_size - pixel_data_offset) !=
+            ifm3d::NUM_INTRINSIC_PARAM * sizeof(uint32_t))
         {
           LOG(ERROR) << "Header Version expected value is >=2, not :"
                      << header_version
                      << "Intrinsic param dataLength expected value 64, not :"
                      << chunk_size - pixel_data_offset;
 
-        throw ifm3d::error_t(IFM3D_HEADER_VERSION_MISMATCH);
+          throw ifm3d::error_t(IFM3D_HEADER_VERSION_MISMATCH);
         }
-      for (std::size_t i = 0; i < ifm3d::NUM_INTRINSIC_PARAM; ++i, intridx += 4)
+      for (std::size_t i = 0; i < ifm3d::NUM_INTRINSIC_PARAM;
+           ++i, intridx += 4)
         {
           this->intrinsics_[i] =
-                ifm3d::mkval<float>(this->bytes_.data()+intridx);
+            ifm3d::mkval<float>(this->bytes_.data() + intridx);
         }
       this->intrinsic_available = true;
     }
@@ -573,9 +589,9 @@ ifm3d::ByteBuffer<Derived>::Organize()
   //
   if (INVINTR_OK)
     {
-      //size of the chunk data
+      // size of the chunk data
       std::uint32_t chunk_size =
-      ifm3d::mkval<uint32_t >(this->bytes_.data() + invintridx + 4);
+        ifm3d::mkval<uint32_t>(this->bytes_.data() + invintridx + 4);
       invintridx += pixel_data_offset;
       if (invintrfmt !=
           static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F))
@@ -584,41 +600,45 @@ ifm3d::ByteBuffer<Derived>::Organize()
                      << invintrfmt;
           throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
         }
-      if (header_version < 2 && (chunk_size - pixel_data_offset)
-          != ifm3d::NUM_INTRINSIC_PARAM * sizeof(uint32_t))
+      if (header_version < 2 &&
+          (chunk_size - pixel_data_offset) !=
+            ifm3d::NUM_INTRINSIC_PARAM * sizeof(uint32_t))
         {
           LOG(ERROR) << "Header Version expected value is >=2, not :"
                      << header_version
                      << "Intrinsic param dataLength expected value 64, not :"
                      << chunk_size - pixel_data_offset;
 
-        throw ifm3d::error_t(IFM3D_HEADER_VERSION_MISMATCH);
+          throw ifm3d::error_t(IFM3D_HEADER_VERSION_MISMATCH);
         }
-      for (std::size_t i = 0; i < ifm3d::NUM_INTRINSIC_PARAM; ++i, invintridx += 4)
+      for (std::size_t i = 0; i < ifm3d::NUM_INTRINSIC_PARAM;
+           ++i, invintridx += 4)
         {
           this->inverseIntrinsics_[i] =
-                ifm3d::mkval<float>(this->bytes_.data()+invintridx);
+            ifm3d::mkval<float>(this->bytes_.data() + invintridx);
         }
       this->inverse_intrinsic_available = true;
     }
 
   if (JSON_OK)
-  {
-    std::uint32_t chunk_size =
-      ifm3d::mkval<uint32_t >(this->bytes_.data() + jsonidx + 4);
-    jsonidx += pixel_data_offset; // this is actually header size
-    this->json_model_.resize(chunk_size - pixel_data_offset);
-    std::memcpy((void*)this->json_model_.data(), (void*)(this->bytes_.data() + jsonidx), chunk_size - pixel_data_offset);
-  }
+    {
+      std::uint32_t chunk_size =
+        ifm3d::mkval<uint32_t>(this->bytes_.data() + jsonidx + 4);
+      jsonidx += pixel_data_offset; // this is actually header size
+      this->json_model_.resize(chunk_size - pixel_data_offset);
+      std::memcpy((void*)this->json_model_.data(),
+                  (void*)(this->bytes_.data() + jsonidx),
+                  chunk_size - pixel_data_offset);
+    }
 
   //
   // extrinsic calibration
   //
   if (EXT_OK)
     {
-      //size of the chunk data
+      // size of the chunk data
       std::uint32_t chunk_size =
-      ifm3d::mkval<uint32_t >(this->bytes_.data() + extidx + 4);
+        ifm3d::mkval<uint32_t>(this->bytes_.data() + extidx + 4);
       extidx += pixel_data_offset;
       if (extfmt !=
           static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F))
@@ -627,8 +647,9 @@ ifm3d::ByteBuffer<Derived>::Organize()
                      << extfmt;
           throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
         }
-      if (header_version < 2 && (chunk_size - pixel_data_offset)
-         != ifm3d::NUM_EXTRINSIC_PARAM * sizeof(uint32_t))
+      if (header_version < 2 &&
+          (chunk_size - pixel_data_offset) !=
+            ifm3d::NUM_EXTRINSIC_PARAM * sizeof(uint32_t))
         {
           LOG(ERROR) << "Header Version expected value is >= 2, not :"
                      << header_version
@@ -640,9 +661,9 @@ ifm3d::ByteBuffer<Derived>::Organize()
       for (std::size_t i = 0; i < ifm3d::NUM_EXTRINSIC_PARAM; ++i, extidx += 4)
         {
           this->extrinsics_[i] =
-                ifm3d::mkval<float>(this->bytes_.data()+extidx);
+            ifm3d::mkval<float>(this->bytes_.data() + extidx);
         }
-  }
+    }
 
   // OK, now we want to see if the temp illu and exposure times are present,
   // if they are, we want to parse them out and store them registered to the
@@ -654,10 +675,9 @@ ifm3d::ByteBuffer<Derived>::Organize()
       size_t bytes_left = this->bytes_.size() - extime_idx;
 
       // Read extime (6 bytes string + 3x 4 bytes uint32_t)
-      if ((bytes_left >= 18) &&
-          std::equal(this->bytes_.begin() + extidx,
-                     this->bytes_.begin() + extidx + 6,
-                     std::begin("extime")))
+      if ((bytes_left >= 18) && std::equal(this->bytes_.begin() + extidx,
+                                           this->bytes_.begin() + extidx + 6,
+                                           std::begin("extime")))
         {
           extime_idx += 6;
           bytes_left -= 6;
@@ -671,7 +691,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
                 }
 
               std::uint32_t extime2 =
-                  ifm3d::mkval<std::uint32_t>(this->bytes_.data() + extime_idx);
+                ifm3d::mkval<std::uint32_t>(this->bytes_.data() + extime_idx);
 
               this->exposure_times_.at(i) = extime2;
 
@@ -682,14 +702,14 @@ ifm3d::ByteBuffer<Derived>::Organize()
       else
         {
           std::fill(this->exposure_times_.begin(),
-                    this->exposure_times_.end(), 0);
+                    this->exposure_times_.end(),
+                    0);
         }
 
       // Read temp_illu (9 bytes string + 4 bytes float)
-      if ((bytes_left >= 13) &&
-          std::equal(this->bytes_.begin() + extidx,
-                     this->bytes_.begin() + extidx + 8,
-                     std::begin("temp_illu")))
+      if ((bytes_left >= 13) && std::equal(this->bytes_.begin() + extidx,
+                                           this->bytes_.begin() + extidx + 8,
+                                           std::begin("temp_illu")))
         {
           extime_idx += 9;
           bytes_left -= 9;

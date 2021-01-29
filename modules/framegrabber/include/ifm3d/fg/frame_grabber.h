@@ -1,18 +1,8 @@
 // -*- c++ -*-
 /*
- * Copyright (C) 2017 Love Park Robotics, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distribted on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2018-present ifm electronic, gmbh
+ * Copyright 2017 Love Park Robotics, LLC
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #ifndef __IFM3D_FG_FRAME_GRABBER_H__
@@ -42,9 +32,14 @@ namespace ifm3d
      * @param[in] cam The camera instance to grab frames from
      * @param[in] mask A bitmask encoding the image acquisition schema
      *                 to stream in from the camera.
+     * @param[in] nat_pcic_port Port for devices behind NAT router,
+     *                          user must provide this value according to there
+     *                          NAT router configuration.
      */
-    FrameGrabber(ifm3d::Camera::Ptr cam,
-                 std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK);
+    FrameGrabber(
+      ifm3d::Camera::Ptr cam,
+      std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK,
+      const std::uint16_t nat_pcic_port = ifm3d::DEFAULT_NAT_PCIC_PORT);
 
     /**
      * Cleans up resources held by the framegrabbing thread object and blocks
@@ -106,18 +101,17 @@ namespace ifm3d
      *              otherwise.
      */
     template <typename T>
-    bool WaitForFrame(ifm3d::ByteBuffer<T>* buff,
-                      long timeout_millis = 0,
-                      bool copy_buff = false,
-                      bool organize = true)
+    bool
+    WaitForFrame(ifm3d::ByteBuffer<T>* buff,
+                 long timeout_millis = 0,
+                 bool copy_buff = false,
+                 bool organize = true)
     {
-      bool retval =
-        this->WaitForFrame(timeout_millis,
-                           [buff, copy_buff]
-                           (std::vector<std::uint8_t>& frame_data)
-                           {
-                             buff->SetBytes(frame_data, copy_buff);
-                           });
+      bool retval = this->WaitForFrame(
+        timeout_millis,
+        [buff, copy_buff](std::vector<std::uint8_t>& frame_data) {
+          buff->SetBytes(frame_data, copy_buff);
+        });
 
       // NOTE: it is an optimization to keep the call to Organize() outside of
       //       the lambda.
@@ -144,9 +138,9 @@ namespace ifm3d
      * @param[in] set_bytes A mutator function that will be called with the
      *                      latest frame data bytes from the camera.
      */
-    bool
-    WaitForFrame(long timeout_millis,
-                 std::function<void(std::vector<std::uint8_t>&)> set_bytes);
+    bool WaitForFrame(
+      long timeout_millis,
+      std::function<void(std::vector<std::uint8_t>&)> set_bytes);
 
   private:
     class Impl;

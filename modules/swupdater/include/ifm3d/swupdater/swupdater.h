@@ -1,17 +1,6 @@
 /*
- * Copyright (C) 2019 ifm electronic, gmbh
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2019 ifm electronic, gmbh
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #ifndef __IFM3D_SWUPDATER_SWUPDATER_H__
@@ -20,9 +9,13 @@
 #include <memory>
 #include <vector>
 #include <ifm3d/camera/camera.h>
+#include <ifm3d/swupdater/swupdater_export.h>
 
 namespace ifm3d
 {
+  /* const for the swupdate recovery port value */
+  extern IFM3D_SWUPDATER_EXPORT const std::uint16_t SWUPDATER_RECOVERY_PORT;
+
   class SWUpdater
   {
   public:
@@ -44,10 +37,14 @@ namespace ifm3d
      *
      * @param cam Camera object to manipulate
      *
-     * @param cb Opitonal user-defined callback to handle status updates
+     * @param cb Optional user-defined callback to handle status updates
+     *
+     * @param swupdate_recovery_port swupate recovery port for the device
      */
     SWUpdater(ifm3d::Camera::Ptr cam,
-              const ifm3d::SWUpdater::FlashStatusCb& cb = {});
+              const ifm3d::SWUpdater::FlashStatusCb& cb = {},
+              const std::uint16_t swupdate_recovery_port =
+                ifm3d::SWUPDATER_RECOVERY_PORT);
 
     virtual ~SWUpdater();
 
