@@ -646,7 +646,6 @@ ifm3d::Camera::getApplicationInfosToJSON()
 {
   auto app_info = json::parse("[]");
   auto app_list = this->ApplicationList();
-  std::cout << "ApplicationList: " << app_list.size() << std::endl;
 
   for (auto& app : app_list)
     {
