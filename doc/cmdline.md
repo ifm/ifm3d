@@ -10,16 +10,18 @@ parameters. To carry out a particular task, you envoke one of the `ifm3d`
 
 ```
 $ ifm3d --help
-ifm3d: version=0.18.0
-usage: ifm3d [<global options>] <command> [<args>]
+ifm3d: version=0.20.0
 
-global options:
-  -h [ --help ]            Produce this help message and exit
-  --ip arg (=192.168.0.69) IP address of the sensor
-  --xmlrpc-port arg (=80)  XMLRPC port of the sensor
-  --password arg           Password for establishing an edit-session with the
-                           sensor
 
+Usage:
+  ifm3d [<global options>] <command> [<args>]
+
+ global options:
+  -h, --help             Produce this help message and exit
+      --ip arg           IP address of the sensor (default: 192.168.0.69)
+      --xmlrpc-port arg  XMLRPC port of the sensor (default: 80)
+      --password arg     Password for establishing an edit-session with the
+                         sensor (default: )
 
 These are common commands used in various situations:
 
@@ -85,17 +87,18 @@ purposes, let's list the options accepted by the `cp` subcommand.
 
 ```
 $ ifm3d cp --help
-usage: ifm3d [<global options>] cp [<cp options>]
+Usage:
+  ifm3d [<global options>] cp [<cp options>]
 
-global options:
-  -h [ --help ]            Produce this help message and exit
-  --ip arg (=192.168.0.69) IP address of the sensor
-  --xmlrpc-port arg (=80)  XMLRPC port of the sensor
-  --password arg           Password for establishing an edit-session with the
-                           sensor
+ global options:
+  -h, --help             Produce this help message and exit
+      --ip arg           IP address of the sensor (default: 192.168.0.69)
+      --xmlrpc-port arg  XMLRPC port of the sensor (default: 80)
+      --password arg     Password for establishing an edit-session with the
+                         sensor (default: )
 
-cp options:
-  --index arg (=-1)     Index of source application to copy
+ cp options:
+      --index arg  Index of source application to copy (default: -1)
 ```
 
 As is shown above, `cp` takes a source application index to copy from.
@@ -103,6 +106,50 @@ As is shown above, `cp` takes a source application index to copy from.
 We now walk through a couple of simple examples of using `ifm3d`. This is not an
 exhaustive tutorial on `ifm3d` but rather intended to give a sense of how to
 use the tool. The concepts apply broadly to all of the subcommands.
+
+Short overview on using `jq`: Change values inside a json string
+----------------------------------
+
+An `ifm3d dump` provides you with a complete description of the camera configuration.
+This information is provided as a json string, and we will use this string for changing
+specific parameters on the camera.
+
+One easy tool is `jq` on Linux, which we will use for the following examples.
+
+Imaginge following json string:
+
+```
+{
+  "Config":{
+    "Parameter1":"abc",
+    "Parameter2":{
+      "Subparameter1":"123"
+    }
+  }
+}
+```
+Assume for this example that this json file is saved in a file called sample.json.
+
+If we would like to change the json string `Parameter1` from `abc` to `xyz`, you can fit this
+json to `jq` and change a parmeter. The output of `jq` will be a json string again.
+
+```
+cat sample.json | jq '.config.Parameter1="xyz"'
+```
+
+If you want to change the `Subparameter1` to `789` you can chaing within `jq`
+
+```
+cat sample.json | jq '.config.Parameter2.Subparameter1="789"'
+```
+
+For the ifm3D usecase, you can chain the different commands `ifm3d dump`, `jq` and `ifm3d config`.
+First get the json, than change something within json and afterwards upload it.
+
+E.g.
+```
+ifm3d dump | jq '.ifm3d.Device.ActiveApplication="3"' | ifm3d config
+```
 
 Example: Creating new applications
 ----------------------------------
@@ -243,6 +290,22 @@ $ ifm3d ls
 ]
 ```
 
+Example: Setting NTP-Server connection on the camera
+---------------------------------------
+
+Using 'jq', you can set easily the NTP-Server on a camera. You just need to provide the
+right IP address. In this case, the IP: 192.168.0.100 is the NTP server.
+
+```
+ifm3d dump | jq '.ifm3d.Time.NTPServers="192.168.0.100"' | ifm3d config
+
+```
+After that, we need to activate the usage of the NTP server too.
+
+```
+ifm3d dump | jq '.ifm3d.Time.SynchronizationActivated="True"' | ifm3d config
+```
+
 Example: Setting the time on the camera
 ---------------------------------------
 
@@ -251,18 +314,19 @@ usage.
 
 ```
 $ ifm3d time --help
-usage: ifm3d [<global options>] time [<time options>]
+Usage:
+  ifm3d [<global options>] time [<time options>]
 
-global options:
-  -h [ --help ]            Produce this help message and exit
-  --ip arg (=192.168.0.69) IP address of the sensor
-  --xmlrpc-port arg (=80)  XMLRPC port of the sensor
-  --password arg           Password for establishing an edit-session with the
-                           sensor
+ global options:
+  -h, --help             Produce this help message and exit
+      --ip arg           IP address of the sensor (default: 192.168.0.69)
+      --xmlrpc-port arg  XMLRPC port of the sensor (default: 80)
+      --password arg     Password for establishing an edit-session with the
+                         sensor (default: )
 
-time options:
-  --epoch arg           Secs since Unix epoch encoding time to be set on camera
-                        (-1 == now)
+ time options:
+      --epoch arg  Secs since Unix epoch encoding time to be set on camera
+                   (-1 == now)
 ```
 
 To simply see the current time on the camera, we can issue the `time`

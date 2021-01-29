@@ -24,7 +24,6 @@ target_include_directories(ifm3d_swupdater
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${IFM3D_SWUPDATER_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
-    ${CURL_INCLUDE_DIRS}
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
   )
@@ -43,11 +42,10 @@ endif(WIN32)
 #------------------
 target_link_libraries(
   ifm3d_swupdater
-  PUBLIC
-    ${LIB_glog}
-    ${CURL_LIBRARIES}
   PRIVATE
     ifm3d_camera
+    ${LIB_glog}
+    ${CURL_LIBRARIES}
   )
 
 set_target_properties(

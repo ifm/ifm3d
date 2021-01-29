@@ -1,67 +1,45 @@
 /*
- * Copyright (C) 2017 Love Park Robotics, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distribted on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2018-present ifm electronic, gmbh
+ * Copyright 2017 Love Park Robotics, LLC
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <ifm3d/tools/cmdline_app.h>
+#include <ifm3d/tools/mutable_args.h>
 #include <cstdint>
 #include <iostream>
 #include <string>
-#include <boost/program_options.hpp>
+#include <memory>
 #include <ifm3d/camera.h>
 
-namespace po = boost::program_options;
-
-ifm3d::CmdLineApp::CmdLineApp(int argc, const char **argv,
+ifm3d::CmdLineApp::CmdLineApp(int argc,
+                              const char** argv,
                               const std::string& name)
-  : global_opts_("global options"),
-    local_opts_(name + " options")
+  : all_opts_("ifm3d")
 {
-  this->global_opts_.add_options()
-    ("help,h", "Produce this help message and exit")
-    ("ip", po::value<std::string>()->default_value(ifm3d::DEFAULT_IP),
-     "IP address of the sensor")
-    ("xmlrpc-port",
-     po::value<std::uint16_t>()->default_value(ifm3d::DEFAULT_XMLRPC_PORT),
-     "XMLRPC port of the sensor")
-    ("password",
-     po::value<std::string>()->default_value(ifm3d::DEFAULT_PASSWORD),
-     "Password for establishing an edit-session with the sensor");
+  // clang-format off
+  this->all_opts_.add_options("global")
+    ("h,help", "Produce this help message and exit")
+    ("ip","IP address of the sensor",
+     cxxopts::value<std::string>()->default_value(ifm3d::DEFAULT_IP))
+    ("xmlrpc-port","XMLRPC port of the sensor",
+     cxxopts::value<std::uint16_t>()->default_value(std::to_string(ifm3d::DEFAULT_XMLRPC_PORT)))
+    ("password","Password for establishing an edit-session with the sensor",
+     cxxopts::value<std::string>()->default_value(ifm3d::DEFAULT_PASSWORD));
 
-  po::options_description hidden_opts;
-  hidden_opts.add_options()
-    ("command", po::value<std::string>()->default_value(name),
-     "ifm3d Sub-command to execute");
+  this->all_opts_.add_options("Hidden")("command",
+    "ifm3d Sub-command to execute", cxxopts::value<std::string>()->default_value(name));
 
-  po::options_description all_opts;
-  all_opts.add(this->global_opts_).add(hidden_opts);
+  // clang-format on
+  this->_Parse(argc, argv);
 
-  po::positional_options_description p;
-  p.add("command", 1);
-
-  po::store(po::command_line_parser(argc, argv).
-            options(all_opts).positional(p).
-            allow_unregistered().run(), this->vm_);
-  po::notify(this->vm_);
-
-  this->ip_ = this->vm_["ip"].as<std::string>();
-  this->xmlrpc_port_ = this->vm_["xmlrpc-port"].as<std::uint16_t>();
-  this->password_ = this->vm_["password"].as<std::string>();
+  this->ip_ = (*this->vm_)["ip"].as<std::string>();
+  this->xmlrpc_port_ = (*this->vm_)["xmlrpc-port"].as<uint16_t>();
+  this->password_ = (*this->vm_)["password"].as<std::string>();
 
   // slight optimization -- if it is a `help' or `version' request
   // no need to ping the h/w ... which is slow when no device is present.
-  if ((!(this->vm_.count("help"))) && (name != "version"))
+  if ((!(this->vm_->count("help"))) && (name != "version"))
     {
       this->cam_ = ifm3d::Camera::MakeShared(this->ip_,
                                              this->xmlrpc_port_,
@@ -70,16 +48,21 @@ ifm3d::CmdLineApp::CmdLineApp(int argc, const char **argv,
 }
 
 void
+ifm3d::CmdLineApp::_Parse(int argc, const char** argv)
+{
+  auto args = std::make_unique<ifm3d::MutableArgs>(argc, argv);
+  this->all_opts_.allow_unrecognised_options();
+  vm_ = std::make_unique<cxxopts::ParseResult>(
+    this->all_opts_.parse(args->argc, args->argv));
+}
+
+void
 ifm3d::CmdLineApp::_LocalHelp()
 {
-  std::string cmd = this->vm_["command"].as<std::string>();
-  std::cout << "usage: " << IFM3D_LIBRARY_NAME
-            << " [<global options>] "
-            << cmd
-            << " [<" << cmd << " options>]"
-            << std::endl << std::endl;
-  std::cout << this->global_opts_ << std::endl;
-  std::cout << this->local_opts_ << std::endl;
+  std::string cmd = (*this->vm_)["command"].as<std::string>();
+  this->all_opts_.custom_help("[<global options>] " + cmd + " [<" + cmd +
+                              " options>]");
+  std::cout << this->all_opts_.help({"global", cmd}) << std::endl;
 }
 
 int
@@ -167,16 +150,14 @@ https://github.com/ifm/ifm3d/issues
       )";
 
   ifm3d::version(&major, &minor, &patch);
-  std::cout << IFM3D_LIBRARY_NAME
-            << ": version=" << major << "."
-            << minor << "." << patch << std::endl;
+  std::cout << IFM3D_LIBRARY_NAME << ": version=" << major << "." << minor
+            << "." << patch << std::endl;
 
-  if (this->vm_.count("help"))
+  if (this->vm_->count("help"))
     {
-      std::cout << "usage: " << IFM3D_LIBRARY_NAME
-                << " [<global options>] <command> [<args>]"
-                << std::endl << std::endl;
-      std::cout << this->global_opts_ << std::endl;
+      this->all_opts_.custom_help("[<global options>] <command> [<args>]");
+      std::cout << std::endl;
+      std::cout << this->all_opts_.help({"global"});
       std::cout << help_msg << std::endl;
     }
 

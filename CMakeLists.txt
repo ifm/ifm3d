@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 cmake_policy(SET CMP0048 NEW)
 # Manage version number here: Major.Minor.Patch (we don't use "tweak")
-project(IFM3D VERSION 0.18.0 LANGUAGES CXX)
+project(IFM3D VERSION 0.20.0 LANGUAGES CXX)
 set(GIT_PROJECT_NAME "ifm3d")
 
 # Make our cmake functions accessible
@@ -83,6 +83,9 @@ if(BUILD_TESTS)
   set(TEST_WRAPPER_IN "test_wrapper.${TEST_WRAPPER_EXT}.in" )
   set(TEST_WRAPPER "test_wrapper.${TEST_WRAPPER_EXT}" )
 endif()
+
+# Include third-party depencency libs
+add_subdirectory(third-party)
 
 # Build sub-modules
 add_subdirectory(modules/camera)

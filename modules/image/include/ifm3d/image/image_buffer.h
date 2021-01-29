@@ -1,18 +1,8 @@
 // -*- c++ -*-
 /*
- * Copyright (C) 2017 Love Park Robotics, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distribted on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2018-present ifm electronic, gmbh
+ * Copyright 2017 Love Park Robotics, LLC
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #ifndef __IFM3D_IMAGE_IMAGE_BUFFER_H__
@@ -108,14 +98,15 @@ namespace ifm3d
      * Hook called by the base class to populate the image containers.
      */
     template <typename T>
-    void ImCreate(ifm3d::image_chunk im,
-                  std::uint32_t fmt,
-                  std::size_t idx,
-                  std::uint32_t width,
-                  std::uint32_t height,
-                  int nchan,
-                  std::uint32_t npts,
-                  const std::vector<std::uint8_t>& bytes)
+    void
+    ImCreate(ifm3d::image_chunk im,
+             std::uint32_t fmt,
+             std::size_t idx,
+             std::uint32_t width,
+             std::uint32_t height,
+             int nchan,
+             std::uint32_t npts,
+             const std::vector<std::uint8_t>& bytes)
     {
       // NOTE: we drop the template parameter here (and re-establish it later)
       // so that we can maintain our pimpl abstraction in support of the
@@ -129,19 +120,20 @@ namespace ifm3d
      * Hook called by the base class to populate the point cloud containers.
      */
     template <typename T>
-    void CloudCreate(std::uint32_t fmt,
-                     std::size_t xidx,
-                     std::size_t yidx,
-                     std::size_t zidx,
-                     std::uint32_t width,
-                     std::uint32_t height,
-                     std::uint32_t npts,
-                     const std::vector<std::uint8_t>& bytes)
-  {
-    // See "NOTE" in `ImCreate` as to why we are dropping the template
-    // parameter here. Same rationale applies.
-    this->_CloudCreate(fmt, xidx, yidx, zidx, width, height, npts, bytes);
-  }
+    void
+    CloudCreate(std::uint32_t fmt,
+                std::size_t xidx,
+                std::size_t yidx,
+                std::size_t zidx,
+                std::uint32_t width,
+                std::uint32_t height,
+                std::uint32_t npts,
+                const std::vector<std::uint8_t>& bytes)
+    {
+      // See "NOTE" in `ImCreate` as to why we are dropping the template
+      // parameter here. Same rationale applies.
+      this->_CloudCreate(fmt, xidx, yidx, zidx, width, height, npts, bytes);
+    }
 
   private:
     class Impl;

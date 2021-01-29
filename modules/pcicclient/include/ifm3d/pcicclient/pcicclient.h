@@ -1,18 +1,7 @@
 // -*- c++ -*-
 /*
  * Copyright (C) 2017 Kuhn & Völkel GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distribted on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 #ifndef __IFM3D_PCICCLIENT_PCICCLIENT_H__
 #define __IFM3D_PCICCLIENT_PCICCLIENT_H__
@@ -43,8 +32,11 @@ namespace ifm3d
      * thread
      *
      * @param[in] cam The camera instance to grab frames from
+     * @param[in] nat_pcic_port pcic port for NAT configuartion
      */
-    PCICClient(ifm3d::Camera::Ptr cam);
+    PCICClient(
+      ifm3d::Camera::Ptr cam,
+      const std::uint16_t nat_pcic_port = ifm3d::DEFAULT_NAT_PCIC_PORT);
 
     /**
      * Cleans up any resources held by the receive thread object and
@@ -102,7 +94,8 @@ namespace ifm3d
      * @return Copy of received plain response data as string
      * (without any header information, like ticket, length, etc.)
      *
-     * NOTE: This Call can block and hang indefinitely depending upon PCIC response.
+     * NOTE: This Call can block and hang indefinitely depending upon PCIC
+     * response.
      */
     std::string Call(const std::string& request);
 
@@ -129,7 +122,9 @@ namespace ifm3d
      *
      * @return true if Call succeeded, false if failed.
      */
-    bool Call(const std::string& request, std::string &response, long timeout_millis);
+    bool Call(const std::string& request,
+              std::string& response,
+              long timeout_millis);
 
     /**
      * Sets the specified callback for receiving asynchronous error messages
@@ -159,7 +154,8 @@ namespace ifm3d
      *            message from camera (without any header information, like
      *            ticket, length, etc.)
      *
-     * @return Callback id, which can be used to cancel receiving notifications.
+     * @return Callback id, which can be used to cancel receiving
+     * notifications.
      */
     long SetNotificationCallback(
       std::function<void(const std::string& notification)> callback);
@@ -168,7 +164,8 @@ namespace ifm3d
      * Cancels registered callbacks. Must be called in case references/pointers
      * provided through callbacks get invalid. If callback id isn't present
      * internally anymore, i.e. if callback was replaced, already canceled or
-     * automatically removed (in case of the Call method), it is simply ignored.
+     * automatically removed (in case of the Call method), it is simply
+     * ignored.
      *
      * @param[in] callback_id Callback id, returned by methods which take a
      *                        callback as parameter.
@@ -178,7 +175,7 @@ namespace ifm3d
   private:
     class Impl;
     std::unique_ptr<Impl> pImpl;
-   
+
   }; // end: class PCICClient
 
 } // end: namespace ifm3d

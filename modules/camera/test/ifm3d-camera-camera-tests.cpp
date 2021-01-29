@@ -10,15 +10,15 @@
 class CameraTest : public ::testing::Test
 {
 protected:
-  virtual void SetUp()
+  virtual void
+  SetUp()
   {
     this->cam_ = ifm3d::Camera::MakeShared();
   }
 
-  virtual void TearDown()
-  {
-
-  }
+  virtual void
+  TearDown()
+  { }
 
   ifm3d::Camera::Ptr cam_;
 };
@@ -32,8 +32,7 @@ TEST_F(CameraTest, FactoryDefaults)
 
 TEST_F(CameraTest, DefaultCredentials)
 {
-  EXPECT_STREQ(this->cam_->IP().c_str(),
-               ifm3d::DEFAULT_IP.c_str());
+  EXPECT_STREQ(this->cam_->IP().c_str(), ifm3d::DEFAULT_IP.c_str());
   EXPECT_EQ(this->cam_->XMLRPCPort(), ifm3d::DEFAULT_XMLRPC_PORT);
   EXPECT_EQ(this->cam_->Password(), ifm3d::DEFAULT_PASSWORD);
 }
@@ -175,7 +174,7 @@ TEST_F(CameraTest, CreateDeleteApplication)
 
   int idx = -1;
   std::vector<std::string> app_types = this->cam_->ApplicationTypes();
-  for(auto& s : app_types)
+  for (auto& s : app_types)
     {
       idx = this->cam_->CreateApplication(s);
       app_list = this->cam_->ApplicationList();
@@ -189,8 +188,7 @@ TEST_F(CameraTest, CreateDeleteApplication)
 
 TEST_F(CameraTest, CreateApplicationException)
 {
-  EXPECT_THROW(this->cam_->CreateApplication("Foo"),
-               ifm3d::error_t);
+  EXPECT_THROW(this->cam_->CreateApplication("Foo"), ifm3d::error_t);
 }
 
 TEST_F(CameraTest, ImportExportApplication)
@@ -228,10 +226,9 @@ TEST_F(CameraTest, ImportExportConfig)
   std::vector<std::uint8_t> bytes;
 
   EXPECT_NO_THROW(bytes = this->cam_->ExportIFMConfig());
-  EXPECT_NO_THROW(
-    this->cam_->ImportIFMConfig(
-      bytes,
-      static_cast<std::uint16_t>(ifm3d::Camera::import_flags::GLOBAL)));
+  EXPECT_NO_THROW(this->cam_->ImportIFMConfig(
+    bytes,
+    static_cast<std::uint16_t>(ifm3d::Camera::import_flags::GLOBAL)));
 }
 
 TEST_F(CameraTest, ActiveApplication)
@@ -258,7 +255,7 @@ TEST_F(CameraTest, ActiveApplication)
   int idx = -1;
   for (auto& a : app_list)
     {
-      if (! a["Active"].get<bool>())
+      if (!a["Active"].get<bool>())
         {
           idx = a["Index"].get<int>();
           break;
@@ -356,12 +353,11 @@ TEST_F(CameraTest, Filters)
 
   int mask_size = static_cast<int>(ifm3d::Camera::mfilt_mask_size::_3x3);
 
-  if (! this->cam_->IsO3X())
+  if (!this->cam_->IsO3X())
     {
-       mask_size =
-         std::stoi(
-           dump["ifm3d"]["Apps"][0]["Imager"]["SpatialFilter"]["MaskSize"].
-           get<std::string>());
+      mask_size = std::stoi(
+        dump["ifm3d"]["Apps"][0]["Imager"]["SpatialFilter"]["MaskSize"]
+          .get<std::string>());
     }
 
   EXPECT_EQ(mask_size, static_cast<int>(ifm3d::Camera::mfilt_mask_size::_3x3));
@@ -384,12 +380,11 @@ TEST_F(CameraTest, Filters)
   dump = this->cam_->ToJSON();
   int n_imgs = 2; // default images number
 
-  if (! this->cam_->IsO3X())
+  if (!this->cam_->IsO3X())
     {
-     n_imgs =
-       std::stoi(
-         dump["ifm3d"]["Apps"][0]["Imager"]["TemporalFilter"]["NumberOfImages"].
-         get<std::string>());
+      n_imgs = std::stoi(
+        dump["ifm3d"]["Apps"][0]["Imager"]["TemporalFilter"]["NumberOfImages"]
+          .get<std::string>());
     }
 
   EXPECT_EQ(n_imgs, 2);
@@ -482,7 +477,8 @@ TEST_F(CameraTest, Time)
   EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
   dump = this->cam_->ToJSON();
   ip = dump["ifm3d"]["Time"]["NTPServers"].get<std::string>();
-  active = dump["ifm3d"]["Time"]["SynchronizationActivated"].get<std::string>();
+  active =
+    dump["ifm3d"]["Time"]["SynchronizationActivated"].get<std::string>();
   EXPECT_STREQ("", ip.c_str());
   EXPECT_STREQ("false", active.c_str());
 
@@ -494,10 +490,8 @@ TEST_F(CameraTest, Time)
 
 TEST_F(CameraTest, TemporaryParameters)
 {
-  std::unordered_map<std::string, std::string> params =
-  {
-    { "imager_001/ExposureTime", "6000" }
-  };
+  std::unordered_map<std::string, std::string> params = {
+    {"imager_001/ExposureTime", "6000"}};
   cam_->RequestSession();
 
   EXPECT_NO_THROW(cam_->SetTemporaryApplicationParameters(params));
