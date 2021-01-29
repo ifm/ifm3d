@@ -6,6 +6,12 @@
 * Support user defined port for camera, fg, swupdater module
   * This enable ifm3d to connect to devices behind NAT router
 * Added example for NTP to command line usage
+* Added build jobs in github actions
+  * Windows VS 2019
+  * Ubuntu 20.04 
+* Bugfixes
+  * #284 ifm3d Compiling error at swupdater app with VS2019 and Windows
+  * #283 Imported target "ifm3d::image" includes non-existent path "/usr/include/opencv"
 
 ## Changes between ifm3d 0.17.0 and 0.18.0
 * Support for latest O3D3XX firmware (1.30.5309)
