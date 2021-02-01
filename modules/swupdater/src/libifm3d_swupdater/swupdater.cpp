@@ -17,7 +17,7 @@ ifm3d::SWUpdater::SWUpdater(ifm3d::Camera::Ptr cam,
   : pImpl(new ifm3d::SWUpdater::Impl(cam,
                                      cb,
                                      std::to_string(swupdate_recovery_port)))
-{ }
+{}
 
 ifm3d::SWUpdater::~SWUpdater() = default;
 

@@ -85,7 +85,7 @@ namespace ifm3d
   FrameGrabberWrapper::FrameGrabberWrapper(ifm3d::Camera::Ptr cam,
                                            std::uint16_t mask)
     : fg_(std::make_shared<ifm3d::FrameGrabber>(cam, mask))
-  { }
+  {}
 
   void
   FrameGrabberWrapper::SWTrigger()
