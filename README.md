@@ -8,8 +8,8 @@ Library and utilities for working with ifm pmd-based 3D ToF Cameras.
 
 # Release versions
 
-Note that `master` is generally a work in progress, and you probably want to use a
-tagged release version.
+:warning: Note that the `master` branch is generally in a work in progress state and you probably want to use a
+tagged [release version](https://github.com/ifm/ifm3d/releases) for production.
 
 Current Revision
 ----------------
@@ -100,6 +100,8 @@ each now follow.
 
 #### Ubuntu Linux via Apt (amd64/arm64)
 
+:warning: The provided apt repositories are experimental and shall be used with caution, the version uploaded to the apt repository might change and thus may break your use-case. If you rely on a specific version of the software we do recommend to run your own apt repository or build from source.
+
 We provide apt repositories for the following Ubuntu Linux distributions and
 architectures:
 
@@ -138,7 +140,7 @@ If you experience issues with connecting the key server you can try this alterna
 ```
 curl -sSL 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x8AB59D3A2BD7B692' | sudo apt-key add -
 ```
-In case of any name resolution issues, 																																					it is worth to check the environment variable ```$https_proxy``` for proper proxy configuration.
+:exclamation: In case of any name resolution issues, it is worth to check the environment variable ```$https_proxy``` for proper proxy configuration.
 
 Install the software:
 
@@ -157,10 +159,12 @@ $ sudo apt-get install ifm3d-camera \
 
 #### Linux for Tegra
 
+:warning: The provided apt repositories are experimental and shall be used with caution, the version uploaded to the apt repository might change and thus may break your use-case. If you rely on a specific version of the software we do recommend to run your own apt repository or build from source.
+
 Linux for Tegra is an NVIDIA Linux distribution for the Jetson family of GPU
 SoC systems. NVIDIA distributes a software package called JetPack with various
 utilities and libraries optimized for the target hardware. There are a few
-pakages which override the core Ubuntu packages (`OpenCV` as the primary
+packages which override the core Ubuntu packages (`OpenCV` as the primary
 example). We provide alternate apt repositories for `ifm3d` built on top of
 the JetPack libraries rather than the Ubuntu libraries.
 
