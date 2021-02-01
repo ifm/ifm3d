@@ -143,9 +143,8 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam,
   : cam_(cam),
     mask_(mask),
     cam_ip_(this->cam_->IP()),
-    cam_port_(pcic_port == ifm3d::PCIC_PORT ?
-                ifm3d::DEFAULT_PCIC_PORT :
-                pcic_port),
+    cam_port_(pcic_port == ifm3d::PCIC_PORT ? ifm3d::DEFAULT_PCIC_PORT :
+                                              pcic_port),
     io_service_(),
     sock_(io_service_),
     pcic_ready_(false)
@@ -154,13 +153,13 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam,
   this->SetTriggerBuffer();
   this->SetUVecBuffer(this->mask_);
 
-    if (this->cam_->IsO3R())
-      {
-        // O3R has multiple fpd-link ports and each port has its own PCIC port.
-        // The user has to provide the information to which he wants to connect!
-        this->cam_port_ = ifm3d::DEFAULT_PCIC_PORT;
-      }
-      else if (!this->cam_->IsO3X())
+  if (this->cam_->IsO3R())
+    {
+      // O3R has multiple fpd-link ports and each port has its own PCIC port.
+      // The user has to provide the information to which he wants to connect!
+      this->cam_port_ = ifm3d::DEFAULT_PCIC_PORT;
+    }
+  else if (!this->cam_->IsO3X())
     {
       try
         {
@@ -270,7 +269,7 @@ ifm3d::FrameGrabber::Impl::WaitForFrame(
   // mutex will unlock in `unique_lock` dtor if not explicitly unlocked prior
   // -- we use it here to ensure no deadlocks
   std::unique_lock<std::mutex> lock(this->front_buffer_mutex_);
-  std::cout << "entering WaitForFrame" << std::endl;
+  VLOG(IFM3D_PROTO_DEBUG) << "entering WaitForFrame";
 
   try
     {
@@ -504,7 +503,6 @@ void
 ifm3d::FrameGrabber::Impl::Run()
 {
   VLOG(IFM3D_TRACE) << "Framegrabber thread running...";
-  // std::cout << "FrameGrabber thread running..." << std::endl;
   asio::io_service::work work(this->io_service_);
 
   // For non-O3X devices setting the schema via PCIC, we get acknowledgement of
@@ -646,12 +644,12 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const asio::error_code& ec,
     }
 
   std::string ticket_str;
-  ticket_str.assign(this->ticket_buffer_.begin(), this->ticket_buffer_.end()-2);
-  VLOG(IFM3D_PROTO_DEBUG) << "Full ticket: " << ticket_str;
+  ticket_str.assign(this->ticket_buffer_.begin(),
+                    this->ticket_buffer_.end() - 2);
+  VLOG(IFM3D_PROTO_DEBUG) << "Full ticket: '" << ticket_str << "'";
 
   if (ticket == ifm3d::TICKET_image)
     {
-      std::cout << "Full ticket: " << ticket_str << std::endl;
       if (ifm3d::verify_ticket_buffer(this->ticket_buffer_))
         {
           this->back_buffer_.resize(
@@ -672,12 +670,11 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const asio::error_code& ec,
           throw ifm3d::error_t(IFM3D_PCIC_BAD_REPLY);
         }
     }
-  else if ((ticket == ifm3d::TICKET_c) ||
-           (ticket == ifm3d::TICKET_t) ||
+  else if ((ticket == ifm3d::TICKET_c) || (ticket == ifm3d::TICKET_t) ||
            (ticket == ifm3d::TICKET_ALGO_DGB))
     {
-      if (ticket!=ifm3d::TICKET_ALGO_DGB
-          && this->ticket_buffer_.at(20) != '*')
+      if (ticket != ifm3d::TICKET_ALGO_DGB &&
+          this->ticket_buffer_.at(20) != '*')
         {
           LOG(ERROR) << "Bad ticket: " << ticket_str;
 

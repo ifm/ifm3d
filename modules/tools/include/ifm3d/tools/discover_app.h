@@ -13,13 +13,15 @@
 namespace ifm3d
 {
   /**
-   * Concrete implementation of the `discover` subcommand to the `ifm3d` command-line
-   * utility.
+   * Concrete implementation of the `discover` subcommand to the `ifm3d`
+   * command-line utility.
    */
   class DiscoverApp : public ifm3d::CmdLineApp
   {
   public:
-    DiscoverApp(int argc, const char **argv, const std::string& name = "discover");
+    DiscoverApp(int argc,
+                const char** argv,
+                const std::string& name = "discover");
     int Run();
   }; // end: class DiscoverApp
 } // end: namespace ifm3d

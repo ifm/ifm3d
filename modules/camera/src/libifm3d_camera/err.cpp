@@ -179,7 +179,7 @@ ifm3d::strerror(int errnum)
     }
 }
 
-ifm3d::error_t::error_t(int errnum) : std::exception(), errnum_(errnum) { }
+ifm3d::error_t::error_t(int errnum) : std::exception(), errnum_(errnum) {}
 
 int
 ifm3d::error_t::code() const noexcept

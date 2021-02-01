@@ -231,7 +231,7 @@ ifm3d::SWUpdater::Impl::Impl(ifm3d::Camera::Ptr cam,
                 SWUPDATER_STATUS_URL_SUFFIX),
     check_recovery_url_("http://" + cam->IP() + ":" + swupdate_recovery_port +
                         SWUPDATER_CHECK_RECOVERY_URL_SUFFIX)
-{ }
+{}
 
 //-------------------------------------
 // "Public" interface

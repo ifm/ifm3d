@@ -50,7 +50,7 @@ namespace ifm3d
 
 inline ifm3d::OpenCVBuffer::OpenCVBuffer()
   : ifm3d::ByteBuffer<ifm3d::OpenCVBuffer>()
-{ }
+{}
 
 inline ifm3d::OpenCVBuffer::~OpenCVBuffer() = default;
 

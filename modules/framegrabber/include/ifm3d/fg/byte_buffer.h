@@ -28,6 +28,9 @@ namespace ifm3d
   extern IFM3D_FRAME_GRABBER_EXPORT const std::size_t NUM_INTRINSIC_PARAM;
 
   constexpr auto INVALID_IDX = std::numeric_limits<std::size_t>::max();
+  constexpr auto FLOAT_DATA_SIZE = sizeof(float);
+  constexpr auto UINT32_DATA_SIZE = sizeof(std::uint32_t);
+  constexpr auto UINT16_DATA_SIZE = sizeof(std::uint16_t);
 
   enum class pixel_format : std::uint32_t
   {

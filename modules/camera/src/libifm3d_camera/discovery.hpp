@@ -61,7 +61,7 @@ namespace ifm3d
       : magic(htonl(BCAST_MAGIC_REQUEST)),
         reply_port(htons(BCAST_DEFAULT_PORT)),
         reserved(0)
-    { }
+    {}
   };
 
   /** Broadcast reply packet structure. */
@@ -207,12 +207,14 @@ namespace ifm3d
     return device_name_;
   }
 
-  uint16_t IFMNetworkDevice::GetVendorId() const
+  uint16_t
+  IFMNetworkDevice::GetVendorId() const
   {
     return vendor_id_;
   }
 
-  uint16_t IFMNetworkDevice::GetDeviceId() const
+  uint16_t
+  IFMNetworkDevice::GetDeviceId() const
   {
     return device_id_;
   }
@@ -444,8 +446,8 @@ namespace ifm3d
         }
       return device_list_;
     }
-  private:
 
+  private:
     std::vector<std::string>
     _GetAllInterfaceAddress()
     {
@@ -575,7 +577,7 @@ namespace ifm3d
       /** start grab on universal brodcast socket*/
       connection_list_[0]->GrabData();
       /*block the main thread till the search is complete
-      which is the condition when all the there is no respone on any interface 
+      which is the condition when all the there is no respone on any interface
       for more than  TIMEOUT_FOR_EACH_SEARCH_IN_MS*/
       std::unique_lock<std::mutex> lock_to_complete(con_mutex_);
       cv_.wait(lock_to_complete, [&] { return connection_list_.size() == 0; });

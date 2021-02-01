@@ -11,7 +11,7 @@
 
 ifm3d::DumpApp::DumpApp(int argc, const char** argv, const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
-{ }
+{}
 
 int
 ifm3d::DumpApp::Run()

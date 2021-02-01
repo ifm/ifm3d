@@ -17,7 +17,7 @@ protected:
 
   virtual void
   TearDown()
-  { }
+  {}
 
   ifm3d::Camera::Ptr cam_;
 };
