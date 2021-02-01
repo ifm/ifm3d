@@ -14,7 +14,7 @@ ifm3d::AppTypesApp::AppTypesApp(int argc,
                                 const char** argv,
                                 const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
-{ }
+{}
 
 int
 ifm3d::AppTypesApp::Run()

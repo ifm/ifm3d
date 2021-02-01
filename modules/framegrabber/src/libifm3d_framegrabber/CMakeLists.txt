@@ -18,7 +18,6 @@ add_library(ifm3d_framegrabber
             ${CMAKE_CURRENT_SOURCE_DIR}/algo/o3r_uncompress_di.cpp
             )
 set_property(TARGET ifm3d_framegrabber PROPERTY POSITION_INDEPENDENT_CODE 1)
-# SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/algo/o3r_uncompress_di.cpp PROPERTIES LANGUAGE CXX )
 
 #------------------
 # Compiler settings
