@@ -14,7 +14,7 @@ ifm3d::ImagerTypesApp::ImagerTypesApp(int argc,
                                       const char** argv,
                                       const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
-{ }
+{}
 
 int
 ifm3d::ImagerTypesApp::Run()

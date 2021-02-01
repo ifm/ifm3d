@@ -8,18 +8,20 @@
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/camera/camera.h>
 
-ifm3d::DiscoverApp::DiscoverApp(int argc, const char **argv,
-  const std::string& name)
+ifm3d::DiscoverApp::DiscoverApp(int argc,
+                                const char** argv,
+                                const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
-{ }
+{}
 
-int ifm3d::DiscoverApp::Run()
+int
+ifm3d::DiscoverApp::Run()
 {
   if (this->vm_->count("help"))
-   {
-     this->_LocalHelp();
-     return 0;
-   }
+    {
+      this->_LocalHelp();
+      return 0;
+    }
 
   auto devices = ifm3d::Camera::DeviceDiscovery();
 
@@ -44,15 +46,16 @@ int ifm3d::DiscoverApp::Run()
             }
           else
             {
-              std::cout << ip_address << " ( unsupported device )" << std::endl;
+              std::cout << ip_address << " ( unsupported device )"
+                        << std::endl;
               continue;
             }
-            std::cout << ip_address << " (" << device_type << ")" << std::endl;
-         }
-      catch (std::exception & exp)
-      {
-        // ignore this device and search for next devices..
-      }
+          std::cout << ip_address << " (" << device_type << ")" << std::endl;
+        }
+      catch (std::exception& exp)
+        {
+          // ignore this device and search for next devices..
+        }
     }
   return 0;
 }
