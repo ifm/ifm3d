@@ -399,13 +399,13 @@ namespace ifm3d
     // update the bad pixel mask if we just saw the confidence image
     if (im == ifm3d::image_chunk::CONFIDENCE)
       {
-        this->bad_.Create(this->conf_.cols_,
-                          this->conf_.rows_,
+        this->bad_.Create(this->conf_.Width(),
+                          this->conf_.Height(),
                           1,
-                          this->conf_.pixel_format_);
+                          this->conf_.DataFormat());
         int index = 0;
         auto it = this->bad_.begin<unsigned char>();
-        for (unsigned char value : ifm3d::Adapter<unsigned char>(this->conf_))
+        for (unsigned char value : ifm3d::IteratorAdapter<unsigned char>(this->conf_))
           {
             *it = value & 0x1;
             it++;

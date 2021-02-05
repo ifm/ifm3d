@@ -25,19 +25,26 @@
 // Image class
 //--------------------------------
 
+ ifm3d::Image::Image(const int& cols,
+                     const int& rows,
+                     const int& nchannel,
+                     ifm3d::pixel_format format)
+ {
+   Create(cols, rows, nchannel, format);
+ }
+
 void ifm3d::Image::Create(const int& cols,
                  const int& rows,
-                 const int& ndim,
+                      const int& nchannel,
                  ifm3d::pixel_format format)
 {
   cols_ =cols;
   rows_ = rows;
-  ndim_ = ndim;
-  pixel_format_ = format;
-  pixel_size_ = PIX_SZ[static_cast<std::uint32_t>(format)];
-  const int buffer_size =
-      cols * rows * ndim * pixel_size_;
-  data_ = data_alloc_.allocate(buffer_size);
+  nchannel_ = nchannel ;
+  data_format_ = format;
+  data_size_in_bytes_ = PIX_SZ[static_cast<std::uint32_t>(format)];
+  size_ = cols * rows * nchannel_ * data_size_in_bytes_;
+  data_ = data_alloc_.allocate(size_);
 }
 
 ifm3d::Image::~Image()
@@ -46,3 +53,21 @@ ifm3d::Image::~Image()
 }
 
 
+ uint32_t ifm3d::Image:: Height() const
+{
+  return cols_;
+}
+
+uint32_t
+ifm3d::Image::Width() const
+{
+  return rows_;
+}
+uint32_t ifm3d::Image::Nchannels() const
+{
+  return nchannel_;
+}
+ifm3d::pixel_format ifm3d::Image::DataFormat() const
+{
+  return data_format_;
+}
