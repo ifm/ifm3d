@@ -15,8 +15,6 @@
 #include <ifm3d/fg/byte_buffer.h>
 #include <ifm3d/stlimage/image.h>
 
-#include <iostream>
-
 namespace ifm3d
 {
   
@@ -108,8 +106,6 @@ namespace ifm3d
       // general user-base. It is understood that this has a non-zero cost
       // associated with it. Other higher-peformance image containers are
       // currently being contemplated for advanced / latency sensitive users.
-
-      std::cout << __FUNCTION__ << std::endl;
       this->_ImCreate(im, fmt, idx, width, height, nchan, npts, bytes);
     }
 
@@ -129,7 +125,6 @@ namespace ifm3d
     {
       // See "NOTE" in `ImCreate` as to why we are dropping the template
       // parameter here. Same rationale applies.
-      std::cout << __FUNCTION__ << std::endl;
       this->_CloudCreate(fmt, xidx, yidx, zidx, width, height, npts, bytes);
     }
 
