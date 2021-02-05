@@ -16,7 +16,6 @@
 
 namespace ifm3d
 {
-
   template <typename T>
   struct SpacePoint
   {
@@ -27,6 +26,9 @@ namespace ifm3d
 
   template <typename T>
   using Point3D = struct SpacePoint<T>;
+
+  using Point3D_16S = Point3D<unsigned short>;
+  using Point3D_32F = Point3D<float>;
 
   class Image
   {
@@ -53,7 +55,7 @@ namespace ifm3d
     auto
     ptr(const int& row) -> T*
     {
-      return (T*)data_ + row * cols_ ;
+      return (T*)(data_ + row * cols_ * ndim_ * pixel_size_);
     }
 
     template <typename T = unsigned char>
@@ -63,7 +65,6 @@ namespace ifm3d
       return &(ptr<T>(row)[col]);
     }
 
-#if 1
     template <typename T>
     auto
     at(const int& index) -> T&
@@ -80,26 +81,17 @@ namespace ifm3d
       return at<T>(idx);
     }
 
-#endif
     template <typename T>
     void
     setTo(const T val, ifm3d::Image& mask)
     {
-
-      std::cout << __FUNCTION__ << rows_ << " " << cols_ << " " << pixel_size_
-                << " " << ndim_ << std::endl;
-
       for (int i = 0; i < rows_; i++)
         {
-          //  std::cout << i << " " << std::endl;
           for (int j = 0; j < cols_; j++)
             {
-
               int index = i * cols_ + j;
-              //     std::cout << index << " " ;
               if (mask.at<uint8_t>(index) != 0)
                 {
-                  //    std::cout << " ";
                   T* ptr = (T*)((char*)data_ + index * ndim_ * pixel_size_);
                   for (int k = 0; k < ndim_; k++)
                     {
@@ -108,9 +100,8 @@ namespace ifm3d
                 }
             }
         }
-
-      std::cout << __FUNCTION__ << "1" << std::endl;
     }
+
     template <typename T>
     struct Iterator
     {
@@ -123,8 +114,6 @@ namespace ifm3d
       Iterator(char* ptr)
       {
         m_ptr = (T*)ptr;
-
-        std::cout << "sizeofstruct" << sizeof(T) << std::endl;
       }
 
       reference
@@ -132,18 +121,20 @@ namespace ifm3d
       {
         return *m_ptr;
       }
+
       pointer
       operator->()
       {
         return m_ptr;
       }
+
       Iterator&
       operator++()
       {
-      //  std::cout << *m_ptr << " ";
         m_ptr++;
         return *this;
       }
+
       Iterator
       operator++(int)
       {
@@ -151,11 +142,13 @@ namespace ifm3d
         ++(*this);
         return tmp;
       }
+
       friend bool
       operator==(const Iterator& a, const Iterator& b)
       {
         return a.m_ptr == b.m_ptr;
       };
+
       friend bool
       operator!=(const Iterator& a, const Iterator& b)
       {

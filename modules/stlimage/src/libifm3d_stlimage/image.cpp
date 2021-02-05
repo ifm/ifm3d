@@ -11,8 +11,6 @@
 #include <unordered_map>
 #include <limits>
 
-#include <iostream>
-
  std::unordered_map<uint32_t, std::size_t> PIX_SZ{
   {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8U), 1},
   {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8S), 1},
@@ -32,7 +30,6 @@ void ifm3d::Image::Create(const int& cols,
                  const int& ndim,
                  ifm3d::pixel_format format)
 {
-  std::cout << __FUNCTION__ << "0" << std::endl;
   cols_ =cols;
   rows_ = rows;
   ndim_ = ndim;
@@ -40,9 +37,7 @@ void ifm3d::Image::Create(const int& cols,
   pixel_size_ = PIX_SZ[static_cast<std::uint32_t>(format)];
   const int buffer_size =
       cols * rows * ndim * pixel_size_;
-  std::cout << __FUNCTION__ << "1" << std::endl;
   data_ = data_alloc_.allocate(buffer_size);
-  std::cout << __FUNCTION__ << "2" << std::endl;
 }
 
 ifm3d::Image::~Image()

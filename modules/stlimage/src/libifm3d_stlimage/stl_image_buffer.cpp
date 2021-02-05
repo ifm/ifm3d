@@ -117,7 +117,6 @@ ifm3d::StlImageBuffer::_ImCreate(ifm3d::image_chunk im,
                               std::uint32_t npts,
                               const std::vector<std::uint8_t>& bytes)
 {
-  std::cout << __FUNCTION__ << std::endl;
   this->pImpl->ImCreate(im, fmt, idx, width, height, nchan, npts, bytes);
 }
 

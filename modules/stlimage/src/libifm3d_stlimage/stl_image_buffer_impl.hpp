@@ -22,8 +22,6 @@
 #include <ifm3d/fg/byte_buffer.h>
 #include <ifm3d/stlimage/image.h>
 
-#include <iostream>
-
 namespace ifm3d
 {
   //============================================================
@@ -83,10 +81,8 @@ namespace ifm3d
               std::uint32_t npts,
               const std::vector<std::uint8_t>& bytes)
     {
-      std::cout << __FUNCTION__ << std::endl;
       std::size_t incr = sizeof(T) * nchan;
       im.Create(width, height, nchan, static_cast<ifm3d::pixel_format>(fmt));
-      std::cout << __FUNCTION__ << "1" << std::endl;
       int col = 0;
       int row = -1;
       int col3 = 0;
@@ -116,7 +112,6 @@ namespace ifm3d
               ptr[col] = ifm3d::mkval<T>(bytes.data() + idx);
             }
         }
-      std::cout << __FUNCTION__ << "2" << std::endl;
       //
       // There are only certain image types we want to flag bad
       // pixels for. For example we do *not* want to flag the confidence image
@@ -136,8 +131,6 @@ namespace ifm3d
         {
           im.setTo(bad_pixel, this->bad_);
         }
-
-       std::cout << __FUNCTION__ << "3" << std::endl;
     }
 
     template <typename T>
@@ -153,8 +146,8 @@ namespace ifm3d
                  const std::vector<std::uint8_t>& bytes)
     {
       std::size_t incr = sizeof(T);
-      im.Create(height,
-                width,
+      im.Create(width,
+                height,
                 3,
                 static_cast<ifm3d::pixel_format>(fmt));
 
@@ -162,7 +155,7 @@ namespace ifm3d
       int row = -1;
       int xyz_col = 0;
 
-      ifm3d::Point3D<T>* xyz_ptr;
+      T* xyz_ptr;
       T x_, y_, z_;
       std::uint8_t* bad_ptr;
 
@@ -179,7 +172,7 @@ namespace ifm3d
           if (col == 0)
             {
               row += 1;
-              xyz_ptr = im.ptr<ifm3d::Point3D<T>>(row);
+              xyz_ptr = im.ptr<T>(row);
               bad_ptr = this->bad_.ptr<uint8_t>(row);
             }
 
@@ -190,24 +183,15 @@ namespace ifm3d
          
           if (bad_ptr[col] == 0)
             {
-         //   std::cout << "* " << x_ << y_ << z_;
-              xyz_ptr[col].x = x_;
-              xyz_ptr[col].y = y_;
-              xyz_ptr[col].z = z_;
-
-           //    std::cout << "*% " << xyz_ptr->x << xyz_ptr->y << xyz_ptr->z;
+              xyz_ptr[xyz_col] = x_;
+              xyz_ptr[xyz_col + 1] = y_;
+              xyz_ptr[xyz_col + 2] = z_;
             }
           else
             {
-#if 0
-            //  std::cout << "# ";
               xyz_ptr[xyz_col] = bad_pixel;
               xyz_ptr[xyz_col + 1] = bad_pixel;
               xyz_ptr[xyz_col + 2] = bad_pixel;
-#endif
-              xyz_ptr[col].x = bad_pixel;
-              xyz_ptr[col].y = bad_pixel;
-              xyz_ptr[col].z = bad_pixel;
             }
         }
       }
@@ -279,7 +263,6 @@ namespace ifm3d
                                         std::uint32_t npts,
                                         const std::vector<std::uint8_t>& bytes)
   {
-    std::cout << __FUNCTION__ << std::endl;
     ifm3d::Image* image;
     switch (im)
       {
@@ -310,7 +293,6 @@ namespace ifm3d
       default:
         return;
       }
-    std::cout << __FUNCTION__ << "1"  <<std::endl;
     switch (fmt)
       {
       case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8U):
@@ -417,24 +399,17 @@ namespace ifm3d
     // update the bad pixel mask if we just saw the confidence image
     if (im == ifm3d::image_chunk::CONFIDENCE)
       {
-        std::cout << "********" << std::endl;
         this->bad_.Create(this->conf_.cols_,
                           this->conf_.rows_,
                           1,
                           this->conf_.pixel_format_);
-        // cv::bitwise_and(this->conf_, 0x1, this->bad_);
         int index = 0;
-        
         auto it = this->bad_.begin<unsigned char>();
-#if 1
         for (unsigned char value : ifm3d::Adapter<unsigned char>(this->conf_))
           {
-           // (*this->bad_.data_.get())[index] = value & 0x1;
-           //  index++;
-           *it = value & 0x1;
-           it++;
+            *it = value & 0x1;
+            it++;
           }
-#endif
       }
   }
 
@@ -461,8 +436,6 @@ namespace ifm3d
                                          height,
                                          npts,
                                          bytes);
-
-         std::cout <<"######"  <<*((unsigned short*)this->xyz_.data_) << std::endl;
         break;
 
       case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F):
@@ -482,5 +455,4 @@ namespace ifm3d
         throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
       }
   }
-
 #endif // __IFM3D_IMAGE_IMAGE_BUFFER_IMPL_H__
