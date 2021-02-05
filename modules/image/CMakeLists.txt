@@ -9,7 +9,7 @@ else()
   find_package(OpenCV REQUIRED COMPONENTS core)
 endif()
 
-include_directories(${IFM3D_IMAGE_SOURCE_DIR}/include ${IFM3D_FG_SOURCE_DIR}/include ${IFM3D_CAMERA_SOURCE_DIR}/include)
+include_directories(${IFM3D_IMAGE_SOURCE_DIR}/include)
 
 ################################################
 ## Process child CMakeLists.txt files

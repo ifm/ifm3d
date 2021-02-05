@@ -33,7 +33,8 @@ include_directories(${CURL_INCLUDE_DIRS})
 target_include_directories(ifm3d_tools_shared
   PUBLIC
     $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${IFM3D_TOOLS_BINARY_DIR}/include>
+    $<BUILD_INTERFACE:${IFM3D_TOOLS_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${IFM3D_CAMERA_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
     ${CURL_INCLUDE_DIRS}
     )
@@ -41,28 +42,28 @@ target_include_directories(ifm3d_tools_shared
 if (BUILD_MODULE_FRAMEGRABBER)
   target_include_directories(ifm3d_tools_shared
     PUBLIC
-      $<BUILD_INTERFACE:${IFM3D_FG_BINARY_DIR}/include>
+      $<BUILD_INTERFACE:${IFM3D_FG_SOURCE_DIR}/include>
     )
 endif()
 
 if (BUILD_MODULE_SWUPDATER)
   target_include_directories(ifm3d_tools_shared
     PUBLIC
-      $<BUILD_INTERFACE:${IFM3D_SWUPDATER_BINARY_DIR}/include>
+      $<BUILD_INTERFACE:${IFM3D_SWUPDATER_SOURCE_DIR}/include>
     )
 endif()
 
 if (BUILD_MODULE_IMAGE)
   target_include_directories(ifm3d_tools_shared
     PUBLIC
-      $<BUILD_INTERFACE:${IFM3D_IMAGE_BINARY_DIR}/include>
+      $<BUILD_INTERFACE:${IFM3D_IMAGE_SOURCE_DIR}/include>
     )
 endif()
 
 if (BUILD_MODULE_OPENCV)
   target_include_directories(ifm3d_tools_shared
     PUBLIC
-      $<BUILD_INTERFACE:${IFM3D_OPENCV_BINARY_DIR}/include>
+      $<BUILD_INTERFACE:${IFM3D_OPENCV_SOURCE_DIR}/include>
     )
 endif()
 

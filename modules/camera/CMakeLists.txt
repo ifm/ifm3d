@@ -4,7 +4,7 @@ set(IFM3D_CAMERA_MODULE_NAME "libifm3d-camera")
 
 configure_file(
   ${IFM3D_CAMERA_SOURCE_DIR}/include/ifm3d/camera/version.h.in
-  ${IFM3D_CAMERA_SOURCE_DIR}/include/ifm3d/camera/version.h
+  ${IFM3D_CAMERA_BINARY_DIR}/include/ifm3d/camera/version.h
   @ONLY
   )
 
@@ -25,7 +25,7 @@ endif()
 ## Manage installation process
 ################################################
 if(BUILD_SDK_PKG)
-  install(DIRECTORY ${IFM3D_CAMERA_SOURCE_DIR}/include
+  install(DIRECTORY ${IFM3D_CAMERA_SOURCE_DIR}/include ${IFM3D_CAMERA_BINARY_DIR}/include
     DESTINATION ${CPACK_INSTALL_PREFIX}
     COMPONENT camera
     PATTERN "*.in" EXCLUDE
