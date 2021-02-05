@@ -44,7 +44,8 @@ add_library(ifm3dpy MODULE main.cpp)
 #------------------
 target_include_directories(ifm3dpy
   PRIVATE
-    $<BUILD_INTERFACE:${IFM3D_FG_BINARY_DIR}/include>
+    $<BUILD_INTERFACE:${IFM3D_FG_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${IFM3D_CAMERA_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
     ${IFM3D_SOURCE_DIR}/modules/opencv/include
     ${OpenCV_INCLUDE_DIRS}

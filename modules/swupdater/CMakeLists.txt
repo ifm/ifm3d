@@ -1,7 +1,7 @@
 project(IFM3D_SWUPDATER CXX)
 set(IFM3D_SWUPDATER_MODULE_NAME "libifm3d-swupdater")
 
-include_directories(${IFM3D_SWUPDATER_SOURCE_DIR}/include ${IFM3D_CAMERA_SOURCE_DIR}/include)
+include_directories(${IFM3D_SWUPDATER_SOURCE_DIR}/include)
 
 
 ################################################

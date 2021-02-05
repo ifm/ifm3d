@@ -19,7 +19,7 @@ endif()
 ## Manage installation process
 ################################################
 if(BUILD_SDK_PKG)
-  install(DIRECTORY ${IFM3D_PCICCLIENT_BINARY_DIR}/include
+  install(DIRECTORY ${IFM3D_PCICCLIENT_SOURCE_DIR}/include
     DESTINATION ${CPACK_INSTALL_PREFIX}
     COMPONENT pcicclient
     PATTERN "*.in" EXCLUDE
