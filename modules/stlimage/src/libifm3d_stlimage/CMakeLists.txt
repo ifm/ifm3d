@@ -11,8 +11,11 @@ endif (NOT TARGET glog::glog)
 ################################################
 ## Target: libifm3d_image.so
 ################################################
-file(GLOB IFM3D_STLIMAGE_SOURCES *.cpp)
-add_library(ifm3d_stlimage ${IFM3D_STLIMAGE_SOURCES})
+#file(GLOB IFM3D_STLIMAGE_SOURCES *.cpp)
+add_library(ifm3d_stlimage
+            ${CMAKE_CURRENT_SOURCE_DIR}/image.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/stl_image_buffer.cpp
+)
 set_property(TARGET ifm3d_stlimage PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 #------------------

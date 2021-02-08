@@ -1,12 +1,11 @@
 // -*- c++ -*-
 /*
- * Copyright 2018-present ifm electronic, gmbh
- * Copyright 2017 Love Park Robotics, LLC
+ * Copyright 2021-present ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_IMAGE_IMAGE_BUFFER_IMPL_H__
-#define __IFM3D_IMAGE_IMAGE_BUFFER_IMPL_H__
+#ifndef IFM3D_IMAGE_IMAGE_BUFFER_IMPL_HPP
+#define IFM3D_IMAGE_IMAGE_BUFFER_IMPL_HPP
 
 #include <algorithm>
 #include <cstddef>
@@ -455,4 +454,4 @@ namespace ifm3d
         throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
       }
   }
-#endif // __IFM3D_IMAGE_IMAGE_BUFFER_IMPL_H__
+#endif // IFM3D_IMAGE_IMAGE_BUFFER_IMPL_HPP
