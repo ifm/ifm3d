@@ -98,8 +98,6 @@ in ifm3d::IteratorAdapter section
   private:
     /* @ brief raw pointer to the data*/
     char* data_;
-    /* @brief memory allocator */
-    std::allocator<char> data_alloc_;
     /*@brief number of columns in Image (width)*/
     uint32_t cols_;
     /*@brief number of rows in Image (height)*/
@@ -112,6 +110,9 @@ in ifm3d::IteratorAdapter section
     uint32_t data_size_in_bytes_;
     /* @brief size of the memory allocated*/
     size_t size_;
+    private:
+      class ImageAllocator;
+      std::shared_ptr<ImageAllocator> image_allocator_;
 
     public:
     /**
@@ -120,7 +121,7 @@ in ifm3d::IteratorAdapter section
       needs to call create Method to actually allocates the 
       Memory
     */
-    Image() = default;
+      Image();
     /*@overload
       @param cols Number of columns in a Image.
       @param rows Number of rows in a Image.
@@ -130,20 +131,29 @@ in ifm3d::IteratorAdapter section
 
       @note This internally called Create Method to allocates Memory
   */ 
-    Image(const int& cols,
+      Image(const int& cols,
           const int& rows,
           const int& nchannel,
           ifm3d::pixel_format format);
 
-    ~Image();
-    /*@brief allocates the memory required for storing the image data
-      @param cols Number of columns in a Image.
-      @param rows Number of rows in a Image.
-      @param nchannel Number of channels in Image
-      @param format value from ifm3d::pixel_format releates to data type
+      ~Image() = default;
 
-      @Note On repeated calling it will deference the old Memory
-     */
+    // move semantics
+    Image(Image&&) = default;
+    Image& operator=(Image&&) = default;
+
+    // copy ctor/assignment operator
+    Image(const Image&) = default;
+    Image& operator=(const Image&) = default;
+
+     /*@brief allocates the memory required for storing the image data
+     @param cols Number of columns in a Image.
+     @param rows Number of rows in a Image.
+     @param nchannel Number of channels in Image
+     @param format value from ifm3d::pixel_format releates to data type
+
+     @Note On repeated calling it will deference the old Memory
+    */
     void Create(const int& cols,
                 const int& rows,
                 const int& nchannel,
@@ -266,7 +276,7 @@ in ifm3d::IteratorAdapter section
   template <typename T>
   using Point3D = struct point3d<T>;
 
-  // user types
+  // user helper types
   using Point3D_16S = Point3D<unsigned short>;
   using Point3D_32F = Point3D<float>;
 
