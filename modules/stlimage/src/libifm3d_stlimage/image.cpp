@@ -1,6 +1,5 @@
 /*
- * Copyright 2018-present ifm electronic, gmbh
- * Copyright 2017 Love Park Robotics, LLC
+ * Copyright 2021-present ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -10,6 +9,7 @@
 #include <vector>
 #include <unordered_map>
 #include <limits>
+#include <memory_resource>
 
 namespace ifm3d
  {
@@ -29,29 +29,28 @@ namespace ifm3d
  class ifm3d::Image::ImageAllocator
  {
    /* @ brief raw pointer to the data*/
-   char* data_;
+   std::uint8_t* data_;
    /* @brief memory allocator */
-   std::allocator<char> data_alloc_;
+   std::allocator<std::uint8_t> data_alloc_;
    /*@brief size of current allocation*/
    size_t size_;
 
    public:
-   ImageAllocator::ImageAllocator()
-     : data_(NULL),
+   ImageAllocator::ImageAllocator() : data_(nullptr),
      size_(0)
    {}
 
    ImageAllocator::~ImageAllocator() {
-     if (data_ != NULL)
+     if (data_ != nullptr)
        {
          deallocate();
        }
    }
    public:
-   char* allocate(size_t size)
+   std::uint8_t* allocate(size_t size)
    {
-     data_ = data_alloc_.allocate(size);
-     if (data_ != NULL)
+     data_ = (uint8_t*)data_alloc_.allocate(size);
+     if (data_ != nullptr)
      {
        size_= size;
        return data_;
@@ -64,10 +63,10 @@ namespace ifm3d
    void deallocate()
    {
      data_alloc_.deallocate(data_,size_);
-     data_ = NULL;
+     data_ = nullptr;
    }
 
-   char* data()
+   uint8_t* data()
    {
      return data_;
    }
@@ -79,7 +78,7 @@ namespace ifm3d
 //--------------------------------
 
  ifm3d::Image::Image()
-   : data_(NULL)
+   : data_(nullptr)
    , rows_(0)
    , cols_(0)
    , nchannel_(0)
@@ -88,18 +87,19 @@ namespace ifm3d
  {
  }
 
- ifm3d::Image::Image(const int& cols,
-                     const int& rows,
-                     const int& nchannel,
+ ifm3d::Image::Image(const std::uint32_t& cols,
+                     const std::uint32_t& rows,
+                     const std::uint32_t& nchannel,
                      ifm3d::pixel_format format)
  {
    Create(cols, rows, nchannel, format);
  }
 
-void ifm3d::Image::Create(const int& cols,
-                          const int& rows,
-                          const int& nchannel,
-                          ifm3d::pixel_format format)
+void
+ ifm3d::Image::Create(const std::uint32_t& cols,
+                      const std::uint32_t& rows,
+                      const std::uint32_t& nchannel,
+                      ifm3d::pixel_format format)
 {
   cols_ =cols;
   rows_ = rows;
@@ -111,20 +111,32 @@ void ifm3d::Image::Create(const int& cols,
   data_ = image_allocator_->allocate(size_);
 }
 
- uint32_t ifm3d::Image:: Height() const
+ifm3d::Image ifm3d::Image::Clone() const
+{
+  Image copy;
+  copy.Create(rows_, cols_, nchannel_, data_format_);
+  std::memcpy(copy.ptr(0), data_, size_);
+  return copy;
+}
+
+std::uint32_t
+ifm3d::Image:: Height() const
 {
   return cols_;
 }
 
-uint32_t
+std::uint32_t
 ifm3d::Image::Width() const
 {
   return rows_;
 }
-uint32_t ifm3d::Image::Nchannels() const
+
+std::uint32_t
+ifm3d::Image::Nchannels() const
 {
   return nchannel_;
 }
+
 ifm3d::pixel_format ifm3d::Image::DataFormat() const
 {
   return data_format_;

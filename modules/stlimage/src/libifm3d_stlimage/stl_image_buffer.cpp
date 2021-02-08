@@ -1,14 +1,13 @@
 /*
- * Copyright 2018-present ifm electronic, gmbh
- * Copyright 2017 Love Park Robotics, LLC
+ * Copyright 2021-present ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <ifm3d/stlimage/stl_image_buffer.h>
-#include <cstdint>
-#include <vector>
 #include <ifm3d/fg/byte_buffer.h>
 #include <stl_image_buffer_impl.hpp>
+#include <cstdint>
+#include <vector>
 
 //--------------------------------
 // StlImageBuffer class

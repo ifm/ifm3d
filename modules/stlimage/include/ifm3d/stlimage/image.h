@@ -1,118 +1,115 @@
 // -*- c++ -*-
 /*
- * Copyright 2018-present ifm electronic, gmbh
- * Copyright 2017 Love Park Robotics, LLC
+ * Copyright 2021-present ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_STLIMAGE_IMAGE_H__
-#define __IFM3D_STLIMAGE_IMAGE_H__
+#ifndef IFM3D_STLIMAGE_IMAGE_H
+#define IFM3D_STLIMAGE_IMAGE_H
 
+#include <ifm3d/fg/byte_buffer.h>
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include <memory_resource>
-#include <ifm3d/fg/byte_buffer.h>
 
 namespace ifm3d
 {
   /**
-  @brief The class Image represent a STL conatiner to store image data  from the ifm devices
+    @brief The class Image represent a STL conatiner to store image data  from the ifm devices
   in 2 dimension and supports multiple channel. data is stores in sequnetial memory layout and 
   class provides function template to access the pixel.
-
   Creating an Image object :
 
-- Use the Create(rows, cols, nchannel, ifm3d::pixel_format ) method or the similar
-Image(nrows, ncols, nchannel, type) constructor. A new array of the 
-specified size and type is allocated. type has the value from ifm3d::pixel_format.
+  - Use the Create(rows, cols, nchannel, ifm3d::pixel_format ) method or the similar
+  Image(nrows, ncols, nchannel, type) constructor. A new array of the 
+  specified size and type is allocated. type has the value from ifm3d::pixel_format.
 
-For example, FORMAT_8U means a 8-bit array, FORMAT_32F floating-point array, and so on.
-@code
-    //an 100 x 100 Image of type 8U
-    ifm3d::Image image(100,100,1,ifm3d::FORMAT_8U);
-    // and now turn M to a 10 x10 3-channel 8-bit matrix.
-    // The old content will be deallocated
-    M.create(10,10,3,ifm3d::FORMAT_8U);
-@endcode
-As noted in the introduction to this chapter, create() allocates only a new array when
-the memory requiremnt changes for new Image
+  For example, FORMAT_8U means a 8-bit array, FORMAT_32F floating-point array, and so on.
+  @code
+      //an 100 x 100 Image of type 8U
+      ifm3d::Image image(100,100,1,ifm3d::FORMAT_8U);
+      // and now turn M to a 10 x10 3-channel 8-bit matrix.
+      // The old content will be deallocated
+      M.create(10,10,3,ifm3d::FORMAT_8U);
+  @endcode
+  As noted in the introduction to this chapter, create() allocates only a new array when
+  the memory requiremnt changes for new Image
 
-- Accessing the pixels 
-use at<T>(index) or at<T>(i,j) to access the pixel this return the reference to the pixel. 
-A pixel is defined as structure of n-channel values at a given index or pixel position in 2D array
+  - Accessing the pixels 
+  use at<T>(index) or at<T>(i,j) to access the pixel this return the reference to the pixel. 
+  A pixel is defined as structure of n-channel values at a given index or pixel position in 2D array
  
-to access a pixel in Image I ( 100,100,1,ifm3d:: FORMAT_8U) at  50,50 position 
+  to access a pixel in Image I ( 100,100,1,ifm3d:: FORMAT_8U) at  50,50 position 
 
- @code
+   @code
 
- auto pixel = I<uint8_t>(50,50);
- // if working as Index array then 
+     auto pixel = I<uint8_t>(50,50);
+     // if working as Index array then 
  
- auto index = 50*100 + 50 ;
- auto pixel = I<uint8_t>(index);
+     auto index = 50*100 + 50 ;
+     auto pixel = I<uint8_t>(index);
 
- @endcode 
+   @endcode 
 
- changing the pixel value can be done as follow :
- writing 100 at pixel postion 50,50
+   changing the pixel value can be done as follow :
+   writing 100 at pixel postion 50,50
 
- @code 
- I<uint8_t>(50,50) = 100;
- I<uint8_t>(index) = 100;
- @endcode
+   @code 
+     I<uint8_t>(50,50) = 100;
+     I<uint8_t>(index) = 100;
+   @endcode
 
- to access a pixel in n-channel Image I ( 100,100,3,ifm3d:: FORMAT_8U) at  50,50 position
- This will be the case accessing the values for 3 channel Image 
+   to access a pixel in n-channel Image I ( 100,100,3,ifm3d:: FORMAT_8U) at  50,50 position
+   This will be the case accessing the values for 3 channel Image 
 
- as pixel is structure of the values of n-chanel at given position. 
+   as pixel is structure of the values of n-chanel at given position. 
 
- @code 
+   @code 
 
- auto pixel = I<Point3D<uint8_t>>(50,50);
+     auto pixel = I<Point3D<uint8_t>>(50,50);
  
- //now individual channel values can be access with 
- value.x, value.y , value.z
- @endcode
+     //now individual channel values can be access with 
+     value.x, value.y , value.z
+   @endcode
 
- -Processing the whole array 
- If you need to process a whole Image, the most efficient way is to
-get the pointer to the row first, and then just use the plain C operator [] :
-@code
-   Image I(100,100,1,FORMAT_8U);
-    for(int i = 0; i < I.rows; i++)
-    {
-        const uint8_t* rowi = M.ptr<uint8_t>(i);
-        for(int j = 0; j < I.cols; j++)
-            {
-              //some operation here 
-            }
-    }
-@endcode
+   -Processing the whole array 
+  If you need to process a whole Image, the most efficient way is to
+  get the pointer to the row first, and then just use the plain C operator [] :
+  @code
+     Image I(100,100,1,FORMAT_8U);
+      for(int i = 0; i < I.rows; i++)
+      {
+          const uint8_t* rowi = M.ptr<uint8_t>(i);
+          for(int j = 0; j < I.cols; j++)
+              {
+                //some operation here 
+              }
+      }
+  @endcode
 
-One can aslo use range based for loops with adapter explained
-in ifm3d::IteratorAdapter section
+  One can aslo use range based for loops with adapter explained
+  in ifm3d::IteratorAdapter section
   */
   class Image
   {
   private:
     /* @ brief raw pointer to the data*/
-    char* data_;
+    uint8_t* data_;
     /*@brief number of columns in Image (width)*/
-    uint32_t cols_;
+    std::uint32_t cols_;
     /*@brief number of rows in Image (height)*/
-    uint32_t rows_;
+    std::uint32_t rows_;
     /*@brief number of channel in Image*/
-    uint32_t nchannel_;
+    std::uint32_t nchannel_;
     /* @brief data format or type*/
     ifm3d::pixel_format data_format_;
     /* @brief number of pixel to store one value of data*/
-    uint32_t data_size_in_bytes_;
+    std::uint32_t data_size_in_bytes_;
     /* @brief size of the memory allocated*/
     size_t size_;
-    private:
-      class ImageAllocator;
-      std::shared_ptr<ImageAllocator> image_allocator_;
+    
+    class ImageAllocator;
+    std::shared_ptr<ImageAllocator> image_allocator_;
 
     public:
     /**
@@ -131,10 +128,10 @@ in ifm3d::IteratorAdapter section
 
       @note This internally called Create Method to allocates Memory
   */ 
-      Image(const int& cols,
-          const int& rows,
-          const int& nchannel,
-          ifm3d::pixel_format format);
+      Image(const std::uint32_t& cols,
+            const std::uint32_t& rows,
+            const std::uint32_t& nchannel,
+            ifm3d::pixel_format format);
 
       ~Image() = default;
 
@@ -154,43 +151,47 @@ in ifm3d::IteratorAdapter section
 
      @Note On repeated calling it will deference the old Memory
     */
-    void Create(const int& cols,
-                const int& rows,
-                const int& nchannel,
+    void Create(const std::uint32_t& cols,
+                const std::uint32_t& rows,
+                const std::uint32_t& nchannel,
                 ifm3d::pixel_format format);
 
+    /** @brief Creates a full copy of the array and the underlying data.
+     */
+    Image Clone() const;
+
     /* getters*/
-     uint32_t Height() const;
-     uint32_t Width() const;
-     uint32_t Nchannels() const;
+     std::uint32_t Height() const;
+     std::uint32_t Width() const;
+     std::uint32_t Nchannels() const;
      ifm3d::pixel_format DataFormat() const;
 
     /** @brief returns a pointer to the specified Image row.
         @param row number 
      */
-    template <typename T = unsigned char>
-    auto ptr(const int& row) -> T*;
+    template <typename T = std::uint8_t>
+    auto ptr(const std::uint32_t& row) -> T*;
    
     /**
      @brief Pointer to the Pixel at row,col
      @param row 1st dimension index
      @param col 2nd dimension index
      */
-    template <typename T = unsigned char>
-    auto ptr(const int& row, const int& col) -> T*;
+    template <typename T = std::uint8_t>
+    auto ptr(const std::uint32_t& row, const std::uint32_t& col) -> T*;
 
     /*@brief access to the pixel for read  and write
       @param Index of the pixel considering image as 1D array
       @return refernce of the value at the index
     */
     template <typename T>
-    auto at(const int& index) -> T&;
+    auto at(const std::uint32_t& index) -> T&;
     /*@overload considering image as 2D 
       @param row 1st dimension index 
       @param col 2nd dimension index
     */
     template <typename T>
-    auto at(const int& row, const int& col) -> T&;
+    auto at(const std::uint32_t& row, const std::uint32_t& col) -> T&;
     /*@brief set the value where mask value is 1
       @param val  value to be set
       @param mask  Binary mask 
@@ -212,11 +213,11 @@ in ifm3d::IteratorAdapter section
       using pointer = T*;
       using reference = T&;
 
-      Iterator(char* ptr);
+      Iterator(uint8_t* ptr);
       reference operator*() const;
       pointer operator->();
       Iterator& operator++();
-      Iterator operator++(int);
+      Iterator operator++(std::int32_t);
 
       friend bool operator==(const Iterator& a, const Iterator& b)
       {
@@ -239,7 +240,6 @@ in ifm3d::IteratorAdapter section
     template <typename T>
     Iterator<T> end();
 
-    /*Todo : Rule of 5 */
   }; // end Image
 
   /*@brief IteratorAdapter is adapter and can be used in range based loops
@@ -277,10 +277,11 @@ in ifm3d::IteratorAdapter section
   using Point3D = struct point3d<T>;
 
   // user helper types
-  using Point3D_16S = Point3D<unsigned short>;
-  using Point3D_32F = Point3D<float>;
+  using Point3D_16U = Point3D<std::uint16_t>;
+  using Point3D_16S = Point3D<std::int16_t>;
+  using Point3D32_F = Point3D<float>;
 
 } // end: namespace ifm3d
 
 #include <ifm3d/stlimage/image_inl.hpp>
-#endif // __IFM3D_STLIMAGE_IMAGE_H__
+#endif // IFM3D_STLIMAGE_IMAGE_H

@@ -1,12 +1,11 @@
 // -*- c++ -*-
 /*
- * Copyright 2018-present ifm electronic, gmbh
- * Copyright 2017 Love Park Robotics, LLC
+ * Copyright 2021-present ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_STLIMAGE_IMAGE_BUFFER_H__
-#define __IFM3D_STLIMAGE_IMAGE_BUFFER_H__
+#ifndef IFM3D_STLIMAGE_IMAGE_BUFFER_H
+#define IFM3D_STLIMAGE_IMAGE_BUFFER_H
 
 #include <cstdint>
 #include <memory>
@@ -161,5 +160,5 @@ namespace ifm3d
   }; // end: class ImageBuffer
 } // end: namespace ifm3d
 
-#endif // __IFM3D_STLIMAGE_IMAGE_BUFFER_H__
+#endif // IFM3D_STLIMAGE_IMAGE_BUFFER_H
 
