@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <limits>
 
+namespace ifm3d
+ {
  std::unordered_map<uint32_t, std::size_t> PIX_SZ{
   {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8U), 1},
   {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8S), 1},
@@ -20,10 +22,71 @@
   {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F), 4},
   {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_64F), 8}};
 
+//--------------------------------
+ // ImageAllocator class
+ //--------------------------------
+
+ class ifm3d::Image::ImageAllocator
+ {
+   /* @ brief raw pointer to the data*/
+   char* data_;
+   /* @brief memory allocator */
+   std::allocator<char> data_alloc_;
+   /*@brief size of current allocation*/
+   size_t size_;
+
+   public:
+   ImageAllocator::ImageAllocator()
+     : data_(NULL),
+     size_(0)
+   {}
+
+   ImageAllocator::~ImageAllocator() {
+     if (data_ != NULL)
+       {
+         deallocate();
+       }
+   }
+   public:
+   char* allocate(size_t size)
+   {
+     data_ = data_alloc_.allocate(size);
+     if (data_ != NULL)
+     {
+       size_= size;
+       return data_;
+     }
+     else
+     {
+         throw std::runtime_error("cannot allocate memory");
+     }
+   }
+   void deallocate()
+   {
+     data_alloc_.deallocate(data_,size_);
+     data_ = NULL;
+   }
+
+   char* data()
+   {
+     return data_;
+   }
+ };
+ }
 
 //--------------------------------
 // Image class
 //--------------------------------
+
+ ifm3d::Image::Image()
+   : data_(NULL)
+   , rows_(0)
+   , cols_(0)
+   , nchannel_(0)
+   , data_size_in_bytes_(0)
+   , size_(0)
+ {
+ }
 
  ifm3d::Image::Image(const int& cols,
                      const int& rows,
@@ -34,9 +97,9 @@
  }
 
 void ifm3d::Image::Create(const int& cols,
-                 const int& rows,
-                      const int& nchannel,
-                 ifm3d::pixel_format format)
+                          const int& rows,
+                          const int& nchannel,
+                          ifm3d::pixel_format format)
 {
   cols_ =cols;
   rows_ = rows;
@@ -44,14 +107,9 @@ void ifm3d::Image::Create(const int& cols,
   data_format_ = format;
   data_size_in_bytes_ = PIX_SZ[static_cast<std::uint32_t>(format)];
   size_ = cols * rows * nchannel_ * data_size_in_bytes_;
-  data_ = data_alloc_.allocate(size_);
+  image_allocator_ = std::make_shared<ifm3d::Image::ImageAllocator>();
+  data_ = image_allocator_->allocate(size_);
 }
-
-ifm3d::Image::~Image()
-{
-  //data_alloc_.deallocate(data_, cols_ * rows_ * ndim_ * pixel_size_);
-}
-
 
  uint32_t ifm3d::Image:: Height() const
 {
