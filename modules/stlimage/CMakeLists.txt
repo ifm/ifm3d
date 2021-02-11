@@ -6,7 +6,7 @@ set(IFM3D_STLIMAGE_MODULE_NAME "libifm3d-stlimage")
 ################################################
 add_subdirectory(src)
 if(BUILD_TESTS)
-#  add_subdirectory(test)
+  add_subdirectory(test)
 else()
   message(WARNING "Skipping ${IFM3D_STLIMAGE_MODULE_NAME} unit tests!")
 endif()

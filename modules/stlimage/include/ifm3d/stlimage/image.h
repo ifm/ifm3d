@@ -229,6 +229,13 @@ namespace ifm3d
         return a.m_ptr != b.m_ptr;
       }
 
+      bool
+      operator-(const Iterator& rhs) const noexcept
+      {
+        // logic here
+        return this->m_ptr - rhs.m_ptr; // for example
+      }
+
     private:
       pointer m_ptr;
     };
