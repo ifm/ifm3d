@@ -13,14 +13,16 @@
 
 namespace ifm3d
  {
- std::unordered_map<uint32_t, std::size_t> PIX_SZ{
+  std::unordered_map<uint32_t, std::size_t> PIX_SZ{
   {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8U), 1},
   {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8S), 1},
   {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16U), 2},
   {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16S), 2},
   {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32S), 4},
   {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F), 4},
-  {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_64F), 8}};
+  {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_64F), 8},
+  {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16U2), 2},
+  {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F3), 4}};
 
 //--------------------------------
  // ImageAllocator class
