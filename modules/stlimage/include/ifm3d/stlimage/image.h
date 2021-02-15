@@ -151,20 +151,20 @@ namespace ifm3d
 
      @Note On repeated calling it will deference the old Memory
     */
-    void Create(const std::uint32_t& cols,
+    void create(const std::uint32_t& cols,
                 const std::uint32_t& rows,
                 const std::uint32_t& nchannel,
                 ifm3d::pixel_format format);
 
     /** @brief Creates a full copy of the array and the underlying data.
      */
-    Image Clone() const;
+    Image clone() const;
 
     /* getters*/
-     std::uint32_t Height() const;
-     std::uint32_t Width() const;
-     std::uint32_t Nchannels() const;
-     ifm3d::pixel_format DataFormat() const;
+    std::uint32_t height() const;
+    std::uint32_t width() const;
+    std::uint32_t nchannels() const;
+    ifm3d::pixel_format dataFormat() const;
 
     /** @brief returns a pointer to the specified Image row.
         @param row number 

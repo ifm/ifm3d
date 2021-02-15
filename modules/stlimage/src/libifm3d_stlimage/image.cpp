@@ -94,11 +94,11 @@ namespace ifm3d
                      const std::uint32_t& nchannel,
                      ifm3d::pixel_format format)
  {
-   Create(cols, rows, nchannel, format);
+   create(cols, rows, nchannel, format);
  }
 
 void
- ifm3d::Image::Create(const std::uint32_t& cols,
+ ifm3d::Image::create(const std::uint32_t& cols,
                       const std::uint32_t& rows,
                       const std::uint32_t& nchannel,
                       ifm3d::pixel_format format)
@@ -113,33 +113,33 @@ void
   data_ = image_allocator_->allocate(size_);
 }
 
-ifm3d::Image ifm3d::Image::Clone() const
+ifm3d::Image ifm3d::Image::clone() const
 {
   Image copy;
-  copy.Create(rows_, cols_, nchannel_, data_format_);
+  copy.create(rows_, cols_, nchannel_, data_format_);
   std::memcpy(copy.ptr(0), data_, size_);
   return copy;
 }
 
 std::uint32_t
-ifm3d::Image:: Height() const
+ifm3d::Image:: height() const
 {
   return cols_;
 }
 
 std::uint32_t
-ifm3d::Image::Width() const
+ifm3d::Image::width() const
 {
   return rows_;
 }
 
 std::uint32_t
-ifm3d::Image::Nchannels() const
+ifm3d::Image::nchannels() const
 {
   return nchannel_;
 }
 
-ifm3d::pixel_format ifm3d::Image::DataFormat() const
+ifm3d::pixel_format ifm3d::Image::dataFormat() const
 {
   return data_format_;
 }

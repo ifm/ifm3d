@@ -3,9 +3,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include <ifm3d/camera.h>
-#include <ifm3d/fg.h>
-#include <ifm3d/stlimage.h>
+#include <ifm3d/stlimage/image.h>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
 
@@ -36,552 +34,206 @@ namespace
     return img;
   }
 
-  template <typename T>
-  void
-  mul(ifm3d::Image& img, T val)
-  {
-    for (auto& pix_val : ifm3d::IteratorAdapter<T>(img))
-      {
-        pix_val *= val;
-      }
-  }
-
-  template <typename T1, typename T2>
-  ifm3d::Image
-  mul(ifm3d::Image img1, ifm3d::Image img2)
-  {
-    auto it = img2.begin<T2>();
-    for (auto& pix_val : ifm3d::IteratorAdapter<T1>(img1))
-      {
-        pix_val *= *it;
-        it++;
-      }
-    return img1;
-  }
-
-  template <typename T>
-  void
-  split(ifm3d::Image& split_this, std::vector<ifm3d::Image>& to_this)
-  {
-    // this is not a full split function, this function assumes that
-    // split_this will have three channel and to_this vector will have
-    // 3 ifm3d::Image images
-
-    using p3d = ifm3d::point3d<T>;
-
-    for (auto& image : to_this)
-      {
-        image.Create(split_this.Width(),
-                     split_this.Height(),
-                     1,
-                     split_this.DataFormat());
-      }
-
-    auto it1 = to_this[0].begin<T>();
-    auto it2 = to_this[1].begin<T>();
-    auto it3 = to_this[2].begin<T>();
-
-    for (auto value : ifm3d::IteratorAdapter<p3d>(split_this))
-      {
-        *it1 = value.x;
-        *it2 = value.y;
-        *it3 = value.z;
-
-        it1++;
-        it2++;
-        it3++;
-      }
-  }
-  template <typename T1, typename T2>
-  void
-  convert_to(ifm3d::Image& convert_this,
-             ifm3d::Image& to_this,
-             ifm3d::pixel_format this_type)
-  {
-    to_this.Create(convert_this.Width(), convert_this.Height(), 1, this_type);
-    auto it = to_this.begin<T2>();
-    for (auto& value : ifm3d::IteratorAdapter<T1>(convert_this))
-      {
-        *it = (T2)value;
-        it++;
-      }
-  }
 } // end namespace
-TEST(StlImage, MoveCtor)
+TEST(StlImage, Construct)
 {
-  LOG(INFO) << "StlImage.MoveCtor test";
-  auto cam = ifm3d::Camera::MakeShared();
-  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
-  auto im = std::make_shared<ifm3d::StlImageBuffer>();
+  ifm3d::Image img;
 
-  ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
-
-  ifm3d::Image amp = im->AmplitudeImage();
-  ifm3d::Image copy_of_amp = amp.Clone();
-
-  auto im2 = std::make_shared<ifm3d::StlImageBuffer>(std::move(*(im.get())));
-  ifm3d::Image amp2 = im2->AmplitudeImage();
-
-  if (cam->IsO3X())
-    {
-      EXPECT_TRUE(copy_of_amp.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
-      EXPECT_TRUE(copy_of_amp.Nchannels() == 1);
-      EXPECT_TRUE(amp2.Nchannels() == 1);
-      EXPECT_TRUE(std::equal(copy_of_amp.begin<float>(),
-                             copy_of_amp.end<float>(),
-                             amp2.begin<float>(),
-                             cmp_with_nan<float>));
-    }
-  else
-    {
-      EXPECT_TRUE(copy_of_amp.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
-      EXPECT_TRUE(copy_of_amp.Nchannels() == 1);
-      EXPECT_TRUE(amp2.Nchannels() == 1);
-      EXPECT_TRUE(std::equal(copy_of_amp.begin<std::uint16_t>(),
-                             copy_of_amp.end<std::uint16_t>(),
-                             amp2.begin<std::uint16_t>()));
-    }
+  EXPECT_TRUE(img.width() == 0);
+  EXPECT_TRUE(img.height() == 0);
+  EXPECT_TRUE(img.nchannels() == 0);
 }
 
-TEST(StlImage, MoveAssignmentOperator)
+TEST(StlImage, parameter_ctor)
 {
-  LOG(INFO) << "Image.MoveAssignmentOperator test";
-  auto cam = ifm3d::Camera::MakeShared();
-  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
-  auto im = std::make_shared<ifm3d::StlImageBuffer>();
+  const int height = 100;
+  const int width = 100;
+  const int nchannel = 1;
 
-  ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
+  ifm3d::Image img(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
 
-  ifm3d::Image amp = im->AmplitudeImage();
-  ifm3d::Image copy_of_amp = amp.Clone();
-
-  auto im2 = ifm3d::StlImageBuffer();
-  im2 = std::move(*(im.get()));
-
-  ifm3d::Image amp2 = im2.AmplitudeImage();
-
-  if (cam->IsO3X())
-    {
-      EXPECT_TRUE(copy_of_amp.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
-      EXPECT_TRUE(copy_of_amp.Nchannels() == 1);
-      EXPECT_TRUE(amp2.Nchannels() == 1);
-      EXPECT_TRUE(std::equal(copy_of_amp.begin<float>(),
-                             copy_of_amp.end<float>(),
-                             amp2.begin<float>(),
-                             cmp_with_nan<float>));
-    }
-  else
-    {
-      EXPECT_TRUE(copy_of_amp.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
-      EXPECT_TRUE(copy_of_amp.Nchannels() == 1);
-      EXPECT_TRUE(amp2.Nchannels() == 1);
-      EXPECT_TRUE(std::equal(copy_of_amp.begin<std::uint16_t>(),
-                             copy_of_amp.end<std::uint16_t>(),
-                             amp2.begin<std::uint16_t>()));
-    }
-}
-#include <iostream>
-TEST(StlImage, CopyCtor)
-{
-  LOG(INFO) << "Image.CopyCtor test";
-  auto cam = ifm3d::Camera::MakeShared();
-  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
-  auto im = std::make_shared<ifm3d::StlImageBuffer>();
-
-  ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
-
-  ifm3d::Image amp = im->AmplitudeImage();
-
-  auto im2 = std::make_shared<ifm3d::StlImageBuffer>();
-  ifm3d::Image amp2 = im2->AmplitudeImage();
-
-  EXPECT_FALSE((amp.Height() * amp.Width()) == (amp2.Height() * amp2.Width()));
-
-  im2 = std::make_shared<ifm3d::StlImageBuffer>(*(im.get()));
-  amp2 = im2->AmplitudeImage();
-  EXPECT_TRUE((amp.Height() * amp.Width()) == (amp2.Height() * amp2.Width()));
-
-  if (cam->IsO3X())
-    {
-      EXPECT_TRUE(amp.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
-      EXPECT_TRUE(amp.Nchannels() == 1);
-      EXPECT_TRUE(amp2.Nchannels() == 1);
-      EXPECT_TRUE(std::equal(amp.begin<float>(),
-                             amp.end<float>(),
-                             amp2.begin<float>(),
-                             cmp_with_nan<float>));
-    }
-  else
-    {
-      EXPECT_TRUE(amp.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
-      EXPECT_TRUE(amp.Nchannels() == 1);
-      EXPECT_TRUE(amp2.Nchannels() == 1);
-      EXPECT_TRUE(std::equal(amp.begin<std::uint16_t>(),
-                             amp.end<std::uint16_t>(),
-                             amp2.begin<std::uint16_t>()));
-    }
-
-  if (cam->IsO3X())
-    {
-      add<float>(amp2, 1.0f);
-      EXPECT_FALSE(std::equal(amp.begin<float>(),
-                              amp.end<float>(),
-                              amp2.begin<float>(),
-                              cmp_with_nan<float>));
-    }
-  else
-    {
-      add<uint16_t>(amp2, 1);
-      EXPECT_FALSE(std::equal(amp.begin<std::uint16_t>(),
-                              amp.end<std::uint16_t>(),
-                              amp2.begin<std::uint16_t>()));
-    }
+  EXPECT_TRUE(img.ptr(0) != nullptr);
+  EXPECT_TRUE(img.width() == width);
+  EXPECT_TRUE(img.height() == height);
+  EXPECT_TRUE(img.nchannels() == nchannel);
+  EXPECT_TRUE(img.dataFormat() == ifm3d::pixel_format::FORMAT_8U);
 }
 
-TEST(StlImage, CopyAssignmentOperator)
+TEST(StlImage, copy_ctor)
 {
-  LOG(INFO) << "Image.CopyAssignmentOperator test";
+  const int height = 100;
+  const int width = 100;
+  const int nchannel = 1;
 
-  auto cam = ifm3d::Camera::MakeShared();
-  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
-  auto im = std::make_shared<ifm3d::StlImageBuffer>();
-  auto im2 = std::make_shared<ifm3d::StlImageBuffer>();
+  ifm3d::Image img1(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
+  ifm3d::Image img(img1);
 
-  ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
+  EXPECT_TRUE(img.ptr(0) == img1.ptr(0));
+  EXPECT_TRUE(img.width() == img1.width());
+  EXPECT_TRUE(img.height() == img1.height());
+  EXPECT_TRUE(img.nchannels() == img1.nchannels());
+  EXPECT_TRUE(img.dataFormat() == img1.dataFormat());
 
-  *(im2.get()) = *(im.get());
-
-  auto amp = im->AmplitudeImage();
-  auto amp2 = im2->AmplitudeImage();
-
-  if (cam->IsO3X())
-    {
-      EXPECT_TRUE(amp.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
-      EXPECT_TRUE(amp.Nchannels() == 1);
-      EXPECT_TRUE(amp2.Nchannels() == 1);
-      EXPECT_TRUE(std::equal(amp.begin<float>(),
-                             amp.end<float>(),
-                             amp2.begin<float>(),
-                             cmp_with_nan<float>));
-    }
-  else
-    {
-      EXPECT_TRUE(amp.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
-      EXPECT_TRUE(amp.Nchannels() == 1);
-      EXPECT_TRUE(amp2.Nchannels() == 1);
-      EXPECT_TRUE(std::equal(amp.begin<std::uint16_t>(),
-                             amp.end<std::uint16_t>(),
-                             amp2.begin<std::uint16_t>()));
-    }
-
-  if (cam->IsO3X())
-    {
-      add<float>(amp2, 1.0f);
-      EXPECT_FALSE(std::equal(amp.begin<float>(),
-                              amp.end<float>(),
-                              amp2.begin<float>(),
-                              cmp_with_nan<float>));
-    }
-  else
-    {
-      add<uint16_t>(amp2, 1);
-      EXPECT_FALSE(std::equal(amp.begin<std::uint16_t>(),
-                              amp.end<std::uint16_t>(),
-                              amp2.begin<std::uint16_t>()));
-    }
+  EXPECT_TRUE(std::equal(img.begin<std::uint8_t>(),
+                         img.end<std::uint8_t>(),
+                         img1.begin<std::uint8_t>()));
 }
 
-TEST(StlImage, References)
+TEST(StlImage, copy_assigment)
 {
-  LOG(INFO) << "Image.References test";
+  const int height = 100;
+  const int width = 100;
+  const int nchannel = 1;
 
-  auto cam = ifm3d::Camera::MakeShared();
-  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
-  auto im = std::make_shared<ifm3d::StlImageBuffer>();
+  ifm3d::Image img1(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
+  ifm3d::Image img = img1;
 
-  ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
+  EXPECT_TRUE(img.ptr(0) == img1.ptr(0));
+  EXPECT_TRUE(img.width() == img1.width());
+  EXPECT_TRUE(img.height() == img1.height() );
+  EXPECT_TRUE(img.nchannels() == img1.nchannels());
+  EXPECT_TRUE(img.dataFormat() == img1.dataFormat());
 
-  auto amp = im->AmplitudeImage();
-  auto amp2 = im->AmplitudeImage();
-
-  if (cam->IsO3X())
-    {
-      EXPECT_TRUE(amp.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
-      EXPECT_TRUE(amp.Nchannels() == 1);
-      EXPECT_TRUE(amp2.Nchannels() == 1);
-      EXPECT_TRUE(std::equal(amp.begin<float>(),
-                             amp.end<float>(),
-                             amp2.begin<float>(),
-                             cmp_with_nan<float>));
-    }
-  else
-    {
-      EXPECT_TRUE(amp.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
-      EXPECT_TRUE(amp.Nchannels() == 1);
-      EXPECT_TRUE(amp2.Nchannels() == 1);
-      EXPECT_TRUE(std::equal(amp.begin<std::uint16_t>(),
-                             amp.end<std::uint16_t>(),
-                             amp2.begin<std::uint16_t>()));
-    }
-
-  if (cam->IsO3X())
-    {
-      add<float>(amp2, 1.0f);
-      EXPECT_TRUE(std::equal(amp.begin<float>(),
-                             amp.end<float>(),
-                             amp2.begin<float>(),
-                             cmp_with_nan<float>));
-    }
-  else
-    {
-      add<uint16_t>(amp2, 1);
-      EXPECT_TRUE(std::equal(amp.begin<std::uint16_t>(),
-                             amp.end<std::uint16_t>(),
-                             amp2.begin<std::uint16_t>()));
-    }
+  EXPECT_TRUE(std::equal(img.begin<std::uint8_t>(),
+                         img.end<std::uint8_t>(),
+                         img1.begin<std::uint8_t>()));
 }
 
-TEST(StlImage, ComputeCartesian)
+TEST(StlImage, Create)
 {
-  //
-  // NOTE: The conversions back/forth from/to m/mm is to
-  // make this code work for all ifm3d sensors -- i.e.,
-  // some return their data as float in meters, others as
-  // integers in mm. We normalize to mm and do integer comparisions for
-  // correctness.
-  //
+  ifm3d::Image img;
 
-  auto cam = ifm3d::Camera::MakeShared();
-  auto im = std::make_shared<ifm3d::StlImageBuffer>();
-  //
-  // 1. Stream in the unit vectors
-  //
-  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, ifm3d::IMG_UVEC);
-  ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
-  ifm3d::Image uvec = im->UnitVectors();
-  //
-  // 2. Now we stream in both the radial distance image and the cartesian
-  // data. The latter we simply use as ground truth
-  //
-  fg.reset();
-  fg =
-    std::make_shared<ifm3d::FrameGrabber>(cam,
-                                          ifm3d::IMG_RDIS | ifm3d::IMG_CART);
-  EXPECT_TRUE(fg->WaitForFrame(im.get(), 1000));
-  ifm3d::Image rdis = im->DistanceImage();
-  ifm3d::Image conf = im->ConfidenceImage();
-  ifm3d::Image xyz = im->XYZImage(); // ground truth
+  const int height = 100;
+  const int width = 100;
+  const int nchannel = 1;
 
-  std::vector<ifm3d::Image> chans(3);
-  ifm3d::Image x_cam, y_cam, z_cam;
-  switch (xyz.DataFormat())
-    {
-    case ifm3d::pixel_format::FORMAT_16U:
-      split<uint16_t>(xyz, chans);
-      x_cam = chans[0];
-      y_cam = chans[1];
-      z_cam = chans[2];
-      break;
-    case ifm3d::pixel_format::FORMAT_32F:
-      split<float>(xyz, chans);
-      mul<float>(chans[0], 1000.0f);
-      mul<float>(chans[1], 1000.0f);
-      mul<float>(chans[2], 1000.0f);
+  img.create(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
 
-      // cast to int16_t
-      convert_to<float, int16_t>(chans[0],
-                                 x_cam,
-                                 ifm3d::pixel_format::FORMAT_16S);
-      convert_to<float, int16_t>(chans[1],
-                                 y_cam,
-                                 ifm3d::pixel_format::FORMAT_16S);
-      convert_to<float, int16_t>(chans[2],
-                                 z_cam,
-                                 ifm3d::pixel_format::FORMAT_16S);
-      break;
-    }
-
-  //
-  // We also need the translation vector from the extrinsics
-  //
-  std::vector<float> extrinsics = im->Extrinsics();
-  float tx = extrinsics[0];
-  float ty = extrinsics[1];
-  float tz = extrinsics[2];
-
-  //
-  // 3. Compute the cartesian data
-  //
-
-  // unit vectors
-  ifm3d::Image ex, ey, ez;
-  std::vector<ifm3d::Image> uvec_chans(3);
-  split<float>(uvec, uvec_chans);
-  ex = uvec_chans[0];
-  ey = uvec_chans[1];
-  ez = uvec_chans[2];
-
-  ifm3d::Image rdis_f;
-  if (cam->IsO3D())
-    {
-      convert_to<uint16_t, float>(rdis,
-                                  rdis_f,
-                                  ifm3d::pixel_format::FORMAT_32F);
-    }
-  if (rdis.DataFormat() == ifm3d::pixel_format::FORMAT_32F)
-    {
-      rdis_f = rdis;
-      // assume rdis was in meters, convert to mm
-      mul<float>(rdis_f, 1000.0f);
-    }
-
-  // compute
-  ifm3d::Image x_ = add<float>(mul<float, float>(ex, rdis_f), tx);
-  ifm3d::Image y_ = add<float>(mul<float, float>(ey, rdis_f), ty);
-  ifm3d::Image z_ = add<float>(mul<float, float>(ez, rdis_f), tz);
-
-  // blank out bad pixels ... our zero pixels will
-  // be exactly equal to tx, ty, tz and if any of those
-  // exceed 1cm (our test tolerance) like on an O3D301,
-  // we will get errors in the unit test.
-  ifm3d::Image bad_mask;
-
-  bad_mask.Create(conf.Width(), conf.Height(), 1, conf.DataFormat());
-  int index = 0;
-  auto it = bad_mask.begin<uint8_t>();
-  for (uint8_t value : ifm3d::IteratorAdapter<uint8_t>(conf))
-    {
-      *it = value & 0x1;
-      it++;
-    }
-  x_.setTo(0., bad_mask);
-  y_.setTo(0., bad_mask);
-  z_.setTo(0., bad_mask);
-
-  //
-  // 4. Cast (back) to int16 and transform to ifm3d coord frame
-  //
-  ifm3d::Image x_i, y_i, z_i;
-
-  convert_to<float, int16_t>(x_, x_i, ifm3d::pixel_format::FORMAT_16S);
-  convert_to<float, int16_t>(y_, y_i, ifm3d::pixel_format::FORMAT_16S);
-  convert_to<float, int16_t>(z_, z_i, ifm3d::pixel_format::FORMAT_16S);
-
-  ifm3d::Image x_computed = z_i;
-  ifm3d::Image y_computed = x_i;
-  ifm3d::Image z_computed = y_i;
-
-  mul<int16_t>(y_computed, -1);
-  mul<int16_t>(z_computed, -1);
-  //
-  // 5. Compare for correctness
-  //
-  auto cmp = [](std::int16_t a, std::int16_t b) -> bool {
-    if (std::abs(a - b) <= 10) // 10 mm == cm accuracy
-      {
-        return true;
-      }
-
-    return false;
-  };
-
-  EXPECT_TRUE(std::equal(x_cam.begin<std::int16_t>(),
-                         x_cam.end<std::int16_t>(),
-                         x_computed.begin<std::int16_t>(),
-                         cmp));
-
-  EXPECT_TRUE(std::equal(y_cam.begin<std::int16_t>(),
-                         y_cam.end<std::int16_t>(),
-                         y_computed.begin<std::int16_t>(),
-                         cmp));
-
-  EXPECT_TRUE(std::equal(z_cam.begin<std::int16_t>(),
-                         z_cam.end<std::int16_t>(),
-                         z_computed.begin<std::int16_t>(),
-                         cmp));
+  EXPECT_TRUE(img.ptr(0) != nullptr);
+  EXPECT_TRUE(img.width() == width);
+  EXPECT_TRUE(img.height() == height);
+  EXPECT_TRUE(img.nchannels() == nchannel);
+  EXPECT_TRUE(img.dataFormat() == ifm3d::pixel_format::FORMAT_8U);
 }
 
-TEST(StlImage, TimeStamp)
+// CLone
+
+TEST(StlImage, Clone)
 {
-  std::string json =
-    R"(
+  const int height = 100;
+  const int width = 100;
+  const int nchannel = 1;
+
+  ifm3d::Image img(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
+  ifm3d::Image img_clone = img.clone();
+
+  EXPECT_TRUE(img.ptr(0) != img_clone.ptr(0));
+  EXPECT_TRUE(img.width() == img_clone.width());
+  EXPECT_TRUE(img.height() == img_clone.height());
+  EXPECT_TRUE(img.nchannels() == img_clone.nchannels());
+  EXPECT_TRUE(img.dataFormat() == img_clone.dataFormat());
+
+  EXPECT_TRUE(std::equal(img.begin<std::uint8_t>(),
+                         img.end<std::uint8_t>(),
+                         img_clone.begin<std::uint8_t>()));
+}
+
+//accessing pointers
+TEST(StlImage, row_pointer)
+{
+  const int height = 100;
+  const int width = 100;
+  const int nchannel = 1;
+
+  ifm3d::Image img(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
+
+  EXPECT_TRUE(img.ptr(0) != nullptr);
+  EXPECT_TRUE(img.ptr(height - 1) != nullptr);
+  EXPECT_TRUE(img.ptr(10, 10) != nullptr);
+}
+
+//at function
+TEST(StlImage, at)
+{
+  const int height = 100;
+  const int width = 100;
+  const int nchannel = 1;
+
+  ifm3d::Image img(width, height, 1, ifm3d::pixel_format::FORMAT_16U);
+
+  // fill the image with values
+  for (int i = 0; i < height* width; i++)
+    {
+      EXPECT_NO_FATAL_FAILURE(img.at<uint16_t>(i) = i);
+    }
+  uint16_t val = 0;
+  for (auto pix_val : ifm3d::IteratorAdapter<uint16_t>(img))
+    {
+      EXPECT_TRUE(pix_val == val);
+      val++;
+    }
+  val = 0;
+  for (int row = 0; row < height; row++)
+    {
+      for (int col = 0; col < width; col++)
         {
-          "o3d3xx":
-          {
-            "Device":
-            {
-              "ActiveApplication": "1"
-            },
-            "Apps":
-            [
-              {
-                "TriggerMode": "1",
-                "Index": "1",
-                "Imager":
-                {
-                    "ExposureTime": "5000",
-                    "ExposureTimeList": "125;5000",
-                    "ExposureTimeRatio": "40",
-                    "Type":"under5m_moderate"
-                }
-              }
-           ]
-          }
+          EXPECT_TRUE(img.at<uint16_t>(row, col) == val);
+          val++;
         }
-      )";
-
-  ifm3d::Camera::Ptr cam = std::make_shared<ifm3d::Camera>();
-  cam->FromJSON(nlohmann::json::parse(json));
-
-  ifm3d::StlImageBuffer::Ptr img = std::make_shared<ifm3d::StlImageBuffer>();
-  ifm3d::FrameGrabber::Ptr fg =
-    std::make_shared<ifm3d::FrameGrabber>(cam,
-                                          ifm3d::IMG_AMP | ifm3d::IMG_CART);
-
-  std::array<ifm3d::TimePointT, 2> tps;
-  // get two consecutive timestamps
-  for (ifm3d::TimePointT& t : tps)
-    {
-      EXPECT_TRUE(fg->WaitForFrame(img.get(), 1000));
-      t = img->TimeStamp();
     }
-  // the first time point need to be smaller than the second one
-  EXPECT_LT(tps[0], tps[1]);
-  auto tdiff =
-    std::chrono::duration_cast<std::chrono::milliseconds>(tps[1] - tps[0])
-      .count();
-  EXPECT_GT(tdiff, 20);
 }
 
-TEST(StlImage, IlluTemp)
+//SetTo
+TEST(StlImage, setTo)
 {
-  ifm3d::Camera::Ptr cam = std::make_shared<ifm3d::Camera>();
+  const int height = 100;
+  const int width = 100;
+  const int nchannel = 1;
 
-  ifm3d::StlImageBuffer::Ptr img = std::make_shared<ifm3d::StlImageBuffer>();
-  ifm3d::FrameGrabber::Ptr fg = std::make_shared<ifm3d::FrameGrabber>(
-    cam,
-    ifm3d::DEFAULT_SCHEMA_MASK | ifm3d::ILLU_TEMP);
+  ifm3d::Image img(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
+  ifm3d::Image mask(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
 
-  ASSERT_TRUE(fg->WaitForFrame(img.get(), 1000));
+  add<uint8_t>(mask, 1);
+  uint8_t val = 255;
 
-  // currently not supported on O3X
-  if (cam->IsO3X())
+  img.setTo<uint8_t>(val, mask);
+  for (const auto pix_val : ifm3d::IteratorAdapter<uint8_t>(img))
     {
-      return;
+      EXPECT_TRUE(pix_val == val);
+    }
+}
+
+//Iterators
+TEST(StlImage, iterators)
+{
+  const int height = 100;
+  const int width = 100;
+  const int nchannel = 1;
+
+  ifm3d::Image img(width, height, 1, ifm3d::pixel_format::FORMAT_16U);
+
+  // fill the image with values
+  for (int i = 0; i < height * width; i++)
+    {
+      EXPECT_NO_FATAL_FAILURE(img.at<uint16_t>(i) = i);
     }
 
-  float illu_temp = img->IlluTemp();
-
-  EXPECT_GT(illu_temp, 10);
-  EXPECT_LT(illu_temp, 90);
-}
+  auto it_begin = img.begin<uint16_t>();
+  auto it_end = img.begin<uint16_t>();
+  EXPECT_TRUE(it_begin != nullptr);
+  EXPECT_TRUE(it_end != nullptr);
+  EXPECT_TRUE(it_begin == img.ptr(0));
+  uint16_t val = 0;
+  auto it = it_begin;
+  for (int i = 0 ; i < width * height; i++, val++, it++)
+    {
+      EXPECT_TRUE(*it == val);
+    }
+  val = 0;
+  // check using ranged based for loop
+  for (const uint16_t pix_val : ifm3d::IteratorAdapter<uint16_t>(img))
+    {
+      EXPECT_TRUE(pix_val == val);
+      val++;
+    }
+  }
