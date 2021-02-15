@@ -81,7 +81,7 @@ namespace ifm3d
               const std::vector<std::uint8_t>& bytes)
     {
       std::size_t incr = sizeof(T) * nchan;
-      im.Create(width, height, nchan, static_cast<ifm3d::pixel_format>(fmt));
+      im.create(width, height, nchan, static_cast<ifm3d::pixel_format>(fmt));
       int col = 0;
       int row = -1;
       int col3 = 0;
@@ -145,7 +145,7 @@ namespace ifm3d
                  const std::vector<std::uint8_t>& bytes)
     {
       std::size_t incr = sizeof(T);
-      im.Create(width,
+      im.create(width,
                 height,
                 3,
                 static_cast<ifm3d::pixel_format>(fmt));
@@ -398,10 +398,10 @@ namespace ifm3d
     // update the bad pixel mask if we just saw the confidence image
     if (im == ifm3d::image_chunk::CONFIDENCE)
       {
-        this->bad_.Create(this->conf_.Width(),
-                          this->conf_.Height(),
+        this->bad_.create(this->conf_.width(),
+                          this->conf_.height(),
                           1,
-                          this->conf_.DataFormat());
+                          this->conf_.dataFormat());
         int index = 0;
         auto it = this->bad_.begin<unsigned char>();
         for (unsigned char value : ifm3d::IteratorAdapter<unsigned char>(this->conf_))
