@@ -1,3 +1,7 @@
+## [0.91.0] - 2021-02-15
+### Added
+- Support for the compressed image format introduced for O3R
+
 ## Changes between ifm3d 0.17.0 and 0.18.0
 * Support for latest O3D3XX firmware (1.30.5309)
 * Support for latest O3X firmware (1.0.156)
