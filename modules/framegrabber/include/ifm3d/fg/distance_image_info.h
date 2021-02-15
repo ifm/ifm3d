@@ -16,7 +16,7 @@ namespace ifm3d
   constexpr auto CHUNK_SIZE_INFO_OFFSET = 4;
   constexpr auto HEADER_SIZE_INFO_OFFSET = 8;
   constexpr auto HEADER_VERSION_INFO_OFFSET = 12;
-  constexpr auto DISTANCE_IMAGE_INFO_CHUNK_SIZE = 360;
+  constexpr auto DISTANCE_IMAGE_INFO_DATA_SIZE = 360;
 
   constexpr auto NR_MODEL_PARAMS = 32;
   constexpr auto AMPL_NORM_FACTOR_VECTOR_SIZE = 3;
@@ -69,8 +69,8 @@ namespace ifm3d
   using DistanceImageInfoPtr = std::unique_ptr<DistanceImageInfo>;
   DistanceImageInfoPtr CreateDistanceImageInfo(
     const std::vector<std::uint8_t>& data_buffer,
-    const std::size_t didx,
-    const std::size_t aidx,
+    const std::size_t dist_idx,
+    const std::size_t amp_idx,
     const std::uint32_t width,
     const std::uint32_t height);
 } // end: namespace ifm3d

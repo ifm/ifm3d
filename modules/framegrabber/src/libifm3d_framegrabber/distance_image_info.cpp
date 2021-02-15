@@ -16,9 +16,9 @@ namespace ifm3d
                 const std::vector<std::uint8_t>& data_buffer,
                 const std::uint32_t npts)
   {
-    auto chunk_size = ifm3d::mkval<uint32_t>(data_buffer.data() + idx +
+    const auto chunk_size = ifm3d::mkval<uint32_t>(data_buffer.data() + idx +
                                              CHUNK_SIZE_INFO_OFFSET);
-    auto data_offset = ifm3d::mkval<std::uint32_t>(data_buffer.data() + idx +
+    const auto data_offset = ifm3d::mkval<std::uint32_t>(data_buffer.data() + idx +
                                                    HEADER_SIZE_INFO_OFFSET);
 
     if ((chunk_size - data_offset) < npts * UINT16_DATA_SIZE)
@@ -67,8 +67,8 @@ namespace ifm3d
 
   DistanceImageInfoPtr
   CreateDistanceImageInfo(const std::vector<std::uint8_t>& data_buffer,
-                          const std::size_t didx,
-                          const std::size_t aidx,
+                          const std::size_t dist_idx,
+                          const std::size_t amp_idx,
                           const std::uint32_t width,
                           const std::uint32_t height)
   {
@@ -81,8 +81,8 @@ namespace ifm3d
       data_buffer,
       ifm3d::image_chunk::O3R_DISTANCE_IMAGE_INFORMATION);
 
-    if (distimageidx == INVALID_IDX || didx == INVALID_IDX ||
-        aidx == INVALID_IDX)
+    if (distimageidx == INVALID_IDX || dist_idx == INVALID_IDX ||
+        amp_idx == INVALID_IDX)
       {
         return {};
       }
@@ -94,7 +94,7 @@ namespace ifm3d
     auto chunk_size = ifm3d::mkval<uint32_t>(
       data_buffer.data() + distimageidx + CHUNK_SIZE_INFO_OFFSET);
 
-    if (DISTANCE_IMAGE_INFO_CHUNK_SIZE > chunk_size)
+    if (DISTANCE_IMAGE_INFO_DATA_SIZE > chunk_size)
       {
         // the following reading of the buffer depends on a correct
         // chunk size
@@ -141,8 +141,8 @@ namespace ifm3d
       << "\n\t-Chunk size: " << chunk_size
       << "\n\t-Chunk end index: " << data_offset
       << "\n\t-Header size: " << header_size
-      << "\n\t-Version: " << dist_info_version << "\n\t-didx: " << didx
-      << " aidx: " << aidx << "\n\t-DistanceResolution: " << dist_resolution
+      << "\n\t-Version: " << dist_info_version << "\n\t-dist_idx: " << dist_idx
+      << " amp_idx: " << amp_idx << "\n\t-DistanceResolution: " << dist_resolution
       << "\n\t-AmplitudeResolution: " << ampl_resolution;
 
     return std::make_unique<DistanceImageInfo>(
@@ -152,8 +152,8 @@ namespace ifm3d
       extrinsic_optic_to_user,
       intrinsic_calibration,
       inverse_intrinsic_calibration,
-      readU16Vector(didx, data_buffer, width * height),
-      readU16Vector(aidx, data_buffer, width * height),
+      readU16Vector(dist_idx, data_buffer, width * height),
+      readU16Vector(amp_idx, data_buffer, width * height),
       width,
       height);
   }

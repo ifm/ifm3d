@@ -518,7 +518,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
   cidx += pixel_data_offset;
   im_wrapper(ifm3d::image_chunk::CONFIDENCE, cfmt, cidx);
 
-  if (D_OK && !distance_image_info)
+  if (D_OK && distance_image_info == nullptr)
     {
       didx += pixel_data_offset;
       im_wrapper(ifm3d::image_chunk::RADIAL_DISTANCE, dfmt, didx);
@@ -536,7 +536,8 @@ ifm3d::ByteBuffer<Derived>::Organize()
       im_wrapper(ifm3d::image_chunk::GRAY, gfmt, gidx);
     }
 
-  if (A_OK && distance_image_info) // O3R device
+  if (A_OK &&
+          distance_image_info != nullptr) // O3R device
     {
       // the amplitude vector is derived from
       // the distance image info data
@@ -576,7 +577,8 @@ ifm3d::ByteBuffer<Derived>::Organize()
       zidx += pixel_data_offset;
       cloud_wrapper(xfmt, xidx, yidx, zidx, this->bytes_);
     }
-  else if (D_OK && distance_image_info) // O3R device
+  else if (D_OK &&
+           distance_image_info != nullptr) // O3R device
     {
       VLOG(IFM3D_PROTO_DEBUG)
         << "point cloud construction from compressed ifoutput";
@@ -722,7 +724,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
             ifm3d::mkval<float>(this->bytes_.data() + extidx);
         }
     }
-  else if (distance_image_info) // O3R device
+  else if (distance_image_info  != nullptr) // O3R device
     {
       // renamed to extrinsic_optic_to_user in O3R
       this->extrinsics_ = distance_image_info->getExtrinsicOpticToUser();
