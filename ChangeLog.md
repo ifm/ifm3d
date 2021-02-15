@@ -13,6 +13,10 @@
   * #284 ifm3d Compiling error at swupdater app with VS2019 and Windows
   * #283 Imported target "ifm3d::image" includes non-existent path "/usr/include/opencv"
 
+## [0.91.0] - 2021-02-15
+### Added
+- Support for the compressed image format introduced for O3R
+
 ## Changes between ifm3d 0.17.0 and 0.18.0
 * Support for latest O3D3XX firmware (1.30.5309)
 * Support for latest O3X firmware (1.0.156)
