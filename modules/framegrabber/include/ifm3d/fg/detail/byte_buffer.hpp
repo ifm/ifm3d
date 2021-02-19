@@ -37,7 +37,7 @@ ifm3d::ByteBuffer<Derived>::ByteBuffer()
     intrinsic_available(false),
     inverse_intrinsic_available(false),
     exposure_times_({0,0,0}),
-    time_stamp_(std::chrono::system_clock::now()),
+    time_stamp_({ std::chrono::system_clock::now(),std::chrono::system_clock::now() }),
     json_model_("{}")
 { }
 
@@ -166,7 +166,7 @@ ifm3d::ByteBuffer<Derived>::ExposureTimes()
 }
 
 template <typename Derived>
-ifm3d::TimePointT
+std::vector<ifm3d::TimePointT>
 ifm3d::ByteBuffer<Derived>::TimeStamp()
 {
   this->Organize();
@@ -308,14 +308,22 @@ ifm3d::ByteBuffer<Derived>::Organize()
       const std::uint32_t timestampNsec =
           ifm3d::mkval<std::uint32_t>(this->bytes_.data()+cidx+44);
       // convert the time stamp into a TimePointT
-      this->time_stamp_ =
-        ifm3d::TimePointT{std::chrono::seconds{timestampSec} +
+      this->time_stamp_[0] =
+          ifm3d::TimePointT{std::chrono::seconds{timestampSec} +
                           std::chrono::nanoseconds{timestampNsec}};
+      // O3X device provides an offeset in Usec releative to timestamp
+      // calculated as time_stamp_[0]
+      const std::uint32_t ethernetTimeinUsecOffset =
+          ifm3d::mkval<std::uint32_t>(this->bytes_.data()+cidx+28);
+
+      this->time_stamp_[1] =
+          ifm3d::TimePointT{this->time_stamp_[0] + std::chrono::microseconds{ethernetTimeinUsecOffset}};
     }
   else
     {
       // There is no *big* time stamp in chunk version 1
-      this->time_stamp_ = std::chrono::system_clock::now();
+      this->time_stamp_[0] = std::chrono::system_clock::now();
+      this->time_stamp_[1] = std::chrono::system_clock::now();
     }
 
   bool A_OK = (aidx != INVALID_IDX);

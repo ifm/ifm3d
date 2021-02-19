@@ -329,13 +329,21 @@ namespace ifm3d
     std::vector<std::uint32_t> ExposureTimes();
 
     /**
-     * Returns the time stamp of the image data.
+     * Returns the time stamps of the image data.
      *
-     * NOTE: To get the timestamp of the confidence data, you
+     * Value at index 0 will represent the time at which
+     * phase data is read.
+     *
+     * Value at index 1 will represent the time at which data
+     * is transferred over ethernet.
+     *
+     * NOTE: Value at index 1 only make sense for O3X devices,
+     * Firmware 1.1.176 or greater required.
+     * timestamps are obtained from confidence data, you
      * need to make sure your current pcic schema mask have enabled confidence
      * data.
      */
-    ifm3d::TimePointT TimeStamp();
+    std::vector<ifm3d::TimePointT> TimeStamp();
 
     /**
      * Returns the temperature of the illumination unit.
@@ -485,9 +493,9 @@ namespace ifm3d
     std::vector<std::uint32_t> exposure_times_;
 
     /**
-     * Camera timestamp of the current frame
+     * Camera timestamps of the current frame
      */
-    ifm3d::TimePointT time_stamp_;
+    std::vector<ifm3d::TimePointT> time_stamp_;
 
     /**
      * Temperature of the illumination unit synchronized in time with the
