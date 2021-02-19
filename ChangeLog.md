@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] 
 ### Added
+- Added functionality to get timestamp at which data is send over ethernet
 - Support for Distance noise image for O3X Devices
 - Support for latest O3X firmware (1.0.163)
 - Straylight Correction
