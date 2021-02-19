@@ -6,6 +6,7 @@
 * New Parameters: AbsDistStraylightThreshold, EnableStraylightCorrection, EnableNoiseEstimation, CompensateAmbientLightDrift, DistNoiseThreshold, EnableNoiseEstimation, RelAmpStraylightThreshold
 * Added the O3X FW 1.1.166 to the compatibility list
 * Added compatibility list to swupdate document
+* Added functionality to get timestamp at which data is send over ethernet
 
 ## Changes between ifm3d 0.18.0 and 0.20.0 [Unreleased]
 * Added clang format support for formatting
