@@ -29,6 +29,9 @@ namespace ifm3d
   /** Broadcast reply magic number. */
   constexpr uint32_t BCAST_MAGIC_REPLY = 0x19111981;
 
+  /** @brief Broadcast ipchange magic number. */
+  constexpr uint32_t BCAST_MAGIC_IPCHANGE = 0x1020efce;
+
   /** Broadcast request magic number. */
   constexpr uint32_t BCAST_MAGIC_REQUEST = 0x1020efcf;
 
@@ -132,12 +135,74 @@ namespace ifm3d
       for (int i = 0; i < size - 1; i++)
         {
           converttoHexandAppend(mac[i]);
-          ss << "::";
+          ss << ":";
         }
       converttoHexandAppend(mac[size - 1]);
       return ss.str();
     }
+
+    uint32_t
+    toAddress(std::string ipadd)
+    {
+      std::stringstream ss(ipadd);
+      int oct1, oct2, oct3, oct4 = 0;
+      char dot;
+      ss >> oct1 >> dot >> oct2 >> dot >> oct3 >> dot >> oct4;
+
+      uint32_t result = (uint32_t)oct1 << 24 | (uint32_t)oct2 << 16 |
+                        (uint32_t)oct3 << 8 | (uint32_t)oct4;
+
+      return result;
+    }
+
+    void
+    strMac2uintmac(const std::string& mac, uint8_t* mac_array, size_t size)
+    {
+      std::stringstream ss(mac);
+      char double_colon;
+      int value;
+      ss >> std::hex;
+      for (int i = 0; i < size - 1; i++)
+        {
+          ss >> value >> double_colon;
+          mac_array[i] = value;
+        }
+      ss >> value;
+      mac_array[size - 1] = value;
+    }
   }
+
+  /** @brief Broadcast ipchange packet structure. */
+  struct BcastIPchange
+  {
+    /** @brief Default magic number 0x1020efce. */
+    uint32_t magic;
+
+    /** @brief Port to send reply to. */
+    uint16_t replyPort;
+
+    /** @brief Unused. */
+    uint16_t reserved1;
+
+    /** @brief Temporary ip address that should be set. */
+    uint32_t tempIP;
+
+    /** @brief Unused. */
+    uint16_t reserved2;
+
+    /** @brief Mac address of interface to change. */
+    uint8_t mac[6];
+
+    BcastIPchange(const std::string& device_mac, const std::string& temp_ip)
+      : magic(htonl(BCAST_MAGIC_IPCHANGE)),
+        replyPort(htons(BCAST_DEFAULT_PORT)),
+        reserved1(0),
+        tempIP(htonl(toAddress(temp_ip))),
+        reserved2(0)
+    {
+      strMac2uintmac(device_mac, mac, 6);
+    }
+  };
 
   IFMNetworkDevice::IFMNetworkDevice(
     Data& data,
@@ -207,12 +272,14 @@ namespace ifm3d
     return device_name_;
   }
 
-  uint16_t IFMNetworkDevice::GetVendorId() const
+  uint16_t
+  IFMNetworkDevice::GetVendorId() const
   {
     return vendor_id_;
   }
 
-  uint16_t IFMNetworkDevice::GetDeviceId() const
+  uint16_t
+  IFMNetworkDevice::GetDeviceId() const
   {
     return device_id_;
   }
@@ -372,7 +439,9 @@ namespace ifm3d
     {BCAST_MAGIC_REQUEST,
      [](size_t size) -> uint32_t { return sizeof(BcastRequest) - size; }},
     {BCAST_MAGIC_REPLY,
-     [](size_t size) -> uint32_t { return sizeof(BcastReply) - size; }}};
+     [](size_t size) -> uint32_t { return sizeof(BcastReply) - size; }},
+    {BCAST_MAGIC_IPCHANGE,
+     [](size_t size) -> uint32_t { return sizeof(BcastIPchange) - size; }}};
 
   const unsigned int THREADS_FOR_IO_OPERATIONS = 3;
 
@@ -386,16 +455,6 @@ namespace ifm3d
           thread_pool_.push_back(
             std::thread(std::bind([&] { io_context_.run(); })));
         }
-    }
-    IFMDeviceDiscovery(IFMDeviceDiscovery&&) = delete;
-    IFMDeviceDiscovery& operator=(IFMDeviceDiscovery&&) = delete;
-    IFMDeviceDiscovery(IFMDeviceDiscovery&) = delete;
-    IFMDeviceDiscovery& operator=(IFMDeviceDiscovery&) = delete;
-
-    std::vector<IFMNetworkDevice>
-    NetworkSearch()
-    {
-      device_list_.clear();
 
       /* Creating universal listener udp connection */
       asio::ip::udp::endpoint endpoint(asio::ip::address_v4::any(),
@@ -412,31 +471,74 @@ namespace ifm3d
                                      std::placeholders::_1));
 
       connection_list_.push_back(con);
+    }
 
+    ~IFMDeviceDiscovery()
+    {
+      /* stop the io_context after getting list */
+      io_context_.stop();
+
+      // wait for all threads to complete
+      for (std::thread& thread : thread_pool_)
+        {
+          if (thread.joinable())
+            {
+              thread.join();
+            }
+        }
+    }
+
+    IFMDeviceDiscovery(IFMDeviceDiscovery&&) = delete;
+    IFMDeviceDiscovery& operator=(IFMDeviceDiscovery&&) = delete;
+    IFMDeviceDiscovery(IFMDeviceDiscovery&) = delete;
+    IFMDeviceDiscovery& operator=(IFMDeviceDiscovery&) = delete;
+
+    std::vector<IFMNetworkDevice>
+    SearchDevices()
+    {
       try
         {
-          auto addresses = _GetAllInterfaceAddress();
+          device_list_.clear();
+          // get dall the address
+          auto address = _GetAllInterfaceAddress();
 
-          /* broadcast ifm discovery request on all interfaces */
-          for (const auto& address : addresses)
-            {
-              _BroadcastOnInterface(address);
-            }
+          Data data;
+          const BcastRequest request;
+          data.resize(sizeof(BcastRequest));
+          std::memcpy(data.data(), &request, sizeof(BcastRequest));
+
+          _BroadcastRequest(data, address);
+
           /* get the device list  this will block the thread
-             till all NIC are scanned for devices */
+                till all NIC are scanned for devices */
           auto devices = _GetDeviceList();
+      }
+      catch (std::exception& e)
+        {
+          std::cerr << e.what() << std::endl;
+        }
+      return device_list_;
+    }
 
-          /* stop the io_context after getting list */
-          io_context_.stop();
+    std::vector<IFMNetworkDevice>
+    SetTempIpaddress(const std::string& dev_mac, const std::string& temp_ip)
+    {
+      try
+        {
+          device_list_.clear();
+          // get dall the address
+          auto address = _GetAllInterfaceAddress();
 
-          // wait for all threads to complete
-          for (std::thread& thread : thread_pool_)
-            {
-              if (thread.joinable())
-                {
-                  thread.join();
-                }
-            }
+          Data data;
+          const BcastIPchange request(dev_mac, temp_ip);
+          data.resize(sizeof(BcastIPchange));
+          std::memcpy(data.data(), &request, sizeof(BcastIPchange));
+
+          _BroadcastRequest(data, address);
+
+          /* get the device list  this will block the thread
+                till all NIC are scanned for devices */
+          auto devices = _GetDeviceList();
         }
       catch (std::exception& e)
         {
@@ -444,169 +546,174 @@ namespace ifm3d
         }
       return device_list_;
     }
-  private:
 
-    std::vector<std::string>
-    _GetAllInterfaceAddress()
-    {
-      std::vector<std::string> addresses;
+  void
+  _BroadcastRequest(ifm3d::Data& request, std::vector<std::string>& addresses)
+  {
+    for (const auto& address : addresses)
+      {
+        _BroadcastOnInterface(request, address);
+      }
+  }
+
+private:
+  std::vector<std::string>
+  _GetAllInterfaceAddress()
+  {
+    std::vector<std::string> addresses;
 #ifdef __unix__
-      struct ifaddrs *ifap, *ifa;
-      struct sockaddr_in* sa;
-      char* addr;
+    struct ifaddrs *ifap, *ifa;
+    struct sockaddr_in* sa;
+    char* addr;
 
-      getifaddrs(&ifap);
-      for (ifa = ifap; ifa; ifa = ifa->ifa_next)
-        {
-          if (ifa->ifa_addr && ifa->ifa_addr->sa_family == AF_INET)
-            {
-              sa = (struct sockaddr_in*)ifa->ifa_addr;
-              addr = inet_ntoa(sa->sin_addr);
-              std::string ip_address = std::string(addr);
-              addresses.push_back(ip_address);
-            }
-        }
-      freeifaddrs(ifap);
+    getifaddrs(&ifap);
+    for (ifa = ifap; ifa; ifa = ifa->ifa_next)
+      {
+        if (ifa->ifa_addr && ifa->ifa_addr->sa_family == AF_INET)
+          {
+            sa = (struct sockaddr_in*)ifa->ifa_addr;
+            addr = inet_ntoa(sa->sin_addr);
+            std::string ip_address = std::string(addr);
+            addresses.push_back(ip_address);
+          }
+      }
+    freeifaddrs(ifap);
 #else
 
-      asio::ip::udp::resolver resolver(io_context_);
-      std::string h = asio::ip::host_name();
-      auto re_list = resolver.resolve({h, ""});
+    asio::ip::udp::resolver resolver(io_context_);
+    std::string h = asio::ip::host_name();
+    auto re_list = resolver.resolve({h, ""});
 
-      for (const auto& re : re_list)
-        {
-          addresses.push_back(re.endpoint().address().to_string());
-        }
+    for (const auto& re : re_list)
+      {
+        addresses.push_back(re.endpoint().address().to_string());
+      }
 #endif
-      return addresses;
-    }
-    /* broadcast the Bcast request on interface*/
-    void
-    _BroadcastOnInterface(std::string interface_ip)
-    {
-      const BcastRequest request;
-      Data data;
-      data.resize(sizeof(BcastRequest));
-      std::memcpy(data.data(), &request, sizeof(BcastRequest));
+    return addresses;
+  }
+  /* broadcast the Bcast request on interface*/
+  void
+  _BroadcastOnInterface(ifm3d::Data& data, std::string interface_ip)
+  {
+    /* create a local endpoints */
+    asio::ip::udp::endpoint local_endpoint =
+      asio::ip::udp::endpoint(asio::ip::address::from_string(interface_ip),
+                              BCAST_DEFAULT_PORT);
 
-      /* create a local endpoints */
-      asio::ip::udp::endpoint local_endpoint =
-        asio::ip::udp::endpoint(asio::ip::address::from_string(interface_ip),
-                                BCAST_DEFAULT_PORT);
+    /** getting the netmask of the interface*/
+    auto netmask = asio::ip::address_v4::netmask(
+      asio::ip::address_v4::from_string(interface_ip));
 
-      /** getting the netmask of the interface*/
-      auto netmask = asio::ip::address_v4::netmask(
-        asio::ip::address_v4::from_string(interface_ip));
+    /**broadcast of the interface*/
+    auto broadcast_address_of_interface =
+      asio::ip::address_v4::broadcast(
+        asio::ip::address_v4::from_string(interface_ip),
+        netmask)
+        .to_string();
 
-      /**broadcast of the interface*/
-      auto broadcast_address_of_interface =
-        asio::ip::address_v4::broadcast(
-          asio::ip::address_v4::from_string(interface_ip),
-          netmask)
-          .to_string();
+    /* create a local broadcast endpoints */
+    asio::ip::udp::endpoint broadcast_endpoint = asio::ip::udp::endpoint(
+      asio::ip::address::from_string(broadcast_address_of_interface),
+      BCAST_DEFAULT_PORT);
 
-      /* create a local broadcast endpoints */
-      asio::ip::udp::endpoint broadcast_endpoint = asio::ip::udp::endpoint(
-        asio::ip::address::from_string(broadcast_address_of_interface),
-        BCAST_DEFAULT_PORT);
+    auto con = std::make_shared<UDPConnection>(io_context_, local_endpoint);
+    con->RegisterOnReceive(std::bind(&IFMDeviceDiscovery::_OnReceive,
+                                     this,
+                                     std::placeholders::_1,
+                                     std::placeholders::_2,
+                                     std::placeholders::_3));
 
-      auto con = std::make_shared<UDPConnection>(io_context_, local_endpoint);
-      con->RegisterOnReceive(std::bind(&IFMDeviceDiscovery::_OnReceive,
-                                       this,
-                                       std::placeholders::_1,
-                                       std::placeholders::_2,
-                                       std::placeholders::_3));
+    /* send BCAST_REQUEST on all interfaces */
+    con->Send(data, broadcast_endpoint);
 
-      /* send BCAST_REQUEST on all interfaces */
-      con->Send(data, broadcast_endpoint);
+    connection_list_.push_back(con);
+  }
 
-      connection_list_.push_back(con);
-    }
+  /*Checks the data for corresponding request on magic entry. */
+  std::tuple<bool, uint32_t, size_t>
+  _IsResponseComplete(const Data& data, const size_t byte_recv)
+  {
+    uint32_t magic_value = 0;
+    std::memcpy(&magic_value, data.data(), sizeof(uint32_t));
 
-    /*Checks the data for corresponding request on magic entry. */
-    std::tuple<bool, uint32_t, size_t>
-    _IsResponseComplete(const Data& data, const size_t byte_recv)
-    {
-      uint32_t magic_value = 0;
-      std::memcpy(&magic_value, data.data(), sizeof(uint32_t));
+    magic_value = ntohl(magic_value);
 
-      magic_value = ntohl(magic_value);
+    if (package_validation.find(magic_value) != package_validation.end())
+      {
+        auto required_length = package_validation.at(magic_value)(byte_recv);
+        return std::make_tuple(required_length == 0,
+                               magic_value,
+                               required_length);
+      }
+    else
+      {
+        std::cerr << "unknown response for discovery" << std::endl;
+        return {};
+      }
+  }
+  /* Handles the data packet, parse the reply, creates the
+   * IFMNetworkDevice */
+  void
+  _OnReceive(asio::ip::udp::endpoint& sender,
+             Data data,
+             size_t bytes_transferred)
+  {
+    bool iscomplete;
+    size_t required;
+    uint32_t magic_value;
+    std::tie(iscomplete, magic_value, required) =
+      _IsResponseComplete(data, bytes_transferred);
 
-      if (package_validation.find(magic_value) != package_validation.end())
-        {
-          auto required_length = package_validation.at(magic_value)(byte_recv);
-          return std::make_tuple(required_length == 0,
-                                 magic_value,
-                                 required_length);
-        }
-      else
-        {
-          std::cerr << "unknown response for discovery" << std::endl;
-          return {};
-        }
-    }
-    /* Handles the data packet, parse the reply, creates the
-     * IFMNetworkDevice */
-    void
-    _OnReceive(asio::ip::udp::endpoint& sender,
-               Data data,
-               size_t bytes_transferred)
-    {
-      bool iscomplete;
-      size_t required;
-      uint32_t magic_value;
-      std::tie(iscomplete, magic_value, required) =
-        _IsResponseComplete(data, bytes_transferred);
+    if (iscomplete)
+      {
+        if (magic_value == BCAST_MAGIC_REPLY)
+          {
+            IFMNetworkDevice ifm_device(data, sender.address().to_string());
+            std::lock_guard<std::mutex> lock(device_list_lock_);
+            device_list_.push_back(ifm_device);
+          }
+      }
+  }
 
-      if (iscomplete)
-        {
-          if (magic_value == BCAST_MAGIC_REPLY)
-            {
-              IFMNetworkDevice ifm_device(data, sender.address().to_string());
-              std::lock_guard<std::mutex> lock(device_list_lock_);
-              device_list_.push_back(ifm_device);
-            }
-        }
-    }
-    /* return the discovered device list*/
-    std::vector<IFMNetworkDevice>
-    _GetDeviceList()
-    {
-      /** start grab on universal brodcast socket*/
-      connection_list_[0]->GrabData();
-      /*block the main thread till the search is complete
-      which is the condition when all the there is no respone on any interface 
-      for more than  TIMEOUT_FOR_EACH_SEARCH_IN_MS*/
-      std::unique_lock<std::mutex> lock_to_complete(con_mutex_);
-      cv_.wait(lock_to_complete, [&] { return connection_list_.size() == 0; });
-      return device_list_;
-    }
+  /* return the discovered device list*/
+  std::vector<IFMNetworkDevice>
+  _GetDeviceList()
+  {
+    /** start grab on universal brodcast socket*/
+    connection_list_[0]->GrabData();
+    /*block the main thread till the search is complete
+    which is the condition when all the there is no respone on any interface
+    for more than  TIMEOUT_FOR_EACH_SEARCH_IN_MS*/
+    std::unique_lock<std::mutex> lock_to_complete(con_mutex_);
+    cv_.wait(lock_to_complete, [&] { return connection_list_.size() == 0; });
+    return device_list_;
+  }
 
-    /* remove the connection from the connection list */
-    void
-    _RemoveConnection(std::shared_ptr<UDPConnection> con)
-    {
-      std::lock_guard<std::mutex> lock(con_mutex_);
-      connection_list_.erase(std::remove(std::begin(connection_list_),
-                                         std::end(connection_list_),
-                                         con),
-                             std::end(connection_list_));
-      for (const auto& con : connection_list_)
-        {
-          con->Close();
-        }
-      connection_list_.resize(0);
-      cv_.notify_one();
-    }
+  /* remove the connection from the connection list */
+  void
+  _RemoveConnection(std::shared_ptr<UDPConnection> con)
+  {
+    std::lock_guard<std::mutex> lock(con_mutex_);
+    connection_list_.erase(std::remove(std::begin(connection_list_),
+                                       std::end(connection_list_),
+                                       con),
+                           std::end(connection_list_));
+    for (const auto& con : connection_list_)
+      {
+        con->Close();
+      }
+    connection_list_.resize(0);
+    cv_.notify_one();
+  }
 
-    asio::io_context io_context_;
-    asio::executor_work_guard<asio::io_service::executor_type> work_guard_;
-    std::mutex con_mutex_;
-    std::condition_variable cv_;
-    std::vector<std::shared_ptr<UDPConnection>> connection_list_;
-    std::vector<ifm3d::IFMNetworkDevice> device_list_;
-    std::vector<std::thread> thread_pool_;
-    std::mutex device_list_lock_;
-  };
+  asio::io_context io_context_;
+  asio::executor_work_guard<asio::io_service::executor_type> work_guard_;
+  std::mutex con_mutex_;
+  std::condition_variable cv_;
+  std::vector<std::shared_ptr<UDPConnection>> connection_list_;
+  std::vector<ifm3d::IFMNetworkDevice> device_list_;
+  std::vector<std::thread> thread_pool_;
+  std::mutex device_list_lock_;
+};
 }
 #endif // IFM3D_CAMERA_DISCOVERY_HPP
