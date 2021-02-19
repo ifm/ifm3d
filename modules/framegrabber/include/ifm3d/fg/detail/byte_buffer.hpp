@@ -310,6 +310,13 @@ ifm3d::ByteBuffer<Derived>::Organize()
       this->time_stamps_.push_back(
         ifm3d::TimePointT{std::chrono::seconds{timestampSec} +
                           std::chrono::nanoseconds{timestampNsec}});
+      // O3X device provides an offeset in Usec releative to timestamp
+      // calculated as time_stamp_[0]
+        const std::uint32_t ethernetTimeinUsecOffset =
+        ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 28);
+       this->time_stamps_.push_back(
+        ifm3d::TimePointT{this->time_stamps_[0] + std::chrono::microseconds{
+                                                    ethernetTimeinUsecOffset}});
     }
   else
     {
