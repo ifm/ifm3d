@@ -147,10 +147,24 @@ namespace ifm3d
     /**
      * @brief This function Provides a convinent way to find all
      *   ifm devices on the network.
-     * @return : vector of ip-address all the discovered devices
-     *  on network.
+     * @return : vector of IFMNetworkDevice found on the network
      */
     static std::vector<ifm3d::IFMNetworkDevice> DeviceDiscovery();
+
+    /**
+     * @brief This function Provides a convinent way to set the tempIP
+     * Address on the device.
+     * @param [in] dev_mac MAC address of the device which need a temp IP
+     * @param [in] temp_ip Ip address for the device
+     * @return : vector of IFMNetworkDevice if the Setting the IP is successful
+     * @ Note rebooting the device will loose the temp IP to set the permanent
+     * IP on device use FromJSON function. Setting temporary I pis very useful
+     * if device is on another subnet and user wants a connection to device or
+     * in case of changing the local link address to network address.
+     */
+    static std::vector<ifm3d::IFMNetworkDevice> SetTempIpAddress(
+      const std::string& dev_mac,
+      const std::string& temp_ip);
 
     /**
      * Factory function for instantiating the proper subclass based on h/w

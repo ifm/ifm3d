@@ -81,7 +81,8 @@ These are common commands used in various situations:
     cp            Create a new application on the sensor,
                   bootstrapped from a copy of an existing one.
 
-    discover      Discover ifm devices on the network.
+    discover      Discover ifm devices on the network and can set
+                  temporary ip-address to device.
 
     dump          Serialize the sensor state to JSON.
 

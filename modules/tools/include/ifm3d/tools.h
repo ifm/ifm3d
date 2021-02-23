@@ -24,6 +24,7 @@
 #include <ifm3d/tools/reboot_app.h>
 #include <ifm3d/tools/reset_app.h>
 #include <ifm3d/tools/rm_app.h>
+#include <ifm3d/tools/set_temp_ip_app.h>
 #include <ifm3d/tools/time_app.h>
 #include <ifm3d/tools/trace_app.h>
 
