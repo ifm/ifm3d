@@ -23,7 +23,7 @@ test:windows:
   dependencies:
     - build:windows
     
-deploy:windows 
+deploy:windows:
   stage : deploy
   tags:
     - ifm3d_windows
