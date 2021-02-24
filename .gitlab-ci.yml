@@ -1,0 +1,33 @@
+stages:
+  - build
+  - test
+  - deploy
+
+build:windows:
+  stage: build
+  tags:
+    - ifm3d_windows
+  script:
+    - mkdir build 
+    - cd build
+    - 'cmake.exe -G "Visual Studio 15 2017 Win64" -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=E:/ifm3d_2017/install  -DBUILD_TESTS=OFF -DBUILD_MODULE_IMAGE=OFF ..'
+    - 'cmake.exe --build . --config Release --target ALL_BUILD'
+
+    # Run unit test
+test:windows:
+  stage: test
+  tags:
+    - ifm3d_windows
+  script:
+    - cmake.exe --build . --config Release
+  dependencies:
+    - build:windows
+    
+deploy:windows 
+  stage : deploy
+  tags:
+    - ifm3d_windows
+  script:
+    - echo "please add deployment script"
+  dependencies:
+    - test:windows
