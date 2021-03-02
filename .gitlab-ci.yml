@@ -3,6 +3,9 @@ stages:
   - test
   - deploy
 
+variables: 
+  SKIP_TEST : "false"
+  
 build:windows:
   stage: build
   tags:
@@ -13,7 +16,7 @@ build:windows:
     - 'cmake.exe -G "Visual Studio 15 2017 Win64" -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=E:/ifm3d_2017/install  -DBUILD_TESTS=ON -DBUILD_MODULE_IMAGE=OFF -DGTEST_CMAKE_DIR=E:/ifm3d_2017/googletest/googletest -Dgtest_force_shared_crt=TRUE ..'
     - 'cmake.exe --build . --config Release --target ALL_BUILD'
 
-    # Run unit test
+# Run unit test
 test:windows:
   stage: test
   tags:
@@ -25,6 +28,9 @@ test:windows:
     - cmake.exe --build . --config Release --target check
   dependencies:
     - build:windows
+  except:
+    variables:
+    - $SKIP_TEST == "false"
     
 deploy:windows:
   stage : deploy
@@ -34,3 +40,44 @@ deploy:windows:
     - echo "please add deployment script"
   dependencies:
     - test:windows
+    
+    
+# Linux build 
+
+build:linux:
+  stage: build
+  tags:
+    - ifm3d_linux
+  script:
+    - mkdir build 
+    - cd build
+    - 'cmake -DCMAKE_INSTALL_PREFIX=/usr/local/ ..'
+    - 'make'
+
+# Run unit test
+test:linux:
+  stage: test
+  tags:
+    - ifm3d_linux
+  variables:
+   GIT_CLEAN_FLAGS: none
+  script:
+    - cd build
+    - 'make check'
+  dependencies:
+    - build:linux
+  except:
+    variables:
+      - $SKIP_TEST == "false"
+    
+deploy:linux:
+  stage : deploy
+  tags:
+    - ifm3d_linux
+  variables:
+   GIT_CLEAN_FLAGS: none
+  script:
+    - echo "Add a deployment Script"
+  dependencies:
+    - test:linux
+ 
