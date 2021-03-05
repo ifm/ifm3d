@@ -167,10 +167,17 @@ ifm3d::ByteBuffer<Derived>::ExposureTimes()
 
 template <typename Derived>
 std::vector<ifm3d::TimePointT>
-ifm3d::ByteBuffer<Derived>::TimeStamp()
+ifm3d::ByteBuffer<Derived>::TimeStamps()
 {
   this->Organize();
   return this->time_stamp_;
+}
+
+template <typename Derived>
+ifm3d::TimePointT
+ifm3d::ByteBuffer<Derived>::TimeStamp()
+{
+  return this->TimeStamps()[0];
 }
 
 template <typename Derived>

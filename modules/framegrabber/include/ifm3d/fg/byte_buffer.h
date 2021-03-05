@@ -329,6 +329,15 @@ namespace ifm3d
     std::vector<std::uint32_t> ExposureTimes();
 
     /**
+     * Returns the time stamp of the image data.
+     *
+     * NOTE: To get the timestamp of the confidence data, you
+     * need to make sure your current pcic schema mask have enabled confidence
+     * data.
+     */
+    ifm3d::TimePointT TimeStamp();
+
+    /**
      * Returns the time stamps of the image data.
      *
      * Value at index 0 will represent the time at which
@@ -343,7 +352,7 @@ namespace ifm3d
      * need to make sure your current pcic schema mask have enabled confidence
      * data.
      */
-    std::vector<ifm3d::TimePointT> TimeStamp();
+    std::vector<ifm3d::TimePointT> TimeStamps();
 
     /**
      * Returns the temperature of the illumination unit.
