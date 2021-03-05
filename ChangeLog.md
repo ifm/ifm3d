@@ -1,3 +1,7 @@
+## Changes between ifm3d 0.19.3 and 0.19.4
+* Added functionality to get timestamp at
+  which data is send over ethernet
+
 ## Changes between ifm3d 0.19.2 and 0.19.3
 * Added compatibility list to swupdate document
 

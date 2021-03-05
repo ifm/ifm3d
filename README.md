@@ -17,11 +17,11 @@ Current Revision
     <th>Notes</th>
   </tr>
   <tr>
-    <td>0.19.3 </td>
+    <td>0.19.4 </td>
     <td>1.6.2114, 1.23.1522, 1.23.1522, 1.23.2848, 1.30.4123, 1.30.5309</td>
-    <td>1.0.122, 1.0.126, 1.0.156, 1.0.163, 1.1.166</td>
+    <td>1.0.122, 1.0.126, 1.0.156, 1.0.163, 1.1.166, 1.1.176</td>
     <td>18.04,20.04</td>
-    <td>Document update for firmware compatibility</td>
+    <td>Added funtionality to get timestamp at which data is send over ethernet</td>
   </tr>
 </table>
 
