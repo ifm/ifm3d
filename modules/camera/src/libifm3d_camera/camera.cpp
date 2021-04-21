@@ -372,7 +372,16 @@ ifm3d::Camera::UnitVectors()
 void
 ifm3d::Camera::Reboot(const ifm3d::Camera::boot_mode& mode)
 {
-  this->pImpl->Reboot(static_cast<int>(mode));
+  if (this->IsO3R())
+    {
+      // call without parameter 
+      this->pImpl->Reboot();
+    }
+  else
+    {
+      this->pImpl->Reboot(static_cast<int>(mode));
+    }
+  
 }
 
 std::string

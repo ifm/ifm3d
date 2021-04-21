@@ -58,7 +58,8 @@ These are common commands used in various situations:
     passwd        Sets the password on the sensor.
 
     reboot        Reboot the sensor, potentially into recovery
-                  mode. Recovery mode is useful for putting the
+                  mode (no recovery mode for O3R).
+                  Recovery mode is useful for putting the
                   sensor into a state where it can be flashed
                   with new firmware.
 
