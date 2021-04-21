@@ -75,6 +75,7 @@ namespace ifm3d
     std::unordered_map<std::string, std::string> DeviceInfo();
     std::string DeviceParameter(const std::string& param);
     std::vector<std::string> TraceLogs(int count);
+    void Reboot();
     void Reboot(int mode);
     std::vector<ifm3d::app_entry_t> ApplicationList();
     std::string RequestSession(
@@ -554,6 +555,13 @@ std::unordered_map<std::string, std::string>
 ifm3d::Camera::Impl::DeviceInfo()
 {
   return this->value_struct_to_map(this->_XCallMain("getAllParameters"));
+}
+
+// for O3R reboot is called without parameter
+void
+ifm3d::Camera::Impl::Reboot()
+{
+  this->_XCallMain("reboot");
 }
 
 void
