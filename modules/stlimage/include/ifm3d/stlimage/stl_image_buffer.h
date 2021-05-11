@@ -16,7 +16,7 @@
 
 namespace ifm3d
 {
-  
+
   /**
    * The StlImageBuffer class is a composite data structure used to hold
    * time-synchronized images from the sensor. It organizes a single byte
@@ -161,4 +161,3 @@ namespace ifm3d
 } // end: namespace ifm3d
 
 #endif // IFM3D_STLIMAGE_IMAGE_BUFFER_H
-
