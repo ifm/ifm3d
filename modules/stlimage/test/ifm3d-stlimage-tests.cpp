@@ -11,101 +11,102 @@
 
 namespace
 {
-template <typename T>
-bool
-cmp_with_nan(T a, T b)
-{
-  if (std::isnan(a) || std::isnan(b))
-    {
-      return (std::isnan(a) && std::isnan(b));
-    }
-  else
-    {
-      return a == b;
-    }
-}
-
-template <typename T>
-ifm3d::Image add(ifm3d::Image &img , T val)
-{
-  for (auto& pix_val : ifm3d::IteratorAdapter<T>(img))
-    {
-      pix_val += val;
-    }
-  return img;
-}
-
-template <typename T>
-void
-mul(ifm3d::Image& img, T val)
-{
-  for (auto& pix_val : ifm3d::IteratorAdapter<T>(img))
-    {
-      pix_val *= val;
-    }
-}
-
-template <typename T1,typename T2>
-ifm3d::Image
-mul(ifm3d::Image img1, ifm3d::Image img2)
-{
-  auto it = img2.begin<T2>();
-  for (auto& pix_val : ifm3d::IteratorAdapter<T1>(img1))
-    {
-      pix_val *= *it;
-      it++;
-    }
-  return img1;
-}
-
-template < typename T> 
-void 
-split(ifm3d::Image &split_this, std::vector<ifm3d::Image> &to_this)
-{
-  // this is not a full split function, this function assumes that 
-  // split_this will have three channel and to_this vector will have 
-  // 3 ifm3d::Image images
-
-  using p3d = ifm3d::point3d<T>;
-
-  for (auto& image : to_this)
-    {
-      image.create(split_this.width(),
-                   split_this.height(),
-                   1,
-                   split_this.dataFormat());
-    }
-
-  auto  it1 = to_this[0].begin<T>();
-  auto  it2 = to_this[1].begin<T>();
-  auto  it3 = to_this[2].begin<T>();
-
-
-  for (auto value : ifm3d::IteratorAdapter<p3d>(split_this))
-    {
-      *it1 = value.x;
-      *it2 = value.y;
-      *it3 = value.z;
-
-      it1++;
-      it2++;
-      it3++;
-    }
-
-}
-template < typename T1, typename T2>
-void 
-convert_to(ifm3d::Image& convert_this, ifm3d::Image& to_this, ifm3d::pixel_format this_type)
-{
-  to_this.create(convert_this.width(), convert_this.height(), 1, this_type);
-  auto it = to_this.begin<T2>();
-  for (auto &value : ifm3d::IteratorAdapter<T1>(convert_this))
+  template <typename T>
+  bool
+  cmp_with_nan(T a, T b)
   {
-    *it = (T2)value;
-    it++;
+    if (std::isnan(a) || std::isnan(b))
+      {
+        return (std::isnan(a) && std::isnan(b));
+      }
+    else
+      {
+        return a == b;
+      }
   }
-}
-} // end namespace 
+
+  template <typename T>
+  ifm3d::Image
+  add(ifm3d::Image& img, T val)
+  {
+    for (auto& pix_val : ifm3d::IteratorAdapter<T>(img))
+      {
+        pix_val += val;
+      }
+    return img;
+  }
+
+  template <typename T>
+  void
+  mul(ifm3d::Image& img, T val)
+  {
+    for (auto& pix_val : ifm3d::IteratorAdapter<T>(img))
+      {
+        pix_val *= val;
+      }
+  }
+
+  template <typename T1, typename T2>
+  ifm3d::Image
+  mul(ifm3d::Image img1, ifm3d::Image img2)
+  {
+    auto it = img2.begin<T2>();
+    for (auto& pix_val : ifm3d::IteratorAdapter<T1>(img1))
+      {
+        pix_val *= *it;
+        it++;
+      }
+    return img1;
+  }
+
+  template <typename T>
+  void
+  split(ifm3d::Image& split_this, std::vector<ifm3d::Image>& to_this)
+  {
+    // this is not a full split function, this function assumes that
+    // split_this will have three channel and to_this vector will have
+    // 3 ifm3d::Image images
+
+    using p3d = ifm3d::point3d<T>;
+
+    for (auto& image : to_this)
+      {
+        image.create(split_this.width(),
+                     split_this.height(),
+                     1,
+                     split_this.dataFormat());
+      }
+
+    auto it1 = to_this[0].begin<T>();
+    auto it2 = to_this[1].begin<T>();
+    auto it3 = to_this[2].begin<T>();
+
+    for (auto value : ifm3d::IteratorAdapter<p3d>(split_this))
+      {
+        *it1 = value.x;
+        *it2 = value.y;
+        *it3 = value.z;
+
+        it1++;
+        it2++;
+        it3++;
+      }
+  }
+  template <typename T1, typename T2>
+  void
+  convert_to(ifm3d::Image& convert_this,
+             ifm3d::Image& to_this,
+             ifm3d::pixel_format this_type)
+  {
+    to_this.create(convert_this.width(), convert_this.height(), 1, this_type);
+    auto it = to_this.begin<T2>();
+    for (auto& value : ifm3d::IteratorAdapter<T1>(convert_this))
+      {
+        *it = (T2)value;
+        it++;
+      }
+  }
+} // end namespace
 TEST(StlImageBuffer, MoveCtor)
 {
   LOG(INFO) << "StlImage.MoveCtor test";
@@ -237,7 +238,7 @@ TEST(StlImageBuffer, CopyCtor)
   else
     {
       add<uint16_t>(amp2, 1);
-      EXPECT_FALSE(std::equal(amp.begin<std::uint16_t>(),  
+      EXPECT_FALSE(std::equal(amp.begin<std::uint16_t>(),
                               amp.end<std::uint16_t>(),
                               amp2.begin<std::uint16_t>()));
     }
@@ -259,7 +260,7 @@ TEST(StlImageBuffer, CopyAssignmentOperator)
   auto amp = im->AmplitudeImage();
   auto amp2 = im2->AmplitudeImage();
 
- if (cam->IsO3X())
+  if (cam->IsO3X())
     {
       EXPECT_TRUE(amp.dataFormat() == ifm3d::pixel_format::FORMAT_32F);
       EXPECT_TRUE(amp2.dataFormat() == ifm3d::pixel_format::FORMAT_32F);
@@ -337,16 +338,16 @@ TEST(StlImageBuffer, References)
     {
       add<float>(amp2, 1.0f);
       EXPECT_TRUE(std::equal(amp.begin<float>(),
-                              amp.end<float>(),
-                              amp2.begin<float>(),
-                              cmp_with_nan<float>));
+                             amp.end<float>(),
+                             amp2.begin<float>(),
+                             cmp_with_nan<float>));
     }
   else
     {
       add<uint16_t>(amp2, 1);
       EXPECT_TRUE(std::equal(amp.begin<std::uint16_t>(),
-                              amp.end<std::uint16_t>(),
-                              amp2.begin<std::uint16_t>()));
+                             amp.end<std::uint16_t>(),
+                             amp2.begin<std::uint16_t>()));
     }
 }
 
@@ -383,28 +384,30 @@ TEST(StlImageBuffer, ComputeCartesian)
 
   std::vector<ifm3d::Image> chans(3);
   ifm3d::Image x_cam, y_cam, z_cam;
-  switch(xyz.dataFormat())
+  switch (xyz.dataFormat())
     {
     case ifm3d::pixel_format::FORMAT_16U:
-          split<uint16_t>(xyz, chans);
-          x_cam = chans[0];
-          y_cam = chans[1];
-          z_cam = chans[2];
+      split<uint16_t>(xyz, chans);
+      x_cam = chans[0];
+      y_cam = chans[1];
+      z_cam = chans[2];
       break;
     case ifm3d::pixel_format::FORMAT_32F:
-          split<float>(xyz, chans);
-          mul<float>(chans[0], 1000.0f);
-          mul<float>(chans[1], 1000.0f);
-          mul<float>(chans[2], 1000.0f);
+      split<float>(xyz, chans);
+      mul<float>(chans[0], 1000.0f);
+      mul<float>(chans[1], 1000.0f);
+      mul<float>(chans[2], 1000.0f);
 
-          // cast to int16_t
-          convert_to<float,int16_t>(chans[0],x_cam, ifm3d::pixel_format::FORMAT_16S);
-          convert_to<float, int16_t>(chans[1],
-                                     y_cam,
-                                     ifm3d::pixel_format::FORMAT_16S);
-          convert_to<float, int16_t>(chans[2],
-                                     z_cam,
-                                     ifm3d::pixel_format::FORMAT_16S);
+      // cast to int16_t
+      convert_to<float, int16_t>(chans[0],
+                                 x_cam,
+                                 ifm3d::pixel_format::FORMAT_16S);
+      convert_to<float, int16_t>(chans[1],
+                                 y_cam,
+                                 ifm3d::pixel_format::FORMAT_16S);
+      convert_to<float, int16_t>(chans[2],
+                                 z_cam,
+                                 ifm3d::pixel_format::FORMAT_16S);
       break;
     }
 
@@ -431,7 +434,9 @@ TEST(StlImageBuffer, ComputeCartesian)
   ifm3d::Image rdis_f;
   if (cam->IsO3D())
     {
-      convert_to<uint16_t,float>(rdis,rdis_f, ifm3d::pixel_format::FORMAT_32F);
+      convert_to<uint16_t, float>(rdis,
+                                  rdis_f,
+                                  ifm3d::pixel_format::FORMAT_32F);
     }
   if (rdis.dataFormat() == ifm3d::pixel_format::FORMAT_32F)
     {
@@ -441,23 +446,20 @@ TEST(StlImageBuffer, ComputeCartesian)
     }
 
   // compute
-  ifm3d::Image x_ = add<float>( mul<float,float>(ex,rdis_f),tx);
+  ifm3d::Image x_ = add<float>(mul<float, float>(ex, rdis_f), tx);
   ifm3d::Image y_ = add<float>(mul<float, float>(ey, rdis_f), ty);
   ifm3d::Image z_ = add<float>(mul<float, float>(ez, rdis_f), tz);
- 
+
   // blank out bad pixels ... our zero pixels will
   // be exactly equal to tx, ty, tz and if any of those
   // exceed 1cm (our test tolerance) like on an O3D301,
   // we will get errors in the unit test.
   ifm3d::Image bad_mask;
 
-  bad_mask.create(conf.width(),
-                    conf.height(),
-                    1,
-                    conf.dataFormat());
+  bad_mask.create(conf.width(), conf.height(), 1, conf.dataFormat());
   int index = 0;
   auto it = bad_mask.begin<uint8_t>();
-  for (uint8_t value :ifm3d::IteratorAdapter<uint8_t>(conf))
+  for (uint8_t value : ifm3d::IteratorAdapter<uint8_t>(conf))
     {
       *it = value & 0x1;
       it++;
@@ -474,8 +476,6 @@ TEST(StlImageBuffer, ComputeCartesian)
   convert_to<float, int16_t>(x_, x_i, ifm3d::pixel_format::FORMAT_16S);
   convert_to<float, int16_t>(y_, y_i, ifm3d::pixel_format::FORMAT_16S);
   convert_to<float, int16_t>(z_, z_i, ifm3d::pixel_format::FORMAT_16S);
-
-  
 
   ifm3d::Image x_computed = z_i;
   ifm3d::Image y_computed = x_i;

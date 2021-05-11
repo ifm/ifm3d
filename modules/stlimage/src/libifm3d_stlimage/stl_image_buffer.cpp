@@ -108,26 +108,26 @@ ifm3d::StlImageBuffer::XYZImage()
 
 void
 ifm3d::StlImageBuffer::_ImCreate(ifm3d::image_chunk im,
-                              std::uint32_t fmt,
-                              std::size_t idx,
-                              std::uint32_t width,
-                              std::uint32_t height,
-                              int nchan,
-                              std::uint32_t npts,
-                              const std::vector<std::uint8_t>& bytes)
+                                 std::uint32_t fmt,
+                                 std::size_t idx,
+                                 std::uint32_t width,
+                                 std::uint32_t height,
+                                 int nchan,
+                                 std::uint32_t npts,
+                                 const std::vector<std::uint8_t>& bytes)
 {
   this->pImpl->ImCreate(im, fmt, idx, width, height, nchan, npts, bytes);
 }
 
 void
 ifm3d::StlImageBuffer::_CloudCreate(std::uint32_t fmt,
-                                 std::size_t xidx,
-                                 std::size_t yidx,
-                                 std::size_t zidx,
-                                 std::uint32_t width,
-                                 std::uint32_t height,
-                                 std::uint32_t npts,
-                                 const std::vector<std::uint8_t>& bytes)
+                                    std::size_t xidx,
+                                    std::size_t yidx,
+                                    std::size_t zidx,
+                                    std::uint32_t width,
+                                    std::uint32_t height,
+                                    std::uint32_t npts,
+                                    const std::vector<std::uint8_t>& bytes)
 {
   this->pImpl->CloudCreate(fmt, xidx, yidx, zidx, width, height, npts, bytes);
 }

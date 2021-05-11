@@ -90,7 +90,7 @@ TEST(StlImage, copy_assigment)
 
   EXPECT_TRUE(img.ptr(0) == img1.ptr(0));
   EXPECT_TRUE(img.width() == img1.width());
-  EXPECT_TRUE(img.height() == img1.height() );
+  EXPECT_TRUE(img.height() == img1.height());
   EXPECT_TRUE(img.nchannels() == img1.nchannels());
   EXPECT_TRUE(img.dataFormat() == img1.dataFormat());
 
@@ -138,7 +138,7 @@ TEST(StlImage, Clone)
                          img_clone.begin<std::uint8_t>()));
 }
 
-//accessing pointers
+// accessing pointers
 TEST(StlImage, row_pointer)
 {
   const int height = 100;
@@ -152,7 +152,7 @@ TEST(StlImage, row_pointer)
   EXPECT_TRUE(img.ptr(10, 10) != nullptr);
 }
 
-//at function
+// at function
 TEST(StlImage, at)
 {
   const int height = 100;
@@ -162,7 +162,7 @@ TEST(StlImage, at)
   ifm3d::Image img(width, height, 1, ifm3d::pixel_format::FORMAT_16U);
 
   // fill the image with values
-  for (int i = 0; i < height* width; i++)
+  for (int i = 0; i < height * width; i++)
     {
       EXPECT_NO_FATAL_FAILURE(img.at<uint16_t>(i) = i);
     }
@@ -183,7 +183,7 @@ TEST(StlImage, at)
     }
 }
 
-//SetTo
+// SetTo
 TEST(StlImage, setTo)
 {
   const int height = 100;
@@ -203,7 +203,7 @@ TEST(StlImage, setTo)
     }
 }
 
-//Iterators
+// Iterators
 TEST(StlImage, iterators)
 {
   const int height = 100;
@@ -225,7 +225,7 @@ TEST(StlImage, iterators)
   EXPECT_TRUE(it_begin == img.ptr(0));
   uint16_t val = 0;
   auto it = it_begin;
-  for (int i = 0 ; i < width * height; i++, val++, it++)
+  for (int i = 0; i < width * height; i++, val++, it++)
     {
       EXPECT_TRUE(*it == val);
     }
@@ -236,4 +236,4 @@ TEST(StlImage, iterators)
       EXPECT_TRUE(pix_val == val);
       val++;
     }
-  }
+}
