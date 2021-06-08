@@ -696,9 +696,9 @@ namespace ifm3d
     O3XCamera(O3XCamera&) = delete;
     O3XCamera& operator=(O3XCamera&) = delete;
 
-     bool IsO3X() override;
-     bool IsO3D() override;
-     bool IsO3R() override;
+    bool IsO3X() override;
+    bool IsO3D() override;
+    bool IsO3R() override;
   }; // end: class O3XCamera
 
   /**

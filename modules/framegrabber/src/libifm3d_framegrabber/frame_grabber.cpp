@@ -17,7 +17,7 @@ ifm3d::FrameGrabber::FrameGrabber(ifm3d::Camera::Ptr cam,
                                   std::uint16_t mask,
                                   const std::uint16_t nat_pcic_port)
   : pImpl(new ifm3d::FrameGrabber::Impl(cam, mask, nat_pcic_port))
-{ }
+{}
 
 ifm3d::FrameGrabber::~FrameGrabber() = default;
 

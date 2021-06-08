@@ -18,17 +18,17 @@ protected:
 
   virtual void
   TearDown()
-  { }
+  {}
 
   ifm3d::Camera::Ptr cam_;
 };
 
 TEST_F(CameraTest, FactoryDefaults)
 {
-  if(this->cam_->IsO3R())
-  {
+  if (this->cam_->IsO3R())
+    {
       return;
-  }
+    }
   EXPECT_NO_THROW(this->cam_->FactoryReset());
   std::this_thread::sleep_for(std::chrono::seconds(6));
   EXPECT_NO_THROW(this->cam_->DeviceType());

@@ -10,6 +10,7 @@
 #include <glog/logging.h>
 #include <ifm3d/camera/logging.h>
 #include <ifm3d/camera/err.h>
+#include <ifm3d/fg/distance_image_info.h>
 #include <cstring>
 
 //-------------------------------------
@@ -30,7 +31,7 @@ ifm3d::ByteBuffer<Derived>::ByteBuffer()
     exposure_times_({0, 0, 0}),
     time_stamp_(std::chrono::system_clock::now()),
     json_model_("{}")
-{ }
+{}
 
 // dtor
 template <typename Derived>
@@ -184,9 +185,9 @@ ifm3d::ByteBuffer<Derived>::Organize()
     {
       return;
     }
+  VLOG(IFM3D_PROTO_DEBUG) << "entering Organize";
 
   // indices to the start of each chunk of interest in the buffer
-  std::size_t INVALID_IDX = std::numeric_limits<std::size_t>::max();
   std::size_t xyzidx = INVALID_IDX;
   std::size_t xidx = INVALID_IDX;
   std::size_t yidx = INVALID_IDX;
@@ -266,7 +267,8 @@ ifm3d::ByteBuffer<Derived>::Organize()
                           << ", cidx=" << cidx << ", didx=" << didx
                           << ", uidx=" << uidx << ", extidx=" << extidx
                           << ", gidx=" << gidx << ", intridx=" << intridx
-                          << ", invintridx=" << invintridx;
+                          << ", invintridx=" << invintridx
+                          << ", jsonidx=" << jsonidx;
 
   // if we do not have a confidence image we cannot go further
   if (cidx == INVALID_IDX)
@@ -465,39 +467,46 @@ ifm3d::ByteBuffer<Derived>::Organize()
       }
   };
 
-  auto cloud_wrapper = [this, width, height, npts](std::uint32_t fmt,
-                                                   std::size_t xidx,
-                                                   std::size_t yidx,
-                                                   std::size_t zidx) {
-    switch (fmt)
-      {
-      case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16S):
-        this->CloudCreate<std::int16_t>(fmt,           // pixel format
-                                        xidx,          // index of x-pix
-                                        yidx,          // index of y-pix
-                                        zidx,          // index of z-pix
-                                        width,         // n-cols
-                                        height,        // n-rows
-                                        npts,          // total points
-                                        this->bytes_); // raw bytes
-        break;
+  auto cloud_wrapper =
+    [this, width, height, npts](std::uint32_t fmt,
+                                std::size_t xidx,
+                                std::size_t yidx,
+                                std::size_t zidx,
+                                const std::vector<std::uint8_t>& bytes) {
+      switch (fmt)
+        {
+        case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16S):
+          this->CloudCreate<std::int16_t>(fmt,    // pixel format
+                                          xidx,   // index of x-pix
+                                          yidx,   // index of y-pix
+                                          zidx,   // index of z-pix
+                                          width,  // n-cols
+                                          height, // n-rows
+                                          npts,   // total points
+                                          bytes); // raw bytes
+          break;
 
-      case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F):
-        this->CloudCreate<float>(fmt,           // pixel format
-                                 xidx,          // index of x-pix
-                                 yidx,          // index of y-pix
-                                 zidx,          // index of z-pix
-                                 width,         // n-cols
-                                 height,        // n-rows
-                                 npts,          // total points
-                                 this->bytes_); // raw bytes
-        break;
+        case static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F):
+          this->CloudCreate<float>(fmt,    // pixel format
+                                   xidx,   // index of x-pix
+                                   yidx,   // index of y-pix
+                                   zidx,   // index of z-pix
+                                   width,  // n-cols
+                                   height, // n-rows
+                                   npts,   // total points
+                                   bytes); // raw bytes
+          break;
 
-      default:
-        LOG(ERROR) << "Cannot create cloud with pixel format = " << fmt;
-        throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
-      }
-  };
+        default:
+          LOG(ERROR) << "Cannot create cloud with pixel format = " << fmt;
+          throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
+        }
+    };
+
+  // for an O3R device, a distance_image_info object will be created
+  // for others a nullptr is returned
+  auto distance_image_info =
+    CreateDistanceImageInfo(this->bytes_, didx, aidx, width, height);
 
   //
   // Move index pointers to where the pixel data starts and parse
@@ -509,7 +518,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
   cidx += pixel_data_offset;
   im_wrapper(ifm3d::image_chunk::CONFIDENCE, cfmt, cidx);
 
-  if (D_OK)
+  if (D_OK && distance_image_info == nullptr)
     {
       didx += pixel_data_offset;
       im_wrapper(ifm3d::image_chunk::RADIAL_DISTANCE, dfmt, didx);
@@ -527,7 +536,24 @@ ifm3d::ByteBuffer<Derived>::Organize()
       im_wrapper(ifm3d::image_chunk::GRAY, gfmt, gidx);
     }
 
-  if (A_OK)
+  if (A_OK &&
+          distance_image_info != nullptr) // O3R device
+    {
+      // the amplitude vector is derived from
+      // the distance image info data
+      std::vector<std::uint8_t> ampl_bytes =
+        distance_image_info->getAmplitudeVector();
+      this->ImCreate<float>(
+        ifm3d::image_chunk::AMPLITUDE,
+        static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F),
+        0,
+        width,
+        height,
+        1,
+        npts,
+        ampl_bytes);
+    }
+  else if (A_OK)
     {
       aidx += pixel_data_offset;
       im_wrapper(ifm3d::image_chunk::AMPLITUDE, afmt, aidx);
@@ -544,11 +570,44 @@ ifm3d::ByteBuffer<Derived>::Organize()
   //
   if (CART_OK)
     {
+      VLOG(IFM3D_PROTO_DEBUG) << "point cloud construction";
+
       xidx += pixel_data_offset;
       yidx += pixel_data_offset;
       zidx += pixel_data_offset;
-      cloud_wrapper(xfmt, xidx, yidx, zidx);
+      cloud_wrapper(xfmt, xidx, yidx, zidx, this->bytes_);
     }
+  else if (D_OK &&
+           distance_image_info != nullptr) // O3R device
+    {
+      VLOG(IFM3D_PROTO_DEBUG)
+        << "point cloud construction from compressed ifoutput";
+
+      // the x,y,z and distance matrices are derived from
+      // the distance image info data
+      std::vector<std::uint8_t> xyzd_bytes =
+        distance_image_info->getXYZDVector();
+
+      // create distance image
+      this->ImCreate<float>(
+        ifm3d::image_chunk::RADIAL_DISTANCE,
+        static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F),
+        npts * 3 * FLOAT_DATA_SIZE,
+        width,
+        height,
+        1,
+        npts,
+        xyzd_bytes);
+
+      // create point cloud
+      cloud_wrapper(
+        static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F),
+        0,
+        npts * FLOAT_DATA_SIZE,
+        npts * 2 * FLOAT_DATA_SIZE,
+        xyzd_bytes);
+    }
+
   //
   // intrinsic calibration
   //
@@ -566,7 +625,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
         }
       if (header_version < 2 &&
           (chunk_size - pixel_data_offset) !=
-            ifm3d::NUM_INTRINSIC_PARAM * sizeof(uint32_t))
+            ifm3d::NUM_INTRINSIC_PARAM * UINT32_DATA_SIZE)
         {
           LOG(ERROR) << "Header Version expected value is >=2, not :"
                      << header_version
@@ -585,7 +644,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
     }
 
   //
-  //   intrinsic calibration
+  //   invert intrinsic calibration
   //
   if (INVINTR_OK)
     {
@@ -602,7 +661,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
         }
       if (header_version < 2 &&
           (chunk_size - pixel_data_offset) !=
-            ifm3d::NUM_INTRINSIC_PARAM * sizeof(uint32_t))
+            ifm3d::NUM_INTRINSIC_PARAM * UINT32_DATA_SIZE)
         {
           LOG(ERROR) << "Header Version expected value is >=2, not :"
                      << header_version
@@ -636,6 +695,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
   //
   if (EXT_OK)
     {
+      VLOG(IFM3D_PROTO_DEBUG) << "extrinsic calibration";
       // size of the chunk data
       std::uint32_t chunk_size =
         ifm3d::mkval<uint32_t>(this->bytes_.data() + extidx + 4);
@@ -649,7 +709,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
         }
       if (header_version < 2 &&
           (chunk_size - pixel_data_offset) !=
-            ifm3d::NUM_EXTRINSIC_PARAM * sizeof(uint32_t))
+            ifm3d::NUM_EXTRINSIC_PARAM * UINT32_DATA_SIZE)
         {
           LOG(ERROR) << "Header Version expected value is >= 2, not :"
                      << header_version
@@ -664,7 +724,11 @@ ifm3d::ByteBuffer<Derived>::Organize()
             ifm3d::mkval<float>(this->bytes_.data() + extidx);
         }
     }
-
+  else if (distance_image_info  != nullptr) // O3R device
+    {
+      // renamed to extrinsic_optic_to_user in O3R
+      this->extrinsics_ = distance_image_info->getExtrinsicOpticToUser();
+    }
   // OK, now we want to see if the temp illu and exposure times are present,
   // if they are, we want to parse them out and store them registered to the
   // frame data. Since the extrinsics are invariant and should *always* be

@@ -76,7 +76,7 @@ ifm3d::get_chunk_index(const std::vector<std::uint8_t>& buff,
       idx += incr;
     }
 
-  return std::numeric_limits<std::size_t>::max();
+  return INVALID_IDX;
 }
 
 //------------------------------------------------------------

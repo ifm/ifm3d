@@ -41,7 +41,7 @@ using Clock_t = std::conditional<std::chrono::high_resolution_clock::is_steady,
 class MyBuff : public ifm3d::ByteBuffer<MyBuff>
 {
 public:
-  MyBuff() : ifm3d::ByteBuffer<MyBuff>() { }
+  MyBuff() : ifm3d::ByteBuffer<MyBuff>() {}
 
   template <typename T>
   void
@@ -53,7 +53,7 @@ public:
            int nchan,
            std::uint32_t npts,
            const std::vector<std::uint8_t>& bytes)
-  { }
+  {}
 
   template <typename T>
   void
@@ -65,7 +65,7 @@ public:
               std::uint32_t height,
               std::uint32_t npts,
               const std::vector<std::uint8_t>& bytes)
-  { }
+  {}
 };
 
 ifm3d::JitterApp::JitterApp(int argc,
