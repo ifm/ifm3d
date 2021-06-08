@@ -280,6 +280,13 @@ TEST(FrameGrabber, SoftwareTrigger)
   LOG(INFO) << "SoftwareTrigger test";
   auto cam = ifm3d::Camera::MakeShared();
 
+  // triggering sw mode not supported
+  // on O3R until now
+  if (cam->IsO3R())
+    {
+      return;
+    }
+
   // mark the current active application as sw triggered
   int idx = cam->ActiveApplication();
   json config = cam->ToJSON();
@@ -310,6 +317,13 @@ TEST(FrameGrabber, SWTriggerMultipleClients)
 {
   LOG(INFO) << "SWTriggerMultipleClients test";
   auto cam = ifm3d::Camera::MakeShared();
+
+  // triggering sw mode not supported
+  // on O3R until now
+  if (cam->IsO3R())
+    {
+      return;
+    }
 
   //
   // O3X cannot handle multiple client connections to PCIC

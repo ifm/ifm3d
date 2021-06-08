@@ -13,7 +13,10 @@ endif (NOT TARGET glog::glog)
 ## Target: libifm3d_framegrabber.so
 ################################################
 file(GLOB IFM3D_FG_SOURCES *.cpp)
-add_library(ifm3d_framegrabber ${IFM3D_FG_SOURCES})
+add_library(ifm3d_framegrabber
+            ${IFM3D_FG_SOURCES}
+            ${CMAKE_CURRENT_SOURCE_DIR}/algo/o3r_uncompress_di.cpp
+            )
 set_property(TARGET ifm3d_framegrabber PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 #------------------
@@ -27,6 +30,7 @@ target_include_directories(ifm3d_framegrabber
     $<BUILD_INTERFACE:${IFM3D_CAMERA_SOURCE_DIR}/include>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/algo
   )
 
 target_compile_options(ifm3d_framegrabber

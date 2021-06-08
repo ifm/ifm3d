@@ -16,6 +16,10 @@ if(NOT CMAKE_CROSSCOMPILING)
     ${IFM3D_FG_BINARY_DIR}/test/${TEST_WRAPPER}
     @ONLY
     )
+
+  file(COPY ${IFM3D_FG_SOURCE_DIR}/test/O3RBuffer.data
+    DESTINATION ${IFM3D_FG_BINARY_DIR}/test
+    )
 endif()
 
 if (NOT TARGET glog::glog)

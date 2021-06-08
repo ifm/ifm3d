@@ -19,7 +19,7 @@
 ifm3d::ImageBuffer::ImageBuffer()
   : ifm3d::ByteBuffer<ifm3d::ImageBuffer>(),
     pImpl(new ifm3d::ImageBuffer::Impl())
-{ }
+{}
 
 ifm3d::ImageBuffer::~ImageBuffer() = default;
 
