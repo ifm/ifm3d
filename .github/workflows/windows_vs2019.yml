@@ -17,18 +17,36 @@ jobs:
       shell: cmd
       run: |
         echo "C:/Program Files/Git/usr/bin" >> $GITHUB_PATH
+        
+    - name: Create output directory
+      if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        mkdir c:\deps2019\install
+        mkdir c:\deps2019\install\Boost
 
     - name: Check cache for prebuilt dependencies
       id: get-dep-2019-cache
       uses: actions/cache@v2
       with:
         path: c:\deps2019\install
-        key: ifm3d-2019-deps-3 # Increment to force-clear cache
+        key: ifm3d-2019-deps-5 # Increment to force-clear cache
 
     - name: Create output directory
       if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
       shell: cmd
-      run: mkdir c:\deps2019\install
+      run: |
+        mkdir c:\deps2019\install
+        mkdir c:\deps2019\install\Boost
+      
+    - name: Install boost
+      id: install-boost
+      if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
+      run : |
+        $Url = "https://sourceforge.net/projects/boost/files/boost-binaries/1.72.0/boost_1_72_0-msvc-14.2-64.exe"
+        (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
+        Start-Process -Wait -FilePath "$env:TEMP\boost.exe" -ArgumentList "/silent /sp- /suppressmsgboxes /dir=c:\deps2019\install\Boost"
+        echo '::set-output name=BOOST_ROOT::c:\deps2019\install\Boost'
 
     - name: Build dependency - curl
       if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
@@ -88,12 +106,14 @@ jobs:
     - name: Build dependency - PCL
       if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
       shell: cmd
+      env:
+        BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
       run: |
         cd /d c:\deps2019
         git clone --branch pcl-1.10.1 https://github.com/PointCloudLibrary/pcl.git
         mkdir pcl\build
         cd pcl\build
-        cmake -G "Visual Studio 16 2019" -Ax64 -DBOOST_ROOT=%BOOST_ROOT_1_72_0% -DPCL_ENABLE_SSE=OFF -DWITH_CUDA=OFF -DWITH_DAVIDSDK=OFF -DWITH_DOCS=OFF -DWITH_DSSDK=OFF -DWITH_ENSENSO=OFF -DWITH_FZAPI=OFF -DWITH_LIBUSB=OFF -DWITH_OPENGL=OFF -DWITH_VTK=OFF -DWITH_OPENNI=OFF -DWITH_OPENNI2=OFF -DWITH_PCAP=OFF -DWITH_PNG=OFF -DWITH_QHULL=OFF -DWITH_QT=OFF -DWITH_RSSDK=OFF  -DBUILD_tools=OFF -DBUILD_visualization=OFF -DBUILD_features=OFF -DBUILD_filters=OFF -DBUILD_global_tests=OFF -DBUILD_io=OFF -DBUILD_kdtree=OFF -DBUILD_keypoints=OFF -DBUILD_octree=OFF -DBUILD_range_image=OFF -DBUILD_registration=OFF -DBUILD_sample_consensus=OFF -DBUILD_segmentation=OFF -DBUILD_surface=OFF  -DCMAKE_INSTALL_PREFIX=c:\deps2019\install ..
+        cmake -G "Visual Studio 16 2019" -Ax64 -DBOOST_ROOT=%BOOST_ROOT% -DPCL_ENABLE_SSE=OFF -DWITH_CUDA=OFF -DWITH_DAVIDSDK=OFF -DWITH_DOCS=OFF -DWITH_DSSDK=OFF -DWITH_ENSENSO=OFF -DWITH_FZAPI=OFF -DWITH_LIBUSB=OFF -DWITH_OPENGL=OFF -DWITH_VTK=OFF -DWITH_OPENNI=OFF -DWITH_OPENNI2=OFF -DWITH_PCAP=OFF -DWITH_PNG=OFF -DWITH_QHULL=OFF -DWITH_QT=OFF -DWITH_RSSDK=OFF  -DBUILD_tools=OFF -DBUILD_visualization=OFF -DBUILD_features=OFF -DBUILD_filters=OFF -DBUILD_global_tests=OFF -DBUILD_io=OFF -DBUILD_kdtree=OFF -DBUILD_keypoints=OFF -DBUILD_octree=OFF -DBUILD_range_image=OFF -DBUILD_registration=OFF -DBUILD_sample_consensus=OFF -DBUILD_segmentation=OFF -DBUILD_surface=OFF  -DCMAKE_INSTALL_PREFIX=c:\deps2019\install ..
         cmake --build . --clean-first --config Release --target INSTALL
 
     - name: Build dependency - OpenCV
@@ -120,7 +140,7 @@ jobs:
         mkdir \ifm3d\install2019
         mkdir build
         cd build
-        cmake -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_SDK_PKG=ON -DGTEST_CMAKE_DIR=c:\deps2019\install\googletest\googletest -Dgtest_force_shared_crt=TRUE -DCMAKE_PREFIX_PATH=c:\deps2019\install -DBOOST_ROOT=%BOOST_ROOT_1_72_0% -DBoost_USE_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\ifm3d\install2019 -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON ..
+        cmake -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_SDK_PKG=ON -DGTEST_CMAKE_DIR=c:\deps2019\install\googletest\googletest -Dgtest_force_shared_crt=TRUE -DCMAKE_PREFIX_PATH=c:\deps2019\install -DBOOST_ROOT=c:\deps2019\install\Boost -DBoost_USE_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\ifm3d\install2019 -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON ..
         cmake --build . --clean-first --config Release --target INSTALL
 
     - name: Copy third party dependencies
