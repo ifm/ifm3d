@@ -17,23 +17,22 @@ jobs:
       shell: cmd
       run: |
         mkdir c:\deps\install
-        mkdir c:\deps\install\Boost
+        mkdir c:\deps\Boost #boost will not be cache for size issue 
 
     - name: Check cache for prebuilt dependencies
       id: get-dep-cache
       uses: actions/cache@v1.0.3
       with:
         path: c:\deps\install
-        key: ifm3d-deps-6 # Increment to force-clear cache
+        key: ifm3d-deps-7 # Increment to force-clear cache
 
     - name: Install boost
       id: install-boost
-      if: steps.get-dep-cache.outputs.cache-hit != 'true'
       run : |
        $Url = "https://sourceforge.net/projects/boost/files/boost-binaries/1.72.0/boost_1_72_0-msvc-14.1-64.exe"
        (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
-       Start-Process -Wait -FilePath "$env:TEMP\boost.exe" -ArgumentList "/silent /sp- /suppressmsgboxes /dir=c:\deps\install\Boost"
-       echo '::set-output name=BOOST_ROOT::c:\deps\install\Boost'
+       Start-Process -Wait -FilePath "$env:TEMP\boost.exe" -ArgumentList "/silent /sp- /suppressmsgboxes /dir=c:\deps\Boost"
+       echo '::set-output name=BOOST_ROOT::c:\deps\Boost'
        
     - name: Build dependency - curl
       if: steps.get-dep-cache.outputs.cache-hit != 'true'
@@ -123,11 +122,13 @@ jobs:
 
     - name: Build ifm3d
       shell: cmd
+      env:
+        BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
       run: |
         mkdir \ifm3d\install
         mkdir build
         cd build
-        cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_SDK_PKG=ON -DGTEST_CMAKE_DIR=c:\deps\install\googletest\googletest -Dgtest_force_shared_crt=TRUE -DCMAKE_PREFIX_PATH=c:\deps\install -DBOOST_ROOT=c:\deps\install\Boost -DBoost_USE_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\ifm3d\install -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON ..
+        cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_SDK_PKG=ON -DGTEST_CMAKE_DIR=c:\deps\install\googletest\googletest -Dgtest_force_shared_crt=TRUE -DCMAKE_PREFIX_PATH=c:\deps\install -DBOOST_ROOT=%BOOST_ROOT% -DBoost_USE_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\ifm3d\install -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON ..
         cmake --build . --clean-first --config Release --target INSTALL
 
     - name: Copy third party dependencies

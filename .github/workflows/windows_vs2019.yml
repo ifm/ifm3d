@@ -22,23 +22,22 @@ jobs:
       shell: cmd
       run: |
         mkdir c:\deps2019\install
-        mkdir c:\deps2019\install\Boost
+        mkdir c:\deps2019\Boost # boost will not be cache due to size limit
 
     - name: Check cache for prebuilt dependencies
       id: get-dep-2019-cache
       uses: actions/cache@v2
       with:
         path: c:\deps2019\install
-        key: ifm3d-2019-deps-5 # Increment to force-clear cache
+        key: ifm3d-2019-deps-9 # Increment to force-clear cache
       
     - name: Install boost
       id: install-boost
-      if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
       run : |
         $Url = "https://sourceforge.net/projects/boost/files/boost-binaries/1.72.0/boost_1_72_0-msvc-14.2-64.exe"
         (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
-        Start-Process -Wait -FilePath "$env:TEMP\boost.exe" -ArgumentList "/silent /sp- /suppressmsgboxes /dir=c:\deps2019\install\Boost"
-        echo '::set-output name=BOOST_ROOT::c:\deps2019\install\Boost'
+        Start-Process -Wait -FilePath "$env:TEMP\boost.exe" -ArgumentList "/silent /sp- /suppressmsgboxes /dir=c:\deps2019\Boost"
+        echo '::set-output name=BOOST_ROOT::c:\deps2019\Boost'
 
     - name: Build dependency - curl
       if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
@@ -128,11 +127,13 @@ jobs:
 
     - name: Build ifm3d
       shell: cmd
+      env:
+        BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
       run: |
         mkdir \ifm3d\install2019
         mkdir build
         cd build
-        cmake -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_SDK_PKG=ON -DGTEST_CMAKE_DIR=c:\deps2019\install\googletest\googletest -Dgtest_force_shared_crt=TRUE -DCMAKE_PREFIX_PATH=c:\deps2019\install -DBOOST_ROOT=c:\deps2019\install\Boost -DBoost_USE_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\ifm3d\install2019 -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON ..
+        cmake -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_SDK_PKG=ON -DGTEST_CMAKE_DIR=c:\deps2019\install\googletest\googletest -Dgtest_force_shared_crt=TRUE -DCMAKE_PREFIX_PATH=c:\deps2019\install -DBOOST_ROOT=%BOOST_ROOT% -DBoost_USE_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\ifm3d\install2019 -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON ..
         cmake --build . --clean-first --config Release --target INSTALL
 
     - name: Copy third party dependencies
