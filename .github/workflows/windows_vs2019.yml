@@ -19,7 +19,6 @@ jobs:
         echo "C:/Program Files/Git/usr/bin" >> $GITHUB_PATH
         
     - name: Create output directory
-      if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
       shell: cmd
       run: |
         mkdir c:\deps2019\install
@@ -31,13 +30,6 @@ jobs:
       with:
         path: c:\deps2019\install
         key: ifm3d-2019-deps-5 # Increment to force-clear cache
-
-    - name: Create output directory
-      if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
-      shell: cmd
-      run: |
-        mkdir c:\deps2019\install
-        mkdir c:\deps2019\install\Boost
       
     - name: Install boost
       id: install-boost
