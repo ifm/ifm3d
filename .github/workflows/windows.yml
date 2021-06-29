@@ -24,7 +24,7 @@ jobs:
       uses: actions/cache@v1.0.3
       with:
         path: c:\deps\install
-        key: ifm3d-deps-3 # Increment to force-clear cache
+        key: ifm3d-deps-6 # Increment to force-clear cache
 
     - name: Install boost
       id: install-boost
