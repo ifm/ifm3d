@@ -21,18 +21,16 @@ namespace ifm3d
   the pixel. Creating an Image object :
 
   - Use the Create(rows, cols, nchannel, ifm3d::pixel_format ) method or the
-  similar Image(nrows, ncols, nchannel, type) constructor. A new array of the
-  specified size and type is allocated. type has the value from
-  ifm3d::pixel_format.
+  similar Image(nrows, ncols, nchannel, type) constructor.
 
   For example, FORMAT_8U means a 8-bit array, FORMAT_32F floating-point array,
   and so on.
   @code
       //a 100 x 100 Image of type 8U
       ifm3d::Image image(100,100,1,ifm3d::FORMAT_8U);
-      // and now turn M to a 10 x10 3-channel 8-bit matrix.
+      // and now turn image to a 10 x10 3-channel 8-bit matrix.
       // The old content will be deallocated
-      M.create(10,10,3,ifm3d::FORMAT_8U);
+      image.create(10,10,3,ifm3d::FORMAT_8U);
   @endcode
   As noted in the introduction to this chapter, create() allocates only a new
   array when the memory requiremnt changes for new Image
@@ -284,10 +282,9 @@ namespace ifm3d
     /*@brief fefault constructor*/
     Image_();
 
-    /* Similar to Image(cols,rows,nchannel, ifm3d::formatType<Tp>::format ) */
+    /* Similar to Image(cols,rows,ifm3d::formatType<Tp>::nchannel, ifm3d::formatType<Tp>::format ) */
     Image_(const std::uint32_t cols,
-           const std::uint32_t rows,
-           const std::uint32_t nchannel);
+           const std::uint32_t rows);
 
     ~Image_() = default;
 
@@ -302,11 +299,11 @@ namespace ifm3d
     Image_(const Image&);
     Image_& operator=(const Image&);
 
-    /* Similar to Image::create(cols,rows,nchannel,
+    /* Similar to Image::create(cols,rows,ifm3d::formatType<Tp>::nchannel,
      * ifm3d::formatType<Tp>::format ) */
     void create(const std::uint32_t cols,
-                const std::uint32_t rows,
-                const std::uint32_t nchannel);
+                const std::uint32_t rows
+                );
 
     /** @brief Creates a full copy of the array and the underlying data.
      */
@@ -358,21 +355,27 @@ namespace ifm3d
   /**
    * @brief Struct for 3D space point
    */
-  template <typename T>
-  struct point3d
+  template <typename T, int n>
+  struct point
   {
-    T x;
-    T y;
-    T z;
+    T val[n];
+    using value_type = T;
   };
 
   template <typename T>
-  using Point3D = struct point3d<T>;
+  using Point3D = struct point<T,3>;
+
+  template <typename T>
+  using Point4D = struct point<T,4>;
 
   // user helper types
   using Point3D_16U = Point3D<std::uint16_t>;
   using Point3D_16S = Point3D<std::int16_t>;
-  using Point3D32_F = Point3D<float>;
+  using Point3D_32F = Point3D<float>;
+
+  using Point4D_16U = Point4D<std::uint16_t>;
+  using Point4D_16S = Point4D<std::int16_t>;
+  using Point4D_32F = Point4D<float>;
 
 } // end: namespace ifm3d
 

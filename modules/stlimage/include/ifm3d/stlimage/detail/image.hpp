@@ -13,6 +13,73 @@
 #include <vector>
 #include <memory_resource>
 
+///////////////////// value_type /////////
+
+namespace ifm3d
+{
+
+  template <ifm3d::pixel_format>
+  struct ValueType
+  {
+    using value = uint8_t;
+  };
+
+  template <>
+  struct ValueType<ifm3d::pixel_format::FORMAT_8U>
+  {
+    using value = uint8_t;
+  };
+
+  template <>
+  struct ValueType<ifm3d::pixel_format::FORMAT_8S>
+  {
+    using value = int8_t;
+  };
+
+  template <>
+  struct ValueType<ifm3d::pixel_format::FORMAT_16U>
+  {
+    using value = int16_t;
+  };
+
+  template <>
+  struct ValueType<ifm3d::pixel_format::FORMAT_16S>
+  {
+    using value = uint16_t;
+  };
+
+  template <>
+  struct ValueType<ifm3d::pixel_format::FORMAT_32U>
+  {
+    using value = uint32_t;
+  };
+
+  template <>
+  struct ValueType<ifm3d::pixel_format::FORMAT_32S>
+  {
+    using value = int32_t;
+  };
+
+  template <>
+  struct ValueType<ifm3d::pixel_format::FORMAT_32F>
+  {
+    using value = float;
+  };
+
+  template <>
+  struct ValueType<ifm3d::pixel_format::FORMAT_64F>
+  {
+    using value = float;
+  };
+
+  template <>
+  struct ValueType<ifm3d::pixel_format::FORMAT_64U>
+  {
+    using value = uint64_t;
+  };
+}
+///////////////////////////Image //////////////////
+
 template <typename T>
 T*
 ifm3d::Image::ptr(const std::uint32_t row)
@@ -137,160 +204,168 @@ ifm3d::Image::Iterator<T> ifm3d::Image::Iterator<T>::operator++(std::int32_t)
 
 ////////////////////////////// FormatType<Tp>//////////
 
-template <typename T>
-struct FormatType
+namespace ifm3d
 {
-  enum
-  {
-    format = ifm3d::pixel_format::FORMAT_8U;
-  };
-};
 
-template <>
-struct FormatType<uint8_t>
-{
-  enum
+  template <typename T>
+  struct FormatType
   {
-    format = ifm3d::pixel_format::FORMAT_8U
+    enum
+    {
+      format = ifm3d::pixel_format::FORMAT_8U;
+    };
   };
-};
 
-template <>
-struct FormatType<int8_t>
-{
-  enum
+  template <>
+  struct FormatType<uint8_t>
   {
-    format = ifm3d::pixel_format::FORMAT_8S
+    enum
+    {
+      format = ifm3d::pixel_format::FORMAT_8U,
+      nchannel = 1
+    };
   };
-};
 
-template <>
-struct FormatType<uint16_t>
-{
-  enum
+  template <>
+  struct FormatType<int8_t>
   {
-    format = ifm3d::pixel_format::FORMAT_16U
+    enum
+    {
+      format = ifm3d::pixel_format::FORMAT_8S,
+      nchannel = 1
+    };
   };
-};
 
-template <>
-struct FormatType<int16_t>
-{
-  enum
+  template <>
+  struct FormatType<uint16_t>
   {
-    format = ifm3d::pixel_format::FORMAT_16U
+    enum
+    {
+      format = ifm3d::pixel_format::FORMAT_16U,
+      nchannel = 1
+    };
   };
-};
 
-template <>
-struct FormatType<uint32_t>
-{
-  enum
+  template <>
+  struct FormatType<int16_t>
   {
-    format = ifm3d::pixel_format::FORMAT_32U
+    enum
+    {
+      format = ifm3d::pixel_format::FORMAT_16S,
+      nchannel = 1
+    };
   };
-};
 
-template <>
-struct FormatType<int32_t>
-{
-  enum
+  template <>
+  struct FormatType<uint32_t>
   {
-    format = ifm3d::pixel_format::FORMAT_32S
+    enum
+    {
+      format = ifm3d::pixel_format::FORMAT_32U,
+      nchannel = 1
+    };
   };
-};
 
-template <>
-struct FormatType<float>
-{
-  enum
+  template <>
+  struct FormatType<int32_t>
   {
-    format = ifm3d::pixel_format::FORMAT_32F
+    enum
+    {
+      format = ifm3d::pixel_format::FORMAT_32S,
+      nchannel = 1
+    };
   };
-};
 
-template <>
-struct FormatType<double>
-{
-  enum
+  template <>
+  struct FormatType<float>
   {
-    format = ifm3d::pixel_format::FORMAT_64F
+    enum
+    {
+      format = ifm3d::pixel_format::FORMAT_32F,
+      nchannel = 1
+    };
   };
-};
 
-template <>
-struct FormatType<uint64_t>
-{
-  enum
+  template <>
+  struct FormatType<double>
   {
-    format = ifm3d::pixel_format::FORMAT_64U
+    enum
+    {
+      format = ifm3d::pixel_format::FORMAT_64F,
+      nchannel = 1
+    };
   };
-};
 
-
-template <>
-struct FormatType<ifm3d::Point3D<uint16_t>>
-{
-  enum
+  template <>
+  struct FormatType<uint64_t>
   {
-    format = ifm3d::pixel_format::FORMAT_16U
+    enum
+    {
+      format = ifm3d::pixel_format::FORMAT_64U,
+      nchannel = 1
+    };
   };
-};
 
-template <>
-struct FormatType<ifm3d::Point3D<int16_t>>
-{
-  enum
+  template <typename T, int n>
+  struct FormatType<ifm3d::point<T, n>>
   {
-    format = ifm3d::pixel_format::FORMAT_16S
+    enum
+    {
+      format = ifm3d::FormatType<T>::format,
+      nchannel = n
+    };
   };
-};
 
-template <>
-struct FormatType<ifm3d::Point3D<float>>
-{
-  enum
-  {
-    format = ifm3d::pixel_format::FORMAT_32F
-  };
-};
+}
 ////////////////////////////Image_<Tp>//////////////
 
 template <typename Tp>
 ifm3d::Image_<Tp>::Image_() : ifm3d::Image(){};
 
 template <typename Tp>
-ifm3d::Image_<Tp>::Image_(const std::uint32_t cols,
-                          const std::uint32_t rows,
-                          const std::uint32_t nchannel)
-  : ifm3d::Image(cols, rows, nchannel, ifm3d::FormatType<Tp>::format)
+ifm3d::Image_<Tp>::Image_(const std::uint32_t cols, const std::uint32_t rows)
+  : ifm3d::Image(
+      cols,
+      rows,
+      static_cast<std::uint32_t>(ifm3d::FormatType<Tp>::nchannel),
+      static_cast<ifm3d::pixel_format>(ifm3d::FormatType<Tp>::format))
 { }
 
 template <typename Tp>
-ifm3d::Image_<Tp>::Image_(const Image& img) : Image(img)
-{ }
+ifm3d::Image_<Tp>::Image_(const Image& img) : Image()
+{
+  *this = img;
+}
 
 template <typename Tp>
 ifm3d::Image_<Tp>&
 ifm3d::Image_<Tp>::operator=(const Image& img)
 {
-  if (ifm3d::FormatType<Tp>::format == img.dataFormat())
+  std::cout << __FUNCTION__ << std::endl;
+  if (static_cast<ifm3d::pixel_format>(ifm3d::FormatType<Tp>::format) ==
+        img.dataFormat() &&
+      static_cast<uint32_t>(ifm3d::FormatType<Tp>::nchannel) ==
+        img.nchannels())
     {
-      operator=(img);
-      return *this
+      Image::operator=(img);
+      return *this;
     }
   else
-    { // add a runtime type mistmatch error
-      throw
+    {
+      throw; 
+      // add a runtime type mistmatch error
+      // static_assert(0, "cannot convert between types");
     }
 }
 template <typename Tp>
 void
-ifm3d::Image_<Tp>::create(const std::uint32_t cols,
-                          const std::uint32_t rows,
-                          const std::uint32_t nchannel)
+ifm3d::Image_<Tp>::create(const std::uint32_t cols, const std::uint32_t rows)
 {
-  ifm3d::Image::create(cols, rows, nchannel, ifm3d::FormatType<Tp>::format)
+  ifm3d::Image::create(
+    cols,
+    rows,
+    static_cast<uint32_t>(ifm3d::FormatType<Tp>::nchannel),
+    static_cast<ifm3d::pixel_format>(ifm3d::FormatType<Tp>::format))
 }
 
 template <typename Tp>
@@ -305,25 +380,25 @@ template <typename Tp>
 std::uint32_t
 ifm3d::Image_<Tp>::height() const
 {
-  return Image::height()
+  return Image::height();
 }
 template <typename Tp>
 std::uint32_t
 ifm3d::Image_<Tp>::width() const
 {
-  return Image::width()
+  return Image::width();
 }
 template <typename Tp>
 std::uint32_t
 ifm3d::Image_<Tp>::nchannels() const
 {
-  return Image::nchannels()
+  return Image::nchannels();
 }
 template <typename Tp>
 ifm3d::pixel_format
 ifm3d::Image_<Tp>::dataFormat() const
 {
-  ifm3d::FormatType<Tp>::format;
+  return Image::dataFormat();
 }
 
 template <typename Tp>
