@@ -139,7 +139,7 @@ if(BUILD_MODULE_PYBIND11)
   add_definitions(-DBUILD_MODULE_PYBIND11)
   add_subdirectory(modules/pybind11)
 endif()
-if(BUILD_MODULE_IMAGE)
+if(BUILD_MODULE_STLIMAGE)
   # `stlimage`  like image relies on `framegrabber`, in the event the user
   # explicitly disabled the `framegrabber` but not `image`
   # we are going to let the compiler convey the message (for now) instead of
