@@ -190,8 +190,17 @@ namespace ifm3d
         return {};
       }
 
+#ifdef _WIN32
+    std::vector<float> xyzd_float(4 * npts);
+    float* xyzd = (float*)xyzd_float.data();
+
+    std::vector<uint16_t> dist_u16(npts);
+    uint16_t* u16Dist = (uint16_t*)dist_u16.data();
+#endif
+#ifdef unix
     float xyzd[4 * npts];
     uint16_t u16Dist[npts];
+#endif
     for (auto i = 0; i < npts; ++i)
       {
         u16Dist[i] = u16_distance_buffer[i];
@@ -233,8 +242,13 @@ namespace ifm3d
       {
         return {};
       }
-
+#ifdef _WIN32
+    std::vector<float> amplitude_float(npts);
+    float* amplitude = (float*)amplitude_float.data();
+#endif
+#ifdef unix
     float amplitude[npts];
+#endif
     if (convertAmplitude(amplitude,
                          u16_amplitude_buffer.data(),
                          ampl_resolution,
