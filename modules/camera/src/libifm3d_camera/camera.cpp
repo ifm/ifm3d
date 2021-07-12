@@ -374,14 +374,13 @@ ifm3d::Camera::Reboot(const ifm3d::Camera::boot_mode& mode)
 {
   if (this->IsO3R())
     {
-      // call without parameter 
+      // call without parameter
       this->pImpl->Reboot();
     }
   else
     {
       this->pImpl->Reboot(static_cast<int>(mode));
     }
-  
 }
 
 std::string
@@ -1243,4 +1242,17 @@ bool
 ifm3d::O3RCamera::IsO3R()
 {
   return true;
+}
+
+void
+ifm3d::O3RCamera::FromJSON(const json& j)
+{
+  this->pImpl->SetTemporaryConfiguration(j.dump());
+  this->pImpl->SaveInitConfiguration();
+}
+
+json
+ifm3d::O3RCamera::ToJSON()
+{
+  return json::parse(this->pImpl->GetTemporaryConfiguration());
 }
