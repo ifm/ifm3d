@@ -721,6 +721,9 @@ namespace ifm3d
     bool IsO3X() override;
     bool IsO3D() override;
     bool IsO3R() override;
+
+    json ToJSON() override;
+    void FromJSON(const json& j) override;
   }; // end: class O3RCamera
 
 } // end: namespace ifm3d

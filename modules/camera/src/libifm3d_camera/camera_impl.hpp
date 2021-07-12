@@ -110,6 +110,9 @@ namespace ifm3d
     void SaveDevice();
     void ActivatePassword(const std::string& password = "");
     void DisablePassword();
+    std::string GetTemporaryConfiguration();
+    void SetTemporaryConfiguration(const std::string& config);
+    void SaveInitConfiguration();
 
     // Network
     std::unordered_map<std::string, std::string> NetInfo();
@@ -823,6 +826,24 @@ void
 ifm3d::Camera::Impl::SaveDevice()
 {
   this->_XCallDevice("save");
+}
+
+std::string
+ifm3d::Camera::Impl::GetTemporaryConfiguration()
+{
+  return xmlrpc_c::value_string(this->_XCallMain("get", "")).cvalue();
+}
+
+void
+ifm3d::Camera::Impl::SetTemporaryConfiguration(const std::string& config)
+{
+  this->_XCallMain("set", config);
+}
+
+void
+ifm3d::Camera::Impl::SaveInitConfiguration()
+{
+  this->_XCallMain("saveInit");
 }
 
 void
