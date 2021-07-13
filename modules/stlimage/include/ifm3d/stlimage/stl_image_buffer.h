@@ -10,7 +10,6 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include <opencv2/core/core.hpp>
 #include <ifm3d/fg/byte_buffer.h>
 #include <ifm3d/stlimage/image.h>
 
