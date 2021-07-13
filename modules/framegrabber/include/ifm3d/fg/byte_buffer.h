@@ -355,6 +355,14 @@ namespace ifm3d
     ifm3d::TimePointT TimeStamp();
 
     /**
+     * Returns the timestamp of phase data for O3R device
+     *
+     * NOTE: For O3D and O3X camera it only returns confidence
+     * Image timestamp
+     */
+    std::vector<ifm3d::TimePointT> TimeStamps();
+
+    /**
      * Returns the temperature of the illumination unit.
      *
      * NOTE: To get the temperature of the illumination unit to the frame, you
@@ -516,9 +524,9 @@ namespace ifm3d
     std::vector<std::uint32_t> exposure_times_;
 
     /**
-     * Camera timestamp of the current frame
+     * Camera timestamps of the current frame
      */
-    ifm3d::TimePointT time_stamp_;
+    std::vector<ifm3d::TimePointT> time_stamps_;
 
     /**
      * Temperature of the illumination unit synchronized in time with the
