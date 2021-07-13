@@ -29,7 +29,7 @@ ifm3d::ByteBuffer<Derived>::ByteBuffer()
     intrinsic_available(false),
     inverse_intrinsic_available(false),
     exposure_times_({0, 0, 0}),
-    time_stamp_(std::chrono::system_clock::now()),
+    time_stamps_({}),
     json_model_("{}")
 {}
 
@@ -158,7 +158,15 @@ ifm3d::TimePointT
 ifm3d::ByteBuffer<Derived>::TimeStamp()
 {
   this->Organize();
-  return this->time_stamp_;
+  return this->time_stamps_[0];
+}
+
+template <typename Derived>
+std::vector<ifm3d::TimePointT>
+ifm3d::ByteBuffer<Derived>::TimeStamps()
+{
+  this->Organize();
+  return this->time_stamps_;
 }
 
 template <typename Derived>
@@ -288,14 +296,14 @@ ifm3d::ByteBuffer<Derived>::Organize()
       const std::uint32_t timestampNsec =
         ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 44);
       // convert the time stamp into a TimePointT
-      this->time_stamp_ =
+      this->time_stamps_.push_back(
         ifm3d::TimePointT{std::chrono::seconds{timestampSec} +
-                          std::chrono::nanoseconds{timestampNsec}};
+                          std::chrono::nanoseconds{timestampNsec}});
     }
   else
     {
       // There is no *big* time stamp in chunk version 1
-      this->time_stamp_ = std::chrono::system_clock::now();
+      this->time_stamps_.push_back(std::chrono::system_clock::now());
     }
 
   bool A_OK = (aidx != INVALID_IDX);
@@ -728,6 +736,26 @@ ifm3d::ByteBuffer<Derived>::Organize()
     {
       // renamed to extrinsic_optic_to_user in O3R
       this->extrinsics_ = distance_image_info->getExtrinsicOpticToUser();
+      auto exposure_timestamps = distance_image_info->getExposureTimestamps();
+      this->time_stamps_.resize(0);
+
+      for (auto& val : exposure_timestamps)
+        {
+          this->time_stamps_.push_back(
+            ifm3d::TimePointT{std::chrono::nanoseconds{val}});
+        }
+
+      auto exposure_times = distance_image_info->getExposureTimes();
+      this->exposure_times_.resize(0);
+      for (auto& val : exposure_times)
+        {
+          auto ms = std::chrono::duration_cast<
+            std::chrono::duration<uint32_t, std::micro>>(
+            std::chrono::duration<float>(val));
+
+          this->exposure_times_.push_back(ms.count());
+        }
+
     }
   // OK, now we want to see if the temp illu and exposure times are present,
   // if they are, we want to parse them out and store them registered to the
