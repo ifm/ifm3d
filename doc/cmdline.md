@@ -33,7 +33,8 @@ These are common commands used in various situations:
     cp            Create a new application on the sensor,
                   bootstrapped from a copy of an existing one.
 
-    discover      Discover ifm devices on the network.
+    discover      Discover ifm devices on the network and can set
+                  temporary ip-address to device.
 
     dump          Serialize the sensor state to JSON.
 
@@ -359,5 +360,49 @@ And, double checking...
 $ ifm3d time
 Local time on camera is: Mon May  7 16:22:09 2018
 ```
+
+Example: Discover ifm3d vision device over network
+--------------------------------------------------
+
+To discover ifm vision devices on network we use the `discover` subcommand.
+This command also provides temporary ip-address change of device,
+which is useful if device was configured with ip-address other than in current
+network subnet. Let's look at its usage
+
+```
+$ ifm3d discover --help
+Usage:
+  ifm3d [<global options>] discover [<discover options>]
+
+ global options:
+  -h, --help  Produce this help message and exit
+
+ discover options:
+      --mac arg     MAC address of the device (default: )
+      --tempip arg  IP address (default: )
+```
+
+To discover ifm vision devices on network we can issue discover subcommand
+
+```
+ifm3d discover
+192.168.0.69 mac = 00:02:4b:e4:e8:33 (unknown)
+192.168.0.65 mac = 00:02:01:40:8e:a3 (O3D)
+192.168.0.67 mac = 00:02:01:40:a2:f0 (O3X)
+192.168.0.73 mac = 00:02:01:22:b4:29 (unknown)
+192.168.0.71 mac = 00:02:01:40:a0:26 (O3D)
+```
+
+discover command shows ip-address, MAC-ID, and type of devices,
+unknow type are devices not supported by ifm3d.
+
+Temporary IP change of the device
+```
+ifm3d discover --mac=00:02:01:50:4f:d3 --tempip=172.xx.xx.xx
+
+```
+This will change the ip address of device with provided mac to 172.xx.xx.xx,
+This ip-address will be reset after the reboot of device. To set the permanent
+ip-address please use ```ifm3d config``` command.
 
 (More examples to follow)
