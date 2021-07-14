@@ -226,7 +226,7 @@ to let `setup.py` compile and install the python binary:
 
 ```
 cd %IFM3D_BUILD_DIR%\ifm3d
-python -m pip install .
+python -m pip install .  --use-feature=in-tree-build
 ```
 
 ## Running Tests
