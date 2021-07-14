@@ -78,6 +78,8 @@ TEST(DistanceImageInfo, AmplitudeImageConversion)
                                              {},
                                              distance_buffer,
                                              amplitude_buffer,
+                                             {},
+                                             {},
                                              image_width,
                                              image_height};
 
@@ -114,6 +116,8 @@ TEST(DistanceImageInfo, DistanceImageConversion)
                                              {},
                                              distance_buffer,
                                              amplitude_buffer,
+                                             {},
+                                             {},
                                              image_width,
                                              image_height);
 
