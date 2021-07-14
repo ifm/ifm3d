@@ -31,14 +31,14 @@
 
 # Description of the O3X Imager Parameters
 This document describes the available settings for the O3X "Imager" section of the parameter JSON.
-Please note that all parameters might be available on your device, because they were introduced in 
+Please note that all parameters might not be available on your device, because they were introduced in 
 a more recent firmware version.
 
 ## Basic Imager Settings
 
 ### Type 
 Define the exposure mode and unambiguous range.  
-The first part of the string (up to the underscore) specifies the maximum unique range. Ranges <7m use only one 
+The first part of the string (up to the underscore) specifies the maximum unique range. Ranges $\lt$ 7m use only one 
 modulation frequency - all others use 2 frequencies.  
 The second part of the string defines the exposure mode. 'low' stands for low dynamic range scenarios and uses one 
 exposure time, whereas 'moderate' uses double exposure for measuring objects with lower and higher reflectivity at 
