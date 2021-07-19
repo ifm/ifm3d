@@ -8,6 +8,7 @@ variables:
 
 build:windows:
   stage: build
+  when: manual
   tags:
     - ifm3d_windows
   script:
@@ -44,40 +45,38 @@ deploy:windows:
 
 # Linux build
 
-build:linux:
+build:linux:aarch64:
+  image: nexus3.intra.ifm:18443/arm64v8/ifm3d-base:0.0.5
   stage: build
+  variables:
+    REQUESTS_CA_BUNDLE: "/etc/ssl/certs/ca-certificates.crt"
   tags:
-    - ifm3d_linux
+    - shared_docker_aarch64
+  before_script:
+    - echo ${http_proxy}
+    - echo ${https_proxy}
+    - echo ${no_proxy}
   script:
     - mkdir build
     - cd build
-    - 'cmake -DCMAKE_INSTALL_PREFIX=/usr/local/ ..'
-    - 'make'
-
-# Run unit test
-test:linux:
-  stage: test
-  tags:
-    - ifm3d_linux
-  variables:
-   GIT_CLEAN_FLAGS: none
-  script:
-    - cd build
-    - 'make check'
-  dependencies:
-    - build:linux
-  except:
-    variables:
-      - $SKIP_TEST == "false"
-
-deploy:linux:
-  stage : deploy
-  tags:
-    - ifm3d_linux
-  variables:
-   GIT_CLEAN_FLAGS: none
-  script:
-    - echo "Add a deployment Script"
-  dependencies:
-    - test:linux
+    - |
+      cmake -GNinja \
+            -DCMAKE_INSTALL_PREFIX=/usr \
+            -DBUILD_MODULE_OPENCV=ON \
+            -DBUILD_MODULE_PYBIND11=ON \
+            -DPYTHON_EXECUTABLE=/usr/bin/python3 \
+            ..
+    - ninja
+    - ninja package
+    - ninja repackage
+    - IFM3D_VERSION=$(modules/tools/src/bin/ifm3d --version | cut -d "=" -f 2)
+    - export IFM3D_VERSION
+    - mkdir -p /opt/apt-repo
+    - cp *.deb /opt/apt-repo
+    - (cd /opt/apt-repo && (dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz))
+    - tar cvf ifm3d-ubuntu-aarch64-debs_${IFM3D_VERSION}-${CI_PIPELINE_IID}.tar -C /opt/apt-repo .
+  artifacts:
+    paths:
+      - build/*.tar
+    expire_in: 1 week
 
