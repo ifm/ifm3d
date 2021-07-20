@@ -288,6 +288,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
   const std::uint32_t header_version =
     ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 12);
   // for the *big* time stamp minimum header version 2 is needed
+  this->time_stamps_.resize(0);
   if (header_version > 1)
     {
       // Retrieve the timespamp information from the confidence data
