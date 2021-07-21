@@ -737,10 +737,10 @@ ifm3d::ByteBuffer<Derived>::Organize()
     {
       // renamed to extrinsic_optic_to_user in O3R
       this->extrinsics_ = distance_image_info->getExtrinsicOpticToUser();
-      auto exposure_timestamps = distance_image_info->getExposureTimestamps();
+      auto timestamps_nsec = distance_image_info->getTimestamps();
       this->time_stamps_.resize(0);
 
-      for (auto& val : exposure_timestamps)
+      for (auto& val : timestamps_nsec)
         {
           this->time_stamps_.push_back(
             ifm3d::TimePointT{std::chrono::nanoseconds{val}});
