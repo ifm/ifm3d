@@ -536,11 +536,9 @@ ifm3d::ImageBuffer::Impl::ImCreate(ifm3d::image_chunk im,
   // update the bad pixel mask if we just saw the confidence image
   if (im == ifm3d::image_chunk::CONFIDENCE)
     {
-      if (this->conf_.type() == CV_16UC1)
-       {
-          this->conf_.convertTo(this->conf_, CV_8UC1);
-       }
-      cv::bitwise_and(this->conf_, 0x1, this->bad_);
+      cv::Mat bad;
+      cv::bitwise_and(this->conf_, 0x1, bad);
+      bad.convertTo(this->bad_, CV_8UC1);
     }
 }
 
