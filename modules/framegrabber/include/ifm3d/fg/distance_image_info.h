@@ -39,7 +39,7 @@ namespace ifm3d
     const std::vector<std::uint16_t> u16_distance_buffer;
     const std::vector<std::uint16_t> u16_amplitude_buffer;
     const std::uint32_t width, height;
-    const std::vector<uint64_t> exposure_timestamps_nsec;
+    const std::vector<uint64_t> timestamps_nsec;
     const std::vector<float> exposure_times_sec;
 
   public:
@@ -51,7 +51,7 @@ namespace ifm3d
                       const IntrinsicCalibration& inv_intr_calib,
                       const std::vector<std::uint16_t>& distance_buffer,
                       const std::vector<std::uint16_t>& amplitude_buffer,
-                      const std::vector<uint64_t>& exposure_timestamps_nsec,
+                      const std::vector<uint64_t>& timestamps_nsec,
                       const std::vector<float>& exposure_times_sec,
                       const std::uint32_t width,
                       const std::uint32_t height);
@@ -71,13 +71,12 @@ namespace ifm3d
     }
 
     /**
-    * @brief result the timestamps in nano seconds
-    * at which phase is captured
+    * @brief returns the timestamps in nano seconds
     */
     std::vector<uint64_t>
-    getExposureTimestamps()
+    getTimestamps()
     {
-      return exposure_timestamps_nsec;
+      return timestamps_nsec;
     }
 
     /**
