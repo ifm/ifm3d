@@ -3,8 +3,8 @@
  * Copyright 2018 ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
-#ifndef __IFM3D_TOOLS_JITTER_APP_H__
-#define __IFM3D_TOOLS_JITTER_APP_H__
+#ifndef IFM3D_TOOLS_JITTER_APP_H
+#define IFM3D_TOOLS_JITTER_APP_H
 
 #include <string>
 #include <ifm3d/tools/fg/fg_app.h>
@@ -24,4 +24,4 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
-#endif // __IFM3D_TOOLS_JITTER_APP_H__
+#endif // IFM3D_TOOLS_JITTER_APP_H

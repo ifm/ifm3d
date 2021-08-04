@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_TOOLS_EXPORT_APP_H__
-#define __IFM3D_TOOLS_EXPORT_APP_H__
+#ifndef IFM3D_TOOLS_EXPORT_APP_H
+#define IFM3D_TOOLS_EXPORT_APP_H
 
 #include <string>
 #include <ifm3d/tools/cmdline_app.h>
@@ -25,9 +25,10 @@ namespace ifm3d
   {
   public:
     ExportApp(int argc, const char** argv, const std::string& name = "export");
-    int Run();
+    int Run() override;
+    bool CheckCompatibility() override;
   }; // end: class ExportApp
 
 } // end: namespace ifm3d
 
-#endif // __IFM3D_TOOLS_EXPORT_APP_H__
+#endif // IFM3D_TOOLS_EXPORT_APP_H

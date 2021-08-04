@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_CAMERA_CAMERA_IMPL_HPP__
-#define __IFM3D_CAMERA_CAMERA_IMPL_HPP__
+#ifndef IFM3D_CAMERA_CAMERA_IMPL_HPP
+#define IFM3D_CAMERA_CAMERA_IMPL_HPP
 
 #include <chrono>
 #include <cstdint>
@@ -20,14 +20,13 @@
 #include <vector>
 #include <glog/logging.h>
 #include <xmlrpc-c/client.hpp>
+#include <ifm3d/camera/camera.h>
 #include <ifm3d/camera/err.h>
 #include <ifm3d/camera/logging.h>
+#include <xmlrpc_wrapper.hpp>
 
 namespace ifm3d
 {
-  const int NET_WAIT = 3000; // millis
-
-  const std::string XMLRPC_MAIN = "/api/rpc/v1/com.ifm.efector/";
   const std::string XMLRPC_SESSION = "session_$XXX/";
   const std::string XMLRPC_EDIT = "edit/";
   const std::string XMLRPC_DEVICE = "device/";
@@ -52,9 +51,7 @@ namespace ifm3d
   class Camera::Impl
   {
   public:
-    Impl(const std::string& ip,
-         const std::uint16_t xmlrpc_port,
-         const std::string& password);
+    Impl(std::shared_ptr<XMLRPCWrapper> xwrapper, const std::string& password);
     ~Impl();
 
     // accessor/mutators
@@ -73,10 +70,6 @@ namespace ifm3d
     std::unordered_map<std::string, std::string> SWVersion();
     std::unordered_map<std::string, std::string> HWInfo();
     std::unordered_map<std::string, std::string> DeviceInfo();
-    std::string DeviceParameter(const std::string& param);
-    std::vector<std::string> TraceLogs(int count);
-    void Reboot();
-    void Reboot(int mode);
     std::vector<ifm3d::app_entry_t> ApplicationList();
     std::string RequestSession(
       const std::string& sid = ifm3d::DEFAULT_SESSION_ID);
@@ -110,9 +103,6 @@ namespace ifm3d
     void SaveDevice();
     void ActivatePassword(const std::string& password = "");
     void DisablePassword();
-    std::string GetTemporaryConfiguration();
-    void SetTemporaryConfiguration(const std::string& config);
-    void SaveInitConfiguration();
 
     // Network
     std::unordered_map<std::string, std::string> NetInfo();
@@ -196,94 +186,21 @@ namespace ifm3d
     }
 
   private:
-    std::string ip_;
-    std::uint16_t xmlrpc_port_;
+    std::shared_ptr<XMLRPCWrapper> xwrapper_;
     std::string password_;
-    std::string xmlrpc_url_prefix_;
-    xmlrpc_c::clientPtr xclient_;
-    std::mutex xclient_mutex_;
     std::string session_;
     std::mutex session_mutex_;
-
-    // utilities for taking xmlrpc structures to STL structures
-    std::unordered_map<std::string, std::string> const value_struct_to_map(
-      const xmlrpc_c::value_struct& vs);
-
-    std::unordered_map<std::string,
-                       std::unordered_map<std::string, std::string>> const
-    value_struct_to_map_of_maps(const xmlrpc_c::value_struct& vs);
-
-    // ---------------------------------------------
-    // Terminates recursion over the parameter pack
-    // in _XSetParams
-    // ---------------------------------------------
-    void
-    _XSetParams(xmlrpc_c::paramList& params)
-    {}
-
-    // ---------------------------------------------
-    // Recursively processes a parameter pack `args'
-    // as a list and sets those values into the
-    // `params' reference.
-    // ---------------------------------------------
-    template <typename T, typename... Args>
-    void
-    _XSetParams(xmlrpc_c::paramList& params, T value, Args... args)
-    {
-      params.addc(value);
-      this->_XSetParams(params, args...);
-    }
-
-    // ---------------------------------------------
-    // Encapsulates XMLRPC calls to the sensor and
-    // unifies the trapping of comm errors.
-    // ---------------------------------------------
-    template <typename... Args>
-    xmlrpc_c::value const
-    _XCall(std::string& url, const std::string& method, Args... args)
-    {
-      xmlrpc_c::paramList params;
-      this->_XSetParams(params, args...);
-      xmlrpc_c::rpcPtr rpc(method, params);
-
-      url = std::regex_replace(url, std::regex("\\$XXX"), this->SessionID());
-      xmlrpc_c::carriageParm_curl0 cparam(url);
-
-      std::lock_guard<std::mutex> lock(this->xclient_mutex_);
-      try
-        {
-          rpc->call(this->xclient_.get(), &cparam);
-          return rpc->getResult();
-        }
-      catch (const std::exception& ex)
-        {
-          LOG(ERROR) << url << "->" << method << ":" << ex.what();
-
-          if (!rpc->isFinished())
-            {
-              throw ifm3d::error_t(IFM3D_XMLRPC_TIMEOUT);
-            }
-          else if (!rpc->isSuccessful())
-            {
-              xmlrpc_c::fault f = rpc->getFault();
-              throw ifm3d::error_t(f.getCode());
-            }
-          else
-            {
-              throw ifm3d::error_t(IFM3D_XMLRPC_FAILURE);
-            }
-        }
-    }
 
     // ---------------------------------------------
     // _XCall wrappers
     // ---------------------------------------------
-    template <typename... Args>
-    xmlrpc_c::value const
-    _XCallMain(const std::string& method, Args... args)
+
+    std::string
+    _XSession()
     {
-      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN;
-      return this->_XCall(url, method, args...);
+      return std::regex_replace(ifm3d::XMLRPC_SESSION,
+                                std::regex("\\$XXX"),
+                                this->SessionID());
     }
 
     template <typename... Args>
@@ -292,88 +209,84 @@ namespace ifm3d
     {
       std::string url =
         this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION;
-      return this->_XCall(url, method, args...);
+      return this->xwrapper_->XCall(url, method, args...);
     }
 
     template <typename... Args>
     xmlrpc_c::value const
     _XCallEdit(const std::string& method, Args... args)
     {
-      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN +
-                        ifm3d::XMLRPC_SESSION + ifm3d::XMLRPC_EDIT;
-      return this->_XCall(url, method, args...);
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN + _XSession() +
+                        ifm3d::XMLRPC_EDIT;
+      return this->xwrapper_->XCall(url, method, args...);
     }
 
     template <typename... Args>
     xmlrpc_c::value const
     _XCallDevice(const std::string& method, Args... args)
     {
-      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN +
-                        ifm3d::XMLRPC_SESSION + ifm3d::XMLRPC_EDIT +
-                        ifm3d::XMLRPC_DEVICE;
-      return this->_XCall(url, method, args...);
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN + _XSession() +
+                        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE;
+      return this->xwrapper_->XCall(url, method, args...);
     }
 
     template <typename... Args>
     xmlrpc_c::value const
     _XCallNet(const std::string& method, Args... args)
     {
-      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN +
-                        ifm3d::XMLRPC_SESSION + ifm3d::XMLRPC_EDIT +
-                        ifm3d::XMLRPC_DEVICE + ifm3d::XMLRPC_NET;
-      return this->_XCall(url, method, args...);
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN + _XSession() +
+                        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE +
+                        ifm3d::XMLRPC_NET;
+      return this->xwrapper_->XCall(url, method, args...);
     }
 
     template <typename... Args>
     xmlrpc_c::value const
     _XCallTime(const std::string& method, Args... args)
     {
-      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN +
-                        ifm3d::XMLRPC_SESSION + ifm3d::XMLRPC_EDIT +
-                        ifm3d::XMLRPC_DEVICE + ifm3d::XMLRPC_TIME;
-      return this->_XCall(url, method, args...);
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN + _XSession() +
+                        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE +
+                        ifm3d::XMLRPC_TIME;
+      return this->xwrapper_->XCall(url, method, args...);
     }
 
     template <typename... Args>
     xmlrpc_c::value const
     _XCallApp(const std::string& method, Args... args)
     {
-      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN +
-                        ifm3d::XMLRPC_SESSION + ifm3d::XMLRPC_EDIT +
-                        ifm3d::XMLRPC_APP;
-      return this->_XCall(url, method, args...);
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN + _XSession() +
+                        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_APP;
+      return this->xwrapper_->XCall(url, method, args...);
     }
 
     template <typename... Args>
     xmlrpc_c::value const
     _XCallImager(const std::string& method, Args... args)
     {
-      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN +
-                        ifm3d::XMLRPC_SESSION + ifm3d::XMLRPC_EDIT +
-                        ifm3d::XMLRPC_APP + ifm3d::XMLRPC_IMAGER;
-      return this->_XCall(url, method, args...);
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN + _XSession() +
+                        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_APP +
+                        ifm3d::XMLRPC_IMAGER;
+      return this->xwrapper_->XCall(url, method, args...);
     }
 
     template <typename... Args>
     xmlrpc_c::value const
     _XCallSpatialFilter(const std::string& method, Args... args)
     {
-      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN +
-                        ifm3d::XMLRPC_SESSION + ifm3d::XMLRPC_EDIT +
-                        ifm3d::XMLRPC_APP + ifm3d::XMLRPC_IMAGER +
-                        ifm3d::XMLRPC_SPATIALFILTER;
-      return this->_XCall(url, method, args...);
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN + _XSession() +
+                        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_APP +
+                        ifm3d::XMLRPC_IMAGER + ifm3d::XMLRPC_SPATIALFILTER;
+      return this->xwrapper_->XCall(url, method, args...);
     }
 
     template <typename... Args>
     xmlrpc_c::value const
     _XCallTemporalFilter(const std::string& method, Args... args)
     {
-      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN +
-                        ifm3d::XMLRPC_SESSION + ifm3d::XMLRPC_EDIT +
-                        ifm3d::XMLRPC_APP + ifm3d::XMLRPC_IMAGER +
-                        ifm3d::XMLRPC_TEMPORALFILTER;
-      return this->_XCall(url, method, args...);
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN + _XSession() +
+                        ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_APP +
+                        ifm3d::XMLRPC_IMAGER + ifm3d::XMLRPC_TEMPORALFILTER;
+      return this->xwrapper_->XCall(url, method, args...);
     }
 
   }; // end: class Camera::Impl
@@ -388,28 +301,16 @@ namespace ifm3d
 // ctor/dtor
 //-------------------------------------
 
-ifm3d::Camera::Impl::Impl(const std::string& ip,
-                          const std::uint16_t xmlrpc_port,
+ifm3d::Camera::Impl::Impl(std::shared_ptr<XMLRPCWrapper> xwrapper,
                           const std::string& password)
-  : ip_(ip),
-    xmlrpc_port_(xmlrpc_port),
+  : xwrapper_(std::move(xwrapper)),
     password_(password),
-    xmlrpc_url_prefix_("http://" + ip + ":" + std::to_string(xmlrpc_port)),
-    xclient_(new xmlrpc_c::client_xml(
-      xmlrpc_c::clientXmlTransportPtr(new xmlrpc_c::clientXmlTransport_curl(
-        xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(
-          ifm3d::NET_WAIT))))),
     session_("")
 {
   // Needed for fetching unit vectors over xmlrpc for O3X
   VLOG(IFM3D_TRACE) << "Increasing XML-RPC response size limit...";
   xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID,
                    XMLRPC_XML_SIZE_LIMIT_DEFAULT * 2);
-
-  VLOG(IFM3D_TRACE) << "Initializing Camera: ip=" << this->IP()
-                    << ", xmlrpc_port=" << this->XMLRPCPort()
-                    << ", password=" << this->Password();
-  VLOG(IFM3D_TRACE) << "XMLRPC URL Prefix=" << this->xmlrpc_url_prefix_;
 }
 
 ifm3d::Camera::Impl::~Impl()
@@ -425,19 +326,19 @@ ifm3d::Camera::Impl::~Impl()
 std::string
 ifm3d::Camera::Impl::XPrefix()
 {
-  return this->xmlrpc_url_prefix_;
+  return this->xwrapper_->XPrefix();
 }
 
 std::string
 ifm3d::Camera::Impl::IP()
 {
-  return this->ip_;
+  return this->xwrapper_->IP();
 }
 
 std::uint16_t
 ifm3d::Camera::Impl::XMLRPCPort()
 {
-  return this->xmlrpc_port_;
+  return this->xwrapper_->XMLRPCPort();
 }
 
 std::string
@@ -460,123 +361,36 @@ ifm3d::Camera::Impl::SetSessionID(const std::string& id)
   this->session_ = id;
 }
 
-// ---------------------------------------------
-// Conversions from XMLRPC data structures to
-// STL data structures
-// ---------------------------------------------
-std::unordered_map<std::string, std::string> const
-ifm3d::Camera::Impl::value_struct_to_map(const xmlrpc_c::value_struct& vs)
-{
-  std::map<std::string, xmlrpc_c::value> const resmap(
-    static_cast<std::map<std::string, xmlrpc_c::value>>(vs));
-
-  std::unordered_map<std::string, std::string> retval;
-  for (auto& kv : resmap)
-    {
-      retval[kv.first] = std::string(xmlrpc_c::value_string(kv.second));
-    }
-
-  return retval;
-}
-
-std::unordered_map<std::string,
-                   std::unordered_map<std::string, std::string>> const
-ifm3d::Camera::Impl::value_struct_to_map_of_maps(
-  const xmlrpc_c::value_struct& vs)
-{
-  std::unordered_map<std::string, std::unordered_map<std::string, std::string>>
-    retval;
-
-  std::map<std::string, xmlrpc_c::value> const outter_map(
-    static_cast<std::map<std::string, xmlrpc_c::value>>(vs));
-
-  for (auto& kv : outter_map)
-    {
-      xmlrpc_c::value_struct _vs(kv.second);
-
-      std::map<std::string, xmlrpc_c::value> const inner_map(
-        static_cast<std::map<std::string, xmlrpc_c::value>>(_vs));
-
-      std::unordered_map<std::string, std::string> inner_retval;
-
-      for (auto& inner_kv : inner_map)
-        {
-          inner_retval[inner_kv.first] =
-            std::string(xmlrpc_c::value_string(inner_kv.second));
-        }
-
-      retval[kv.first] = inner_retval;
-    }
-
-  return retval;
-}
-
 // =============================================
 // Public XMLRPC interface - worker methods
 // =============================================
 
-// ---------------------------------------------
-// Main (no edit session necessary)
-// ---------------------------------------------
-
-std::string
-ifm3d::Camera::Impl::DeviceParameter(const std::string& param)
-{
-  return xmlrpc_c::value_string(
-           this->_XCallMain("getParameter", param.c_str()))
-    .cvalue();
-}
-
-std::vector<std::string>
-ifm3d::Camera::Impl::TraceLogs(int count)
-{
-  xmlrpc_c::value_array result(this->_XCallMain("getTraceLogs", count));
-  std::vector<xmlrpc_c::value> const res_vec(result.vectorValueValue());
-
-  std::vector<std::string> retval;
-  for (auto& entry : res_vec)
-    {
-      xmlrpc_c::value_string const entry_str(entry);
-      retval.push_back(static_cast<std::string>(entry_str));
-    }
-  return retval;
-}
-
 std::unordered_map<std::string, std::string>
 ifm3d::Camera::Impl::HWInfo()
 {
-  return this->value_struct_to_map(this->_XCallMain("getHWInfo"));
+  return this->xwrapper_->value_struct_to_map(
+    this->xwrapper_->XCallMain("getHWInfo"));
 }
 
 std::unordered_map<std::string, std::string>
 ifm3d::Camera::Impl::SWVersion()
 {
-  return this->value_struct_to_map(this->_XCallMain("getSWVersion"));
+  return this->xwrapper_->value_struct_to_map(
+    this->xwrapper_->XCallMain("getSWVersion"));
 }
 
 std::unordered_map<std::string, std::string>
 ifm3d::Camera::Impl::DeviceInfo()
 {
-  return this->value_struct_to_map(this->_XCallMain("getAllParameters"));
-}
-
-// for O3R reboot is called without parameter
-void
-ifm3d::Camera::Impl::Reboot()
-{
-  this->_XCallMain("reboot");
-}
-
-void
-ifm3d::Camera::Impl::Reboot(int mode)
-{
-  this->_XCallMain("reboot", mode);
+  return this->xwrapper_->value_struct_to_map(
+    this->xwrapper_->XCallMain("getAllParameters"));
 }
 
 std::vector<ifm3d::app_entry_t>
 ifm3d::Camera::Impl::ApplicationList()
 {
-  xmlrpc_c::value_array result(this->_XCallMain("getApplicationList"));
+  xmlrpc_c::value_array result(
+    this->xwrapper_->XCallMain("getApplicationList"));
   std::vector<xmlrpc_c::value> const res_vec(result.vectorValueValue());
 
   std::vector<ifm3d::app_entry_t> retval;
@@ -602,7 +416,9 @@ std::string
 ifm3d::Camera::Impl::RequestSession(const std::string& sid)
 {
   xmlrpc_c::value_string val_str(
-    this->_XCallMain("requestSession", this->Password().c_str(), sid));
+    this->xwrapper_->XCallMain("requestSession",
+                               this->Password().c_str(),
+                               sid));
 
   this->SetSessionID(static_cast<std::string>(val_str));
   this->Heartbeat(ifm3d::MAX_HEARTBEAT);
@@ -613,7 +429,7 @@ std::vector<std::uint8_t>
 ifm3d::Camera::Impl::UnitVectors()
 {
   const xmlrpc_c::value_bytestring v_bytes =
-    this->_XCallMain("getUnitVectors");
+    this->xwrapper_->XCallMain("getUnitVectors");
 
   return v_bytes.vectorUcharValue();
 }
@@ -621,7 +437,7 @@ ifm3d::Camera::Impl::UnitVectors()
 void
 ifm3d::Camera::Impl::ForceTrigger()
 {
-  this->_XCallMain("trigger");
+  this->xwrapper_->XCallMain("trigger");
 }
 
 // ---------------------------------------------
@@ -828,24 +644,6 @@ ifm3d::Camera::Impl::SaveDevice()
   this->_XCallDevice("save");
 }
 
-std::string
-ifm3d::Camera::Impl::GetTemporaryConfiguration()
-{
-  return xmlrpc_c::value_string(this->_XCallMain("get", "")).cvalue();
-}
-
-void
-ifm3d::Camera::Impl::SetTemporaryConfiguration(const std::string& config)
-{
-  this->_XCallMain("set", config);
-}
-
-void
-ifm3d::Camera::Impl::SaveInitConfiguration()
-{
-  this->_XCallMain("saveInit");
-}
-
 void
 ifm3d::Camera::Impl::ActivatePassword(const std::string& password)
 {
@@ -865,7 +663,8 @@ ifm3d::Camera::Impl::DisablePassword()
 std::unordered_map<std::string, std::string>
 ifm3d::Camera::Impl::NetInfo()
 {
-  return this->value_struct_to_map(this->_XCallNet("getAllParameters"));
+  return this->xwrapper_->value_struct_to_map(
+    this->_XCallNet("getAllParameters"));
 }
 
 std::string
@@ -895,7 +694,8 @@ ifm3d::Camera::Impl::SaveNet()
 std::unordered_map<std::string, std::string>
 ifm3d::Camera::Impl::TimeInfo()
 {
-  return this->value_struct_to_map(this->_XCallTime("getAllParameters"));
+  return this->xwrapper_->value_struct_to_map(
+    this->_XCallTime("getAllParameters"));
 }
 
 std::string
@@ -938,7 +738,8 @@ ifm3d::Camera::Impl::SetCurrentTime(int epoch_seconds)
 std::unordered_map<std::string, std::string>
 ifm3d::Camera::Impl::AppInfo()
 {
-  return this->value_struct_to_map(this->_XCallApp("getAllParameters"));
+  return this->xwrapper_->value_struct_to_map(
+    this->_XCallApp("getAllParameters"));
 }
 
 std::string
@@ -968,7 +769,8 @@ ifm3d::Camera::Impl::SaveApp()
 std::unordered_map<std::string, std::string>
 ifm3d::Camera::Impl::ImagerInfo()
 {
-  return this->value_struct_to_map(this->_XCallImager("getAllParameters"));
+  return this->xwrapper_->value_struct_to_map(
+    this->_XCallImager("getAllParameters"));
 }
 
 std::string
@@ -1014,7 +816,7 @@ ifm3d::Camera::Impl::ChangeImagerType(const std::string& type)
 std::unordered_map<std::string, std::string>
 ifm3d::Camera::Impl::SpatialFilterInfo()
 {
-  return this->value_struct_to_map(
+  return this->xwrapper_->value_struct_to_map(
     this->_XCallSpatialFilter("getAllParameters"));
 }
 
@@ -1040,7 +842,7 @@ ifm3d::Camera::Impl::SetSpatialFilterParameter(const std::string& param,
 std::unordered_map<std::string, std::string>
 ifm3d::Camera::Impl::TemporalFilterInfo()
 {
-  return this->value_struct_to_map(
+  return this->xwrapper_->value_struct_to_map(
     this->_XCallTemporalFilter("getAllParameters"));
 }
 
@@ -1059,4 +861,4 @@ ifm3d::Camera::Impl::SetTemporalFilterParameter(const std::string& param,
   this->_XCallTemporalFilter("setParameter", param.c_str(), val.c_str());
 }
 
-#endif // __IFM3D_CAMERA_CAMERA_IMPL_HPP__
+#endif // IFM3D_CAMERA_CAMERA_IMPL_HPP

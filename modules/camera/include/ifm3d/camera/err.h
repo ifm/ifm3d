@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_CAMERA_ERR_H__
-#define __IFM3D_CAMERA_ERR_H__
+#ifndef IFM3D_CAMERA_ERR_H
+#define IFM3D_CAMERA_ERR_H
 
 #include <exception>
 #include <ifm3d/camera/camera_export.h>
@@ -116,4 +116,4 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
-#endif // __IFM3D_CAMERA_ERR_H__
+#endif // IFM3D_CAMERA_ERR_H
