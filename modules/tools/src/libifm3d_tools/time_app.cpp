@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/camera/camera.h>
+#include <ifm3d/camera.h>
 
 ifm3d::TimeApp::TimeApp(int argc, const char** argv, const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
@@ -48,7 +48,7 @@ ifm3d::TimeApp::Run()
 
   if (this->vm_->count("epoch"))
     {
-      this->cam_->SetCurrentTime((*this->vm_)["epoch"].as<int>());
+      std::static_pointer_cast<ifm3d::Camera>(this->cam_)->SetCurrentTime((*this->vm_)["epoch"].as<int>());
     }
 
   dump = this->cam_->ToJSON();
@@ -59,4 +59,10 @@ ifm3d::TimeApp::Run()
             << std::asctime(std::localtime(&curr_time_t)) << std::endl;
 
   return 0;
+}
+
+bool
+ifm3d::TimeApp::CheckCompatibility()
+{
+  return this->cam_->IsO3D() || this->cam_->IsO3X();
 }
