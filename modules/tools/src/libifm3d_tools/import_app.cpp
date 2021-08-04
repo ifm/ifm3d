@@ -14,8 +14,7 @@
 #include <string>
 #include <vector>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/camera/camera.h>
-#include <ifm3d/camera/err.h>
+#include <ifm3d/camera.h>
 #include <glog/logging.h>
 
 ifm3d::ImportApp::ImportApp(int argc,
@@ -85,7 +84,7 @@ ifm3d::ImportApp::Run()
   std::uint16_t mask = 0x0;
   if (!this->vm_->count("config"))
     {
-      this->cam_->ImportIFMApp(bytes);
+      std::static_pointer_cast<ifm3d::Camera>(this->cam_)->ImportIFMApp(bytes);
     }
   else
     {
@@ -106,8 +105,15 @@ ifm3d::ImportApp::Run()
             static_cast<std::uint16_t>(ifm3d::Camera::import_flags::APPS);
         }
 
-      this->cam_->ImportIFMConfig(bytes, mask);
+      std::static_pointer_cast<ifm3d::Camera>(this->cam_)
+        ->ImportIFMConfig(bytes, mask);
     }
 
   return 0;
+}
+
+bool
+ifm3d::ImportApp::CheckCompatibility()
+{
+  return this->cam_->IsO3D() || this->cam_->IsO3X();
 }

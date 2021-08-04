@@ -1,158 +1,22 @@
-// -*- c++ -*-
-/*
- * Copyright 2018-present ifm electronic, gmbh
- * Copyright 2017 Love Park Robotics, LLC
- * SPDX-License-Identifier: Apache-2.0
- */
+#ifndef IFM3D_CAMERA_CAMERA_H
+#define IFM3D_CAMERA_CAMERA_H
 
-#ifndef __IFM3D_CAMERA_CAMERA_H__
-#define __IFM3D_CAMERA_CAMERA_H__
-
-#include <cstdint>
-#include <functional>
-#include <memory>
-#include <string>
-#include <vector>
-#include <unordered_map>
-#include <ifm3d/contrib/nlohmann/json.hpp>
-#include <ifm3d/camera/camera_export.h>
-#include <ifm3d/camera/ifm_network_device.h>
-
-using json = nlohmann::json;
+#include <ifm3d/camera/camera_base.h>
 
 namespace ifm3d
 {
-  extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_IP;
-  extern IFM3D_CAMERA_EXPORT const std::uint16_t DEFAULT_XMLRPC_PORT;
-  extern IFM3D_CAMERA_EXPORT const int DEFAULT_PCIC_PORT;
-  extern IFM3D_CAMERA_EXPORT const std::uint16_t PCIC_PORT;
-  extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_PASSWORD;
-  extern IFM3D_CAMERA_EXPORT const int MAX_HEARTBEAT;
-  extern IFM3D_CAMERA_EXPORT const std::size_t SESSION_ID_SZ;
-  extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_SESSION_ID;
-  extern IFM3D_CAMERA_EXPORT const std::string DEFAULT_APPLICATION_TYPE;
-
-  extern IFM3D_CAMERA_EXPORT const int DEV_O3D_MIN;
-  extern IFM3D_CAMERA_EXPORT const int DEV_O3D_MAX;
-  extern IFM3D_CAMERA_EXPORT const int DEV_O3R_MIN;
-  extern IFM3D_CAMERA_EXPORT const int DEV_O3R_MAX;
-  extern IFM3D_CAMERA_EXPORT const int DEV_O3X_MIN;
-  extern IFM3D_CAMERA_EXPORT const int DEV_O3X_MAX;
-  extern IFM3D_CAMERA_EXPORT const std::string ASSUME_DEVICE;
-
-  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TIME_SUPPORT_MAJOR;
-  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TIME_SUPPORT_MINOR;
-  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TIME_SUPPORT_PATCH;
-
-  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TMP_PARAMS_SUPPORT_MAJOR;
-  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TMP_PARAMS_SUPPORT_MINOR;
-  extern IFM3D_CAMERA_EXPORT const unsigned int O3D_TMP_PARAMS_SUPPORT_PATCH;
-
-  extern IFM3D_CAMERA_EXPORT const unsigned int
-    O3D_INTRINSIC_PARAM_SUPPORT_MAJOR;
-  extern IFM3D_CAMERA_EXPORT const unsigned int
-    O3D_INTRINSIC_PARAM_SUPPORT_MINOR;
-  extern IFM3D_CAMERA_EXPORT const unsigned int
-    O3D_INTRINSIC_PARAM_SUPPORT_PATCH;
-
-  extern IFM3D_CAMERA_EXPORT const unsigned int
-    O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR;
-  extern IFM3D_CAMERA_EXPORT const unsigned int
-    O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR;
-  extern IFM3D_CAMERA_EXPORT const unsigned int
-    O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH;
-
-  /**
-   * Software interface to an ifm 3D camera
-   *
-   * The `Camera` class implements the underlying network protocol for
-   * communicating with the ifm hardware. Via this communication layer, this
-   * class exposes objects that can be used to mutate and tune the camera
-   * parameters including those of the underlying pmd imager.
-   */
-  class Camera
+  class Camera : public CameraBase
   {
   public:
     using Ptr = std::shared_ptr<Camera>;
 
-    /**
-     * Camera boot up modes:
-     *
-     * Productive: the normal runtime firmware comes up
-     * Recovery: allows you to flash new firmware
-     */
-    enum class boot_mode : int
-    {
-      PRODUCTIVE = 0,
-      RECOVERY = 1
-    };
-
-    /**
-     * Camera operating modes: run (streaming pixel data), edit (configuring
-     * the device/applications).
-     */
-    enum class operating_mode : int
-    {
-      RUN = 0,
-      EDIT = 1
-    };
-
-    /**
-     * Image acquisition trigger modes
-     */
-    enum class trigger_mode : int
-    {
-      FREE_RUN = 1,
-      SW = 2
-    };
-
-    /**
-     * Import flags used when importing a Vision Assistant configuration
-     */
-    enum class import_flags : int
-    {
-      GLOBAL = 0x1,
-      NET = 0x2,
-      APPS = 0x10
-    };
-
-    /**
-     * Convenience constants for spatial filter types
-     */
-    enum class spatial_filter : int
-    {
-      OFF = 0x0,
-      MEDIAN = 0x1,
-      MEAN = 0x2,
-      BILATERAL = 0x3
-    };
-
-    /**
-     * Convenience constants for temporal filter types
-     */
-    enum class temporal_filter : int
-    {
-      OFF = 0x0,
-      MEAN = 0x1,
-      ADAPTIVE_EXP = 0x2
-    };
-
-    /**
-     * Convenient constants for median filter mask sizes
-     */
-    enum class mfilt_mask_size : int
-    {
-      _3x3 = 0,
-      _5x5 = 1
-    };
-
-    /**
-     * @brief This function Provides a convinent way to find all
-     *   ifm devices on the network.
-     * @return : vector of ip-address all the discovered devices
-     *  on network.
-     */
-    static std::vector<ifm3d::IFMNetworkDevice> DeviceDiscovery();
+    using boot_mode = ifm3d::CameraBase::boot_mode;
+    using operating_mode = ifm3d::CameraBase::operating_mode;
+    using trigger_mode = ifm3d::CameraBase::trigger_mode;
+    using import_flags = ifm3d::CameraBase::import_flags;
+    using spatial_filter = ifm3d::CameraBase::spatial_filter;
+    using temporal_filter = ifm3d::CameraBase::temporal_filter;
+    using mfilt_mask_size = ifm3d::CameraBase::mfilt_mask_size;
 
     /**
      * Factory function for instantiating the proper subclass based on h/w
@@ -194,31 +58,19 @@ namespace ifm3d
            const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
            const std::string& password = ifm3d::DEFAULT_PASSWORD);
 
-    /**
-     * The dtor will cancel any open edit sessions with the camera.
-     */
     virtual ~Camera();
-
-    // Based on our mileage with `libo3d3xx`, disabling copy and move semantics
-    // on the camera class has not been an issue, so, we do that here too.
-    Camera(Camera&&) = delete;
-    Camera& operator=(Camera&&) = delete;
-    Camera(Camera&) = delete;
-    Camera& operator=(Camera&) = delete;
-
-    // Accessors/Mutators
-
-    /** The IP address associated with this Camera instance */
-    virtual std::string IP();
-
-    /** The XMLRPC Port associated with this Camera instance */
-    virtual std::uint16_t XMLRPCPort();
 
     /** The password associated with this Camera instance */
     virtual std::string Password();
 
     /** Retrieves the active session id */
     virtual std::string SessionID();
+
+    /**
+     * Sets the camera configuration back to the state in which it shipped from
+     * the ifm factory.
+     */
+    virtual void FactoryReset();
 
     /**
      * Requests an edit-mode session with the camera.
@@ -309,87 +161,10 @@ namespace ifm3d
       const std::unordered_map<std::string, std::string>& params);
 
     /**
-     * Sends a S/W trigger to the camera over XMLRPC.
-     *
-     * The O3X does not S/W trigger over PCIC, so, this function
-     * has been developed specficially for it. For the O3D, this is a NOOP.
-     */
-    virtual void ForceTrigger();
-
-    /**
-     * Reboot the sensor
-     *
-     * @param[in] mode The system mode to boot into upon restart of the sensor
-     * @throw ifm3d::error_t upon error
-     */
-    virtual void Reboot(
-      const boot_mode& mode = ifm3d::Camera::boot_mode::PRODUCTIVE);
-
-    /**
      * Returns the integer index of the active application. A negative number
      * indicates no application is marked as active on the sensor.
      */
     virtual int ActiveApplication();
-
-    /**
-     * This is a convenience function for extracting out the device type of the
-     * connected camera. The primary intention of this function is for internal
-     * usage (i.e., to trigger conditional logic based on the model hardware
-     * we are talking to) however, it will likely be useful in
-     * application-level logic as well, so, it is available in the public
-     * interface.
-     *
-     * @param[in] use_cached If set to true, a cached lookup of the device
-     *                       type will be used as the return value. If false,
-     *                       it will make a network call to the camera to get
-     *                       the "real" device type. The only reason for
-     *                       setting this to `false` would be if you expect
-     *                       over the lifetime of your camera instance that you
-     *                       will swap out (for example) an O3D for an O3X (or
-     *                       vice versa) -- literally, swapping out the network
-     *                       cables while an object instance is still alive. If
-     *                       that is not something you are worried about,
-     *                       leaving this set to true should result in a
-     *                       signficant performance increase.
-     */
-    virtual std::string DeviceType(bool use_cached = true);
-
-    /**
-     * Checks if the device is in the O3X family
-     *
-     * @return true for an O3X device
-     */
-    virtual bool IsO3X();
-
-    /**
-     * Checks if the device is in the O3D family
-     *
-     * @return true for an O3D device
-     */
-    virtual bool IsO3D();
-
-    /**
-     * Checks if the device is in the O3R family
-     *
-     * @return true for an O3R device
-     */
-    virtual bool IsO3R();
-
-    /**
-     * Convenience accessor for extracting a device parameters
-     * (i.e., no edit session created on the camera)
-     */
-    virtual std::string DeviceParameter(const std::string& key);
-
-    /**
-     * Delivers the trace log from the camera
-     * A session is not required to call this function.
-     *
-     * @return A `vector' of `std::string' for each entry in the tracelog
-     *
-     * @throw ifm3d::error_t upon error
-     */
-    virtual std::vector<std::string> TraceLogs(int count);
 
     /**
      * Delivers basic information about all applications stored on the device.
@@ -477,12 +252,6 @@ namespace ifm3d
     virtual void SetCurrentTime(int epoch_secs = -1);
 
     /**
-     * Sets the camera configuration back to the state in which it shipped from
-     * the ifm factory.
-     */
-    virtual void FactoryReset();
-
-    /**
      * For cameras that support fetching the Unit Vectors over XML-RPC,
      * this function will return those data as a binary blob.
      */
@@ -534,62 +303,6 @@ namespace ifm3d
     virtual int ImportIFMApp(const std::vector<std::uint8_t>& bytes);
 
     /**
-     * Serializes the state of the camera to JSON.
-     *
-     * The JSON interface returned here is the excellent
-     * <a href="https://github.com/nlohmann/json">JSON for Modern C++</a>.
-     *
-     * This function (along with its `std::string` equivalent `ToJSONStr()`)
-     * provides the primary gateway into obtaining the current parameter
-     * settings for the camera and PMD imager. Data returned from this function
-     * can be manipulated as a `json` object, then fed into `FromJSON(...)` to
-     * mutate parameter settings on the camera.
-     *
-     * @return A JSON object representation of the current state of the
-     *         hardware.
-     *
-     * @throw ifm3d::error_t upon error
-     */
-    virtual json ToJSON();
-
-    /**
-     * A stringified version of the JSON object returned by `ToJSON()`.
-     *
-     * @return A string version of the Camera's JSON representation.
-     *
-     * @see ToJSON
-     */
-    virtual std::string ToJSONStr();
-
-    /**
-     * Configures the camera based on the parameter values of the passed in
-     * JSON. This function is _the_ way to tune the
-     * camera/application/imager/etc. parameters.
-     *
-     * @param[in] json A json object encoding a camera configuration to apply
-     *                 to the hardware.
-     *
-     * @todo This needs to be fully documented!
-     * Processing proceeds as follows:
-     *
-     * - Device parameters are processed and saved persistently
-     *
-     * @throw ifm3d::error_t upon error - if this throws an exception, you are
-     *        encouraged to check the log file as a best effort is made to be
-     *        as descriptive as possible as to the specific error that has
-     *        occured.
-     */
-    virtual void FromJSON(const json& j);
-
-    /**
-     * Accepts a string with properly formatted/escaped JSON text, converts it
-     * to a `json` object, and call `FromJSON()` on it.
-     *
-     * @see FromJSON
-     */
-    virtual void FromJSONStr(const std::string& jstr);
-
-    /**
      * Sets or disable the password on the camera.
      *
      * @param[in] password is the password string. If the password is blank,
@@ -599,27 +312,13 @@ namespace ifm3d
      */
     virtual void SetPassword(std::string password = "");
 
-    /**
-     * Checks for a minimum ifm camera software version
-     *  @param[in] major  Major version of software
-     *  @param[in] minor  Minor Version of software
-     *  @param[in] patch  Patch Number of software
-     *
-     * return True if current software version is greater
-     * or equal to the  value passed
-     */
-    bool CheckMinimumFirmwareVersion(unsigned int major,
-                                     unsigned int minor,
-                                     unsigned int patch);
+    json ToJSON() override;
+    void FromJSON(const json& j) override;
+    void ForceTrigger() override;
 
   protected:
     class Impl;
     std::unique_ptr<Impl> pImpl;
-
-    /**
-     * The cached device type of the connected device
-     */
-    std::string device_type_;
 
     /**
      * Handles parsing a selected sub-tree of a potential input JSON file,
@@ -643,89 +342,10 @@ namespace ifm3d
       const std::string& name,
       int idx = -1);
 
-    /**
-     *  Implements the serialization of the camera state to JSON.
-     *  @param[in] open_session if false function will work
-                   on already opened session
-     *  @return A JSON object representation of the current camera state.
-     */
-    int DeviceID();
-    bool checkDeviceID(int deviceID, int minID, int maxID);
     json ToJSON_(const bool open_session = true);
+
     json getApplicationInfosToJSON();
+  };
+}
 
-  }; // end: class Camera
-
-  /**
-   * Camera specialization for O3D
-   */
-  class O3DCamera : public Camera
-  {
-  public:
-    using Ptr = std::shared_ptr<O3DCamera>;
-    O3DCamera(const std::string& ip = ifm3d::DEFAULT_IP,
-              const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
-              const std::string& password = ifm3d::DEFAULT_PASSWORD);
-
-    virtual ~O3DCamera();
-    O3DCamera(O3DCamera&&) = delete;
-    O3DCamera& operator=(O3DCamera&&) = delete;
-    O3DCamera(O3DCamera&) = delete;
-    O3DCamera& operator=(O3DCamera&) = delete;
-
-    std::unordered_map<std::string, std::string> TimeInfo() override;
-    bool IsO3X() override;
-    bool IsO3D() override;
-    bool IsO3R() override;
-  }; // end: class O3DCamera
-
-  /**
-   * Camera specialization for O3X
-   */
-  class O3XCamera : public Camera
-  {
-  public:
-    using Ptr = std::shared_ptr<O3XCamera>;
-    O3XCamera(const std::string& ip = ifm3d::DEFAULT_IP,
-              const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
-              const std::string& password = ifm3d::DEFAULT_PASSWORD);
-
-    virtual ~O3XCamera();
-    O3XCamera(O3XCamera&&) = delete;
-    O3XCamera& operator=(O3XCamera&&) = delete;
-    O3XCamera(O3XCamera&) = delete;
-    O3XCamera& operator=(O3XCamera&) = delete;
-
-    bool IsO3X() override;
-    bool IsO3D() override;
-    bool IsO3R() override;
-  }; // end: class O3XCamera
-
-  /**
-   * Camera specialization for O3R
-   */
-  class O3RCamera : public Camera
-  {
-  public:
-    using Ptr = std::shared_ptr<O3RCamera>;
-    O3RCamera(const std::string& ip = ifm3d::DEFAULT_IP,
-              const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
-              const std::string& password = ifm3d::DEFAULT_PASSWORD);
-
-    virtual ~O3RCamera();
-    O3RCamera(O3RCamera&&) = delete;
-    O3RCamera& operator=(O3RCamera&&) = delete;
-    O3RCamera(O3RCamera&) = delete;
-    O3RCamera& operator=(O3RCamera&) = delete;
-
-    bool IsO3X() override;
-    bool IsO3D() override;
-    bool IsO3R() override;
-
-    json ToJSON() override;
-    void FromJSON(const json& j) override;
-  }; // end: class O3RCamera
-
-} // end: namespace ifm3d
-
-#endif // __IFM3D_CAMERA_CAMERA_H__
+#endif // IFM3D_CAMERA_CAMERA_H
