@@ -74,7 +74,8 @@ build:linux:aarch64:
     - mkdir -p /opt/apt-repo
     - cp *.deb /opt/apt-repo
     - (cd /opt/apt-repo && (dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz))
-    - tar cvf ifm3d-ubuntu-aarch64-debs_${IFM3D_VERSION}-${CI_PIPELINE_IID}.tar -C /opt/apt-repo .
+    - source /etc/os-release && export UBUNTU_CODENAME
+    - tar cvf ifm3d-ubuntu-${UBUNTU_CODENAME}-aarch64-debs_${IFM3D_VERSION}-${CI_PIPELINE_IID}.tar -C /opt/apt-repo .
   artifacts:
     paths:
       - build/*.tar
