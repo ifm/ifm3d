@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_TOOLS_MAKE_APP_H__
-#define __IFM3D_TOOLS_MAKE_APP_H__
+#ifndef IFM3D_TOOLS_MAKE_APP_H
+#define IFM3D_TOOLS_MAKE_APP_H
 
 #include <iostream>
 #include <ifm3d/tools/cmdline_app.h>
@@ -31,4 +31,4 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
-#endif // __IFM3D_TOOLS_MAKE_APP_H__
+#endif // IFM3D_TOOLS_MAKE_APP_H

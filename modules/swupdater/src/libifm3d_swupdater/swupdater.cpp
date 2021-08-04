@@ -11,7 +11,7 @@
 
 const std::uint16_t ifm3d::SWUPDATER_RECOVERY_PORT = 8080;
 
-ifm3d::SWUpdater::SWUpdater(ifm3d::Camera::Ptr cam,
+ifm3d::SWUpdater::SWUpdater(ifm3d::CameraBase::Ptr cam,
                             const ifm3d::SWUpdater::FlashStatusCb& cb,
                             const std::uint16_t swupdate_recovery_port)
   : pImpl(new ifm3d::SWUpdater::Impl(cam,

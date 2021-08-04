@@ -27,9 +27,7 @@
 #include <iostream>
 #include <asio.hpp>
 #include <glog/logging.h>
-#include <ifm3d/camera/camera.h>
-#include <ifm3d/camera/err.h>
-#include <ifm3d/camera/logging.h>
+#include <ifm3d/camera.h>
 #include <ifm3d/fg/byte_buffer.h>
 #include <ifm3d/fg/schema.h>
 
@@ -48,7 +46,7 @@ namespace ifm3d
   class FrameGrabber::Impl
   {
   public:
-    Impl(ifm3d::Camera::Ptr cam,
+    Impl(ifm3d::CameraBase::Ptr cam,
          std::uint16_t mask,
          const std::uint16_t& nat_pcic_port);
     ~Impl();
@@ -79,7 +77,7 @@ namespace ifm3d
     //---------------------
     // State
     //---------------------
-    ifm3d::Camera::Ptr cam_;
+    ifm3d::CameraBase::Ptr cam_;
     std::uint16_t mask_;
 
     std::string cam_ip_;
@@ -137,7 +135,7 @@ namespace ifm3d
 //-------------------------------------
 // ctor/dtor
 //-------------------------------------
-ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam,
+ifm3d::FrameGrabber::Impl::Impl(ifm3d::CameraBase::Ptr cam,
                                 std::uint16_t mask,
                                 const std::uint16_t& pcic_port)
   : cam_(cam),
@@ -348,7 +346,8 @@ ifm3d::FrameGrabber::Impl::SetUVecBuffer(std::uint16_t mask)
   try
     {
       VLOG(IFM3D_TRACE) << "Caching unit vectors from xmlrpc...";
-      this->uvec_buffer_ = this->cam_->UnitVectors();
+      this->uvec_buffer_ =
+        std::static_pointer_cast<ifm3d::Camera>(this->cam_)->UnitVectors();
       if (FLAGS_v >= IFM3D_PROTO_DEBUG)
         {
           std::stringstream ss;

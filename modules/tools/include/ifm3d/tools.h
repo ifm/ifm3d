@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_TOOLS_H__
-#define __IFM3D_TOOLS_H__
+#ifndef IFM3D_TOOLS_H
+#define IFM3D_TOOLS_H
 
 #include <ifm3d/tools/app_types_app.h>
 #include <ifm3d/tools/cmdline_app.h>
@@ -37,4 +37,4 @@
 #  include <ifm3d/tools/swupdater/swupdate_app.h>
 #endif
 
-#endif // __IFM3D_TOOLS_H__
+#endif // IFM3D_TOOLS_H
