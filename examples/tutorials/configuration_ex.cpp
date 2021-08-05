@@ -25,8 +25,5 @@ int main(){
     conf = cam->ToJSON();
     std::cout << std::setw(4) << conf << std::endl;
 
-
-    
-
     return 0;
 }
