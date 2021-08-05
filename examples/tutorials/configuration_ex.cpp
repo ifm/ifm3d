@@ -4,6 +4,8 @@
 #include <fstream>
 #include <ifm3d/camera.h>
 
+// Path to config files are assuming you are running this example from the /build folder.
+
 int main(){
 
     // Create the camera object
