@@ -13,11 +13,11 @@ int main(){
     json conf = cam->ToJSON();
     // Display and then write to file
     std::cout << std::setw(4) << conf << std::endl;
-    std::ofstream file_get("/home/usmasslo/O3R/ifm3d/examples/tutorials/conf_get.json");
+    std::ofstream file_get("conf_get.json");
     file_get << std::setw(4) << conf;
 
     // Configure the device from a configuration file
-    std::ifstream file_set("/home/usmasslo/O3R/ifm3d/examples/tutorials/conf_set.json");
+    std::ifstream file_set("../tutorials/conf_set.json");
     file_set >> conf;
     cam->FromJSON(conf);
 
