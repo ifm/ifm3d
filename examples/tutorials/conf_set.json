@@ -1,0 +1,125 @@
+{
+    "device": {
+        "clock": {
+            "currentTime": 1581091311169419296
+        },
+        "diagnostic": {
+            "temperatures": [],
+            "upTime": 666000000000
+        },
+        "info": {
+            "device": "0301",
+            "deviceTreeBinaryBlob": "tegra186-quill-p3310-1000-c03-00-base.dtb",
+            "features": {},
+            "name": "",
+            "partNumber": "M03903",
+            "productionState": "AA",
+            "serialNumber": "000201232c5e",
+            "vendor": "0001"
+        },
+        "network": {
+            "ipAddressConfig": 0,
+            "macEth0": "00:04:4B:E4:E2:B9",
+            "macEth1": "00:02:01:23:2C:5E",
+            "networkSpeed": 1000,
+            "sshPublicKeys": [
+                ""
+            ],
+            "staticIPv4Address": "192.168.0.69",
+            "staticIPv4Gateway": "192.168.0.201",
+            "staticIPv4SubNetMask": "255.255.255.0",
+            "useDHCP": false
+        },
+        "state": {
+            "errorMessage": "",
+            "errorNumber": ""
+        },
+        "swVersion": {
+            "kernel": "4.9.140-l4t-r32.4+gb329485969c4",
+            "l4t": "r32.4.3",
+            "os": "0.12.7-170",
+            "swu": "0.12.7-170"
+        }
+    },
+    "ports": {
+        "port0": {
+            "acquisition": {
+                "exposureLong": 5000,
+                "exposureShort": 400,
+                "framerate": 10.0,
+                "offset": 0.0,
+                "version": {
+                    "major": 0,
+                    "minor": 0,
+                    "patch": 0
+                }
+            },
+            "data": {
+                "algoDebugConfig": {
+                    "channels": []
+                },
+                "availablePCICOutput": [
+                    "AMPLITUDE_COMPRESSED",
+                    "CONFIDENCE",
+                    "RADIAL_DISTANCE_COMPRESSED",
+                    "RADIAL_DISTANCE_NOISE",
+                    "REFLECTIVITY",
+                    "TOF_INFO"
+                ],
+                "pcicTCPPort": 50010
+            },
+            "info": {
+                "device": "3101",
+                "deviceTreeBinaryBlobOverlay": "001-irs2381c.dtbo",
+                "features": {
+                    "fov": {
+                        "horizontal": 78,
+                        "vertical": 105
+                    },
+                    "resolution": {
+                        "height": 172,
+                        "width": 224
+                    },
+                    "type": "3D"
+                },
+                "name": "",
+                "partNumber": "M03934",
+                "productionState": "AA",
+                "sensor": "IRS2381C",
+                "sensorID": "IRS2381C_105x78_4x2W_110x90_Csample",
+                "serialNumber": "000000000127",
+                "vendor": "0001"
+            },
+            "mode": "experimental_high_4m",
+            "processing": {
+                "diParam": {
+                    "anfFilterSizeDiv2": 2,
+                    "enableDynamicSymmetry": true,
+                    "enableStraylight": true,
+                    "enableTemporalFilter": true,
+                    "maxDistNoise": 0.02,
+                    "maxSymmetry": 0.4,
+                    "medianSizeDiv2": 0,
+                    "minAmplitude": 20.0,
+                    "minReflectivity": 0.0,
+                    "mixedPixelFilterMode": 1,
+                    "mixedPixelThresholdRad": 0.15
+                },
+                "extrinsicHeadToUser": {
+                    "rotX": 0.0,
+                    "rotY": 0.0,
+                    "rotZ": 0.0,
+                    "transX": 0.0,
+                    "transY": 0.0,
+                    "transZ": 0.0
+                },
+                "version": {
+                    "major": 0,
+                    "minor": 0,
+                    "patch": 0
+                }
+            },
+            "state": "CONF"
+        }
+    }
+}
