@@ -8,9 +8,12 @@
 #include <o3r_uncompress_di.h>
 #include <ifm3d/fg/byte_buffer.h>
 #include <ifm3d/fg/distance_image_info.h>
+#include <tuple>
 
 namespace ifm3d
 {
+  const std::size_t NUM_EXPOSURE_TIMESTAMP = 3;
+  const std::size_t NUM_EXPOSURE_TIME = 3;
   std::vector<std::uint16_t>
   readU16Vector(std::size_t idx,
                 const std::vector<std::uint8_t>& data_buffer,
@@ -35,6 +38,20 @@ namespace ifm3d
         idx += UINT16_DATA_SIZE;
       }
     return u16_buffer;
+  }
+
+  template <typename T>
+  std::pair<std::vector<T>, size_t>
+  readTVector(const std::uint8_t* data_buffer, std::size_t size)
+  {
+    std::uint32_t data_offset{};
+    std::vector<T> t_vector(size);
+    for (auto i = 0; i < size; i++)
+      {
+        t_vector[i] = ifm3d::mkval<T>(data_buffer + data_offset);
+        data_offset += sizeof(T);
+      }
+    return {t_vector, data_offset};
   }
 
   std::vector<float>
@@ -135,6 +152,32 @@ namespace ifm3d
       readIntrinsicCalibrationStruct(data_buffer.data() + distimageidx +
                                      data_offset);
     data_offset += sizeof(inverse_intrinsic_calibration);
+    std::vector<uint64_t> timestamps_nsec{};
+    std::vector<float> exposure_time_sec {};
+
+    if (dist_info_version > 1)
+      {
+        size_t offset = 0;
+        /* ExposureTimestamps */
+        std::tie(timestamps_nsec, offset) = readTVector<uint64_t>(
+          data_buffer.data() + distimageidx + data_offset,
+          NUM_EXPOSURE_TIMESTAMP);
+        data_offset += offset;
+
+        /* Exposure Times */
+        std::tie(exposure_time_sec, offset)  = readTVector<float>(
+          data_buffer.data() + distimageidx + data_offset,
+          NUM_EXPOSURE_TIME);
+        data_offset += offset;
+      }
+    /*exposure_timestamps will be blank for header version 1 of dist image
+     * info*/
+    if (timestamps_nsec.empty())
+      {
+        VLOG(IFM3D_PROTO_DEBUG)
+          << "dist image Header Version value is 1,"
+          << "does not support exposure parameters";
+      }
 
     VLOG(IFM3D_PROTO_DEBUG)
       << "O3R_DISTANCE_IMAGE_INFORMATION \n\t-Chunk Index: " << distimageidx
@@ -154,6 +197,8 @@ namespace ifm3d
       inverse_intrinsic_calibration,
       readU16Vector(dist_idx, data_buffer, width * height),
       readU16Vector(amp_idx, data_buffer, width * height),
+      timestamps_nsec,
+      exposure_time_sec,
       width,
       height);
   }
@@ -167,6 +212,8 @@ namespace ifm3d
     const IntrinsicCalibration& inv_intr_calib,
     const std::vector<std::uint16_t>& distance_buffer,
     const std::vector<std::uint16_t>& amplitude_buffer,
+    const std::vector<uint64_t>& timestamps_nsec,
+    const std::vector<float>& exposure_times_sec,
     const std::uint32_t w,
     const std::uint32_t h)
     : dist_resolution(dist_res),
@@ -177,6 +224,8 @@ namespace ifm3d
       inverse_intrinsic_calibration(inv_intr_calib),
       u16_distance_buffer(distance_buffer),
       u16_amplitude_buffer(amplitude_buffer),
+      timestamps_nsec(timestamps_nsec),
+      exposure_times_sec(exposure_times_sec),
       width(w),
       height(h)
   {}
@@ -190,8 +239,12 @@ namespace ifm3d
         return {};
       }
 
-    float xyzd[4 * npts];
-    uint16_t u16Dist[npts];
+    std::vector<float> xyzd_float(4 * npts);
+    float* xyzd = (float*)xyzd_float.data();
+
+    std::vector<uint16_t> dist_u16(npts);
+    uint16_t* u16Dist = (uint16_t*)dist_u16.data();
+
     for (auto i = 0; i < npts; ++i)
       {
         u16Dist[i] = u16_distance_buffer[i];
@@ -234,7 +287,9 @@ namespace ifm3d
         return {};
       }
 
-    float amplitude[npts];
+    std::vector<float> amplitude_float(npts);
+    float* amplitude = (float*)amplitude_float.data();
+
     if (convertAmplitude(amplitude,
                          u16_amplitude_buffer.data(),
                          ampl_resolution,

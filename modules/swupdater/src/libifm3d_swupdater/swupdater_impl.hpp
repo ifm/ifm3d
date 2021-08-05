@@ -552,7 +552,7 @@ ifm3d::SWUpdater::Impl::GetUpdaterStatus()
   auto json = nlohmann::json::parse(status_string.c_str());
   status_id = std::stoi(json["Status"].get<std::string>());
   status_error = std::stoi(json["Error"].get<std::string>());
-  status_message = json["Msg"];
+  status_message = json["Msg"].get<std::string>();
 
   return std::make_tuple(status_id, status_message, status_error);
 }
