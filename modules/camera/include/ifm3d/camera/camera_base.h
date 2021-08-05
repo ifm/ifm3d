@@ -145,6 +145,14 @@ namespace ifm3d
       _5x5 = 1
     };
 
+    enum class device_family : int
+    {
+      UNKNOWN = 0,
+      O3D = 1,
+      O3X = 2,
+      O3R = 3,
+    };
+
     /**
      * @brief This function Provides a convinent way to find all
      *   ifm devices on the network.
@@ -254,25 +262,21 @@ namespace ifm3d
     virtual std::string DeviceType(bool use_cached = true);
 
     /**
-     * Checks if the device is in the O3X family
+     * This function can be used to retrieve the family of the connected device
      *
-     * @return true for an O3X device
+     * @return the device family of the connected device.
      */
-    virtual bool IsO3X();
+    virtual device_family WhoAmI();
 
     /**
-     * Checks if the device is in the O3D family
+     * This is a convencience function for checking wether a device is one of
+     * the specified device family
      *
-     * @return true for an O3D device
-     */
-    virtual bool IsO3D();
-
-    /**
-     * Checks if the device is in the O3R family
+     * @param[in] family The family to check for
      *
-     * @return true for an O3R device
+     * @return true if the device is part of the family
      */
-    virtual bool IsO3R();
+    virtual bool AmI(device_family family);
 
     /**
      * Convenience accessor for extracting a device parameters

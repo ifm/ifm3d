@@ -32,15 +32,15 @@ ifm3d::DiscoverApp::Run()
           auto ip_address = device.GetIPAddress();
           auto cam = ifm3d::Camera::MakeShared(ip_address);
           auto device_type = "";
-          if (cam->IsO3D())
+          if (cam->AmI(ifm3d::Camera::device_family::O3D))
             {
               device_type = "O3D";
             }
-          else if (cam->IsO3X())
+          else if (cam->AmI(ifm3d::Camera::device_family::O3X))
             {
               device_type = "O3X";
             }
-          else if (cam->IsO3R())
+          else if (cam->AmI(ifm3d::Camera::device_family::O3R))
             {
               device_type = "O3R";
             }

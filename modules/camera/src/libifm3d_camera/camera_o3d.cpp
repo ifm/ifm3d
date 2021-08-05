@@ -1,3 +1,8 @@
+/*
+ * Copyright 2021-present ifm electronic, gmbh
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #include <ifm3d/camera/camera_o3d.h>
 
 //================================================
@@ -24,20 +29,8 @@ ifm3d::O3DCamera::TimeInfo()
   return json::parse("{}");
 }
 
-bool
-ifm3d::O3DCamera::IsO3X()
+ifm3d::CameraBase::device_family
+ifm3d::O3DCamera::WhoAmI()
 {
-  return false;
-}
-
-bool
-ifm3d::O3DCamera::IsO3R()
-{
-  return false;
-}
-
-bool
-ifm3d::O3DCamera::IsO3D()
-{
-  return true;
+  return device_family::O3D;
 }
