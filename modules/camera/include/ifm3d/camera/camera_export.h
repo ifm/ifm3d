@@ -1,3 +1,8 @@
+/*
+ * Copyright 2021-present ifm electronic, gmbh
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #ifndef IFM3D_CAMERA_EXPORT_HPP
 #define IFM3D_CAMERA_EXPORT_HPP
 

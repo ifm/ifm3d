@@ -1,3 +1,8 @@
+/*
+ * Copyright 2021-present ifm electronic, gmbh
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #ifndef IFM3D_CAMERA_CAMERA_O3D_H
 #define IFM3D_CAMERA_CAMERA_O3D_H
 
@@ -23,9 +28,7 @@ namespace ifm3d
     O3DCamera& operator=(O3DCamera&) = delete;
 
     std::unordered_map<std::string, std::string> TimeInfo() override;
-    bool IsO3X() override;
-    bool IsO3D() override;
-    bool IsO3R() override;
+    device_family WhoAmI() override;
   }; // end: class O3DCamera
 }
 #endif // IFM3D_CAMERA_CAMERA_O3D_H
