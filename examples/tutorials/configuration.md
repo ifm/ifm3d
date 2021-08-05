@@ -14,7 +14,7 @@ auto cam = ifm3d::Camera::MakeShared();
 
 ## Read the current configuration
 
-The first provided function outputs the current configuration of the device (the VPU and each head currently attached).
+The first provided function outputs the current configuration of the device (the VPU and each head currently attached). This function outputs the full configuration, including the parameters set for each camera head, but also other aspects like MAC and IP addresses, etc.
 ```cpp
 json conf = cam->ToJSON();
 ```
