@@ -1,3 +1,8 @@
+/*
+ * Copyright 2021-present ifm electronic, gmbh
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #ifndef IFM3D_CAMERA_CAMERA_BASE_IMPL_HPP
 #define IFM3D_CAMERA_CAMERA_BASE_IMPL_HPP
 
@@ -36,7 +41,6 @@ namespace ifm3d
     // Main
     std::string DeviceParameter(const std::string& param);
     std::vector<std::string> TraceLogs(int count);
-    void Reboot();
     void Reboot(int mode);
 
   protected:
@@ -167,13 +171,6 @@ ifm3d::CameraBase::Impl::TraceLogs(int count)
       retval.push_back(static_cast<std::string>(entry_str));
     }
   return retval;
-}
-
-// for O3R reboot is called without parameter
-void
-ifm3d::CameraBase::Impl::Reboot()
-{
-  this->xwrapper_->XCallMain("reboot");
 }
 
 void

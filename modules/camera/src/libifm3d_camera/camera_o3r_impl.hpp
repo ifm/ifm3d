@@ -41,6 +41,8 @@ namespace ifm3d
     std::string GetTemporaryConfiguration();
     void SetTemporaryConfiguration(const std::string& config);
     void SaveInitConfiguration();
+    void FactoryReset(bool keepNetworkSettings);
+    void Reboot();
 
   protected:
     std::shared_ptr<XMLRPCWrapper> xwrapper_;
@@ -71,6 +73,18 @@ void
 ifm3d::O3RCamera::Impl::SaveInitConfiguration()
 {
   this->xwrapper_->XCallMain("saveInit");
+}
+
+void
+ifm3d::O3RCamera::Impl::FactoryReset(bool keepNetworkSettings)
+{
+  this->xwrapper_->XCallMain("factoryReset", keepNetworkSettings);
+}
+
+void
+ifm3d::O3RCamera::Impl::Reboot()
+{
+  this->xwrapper_->XCallMain("reboot");
 }
 
 #endif // IFM3D_CAMERA_CAMERA_O3R_IMPL_HPP

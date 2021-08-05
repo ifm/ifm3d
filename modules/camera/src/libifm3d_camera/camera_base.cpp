@@ -122,17 +122,17 @@ ifm3d::CameraBase::MakeShared(const std::string& ip,
       //
       // It is an optimization to return the specialized subclass
       //
-      if (base->IsO3R())
+      if (base->AmI(device_family::O3R))
         {
           VLOG(IFM3D_TRACE) << "Instantiating O3R...";
           return std::make_shared<ifm3d::O3RCamera>(ip, xmlrpc_port);
         }
-      if (base->IsO3X())
+      if (base->AmI(device_family::O3X))
         {
           VLOG(IFM3D_TRACE) << "Instantiating O3X...";
           return std::make_shared<ifm3d::O3XCamera>(ip, xmlrpc_port, password);
         }
-      else if (base->IsO3D())
+      else if (base->AmI(device_family::O3D))
         {
           VLOG(IFM3D_TRACE) << "Instantiating O3D...";
           return std::make_shared<ifm3d::O3DCamera>(ip, xmlrpc_port, password);
@@ -197,15 +197,7 @@ ifm3d::CameraBase::XMLRPCPort()
 void
 ifm3d::CameraBase::Reboot(const ifm3d::CameraBase::boot_mode& mode)
 {
-  if (this->IsO3R())
-    {
-      // call without parameter
-      this->pImpl->Reboot();
-    }
-  else
-    {
-      this->pImpl->Reboot(static_cast<int>(mode));
-    }
+  this->pImpl->Reboot(static_cast<int>(mode));
 }
 
 std::vector<std::string>
@@ -271,22 +263,29 @@ ifm3d::CameraBase::checkDeviceID(int deviceID, int minID, int maxID)
   return false;
 }
 
-bool
-ifm3d::CameraBase::IsO3R()
+ifm3d::CameraBase::device_family
+ifm3d::CameraBase::WhoAmI()
 {
-  return checkDeviceID(DeviceID(), ifm3d::DEV_O3R_MIN, ifm3d::DEV_O3R_MAX);
+  if (checkDeviceID(DeviceID(), ifm3d::DEV_O3D_MIN, ifm3d::DEV_O3D_MAX))
+    {
+      return device_family::O3D;
+    }
+  if (checkDeviceID(DeviceID(), ifm3d::DEV_O3X_MIN, ifm3d::DEV_O3X_MAX))
+    {
+      return device_family::O3X;
+    }
+  if (checkDeviceID(DeviceID(), ifm3d::DEV_O3R_MIN, ifm3d::DEV_O3R_MAX))
+    {
+      return device_family::O3R;
+    }
+
+  return device_family::UNKNOWN;
 }
 
 bool
-ifm3d::CameraBase::IsO3X()
+ifm3d::CameraBase::AmI(device_family family)
 {
-  return checkDeviceID(DeviceID(), ifm3d::DEV_O3X_MIN, ifm3d::DEV_O3X_MAX);
-}
-
-bool
-ifm3d::CameraBase::IsO3D()
-{
-  return checkDeviceID(DeviceID(), ifm3d::DEV_O3D_MIN, ifm3d::DEV_O3D_MAX);
+  return this->WhoAmI() == family;
 }
 
 bool

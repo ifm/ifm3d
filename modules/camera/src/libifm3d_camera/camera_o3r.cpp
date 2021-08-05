@@ -1,3 +1,8 @@
+/*
+ * Copyright 2021-present ifm electronic, gmbh
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #include <ifm3d/camera/camera_o3r.h>
 #include <camera_o3r_impl.hpp>
 
@@ -13,22 +18,16 @@ ifm3d::O3RCamera::O3RCamera(const std::string& ip,
 
 ifm3d::O3RCamera::~O3RCamera() = default;
 
-bool
-ifm3d::O3RCamera::IsO3X()
+void
+ifm3d::O3RCamera::FactoryReset(bool keepNetworkSettings)
 {
-  return false;
+  this->pImpl->FactoryReset(keepNetworkSettings);
 }
 
-bool
-ifm3d::O3RCamera::IsO3D()
+ifm3d::CameraBase::device_family
+ifm3d::O3RCamera::WhoAmI()
 {
-  return false;
-}
-
-bool
-ifm3d::O3RCamera::IsO3R()
-{
-  return true;
+  return device_family::O3R;
 }
 
 void
@@ -42,4 +41,10 @@ json
 ifm3d::O3RCamera::ToJSON()
 {
   return json::parse(this->pImpl->GetTemporaryConfiguration());
+}
+
+void
+ifm3d::O3RCamera::Reboot(const boot_mode& mode)
+{
+  this->pImpl->Reboot();
 }

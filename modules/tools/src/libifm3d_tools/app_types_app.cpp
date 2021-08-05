@@ -35,5 +35,6 @@ ifm3d::AppTypesApp::Run()
 bool
 ifm3d::AppTypesApp::CheckCompatibility()
 {
-  return this->cam_->IsO3D() || this->cam_->IsO3X();
+  return this->cam_->AmI(CameraBase::device_family::O3D) ||
+         this->cam_->AmI(CameraBase::device_family::O3X);
 }
