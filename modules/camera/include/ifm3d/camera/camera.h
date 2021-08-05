@@ -1,3 +1,8 @@
+/*
+ * Copyright 2021-present ifm electronic, gmbh
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #ifndef IFM3D_CAMERA_CAMERA_H
 #define IFM3D_CAMERA_CAMERA_H
 
@@ -17,6 +22,7 @@ namespace ifm3d
     using spatial_filter = ifm3d::CameraBase::spatial_filter;
     using temporal_filter = ifm3d::CameraBase::temporal_filter;
     using mfilt_mask_size = ifm3d::CameraBase::mfilt_mask_size;
+    using device_family = ifm3d::CameraBase::device_family;
 
     /**
      * Factory function for instantiating the proper subclass based on h/w

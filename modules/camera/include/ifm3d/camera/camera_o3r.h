@@ -1,3 +1,8 @@
+/*
+ * Copyright 2021-present ifm electronic, gmbh
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #ifndef IFM3D_CAMERA_CAMERA_O3R_H
 #define IFM3D_CAMERA_CAMERA_O3R_H
 
@@ -21,9 +26,18 @@ namespace ifm3d
     O3RCamera(O3RCamera&) = delete;
     O3RCamera& operator=(O3RCamera&) = delete;
 
-    bool IsO3X() override;
-    bool IsO3D() override;
-    bool IsO3R() override;
+    /**
+     * Sets the camera configuration back to the state in which it shipped from
+     * the ifm factory.
+     *
+     * @param[in] keepNetworkSettings a bool indicating wether to keep the
+     * current network settings
+     */
+    virtual void FactoryReset(bool keepNetworkSettings);
+
+    void Reboot(const boot_mode& mode =
+                  ifm3d::CameraBase::boot_mode::PRODUCTIVE) override;
+    device_family WhoAmI() override;
 
     json ToJSON() override;
     void FromJSON(const json& j) override;
