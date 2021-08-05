@@ -1,0 +1,83 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  SKIP_TEST : "false"
+
+build:windows:
+  stage: build
+  when: manual
+  tags:
+    - ifm3d_windows
+  script:
+    - mkdir build
+    - cd build
+    - 'cmake.exe -G "Visual Studio 15 2017 Win64" -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=E:/ifm3d_2017/install  -DBUILD_TESTS=ON -DBUILD_MODULE_IMAGE=OFF -DGTEST_CMAKE_DIR=E:/ifm3d_2017/googletest/googletest -Dgtest_force_shared_crt=TRUE ..'
+    - 'cmake.exe --build . --config Release --target ALL_BUILD'
+
+# Run unit test
+test:windows:
+  stage: test
+  tags:
+    - ifm3d_windows
+  variables:
+   GIT_CLEAN_FLAGS: none
+  script:
+    - cd build
+    - cmake.exe --build . --config Release --target check
+  dependencies:
+    - build:windows
+  except:
+    variables:
+    - $SKIP_TEST == "false"
+
+deploy:windows:
+  stage : deploy
+  tags:
+    - ifm3d_windows
+  script:
+    - echo "please add deployment script"
+  dependencies:
+    - test:windows
+
+
+# Linux build
+
+build:linux:aarch64:
+  image: nexus3.intra.ifm:18443/arm64v8/ifm3d-base:0.0.5
+  stage: build
+  variables:
+    REQUESTS_CA_BUNDLE: "/etc/ssl/certs/ca-certificates.crt"
+  tags:
+    - shared_docker_aarch64
+  before_script:
+    - echo ${http_proxy}
+    - echo ${https_proxy}
+    - echo ${no_proxy}
+  script:
+    - mkdir build
+    - cd build
+    - |
+      cmake -GNinja \
+            -DCMAKE_INSTALL_PREFIX=/usr \
+            -DBUILD_MODULE_OPENCV=ON \
+            -DBUILD_MODULE_PYBIND11=ON \
+            -DPYTHON_EXECUTABLE=/usr/bin/python3 \
+            ..
+    - ninja
+    - ninja package
+    - ninja repackage
+    - IFM3D_VERSION=$(modules/tools/src/bin/ifm3d --version | cut -d "=" -f 2)
+    - export IFM3D_VERSION
+    - mkdir -p /opt/apt-repo
+    - cp *.deb /opt/apt-repo
+    - (cd /opt/apt-repo && (dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz))
+    - source /etc/os-release && export UBUNTU_CODENAME
+    - tar cvf ifm3d-ubuntu-${UBUNTU_CODENAME}-aarch64-debs_${IFM3D_VERSION}-${CI_PIPELINE_IID}.tar -C /opt/apt-repo .
+  artifacts:
+    paths:
+      - build/*.tar
+    expire_in: 1 week
+
