@@ -151,13 +151,7 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::CameraBase::Ptr cam,
   this->SetTriggerBuffer();
   this->SetUVecBuffer(this->mask_);
 
-  if (this->cam_->AmI(ifm3d::CameraBase::device_family::O3R))
-    {
-      // O3R has multiple fpd-link ports and each port has its own PCIC port.
-      // The user has to provide the information to which he wants to connect!
-      this->cam_port_ = ifm3d::DEFAULT_PCIC_PORT;
-    }
-  else if (!this->cam_->AmI(ifm3d::CameraBase::device_family::O3X))
+  if (!this->cam_->AmI(ifm3d::Camera::device_family::O3X))
     {
       try
         {
