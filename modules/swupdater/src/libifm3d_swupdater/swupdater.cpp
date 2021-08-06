@@ -8,15 +8,39 @@
 #include <ifm3d/camera/camera.h>
 #include <ifm3d/camera/err.h>
 #include <swupdater_impl.hpp>
+#include <swupdater_v2_impl.hpp>
 
 const std::uint16_t ifm3d::SWUPDATER_RECOVERY_PORT = 8080;
+
+namespace ifm3d
+{
+  auto make_swu_implementor =
+    [](ifm3d::Camera::Ptr cam,
+       const ifm3d::SWUpdater::FlashStatusCb& cb,
+       const std::uint16_t swupdate_recovery_port) -> ifm3d::SWUpdater::Impl* {
+    switch (cam->SwUpdateVersion())
+      {
+      case ifm3d::Camera::swu_version::SWU_V1:
+        return new ifm3d::SWUpdater::Impl(
+          cam,
+          cb,
+          std::to_string(swupdate_recovery_port));
+      case ifm3d::Camera::swu_version::SWU_V2:
+        return new ifm3d::ImplV2(cam,
+                                 cb,
+                                 std::to_string(swupdate_recovery_port));
+        break;
+      default:
+        throw std::runtime_error("swupdate not supported");
+        break;
+      }
+  };
+}
 
 ifm3d::SWUpdater::SWUpdater(ifm3d::Camera::Ptr cam,
                             const ifm3d::SWUpdater::FlashStatusCb& cb,
                             const std::uint16_t swupdate_recovery_port)
-  : pImpl(new ifm3d::SWUpdater::Impl(cam,
-                                     cb,
-                                     std::to_string(swupdate_recovery_port)))
+  : pImpl(ifm3d::make_swu_implementor(cam, cb, swupdate_recovery_port))
 {}
 
 ifm3d::SWUpdater::~SWUpdater() = default;
