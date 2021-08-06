@@ -6,19 +6,18 @@ stages:
 variables:
   SKIP_TEST : "false"
 
-build:windows:
+build:windows_2019:
   stage: build
-  when: manual
   tags:
     - ifm3d_windows
   script:
     - mkdir build
     - cd build
-    - 'cmake.exe -G "Visual Studio 15 2017 Win64" -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=E:/ifm3d_2017/install  -DBUILD_TESTS=ON -DBUILD_MODULE_IMAGE=OFF -DGTEST_CMAKE_DIR=E:/ifm3d_2017/googletest/googletest -Dgtest_force_shared_crt=TRUE ..'
+    - 'cmake.exe -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=D:/ifm3d_deps/install_VS2019 -DBUILD_TESTS=ON -DCMAKE_PREFIX_PATH="D:/ifm3d_deps/install_VS2019;D:/ifm3d_deps/install_VS2019/PCL 1.12.0" -DGTEST_CMAKE_DIR=D:/ifm3d_deps/googletest/googletest -Dgtest_force_shared_crt=TRUE ..'
     - 'cmake.exe --build . --config Release --target ALL_BUILD'
 
 # Run unit test
-test:windows:
+test:windows_2019:
   stage: test
   tags:
     - ifm3d_windows
@@ -28,19 +27,19 @@ test:windows:
     - cd build
     - cmake.exe --build . --config Release --target check
   dependencies:
-    - build:windows
+    - build:windows_2019
   except:
     variables:
     - $SKIP_TEST == "false"
 
-deploy:windows:
+deploy:windows_2019:
   stage : deploy
   tags:
     - ifm3d_windows
   script:
     - echo "please add deployment script"
   dependencies:
-    - test:windows
+    - test:windows_2019
 
 
 # Linux build
