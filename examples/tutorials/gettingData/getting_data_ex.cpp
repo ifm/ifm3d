@@ -13,8 +13,10 @@ int main(){
     auto fg_0 = std::make_shared<ifm3d::FrameGrabber>(cam, 10, 50010);
     auto im_0 =  std::make_shared<ifm3d::ImageBuffer>();
     
+    // Get a frame
     fg_0->WaitForFrame(im_0.get(), 1000);
 
+    // Do something with the data
     cv::Mat amp;
     cv::Mat dist;  
 
