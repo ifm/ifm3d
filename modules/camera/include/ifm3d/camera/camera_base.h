@@ -156,6 +156,16 @@ namespace ifm3d
     };
 
     /**
+     * Convienient constant for SwUpdate version
+     */
+    enum class swu_version : int
+    {
+      SWU_NOT_SUPPORTED = 0,
+      SWU_V1 = 1,
+      SWU_V2 = 2,
+    };
+
+    /**
      * @brief This function Provides a convinent way to find all
      *   ifm devices on the network.
      * @return : vector of ip-address all the discovered devices
@@ -295,6 +305,13 @@ namespace ifm3d
      * @throw ifm3d::error_t upon error
      */
     virtual std::vector<std::string> TraceLogs(int count);
+
+    /**
+     * Checks the swupdater version supported by device
+     *
+     * @return swu_version supported by device
+     */
+    virtual ifm3d::CameraBase::swu_version SwUpdateVersion();
 
     /**
      * Serializes the state of the camera to JSON.

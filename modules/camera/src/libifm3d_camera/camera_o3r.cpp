@@ -48,3 +48,9 @@ ifm3d::O3RCamera::Reboot(const boot_mode& mode)
 {
   this->pImpl->Reboot();
 }
+
+ifm3d::Camera::swu_version
+ifm3d::O3RCamera::SwUpdateVersion()
+{
+  return ifm3d::Camera::swu_version::SWU_V2;
+}
