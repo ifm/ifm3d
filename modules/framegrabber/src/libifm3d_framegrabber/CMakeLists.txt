@@ -52,7 +52,7 @@ target_link_libraries(
   PRIVATE
     ifm3d_camera
     Threads::Threads
-    asio
+    $<BUILD_INTERFACE:asio>
   )
 
 set_target_properties(

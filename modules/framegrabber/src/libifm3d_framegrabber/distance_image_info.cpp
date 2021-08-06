@@ -20,9 +20,9 @@ namespace ifm3d
                 const std::uint32_t npts)
   {
     const auto chunk_size = ifm3d::mkval<uint32_t>(data_buffer.data() + idx +
-                                             CHUNK_SIZE_INFO_OFFSET);
-    const auto data_offset = ifm3d::mkval<std::uint32_t>(data_buffer.data() + idx +
-                                                   HEADER_SIZE_INFO_OFFSET);
+                                                   CHUNK_SIZE_INFO_OFFSET);
+    const auto data_offset = ifm3d::mkval<std::uint32_t>(
+      data_buffer.data() + idx + HEADER_SIZE_INFO_OFFSET);
 
     if ((chunk_size - data_offset) < npts * UINT16_DATA_SIZE)
       {
@@ -153,7 +153,7 @@ namespace ifm3d
                                      data_offset);
     data_offset += sizeof(inverse_intrinsic_calibration);
     std::vector<uint64_t> timestamps_nsec{};
-    std::vector<float> exposure_time_sec {};
+    std::vector<float> exposure_time_sec{};
 
     if (dist_info_version > 1)
       {
@@ -165,18 +165,17 @@ namespace ifm3d
         data_offset += offset;
 
         /* Exposure Times */
-        std::tie(exposure_time_sec, offset)  = readTVector<float>(
-          data_buffer.data() + distimageidx + data_offset,
-          NUM_EXPOSURE_TIME);
+        std::tie(exposure_time_sec, offset) =
+          readTVector<float>(data_buffer.data() + distimageidx + data_offset,
+                             NUM_EXPOSURE_TIME);
         data_offset += offset;
       }
     /*exposure_timestamps will be blank for header version 1 of dist image
      * info*/
     if (timestamps_nsec.empty())
       {
-        VLOG(IFM3D_PROTO_DEBUG)
-          << "dist image Header Version value is 1,"
-          << "does not support exposure parameters";
+        VLOG(IFM3D_PROTO_DEBUG) << "dist image Header Version value is 1,"
+                                << "does not support exposure parameters";
       }
 
     VLOG(IFM3D_PROTO_DEBUG)
@@ -185,7 +184,8 @@ namespace ifm3d
       << "\n\t-Chunk end index: " << data_offset
       << "\n\t-Header size: " << header_size
       << "\n\t-Version: " << dist_info_version << "\n\t-dist_idx: " << dist_idx
-      << " amp_idx: " << amp_idx << "\n\t-DistanceResolution: " << dist_resolution
+      << " amp_idx: " << amp_idx
+      << "\n\t-DistanceResolution: " << dist_resolution
       << "\n\t-AmplitudeResolution: " << ampl_resolution;
 
     return std::make_unique<DistanceImageInfo>(
