@@ -11,10 +11,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <glog/logging.h>
 #include <ifm3d/contrib/nlohmann/json.hpp>
 #include <ifm3d/camera/camera_export.h>
-#include <ifm3d/camera/err.h>
 #include <ifm3d/camera/ifm_network_device.h>
 
 using json = nlohmann::json;
