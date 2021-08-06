@@ -11,8 +11,10 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <glog/logging.h>
 #include <ifm3d/contrib/nlohmann/json.hpp>
 #include <ifm3d/camera/camera_export.h>
+#include <ifm3d/camera/err.h>
 #include <ifm3d/camera/ifm_network_device.h>
 
 using json = nlohmann::json;
@@ -269,7 +271,7 @@ namespace ifm3d
     virtual device_family WhoAmI();
 
     /**
-     * This is a convencience function for checking wether a device is one of
+     * This is a convenience function for checking whether a device is one of
      * the specified device family
      *
      * @param[in] family The family to check for
