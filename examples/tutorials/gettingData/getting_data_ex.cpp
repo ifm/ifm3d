@@ -12,7 +12,8 @@ int main(){
     // One FrameGrabber per camera head (define the port number).
     auto fg_0 = std::make_shared<ifm3d::FrameGrabber>(cam, 10, 50010);
     auto im_0 =  std::make_shared<ifm3d::ImageBuffer>();
-    
+    // TODO create multiple grabbers and buffers (one per head). Use vectors?
+
     // Get a frame
     fg_0->WaitForFrame(im_0.get(), 1000);
 
