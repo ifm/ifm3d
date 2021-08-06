@@ -151,7 +151,7 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::CameraBase::Ptr cam,
   this->SetTriggerBuffer();
   this->SetUVecBuffer(this->mask_);
 
-  if (!this->cam_->IsO3X())
+  if (!this->cam_->AmI(ifm3d::Camera::device_family::O3X))
     {
       try
         {
