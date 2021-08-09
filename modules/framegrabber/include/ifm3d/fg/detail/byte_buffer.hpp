@@ -210,6 +210,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
   std::size_t intridx = INVALID_IDX;
   std::size_t invintridx = INVALID_IDX;
   std::size_t jsonidx = INVALID_IDX;
+  std::size_t jpegidx = INVALID_IDX;
 
   xyzidx =
     ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::CARTESIAN_ALL);
@@ -252,6 +253,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
                                   ifm3d::image_chunk::EXTRINSIC_CALIBRATION);
   jsonidx =
     ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::JSON_MODEL);
+  jpegidx = ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::JPEG);
 
   // As parameter will not change so only grabed and stored
   // for the first time
@@ -276,26 +278,31 @@ ifm3d::ByteBuffer<Derived>::Organize()
                           << ", uidx=" << uidx << ", extidx=" << extidx
                           << ", gidx=" << gidx << ", intridx=" << intridx
                           << ", invintridx=" << invintridx
-                          << ", jsonidx=" << jsonidx;
+                          << ", jsonidx=" << jsonidx
+                          << ", jpegidx=" << jpegidx;
 
-  // if we do not have a confidence image we cannot go further
-  if (cidx == INVALID_IDX)
+  // to get the metadata we use the confidence image for 3d and
+  // the jpeg image for 2d
+  std::size_t metaidx = cidx != INVALID_IDX ? cidx : jpegidx;
+
+  // if we do not have a confidence or jpeg image we cannot go further
+  if (metaidx == INVALID_IDX)
     {
-      LOG(ERROR) << "No confidence image found!";
+      LOG(ERROR) << "No confidence or jpeg image found!";
       throw ifm3d::error_t(IFM3D_IMG_CHUNK_NOT_FOUND);
     }
 
   const std::uint32_t header_version =
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 12);
+    ifm3d::mkval<std::uint32_t>(this->bytes_.data() + metaidx + 12);
   // for the *big* time stamp minimum header version 2 is needed
   this->time_stamps_.resize(0);
   if (header_version > 1)
     {
-      // Retrieve the timespamp information from the confidence data
+      // Retrieve the timespamp information from the confidence or jpeg data
       const std::uint32_t timestampSec =
-        ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 40);
+        ifm3d::mkval<std::uint32_t>(this->bytes_.data() + metaidx + 40);
       const std::uint32_t timestampNsec =
-        ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 44);
+        ifm3d::mkval<std::uint32_t>(this->bytes_.data() + metaidx + 44);
       // convert the time stamp into a TimePointT
       this->time_stamps_.push_back(
         ifm3d::TimePointT{std::chrono::seconds{timestampSec} +
@@ -307,6 +314,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
       this->time_stamps_.push_back(std::chrono::system_clock::now());
     }
 
+  bool C_OK = (cidx != INVALID_IDX);
   bool A_OK = (aidx != INVALID_IDX);
   bool RAW_A_OK = (raw_aidx != INVALID_IDX);
   bool D_OK = (didx != INVALID_IDX);
@@ -318,6 +326,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
   bool CART_OK =
     ((xidx != INVALID_IDX) && (yidx != INVALID_IDX) && (zidx != INVALID_IDX));
   bool JSON_OK = (jsonidx != INVALID_IDX);
+  bool JPEG_OK = (jpegidx != INVALID_IDX);
 
   // pixel format of each image
   std::uint32_t INVALID_FMT = std::numeric_limits<std::uint32_t>::max();
@@ -358,6 +367,9 @@ ifm3d::ByteBuffer<Derived>::Organize()
     INVINTR_OK ?
       ifm3d::mkval<std::uint32_t>(this->bytes_.data() + invintridx + 24) :
       INVALID_FMT;
+  std::uint32_t jpegfmt =
+    JPEG_OK ? ifm3d::mkval<std::uint32_t>(this->bytes_.data() + jpegidx + 24) :
+              INVALID_FMT;
 
   VLOG(IFM3D_PROTO_DEBUG) << "xfmt=" << xfmt << ", yfmt=" << yfmt
                           << ", zfmt=" << zfmt << ", afmt=" << afmt
@@ -365,13 +377,14 @@ ifm3d::ByteBuffer<Derived>::Organize()
                           << ", dfmt=" << dfmt << ", ufmt=" << ufmt
                           << ", extfmt=" << extfmt << ", gfmt=" << gfmt
                           << ", intrfmt= " << intrfmt
-                          << ", invintrfmt= " << invintrfmt;
+                          << ", invintrfmt= " << invintrfmt
+                          << ", jpegfmt= " << jpegfmt;
 
   // get the image dimensions
   std::uint32_t width =
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 16);
+    ifm3d::mkval<std::uint32_t>(this->bytes_.data() + metaidx + 16);
   std::uint32_t height =
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 20);
+    ifm3d::mkval<std::uint32_t>(this->bytes_.data() + metaidx + 20);
   std::uint32_t npts = width * height;
 
   VLOG(IFM3D_PROTO_DEBUG) << "npts=" << npts << ", width x height=" << width
@@ -522,10 +535,13 @@ ifm3d::ByteBuffer<Derived>::Organize()
   // out the 2D image data
   //
   std::uint32_t pixel_data_offset =
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 8);
+    ifm3d::mkval<std::uint32_t>(this->bytes_.data() + metaidx + 8);
 
-  cidx += pixel_data_offset;
-  im_wrapper(ifm3d::image_chunk::CONFIDENCE, cfmt, cidx);
+  if (C_OK)
+    {
+      cidx += pixel_data_offset;
+      im_wrapper(ifm3d::image_chunk::CONFIDENCE, cfmt, cidx);
+    }
 
   if (D_OK && distance_image_info == nullptr)
     {
@@ -695,6 +711,28 @@ ifm3d::ByteBuffer<Derived>::Organize()
       std::memcpy((void*)this->json_model_.data(),
                   (void*)(this->bytes_.data() + jsonidx),
                   chunk_size - pixel_data_offset);
+    }
+
+  if (JPEG_OK)
+    {
+      std::uint32_t chunk_size =
+        ifm3d::mkval<uint32_t>(this->bytes_.data() + jpegidx + 4);
+      jpegidx += pixel_data_offset;
+      if (jpegfmt !=
+          static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32U))
+        {
+          LOG(ERROR) << "JPEG are expected to be unsigned 32bit int, not: "
+                     << invintrfmt;
+          throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
+        }
+      this->ImCreate<std::uint32_t>(ifm3d::image_chunk::JPEG,
+                                    jpegfmt,
+                                    jpegidx,
+                                    width,
+                                    height,
+                                    1,
+                                    chunk_size - pixel_data_offset,
+                                    this->bytes_);
     }
 
   //
