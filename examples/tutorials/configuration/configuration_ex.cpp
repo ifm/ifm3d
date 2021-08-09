@@ -19,7 +19,7 @@ int main(){
     file_get << std::setw(4) << conf;
 
     // Configure the device from a configuration file
-    std::ifstream file_set("../tutorials/conf_set.json");
+    std::ifstream file_set("/home/usmasslo/O3R/ifm3d/examples/tutorials/configuration/conf_set.json");
     file_set >> conf;
     cam->FromJSON(conf);
 
