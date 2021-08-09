@@ -24,6 +24,8 @@
 
 #include <iostream>
 
+#include <iostream>
+
 //================================================
 // Public constants
 //================================================
@@ -1142,6 +1144,14 @@ ifm3d::Camera::SetPassword(std::string password)
   });
 }
 
+ifm3d::Camera::swu_version
+ifm3d::Camera::SwUpdateVersion()
+{
+  /*SWU_V1 is retured as device type is not avaliable
+  in recovery mode and SWU_V2 doesnot support
+  recovery mode hence device type is always avaliable*/
+  return ifm3d::Camera::swu_version::SWU_V1;
+}
 //================================================
 // O3DCamera class - the public interface
 //================================================
@@ -1184,6 +1194,12 @@ ifm3d::O3DCamera::IsO3D()
   return true;
 }
 
+ifm3d::Camera::swu_version
+ifm3d::O3DCamera::SwUpdateVersion()
+{
+  return ifm3d::Camera::swu_version::SWU_V1;
+}
+
 //================================================
 // O3XCamera class - the public interface
 //================================================
@@ -1212,6 +1228,12 @@ bool
 ifm3d::O3XCamera::IsO3R()
 {
   return false;
+}
+
+ifm3d::Camera::swu_version
+ifm3d::O3XCamera::SwUpdateVersion()
+{
+  return ifm3d::Camera::swu_version::SWU_V1;
 }
 
 //================================================
@@ -1255,4 +1277,10 @@ json
 ifm3d::O3RCamera::ToJSON()
 {
   return json::parse(this->pImpl->GetTemporaryConfiguration());
+}
+
+ifm3d::Camera::swu_version
+ifm3d::O3RCamera::SwUpdateVersion()
+{
+  return ifm3d::Camera::swu_version::SWU_V2;
 }

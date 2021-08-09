@@ -145,6 +145,15 @@ namespace ifm3d
       _3x3 = 0,
       _5x5 = 1
     };
+    /**
+     * Convienient constant for SwUpdate version
+     */
+    enum class swu_version : int
+    {
+      SWU_NOT_SUPPORTED = 0,
+      SWU_V1 = 1,
+      SWU_V2 = 2
+    };
 
     /**
      * @brief This function Provides a convinent way to find all
@@ -612,6 +621,13 @@ namespace ifm3d
                                      unsigned int minor,
                                      unsigned int patch);
 
+    /**
+     * Checks the swupdater version supported by device
+     *
+     * @return swu_version supported by device
+     */
+    virtual ifm3d::Camera::swu_version SwUpdateVersion();
+
   protected:
     class Impl;
     std::unique_ptr<Impl> pImpl;
@@ -677,6 +693,8 @@ namespace ifm3d
     bool IsO3X() override;
     bool IsO3D() override;
     bool IsO3R() override;
+
+    ifm3d::Camera::swu_version SwUpdateVersion() override;
   }; // end: class O3DCamera
 
   /**
@@ -699,6 +717,8 @@ namespace ifm3d
     bool IsO3X() override;
     bool IsO3D() override;
     bool IsO3R() override;
+
+    ifm3d::Camera::swu_version SwUpdateVersion() override;
   }; // end: class O3XCamera
 
   /**
@@ -724,6 +744,8 @@ namespace ifm3d
 
     json ToJSON() override;
     void FromJSON(const json& j) override;
+
+    ifm3d::Camera::swu_version SwUpdateVersion() override;
   }; // end: class O3RCamera
 
 } // end: namespace ifm3d

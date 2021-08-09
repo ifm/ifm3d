@@ -140,6 +140,13 @@ ifm3d::OpenCVBuffer::XYZImage()
   return this->xyz_;
 }
 
+inline cv::Mat
+ifm3d::OpenCVBuffer::JPEGImage()
+{
+  this->Organize();
+  return this->jpeg_;
+}
+
 template <typename T>
 inline void
 ifm3d::OpenCVBuffer::ImCreate(ifm3d::image_chunk im,
@@ -177,6 +184,10 @@ ifm3d::OpenCVBuffer::ImCreate(ifm3d::image_chunk im,
     case ifm3d::image_chunk::GRAY:
       mat = &this->gray_;
       break;
+
+    case ifm3d::image_chunk::JPEG:
+      this->jpeg_ = cv::Mat(1, static_cast<int>(npts), CV_8UC1, (void*)(bytes.data() + idx));
+      return;
 
     default:
       return;
@@ -229,7 +240,9 @@ ifm3d::OpenCVBuffer::ImCreate(ifm3d::image_chunk im,
 
   if (im == ifm3d::image_chunk::CONFIDENCE)
     {
-      cv::bitwise_and(this->conf_, 0x1, this->bad_);
+      cv::Mat bad;
+      cv::bitwise_and(this->conf_, 0x1, bad);
+      bad.convertTo(this->bad_, CV_8UC1);
     }
   else if (im != ifm3d::image_chunk::UNIT_VECTOR_ALL)
     {

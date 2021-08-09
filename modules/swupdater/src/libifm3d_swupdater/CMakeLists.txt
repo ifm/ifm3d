@@ -49,7 +49,8 @@ target_link_libraries(
     ${CURL_LIBRARIES}
   PRIVATE
     ifm3d_camera
-  )
+    $<BUILD_INTERFACE:websocketpp_wrapper>
+    )
 
 set_target_properties(
   ifm3d_swupdater PROPERTIES

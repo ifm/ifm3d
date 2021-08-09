@@ -69,6 +69,7 @@ namespace ifm3d
     cv::Mat RawAmplitudeImage();
     cv::Mat ConfidenceImage();
     cv::Mat XYZImage();
+    cv::Mat JPEGImage();
     pcl::PointCloud<pcl::PointXYZI>::Ptr Cloud();
 
     void ImCreate(ifm3d::image_chunk im,
@@ -98,6 +99,7 @@ namespace ifm3d
     cv::Mat ramp_;
     cv::Mat conf_;
     cv::Mat xyz_;
+    cv::Mat jpeg_;
     cv::Mat_<std::uint8_t> bad_; // mask of bad pixels
 
     template <typename T>
@@ -228,7 +230,7 @@ namespace ifm3d
             {
               row += 1;
               xyz_ptr = im.ptr<T>(row);
-              bad_ptr = (uint8_t*)this->bad_.ptr(row);
+              bad_ptr = this->bad_.ptr(row);
             }
 
           // convert to ifm3d coord frame
@@ -383,6 +385,12 @@ ifm3d::ImageBuffer::Impl::XYZImage()
   return this->xyz_;
 }
 
+cv::Mat
+ifm3d::ImageBuffer::Impl::JPEGImage()
+{
+  return this->jpeg_;
+}
+
 pcl::PointCloud<pcl::PointXYZI>::Ptr
 ifm3d::ImageBuffer::Impl::Cloud()
 {
@@ -425,6 +433,10 @@ ifm3d::ImageBuffer::Impl::ImCreate(ifm3d::image_chunk im,
     case ifm3d::image_chunk::GRAY:
       image = &this->gray_;
       break;
+
+    case ifm3d::image_chunk::JPEG:
+      this->jpeg_ = cv::Mat(1, static_cast<int>(npts), CV_8UC1, (void*)(bytes.data() + idx));
+      return;
 
     default:
       return;

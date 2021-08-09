@@ -225,7 +225,7 @@ ifm3d::SWUpdateApp::Run()
               std::cout << "Update successful, waiting for device to reboot..."
                         << std::endl;
             }
-          if (!swupdater->WaitForProductive(60000))
+          if (!swupdater->WaitForProductive(100000))
             {
               if (!quiet)
                 {
