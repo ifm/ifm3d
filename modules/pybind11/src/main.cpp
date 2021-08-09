@@ -49,7 +49,8 @@ namespace ifm3d
      * provided arguments (1:1 map to the ifm3d::FrameGrabber ctor)
      */
     FrameGrabberWrapper(ifm3d::Camera::Ptr cam,
-                        std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK);
+                        std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK,
+                        std::uint16_t pcic_port = ifm3d::PCIC_PORT);
 
     // disable copy/move semantics
     FrameGrabberWrapper(FrameGrabberWrapper&&) = delete;
@@ -83,8 +84,9 @@ namespace ifm3d
   };
 
   FrameGrabberWrapper::FrameGrabberWrapper(ifm3d::Camera::Ptr cam,
-                                           std::uint16_t mask)
-    : fg_(std::make_shared<ifm3d::FrameGrabber>(cam, mask))
+                                           std::uint16_t mask,
+                                           const std::uint16_t pcic_port)
+    : fg_(std::make_shared<ifm3d::FrameGrabber>(cam, mask, pcic_port))
   {}
 
   void
@@ -425,7 +427,21 @@ PYBIND11_MODULE(ifm3dpy, m)
         -------
         numpy.ndarray nxmx3
             Image organized on the pixel array [rows, cols, chans(x,y,z)]
-      )");
+      )")
+    .def(
+      "jpeg_image",
+      [](const ifm3d::OpenCVBuffer::Ptr& buff)
+      {
+        return ifm3d::image_to_array(buff->JPEGImage());
+        },
+        R"(
+          Retrieves the jpeg encoded 2d image
+
+          Returns
+          -------
+          numpy.ndarray
+              Jpeg encoded image data
+        )");
 
   py::class_<ifm3d::FrameGrabberWrapper, ifm3d::FrameGrabberWrapper::Ptr>(
     m,
@@ -434,9 +450,10 @@ PYBIND11_MODULE(ifm3dpy, m)
       Implements a TCP FrameGrabber connected to a provided Camera
       )")
     .def(
-      py::init<ifm3d::Camera::Ptr, std::uint16_t>(),
+      py::init<ifm3d::Camera::Ptr, std::uint16_t, std::uint16_t>(),
       py::arg("cam"),
       py::arg("mask") = ifm3d::DEFAULT_SCHEMA_MASK,
+      py::arg("pcic_port") = ifm3d::PCIC_PORT,
       R"(
         Constructor
 
@@ -448,6 +465,9 @@ PYBIND11_MODULE(ifm3dpy, m)
         mask : uint16
             A bitmask encoding the image acquisition schema to stream in from
             the camera.
+
+        pcic_port : uint16
+            The PCIC port
         )")
     .def(
       "sw_trigger",
