@@ -89,6 +89,12 @@ namespace ifm3d
     cv::Mat XYZImage();
 
     /**
+     * Accessor for the jpeg encoded 2D image
+     *
+     */
+    cv::Mat JPEGImage();
+
+    /**
      * Returns a shared pointer to the wrapped point cloud
      */
     pcl::PointCloud<ifm3d::PointT>::Ptr Cloud();
