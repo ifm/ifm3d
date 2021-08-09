@@ -59,7 +59,8 @@ ifm3d::O3RCamera::Impl::~Impl() {}
 std::string
 ifm3d::O3RCamera::Impl::GetTemporaryConfiguration()
 {
-  return xmlrpc_c::value_string(this->xwrapper_->XCallMain("get", ""))
+  return xmlrpc_c::value_string(
+           this->xwrapper_->XCallMain("get", std::vector<std::string>()))
     .cvalue();
 }
 
