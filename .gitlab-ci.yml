@@ -63,6 +63,7 @@ build:linux:aarch64:
             -DCMAKE_INSTALL_PREFIX=/usr \
             -DBUILD_MODULE_OPENCV=ON \
             -DBUILD_MODULE_PYBIND11=ON \
+            -BUILD_MODULE_PCICCLIENT=IN \
             -DPYTHON_EXECUTABLE=/usr/bin/python3 \
             ..
     - ninja
