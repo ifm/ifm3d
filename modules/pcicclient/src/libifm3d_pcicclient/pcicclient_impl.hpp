@@ -442,7 +442,7 @@ ifm3d::PCICClient::Impl::Impl(ifm3d::Camera::Ptr cam,
   LOG(INFO) << "Camera connection info: ip=" << this->cam_ip_
             << ", port=" << this->cam_port_;
 
-  if (this->cam_->IsO3X())
+  if (this->cam_->AmI(CameraBase::device_family::O3X))
     {
       throw ifm3d::error_t(IFM3D_PCICCLIENT_UNSUPPORTED_DEVICE);
     }
