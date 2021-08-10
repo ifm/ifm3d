@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_TOOLS_CMDLINE_APP_H__
-#define __IFM3D_TOOLS_CMDLINE_APP_H__
+#ifndef IFM3D_TOOLS_CMDLINE_APP_H
+#define IFM3D_TOOLS_CMDLINE_APP_H
 
 #include <cstdint>
 #include <memory>
@@ -46,6 +46,8 @@ namespace ifm3d
      */
     virtual int Run();
 
+    virtual bool CheckCompatibility();
+
   protected:
     cxxopts::Options all_opts_;
     std::unique_ptr<cxxopts::ParseResult> vm_;
@@ -53,7 +55,7 @@ namespace ifm3d
     std::string ip_;
     std::uint16_t xmlrpc_port_;
     std::string password_;
-    ifm3d::Camera::Ptr cam_;
+    ifm3d::CameraBase::Ptr cam_;
 
     virtual void _LocalHelp();
 
@@ -68,4 +70,4 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
-#endif // __IFM3D_TOOLS_CMDLINE_APP_H__
+#endif // IFM3D_TOOLS_CMDLINE_APP_H

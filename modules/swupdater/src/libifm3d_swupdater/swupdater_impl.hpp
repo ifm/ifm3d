@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_SWUPDATER_SWUPDATER_IMPL_H__
-#define __IFM3D_SWUPDATER_SWUPDATER_IMPL_H__
+#ifndef IFM3D_SWUPDATER_SWUPDATER_IMPL_H
+#define IFM3D_SWUPDATER_SWUPDATER_IMPL_H
 
 #include <chrono>
 #include <string>
@@ -44,7 +44,7 @@ namespace ifm3d
   class SWUpdater::Impl
   {
   public:
-    Impl(ifm3d::Camera::Ptr cam,
+    Impl(ifm3d::CameraBase::Ptr cam,
          const ifm3d::SWUpdater::FlashStatusCb& cb,
          const std::string& swupdate_recovery_port);
     virtual ~Impl() = default;
@@ -57,7 +57,7 @@ namespace ifm3d
                                long timeout_millis);
 
   protected:
-    ifm3d::Camera::Ptr cam_;
+    ifm3d::CameraBase::Ptr cam_;
     ifm3d::SWUpdater::FlashStatusCb cb_;
 
     std::string upload_url_;
@@ -218,7 +218,7 @@ namespace ifm3d
 //-------------------------------------
 // ctor
 //-------------------------------------
-ifm3d::SWUpdater::Impl::Impl(ifm3d::Camera::Ptr cam,
+ifm3d::SWUpdater::Impl::Impl(ifm3d::CameraBase::Ptr cam,
                              const ifm3d::SWUpdater::FlashStatusCb& cb,
                              const std::string& swupdate_recovery_port)
   : cam_(cam),
@@ -239,7 +239,7 @@ ifm3d::SWUpdater::Impl::Impl(ifm3d::Camera::Ptr cam,
 void
 ifm3d::SWUpdater::Impl::RebootToRecovery()
 {
-  this->cam_->Reboot(ifm3d::Camera::boot_mode::RECOVERY);
+  this->cam_->Reboot(ifm3d::CameraBase::boot_mode::RECOVERY);
 }
 
 bool
@@ -557,4 +557,4 @@ ifm3d::SWUpdater::Impl::GetUpdaterStatus()
   return std::make_tuple(status_id, status_message, status_error);
 }
 
-#endif // __IFM3D_SWUPDATER_SWUPDATER_IMPL_H__
+#endif // IFM3D_SWUPDATER_SWUPDATER_IMPL_H

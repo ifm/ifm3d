@@ -25,7 +25,7 @@ protected:
 
 TEST_F(CameraTest, FactoryDefaults)
 {
-  if (this->cam_->IsO3R())
+  if (this->cam_->AmI(ifm3d::Camera::device_family::O3R))
     {
       return;
     }
@@ -143,7 +143,7 @@ TEST_F(CameraTest, SessionManagement)
 
 TEST_F(CameraTest, CopyDeleteApplication)
 {
-  if (this->cam_->IsO3X())
+  if (this->cam_->AmI(ifm3d::Camera::device_family::O3X))
     {
       return;
     }
@@ -168,7 +168,7 @@ TEST_F(CameraTest, CopyDeleteExceptions)
 
 TEST_F(CameraTest, CreateDeleteApplication)
 {
-  if (this->cam_->IsO3X())
+  if (this->cam_->AmI(ifm3d::Camera::device_family::O3X))
     {
       return;
     }
@@ -205,7 +205,7 @@ TEST_F(CameraTest, ImportExportApplication)
   std::vector<std::uint8_t> bytes;
   int new_idx = -1;
 
-  if (this->cam_->IsO3X())
+  if (this->cam_->AmI(ifm3d::Camera::device_family::O3X))
     {
       EXPECT_NO_THROW(bytes = this->cam_->ExportIFMApp(idx));
       EXPECT_NO_THROW(new_idx = this->cam_->ImportIFMApp(bytes));
@@ -244,7 +244,8 @@ TEST_F(CameraTest, ActiveApplication)
   //
   // The rest of the test is invalid for O3X and 03R
   //
-  if (this->cam_->IsO3X() || this->cam_->IsO3R())
+  if (this->cam_->AmI(ifm3d::Camera::device_family::O3X) ||
+      this->cam_->AmI(ifm3d::Camera::device_family::O3R))
     {
       return;
     }
@@ -317,7 +318,7 @@ TEST_F(CameraTest, ActiveApplication)
 
 TEST_F(CameraTest, ImagerTypes)
 {
-  if (this->cam_->IsO3R())
+  if (this->cam_->AmI(ifm3d::Camera::device_family::O3R))
     {
       return;
     }
@@ -361,7 +362,7 @@ TEST_F(CameraTest, Filters)
 
   int mask_size = static_cast<int>(ifm3d::Camera::mfilt_mask_size::_3x3);
 
-  if (!this->cam_->IsO3X())
+  if (!this->cam_->AmI(ifm3d::Camera::device_family::O3X))
     {
       mask_size = std::stoi(
         dump["ifm3d"]["Apps"][0]["Imager"]["SpatialFilter"]["MaskSize"]
@@ -388,7 +389,7 @@ TEST_F(CameraTest, Filters)
   dump = this->cam_->ToJSON();
   int n_imgs = 2; // default images number
 
-  if (!this->cam_->IsO3X())
+  if (!this->cam_->AmI(ifm3d::Camera::device_family::O3X))
     {
       n_imgs = std::stoi(
         dump["ifm3d"]["Apps"][0]["Imager"]["TemporalFilter"]["NumberOfImages"]

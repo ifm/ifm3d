@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_CAMERA_UTIL_H__
-#define __IFM3D_CAMERA_UTIL_H__
+#ifndef IFM3D_CAMERA_UTIL_H
+#define IFM3D_CAMERA_UTIL_H
 
 #include <string>
 #include <vector>
@@ -37,4 +37,4 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
-#endif // __IFM3D_CAMERA_UTIL_H__
+#endif // IFM3D_CAMERA_UTIL_H
