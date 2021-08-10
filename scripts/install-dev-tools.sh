@@ -4,6 +4,8 @@ sudo apt-get update
 sudo apt-get install -y --no-install-recommends \
        libboost-all-dev \
        git \
+       jq \
+       clang-format-10 \
        openssh-client \
        libcurl4-openssl-dev \
        libgtest-dev \
@@ -21,7 +23,7 @@ sudo apt-get install -y --no-install-recommends \
        ninja-build \
        dpkg-dev \
        locales && \
-       rm -rf /var/lib/apt/lists/*
+       sudo rm -rf /var/lib/apt/lists/*
 
 
 # Update PIP this maybe required for some packages
