@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for the new JSON based XML-RPC interface
 - Support for 2D image data
 
+### Changed
+- Split Camera implementation into multiple classes
+- IsO3D/IsO3X/IsO3R replaced by WhoAmI/AmI functions
+
 ## 0.90.0 - 2021-01-18
 
 ### Added

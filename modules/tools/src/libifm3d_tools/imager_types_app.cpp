@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/camera/camera.h>
+#include <ifm3d/camera.h>
 
 ifm3d::ImagerTypesApp::ImagerTypesApp(int argc,
                                       const char** argv,
@@ -25,8 +25,16 @@ ifm3d::ImagerTypesApp::Run()
       return 0;
     }
 
-  json im_types(this->cam_->ImagerTypes());
+  json im_types(
+    std::static_pointer_cast<ifm3d::Camera>(this->cam_)->ImagerTypes());
   std::cout << im_types.dump(2) << std::endl;
 
   return 0;
+}
+
+bool
+ifm3d::ImagerTypesApp::CheckCompatibility()
+{
+  return this->cam_->AmI(CameraBase::device_family::O3D) ||
+         this->cam_->AmI(CameraBase::device_family::O3X);
 }

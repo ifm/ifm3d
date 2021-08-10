@@ -27,9 +27,7 @@
 #include <iostream>
 #include <asio.hpp>
 #include <glog/logging.h>
-#include <ifm3d/camera/camera.h>
-#include <ifm3d/camera/err.h>
-#include <ifm3d/camera/logging.h>
+#include <ifm3d/camera.h>
 #include <ifm3d/fg/byte_buffer.h>
 #include <ifm3d/fg/schema.h>
 
@@ -48,7 +46,7 @@ namespace ifm3d
   class FrameGrabber::Impl
   {
   public:
-    Impl(ifm3d::Camera::Ptr cam,
+    Impl(ifm3d::CameraBase::Ptr cam,
          std::uint16_t mask,
          const std::uint16_t& nat_pcic_port);
     ~Impl();
@@ -79,7 +77,7 @@ namespace ifm3d
     //---------------------
     // State
     //---------------------
-    ifm3d::Camera::Ptr cam_;
+    ifm3d::CameraBase::Ptr cam_;
     std::uint16_t mask_;
 
     std::string cam_ip_;
@@ -137,7 +135,7 @@ namespace ifm3d
 //-------------------------------------
 // ctor/dtor
 //-------------------------------------
-ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam,
+ifm3d::FrameGrabber::Impl::Impl(ifm3d::CameraBase::Ptr cam,
                                 std::uint16_t mask,
                                 const std::uint16_t& pcic_port)
   : cam_(cam),
@@ -153,7 +151,7 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Camera::Ptr cam,
   this->SetTriggerBuffer();
   this->SetUVecBuffer(this->mask_);
 
-  if (!this->cam_->IsO3X())
+  if (!this->cam_->AmI(ifm3d::Camera::device_family::O3X))
     {
       try
         {
@@ -211,7 +209,7 @@ ifm3d::FrameGrabber::Impl::~Impl()
 void
 ifm3d::FrameGrabber::Impl::SWTrigger()
 {
-  if (this->cam_->IsO3X())
+  if (this->cam_->AmI(ifm3d::CameraBase::device_family::O3X))
     {
       try
         {
@@ -329,7 +327,7 @@ ifm3d::FrameGrabber::Impl::SetUVecBuffer(std::uint16_t mask)
   // over XML-RPC
   //
 
-  if (!this->cam_->IsO3X())
+  if (!this->cam_->AmI(ifm3d::CameraBase::device_family::O3X))
     {
       return;
     }
@@ -342,7 +340,8 @@ ifm3d::FrameGrabber::Impl::SetUVecBuffer(std::uint16_t mask)
   try
     {
       VLOG(IFM3D_TRACE) << "Caching unit vectors from xmlrpc...";
-      this->uvec_buffer_ = this->cam_->UnitVectors();
+      this->uvec_buffer_ =
+        std::static_pointer_cast<ifm3d::Camera>(this->cam_)->UnitVectors();
       if (FLAGS_v >= IFM3D_PROTO_DEBUG)
         {
           std::stringstream ss;
@@ -373,14 +372,16 @@ ifm3d::FrameGrabber::Impl::SetUVecBuffer(std::uint16_t mask)
 void
 ifm3d::FrameGrabber::Impl::SetSchemaBuffer(std::uint16_t mask)
 {
-  if ((mask & ifm3d::INTR_CAL) == ifm3d::INTR_CAL && (!this->cam_->IsO3D()))
+  if ((mask & ifm3d::INTR_CAL) == ifm3d::INTR_CAL &&
+      (!this->cam_->AmI(ifm3d::CameraBase::device_family::O3D)))
     {
       LOG(ERROR) << "Failed to set schema on O3X: "
                  << "Intrinsic parameter not supported by Device";
       throw ifm3d::error_t(IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE);
     }
 
-  if ((mask & ifm3d::INTR_CAL) == ifm3d::INTR_CAL && this->cam_->IsO3D() &&
+  if ((mask & ifm3d::INTR_CAL) == ifm3d::INTR_CAL &&
+      this->cam_->AmI(ifm3d::CameraBase::device_family::O3D) &&
       !this->cam_->CheckMinimumFirmwareVersion(
         ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MAJOR,
         ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MINOR,
@@ -392,7 +393,7 @@ ifm3d::FrameGrabber::Impl::SetSchemaBuffer(std::uint16_t mask)
     }
 
   if (((mask & ifm3d::INV_INTR_CAL) == ifm3d::INV_INTR_CAL) &&
-      (!this->cam_->IsO3D()))
+      (!this->cam_->AmI(ifm3d::CameraBase::device_family::O3D)))
     {
       LOG(ERROR) << "Failed to set schema on O3X: "
                  << "Inverse intrinsic parameter not supported by Device";
@@ -401,7 +402,7 @@ ifm3d::FrameGrabber::Impl::SetSchemaBuffer(std::uint16_t mask)
     }
 
   if ((mask & ifm3d::INV_INTR_CAL) == ifm3d::INV_INTR_CAL &&
-      this->cam_->IsO3D() &&
+      this->cam_->AmI(ifm3d::CameraBase::device_family::O3D) &&
       !this->cam_->CheckMinimumFirmwareVersion(
         ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR,
         ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR,
@@ -413,14 +414,15 @@ ifm3d::FrameGrabber::Impl::SetSchemaBuffer(std::uint16_t mask)
         IFM3D_INVERSE_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE);
     }
 
-  if ((mask & ifm3d::JSON_MODEL) == ifm3d::JSON_MODEL && (this->cam_->IsO3X()))
+  if ((mask & ifm3d::JSON_MODEL) == ifm3d::JSON_MODEL &&
+      (this->cam_->AmI(ifm3d::CameraBase::device_family::O3X)))
     {
       LOG(ERROR) << "Failed to set schema on O3X: "
                  << "json data not supported on O3X";
       throw ifm3d::error_t(IFM3D_INVALID_PARAM);
     }
 
-  if (this->cam_->IsO3X())
+  if (this->cam_->AmI(ifm3d::CameraBase::device_family::O3X))
     {
       // O3X does not set the schema via PCIC, rather we set it via
       // XMLRPC using the camera interface.
@@ -463,7 +465,7 @@ ifm3d::FrameGrabber::Impl::SetSchemaBuffer(std::uint16_t mask)
 void
 ifm3d::FrameGrabber::Impl::SetTriggerBuffer()
 {
-  if (this->cam_->IsO3X())
+  if (this->cam_->AmI(ifm3d::CameraBase::device_family::O3X))
     {
       // O3X does not S/W trigger over PCIC, so, no need to set the trigger
       // buffer
@@ -526,7 +528,8 @@ ifm3d::FrameGrabber::Impl::Run()
       // O3X should just start reading in pixel bytes once we establish our
       // connection to the PCIC daemon (PCIC data goes one-way on O3X)
       VLOG(IFM3D_TRACE) << "Connecting to PCIC...";
-      if (this->cam_->IsO3X() || this->cam_->IsO3R())
+      if (this->cam_->AmI(ifm3d::CameraBase::device_family::O3X) ||
+          this->cam_->AmI(ifm3d::CameraBase::device_family::O3R))
         {
           this->pcic_ready_.store(true);
 
@@ -733,7 +736,7 @@ ifm3d::FrameGrabber::Impl::ImageHandler(const asio::error_code& ec,
       this->front_buffer_mutex_.lock();
       this->back_buffer_.swap(this->front_buffer_);
       // For O3X, copy in the unit vectors if necessary
-      if (this->cam_->IsO3X() &&
+      if (this->cam_->AmI(ifm3d::CameraBase::device_family::O3X) &&
           ((this->mask_ & ifm3d::IMG_UVEC) == ifm3d::IMG_UVEC))
         {
           VLOG(IFM3D_TRACE) << "Inserting unit vectors to front buffer";

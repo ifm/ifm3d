@@ -113,21 +113,23 @@ TEST(FrameGrabber, IntrinsicParamSchema)
   std::uint16_t mask = ifm3d::IMG_AMP | ifm3d::IMG_RDIS | ifm3d::INTR_CAL;
 
   auto cam = ifm3d::Camera::MakeShared();
-  if (cam->IsO3X()) // intrinsic parameter  not supported
+  if (cam->AmI(ifm3d::Camera::device_family::O3X)) // intrinsic parameter  not
+                                                   // supported
     {
       EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
                    ifm3d::error_t);
     }
-  if (cam->IsO3D() && cam->CheckMinimumFirmwareVersion(
-                        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MAJOR,
-                        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MINOR,
-                        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_PATCH))
+  if (cam->AmI(ifm3d::Camera::device_family::O3D) &&
+      cam->CheckMinimumFirmwareVersion(
+        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MAJOR,
+        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MINOR,
+        ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_PATCH))
     {
       auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, mask);
       auto buff = std::make_shared<MyBuff>();
       EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
     }
-  else if (cam->IsO3D())
+  else if (cam->AmI(ifm3d::Camera::device_family::O3D))
     {
       EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
                    ifm3d::error_t);
@@ -141,15 +143,17 @@ TEST(FrameGrabber, InverseIntrinsicParamSchema)
   std::uint16_t mask =
     (ifm3d::IMG_AMP | ifm3d::IMG_RDIS | ifm3d::INTR_CAL | ifm3d::INV_INTR_CAL);
   auto cam = ifm3d::Camera::MakeShared();
-  if (cam->IsO3X()) // inverse intrinsic parameter  not supported
+  if (cam->AmI(ifm3d::Camera::device_family::O3X)) // inverse intrinsic
+                                                   // parameter  not supported
     {
       EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
                    ifm3d::error_t);
     }
-  if (cam->IsO3D() && cam->CheckMinimumFirmwareVersion(
-                        ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR,
-                        ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR,
-                        ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH))
+  if (cam->AmI(ifm3d::Camera::device_family::O3D) &&
+      cam->CheckMinimumFirmwareVersion(
+        ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR,
+        ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR,
+        ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH))
     {
       auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, mask);
       auto buff = std::make_shared<MyBuff>();
@@ -165,7 +169,7 @@ TEST(FrameGrabber, InverseIntrinsicParamSchema)
                                   inverseIntrinsics.end(),
                                   0.) > 0.);
     }
-  else if (cam->IsO3D())
+  else if (cam->AmI(ifm3d::Camera::device_family::O3D))
     {
       EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
                    ifm3d::error_t);
@@ -246,7 +250,7 @@ TEST(FrameGrabber, FrameGrabberRecycling)
       EXPECT_TRUE(fg->WaitForFrame(buff.get(), 1000));
     }
 
-  if (!cam->IsO3X())
+  if (!cam->AmI(ifm3d::Camera::device_family::O3X))
     {
       fg.reset(new ifm3d::FrameGrabber(cam));
       for (int i = 0; i < 5; ++i)
@@ -282,7 +286,7 @@ TEST(FrameGrabber, SoftwareTrigger)
 
   // triggering sw mode not supported
   // on O3R until now
-  if (cam->IsO3R())
+  if (cam->AmI(ifm3d::Camera::device_family::O3R))
     {
       return;
     }
@@ -320,7 +324,7 @@ TEST(FrameGrabber, SWTriggerMultipleClients)
 
   // triggering sw mode not supported
   // on O3R until now
-  if (cam->IsO3R())
+  if (cam->AmI(ifm3d::Camera::device_family::O3R))
     {
       return;
     }
@@ -329,7 +333,7 @@ TEST(FrameGrabber, SWTriggerMultipleClients)
   // O3X cannot handle multiple client connections to PCIC
   // so this test does not apply
   //
-  if (cam->IsO3X())
+  if (cam->AmI(ifm3d::Camera::device_family::O3X))
     {
       return;
     }
@@ -380,12 +384,12 @@ TEST(FrameGrabber, JSON_model)
 
   std::uint16_t mask = (ifm3d::IMG_AMP | ifm3d::JSON_MODEL);
   auto cam = ifm3d::Camera::MakeShared();
-  if (cam->IsO3X()) // JSON model not supported
+  if (cam->AmI(ifm3d::Camera::device_family::O3X)) // JSON model not supported
     {
       EXPECT_THROW(std::make_shared<ifm3d::FrameGrabber>(cam, mask),
                    ifm3d::error_t);
     }
-  else if (cam->IsO3D())
+  else if (cam->AmI(ifm3d::Camera::device_family::O3D))
     {
       auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, mask);
       auto buff = std::make_shared<MyBuff>();
