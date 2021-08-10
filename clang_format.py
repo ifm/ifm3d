@@ -48,7 +48,7 @@ def clang_format():
             for file in files:
                 #check for file extension
                 if file.endswith(apply_extensions):
-                    os.system("clang-format -i -style=file " + os.path.join(root,file))
+                    os.system("clang-format-10 -i -style=file " + os.path.join(root,file))
                     #print(os.path.join(root,file))
         return True
     except:
@@ -58,19 +58,24 @@ def clang_format():
     available with the host system
 """
 def get_clang_format_version():
-    ret = system_call (['clang-format', '--version'])
+    ret = system_call (['clang-format-10', '--version'])
     tokens = re.search("^(\w+-\w+) (\w+) ([0-9.]+).*",ret)
     if tokens.group(1) == "clang-format" and tokens.group(2) == "version":
-        return int(tokens.group(3).replace(".", ""))
+        return int(tokens.group(3).replace(".", "")),tokens.group(3)
     else:
         print("error getting clang-format version")
 
-minimum_required_clang_format_version = 600
+minimum_required_clang_format_version = "10.0.0"
 
 #entry point
 if __name__ == "__main__":
-    if get_clang_format_version() >= minimum_required_clang_format_version:
+    _minimum_version = int(minimum_required_clang_format_version.replace('.',''))
+    _current_version_num, _current_version = get_clang_format_version()
+    if _current_version_num >= _minimum_version:
         if clang_format():
             print("Done formatting files")
     else :
-        print("minimum required clang-format version is 6.0.0")
+        print("minimum required clang-format version is {} installed is: {}".format(
+            minimum_required_clang_format_version,
+            _current_version)
+            )
