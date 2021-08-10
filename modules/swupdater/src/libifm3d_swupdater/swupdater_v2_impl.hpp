@@ -77,7 +77,7 @@ namespace ifm3d
     bool CheckRecovery() override;
     bool CheckProductive() override;
     void UploadFirmware(const std::vector<std::uint8_t>& bytes,
-                        long timeout_millis);
+                        long timeout_millis) override;
     void OnWebSocketData(const std::string json_string);
 
     static int
