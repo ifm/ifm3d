@@ -5,13 +5,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_CAMERA_H__
-#define __IFM3D_CAMERA_H__
+#ifndef IFM3D_CAMERA_H
+#define IFM3D_CAMERA_H
 
-#include <ifm3d/camera/version.h>
-#include <ifm3d/camera/err.h>
-#include <ifm3d/camera/util.h>
-#include <ifm3d/camera/logging.h>
 #include <ifm3d/camera/camera.h>
+#include <ifm3d/camera/camera_base.h>
+#include <ifm3d/camera/camera_o3d.h>
+#include <ifm3d/camera/camera_o3r.h>
+#include <ifm3d/camera/camera_o3x.h>
+#include <ifm3d/camera/err.h>
+#include <ifm3d/camera/logging.h>
+#include <ifm3d/camera/util.h>
+#include <ifm3d/camera/version.h>
 
-#endif // __IFM3D_CAMERA_H__
+#endif // IFM3D_CAMERA_H

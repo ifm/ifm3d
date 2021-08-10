@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_CAMERA_LOGGING_H__
-#define __IFM3D_CAMERA_LOGGING_H__
+#ifndef IFM3D_CAMERA_LOGGING_H
+#define IFM3D_CAMERA_LOGGING_H
 
 #include <ifm3d/camera/camera_export.h>
 
@@ -14,4 +14,4 @@ extern IFM3D_CAMERA_EXPORT const int IFM3D_TRACE;
 extern IFM3D_CAMERA_EXPORT const int IFM3D_TRACE_DEEP;
 extern IFM3D_CAMERA_EXPORT const int IFM3D_PROTO_DEBUG;
 
-#endif // __IFM3D_CAMERA_LOGGING_H__
+#endif // IFM3D_CAMERA_LOGGING_H

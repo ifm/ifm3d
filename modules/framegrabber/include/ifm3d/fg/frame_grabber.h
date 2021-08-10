@@ -36,7 +36,7 @@ namespace ifm3d
      *                          user must provide this value according to there
      *                          NAT router configuration.
      */
-    FrameGrabber(ifm3d::Camera::Ptr cam,
+    FrameGrabber(ifm3d::CameraBase::Ptr cam,
                  std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK,
                  const std::uint16_t nat_pcic_port = ifm3d::PCIC_PORT);
 

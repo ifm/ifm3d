@@ -39,7 +39,7 @@ TEST(OpenCV, MoveCtor)
   auto im2 = std::make_shared<ifm3d::OpenCVBuffer>(std::move(*(im.get())));
   cv::Mat amp2 = im2->AmplitudeImage();
 
-  if (cam->IsO3X())
+  if (cam->AmI(ifm3d::CameraBase::device_family::O3X))
     {
       EXPECT_TRUE(copy_of_amp.type() == CV_32F);
       EXPECT_TRUE(amp2.type() == CV_32F);
@@ -75,7 +75,7 @@ TEST(OpenCV, MoveAssignmentOperator)
 
   cv::Mat amp2 = im2.AmplitudeImage();
 
-  if (cam->IsO3X())
+  if (cam->AmI(ifm3d::CameraBase::device_family::O3X))
     {
       EXPECT_TRUE(copy_of_amp.type() == CV_32F);
       EXPECT_TRUE(amp2.type() == CV_32F);
@@ -113,7 +113,7 @@ TEST(OpenCV, CopyCtor)
   amp2 = im2->AmplitudeImage();
   EXPECT_TRUE((amp.rows * amp.cols) == (amp2.rows * amp2.cols));
 
-  if (cam->IsO3X())
+  if (cam->AmI(ifm3d::CameraBase::device_family::O3X))
     {
       EXPECT_TRUE(amp.type() == CV_32F);
       EXPECT_TRUE(amp2.type() == CV_32F);
@@ -133,7 +133,7 @@ TEST(OpenCV, CopyCtor)
 
   amp2 += 1;
 
-  if (cam->IsO3X())
+  if (cam->AmI(ifm3d::CameraBase::device_family::O3X))
     {
       EXPECT_FALSE(std::equal(amp.begin<float>(),
                               amp.end<float>(),
@@ -164,7 +164,7 @@ TEST(OpenCV, CopyAssignmentOperator)
   auto amp = im->AmplitudeImage();
   auto amp2 = im2->AmplitudeImage();
 
-  if (cam->IsO3X())
+  if (cam->AmI(ifm3d::CameraBase::device_family::O3X))
     {
       EXPECT_TRUE(amp.type() == CV_32F);
       EXPECT_TRUE(amp2.type() == CV_32F);
@@ -184,7 +184,7 @@ TEST(OpenCV, CopyAssignmentOperator)
 
   amp2 += 1;
 
-  if (cam->IsO3X())
+  if (cam->AmI(ifm3d::CameraBase::device_family::O3X))
     {
       EXPECT_FALSE(std::equal(amp.begin<float>(),
                               amp.end<float>(),
@@ -212,7 +212,7 @@ TEST(OpenCV, References)
   auto amp1 = im->AmplitudeImage();
   auto amp2 = im->AmplitudeImage();
 
-  if (cam->IsO3X())
+  if (cam->AmI(ifm3d::CameraBase::device_family::O3X))
     {
       EXPECT_TRUE(amp1.type() == CV_32F);
       EXPECT_TRUE(amp2.type() == CV_32F);
@@ -232,7 +232,7 @@ TEST(OpenCV, References)
 
   amp2 += 1;
 
-  if (cam->IsO3X())
+  if (cam->AmI(ifm3d::CameraBase::device_family::O3X))
     {
       EXPECT_TRUE(std::equal(amp1.begin<float>(),
                              amp1.end<float>(),
@@ -450,7 +450,7 @@ TEST(OpenCV, IlluTemp)
   ASSERT_TRUE(fg->WaitForFrame(img.get(), 1000));
 
   // currently not supported on O3X
-  if (cam->IsO3X())
+  if (cam->AmI(ifm3d::CameraBase::device_family::O3X))
     {
       return;
     }
