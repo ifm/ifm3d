@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_IFM_NETWORK_DEVICE_H__
-#define __IFM3D_IFM_NETWORK_DEVICE_H__
+#ifndef IFM3D_IFM_NETWORK_DEVICE_H
+#define IFM3D_IFM_NETWORK_DEVICE_H
 
 #include <memory>
 #include <string>
@@ -68,4 +68,4 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
-#endif // __IFM3D_IFM_NETWORK_DEVICE_H__
+#endif // IFM3D_IFM_NETWORK_DEVICE_H

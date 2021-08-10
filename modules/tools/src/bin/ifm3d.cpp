@@ -26,6 +26,12 @@ main(int argc, const char** argv)
   try
     {
       ifm3d::CmdLineApp::Ptr app = ifm3d::make_app(argc, argv);
+
+      if (!app->CheckCompatibility())
+        {
+          throw ifm3d::error_t(IFM3D_UNSUPPORTED_DEVICE);
+        }
+
       err = app->Run();
     }
   catch (const ifm3d::error_t& ex)

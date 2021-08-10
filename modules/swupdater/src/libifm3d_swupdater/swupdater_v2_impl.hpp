@@ -63,7 +63,7 @@ namespace ifm3d
   class ImplV2 : public SWUpdater::Impl
   {
   public:
-    ImplV2(ifm3d::Camera::Ptr cam,
+    ImplV2(ifm3d::CameraBase::Ptr cam,
            const ifm3d::SWUpdater::FlashStatusCb& cb,
            const std::string& swupdate_recovery_port);
     ~ImplV2() = default;
@@ -251,7 +251,7 @@ namespace ifm3d
 //-------------------------------------
 // ctor
 //-------------------------------------
-ifm3d::ImplV2::ImplV2(ifm3d::Camera::Ptr cam,
+ifm3d::ImplV2::ImplV2(ifm3d::CameraBase::Ptr cam,
                       const ifm3d::SWUpdater::FlashStatusCb& cb,
                       const std::string& swupdate_recovery_port)
   : ifm3d::SWUpdater::Impl(cam, cb, swupdate_recovery_port),

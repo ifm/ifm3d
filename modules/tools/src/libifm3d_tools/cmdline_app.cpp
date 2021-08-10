@@ -41,9 +41,9 @@ ifm3d::CmdLineApp::CmdLineApp(int argc,
   // no need to ping the h/w ... which is slow when no device is present.
   if ((!(this->vm_->count("help"))) && (name != "version"))
     {
-      this->cam_ = ifm3d::Camera::MakeShared(this->ip_,
-                                             this->xmlrpc_port_,
-                                             this->password_);
+      this->cam_ = ifm3d::CameraBase::MakeShared(this->ip_,
+                                                 this->xmlrpc_port_,
+                                                 this->password_);
     }
 }
 
@@ -164,4 +164,10 @@ https://github.com/ifm/ifm3d/issues
     }
 
   return 0;
+}
+
+bool
+ifm3d::CmdLineApp::CheckCompatibility()
+{
+  return true;
 }

@@ -40,7 +40,8 @@ TEST(Image, MoveCtor)
   auto im2 = std::make_shared<ifm3d::ImageBuffer>(std::move(*(im.get())));
   cv::Mat amp2 = im2->AmplitudeImage();
 
-  if (cam->IsO3X() || cam->IsO3R())
+  if (cam->AmI(ifm3d::Camera::device_family::O3X) ||
+      cam->AmI(ifm3d::Camera::device_family::O3R))
     {
       EXPECT_TRUE(copy_of_amp.type() == CV_32F);
       EXPECT_TRUE(amp2.type() == CV_32F);
@@ -76,7 +77,8 @@ TEST(Image, MoveAssignmentOperator)
 
   cv::Mat amp2 = im2.AmplitudeImage();
 
-  if (cam->IsO3X() || cam->IsO3R())
+  if (cam->AmI(ifm3d::Camera::device_family::O3X) ||
+      cam->AmI(ifm3d::Camera::device_family::O3R))
     {
       EXPECT_TRUE(copy_of_amp.type() == CV_32F);
       EXPECT_TRUE(amp2.type() == CV_32F);
@@ -114,7 +116,8 @@ TEST(Image, CopyCtor)
   amp2 = im2->AmplitudeImage();
   EXPECT_TRUE((amp.rows * amp.cols) == (amp2.rows * amp2.cols));
 
-  if (cam->IsO3X() || cam->IsO3R())
+  if (cam->AmI(ifm3d::Camera::device_family::O3X) ||
+      cam->AmI(ifm3d::Camera::device_family::O3R))
     {
       EXPECT_TRUE(amp.type() == CV_32F);
       EXPECT_TRUE(amp2.type() == CV_32F);
@@ -134,7 +137,8 @@ TEST(Image, CopyCtor)
 
   amp2 += 1;
 
-  if (cam->IsO3X() || cam->IsO3R())
+  if (cam->AmI(ifm3d::Camera::device_family::O3X) ||
+      cam->AmI(ifm3d::Camera::device_family::O3R))
     {
       EXPECT_FALSE(std::equal(amp.begin<float>(),
                               amp.end<float>(),
@@ -165,7 +169,8 @@ TEST(Image, CopyAssignmentOperator)
   auto amp = im->AmplitudeImage();
   auto amp2 = im2->AmplitudeImage();
 
-  if (cam->IsO3X() || cam->IsO3R())
+  if (cam->AmI(ifm3d::Camera::device_family::O3X) ||
+      cam->AmI(ifm3d::Camera::device_family::O3R))
     {
       EXPECT_TRUE(amp.type() == CV_32F);
       EXPECT_TRUE(amp2.type() == CV_32F);
@@ -185,7 +190,8 @@ TEST(Image, CopyAssignmentOperator)
 
   amp2 += 1;
 
-  if (cam->IsO3X() || cam->IsO3R())
+  if (cam->AmI(ifm3d::Camera::device_family::O3X) ||
+      cam->AmI(ifm3d::Camera::device_family::O3R))
     {
       EXPECT_FALSE(std::equal(amp.begin<float>(),
                               amp.end<float>(),
@@ -213,7 +219,8 @@ TEST(Image, References)
   auto amp1 = im->AmplitudeImage();
   auto amp2 = im->AmplitudeImage();
 
-  if (cam->IsO3X() || cam->IsO3R())
+  if (cam->AmI(ifm3d::Camera::device_family::O3X) ||
+      cam->AmI(ifm3d::Camera::device_family::O3R))
     {
       EXPECT_TRUE(amp1.type() == CV_32F);
       EXPECT_TRUE(amp2.type() == CV_32F);
@@ -233,7 +240,8 @@ TEST(Image, References)
 
   amp2 += 1;
 
-  if (cam->IsO3X() || cam->IsO3R())
+  if (cam->AmI(ifm3d::Camera::device_family::O3X) ||
+      cam->AmI(ifm3d::Camera::device_family::O3R))
     {
       EXPECT_TRUE(std::equal(amp1.begin<float>(),
                              amp1.end<float>(),
@@ -355,7 +363,7 @@ TEST(Image, ComputeCartesian)
   auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, ifm3d::IMG_UVEC);
   ASSERT_TRUE(fg->WaitForFrame(im.get(), 1000));
 
-  if (cam->IsO3R())
+  if (cam->AmI(ifm3d::Camera::device_family::O3R))
     {
       // UnitVectors currently not supported
       // on O3R so far
@@ -545,9 +553,9 @@ TEST(Image, IlluTemp)
 
   ASSERT_TRUE(fg->WaitForFrame(img.get(), 1000));
 
-  // currently not supported on O3X
-  // and O3R
-  if (cam->IsO3X() || cam->IsO3R())
+  // currently not supported on O3X and O3R
+  if (cam->AmI(ifm3d::Camera::device_family::O3X) ||
+      cam->AmI(ifm3d::Camera::device_family::O3R))
     {
       return;
     }

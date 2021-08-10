@@ -15,7 +15,7 @@ const std::uint16_t ifm3d::SWUPDATER_RECOVERY_PORT = 8080;
 namespace ifm3d
 {
   auto make_swu_implementor =
-    [](ifm3d::Camera::Ptr cam,
+    [](ifm3d::CameraBase::Ptr cam,
        const ifm3d::SWUpdater::FlashStatusCb& cb,
        const std::uint16_t swupdate_recovery_port) -> ifm3d::SWUpdater::Impl* {
     switch (cam->SwUpdateVersion())
@@ -37,7 +37,7 @@ namespace ifm3d
   };
 }
 
-ifm3d::SWUpdater::SWUpdater(ifm3d::Camera::Ptr cam,
+ifm3d::SWUpdater::SWUpdater(ifm3d::CameraBase::Ptr cam,
                             const ifm3d::SWUpdater::FlashStatusCb& cb,
                             const std::uint16_t swupdate_recovery_port)
   : pImpl(ifm3d::make_swu_implementor(cam, cb, swupdate_recovery_port))
