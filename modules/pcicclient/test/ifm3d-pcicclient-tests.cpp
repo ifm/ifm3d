@@ -28,7 +28,7 @@ TEST_F(PCICClientTest, IncomingResponseMessage)
   // PCICClientTest is not supported for O3X
   // so this test does not apply
   //
-  if (cam_->IsO3X())
+  if (cam_->AmI(ifm3d::CameraBase::device_family::O3X))
     {
       EXPECT_THROW(std::make_shared<ifm3d::PCICClient>(cam_), ifm3d::error_t);
       return;
@@ -51,7 +51,7 @@ TEST_F(PCICClientTest, InvalidCommandLength)
   // PCICClientTest is not supported for O3X
   // so this test does not apply
   //
-  if (cam_->IsO3X())
+  if (cam_->AmI(ifm3d::CameraBase::device_family::O3X))
     {
       EXPECT_THROW(std::make_shared<ifm3d::PCICClient>(cam_), ifm3d::error_t);
       return;
@@ -75,7 +75,7 @@ TEST_F(PCICClientTest, PCICTimeout)
   // PCICClientTest is not supported for O3X
   // so this test does not apply
   //
-  if (cam_->IsO3X())
+  if (cam_->AmI(ifm3d::CameraBase::device_family::O3X))
     {
       EXPECT_THROW(std::make_shared<ifm3d::PCICClient>(cam_), ifm3d::error_t);
       return;
