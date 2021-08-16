@@ -28,27 +28,38 @@ from setuptools.command.build_ext import build_ext
 # project found here: https://github.com/pybind/cmake_example
 #
 
-def get_version_from_cmakelists():
-    """
-    Helper to parse the ifm3d package version out of the CMakeLists file
-    """
-    path_to_cmakelists = os.path.abspath('CMakeLists.txt')
-    if not os.path.isfile(path_to_cmakelists):
-        raise RuntimeError('CMakeLists.txt not found, ' +
-                           'unable to parse project version!')
 
-    with open(path_to_cmakelists, "r") as f:
-        lines = f.readlines()
-    for line in lines:
-        if "project(IFM3D VERSION" in line:
-            for token in line.split(" "):
-                if re.match(r'^[0-9]+\.[0-9]+\.[0-9]+$', token):
-                    return token
+def get_version_from_git():
+    """
+    Helper to get the ifm3d package version from git
+    """
+    try:
+        subprocess.check_call(['git', '--version'])
+    except OSError:
+        return "0.0.0"
+
+    version = subprocess.check_output(
+        ["git", "describe", "--abbrev=0", "--tags"]).decode("utf-8").strip()
+
+    version_ahead = int(subprocess.check_output(
+        ["git", "rev-list", version + "..HEAD", "--count"]).decode("utf-8").strip())
+
+    if version_ahead > 0:
+        version_commit = subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"]).decode("utf-8").strip()
+
+        version = "{}+{}.{}".format(version, version_ahead, version_commit)
+
+    version = version.lstrip("v")
+
+    return version
+
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
+
 
 class CMakeBuild(build_ext):
     def run(self):
@@ -59,7 +70,8 @@ class CMakeBuild(build_ext):
                                ", ".join(e.name for e in self.extensions))
 
         if platform.system() == "Windows":
-            cmake_version = LooseVersion(re.search(r'version\s*([\d.]+)', out.decode()).group(1))
+            cmake_version = LooseVersion(
+                re.search(r'version\s*([\d.]+)', out.decode()).group(1))
             if cmake_version < '3.1.0':
                 raise RuntimeError("CMake >= 3.1.0 is required on Windows")
 
@@ -67,7 +79,8 @@ class CMakeBuild(build_ext):
             self.build_extension(ext)
 
     def build_extension(self, ext):
-        extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
+        extdir = os.path.abspath(os.path.dirname(
+            self.get_ext_fullpath(ext.name)))
 
         # Build with cmake -- build only camera and framegrabber. Also build
         # them as static libs so the resulting python module is isolated.
@@ -84,23 +97,28 @@ class CMakeBuild(build_ext):
         build_args = ['--config', cfg]
 
         if platform.system() == "Windows":
-            cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
+            cmake_args += [
+                '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
 
             cmake_args += ['-DBoost_USE_STATIC_LIBS=ON']
 
             if 'IFM3D_BUILD_DIR' in os.environ:
-                cmake_args += ['-DCMAKE_PREFIX_PATH=' + os.environ['IFM3D_BUILD_DIR'].replace('"','') + '\\install']
+                cmake_args += ['-DCMAKE_PREFIX_PATH=' +
+                               os.environ['IFM3D_BUILD_DIR'].replace('"', '') + '\\install']
 
             if 'IFM3D_BOOST_ROOT' in os.environ:
-                cmake_args += ['-DBOOST_ROOT=' + os.environ['IFM3D_BOOST_ROOT'].replace('"','')]
+                cmake_args += ['-DBOOST_ROOT=' +
+                               os.environ['IFM3D_BOOST_ROOT'].replace('"', '')]
 
             if 'IFM3D_OPENCV_PATH' in os.environ:
-                cmake_args += ['-DOpenCV_DIR=' + os.environ['IFM3D_OPENCV_PATH'].replace('"','')]
+                cmake_args += ['-DOpenCV_DIR=' +
+                               os.environ['IFM3D_OPENCV_PATH'].replace('"', '')]
 
             # If a generator was specified, use it. Otherwise use the machine's
             # architecture and the default generator.
             if 'IFM3D_CMAKE_GENERATOR' in os.environ:
-                cmake_args += ['-G', os.environ['IFM3D_CMAKE_GENERATOR'].replace('"','')]
+                cmake_args += ['-G',
+                               os.environ['IFM3D_CMAKE_GENERATOR'].replace('"', '')]
             elif sys.maxsize > 2**32:
                 cmake_args += ['-A', 'x64']
 
@@ -114,12 +132,15 @@ class CMakeBuild(build_ext):
                                                               self.distribution.get_version())
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
-        subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
-        subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
+        subprocess.check_call(['cmake', ext.sourcedir] +
+                              cmake_args, cwd=self.build_temp, env=env)
+        subprocess.check_call(['cmake', '--build', '.'] +
+                              build_args, cwd=self.build_temp)
+
 
 setup(
     name='ifm3dpy',
-    version=get_version_from_cmakelists(),
+    version=get_version_from_git(),
     author='Sean Kelly',
     author_email='Sean.Kelly@ifm.com',
     description='Library for working with ifm pmd-based 3D ToF Cameras',

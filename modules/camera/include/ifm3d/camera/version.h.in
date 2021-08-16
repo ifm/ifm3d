@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_CAMERA_VERSION_H__
-#define __IFM3D_CAMERA_VERSION_H__
+#ifndef IFM3D_CAMERA_VERSION_H
+#define IFM3D_CAMERA_VERSION_H
 
 #define IFM3D_LIBRARY_NAME "@GIT_PROJECT_NAME@"
 
@@ -15,6 +15,7 @@
 #define IFM3D_VERSION_MAJOR @IFM3D_VERSION_MAJOR@
 #define IFM3D_VERSION_MINOR @IFM3D_VERSION_MINOR@
 #define IFM3D_VERSION_PATCH @IFM3D_VERSION_PATCH@
+#define IFM3D_VERSION_META "@IFM3D_VERSION_META@"
 
 #define IFM3D_MAKE_VERSION(major, minor, patch) \
   ((major) * 10000 + (minor) * 100 + (patch))
@@ -37,4 +38,4 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
-#endif // __IFM3D_CAMERA_VERSION_H__
+#endif // IFM3D_CAMERA_VERSION_H

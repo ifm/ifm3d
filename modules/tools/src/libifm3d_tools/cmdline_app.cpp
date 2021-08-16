@@ -153,7 +153,7 @@ https://github.com/ifm/ifm3d/issues
 
   ifm3d::version(&major, &minor, &patch);
   std::cout << IFM3D_LIBRARY_NAME << ": version=" << major << "." << minor
-            << "." << patch << std::endl;
+            << "." << patch << IFM3D_VERSION_META << std::endl;
 
   if (this->vm_->count("help"))
     {
