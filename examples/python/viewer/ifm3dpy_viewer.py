@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+# # SPDX-License-Identifier: Apache-2.0
+# Copyright (C) 2020 ifm electronic gmbh
+#
+# THE PROGRAM IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND.
+#
+
 from ifm3dpy import O3RCamera, FrameGrabber, ImageBuffer
 import cv2
 import argparse
@@ -83,9 +89,9 @@ def main():
         image_choices += ["xyz"]
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--head", help="The Head from which images should be received", type=int,
-                        choices=[0, 1, 2, 3, 4, 5], required=True)
-    parser.add_argument("--image", help="The image to received (Only 3D heads) (default: distance)", type=str,
+    parser.add_argument("--port", help="The pcic port from which images should be received", type=int,
+                        required=True)
+    parser.add_argument("--image", help="The image to received (default: distance)", type=str,
                         choices=image_choices, required=True)
     parser.add_argument("--ip", help="IP address of the sensor (default: 192.168.0.69)",
                         type=str, required=False, default="192.168.0.69")
@@ -96,9 +102,9 @@ def main():
     getter = globals()["get_" + args.image]
 
     cam = O3RCamera(args.ip, args.xmlrpc_port)
-    fg = FrameGrabber(cam, pcic_port=50010 + args.head)
+    fg = FrameGrabber(cam, pcic_port=args.port)
     buf = ImageBuffer()
-    title = "O3R Head " + str(args.head)
+    title = "O3R Port {}".format(str(args.port))
 
     if args.image == "xyz":
         display_3d(fg, buf, getter, title)
