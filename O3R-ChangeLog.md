@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for the new JSON based XML-RPC interface
 - Support for 2D image data
 - ifm3dpy_viewer python example
+- Generate version based on last tag and commits since
 
 ### Changed
 - Split Camera implementation into multiple classes

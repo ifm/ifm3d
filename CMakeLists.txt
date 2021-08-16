@@ -1,16 +1,30 @@
 cmake_minimum_required(VERSION 3.5)
 cmake_policy(SET CMP0048 NEW)
-# Manage version number here: Major.Minor.Patch (we don't use "tweak")
-project(IFM3D VERSION 0.91.0 LANGUAGES CXX)
+
+# Make our cmake functions accessible
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/modules)
+
+set(ROOT_PROJECT_NAME IFM3D)
+set(PROJECT_NAME ${ROOT_PROJECT_NAME})
+find_program(GIT_EXECUTABLE git)
+include(GetVersionFromGitTag) 
+
+# Create aliases in order to avoid ${${..}} syntax in other files
+set(ROOT_PROJECT_VERSION ${${ROOT_PROJECT_NAME}_VERSION})
+set(ROOT_PROJECT_VERSION_MAJOR ${${ROOT_PROJECT_NAME}_VERSION_MAJOR})
+set(ROOT_PROJECT_VERSION_MINOR ${${ROOT_PROJECT_NAME}_VERSION_MINOR})
+set(ROOT_PROJECT_VERSION_PATCH ${${ROOT_PROJECT_NAME}_VERSION_PATCH})
+set(ROOT_PROJECT_VERSION_AHEAD ${${ROOT_PROJECT_NAME}_VERSION_AHEAD})
+set(ROOT_PROJECT_VERSION_GIT_SHA ${${ROOT_PROJECT_NAME}_VERSION_GIT_SHA})
+set(ROOT_PROJECT_VERSION_FULL_IN_CASE_OF_PATCHES ${${ROOT_PROJECT_NAME}_VERSION_FULL_IN_CASE_OF_PATCHES})
+set(ROOT_PROJECT_VERSION_META ${${ROOT_PROJECT_NAME}_VERSION_META})
+
+project(${ROOT_PROJECT_NAME} LANGUAGES C CXX VERSION ${ROOT_PROJECT_VERSION})
+
 set(GIT_PROJECT_NAME "ifm3d")
 
 # Some generic settings
 include(cmake/StandardProjectSettings.cmake)
-
-# Make our cmake functions accessible
-set(CMAKE_MODULE_PATH
-    ${IFM3D_SOURCE_DIR}/cmake/modules
-    ${CMAKE_MODULE_PATH})
 
 # Force an out-of-source build of the code
 include(MacroOutOfSourceBuild)
