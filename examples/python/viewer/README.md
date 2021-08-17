@@ -43,7 +43,7 @@ usage: ifm3dpy_viewer.py [-h] --port PORT --image {jpeg,distance,amplitude,xyz} 
 
 optional arguments:
   -h, --help            show this help message and exit
-  --port PORT           The pcic port from which images should be received
+  --pcic-port PORT      The pcic port from which images should be received
   --image {jpeg,distance,amplitude,xyz}
                         The image to received (default: distance)
   --ip IP               IP address of the sensor (default: 192.168.0.69)
