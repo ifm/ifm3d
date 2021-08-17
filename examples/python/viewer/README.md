@@ -39,7 +39,7 @@ pip install -r examples/python/viewer/requirements.txt
 
 ## Usage
 ```sh
-usage: ifm3dpy_viewer.py [-h] --port PORT --image {jpeg,distance,amplitude,xyz} [--ip IP] [--xmlrpc-port XMLRPC_PORT]
+usage: ifm3dpy_viewer.py [-h] --pcic-port PORT --image {jpeg,distance,amplitude,xyz} [--ip IP] [--xmlrpc-port XMLRPC_PORT]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -53,20 +53,20 @@ optional arguments:
 
 ### Display the distance image
 ```sh
-python examples/python/viewer/ifm3dpy_viewer.py --port 50012 --image distance
+python examples/python/viewer/ifm3dpy_viewer.py --pcic-port 50012 --image distance
 ```
 
 ### Display the amplitude image
 ```sh
-python examples/python/viewer/ifm3dpy_viewer.py --port 50012 --image amplitude
+python examples/python/viewer/ifm3dpy_viewer.py --pcic-port 50012 --image amplitude
 ```
 
 ### Display the point cloud
 ```sh
-python examples/python/viewer/ifm3dpy_viewer.py --port 50012 --image xyz
+python examples/python/viewer/ifm3dpy_viewer.py --pcic-port 50012 --image xyz
 ```
 
 ### Display the jpeg image
 ```
-python examples/python/viewer/ifm3dpy_viewer.py --port 50010 --image jpeg
+python examples/python/viewer/ifm3dpy_viewer.py --pcic-port 50010 --image jpeg
 ```
