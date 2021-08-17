@@ -89,7 +89,7 @@ def main():
         image_choices += ["xyz"]
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--port", help="The pcic port from which images should be received", type=int,
+    parser.add_argument("--pcic-port", help="The pcic port from which images should be received", type=int,
                         required=True)
     parser.add_argument("--image", help="The image to received (default: distance)", type=str,
                         choices=image_choices, required=True)
@@ -102,9 +102,9 @@ def main():
     getter = globals()["get_" + args.image]
 
     cam = O3RCamera(args.ip, args.xmlrpc_port)
-    fg = FrameGrabber(cam, pcic_port=args.port)
+    fg = FrameGrabber(cam, pcic_port=args.pcic_port)
     buf = ImageBuffer()
-    title = "O3R Port {}".format(str(args.port))
+    title = "O3R Port {}".format(str(args.pcic_port))
 
     if args.image == "xyz":
         display_3d(fg, buf, getter, title)
