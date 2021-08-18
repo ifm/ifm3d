@@ -9,7 +9,7 @@
 int main(){
 
     // Create the camera object
-    auto cam = ifm3d::Camera::MakeShared();
+    auto cam = ifm3d::O3RCamera::MakeShared();
 
     // Get the current configuration of the camera in JSON format
     json conf = cam->ToJSON();

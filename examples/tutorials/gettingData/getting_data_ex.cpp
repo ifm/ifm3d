@@ -1,5 +1,5 @@
 #include <opencv2/core/core.hpp>
-#include <ifm3d/camera.h>
+#include <ifm3d/camera/camera_o3r.h>
 #include <ifm3d/fg.h>
 #include <ifm3d/image.h>
 
@@ -7,7 +7,7 @@ int main(){
 
 
     // Declare the device object (one object only, corresponding to the VPU)
-    auto cam = ifm3d::Camera::MakeShared();
+    auto cam = ifm3d::O3RCamera::MakeShared();
     // Declare the FrameGrabber and ImageBuffer objects. 
     // One FrameGrabber per camera head (define the port number).
     auto fg_0 = std::make_shared<ifm3d::FrameGrabber>(cam, 10, 50011);

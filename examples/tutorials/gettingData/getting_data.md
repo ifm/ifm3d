@@ -8,7 +8,7 @@ At the end of this 'how to', you should be able to receive images and know the b
 ## `Camera`, `FrameGrabber` and `ImageBuffer`
 
 ifm3d provides three main classes:
-- `Device` holds the configuration of the camera head, handles the connection and sets the camera in the proper state (RUN or CONF);
+- `Camera` holds the configuration of the camera heads, handles the connection, etc;
 - `FrameGrabber` receives frames (images);
 - `ImageBuffer` stores the image data.
 
