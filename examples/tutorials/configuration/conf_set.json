@@ -199,6 +199,164 @@
                 }
             },
             "state": "RUN"
+        },
+        "port2": {
+            "acquisition": {
+                "exposureLong": 5000,
+                "exposureShort": 400,
+                "framerate": 10.0,
+                "offset": 0.0,
+                "version": {
+                    "major": 0,
+                    "minor": 0,
+                    "patch": 0
+                }
+            },
+            "data": {
+                "algoDebugConfig": {
+                    "channels": []
+                },
+                "availablePCICOutput": [
+                    "AMPLITUDE_COMPRESSED",
+                    "CONFIDENCE",
+                    "RADIAL_DISTANCE_COMPRESSED",
+                    "RADIAL_DISTANCE_NOISE",
+                    "REFLECTIVITY",
+                    "TOF_INFO"
+                ],
+                "pcicTCPPort": 50011
+            },
+            "info": {
+                "device": "3101",
+                "deviceTreeBinaryBlobOverlay": "001-irs2381c.dtbo",
+                "features": {
+                    "fov": {
+                        "horizontal": 78,
+                        "vertical": 105
+                    },
+                    "resolution": {
+                        "height": 172,
+                        "width": 224
+                    },
+                    "type": "3D"
+                },
+                "name": "",
+                "partNumber": "M03934",
+                "productionState": "AA",
+                "sensor": "IRS2381C",
+                "sensorID": "IRS2381C_105x78_4x2W_110x90_Csample",
+                "serialNumber": "000000000127",
+                "vendor": "0001"
+            },
+            "mode": "experimental_high_4m",
+            "processing": {
+                "diParam": {
+                    "anfFilterSizeDiv2": 2,
+                    "enableDynamicSymmetry": true,
+                    "enableStraylight": true,
+                    "enableTemporalFilter": true,
+                    "maxDistNoise": 0.02,
+                    "maxSymmetry": 0.4,
+                    "medianSizeDiv2": 0,
+                    "minAmplitude": 20.0,
+                    "minReflectivity": 0.0,
+                    "mixedPixelFilterMode": 1,
+                    "mixedPixelThresholdRad": 0.15
+                },
+                "extrinsicHeadToUser": {
+                    "rotX": 0.0,
+                    "rotY": 0.0,
+                    "rotZ": 0.0,
+                    "transX": 0.0,
+                    "transY": 0.0,
+                    "transZ": 0.0
+                },
+                "version": {
+                    "major": 0,
+                    "minor": 0,
+                    "patch": 0
+                }
+            },
+            "state": "RUN"
+        },
+        "port3": {
+            "acquisition": {
+                "exposureLong": 5000,
+                "exposureShort": 400,
+                "framerate": 10.0,
+                "offset": 0.0,
+                "version": {
+                    "major": 0,
+                    "minor": 0,
+                    "patch": 0
+                }
+            },
+            "data": {
+                "algoDebugConfig": {
+                    "channels": []
+                },
+                "availablePCICOutput": [
+                    "AMPLITUDE_COMPRESSED",
+                    "CONFIDENCE",
+                    "RADIAL_DISTANCE_COMPRESSED",
+                    "RADIAL_DISTANCE_NOISE",
+                    "REFLECTIVITY",
+                    "TOF_INFO"
+                ],
+                "pcicTCPPort": 50011
+            },
+            "info": {
+                "device": "3101",
+                "deviceTreeBinaryBlobOverlay": "001-irs2381c.dtbo",
+                "features": {
+                    "fov": {
+                        "horizontal": 78,
+                        "vertical": 105
+                    },
+                    "resolution": {
+                        "height": 172,
+                        "width": 224
+                    },
+                    "type": "3D"
+                },
+                "name": "",
+                "partNumber": "M03934",
+                "productionState": "AA",
+                "sensor": "IRS2381C",
+                "sensorID": "IRS2381C_105x78_4x2W_110x90_Csample",
+                "serialNumber": "000000000127",
+                "vendor": "0001"
+            },
+            "mode": "experimental_high_4m",
+            "processing": {
+                "diParam": {
+                    "anfFilterSizeDiv2": 2,
+                    "enableDynamicSymmetry": true,
+                    "enableStraylight": true,
+                    "enableTemporalFilter": true,
+                    "maxDistNoise": 0.02,
+                    "maxSymmetry": 0.4,
+                    "medianSizeDiv2": 0,
+                    "minAmplitude": 20.0,
+                    "minReflectivity": 0.0,
+                    "mixedPixelFilterMode": 1,
+                    "mixedPixelThresholdRad": 0.15
+                },
+                "extrinsicHeadToUser": {
+                    "rotX": 0.0,
+                    "rotY": 0.0,
+                    "rotZ": 0.0,
+                    "transX": 0.0,
+                    "transY": 0.0,
+                    "transZ": 0.0
+                },
+                "version": {
+                    "major": 0,
+                    "minor": 0,
+                    "patch": 0
+                }
+            },
+            "state": "RUN"
         }
     }
 }
