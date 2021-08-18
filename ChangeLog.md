@@ -1,3 +1,18 @@
+## Changes between ifm3d 0.18.0 and 0.20.0 [Unreleased]
+* Added clang format support for formatting
+* Changed License Headers to SPDX format
+* Embedded third-party libs asio and cxxopt
+  * Removed boost from dependency list
+* Support user defined port for camera, fg, swupdater module
+  * This enable ifm3d to connect to devices behind NAT router
+* Added example for NTP to command line usage
+* Added build jobs in github actions
+  * Windows VS 2019
+  * Ubuntu 20.04 
+* Bugfixes
+  * #284 ifm3d Compiling error at swupdater app with VS2019 and Windows
+  * #283 Imported target "ifm3d::image" includes non-existent path "/usr/include/opencv"
+
 ## [0.91.0] - 2021-02-15
 ### Added
 - Support for the compressed image format introduced for O3R

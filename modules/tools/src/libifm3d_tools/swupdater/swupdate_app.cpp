@@ -11,6 +11,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/camera.h>
 #include <ifm3d/swupdater.h>
@@ -149,6 +150,8 @@ ifm3d::SWUpdateApp::Run()
       // Read the file in
       std::shared_ptr<std::istream> ifs;
       std::vector<std::uint8_t> bytes;
+      std::cout << "Start reading update file this may take some time\n";
+      auto start = std::chrono::steady_clock::now();
 
       std::string infile = (*this->vm_)["file"].as<std::string>();
       if (infile == "-")
@@ -175,7 +178,6 @@ ifm3d::SWUpdateApp::Run()
               std::cerr << "Could not open file: " << infile << std::endl;
               throw ifm3d::error_t(IFM3D_IO_ERROR);
             }
-
           ifs->unsetf(std::ios::skipws);
           std::streampos file_size;
           ifs->seekg(0, std::ios::end);
@@ -187,6 +189,9 @@ ifm3d::SWUpdateApp::Run()
                        std::istream_iterator<std::uint8_t>(*ifs),
                        std::istream_iterator<std::uint8_t>());
         }
+        auto stop = std::chrono::steady_clock::now();
+        std::cout << "Elapsed time for reading the update file: " << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count()/1000.0f << " s\n";
+
       if (!bytes.empty())
         {
           // Reboot to recovery if not already in recovery

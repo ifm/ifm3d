@@ -20,12 +20,12 @@ namespace ifm3d
        const std::uint16_t swupdate_recovery_port) -> ifm3d::SWUpdater::Impl* {
     switch (cam->SwUpdateVersion())
       {
-      case ifm3d::Camera::swu_version::SWU_V1:
+      case ifm3d::CameraBase::swu_version::SWU_V1:
         return new ifm3d::SWUpdater::Impl(
           cam,
           cb,
           std::to_string(swupdate_recovery_port));
-      case ifm3d::Camera::swu_version::SWU_V2:
+      case ifm3d::CameraBase::swu_version::SWU_V2:
         return new ifm3d::ImplV2(cam,
                                  cb,
                                  std::to_string(swupdate_recovery_port));
