@@ -15,8 +15,8 @@ ifm3d provides three main classes:
 Instantiating these objects is as follows:
 ```cpp
 auto cam = ifm3d::Camera::MakeShared();
-auto fg_0 = std::make_shared<ifm3d::FrameGrabber>(cam, 10, 50010);
-auto im_0 =  std::make_shared<ifm3d::ImageBuffer>();
+auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, 10, 50010);
+auto im =  std::make_shared<ifm3d::ImageBuffer>();
 ```
 The `Camera` class, counter-intuitively, refers to the computing unit (the VPU). It inherits its name from previous ifm 3D devices that only used one camera, with no distinction between sensing and computing units. 
 You can input:
@@ -36,8 +36,19 @@ The `ImageBuffer` class simply serves to store the received data. It allocates s
 
 You just need to call the `WaitForFrame` function. Input an `ImageBuffer` object as well as a timeout value in ms.
 ```cpp
-fg_->WaitForFrame(im.get(), 1000);
+fg->WaitForFrame(im.get(), 1000);
 ```
 
 And you're good to go! Now you can do something with all this data.
 
+## Access the data
+
+Accessing the received data is done through the `ImageBuffer`. Different data types are available depending on whether the camera is a 2D or a 3D camera. Simply access the image like so:
+```cpp
+// For 3D data:
+cv::Mat dist;  
+dist = im->DistanceImage();
+// For 2D data:
+cv::Mat rgb;
+rgb = im->JPEGImage();
+```
