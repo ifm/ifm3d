@@ -804,7 +804,6 @@ ifm3d::Camera::SetPassword(std::string password)
     this->pImpl->SaveDevice();
   });
 }
-
 void
 ifm3d::Camera::ForceTrigger()
 {

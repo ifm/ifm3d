@@ -10,7 +10,7 @@ parameters. To carry out a particular task, you envoke one of the `ifm3d`
 
 ```
 $ ifm3d --help
-ifm3d: version=0.18.0
+ifm3d: version=0.20.0
 
 
 Usage:
@@ -109,6 +109,50 @@ As is shown above, `cp` takes a source application index to copy from.
 We now walk through a couple of simple examples of using `ifm3d`. This is not an
 exhaustive tutorial on `ifm3d` but rather intended to give a sense of how to
 use the tool. The concepts apply broadly to all of the subcommands.
+
+Short overview on using `jq`: Change values inside a json string
+----------------------------------
+
+An `ifm3d dump` provides you with a complete description of the camera configuration.
+This information is provided as a json string, and we will use this string for changing
+specific parameters on the camera.
+
+One easy tool is `jq` on Linux, which we will use for the following examples.
+
+Imaginge following json string:
+
+```
+{
+  "Config":{
+    "Parameter1":"abc",
+    "Parameter2":{
+      "Subparameter1":"123"
+    }
+  }
+}
+```
+Assume for this example that this json file is saved in a file called sample.json.
+
+If we would like to change the json string `Parameter1` from `abc` to `xyz`, you can fit this
+json to `jq` and change a parmeter. The output of `jq` will be a json string again.
+
+```
+cat sample.json | jq '.config.Parameter1="xyz"'
+```
+
+If you want to change the `Subparameter1` to `789` you can chaing within `jq`
+
+```
+cat sample.json | jq '.config.Parameter2.Subparameter1="789"'
+```
+
+For the ifm3D usecase, you can chain the different commands `ifm3d dump`, `jq` and `ifm3d config`.
+First get the json, than change something within json and afterwards upload it.
+
+E.g.
+```
+ifm3d dump | jq '.ifm3d.Device.ActiveApplication="3"' | ifm3d config
+```
 
 Example: Creating new applications
 ----------------------------------
@@ -247,6 +291,22 @@ $ ifm3d ls
     "Name": "Sample Application"
   }
 ]
+```
+
+Example: Setting NTP-Server connection on the camera
+---------------------------------------
+
+Using 'jq', you can set easily the NTP-Server on a camera. You just need to provide the
+right IP address. In this case, the IP: 192.168.0.100 is the NTP server.
+
+```
+ifm3d dump | jq '.ifm3d.Time.NTPServers="192.168.0.100"' | ifm3d config
+
+```
+After that, we need to activate the usage of the NTP server too.
+
+```
+ifm3d dump | jq '.ifm3d.Time.SynchronizationActivated="True"' | ifm3d config
 ```
 
 Example: Setting the time on the camera

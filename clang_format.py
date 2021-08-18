@@ -11,17 +11,11 @@ assert sys.version_info > (3, 5), "python 3.5 or more required"
 import os
 import subprocess
 import re
+import shutil
 
-"""
-    Function to execute system command on console
-        Args:
-            command (string) : console command with parameters
-        Return :
-            standard output of command as a string
-"""
-def system_call(command):
-    p = subprocess.run(command, stdout=subprocess.PIPE)
-    return p.stdout.decode()
+# The bare Minimum clang-format version
+minimum_required_clang_format_version = "10.0.0"
+
 
 # Extension and folders to be excludes from formatting
 apply_extensions = (".cxx",".cpp",".c", ".hxx", ".hh", ".cc", ".hpp", ".h")
@@ -36,7 +30,7 @@ exclude_folders = ("third-party",".github","build","cmake","docker","snap",".git
         (bool) True if all files are formatted else
                False.
 """
-def clang_format():
+def clang_format(clangf_exe):
     try:
         # walk all the folders from the current wotking directory
         for root, dirs, files in os.walk(os.getcwd()):
@@ -48,29 +42,53 @@ def clang_format():
             for file in files:
                 #check for file extension
                 if file.endswith(apply_extensions):
-                    os.system("clang-format -i -style=file " + os.path.join(root,file))
-                    #print(os.path.join(root,file))
+                    os.system("{} -i -style=file {}".format(clangf_exe,os.path.join(root,file)))
         return True
     except:
         print("Error with formatting file")
+
 """
     Function checks the version of the clang-formatter
     available with the host system
 """
-def get_clang_format_version():
-    ret = system_call (['clang-format', '--version'])
-    tokens = re.search("^(\w+-\w+) (\w+) ([0-9.]+).*",ret)
-    if tokens.group(1) == "clang-format" and tokens.group(2) == "version":
-        return int(tokens.group(3).replace(".", ""))
-    else:
-        print("error getting clang-format version")
+def check_clang_format_version(clangf_exe):
+    try:
+        _minimum_version_num = int(minimum_required_clang_format_version.replace('.',''))
+        if shutil.which(clangf_exe):
+            ret = os.popen("{} --version".format(clangf_exe)).read()
+            tokens = re.search("^(\w+-\w+) (\w+) ([0-9.]+).*",ret)
+            if tokens.group(1) == "clang-format" and tokens.group(2) == "version":
+                _current_version_num = int(tokens.group(3).replace(".", ""))
+                if _current_version_num >= _minimum_version_num:
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        else:
+            return False
+    except:
+        return False
 
-minimum_required_clang_format_version = 600
 
 #entry point
 if __name__ == "__main__":
-    if get_clang_format_version() >= minimum_required_clang_format_version:
-        if clang_format():
-            print("Done formatting files")
-    else :
-        print("minimum required clang-format version is 6.0.0")
+    # build a list of possible clang-format versions
+    clang_executables = ['clang-format']
+    for i in range(10,99):
+        clang_executables.append("clang-format-{}".format(i))
+
+    # check if the appropriate one is installed
+    clangf_exe = None
+    for i in clang_executables:
+        if check_clang_format_version(i):
+            clangf_exe = i
+            break
+    # bail out in case no clang-format was found
+    if clangf_exe is None:
+        print("Please install clang-format version {}".format(minimum_required_clang_format_version))
+        quit(1)
+
+    # do the formatting
+    if clang_format(clangf_exe):
+        print("Formatting Done!")

@@ -44,11 +44,11 @@ endif(WIN32)
 #------------------
 target_link_libraries(
   ifm3d_swupdater
-  PUBLIC
-    ${LIB_glog}
-    ${CURL_LIBRARIES}
   PRIVATE
     ifm3d_camera
+    ${LIB_glog}
+    ${CURL_LIBRARIES}
+	asio
     $<BUILD_INTERFACE:websocketpp_wrapper>
     )
 
