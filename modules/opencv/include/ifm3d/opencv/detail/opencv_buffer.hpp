@@ -186,7 +186,10 @@ ifm3d::OpenCVBuffer::ImCreate(ifm3d::image_chunk im,
       break;
 
     case ifm3d::image_chunk::JPEG:
-      this->jpeg_ = cv::Mat(1, static_cast<int>(npts), CV_8UC1, (void*)(bytes.data() + idx));
+      this->jpeg_ = cv::Mat(1,
+                            static_cast<int>(npts),
+                            CV_8UC1,
+                            (void*)(bytes.data() + idx));
       return;
 
     default:

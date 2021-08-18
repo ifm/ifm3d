@@ -1,0 +1,151 @@
+name: Build (Windows_VS2019)
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+
+jobs:
+  build-windows:
+    runs-on: windows-2019
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v2
+
+    - name: Use GNU tar
+      shell: cmd
+      run: |
+        echo "C:/Program Files/Git/usr/bin" >> $GITHUB_PATH
+        
+    - name: Create output directory
+      shell: cmd
+      run: |
+        mkdir c:\deps2019\install
+        mkdir c:\deps2019\Boost # boost will not be cache due to size limit
+
+    - name: Check cache for prebuilt dependencies
+      id: get-dep-2019-cache
+      uses: actions/cache@v2
+      with:
+        path: c:\deps2019\install
+        key: ifm3d-2019-deps-9 # Increment to force-clear cache
+      
+    - name: Install boost
+      id: install-boost
+      run : |
+        $Url = "https://sourceforge.net/projects/boost/files/boost-binaries/1.72.0/boost_1_72_0-msvc-14.2-64.exe"
+        (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
+        Start-Process -Wait -FilePath "$env:TEMP\boost.exe" -ArgumentList "/silent /sp- /suppressmsgboxes /dir=c:\deps2019\Boost"
+        echo '::set-output name=BOOST_ROOT::c:\deps2019\Boost'
+
+    - name: Build dependency - curl
+      if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        cd /d c:\deps2019
+        git clone --branch curl-7_47_1 https://github.com/curl/curl.git
+        mkdir curl\build
+        cd curl\build
+        cmake -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DCMAKE_INSTALL_PREFIX=c:\deps2019\install ..
+        cmake --build . --clean-first --config Release --target INSTALL
+
+    - name: Build dependency - xmlrpc-c
+      if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        cd /d c:\deps2019
+        git clone --branch 1.33.14-cmake https://github.com/ifm/xmlrpc-c.git
+        mkdir xmlrpc-c\build
+        cd xmlrpc-c\build
+        cmake -G "Visual Studio 16 2019" -Ax64 -DCMAKE_INSTALL_PREFIX=c:\deps2019\install ..
+        cmake --build . --clean-first --config Release --target INSTALL
+
+    - name: Build dependency - glog
+      if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        cd /d c:\deps2019
+        git clone --branch v0.3.5 https://github.com/google/glog.git
+        mkdir glog\build
+        cd glog\build
+        cmake -G "Visual Studio 16 2019" -Ax64 -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=c:\deps2019\install ..
+        cmake --build . --clean-first --config Release --target INSTALL
+
+    - name: Build dependency - FLANN
+      if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        cd /d c:\deps2019
+        git clone --branch 1.9.1 https://github.com/mariusmuja/flann.git
+        mkdir flann\build
+        cd flann\build
+        cmake -G "Visual Studio 16 2019" -Ax64 -DBUILD_PYTHON_BINDINGS=OFF -DBUILD_MATLAB_BINDINGS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBUILD_DOC=OFF -DCMAKE_INSTALL_PREFIX=\deps2019\install ..
+        cmake --build . --clean-first --config Release --target INSTALL
+
+    - name: Build dependency - Eigen
+      if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        cd /d c:\deps2019
+        git clone --branch 3.3.4 https://github.com/eigenteam/eigen-git-mirror.git eigen
+        mkdir eigen\build
+        cd eigen\build
+        cmake -G "Visual Studio 16 2019" -Ax64 -DCMAKE_INSTALL_PREFIX=c:\deps2019\install ..
+        cmake --build . --clean-first --config Release --target INSTALL
+
+    - name: Build dependency - PCL
+      if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      env:
+        BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+      run: |
+        cd /d c:\deps2019
+        git clone --branch pcl-1.10.1 https://github.com/PointCloudLibrary/pcl.git
+        mkdir pcl\build
+        cd pcl\build
+        cmake -G "Visual Studio 16 2019" -Ax64 -DBOOST_ROOT=%BOOST_ROOT% -DPCL_ENABLE_SSE=OFF -DWITH_CUDA=OFF -DWITH_DAVIDSDK=OFF -DWITH_DOCS=OFF -DWITH_DSSDK=OFF -DWITH_ENSENSO=OFF -DWITH_FZAPI=OFF -DWITH_LIBUSB=OFF -DWITH_OPENGL=OFF -DWITH_VTK=OFF -DWITH_OPENNI=OFF -DWITH_OPENNI2=OFF -DWITH_PCAP=OFF -DWITH_PNG=OFF -DWITH_QHULL=OFF -DWITH_QT=OFF -DWITH_RSSDK=OFF  -DBUILD_tools=OFF -DBUILD_visualization=OFF -DBUILD_features=OFF -DBUILD_filters=OFF -DBUILD_global_tests=OFF -DBUILD_io=OFF -DBUILD_kdtree=OFF -DBUILD_keypoints=OFF -DBUILD_octree=OFF -DBUILD_range_image=OFF -DBUILD_registration=OFF -DBUILD_sample_consensus=OFF -DBUILD_segmentation=OFF -DBUILD_surface=OFF  -DCMAKE_INSTALL_PREFIX=c:\deps2019\install ..
+        cmake --build . --clean-first --config Release --target INSTALL
+
+    - name: Build dependency - OpenCV
+      if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        cd /d c:\deps2019
+        git clone  --branch 3.4.10 https://github.com/opencv/opencv.git
+        mkdir opencv\build
+        cd opencv\build
+        cmake -G "Visual Studio 16 2019" -Ax64 -DWITH_CUDA=OFF -DWITH_EIGEN=ON -DWITH_IPP=ON -DWITH_JASPTER=ON -DWITH_JPEG=ON -DWITH_OPENEXR=OFF -DWITH_OPENNI=OFF -DWITH_PNG=ON -DWITH_QT=OFF -DWITH_QT_OPENGL=OFF -DWITH_TBB=OFF -DWITH_TIFF=ON -DWITH_VIDEOINPUT=OFF -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_PACKAGE=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=OFF -DCMAKE_PREFIX_PATH=c:\deps\install -DCMAKE_INSTALL_PREFIX=c:\deps2019\install ..
+        cmake --build . --clean-first --config Release --target INSTALL
+
+    - name: Build dependency - gtest
+      if: steps.get-dep-2019-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        cd /d c:\deps2019\install
+        git clone --branch release-1.8.1 https://github.com/google/googletest.git
+
+    - name: Build ifm3d
+      shell: cmd
+      env:
+        BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+      run: |
+        mkdir \ifm3d\install2019
+        mkdir build
+        cd build
+        cmake -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_SDK_PKG=ON -DGTEST_CMAKE_DIR=c:\deps2019\install\googletest\googletest -Dgtest_force_shared_crt=TRUE -DCMAKE_PREFIX_PATH=c:\deps2019\install -DBOOST_ROOT=%BOOST_ROOT% -DBoost_USE_STATIC_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\ifm3d\install2019 -DBUILD_MODULE_OPENCV=ON -DBUILD_MODULE_PCICCLIENT=ON ..
+        cmake --build . --clean-first --config Release --target INSTALL
+
+    - name: Copy third party dependencies
+      shell: cmd
+      run: |
+        copy "c:\deps2019\install\bin\glog.dll" \ifm3d\install2019\bin
+        copy "c:\deps2019\install\bin\libcurl.dll" \ifm3d\install2019\bin
+        copy "c:\deps2019\install\bin\xmlrpc*.dll" \ifm3d\install2019\bin
+        copy "c:\deps2019\install\x64\vc16\bin\opencv_core3410.dll" \ifm3d\install2019\bin
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: ifm3d_amd64_msvc2019
+        path: \ifm3d\install2019

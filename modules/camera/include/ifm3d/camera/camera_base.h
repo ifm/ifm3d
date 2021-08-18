@@ -152,15 +152,12 @@ namespace ifm3d
       O3X = 2,
       O3R = 3,
     };
-
-    /**
-     * Convienient constant for SwUpdate version
-     */
-    enum class swu_version : int
+	
+	enum class swu_version : int
     {
       SWU_NOT_SUPPORTED = 0,
       SWU_V1 = 1,
-      SWU_V2 = 2,
+      SWU_V2 = 2
     };
 
     /**
@@ -305,13 +302,6 @@ namespace ifm3d
     virtual std::vector<std::string> TraceLogs(int count);
 
     /**
-     * Checks the swupdater version supported by device
-     *
-     * @return swu_version supported by device
-     */
-    virtual ifm3d::CameraBase::swu_version SwUpdateVersion();
-
-    /**
      * Serializes the state of the camera to JSON.
      *
      * The JSON interface returned here is the excellent
@@ -379,6 +369,13 @@ namespace ifm3d
     bool CheckMinimumFirmwareVersion(unsigned int major,
                                      unsigned int minor,
                                      unsigned int patch);
+	
+	/**
+     * Checks the swupdater version supported by device
+     *
+     * @return sw_version supported by device
+     */
+    virtual ifm3d::CameraBase::swu_version SwUpdateVersion();
 
   protected:
     class Impl;
