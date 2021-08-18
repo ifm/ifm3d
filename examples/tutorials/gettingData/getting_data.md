@@ -32,6 +32,8 @@ Its inputs:
 
 The `ImageBuffer` class simply serves to store the received data. It allocates space for each individual image.
 
+> Note: instantiating the objects is done the same way for any imager type (2D, 3D, different resolutions, etc).
+
 ## Receive an image
 
 You just need to call the `WaitForFrame` function. Input an `ImageBuffer` object as well as a timeout value in ms.
