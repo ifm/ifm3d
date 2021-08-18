@@ -45,6 +45,9 @@ endif(WIN32)
 #------------------
 # Linker settings
 #------------------
+# Note : $<BUILD_INTERFACE:asio> needed to avoid install export error
+# during static linkage of framgrabber for python binding as asio
+# is header only target.
 target_link_libraries(
   ifm3d_framegrabber
   PUBLIC
