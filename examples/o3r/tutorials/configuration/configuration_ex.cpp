@@ -23,10 +23,14 @@ int main(){
     std::ofstream file_get("conf_get.json");
     file_get << std::setw(4) << conf;
 
-    // Configure the device from a configuration file
-    std::ifstream file_set("/home/usmasslo/O3R/ifm3d/examples/tutorials/configuration/conf_set.json");
-    file_set >> conf;
-    cam->FromJSON(conf);
+    // // Configure the device from a configuration file
+    // std::ifstream file_set("/path/to/conf_set.json");
+    // file_set >> conf;
+    // cam->FromJSON(conf);
+
+    // Configure the device from a json string
+    cam->FromJSONStr("{\"device\":{\"info\": {\"name\": \"my_o3r\"}}}");
+
 
     // Check that the configuration worked
     conf = cam->ToJSON();

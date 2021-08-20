@@ -19,9 +19,14 @@ The first provided function outputs the current configuration of the device (the
 json conf = cam->ToJSON();
 ```
 
-## Write a new configuration 
+## Write a new configuration
 
-To write a new configuration to the device, you need to provide said configuration in json formatting. 
+To write a new configuration to the device, you need to provide said configuration in json formatting. You can provide a full configuration file: 
 ```cpp
 cam->FromJSON(conf);
+```
+
+You can also provide a json string with a subset of the configuration:
+```cpp
+cam->FromJSONStr("{\"device\":{\"info\": {\"name\": \"my_o3r\"}}}");
 ```
