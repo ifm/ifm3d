@@ -1,4 +1,4 @@
 /build/*
 /docker/build/**/debs/*
 .vscode
-examples/build
+/examples/build
