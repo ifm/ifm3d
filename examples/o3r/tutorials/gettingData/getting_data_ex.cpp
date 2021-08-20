@@ -25,16 +25,17 @@ int main(){
       std::cerr << "Timeout waiting for camera!" << std::endl;
       return -1;
     }
+    /*
     // Do something with the data
     // For 3D data:
-    // cv::Mat amp;
-    // cv::Mat dist;  
+    cv::Mat amp;
+    cv::Mat dist;  
 
-    // amp = im->AmplitudeImage();
-    // dist = im->DistanceImage();
+    amp = im->AmplitudeImage();
+    dist = im->DistanceImage();
 
-    // std::cout << dist << std::endl; 
-
+    std::cout << dist << std::endl; 
+    */
     // For 2D data:
     cv::Mat rgb;
     rgb = im->JPEGImage();
