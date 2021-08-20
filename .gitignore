@@ -1,6 +1,5 @@
 /build/*
 /docker/build/**/debs/*
 .vscode
-/examples/build
-*.cmake
-*.log
+*/build
+**/build
