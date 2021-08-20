@@ -1,3 +1,8 @@
+/*
+ * Copyright 2021-present ifm electronic, gmbh
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #include <opencv2/core/core.hpp>
 #include <ifm3d/camera/camera_o3r.h>
 #include <ifm3d/fg.h>
