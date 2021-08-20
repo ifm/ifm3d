@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 cmake_policy(SET CMP0048 NEW)
 
+# Some generic settings
+include(cmake/StandardProjectSettings.cmake)
+
 # Make our cmake functions accessible
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/modules)
 
