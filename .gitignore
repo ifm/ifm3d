@@ -2,3 +2,6 @@
 /docker/build/**/debs/*
 .vscode
 /examples/**/build
+venv
+__pycache__
+examples/o3r/oem/ssh/.*
