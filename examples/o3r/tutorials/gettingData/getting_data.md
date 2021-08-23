@@ -3,22 +3,22 @@ Corresponding code example: [getting_data_ex.cpp](getting_data_ex.cpp)
 
 You successfully installed the ifm3d library which contains all you need to use the O3R. This library wraps around PCIC and XML-RPC communication protocols to facilitate the communication with the device.
 
-At the end of this 'how to', you should be able to receive images and know the basic usage of the `Device`, `FrameGrabber` and `ImageBuffer` classes.
+At the end of this 'how to', you should be able to receive images and know the basic usage of the `CameraBase`, `FrameGrabber` and `ImageBuffer` classes.
 
-## `Camera`, `FrameGrabber` and `ImageBuffer`
+## `CameraBase`, `FrameGrabber` and `ImageBuffer`
 
 ifm3d provides three main classes:
-- `Camera` holds the configuration of the camera heads, handles the connection, etc;
+- `CameraBase` holds the configuration of the camera heads, handles the connection, etc;
 - `FrameGrabber` receives frames (images);
 - `ImageBuffer` stores the image data.
 
 Instantiating these objects is as follows:
 ```cpp
-auto cam = ifm3d::Camera::MakeShared();
+auto cam = ifm3d::CameraBase::MakeShared();
 auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, 10, 50010);
 auto im =  std::make_shared<ifm3d::ImageBuffer>();
 ```
-The `Camera` class, counter-intuitively, refers to the computing unit (the VPU). It inherits its name from previous ifm 3D devices that only used one camera, with no distinction between sensing and computing units. 
+The `CameraBase` class, counter-intuitively, refers to the computing unit (the VPU). It inherits its name from previous ifm 3D devices that only used one camera, with no distinction between sensing and computing units. It is able to distinguish between the different devices (O3R, O3D, O3X, ...) and therefore access the relevant functionalities.
 You can input:
 - `ip`: the IP address of the device;
 - `xmlrpc_port`: the XML_RPC port (it is fixed at the moment);
