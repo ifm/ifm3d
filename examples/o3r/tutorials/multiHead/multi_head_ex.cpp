@@ -15,6 +15,9 @@
 #include <ifm3d/fg.h>
 #include <ifm3d/image.h>
 
+
+// This function formats the timestamps for proper display
+// a.k.a converts to local time
 std::string formatTimestamp(ifm3d::TimePointT timestamp)
 {
     using namespace std::chrono;
@@ -37,7 +40,7 @@ std::string formatTimestamp(ifm3d::TimePointT timestamp)
 int main(){
 
     // Declare the camera object
-    auto cam = ifm3d::O3RCamera::MakeShared();
+    auto cam = ifm3d::CameraBase::MakeShared();
     // Retreive ports configuration 
     json conf = cam->ToJSON();
     auto ports = conf["ports"];
@@ -68,8 +71,10 @@ int main(){
 
     // Grab frames from each heads
     int i = 0;
+    // The timestamp has two parts, the timestamp in seconds and the timestamp in nanoseconds
     ifm3d::TimePointT timestamp;
-    for (auto fg : fgs){
+    for (auto fg : fgs)
+    {
         auto im = ims[i];
         fg->WaitForFrame(im.get(), 3000);
         i++;
@@ -77,7 +82,8 @@ int main(){
         std::cout << "Timestamp of frame "
                   << std::setw(2) << std::setfill('0')
                   << ": " << formatTimestamp(timestamp)
-                  << std::endl;    }
+                  << std::endl;    
+    }
 
     return 0;
 }
