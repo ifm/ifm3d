@@ -81,3 +81,53 @@ build:linux:aarch64:
       - build/*.tar
     expire_in: 1 week
 
+
+
+build:linux:docker:
+  stage: build
+  variables:
+    REQUESTS_CA_BUNDLE: "/etc/ssl/certs/ca-certificates.crt"
+  parallel:
+    matrix:
+      - RUNNER: shared_docker_aarch64
+        PLATFORM: linux/aarch64
+        BASE_IMAGE: 
+          - nvcr.io/nvidia/l4t-base:r32.4.3
+          - ubuntu:focal
+          - ubuntu:bionic
+          - ubuntu:xenial
+      - RUNNER: shared_docker
+        PLATFORM: linux/amd64
+        BASE_IMAGE: 
+          - ubuntu:focal
+          - ubuntu:bionic
+          - ubuntu:xenial
+  tags:
+    - ${RUNNER}
+  script:
+    - DOCKER_BUILDKIT=1 docker build --platform ${PLATFORM} --pull -f Dockerfile.deb -o out --build-arg BASE_IMAGE=${BASE_IMAGE} .
+
+
+build:linux:deb:
+  stage: build
+  variables:
+    REQUESTS_CA_BUNDLE: "/etc/ssl/certs/ca-certificates.crt"
+  parallel:
+    matrix:
+      - RUNNER: shared_docker_aarch64
+        PLATFORM: linux/aarch64
+        BASE_IMAGE: 
+          - nvcr.io/nvidia/l4t-base:r32.4.3
+          - ubuntu:focal
+          - ubuntu:bionic
+          - ubuntu:xenial
+      - RUNNER: shared_docker
+        PLATFORM: linux/amd64
+        BASE_IMAGE: 
+          - ubuntu:focal
+          - ubuntu:bionic
+          - ubuntu:xenial
+  tags:
+    - ${RUNNER}
+  script:
+    - DOCKER_BUILDKIT=1 docker build --platform ${PLATFORM} --pull -f Dockerfile --build-arg BASE_IMAGE=${BASE_IMAGE} .
