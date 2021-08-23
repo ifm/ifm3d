@@ -9,7 +9,7 @@ At this stage, there are two functions available to read the current configurati
 For this process, we have to initialize the camera object (please have a look at the code example provided for full details of the imported libraries).
 
 ```cpp
-auto cam = ifm3d::Camera::MakeShared();
+auto cam = ifm3d::CameraBase::MakeShared();
 ```
 
 ## Read the current configuration
