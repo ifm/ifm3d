@@ -12,7 +12,7 @@ int main(){
 
 
     // Declare the device object (one object only, corresponding to the VPU)
-    auto cam = ifm3d::O3RCamera::MakeShared();
+    auto cam = ifm3d::CameraBase::MakeShared();
     // Declare the FrameGrabber and ImageBuffer objects. 
     // One FrameGrabber per camera head (define the port number).
     auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, 10, 50012);
@@ -25,7 +25,7 @@ int main(){
       std::cerr << "Timeout waiting for camera!" << std::endl;
       return -1;
     }
-    /*
+    
     // Do something with the data
     // For 3D data:
     cv::Mat amp;
@@ -35,11 +35,13 @@ int main(){
     dist = im->DistanceImage();
 
     std::cout << dist << std::endl; 
-    */
+    
+   /*
     // For 2D data:
     cv::Mat rgb;
     rgb = im->JPEGImage();
     std::cout << rgb << std::endl;
+    */
 
     return 0;
 }
