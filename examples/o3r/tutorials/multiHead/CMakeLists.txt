@@ -1,4 +1,4 @@
-find_package(ifm3d 0.91.0 CONFIG
+find_package(ifm3d 0.90.1 CONFIG
   REQUIRED COMPONENTS camera framegrabber image
   )
 
