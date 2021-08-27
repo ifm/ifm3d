@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 0.90.1 - 2021-08-17
 
 ### Added
+- Basic c++ tutorials
 - Support for the new JSON based XML-RPC interface
 - Support for 2D image data
 - ifm3dpy_viewer python example
