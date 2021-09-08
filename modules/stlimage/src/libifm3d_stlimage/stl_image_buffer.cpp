@@ -16,7 +16,7 @@
 ifm3d::StlImageBuffer::StlImageBuffer()
   : ifm3d::ByteBuffer<ifm3d::StlImageBuffer>(),
     pImpl(new ifm3d::StlImageBuffer::Impl())
-{ }
+{}
 
 ifm3d::StlImageBuffer::~StlImageBuffer() = default;
 

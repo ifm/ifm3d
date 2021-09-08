@@ -282,9 +282,9 @@ namespace ifm3d
     /*@brief fefault constructor*/
     Image_();
 
-    /* Similar to Image(cols,rows,ifm3d::formatType<Tp>::nchannel, ifm3d::formatType<Tp>::format ) */
-    Image_(const std::uint32_t cols,
-           const std::uint32_t rows);
+    /* Similar to Image(cols,rows,ifm3d::formatType<Tp>::nchannel,
+     * ifm3d::formatType<Tp>::format ) */
+    Image_(const std::uint32_t cols, const std::uint32_t rows);
 
     ~Image_() = default;
 
@@ -301,9 +301,7 @@ namespace ifm3d
 
     /* Similar to Image::create(cols,rows,ifm3d::formatType<Tp>::nchannel,
      * ifm3d::formatType<Tp>::format ) */
-    void create(const std::uint32_t cols,
-                const std::uint32_t rows
-                );
+    void create(const std::uint32_t cols, const std::uint32_t rows);
 
     /** @brief Creates a full copy of the array and the underlying data.
      */
@@ -363,10 +361,10 @@ namespace ifm3d
   };
 
   template <typename T>
-  using Point3D = struct point<T,3>;
+  using Point3D = struct point<T, 3>;
 
   template <typename T>
-  using Point4D = struct point<T,4>;
+  using Point4D = struct point<T, 4>;
 
   // user helper types
   using Point3D_16U = Point3D<std::uint16_t>;
