@@ -38,7 +38,7 @@ namespace ifm3d
     void Reboot(const boot_mode& mode =
                   ifm3d::CameraBase::boot_mode::PRODUCTIVE) override;
     device_family WhoAmI() override;
-	ifm3d::CameraBase::swu_version SwUpdateVersion() override;
+    ifm3d::CameraBase::swu_version SwUpdateVersion() override;
 
     json ToJSON() override;
     void FromJSON(const json& j) override;

@@ -189,8 +189,13 @@ ifm3d::SWUpdateApp::Run()
                        std::istream_iterator<std::uint8_t>(*ifs),
                        std::istream_iterator<std::uint8_t>());
         }
-        auto stop = std::chrono::steady_clock::now();
-        std::cout << "Elapsed time for reading the update file: " << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count()/1000.0f << " s\n";
+      auto stop = std::chrono::steady_clock::now();
+      std::cout << "Elapsed time for reading the update file: "
+                << std::chrono::duration_cast<std::chrono::milliseconds>(stop -
+                                                                         start)
+                       .count() /
+                     1000.0f
+                << " s\n";
 
       if (!bytes.empty())
         {
