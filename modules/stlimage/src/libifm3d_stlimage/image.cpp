@@ -38,7 +38,7 @@ namespace ifm3d
     size_t size_;
 
   public:
-    ImageAllocator::ImageAllocator() : data_(nullptr), size_(0) { }
+    ImageAllocator::ImageAllocator() : data_(nullptr), size_(0) {}
 
     ImageAllocator::~ImageAllocator()
     {
@@ -89,7 +89,7 @@ ifm3d::Image::Image()
     nchannel_(0),
     data_size_in_bytes_(0),
     size_(0)
-{ }
+{}
 
 ifm3d::Image::Image(const std::uint32_t cols,
                     const std::uint32_t rows,

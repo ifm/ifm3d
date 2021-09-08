@@ -201,7 +201,7 @@ namespace ifm3d
 //-------------------------------------
 // ctor/dtor
 //-------------------------------------
-ifm3d::StlImageBuffer::Impl::Impl() { }
+ifm3d::StlImageBuffer::Impl::Impl() {}
 
 //-------------------------------------
 // Accessors
@@ -399,12 +399,25 @@ ifm3d::StlImageBuffer::Impl::ImCreate(ifm3d::image_chunk im,
                         1,
                         this->conf_.dataFormat());
       int index = 0;
-      auto it = this->bad_.begin<unsigned char>();
-      for (unsigned char value :
-           ifm3d::IteratorAdapter<unsigned char>(this->conf_))
+      if (this->conf_.dataFormat() == ifm3d::pixel_format::FORMAT_16U)
         {
-          *it = value & 0x1;
-          it++;
+          std::transform(this->conf_.begin<uint16_t>(),
+                         this->conf_.end<uint16_t>(),
+                         this->bad_.begin<uint8_t>(),
+                         [](auto& value) -> uint8_t { return value & 0x1; });
+        }
+      else if (this->conf_.dataFormat() == ifm3d::pixel_format::FORMAT_8U)
+        {
+          std::transform(this->conf_.begin<uint8_t>(),
+                         this->conf_.end<uint8_t>(),
+                         this->bad_.begin<uint8_t>(),
+                         [](auto& value) -> uint8_t { return value & 0x1; });
+        }
+      else
+        {
+          LOG(ERROR) << "confidence image format is not supported : "
+                     << (int)this->conf_.dataFormat();
+          throw ifm3d::error_t(IFM3D_CONFIDENCE_IMAGE_FORMAT_NOT_SUPPORTED);
         }
     }
 }

@@ -84,7 +84,7 @@ ifm3d::Image::end()
 // Iterator Adapter
 template <typename T>
 ifm3d::IteratorAdapter<T>::IteratorAdapter(ifm3d::Image& it) : it(it)
-{ }
+{}
 
 template <typename T>
 auto
@@ -286,7 +286,7 @@ ifm3d::Image_<Tp>::Image_(const std::uint32_t cols, const std::uint32_t rows)
       rows,
       static_cast<std::uint32_t>(ifm3d::FormatType<Tp>::nchannel),
       static_cast<ifm3d::pixel_format>(ifm3d::FormatType<Tp>::format))
-{ }
+{}
 
 template <typename Tp>
 ifm3d::Image_<Tp>::Image_(const Image& img) : Image()
