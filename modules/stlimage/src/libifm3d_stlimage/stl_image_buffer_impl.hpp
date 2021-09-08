@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IFM3D_IMAGE_IMAGE_BUFFER_IMPL_HPP
-#define IFM3D_IMAGE_IMAGE_BUFFER_IMPL_HPP
+#ifndef IFM3D_STLIMAGE_STLIMAGE_BUFFER_IMPL_HPP
+#define IFM3D_STLIMAGE_STLIMAGE_BUFFER_IMPL_HPP
 
 #include <algorithm>
 #include <cstddef>
@@ -464,4 +464,4 @@ ifm3d::StlImageBuffer::Impl::CloudCreate(
       throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
     }
 }
-#endif // IFM3D_IMAGE_IMAGE_BUFFER_IMPL_HPP
+#endif // IFM3D_STLIMAGE_STLIMAGE_BUFFER_IMPL_HPP
