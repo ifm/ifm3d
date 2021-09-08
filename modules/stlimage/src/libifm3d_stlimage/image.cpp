@@ -9,7 +9,6 @@
 #include <vector>
 #include <unordered_map>
 #include <limits>
-#include <memory_resource>
 
 namespace ifm3d
 {
@@ -38,9 +37,11 @@ namespace ifm3d
     size_t size_;
 
   public:
-    ImageAllocator::ImageAllocator() : data_(nullptr), size_(0) {}
 
-    ImageAllocator::~ImageAllocator()
+    ImageAllocator() : data_(nullptr), size_(0)
+    {}
+
+   ~ImageAllocator()
     {
       if (data_ != nullptr)
         {
@@ -119,7 +120,7 @@ ifm3d::Image
 ifm3d::Image::clone() const
 {
   Image copy;
-  copy.create(rows_, cols_, nchannel_, data_format_);
+  copy.create(cols_, rows_, nchannel_, data_format_);
   std::memcpy(copy.ptr(0), data_, size_);
   return copy;
 }
@@ -127,13 +128,13 @@ ifm3d::Image::clone() const
 std::uint32_t
 ifm3d::Image::height() const
 {
-  return cols_;
+  return rows_;
 }
 
 std::uint32_t
 ifm3d::Image::width() const
 {
-  return rows_;
+  return cols_;
 }
 
 std::uint32_t

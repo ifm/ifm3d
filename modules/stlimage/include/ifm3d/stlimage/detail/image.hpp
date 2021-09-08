@@ -11,7 +11,6 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include <memory_resource>
 
 ///////////////////////////Image //////////////////
 
@@ -130,7 +129,7 @@ ifm3d::Image::Iterator<T>::operator++()
 }
 
 template <typename T>
-ifm3d::Image::Iterator<T> ifm3d::Image::Iterator<T>::operator++(std::int32_t)
+ifm3d::Image::Iterator<T> ifm3d::Image::Iterator<T>::operator++(int)
 {
   Iterator tmp = *this;
   ++(*this);
@@ -149,7 +148,8 @@ namespace ifm3d
     using data_type = T;
     enum
     {
-      format = ifm3d::pixel_format::FORMAT_8U; nchannel = 1
+      format = static_cast<int>(ifm3d::pixel_format::FORMAT_8U),
+      nchannel = 1
     };
   };
 
@@ -160,7 +160,7 @@ namespace ifm3d
     using data_type = uint8_t;
     enum
     {
-      format = ifm3d::pixel_format::FORMAT_8U,
+      format = static_cast<int>(ifm3d::pixel_format::FORMAT_8U),
       nchannel = 1
     };
   };
@@ -172,7 +172,7 @@ namespace ifm3d
     using data_type = int8_t;
     enum
     {
-      format = ifm3d::pixel_format::FORMAT_8S,
+      format = static_cast<int>(ifm3d::pixel_format::FORMAT_8S),
       nchannel = 1
     };
   };
@@ -184,7 +184,7 @@ namespace ifm3d
     using data_type = uint16_t;
     enum
     {
-      format = ifm3d::pixel_format::FORMAT_16U,
+      format = static_cast<int>(ifm3d::pixel_format::FORMAT_16U),
       nchannel = 1
     };
   };
@@ -196,7 +196,7 @@ namespace ifm3d
     using data_type = uint16_t;
     enum
     {
-      format = ifm3d::pixel_format::FORMAT_16S,
+      format = static_cast<int>(ifm3d::pixel_format::FORMAT_16S),
       nchannel = 1
     };
   };
@@ -208,7 +208,7 @@ namespace ifm3d
     using data_type = uint32_t;
     enum
     {
-      format = ifm3d::pixel_format::FORMAT_32U,
+      format = static_cast<int>(ifm3d::pixel_format::FORMAT_32U),
       nchannel = 1
     };
   };
@@ -220,7 +220,7 @@ namespace ifm3d
     using data_type = int32_t;
     enum
     {
-      format = ifm3d::pixel_format::FORMAT_32S,
+      format = static_cast<int>(ifm3d::pixel_format::FORMAT_32S),
       nchannel = 1
     };
   };
@@ -232,7 +232,7 @@ namespace ifm3d
     using data_type = float;
     enum
     {
-      format = ifm3d::pixel_format::FORMAT_32F,
+      format = static_cast<int>(ifm3d::pixel_format::FORMAT_32F),
       nchannel = 1
     };
   };
@@ -244,7 +244,7 @@ namespace ifm3d
     using data_type = double;
     enum
     {
-      format = ifm3d::pixel_format::FORMAT_64F,
+      format = static_cast<int>(ifm3d::pixel_format::FORMAT_64F),
       nchannel = 1
     };
   };
@@ -256,7 +256,7 @@ namespace ifm3d
     using data_type = uint64_t;
     enum
     {
-      format = ifm3d::pixel_format::FORMAT_64U,
+      format = static_cast<int>(ifm3d::pixel_format::FORMAT_64U),
       nchannel = 1
     };
   };
@@ -320,7 +320,7 @@ ifm3d::Image_<Tp>::create(const std::uint32_t cols, const std::uint32_t rows)
     cols,
     rows,
     static_cast<uint32_t>(ifm3d::FormatType<Tp>::nchannel),
-    static_cast<ifm3d::pixel_format>(ifm3d::FormatType<Tp>::format))
+    static_cast<ifm3d::pixel_format>(ifm3d::FormatType<Tp>::format));
 }
 
 template <typename Tp>
@@ -452,8 +452,8 @@ namespace ifm3d
 
         ifm3d::Image_<FROM> image_from = img;
 
-        if (std::is_convertible<ifm3d::FormatType<FROM>::data_type,
-                                ifm3d::FormatType<TO>::data_type>::value)
+        if (std::is_convertible<typename ifm3d::FormatType<FROM>::data_type,
+                                typename ifm3d::FormatType<TO>::data_type>::value)
           {
             std::transform(img.begin(),
                            img.end(),

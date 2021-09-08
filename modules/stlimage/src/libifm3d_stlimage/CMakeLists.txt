@@ -35,10 +35,6 @@ if(WIN32)
       IFM3D_IMAGE_DLL_BUILD=1)
 endif(WIN32)
 
-target_compile_options(ifm3d_stlimage
-  PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++${CMAKE_CXX_STANDARD}>
-  )
-
 #------------------
 # Linker settings
 #------------------

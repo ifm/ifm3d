@@ -47,8 +47,8 @@ namespace
   }
 
   template <typename T1, typename T2>
-  ifm3d::Image
-  mul(ifm3d::Image img1, ifm3d::Image img2)
+  ifm3d::Image&
+  mul(ifm3d::Image &img1, ifm3d::Image &img2)
   {
     auto it = img2.begin<T2>();
     for (auto& pix_val : ifm3d::IteratorAdapter<T1>(img1))

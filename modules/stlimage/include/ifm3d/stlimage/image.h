@@ -20,8 +20,8 @@ namespace ifm3d
   in sequnetial memory layout and class provides function template to access
   the pixel. Creating an Image object :
 
-  - Use the Create(rows, cols, nchannel, ifm3d::pixel_format ) method or the
-  similar Image(nrows, ncols, nchannel, type) constructor.
+  - Use the Create(cols, rows, nchannel, ifm3d::pixel_format ) method or the
+  similar Image(cols,rows, nchannel, type) constructor.
 
   For example, FORMAT_8U means a 8-bit array, FORMAT_32F floating-point array,
   and so on.
@@ -32,8 +32,7 @@ namespace ifm3d
       // The old content will be deallocated
       image.create(10,10,3,ifm3d::FORMAT_8U);
   @endcode
-  As noted in the introduction to this chapter, create() allocates only a new
-  array when the memory requiremnt changes for new Image
+  note: create() allocates new memory.
 
   - Accessing the pixels
   use at<T>(index) or at<T>(i,j) to access the pixel this return the reference
@@ -71,7 +70,7 @@ namespace ifm3d
      auto pixel = I<Point3D<uint8_t>>(50,50);
 
      //now individual channel values can be access with
-     value.x, value.y , value.z
+     val[0], val[1] , val[2]
    @endcode
 
    -Processing the whole array
@@ -369,11 +368,11 @@ namespace ifm3d
   // user helper types
   using Point3D_16U = Point3D<std::uint16_t>;
   using Point3D_16S = Point3D<std::int16_t>;
-  using Point3D_32F = Point3D<float>;
+  using Point3D_32F = Point3D<std::enable_if<sizeof(float)==4, float>::type>;
 
   using Point4D_16U = Point4D<std::uint16_t>;
   using Point4D_16S = Point4D<std::int16_t>;
-  using Point4D_32F = Point4D<float>;
+  using Point4D_32F = Point4D<std::enable_if<sizeof(float)==4, float>::type>;
 
 } // end: namespace ifm3d
 
