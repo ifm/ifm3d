@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <limits.h>
 
 namespace ifm3d
 {
@@ -134,7 +135,7 @@ namespace ifm3d
           const std::uint32_t nchannel,
           ifm3d::pixel_format format);
 
-    ~Image() = default;
+    virtual ~Image() = default;
 
     // move semantics
     Image(Image&&) = default;
@@ -368,11 +369,13 @@ namespace ifm3d
   // user helper types
   using Point3D_16U = Point3D<std::uint16_t>;
   using Point3D_16S = Point3D<std::int16_t>;
-  using Point3D_32F = Point3D<std::enable_if<sizeof(float)==4, float>::type>;
+  // checking for 32 bit float support
+  static_assert(CHAR_BIT * sizeof(float) == 32, "32 bit float required");
+  using Point3D_32F = Point3D<float>;
 
   using Point4D_16U = Point4D<std::uint16_t>;
   using Point4D_16S = Point4D<std::int16_t>;
-  using Point4D_32F = Point4D<std::enable_if<sizeof(float)==4, float>::type>;
+  using Point4D_32F = Point4D<float>;
 
 } // end: namespace ifm3d
 
