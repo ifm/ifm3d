@@ -37,7 +37,7 @@ namespace ifm3d
     /**
      * RAII deallocations
      */
-    ~StlImageBuffer();
+    virtual ~StlImageBuffer();
 
     // move semantics
     StlImageBuffer(StlImageBuffer&&);
