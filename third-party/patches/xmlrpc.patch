@@ -1,0 +1,96 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9c7d04c..5dce80a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -87,9 +87,9 @@ else(DEFINED MUST_BUILD_CURL_CLIENT)
+   set(tmp)
+ endif(DEFINED MUST_BUILD_CURL_CLIENT)
+ 
+-find_package(CURL ${tmp})
++#find_package(CURL ${tmp})
+ 
+-ensc_set_bool(MUST_BUILD_CURL_CLIENT ${CURL_FOUND} "Set if Curl client transport shall be built")
++ensc_set_bool(MUST_BUILD_CURL_CLIENT 1 "Set if Curl client transport shall be built")
+ set(curl_srcdir ${xmlrpc-c_SOURCE_DIR}/lib/curl_transport)
+ 
+ if(MUST_BUILD_CURL_CLIENT)
+@@ -281,18 +281,18 @@ endif()
+ 
+ enable_testing()
+ 
+-#add_subdirectory(test)
++# add_subdirectory(test)
+ add_subdirectory(lib)
+ 
+ if(ENABLE_EXAMPLES)
+-	add_subdirectory(examples)
++# add_subdirectory(examples)
+ endif(ENABLE_EXAMPLES)
+ 
+ add_subdirectory(include)
+ add_subdirectory(src)
+ 
+ if (BUILD_TOOLS)
+-  add_subdirectory(tools)
++# add_subdirectory(tools)
+ endif()
+ 
+ 
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 231940c..a84f693 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -26,10 +26,10 @@ if(MUST_BUILD_LIBWWW_CLIENT)
+ endif(MUST_BUILD_LIBWWW_CLIENT)
+ 
+ if(MUST_BUILD_CURL_CLIENT)
+-  FIND_PACKAGE(CURL REQUIRED)
+-  include_directories(${CURL_INCLUDE_DIR})
+-  set(client_curl_LIBS ${CURL_LIBRARY})
+-  set(xmlrpc_client_pkgconfig_req libcurl)
++#  FIND_PACKAGE(CURL REQUIRED)
++#  include_directories(${CURL_INCLUDE_DIR})
++#  set(client_curl_LIBS ${CURL_LIBRARY})
++#  set(xmlrpc_client_pkgconfig_req libcurl)
+   list(APPEND transport_SOURCES
+     ${curl_srcdir}/xmlrpc_curl_transport.c
+     ${curl_srcdir}/curltransaction.c
+@@ -72,9 +72,14 @@ add_library(xmlrpc_client SHARED
+   ${xmlrpc-c_SOURCE_DIR}/include/xmlrpc-c/client.h)
+ 
+ if(WIN32)
+-    target_link_libraries(xmlrpc_client xmlrpc ${client_LIBS} wldap32)
++    target_link_libraries(xmlrpc_client
++	PUBLIC	xmlrpc ${client_LIBS} wldap32  
++	PRIVATE $<BUILD_INTERFACE:libcurl>)
++
+ else(WIN32)
+-    target_link_libraries(xmlrpc_client xmlrpc ${client_LIBS})
++    target_link_libraries(xmlrpc_client 
++	PUBLIC xmlrpc ${client_LIBS}
++	PRIVATE $<BUILD_INTERFACE:libcurl>)
+ endif(WIN32)
+ set_target_properties(xmlrpc_client
+   PROPERTIES
+diff --git a/src/cpp/CMakeLists.txt b/src/cpp/CMakeLists.txt
+index 8925d15..072d2fb 100644
+--- a/src/cpp/CMakeLists.txt
++++ b/src/cpp/CMakeLists.txt
+@@ -22,7 +22,7 @@ list(APPEND lib_TARGETS xmlrpc++)
+ ensc_pkgconfig(xmlrpc++)
+ 
+ ####### libxmlrpc_cpp.so
+-add_library(xmlrpc_cpp            SHARED XmlRpcCpp)
++add_library(xmlrpc_cpp            SHARED XmlRpcCpp.cpp)
+ target_link_libraries(xmlrpc_cpp xmlrpc xmlrpc_server xmlrpc_client)
+ list(APPEND lib_TARGETS xmlrpc_cpp)
+ ensc_pkgconfig(xmlrpc_cpp)
+@@ -50,7 +50,7 @@ if(ENABLE_CGI_SERVER)
+ endif(ENABLE_CGI_SERVER)
+ 
+ ####### libxmlrpc_server_pstream++.so
+-add_library(xmlrpc_server_pstream++ SHARED server_pstream.cpp server_pstream_conn)
++add_library(xmlrpc_server_pstream++ SHARED server_pstream.cpp server_pstream_conn.cpp)
+ target_link_libraries(xmlrpc_server_pstream++ xmlrpc_server++ xmlrpc_packetsocket)
+ list(APPEND lib_TARGETS xmlrpc_server_pstream++)
+ ensc_pkgconfig(xmlrpc_server_pstream++)

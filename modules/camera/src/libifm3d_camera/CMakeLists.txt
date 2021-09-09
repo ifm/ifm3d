@@ -2,6 +2,7 @@
 ## Bring in dependent projects
 ################################################
 
+if(NOT BUILD_IN_DEPS)
 # NOTE: The `FindXMLRPC.cmake` file does not respect cross-compilation
 # environments or windows builds. so, we make the assumption the includes are
 # in a standard directory in your sysroot (for cross compiling) or included via
@@ -32,7 +33,13 @@ else()
   set(LIB_xmlrpc_clientxx xmlrpc-c::xmlrpc_client++)
   set(LIB_xmlrpc_client xmlrpc-c::xmlrpc_client)
 endif(NOT WIN32)
-
+else (NOT BUILD_IN_DEPS)
+  set( LIB_glog glog)
+  set(LIB_xmlrpcxx xmlrpc++)
+  set(LIB_xmlrpc xmlrpc)
+  set(LIB_xmlrpc_clientxx xmlrpc_client++)
+  set(LIB_xmlrpc_client xmlrpc_client)
+endif(NOT BUILD_IN_DEPS)
 ################################################
 ## Target: libifm3d_camera.so
 ################################################
@@ -51,6 +58,7 @@ target_include_directories(ifm3d_camera
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${XMLRPC_INCLUDE_DIRS}
+    ${BUILTIN_INCLUDES}
     )
 
 # NOTE: we cannot use the following due to only requiring cmake 3.5
