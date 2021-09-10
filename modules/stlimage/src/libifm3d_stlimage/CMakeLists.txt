@@ -39,6 +39,13 @@ if(WIN32)
       IFM3D_IMAGE_DLL_BUILD=1)
 endif(WIN32)
 
+if(USE_LEGACY_COORDINATES)
+  target_compile_definitions(ifm3d_stlimage 
+    PUBLIC
+      IFM3D_USE_LEGACY_COORDINATES
+  )
+endif()
+
 #------------------
 # Linker settings
 #------------------
