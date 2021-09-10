@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - O3R FW detection
 
+### Changed
+- The conversion of the camera frame is now a compile time option (Use `-DUSE_LEGACY_COORDINATES=ON` to keep the old behaviour)
+
 ## 0.92.0 - 2021-10-22
 ### Added
 - HTTP 407 Proxy authentication required error detection

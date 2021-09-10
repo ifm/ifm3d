@@ -51,6 +51,7 @@ option(BUILD_SHARED_LIBS "Build modules as shared libraries" ON)
 option(BUILD_EXAMPLES "Build the examples" OFF)
 option(BUILD_DOC "Build documentation" OFF)
 option(BUILD_IN_DEPS "download and build dependencies" ON)
+option(USE_LEGACY_COORDINATES "Use the legacy coordinates with swapped axis" OFF)
 
 # Installation root
 set(CPACK_SET_DESTDIR true)
