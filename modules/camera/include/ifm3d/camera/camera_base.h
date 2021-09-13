@@ -152,8 +152,8 @@ namespace ifm3d
       O3X = 2,
       O3R = 3,
     };
-	
-	enum class swu_version : int
+
+    enum class swu_version : int
     {
       SWU_NOT_SUPPORTED = 0,
       SWU_V1 = 1,
@@ -369,8 +369,8 @@ namespace ifm3d
     bool CheckMinimumFirmwareVersion(unsigned int major,
                                      unsigned int minor,
                                      unsigned int patch);
-	
-	/**
+
+    /**
      * Checks the swupdater version supported by device
      *
      * @return sw_version supported by device
