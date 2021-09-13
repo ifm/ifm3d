@@ -12,7 +12,7 @@
 #include <opencv2/core/core.hpp>
 #include <ifm3d/camera.h>
 #include <ifm3d/fg.h>
-#include <ifm3d/opencv.h>
+#include <ifm3d/stlimage.h>
 
 // Pybind must come after ifm3d because the pybind includes
 // set some macros that conflict with the nlohmann json.hpp
@@ -34,7 +34,7 @@ namespace ifm3d
    *
    * Simple wrapper around ifm3d::FrameGrabber with the following additions:
    * - The WaitForFrame function signature is compatible with passing a bound
-   *   ifm3d::OpenCVBuffer object from Python
+   *   ifm3d::StlImageBuffer object from Python
    * - Addition of a Reset method which is used to emulate the .reset()
    *   semantics on the C++ shared_ptr when, for example, changing the imager
    *   mask.
@@ -66,7 +66,7 @@ namespace ifm3d
     /**
      * Passthough to ifm3d::FrameGrabber::WaitForFrame
      */
-    bool WaitForFrame(const ifm3d::OpenCVBuffer::Ptr& buff,
+    bool WaitForFrame(const ifm3d::StlImageBuffer::Ptr& buff,
                       long timeout_millis,
                       bool copy_buff,
                       bool organize);
@@ -77,7 +77,8 @@ namespace ifm3d
      * to force destruction of the object (for the O3X)
      */
     void Reset(ifm3d::CameraBase::Ptr cam,
-               std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK);
+               std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK,
+			   std::uint16_t pcic_port = ifm3d::PCIC_PORT);
 
   private:
     ifm3d::FrameGrabber::Ptr fg_;
@@ -96,7 +97,7 @@ namespace ifm3d
   }
 
   bool
-  FrameGrabberWrapper::WaitForFrame(const ifm3d::OpenCVBuffer::Ptr& buff,
+  FrameGrabberWrapper::WaitForFrame(const ifm3d::StlImageBuffer::Ptr& buff,
                                     long timeout_millis,
                                     bool copy_buff,
                                     bool organize)
@@ -108,11 +109,12 @@ namespace ifm3d
   }
 
   void
-  FrameGrabberWrapper::Reset(ifm3d::CameraBase::Ptr cam, std::uint16_t mask)
+  FrameGrabberWrapper::Reset(ifm3d::CameraBase::Ptr cam, std::uint16_t mask,
+                             const std::uint16_t pcic_port)
   {
     // Two distinct steps (required because O3X only accepts one connection)
     this->fg_.reset();
-    this->fg_ = std::make_shared<ifm3d::FrameGrabber>(cam, mask);
+    this->fg_ = std::make_shared<ifm3d::FrameGrabber>(cam, mask,pcic_port);
   }
 }
 
@@ -234,7 +236,7 @@ PYBIND11_MODULE(ifm3dpy, m)
 
   // clang-format does a poor job handling the alignment of raw strings
   // clang-format off
-  py::class_<ifm3d::OpenCVBuffer, ifm3d::OpenCVBuffer::Ptr>(
+  py::class_<ifm3d::StlImageBuffer, ifm3d::StlImageBuffer::Ptr>(
     m,
     "ImageBuffer",
     R"(
@@ -249,7 +251,7 @@ PYBIND11_MODULE(ifm3dpy, m)
       )")
     .def(
       "extrinsics",
-      &ifm3d::OpenCVBuffer::Extrinsics,
+      &ifm3d::StlImageBuffer::Extrinsics,
       R"(
         Returns a 6-element vector containing the extrinsic
         calibration of the camera. NOTE: This is the extrinsics WRT to the ifm
@@ -264,7 +266,7 @@ PYBIND11_MODULE(ifm3dpy, m)
       )")
     .def(
       "intrinsics",
-      &ifm3d::OpenCVBuffer::Intrinsics,
+      &ifm3d::StlImageBuffer::Intrinsics,
       R"(
         Retrieves the intrinsic calibration of the camera
 
@@ -294,14 +296,14 @@ PYBIND11_MODULE(ifm3dpy, m)
       )")
     .def(
       "inverse_intrinsics",
-      &ifm3d::OpenCVBuffer::InverseIntrinsics,
+      &ifm3d::StlImageBuffer::InverseIntrinsics,
       R"(
         Retrieves the inverse intrinsic calibration of the camera. See the
         documentation for ifm3dpy.intrinsics for details on contents.
       )")
     .def(
       "exposure_times",
-      &ifm3d::OpenCVBuffer::ExposureTimes,
+      &ifm3d::StlImageBuffer::ExposureTimes,
       R"(
         Returns the exposure times for the current frame.
 
@@ -317,7 +319,7 @@ PYBIND11_MODULE(ifm3dpy, m)
       )")
     .def(
       "timestamp",
-      [](const ifm3d::OpenCVBuffer::Ptr& buff)
+      [](const ifm3d::StlImageBuffer::Ptr& buff)
       {
         // The system clock duration type is different on different platforms,
         // which breaks pybind11 type resolution. We must explicitly cast from
@@ -341,7 +343,7 @@ PYBIND11_MODULE(ifm3dpy, m)
       )")
     .def(
       "illu_temp",
-      &ifm3d::OpenCVBuffer::IlluTemp,
+      &ifm3d::StlImageBuffer::IlluTemp,
       R"(
         Returns the temperature of the illumination unit.
 
@@ -355,7 +357,7 @@ PYBIND11_MODULE(ifm3dpy, m)
       )")
     .def(
       "json_model",
-      [](const ifm3d::OpenCVBuffer::Ptr& buff)
+      [](const ifm3d::StlImageBuffer::Ptr& buff)
       {
         // Convert the JSON to a python JSON object using the json module
         py::object json_loads = py::module::import("json").attr("loads");
@@ -377,7 +379,7 @@ PYBIND11_MODULE(ifm3dpy, m)
       )")
     .def(
       "organize",
-      &ifm3d::OpenCVBuffer::Organize,
+      &ifm3d::StlImageBuffer::Organize,
       R"(
         This is the interface hook that synchronizes the internally wrapped
         byte buffer with the semantically meaningful image/cloud data
@@ -396,7 +398,7 @@ PYBIND11_MODULE(ifm3dpy, m)
       )")
     .def(
       "distance_image",
-      [](const ifm3d::OpenCVBuffer::Ptr& buff)
+      [](const ifm3d::StlImageBuffer::Ptr& buff)
       {
         return ifm3d::image_to_array(buff->DistanceImage());
       },
@@ -410,7 +412,7 @@ PYBIND11_MODULE(ifm3dpy, m)
       )")
     .def(
       "unit_vectors",
-      [](const ifm3d::OpenCVBuffer::Ptr& buff)
+      [](const ifm3d::StlImageBuffer::Ptr& buff)
       {
         return ifm3d::image_to_array(buff->UnitVectors());
       },
@@ -424,7 +426,7 @@ PYBIND11_MODULE(ifm3dpy, m)
       )")
     .def(
       "gray_image",
-      [](const ifm3d::OpenCVBuffer::Ptr& buff)
+      [](const ifm3d::StlImageBuffer::Ptr& buff)
       {
         return ifm3d::image_to_array(buff->GrayImage());
       },
@@ -438,7 +440,7 @@ PYBIND11_MODULE(ifm3dpy, m)
       )")
     .def(
       "amplitude_image",
-      [](const ifm3d::OpenCVBuffer::Ptr& buff)
+      [](const ifm3d::StlImageBuffer::Ptr& buff)
       {
         return ifm3d::image_to_array(buff->AmplitudeImage());
       },
@@ -452,7 +454,7 @@ PYBIND11_MODULE(ifm3dpy, m)
       )")
     .def(
       "raw_amplitude_image",
-      [](const ifm3d::OpenCVBuffer::Ptr& buff)
+      [](const ifm3d::StlImageBuffer::Ptr& buff)
       {
         return ifm3d::image_to_array(buff->RawAmplitudeImage());
       },
@@ -466,7 +468,7 @@ PYBIND11_MODULE(ifm3dpy, m)
       )")
     .def(
       "confidence_image",
-      [](const ifm3d::OpenCVBuffer::Ptr& buff)
+      [](const ifm3d::StlImageBuffer::Ptr& buff)
       {
         return ifm3d::image_to_array(buff->ConfidenceImage());
       },
@@ -480,7 +482,7 @@ PYBIND11_MODULE(ifm3dpy, m)
       )")
     .def(
       "xyz_image",
-      [](const ifm3d::OpenCVBuffer::Ptr& buff)
+      [](const ifm3d::StlImageBuffer::Ptr& buff)
       {
         return ifm3d::image_to_array(buff->XYZImage());
       },
@@ -494,7 +496,7 @@ PYBIND11_MODULE(ifm3dpy, m)
       )")
     .def(
       "jpeg_image",
-      [](const ifm3d::OpenCVBuffer::Ptr& buff)
+      [](const ifm3d::StlImageBuffer::Ptr& buff)
       {
         return ifm3d::image_to_array(buff->JPEGImage());
         },
@@ -599,6 +601,7 @@ PYBIND11_MODULE(ifm3dpy, m)
     &ifm3d::FrameGrabberWrapper::Reset,
     py::arg("cam"),
     py::arg("mask") = ifm3d::DEFAULT_SCHEMA_MASK,
+    py::arg("pcic_port") = ifm3d::PCIC_PORT,
     R"(
       Resets the FrameGrabber with a new camera/bitmask
 
@@ -610,6 +613,8 @@ PYBIND11_MODULE(ifm3dpy, m)
       mask : uint16
           A bitmask encoding the image acquisition schema to stream in from
           the camera.
+      pcic_port : uint16
+          The PCIC port
       )");
 
   /**

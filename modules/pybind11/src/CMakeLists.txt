@@ -1,9 +1,10 @@
 ################################################
 ## Setup
 ################################################
-
+if(NOT BUILD_IN_DEPS)
 # Bring in pybind11, including cmake macros and variables
 find_package(pybind11 REQUIRED)
+endif()
 
 # Query the selected interpreter for the installation path, or use the override
 if(DEFINED PYTHON_PACKAGES_PATH)
@@ -47,8 +48,7 @@ target_include_directories(ifm3dpy
     $<BUILD_INTERFACE:${IFM3D_FG_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
-    ${IFM3D_SOURCE_DIR}/modules/opencv/include
-    ${OpenCV_INCLUDE_DIRS}
+    $<BUILD_INTERFACE:${IFM3D_STLIMAGE_SOURCE_DIR}/include>
     ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
@@ -60,7 +60,7 @@ target_link_libraries(
   PRIVATE
     ifm3d_framegrabber
     ifm3d_camera
-    ${OpenCV_LIBRARIES}
+    ifm3d_stlimage
     pybind11::module
   )
 
