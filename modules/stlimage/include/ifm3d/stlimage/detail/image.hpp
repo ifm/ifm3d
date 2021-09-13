@@ -129,7 +129,8 @@ ifm3d::Image::Iterator<T>::operator++()
 }
 
 template <typename T>
-ifm3d::Image::Iterator<T> ifm3d::Image::Iterator<T>::operator++(int)
+ifm3d::Image::Iterator<T>
+ifm3d::Image::Iterator<T>::operator++(int)
 {
   Iterator tmp = *this;
   ++(*this);
@@ -452,8 +453,9 @@ namespace ifm3d
 
         ifm3d::Image_<FROM> image_from = img;
 
-        if (std::is_convertible<typename ifm3d::FormatType<FROM>::data_type,
-                                typename ifm3d::FormatType<TO>::data_type>::value)
+        if (std::is_convertible<
+              typename ifm3d::FormatType<FROM>::data_type,
+              typename ifm3d::FormatType<TO>::data_type>::value)
           {
             std::transform(img.begin(),
                            img.end(),

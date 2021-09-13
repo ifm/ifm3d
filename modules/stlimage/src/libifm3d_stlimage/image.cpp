@@ -37,11 +37,9 @@ namespace ifm3d
     size_t size_;
 
   public:
+    ImageAllocator() : data_(nullptr), size_(0) {}
 
-    ImageAllocator() : data_(nullptr), size_(0)
-    {}
-
-   ~ImageAllocator()
+    ~ImageAllocator()
     {
       if (data_ != nullptr)
         {
