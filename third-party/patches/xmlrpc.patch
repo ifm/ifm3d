@@ -1,8 +1,22 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 9c7d04c..5dce80a 100644
+index 9c7d04c..06ff6e5 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -87,9 +87,9 @@ else(DEFINED MUST_BUILD_CURL_CLIENT)
+@@ -75,11 +75,10 @@ if(WIN32)
+     set(MUST_BUILD_CLIENT 1)
+   endif(DEFINED MUST_BUILD_WININET_CLIENT)
+   set(MSVCRT yes)
++else()
++   ensc_set_bool(MUST_BUILD_WININET_CLIENT 0 "Set to 0 as not needed on unix systems")
+ endif(WIN32)
+-
+-
+ set(wininet_srcdir ${xmlrpc-c_SOURCE_DIR}/lib/wininet_transport)
+-
+ ###########
+ if(DEFINED MUST_BUILD_CURL_CLIENT)
+   set(tmp REQUIRED)
+@@ -87,9 +86,9 @@ else(DEFINED MUST_BUILD_CURL_CLIENT)
    set(tmp)
  endif(DEFINED MUST_BUILD_CURL_CLIENT)
  
@@ -14,7 +28,7 @@ index 9c7d04c..5dce80a 100644
  set(curl_srcdir ${xmlrpc-c_SOURCE_DIR}/lib/curl_transport)
  
  if(MUST_BUILD_CURL_CLIENT)
-@@ -281,18 +281,18 @@ endif()
+@@ -281,18 +280,18 @@ endif()
  
  enable_testing()
  
@@ -36,8 +50,32 @@ index 9c7d04c..5dce80a 100644
  endif()
  
  
+diff --git a/lib/expat/xmlparse/CMakeLists.txt b/lib/expat/xmlparse/CMakeLists.txt
+index f87008a..66cb5a4 100644
+--- a/lib/expat/xmlparse/CMakeLists.txt
++++ b/lib/expat/xmlparse/CMakeLists.txt
+@@ -3,5 +3,5 @@
+ add_library(xmlrpc_xmlparse STATIC
+   xmlparse.c)
+ target_link_libraries(xmlrpc_xmlparse xmlrpc_xmltok)
+-
++set_property(TARGET xmlrpc_xmlparse PROPERTY POSITION_INDEPENDENT_CODE 1)
+ ensc_pkgconfig(xmlrpc_xmlparse)
+diff --git a/lib/expat/xmltok/CMakeLists.txt b/lib/expat/xmltok/CMakeLists.txt
+index a584249..74c21d2 100644
+--- a/lib/expat/xmltok/CMakeLists.txt
++++ b/lib/expat/xmltok/CMakeLists.txt
+@@ -8,7 +8,7 @@ add_definitions(-DXML_BYTE_ORDER=0)
+ add_library(xmlrpc_xmltok STATIC
+   xmltok.c xmlrole.c
+   ${CMAKE_CURRENT_BINARY_DIR}/nametab.h)
+-
++set_property(TARGET xmlrpc_xmltok PROPERTY POSITION_INDEPENDENT_CODE 1)
+ set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/nametab.h
+   PROPERTIES
+   OBJECT_DEPENDS gennmtab
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 231940c..a84f693 100644
+index 231940c..cbb2a04 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
 @@ -26,10 +26,10 @@ if(MUST_BUILD_LIBWWW_CLIENT)
@@ -61,12 +99,12 @@ index 231940c..a84f693 100644
  if(WIN32)
 -    target_link_libraries(xmlrpc_client xmlrpc ${client_LIBS} wldap32)
 +    target_link_libraries(xmlrpc_client
-+	PUBLIC	xmlrpc ${client_LIBS} wldap32  
++	PUBLIC	xmlrpc ${client_LIBS} wldap32
 +	PRIVATE $<BUILD_INTERFACE:libcurl>)
 +
  else(WIN32)
 -    target_link_libraries(xmlrpc_client xmlrpc ${client_LIBS})
-+    target_link_libraries(xmlrpc_client 
++    target_link_libraries(xmlrpc_client
 +	PUBLIC xmlrpc ${client_LIBS}
 +	PRIVATE $<BUILD_INTERFACE:libcurl>)
  endif(WIN32)
