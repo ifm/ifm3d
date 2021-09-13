@@ -53,7 +53,7 @@ target_link_libraries(
     ifm3d_camera
     ${LIB_glog}
     ${CURL_LIBRARIES}
-	asio
+	 $<BUILD_INTERFACE:asio>
     $<BUILD_INTERFACE:websocketpp_wrapper>
     )
 
