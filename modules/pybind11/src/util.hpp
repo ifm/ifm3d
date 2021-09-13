@@ -7,7 +7,7 @@
 #define IFM3D_PY_UTIL_HPP
 
 #include <stdexcept>
-#include <opencv2/core/core.hpp>
+#include <ifm3d/stlimage/image.h>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -18,37 +18,37 @@ namespace ifm3d
 {
   template <typename T>
   py::array_t<T>
-  image_to_array_2d(const cv::Mat& img)
+  image_to_array_2d(const ifm3d::Image& img)
   {
-    // Alloc a new cv::Mat_<T> and tie its lifecycle to the Python object
+    // Alloc a new ifm3d::Image_<T> and tie its lifecycle to the Python object
     // via a capsule. The resulting numpy.ndarray will not own the memory, but
     // the memory will remain valid for the lifecycle of the object.
-    auto mat = new cv::Mat_<T>(img);
+    auto mat = new ifm3d::Image_<T>(img);
     auto capsule = py::capsule(mat, [](void* m) {
-      delete reinterpret_cast<cv::Mat_<cv::Vec<T, 3>>*>(m);
+      delete reinterpret_cast<ifm3d::Image_<T>*>(m);
     });
 
-    return py::array_t<T>({mat->rows, mat->cols},
-                          {sizeof(T) * mat->cols, sizeof(T)},
+    return py::array_t<T>({mat->height(), mat->width()},
+                          {sizeof(T) * mat->width(), sizeof(T)},
                           reinterpret_cast<T*>(mat->ptr(0)),
                           capsule);
   }
 
   template <typename T>
   py::array_t<T>
-  image_to_array_nd(const cv::Mat& cld)
+  image_to_array_nd(const ifm3d::Image& cld)
   {
-    // Alloc a new cv::Mat_<T> and tie its lifecycle to the Python object
+    // Alloc a new ifm3d::Image_<T> and tie its lifecycle to the Python object
     // via a capsule. The resulting numpy.ndarray will not own the memory, but
     // the memory will remain valid for the lifecycle of the object.
-    auto mat = new cv::Mat_<cv::Vec<T, 3>>(cld);
+    auto mat = new ifm3d::Image_<ifm3d::Point3D<T>>(cld);
     auto capsule = py::capsule(mat, [](void* m) {
-      delete reinterpret_cast<cv::Mat_<cv::Vec<T, 3>>*>(m);
+      delete reinterpret_cast<ifm3d::Image_<ifm3d::Point3D<T>>*>(m);
     });
 
-    return py::array_t<T>({mat->rows, mat->cols, mat->channels()},
-                          {sizeof(T) * mat->channels() * mat->cols,
-                           sizeof(T) * mat->channels(),
+    return py::array_t<T>({mat->height(), mat->width(), mat->nchannels()},
+                          {sizeof(T) * mat->nchannels() * mat->width(),
+                           sizeof(T) * mat->nchannels(),
                            sizeof(T)},
                           reinterpret_cast<T*>(mat->ptr(0)),
                           capsule);
@@ -56,9 +56,9 @@ namespace ifm3d
 
   template <typename T>
   py::array_t<T>
-  image_to_array_(const cv::Mat& img)
+  image_to_array_(const ifm3d::Image& img)
   {
-    if (img.channels() > 1)
+    if (img.nchannels() > 1)
       {
         return image_to_array_nd<T>(img);
       }
@@ -69,33 +69,33 @@ namespace ifm3d
   }
 
   py::array
-  image_to_array(const cv::Mat& img)
+  image_to_array(const ifm3d::Image& img)
   {
-    switch (img.depth())
+    switch (img.dataFormat())
       {
-      case CV_8U:
+      case ifm3d::pixel_format::FORMAT_8U:
         return image_to_array_<std::uint8_t>(img);
         break;
-      case CV_8S:
+      case ifm3d::pixel_format::FORMAT_8S:
         return image_to_array_<std::int8_t>(img);
         break;
-      case CV_16U:
+      case ifm3d::pixel_format::FORMAT_16U:
         return image_to_array_<std::uint16_t>(img);
         break;
-      case CV_16S:
+      case ifm3d::pixel_format::FORMAT_16S:
         return image_to_array_<std::int16_t>(img);
         break;
-      case CV_32S:
+      case ifm3d::pixel_format::FORMAT_32S:
         return image_to_array_<std::int32_t>(img);
         break;
-      case CV_32F:
+      case ifm3d::pixel_format::FORMAT_32F:
         return image_to_array_<float>(img);
         break;
-      case CV_64F:
+      case ifm3d::pixel_format::FORMAT_64F:
         return image_to_array_<double>(img);
         break;
       default:
-        throw std::runtime_error("Unsupported CV type: " + img.type());
+        throw std::runtime_error("Unsupported ifm3d::image type");
       }
   }
 }
