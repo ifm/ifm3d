@@ -28,7 +28,7 @@ if (BUILD_MODULE_SWUPDATER)
     ${IFM3D_TOOLS_SOURCES} ${IFM3D_TOOLS_SWUPDATER_SOURCES}
     )
 endif()
-add_library(ifm3d_tools_shared SHARED ${IFM3D_TOOLS_SOURCES})
+add_library(ifm3d_tools_shared ${IFM3D_TOOLS_SOURCES})
 
 #------------------
 # Compiler settings
