@@ -236,7 +236,7 @@ namespace ifm3d
     /**
      * RAII dealloc
      */
-    ~ByteBuffer();
+    virtual ~ByteBuffer();
 
     // move semantics
     ByteBuffer(ByteBuffer&&);
