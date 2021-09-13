@@ -64,26 +64,24 @@ index e4cc66a..9d01643 100644
  
  if(ENABLE_ABYSS_THREADS)
 diff --git a/lib/expat/xmlparse/CMakeLists.txt b/lib/expat/xmlparse/CMakeLists.txt
-index f87008a..66cb5a4 100644
+index f87008a..4c8a57f 100644
 --- a/lib/expat/xmlparse/CMakeLists.txt
 +++ b/lib/expat/xmlparse/CMakeLists.txt
-@@ -3,5 +3,5 @@
+@@ -3,5 +3,4 @@
  add_library(xmlrpc_xmlparse STATIC
    xmlparse.c)
  target_link_libraries(xmlrpc_xmlparse xmlrpc_xmltok)
 -
-+set_property(TARGET xmlrpc_xmlparse PROPERTY POSITION_INDEPENDENT_CODE 1)
  ensc_pkgconfig(xmlrpc_xmlparse)
 diff --git a/lib/expat/xmltok/CMakeLists.txt b/lib/expat/xmltok/CMakeLists.txt
-index a584249..74c21d2 100644
+index a584249..8e73c13 100644
 --- a/lib/expat/xmltok/CMakeLists.txt
 +++ b/lib/expat/xmltok/CMakeLists.txt
-@@ -8,7 +8,7 @@ add_definitions(-DXML_BYTE_ORDER=0)
+@@ -8,7 +8,6 @@ add_definitions(-DXML_BYTE_ORDER=0)
  add_library(xmlrpc_xmltok STATIC
    xmltok.c xmlrole.c
    ${CMAKE_CURRENT_BINARY_DIR}/nametab.h)
 -
-+set_property(TARGET xmlrpc_xmltok PROPERTY POSITION_INDEPENDENT_CODE 1)
  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/nametab.h
    PROPERTIES
    OBJECT_DEPENDS gennmtab
