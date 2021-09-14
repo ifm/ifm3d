@@ -23,7 +23,7 @@ namespace ifm3d
     using temporal_filter = ifm3d::CameraBase::temporal_filter;
     using mfilt_mask_size = ifm3d::CameraBase::mfilt_mask_size;
     using device_family = ifm3d::CameraBase::device_family;
-	
+
     /**
      * Factory function for instantiating the proper subclass based on h/w
      * probing.

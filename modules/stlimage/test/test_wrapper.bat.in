@@ -1,0 +1,2 @@
+set PATH=@CMAKE_BINARY_DIR@\gtest_bin\@CMAKE_BUILD_TYPE@;@IFM3D_CAMERA_BINARY_DIR@\src\libifm3d_camera\@CMAKE_BUILD_TYPE@;@IFM3D_FG_BINARY_DIR@\src\libifm3d_framegrabber\@CMAKE_BUILD_TYPE@;@IFM3D_STLIMAGE_BINARY_DIR@\src\libifm3d_stlimage\@CMAKE_BUILD_TYPE@;@CMAKE_INSTALL_PREFIX@\bin;%PATH%
+call @CMAKE_BUILD_TYPE@\ifm3d-stlimage-tests.exe

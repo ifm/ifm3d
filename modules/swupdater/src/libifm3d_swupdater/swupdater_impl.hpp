@@ -55,6 +55,7 @@ namespace ifm3d
     bool WaitForProductive(long timeout_millis);
     virtual bool FlashFirmware(const std::vector<std::uint8_t>& bytes,
                                long timeout_millis);
+
   protected:
     ifm3d::CameraBase::Ptr cam_;
     ifm3d::SWUpdater::FlashStatusCb cb_;
