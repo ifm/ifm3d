@@ -106,6 +106,13 @@ ifm3d::StlImageBuffer::XYZImage()
   return this->pImpl->XYZImage();
 }
 
+ifm3d::Image
+ifm3d::StlImageBuffer::JPEGImage()
+{
+  this->Organize();
+  return this->pImpl->JPEGImage();
+}
+
 void
 ifm3d::StlImageBuffer::_ImCreate(ifm3d::image_chunk im,
                                  std::uint32_t fmt,
