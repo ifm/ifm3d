@@ -9,7 +9,6 @@
 #include <string>
 #include <chrono>
 
-#include <opencv2/core/core.hpp>
 #include <ifm3d/camera.h>
 #include <ifm3d/fg.h>
 #include <ifm3d/stlimage.h>
