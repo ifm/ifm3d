@@ -91,6 +91,7 @@ class CMakeBuild(build_ext):
                       '-DBUILD_TESTS=OFF',
                       '-DBUILD_SHARED_LIBS=OFF',
                       '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
+                      '-DPYTHON_ARCHIVE_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_EXECUTABLE=' + sys.executable]
 
         cfg = 'Debug' if self.debug else 'Release'
@@ -100,19 +101,9 @@ class CMakeBuild(build_ext):
             cmake_args += [
                 '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
 
-            cmake_args += ['-DBoost_USE_STATIC_LIBS=ON']
-
             if 'IFM3D_BUILD_DIR' in os.environ:
                 cmake_args += ['-DCMAKE_PREFIX_PATH=' +
                                os.environ['IFM3D_BUILD_DIR'].replace('"', '') + '\\install']
-
-            if 'IFM3D_BOOST_ROOT' in os.environ:
-                cmake_args += ['-DBOOST_ROOT=' +
-                               os.environ['IFM3D_BOOST_ROOT'].replace('"', '')]
-
-            if 'IFM3D_OPENCV_PATH' in os.environ:
-                cmake_args += ['-DOpenCV_DIR=' +
-                               os.environ['IFM3D_OPENCV_PATH'].replace('"', '')]
 
             # If a generator was specified, use it. Otherwise use the machine's
             # architecture and the default generator.
@@ -141,8 +132,8 @@ class CMakeBuild(build_ext):
 setup(
     name='ifm3dpy',
     version=get_version_from_git(),
-    author='Sean Kelly',
-    author_email='Sean.Kelly@ifm.com',
+    author='ifm Robotics Perception',
+    author_email='support.robotics@ifm.com',
     description='Library for working with ifm pmd-based 3D ToF Cameras',
     url='https://github.com/ifm/ifm3d',
     license='Apache 2.0',
