@@ -39,6 +39,7 @@ namespace ifm3d
     ifm3d::Image RawAmplitudeImage();
     ifm3d::Image ConfidenceImage();
     ifm3d::Image XYZImage();
+    ifm3d::Image JPEGImage();
 
     void ImCreate(ifm3d::image_chunk im,
                   std::uint32_t fmt,
@@ -66,6 +67,7 @@ namespace ifm3d
     ifm3d::Image ramp_;
     ifm3d::Image conf_;
     ifm3d::Image xyz_;
+    ifm3d::Image jpeg_;
     ifm3d::Image bad_; // mask of bad pixels
 
     template <typename T>
@@ -248,6 +250,12 @@ ifm3d::StlImageBuffer::Impl::XYZImage()
   return this->xyz_;
 }
 
+ifm3d::Image
+ifm3d::StlImageBuffer::Impl::JPEGImage()
+{
+  return this->jpeg_;
+}
+
 void
 ifm3d::StlImageBuffer::Impl::ImCreate(ifm3d::image_chunk im,
                                       std::uint32_t fmt,
@@ -284,6 +292,13 @@ ifm3d::StlImageBuffer::Impl::ImCreate(ifm3d::image_chunk im,
     case ifm3d::image_chunk::GRAY:
       image = &this->gray_;
       break;
+
+    case ifm3d::image_chunk::JPEG:
+      this->jpeg_ = ifm3d::Image(1,npts,1, ifm3d::pixel_format::FORMAT_8U);
+      std::memcpy((void*)this->jpeg_.ptr(0),
+                  (void*)(bytes.data() + idx),
+                  static_cast<int>(npts));
+      return;
 
     default:
       return;

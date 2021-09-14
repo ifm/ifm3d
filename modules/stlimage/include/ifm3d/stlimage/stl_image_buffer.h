@@ -84,6 +84,12 @@ namespace ifm3d
      */
     ifm3d::Image XYZImage();
 
+    /**
+     * Accessor for the jpeg encoded 2D image
+     *
+     */
+    ifm3d::Image JPEGImage();
+
   protected:
     /**
      * Hook called by the base class to populate the image containers.
