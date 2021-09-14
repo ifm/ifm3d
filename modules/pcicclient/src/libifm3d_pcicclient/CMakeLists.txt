@@ -2,13 +2,16 @@
 ## Dependent projects
 ################################################
 find_package(Threads REQUIRED)
+if(NOT BUILD_IN_DEPS)
 find_package(glog QUIET CONFIG NAMES google-glog glog)
-if(NOT TARGET glog::glog)
+if (NOT TARGET glog::glog)
   find_library(LIB_glog NAMES glog)
 else()
   set(LIB_glog glog::glog)
-endif(NOT TARGET glog::glog)
-
+endif (NOT TARGET glog::glog)
+else()
+set( LIB_glog glog)
+endif(NOT BUILD_IN_DEPS)
 
 ################################################
 ## Target: libifm3d_pcicclient.so
@@ -51,7 +54,7 @@ target_link_libraries(
     ifm3d_camera
     ${LIB_glog}
     Threads::Threads
-    asio
+    $<BUILD_INTERFACE:asio>
   )
 
 set_target_properties(ifm3d_pcicclient PROPERTIES
