@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 9c7d04c..06ff6e5 100644
+index 9c7d04c..7067b56 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -75,11 +75,10 @@ if(WIN32)
@@ -28,7 +28,22 @@ index 9c7d04c..06ff6e5 100644
  set(curl_srcdir ${xmlrpc-c_SOURCE_DIR}/lib/curl_transport)
  
  if(MUST_BUILD_CURL_CLIENT)
-@@ -281,18 +280,18 @@ endif()
+@@ -166,6 +165,8 @@ set(HAVE_WCHAR_H_DEFINE ${HAVE_WCHAR_H})
+ 
+ 
+ #######
++#to fix build on arm64v8
++add_definitions("-fsigned-char")
+ 
+ if(WIN32)
+ 	set(LINKER_AS_NEEDED  0 CACHE BOOL "Use the --as-needed linker option")
+@@ -276,23 +277,23 @@ set(includedir "${prefix}/include")
+ 
+ if(NOT WIN32)
+   # This shell script is not useful on Windows
+-  install(PROGRAMS xmlrpc-c-config DESTINATION ${_bin})
++  #install(PROGRAMS xmlrpc-c-config DESTINATION ${_bin})
+ endif()
  
  enable_testing()
  
