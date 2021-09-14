@@ -33,6 +33,7 @@ const int IFM3D_CURL_ERROR = -1000020;
 const int IFM3D_CURL_TIMEOUT = -1000021;
 const int IFM3D_CURL_ABORTED = -1000022;
 const int IFM3D_SWUPDATE_BAD_STATE = -1000023;
+const int IFM3D_CONFIDENCE_IMAGE_FORMAT_NOT_SUPPORTED = -1000024;
 
 // sensor errors
 const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
@@ -116,6 +117,8 @@ ifm3d::strerror(int errnum)
     case IFM3D_SWUPDATE_BAD_STATE:
       return "Lib: SWUpdater process on camera is in invalid state. Reboot "
              "the camera and try again.";
+    case IFM3D_CONFIDENCE_IMAGE_FORMAT_NOT_SUPPORTED:
+      return "Confidence image format not supported by ifm3d";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
       return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:

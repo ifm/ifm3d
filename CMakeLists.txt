@@ -40,6 +40,7 @@ option(BUILD_MODULE_FRAMEGRABBER "Build the framegrabber module" ON)
 option(BUILD_MODULE_SWUPDATER "Build the swupdater module" ON)
 option(BUILD_MODULE_IMAGE "Build the image module" ON)
 option(BUILD_MODULE_OPENCV "Build the OpenCV-only image container" OFF)
+option(BUILD_MODULE_STLIMAGE "Build the stl image module" ON)
 option(BUILD_MODULE_PCICCLIENT "Build the pcicclient module" OFF)
 option(BUILD_MODULE_TOOLS "Build the tools module" ON)
 option(BUILD_MODULE_PYBIND11 "Build the python bindings module" OFF)
@@ -142,6 +143,14 @@ endif()
 if(BUILD_O3R_EXAMPLES)
   add_definitions(-DBUILD_O3R_EXAMPLES=OFF)
   add_subdirectory(examples/o3r)
+if(BUILD_MODULE_STLIMAGE)
+  # `stlimage`  like image relies on `framegrabber`, in the event the user
+  # explicitly disabled the `framegrabber` but not `image`
+  # we are going to let the compiler convey the message (for now) instead of
+  # doing some implicit CMake stuff that will be hard to maintain and
+  # confuse the end-user.
+  add_definitions(-DBUILD_MODULE_STLIMAGE=ON)
+  add_subdirectory(modules/stlimage)
 endif()
 
 ################################################
