@@ -37,7 +37,7 @@ FetchContent_Declare(
   CMAKE_CACHE_ARGS -Curl_DIR:PATH=${bin_dir}
   CMAKE_ARGS -DCMAKE_PREFIX_PATH=${bin_dir} -DCMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH}
   SOURCE_DIR "${CMAKE_SOURCE_DIR}/third-party/downloads/xmlrpc-c"
-  PATCH_COMMAND git apply  ${CMAKE_CURRENT_SOURCE_DIR}/patches/xmlrpc.patch
+  PATCH_COMMAND git apply  --ignore-space-change --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/patches/xmlrpc.patch
 )
 
 FetchContent_Populate(xmlrpc-c )
