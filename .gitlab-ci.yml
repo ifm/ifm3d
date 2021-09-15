@@ -25,6 +25,24 @@ build:windows_2019:
       when: never
     - when: on_success
 
+build:windows_2019:python_wheel:
+  stage: build
+  variables:
+    IFM3D_CMAKE_GENERATOR : "Visual Studio 16 2019"
+    IFM3D_BUILD_DIR : D:/ifm3d_deps
+    IFM3D_INSTALL_DIR : D:/ifm3d_deps/install
+    CONFIG : Release
+  tags:
+    - ifm3d_windows
+  script:
+    - python setup.py bdist_wheel
+  artifacts:
+    paths:
+      - dist/*.whl
+    expire_in: 1 week
+
+
+
 # Run unit test
 test:windows_2019:
   stage: test
