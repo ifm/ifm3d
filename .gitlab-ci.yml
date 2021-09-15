@@ -16,6 +16,24 @@ build:windows_2019:
     - 'cmake.exe -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=D:/ifm3d_deps/install_VS2019 -DBUILD_TESTS=ON -DCMAKE_PREFIX_PATH="D:/ifm3d_deps/install_VS2019;D:/ifm3d_deps/install_VS2019/PCL 1.12.0" -DGTEST_CMAKE_DIR=D:/ifm3d_deps/googletest/googletest -Dgtest_force_shared_crt=TRUE ..'
     - 'cmake.exe --build . --config Release --target ALL_BUILD'
 
+build:windows_2019:python_wheel:
+  stage: build
+  variables:
+    IFM3D_CMAKE_GENERATOR : "Visual Studio 16 2019"
+    IFM3D_BUILD_DIR : D:/ifm3d_deps
+    IFM3D_INSTALL_DIR : D:/ifm3d_deps/install
+    CONFIG : Release
+  tags:
+    - ifm3d_windows
+  script:
+    - python setup.py bdist_wheel
+  artifacts:
+    paths:
+      - dist/*.whl
+    expire_in: 1 week
+
+
+
 # Run unit test
 test:windows_2019:
   stage: test
