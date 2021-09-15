@@ -3,36 +3,36 @@
 ################################################
 
 if(NOT BUILD_IN_DEPS)
-# NOTE: The `FindXMLRPC.cmake` file does not respect cross-compilation
-# environments or windows builds. so, we make the assumption the includes are
-# in a standard directory in your sysroot (for cross compiling) or included via
-# a custom xmlrpc-c library on Windows (See Windows build instructions).
-if (NOT WIN32 AND NOT CMAKE_CROSSCOMPILING)
-  find_package(XMLRPC REQUIRED c++ client)
-endif()
+  # NOTE: The `FindXMLRPC.cmake` file does not respect cross-compilation
+  # environments or windows builds. so, we make the assumption the includes are
+  # in a standard directory in your sysroot (for cross compiling) or included via
+  # a custom xmlrpc-c library on Windows (See Windows build instructions).
+  if (NOT WIN32 AND NOT CMAKE_CROSSCOMPILING)
+    find_package(XMLRPC REQUIRED c++ client)
+  endif()
 
-find_package(glog QUIET CONFIG NAMES google-glog glog)
-if (NOT TARGET glog::glog)
-  find_library(LIB_glog NAMES glog)
-else()
-  set(LIB_glog glog::glog)
-endif (NOT TARGET glog::glog)
+  find_package(glog QUIET CONFIG NAMES google-glog glog)
+  if (NOT TARGET glog::glog)
+    find_library(LIB_glog NAMES glog)
+  else()
+    set(LIB_glog glog::glog)
+  endif (NOT TARGET glog::glog)
 
-if(NOT WIN32)
-    find_library(LIB_xmlrpcxx NAMES xmlrpc++)
-    find_library(LIB_xmlrpc NAMES xmlrpc)
-    find_library(LIB_xmlrpc_clientxx NAMES xmlrpc_client++)
-    find_library(LIB_xmlrpc_client NAMES xmlrpc_client)
-else()
-  find_package(
-    xmlrpc-c CONFIG
-    REQUIRED COMPONENTS xmlrpc xmlrpc_client xmlrpc++ xmlrpc_client++
-    )
-  set(LIB_xmlrpcxx xmlrpc-c::xmlrpc++)
-  set(LIB_xmlrpc xmlrpc-c::xmlrpc)
-  set(LIB_xmlrpc_clientxx xmlrpc-c::xmlrpc_client++)
-  set(LIB_xmlrpc_client xmlrpc-c::xmlrpc_client)
-endif(NOT WIN32)
+  if(NOT WIN32)
+	find_library(LIB_xmlrpcxx NAMES xmlrpc++)
+	find_library(LIB_xmlrpc NAMES xmlrpc)
+	find_library(LIB_xmlrpc_clientxx NAMES xmlrpc_client++)
+	find_library(LIB_xmlrpc_client NAMES xmlrpc_client)
+  else()
+    find_package(
+	  xmlrpc-c CONFIG
+	  REQUIRED COMPONENTS xmlrpc xmlrpc_client xmlrpc++ xmlrpc_client++
+	)
+    set(LIB_xmlrpcxx xmlrpc-c::xmlrpc++)
+    set(LIB_xmlrpc xmlrpc-c::xmlrpc)
+    set(LIB_xmlrpc_clientxx xmlrpc-c::xmlrpc_client++)
+    set(LIB_xmlrpc_client xmlrpc-c::xmlrpc_client)
+ endif(NOT WIN32)
 else (NOT BUILD_IN_DEPS)
   set( LIB_glog glog)
   set(LIB_xmlrpcxx xmlrpc++)

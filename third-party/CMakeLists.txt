@@ -34,10 +34,8 @@ FetchContent_Declare(
   GIT_TAG "f344566524281de5e6bfa2bb389e6b4038543944"
   GIT_PROGRESS ON
   GIT_SHALLOW ON
-  CMAKE_CACHE_ARGS -Curl_DIR:PATH=${bin_dir}
-  CMAKE_ARGS -DCMAKE_PREFIX_PATH=${bin_dir} -DCMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH}
   SOURCE_DIR "${CMAKE_SOURCE_DIR}/third-party/downloads/xmlrpc-c"
-  PATCH_COMMAND git apply  ${CMAKE_CURRENT_SOURCE_DIR}/patches/xmlrpc.patch
+  PATCH_COMMAND git apply  --ignore-space-change --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/patches/xmlrpc.patch
 )
 
 FetchContent_Populate(xmlrpc-c )
@@ -56,7 +54,6 @@ FetchContent_Declare(
   GIT_SHALLOW TRUE
   GIT_PROGRESS TRUE
   SOURCE_DIR "${CMAKE_SOURCE_DIR}/third-party/downloads/glog"
-  CMAKE_ARGS -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
 )
 
 FetchContent_Populate(glog)
