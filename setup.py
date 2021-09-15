@@ -90,6 +90,7 @@ class CMakeBuild(build_ext):
                       '-DBUILD_MODULE_PYBIND11=ON',
                       '-DBUILD_TESTS=OFF',
                       '-DBUILD_SHARED_LIBS=OFF',
+                      '-DCMAKE_USE_OPENSSL=OFF',
                       '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_ARCHIVE_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_EXECUTABLE=' + sys.executable]
