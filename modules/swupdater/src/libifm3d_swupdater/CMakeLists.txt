@@ -3,16 +3,16 @@
 ################################################
 
 if(NOT BUILD_IN_DEPS)
-find_package(glog QUIET CONFIG NAMES google-glog glog)
-if (NOT TARGET glog::glog)
-  find_library(LIB_glog NAMES glog)
-else()
-  set(LIB_glog glog::glog)
-endif (NOT TARGET glog::glog)
-find_package(CURL REQUIRED)
-else()
-set(CURL_LIBRARIES libcurl)
-set( LIB_glog glog)
+  find_package(glog QUIET CONFIG NAMES google-glog glog)
+  if (NOT TARGET glog::glog)
+    find_library(LIB_glog NAMES glog)
+  else()
+    set(LIB_glog glog::glog)
+  endif (NOT TARGET glog::glog)
+  find_package(CURL REQUIRED)
+else(NOT BUILD_IN_DEPS)
+  set(CURL_LIBRARIES libcurl)
+  set(LIB_glog glog)
 endif(NOT BUILD_IN_DEPS)
 ################################################
 ## Target: libifm3d_swupdater.so
