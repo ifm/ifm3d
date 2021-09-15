@@ -14,7 +14,6 @@ build:windows_2019:
     HTTP_PROXY: ${CI_HTTP_PROXY}
     HTTPS_PROXY: ${CI_HTTPS_PROXY}
     NO_PROXY: ${CI_NO_PROXY}
-
   script:
     - mkdir build
     - cd build
@@ -27,19 +26,31 @@ build:windows_2019:
 
 build:windows_2019:python_wheel:
   stage: build
+  parallel:
+    matrix:
+      - PYTHON_VERSION: 
+        - "3.7.9"
+        - "3.8.10"
+        - "3.9.7"
   variables:
     IFM3D_CMAKE_GENERATOR : "Visual Studio 16 2019"
     IFM3D_BUILD_DIR : D:/ifm3d_deps
     IFM3D_INSTALL_DIR : D:/ifm3d_deps/install
     CONFIG : Release
+    HTTP_PROXY: ${CI_HTTP_PROXY}
+    HTTPS_PROXY: ${CI_HTTPS_PROXY}
+    NO_PROXY: ${CI_NO_PROXY}
   tags:
     - ifm3d_windows
   script:
-    - python setup.py bdist_wheel
+    - |
+      & D:/ifm3d_deps/python/python.${env:PYTHON_VERSION}/tools/python.exe -m pip wheel ${CI_PROJECT_DIR} --no-deps -w ${CI_PROJECT_DIR}\wheelhouse/
   artifacts:
     paths:
-      - dist/*.whl
+      - wheelhouse/*.whl
     expire_in: 1 week
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
 
 
 
@@ -49,7 +60,10 @@ test:windows_2019:
   tags:
     - ifm3d_windows
   variables:
-    GIT_CLEAN_FLAGS: none
+   GIT_CLEAN_FLAGS: none
+   HTTP_PROXY: ${CI_HTTP_PROXY}
+   HTTPS_PROXY: ${CI_HTTPS_PROXY}
+   NO_PROXY: ${CI_NO_PROXY}
   script:
     - cd build
     - cmake.exe --build . --config Release --target check
@@ -100,6 +114,26 @@ build:linux:
       --destination "${CI_REGISTRY}/ifm-robotics/ifm3d:${DOCKER_TAG}${TAG_POSTFIX}"
       --no-push
       ${DOCKER_BUILD_ARGS}
+
+deploy:python_wheels:
+  image: python:3
+  stage : deploy
+  tags:
+    - shared_docker
+  needs: 
+    - job: build:windows_2019:python_wheel
+      artifacts: true
+    - job: build:linux:amd64:python_wheel
+      artifacts: true
+  variables:
+    TWINE_USERNAME: __token__
+    TWINE_PASSWORD: ${PYPI_TOKEN}
+  script:
+    - |
+      pip install --no-cache-dir twine
+      twine upload -r testpypi wheelhouse/*
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
 
 build:linux:docker:
   stage: build
@@ -160,7 +194,6 @@ build:linux:deb:
     HTTP_PROXY: ${CI_HTTP_PROXY}
     HTTPS_PROXY: ${CI_HTTPS_PROXY}
     NO_PROXY: ${CI_NO_PROXY}
-
   tags:
     - ${RUNNER}
   image:
@@ -270,20 +303,20 @@ deploy:docs:
 
 
 # Linux python wheels
-build:linux:aarch64:python_wheel:
-  image: nexus3.intra.ifm:18443/arm64v8/ifm3d-base:0.0.5
+build:linux:amd64:python_wheel:
+  image: quay.io/pypa/manylinux2014_x86_64:latest
   stage: build
-  variables:
-    REQUESTS_CA_BUNDLE: "/etc/ssl/certs/ca-certificates.crt"
   tags:
-    - shared_docker_aarch64
-  before_script:
-    - echo ${http_proxy}
-    - echo ${https_proxy}
-    - echo ${no_proxy}
+    - shared_docker
   script:
-    - python3 setup.py bdist_wheel
+    - |
+      for PYBIN in /opt/python/*/bin; do
+        "${PYBIN}/pip" wheel ${CI_PROJECT_DIR} --no-deps -w /tmp/wheelhouse/
+      done
+      for whl in /tmp/wheelhouse/*.whl; do
+        auditwheel repair "$whl" -w /${CI_PROJECT_DIR}/wheelhouse/
+      done
   artifacts:
     paths:
-      - dist/*.whl
+      - wheelhouse/*.whl
     expire_in: 1 week
