@@ -81,3 +81,23 @@ build:linux:aarch64:
       - build/*.tar
     expire_in: 1 week
 
+
+
+# Linux python wheels
+build:linux:aarch64:python_wheel:
+  image: nexus3.intra.ifm:18443/arm64v8/ifm3d-base:0.0.5
+  stage: build
+  variables:
+    REQUESTS_CA_BUNDLE: "/etc/ssl/certs/ca-certificates.crt"
+  tags:
+    - shared_docker_aarch64
+  before_script:
+    - echo ${http_proxy}
+    - echo ${https_proxy}
+    - echo ${no_proxy}
+  script:
+    - python3 setup.py bdist_wheel
+  artifacts:
+    paths:
+      - dist/*.whl
+    expire_in: 1 week
