@@ -10,6 +10,7 @@ Library and utilities for working with ifm pmd-based 3D ToF Cameras.
 
 :warning: Note that the `master` branch is generally in a work in progress state and you probably want to use a
 tagged [release version](https://github.com/ifm/ifm3d/releases) for production.
+:disclaimer: branch o3r/main is an early adopters version which may/will contain changes to the interface in the future
 
 Current Revision
 ----------------
