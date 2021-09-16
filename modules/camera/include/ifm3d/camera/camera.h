@@ -601,6 +601,16 @@ namespace ifm3d
     std::string device_type_;
 
     /**
+     * Return json of an app with given index from camera configuration json.
+     *
+     * @param[in] index Index of application to return
+     * @param[in] j     The current configuration
+     * @param[out] app  Output json of the application when found or empty json
+     * @return          True when application was found
+     */
+    static bool getAppJSON(int index, const json& j, json& app);
+
+    /**
      * Handles parsing a selected sub-tree of a potential input JSON file,
      * setting the parameters as appropriate on the camera, and saving them
      * persistently.

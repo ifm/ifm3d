@@ -825,6 +825,27 @@ ifm3d::Camera::FromJSON_(
     }
 }
 
+bool ifm3d::Camera::getAppJSON(int index, const json& j, json& app) /*static*/
+{
+  bool app_found=false;
+  app=json({});
+
+  json curr_apps = j["ifm3d"]["Apps"];
+
+  // Just find application with current index
+  for (auto& a : curr_apps)
+  {
+    if (std::stoi(a["Index"].get<std::string>()) == index)
+    {
+      app = a;
+      app_found = true;
+      break;
+    }
+  }
+
+  return(app_found);
+}
+
 void
 ifm3d::Camera::FromJSON(const json& j)
 {
@@ -919,17 +940,7 @@ ifm3d::Camera::FromJSON(const json& j)
             // now in `current` (which is a whole camera dump)
             // we need to find the application at index `idx`.
             json curr_app = json({});
-            json curr_apps = current["ifm3d"]["Apps"];
-            bool app_found = false;
-            for (auto& a : curr_apps)
-              {
-                if (std::stoi(a["Index"].get<std::string>()) == idx)
-                  {
-                    curr_app = a;
-                    app_found = true;
-                    break;
-                  }
-              }
+            bool app_found = getAppJSON(idx, current, curr_app);
 
             if (!app_found)
               {
@@ -972,25 +983,38 @@ ifm3d::Camera::FromJSON(const json& j)
                 j_im.erase("TemporalFilter");
               }
 
-            this->FromJSON_(
-              curr_app["Imager"],
-              j_im,
-              [this](const std::string& k, const std::string& v) {
-                if (k == "Type")
-                  {
-                    this->pImpl->ChangeImagerType(v);
-                  }
-                else
-                  {
-                    this->pImpl->SetImagerParameter(k, v);
-                  }
-              },
-              [this]() { this->pImpl->SaveApp(); },
-              "Imager",
-              idx);
+              // When the TemporalFilterType is set for example, there are additional parameters.
+              // They do not exist in the basic application. When trying to import them, ifm3d will
+              // fail.
+              // In case an temporal filter is set, we have to reload the application.
+              bool reloadApp=( std::stoi( j_im["TemporalFilterType"].get<std::string>() ) != 0 );
 
-            if (!this->IsO3X())
+              this->FromJSON_(curr_app["Imager"], j_im,
+                [this](const std::string& k, const std::string& v)
+                  {
+                    if (k == "Type")
+                      {
+                        this->pImpl->ChangeImagerType(v);
+                      }
+                    else
+                      {
+                        this->pImpl->SetImagerParameter(k,v);
+                      }
+                  },
+                [this, j_im]()
+                  {
+                    this->pImpl->SaveApp();
+                  },
+                "Imager", idx);
+
+              if(reloadApp)
               {
+                current = this->ToJSON_(false);
+                app_found = getAppJSON(idx, current, curr_app);
+              }
+
+              if (! this->IsO3X())
+                {
 
                 if (!s_filt.is_null())
                   {
