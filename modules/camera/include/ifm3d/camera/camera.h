@@ -347,6 +347,16 @@ namespace ifm3d
       std::function<void()> SaveFunc,
       const std::string& name,
       int idx = -1);
+      
+     /**
+     * Return json of an app with given index from camera configuration json.
+     *
+     * @param[in] index Index of application to return
+     * @param[in] j     The current configuration
+     * @param[out] app  Output json of the application when found or empty json
+     * @return          True when application was found
+     */
+    static bool getAppJSON(int index, const json& j, json& app); 
 
     json ToJSON_(const bool open_session = true);
 
