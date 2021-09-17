@@ -1,6 +1,7 @@
 ARG BASE_IMAGE=ubuntu:focal
 
 FROM ${BASE_IMAGE} AS build
+ARG BASE_IMAGE
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -20,14 +21,11 @@ RUN apt-get update \
         locales \
         ninja-build \
         python3-dev \
+        python3-numpy \
         python3-pip \
+        python3-pytest \
+        python3-setuptools \
     && rm -rf /var/lib/apt/lists/*
-
-RUN python3 -m pip install --upgrade \
-    numpy \
-    pip \
-    pytest \
-    setuptools
 
 # build pybind11 with cmake - but first clone from the official github repo
 RUN git clone --branch v2.3.0 https://github.com/pybind/pybind11.git /pybind  \
@@ -60,9 +58,14 @@ RUN mkdir -p /ifm3d/build \
     && if [ "x$RUN_TESTS" = "x" ]; then echo "Skipping tests..."; else ninja check; fi \
     && cmake --build . --target package \
     && cmake --build . --target repackage \
+    && IFM3D_VERSION=$(/ifm3d/build/modules/tools/src/bin/ifm3d --version | cut -d "=" -f 2) \
+    && BASE_IMAGE_NAME=$(echo "${BASE_IMAGE}" | grep -o '[^/]*$' | cut -d":" -f1) \
+    && BASE_IMAGE_VERSION=$(echo "${BASE_IMAGE}" | grep -o '[^/]*$' | cut -d":" -f2) \
+    && ARCH=$(dpkg --print-architecture) \
     && mkdir -p /out \
-    && mv /ifm3d/build/*.deb /out
+    && cd /ifm3d/build/  \
+    && tar cvf /out/ifm3d-${BASE_IMAGE_NAME}-${BASE_IMAGE_VERSION}-${ARCH}-debs_${IFM3D_VERSION}.tar *.deb
 
 FROM scratch AS output
-COPY --from=build /out .
+COPY --from=build /out /out
 
