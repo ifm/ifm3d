@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 9c7d04c..7067b56 100644
+index 9c7d04c..a3fd55b 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -75,11 +75,10 @@ if(WIN32)
@@ -28,16 +28,18 @@ index 9c7d04c..7067b56 100644
  set(curl_srcdir ${xmlrpc-c_SOURCE_DIR}/lib/curl_transport)
  
  if(MUST_BUILD_CURL_CLIENT)
-@@ -166,6 +165,8 @@ set(HAVE_WCHAR_H_DEFINE ${HAVE_WCHAR_H})
+@@ -166,6 +165,10 @@ set(HAVE_WCHAR_H_DEFINE ${HAVE_WCHAR_H})
  
  
  #######
 +#to fix build on arm64v8
-+add_definitions("-fsigned-char")
++if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
++  add_definitions("-fsigned-char")
++endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
  
  if(WIN32)
  	set(LINKER_AS_NEEDED  0 CACHE BOOL "Use the --as-needed linker option")
-@@ -276,23 +277,23 @@ set(includedir "${prefix}/include")
+@@ -276,7 +279,7 @@ set(includedir "${prefix}/include")
  
  if(NOT WIN32)
    # This shell script is not useful on Windows
@@ -46,25 +48,15 @@ index 9c7d04c..7067b56 100644
  endif()
  
  enable_testing()
- 
--#add_subdirectory(test)
-+# add_subdirectory(test)
+@@ -285,7 +288,7 @@ enable_testing()
  add_subdirectory(lib)
  
  if(ENABLE_EXAMPLES)
 -	add_subdirectory(examples)
-+# add_subdirectory(examples)
++  add_subdirectory(examples)
  endif(ENABLE_EXAMPLES)
  
  add_subdirectory(include)
- add_subdirectory(src)
- 
- if (BUILD_TOOLS)
--  add_subdirectory(tools)
-+# add_subdirectory(tools)
- endif()
- 
- 
 diff --git a/lib/abyss/src/CMakeLists.txt b/lib/abyss/src/CMakeLists.txt
 index e4cc66a..9d01643 100644
 --- a/lib/abyss/src/CMakeLists.txt
@@ -78,28 +70,6 @@ index e4cc66a..9d01643 100644
  target_link_libraries(xmlrpc_abyss xmlrpc_util)
  
  if(ENABLE_ABYSS_THREADS)
-diff --git a/lib/expat/xmlparse/CMakeLists.txt b/lib/expat/xmlparse/CMakeLists.txt
-index f87008a..4c8a57f 100644
---- a/lib/expat/xmlparse/CMakeLists.txt
-+++ b/lib/expat/xmlparse/CMakeLists.txt
-@@ -3,5 +3,4 @@
- add_library(xmlrpc_xmlparse STATIC
-   xmlparse.c)
- target_link_libraries(xmlrpc_xmlparse xmlrpc_xmltok)
--
- ensc_pkgconfig(xmlrpc_xmlparse)
-diff --git a/lib/expat/xmltok/CMakeLists.txt b/lib/expat/xmltok/CMakeLists.txt
-index a584249..8e73c13 100644
---- a/lib/expat/xmltok/CMakeLists.txt
-+++ b/lib/expat/xmltok/CMakeLists.txt
-@@ -8,7 +8,6 @@ add_definitions(-DXML_BYTE_ORDER=0)
- add_library(xmlrpc_xmltok STATIC
-   xmltok.c xmlrole.c
-   ${CMAKE_CURRENT_BINARY_DIR}/nametab.h)
--
- set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/nametab.h
-   PROPERTIES
-   OBJECT_DEPENDS gennmtab
 diff --git a/lib/libutil/CMakeLists.txt b/lib/libutil/CMakeLists.txt
 index d6278c0..0e28790 100644
 --- a/lib/libutil/CMakeLists.txt

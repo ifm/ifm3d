@@ -37,13 +37,19 @@ FetchContent_Declare(
   SOURCE_DIR "${CMAKE_SOURCE_DIR}/third-party/downloads/xmlrpc-c"
   PATCH_COMMAND git apply  --ignore-space-change --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/patches/xmlrpc.patch
 )
-
+#xmlrpc configure options
+set(BUILD_TOOLS OFF)
+set(ENABLE_EXAMPLES OFF)
 FetchContent_Populate(xmlrpc-c )
 FetchContent_GetProperties(xmlrpc-c SOURCE_DIR xmlrpc_src_dir)
 FetchContent_GetProperties(xmlrpc-c BINARY_DIR xmlrpc_bin_dir)
 
 list(APPEND CMAKE_MODULE_PATH "${xmlrpc_bin_dir}")
 add_subdirectory(${xmlrpc-c_SOURCE_DIR} ${xmlrpc_bin_dir})
+unset(BUILD_TOOLS)
+unset(ENABLE_EXAMPLES)
+
+
 list(APPEND BUILTIN_INCLUDES ${xmlrpc_src_dir}/include ${xmlrpc_src_dir}/lib/util/include ${xmlrpc_bin_dir}/include  ${xmlrpc_bin_dir})
 set( BUILTIN_INCLUDES ${BUILTIN_INCLUDES} PARENT_SCOPE)
 
