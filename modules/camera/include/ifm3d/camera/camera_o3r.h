@@ -35,6 +35,13 @@ namespace ifm3d
      */
     virtual void FactoryReset(bool keepNetworkSettings);
 
+    /**
+     * Return the current JSON schema configuration
+     *
+     * @return The current JSON schema configuration
+     */
+    json Schema();
+
     void Reboot(const boot_mode& mode =
                   ifm3d::CameraBase::boot_mode::PRODUCTIVE) override;
     device_family WhoAmI() override;

@@ -54,3 +54,9 @@ ifm3d::O3RCamera::SwUpdateVersion()
 {
   return ifm3d::CameraBase::swu_version::SWU_V2;
 }
+
+json
+ifm3d::O3RCamera::Schema()
+{
+  return this->pImpl->Schema();
+}
