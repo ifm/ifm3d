@@ -43,6 +43,7 @@ namespace ifm3d
     void SaveInitConfiguration();
     void FactoryReset(bool keepNetworkSettings);
     void Reboot();
+    json Schema();
 
   protected:
     std::shared_ptr<XMLRPCWrapper> xwrapper_;
@@ -86,6 +87,14 @@ void
 ifm3d::O3RCamera::Impl::Reboot()
 {
   this->xwrapper_->XCallMain("reboot");
+}
+
+json
+ifm3d::O3RCamera::Impl::Schema()
+{
+  std::string schema =
+    xmlrpc_c::value_string(this->xwrapper_->XCallMain("getSchema")).cvalue();
+  return json::parse(schema);
 }
 
 #endif // IFM3D_CAMERA_CAMERA_O3R_IMPL_HPP

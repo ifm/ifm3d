@@ -68,6 +68,12 @@ std::unordered_map<
        return std::make_shared<ifm3d::ImportApp>(argc, argv, cmd);
      }},
 
+    {"jsonschema",
+     [](int argc, const char** argv, const std::string& cmd)
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::JsonSchemaApp>(argc, argv, cmd);
+     }},
+
     {"ls",
      [](int argc, const char** argv, const std::string& cmd)
        -> ifm3d::CmdLineApp::Ptr {
