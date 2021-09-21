@@ -1,0 +1,6 @@
+/build/*
+/docker/*
+.vscode
+venv
+__pycache__
+examples/o3r/oem/ssh/.*
