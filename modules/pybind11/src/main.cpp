@@ -1318,5 +1318,22 @@ PYBIND11_MODULE(ifm3dpy, m)
           A bool indicating wether to keep the current network settings
     )");
 
+  camera_o3r.def(
+    "schema",
+    [](const ifm3d::O3RCamera::Ptr& c)
+    {
+      // Convert the JSON to a python JSON object using the json module
+      py::object json_loads = py::module::import("json").attr("loads");
+      return json_loads(c->Schema().dump());
+    },
+    R"(
+      Returns the current JSON schema configuration
+
+      Returns
+      -------
+      dict
+          The current json schema configuration
+    )");
+
   // clang-format on
 }

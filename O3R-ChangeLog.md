@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] 
 
+### Added
+- O3RCamera::Schema method to get the current json schema
+
+## 0.90.2 - 2021-09-16
+
+- stlImage module (Image container based on STL)
+- Removed copying of the tools header
+- Example to upload docker container to O3R
+
 ## 0.90.1 - 2021-08-17
 
 ### Added
