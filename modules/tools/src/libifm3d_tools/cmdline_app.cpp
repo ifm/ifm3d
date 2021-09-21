@@ -116,6 +116,8 @@ These are common commands used in various situations:
 
   help_msg +=
     R"(
+    jsonschema    Gets current JSON schema configuration.
+    
     ls            Lists the applications currently installed on
                   the sensor.
 

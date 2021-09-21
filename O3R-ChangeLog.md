@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] 
 
+### Added
+- O3RCamera::Schema method to get the current json schema
+
 ## 0.90.2 - 2021-09-16
 
 - stlImage module (Image container based on STL)
