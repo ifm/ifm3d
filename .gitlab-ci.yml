@@ -60,11 +60,11 @@ build:linux:docker:
   parallel:
     matrix:
       - RUNNER: shared_docker
-        BASE_IMAGE: ubuntu:focal
+        BASE_IMAGE: ubuntu:20.04
         TAG_POSTFIX: -ubuntu-amd64
       - RUNNER: shared_docker_aarch64
         USE_PROXY: "yes"
-        BASE_IMAGE: ubuntu:focal
+        BASE_IMAGE: ubuntu:20.04
         TAG_POSTFIX: -ubuntu-arm64
       - RUNNER: shared_docker_aarch64
         USE_PROXY: "yes"
@@ -100,15 +100,15 @@ build:linux:deb:
         PLATFORM: linux/aarch64
         BASE_IMAGE:
           - nvcr.io/nvidia/l4t-base:r32.4.3
-          - ubuntu:focal
-          - ubuntu:bionic
-          - ubuntu:xenial
+          - ubuntu:20.04
+          - ubuntu:18.04
+          - ubuntu:16.04
       - RUNNER: shared_docker
         PLATFORM: linux/amd64
         BASE_IMAGE:
-          - ubuntu:focal
-          - ubuntu:bionic
-          - ubuntu:xenial
+          - ubuntu:20.04
+          - ubuntu:18.04
+          - ubuntu:16.04
   tags:
     - ${RUNNER}
   image:
