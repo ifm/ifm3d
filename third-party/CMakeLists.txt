@@ -31,7 +31,7 @@ FetchContent_Declare(
   xmlrpc-c
   FETCHCONTENT_FULLY_DISCONNECTED OFF
   GIT_REPOSITORY "https://github.com/ifm/xmlrpc-c.git"
-  GIT_TAG "f344566524281de5e6bfa2bb389e6b4038543944"
+  GIT_TAG "bae6dae46fd33d0a2a32e42289d6e0ea1a76408a"
   GIT_PROGRESS ON
   GIT_SHALLOW ON
   SOURCE_DIR "${CMAKE_SOURCE_DIR}/third-party/downloads/xmlrpc-c"

@@ -1,22 +1,8 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 9c7d04c..a3fd55b 100644
+index bf12979..0cb14a2 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -75,11 +75,10 @@ if(WIN32)
-     set(MUST_BUILD_CLIENT 1)
-   endif(DEFINED MUST_BUILD_WININET_CLIENT)
-   set(MSVCRT yes)
-+else()
-+   ensc_set_bool(MUST_BUILD_WININET_CLIENT 0 "Set to 0 as not needed on unix systems")
- endif(WIN32)
--
--
- set(wininet_srcdir ${xmlrpc-c_SOURCE_DIR}/lib/wininet_transport)
--
- ###########
- if(DEFINED MUST_BUILD_CURL_CLIENT)
-   set(tmp REQUIRED)
-@@ -87,9 +86,9 @@ else(DEFINED MUST_BUILD_CURL_CLIENT)
+@@ -89,9 +89,9 @@ else(DEFINED MUST_BUILD_CURL_CLIENT)
    set(tmp)
  endif(DEFINED MUST_BUILD_CURL_CLIENT)
  
@@ -28,63 +14,8 @@ index 9c7d04c..a3fd55b 100644
  set(curl_srcdir ${xmlrpc-c_SOURCE_DIR}/lib/curl_transport)
  
  if(MUST_BUILD_CURL_CLIENT)
-@@ -166,6 +165,10 @@ set(HAVE_WCHAR_H_DEFINE ${HAVE_WCHAR_H})
- 
- 
- #######
-+#to fix build on arm64v8
-+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-+  add_definitions("-fsigned-char")
-+endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
- 
- if(WIN32)
- 	set(LINKER_AS_NEEDED  0 CACHE BOOL "Use the --as-needed linker option")
-@@ -276,7 +279,7 @@ set(includedir "${prefix}/include")
- 
- if(NOT WIN32)
-   # This shell script is not useful on Windows
--  install(PROGRAMS xmlrpc-c-config DESTINATION ${_bin})
-+  #install(PROGRAMS xmlrpc-c-config DESTINATION ${_bin})
- endif()
- 
- enable_testing()
-@@ -285,7 +288,7 @@ enable_testing()
- add_subdirectory(lib)
- 
- if(ENABLE_EXAMPLES)
--	add_subdirectory(examples)
-+  add_subdirectory(examples)
- endif(ENABLE_EXAMPLES)
- 
- add_subdirectory(include)
-diff --git a/lib/abyss/src/CMakeLists.txt b/lib/abyss/src/CMakeLists.txt
-index e4cc66a..9d01643 100644
---- a/lib/abyss/src/CMakeLists.txt
-+++ b/lib/abyss/src/CMakeLists.txt
-@@ -49,7 +49,7 @@ else(WIN32)
-   endif(ENABLE_ABYSS_THREADS)
- endif(WIN32)
- 
--add_library(xmlrpc_abyss SHARED ${xmlrpc_abyss_SOURCES})
-+add_library(xmlrpc_abyss ${xmlrpc_abyss_SOURCES})
- target_link_libraries(xmlrpc_abyss xmlrpc_util)
- 
- if(ENABLE_ABYSS_THREADS)
-diff --git a/lib/libutil/CMakeLists.txt b/lib/libutil/CMakeLists.txt
-index d6278c0..0e28790 100644
---- a/lib/libutil/CMakeLists.txt
-+++ b/lib/libutil/CMakeLists.txt
-@@ -31,7 +31,7 @@ else(WIN32)
-         )
- endif(WIN32)
- 
--add_library(xmlrpc_util SHARED
-+add_library(xmlrpc_util
-         ${SOURCE_FILES}
-   )
- 
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 231940c..9c9dc46 100644
+index efb03e4..19226c8 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
 @@ -26,10 +26,10 @@ if(MUST_BUILD_LIBWWW_CLIENT)
@@ -95,143 +26,28 @@ index 231940c..9c9dc46 100644
 -  include_directories(${CURL_INCLUDE_DIR})
 -  set(client_curl_LIBS ${CURL_LIBRARY})
 -  set(xmlrpc_client_pkgconfig_req libcurl)
-+#  FIND_PACKAGE(CURL REQUIRED)
-+#  include_directories(${CURL_INCLUDE_DIR})
-+#  set(client_curl_LIBS ${CURL_LIBRARY})
-+#  set(xmlrpc_client_pkgconfig_req libcurl)
++  #FIND_PACKAGE(CURL REQUIRED)
++  #include_directories(${CURL_INCLUDE_DIR})
++  #set(client_curl_LIBS ${CURL_LIBRARY})
++  #set(xmlrpc_client_pkgconfig_req libcurl)
    list(APPEND transport_SOURCES
      ${curl_srcdir}/xmlrpc_curl_transport.c
      ${curl_srcdir}/curltransaction.c
-@@ -51,7 +51,7 @@ add_subdirectory(cpp)
- 
- 
- ### libxmlrpc.so
--add_library(xmlrpc SHARED
-+add_library(xmlrpc
-   double.c parse_datetime.c parse_value.c resource.c trace.c version.c
-   json.c
-   ${xmlrpc_xml_parser}
-@@ -64,17 +64,25 @@ set_target_properties(xmlrpc PROPERTIES COMPILE_FLAGS ${libxml_INCLUDES})
- 
- ensc_pkgconfig(xmlrpc)
- target_link_libraries(xmlrpc PRIVATE ${libxml_LIBS} PUBLIC xmlrpc_util)
-+list(APPEND lib_TARGETS ${libxml_LIBS})
-+list(APPEND lib_TARGETS xmlrpc_xmltok)
-+
- list(APPEND lib_TARGETS xmlrpc)
- 
- ### libxmlrpc_client.so
--add_library(xmlrpc_client SHARED
-+add_library(xmlrpc_client
-   xmlrpc_client.c xmlrpc_client_global.c xmlrpc_server_info.c ${transport_SOURCES}
+@@ -75,9 +75,15 @@ add_library(xmlrpc_client
    ${xmlrpc-c_SOURCE_DIR}/include/xmlrpc-c/client.h)
  
  if(WIN32)
--    target_link_libraries(xmlrpc_client xmlrpc ${client_LIBS} wldap32)
-+    target_link_libraries(xmlrpc_client
-+	PUBLIC	xmlrpc ${client_LIBS} wldap32
-+	PRIVATE $<BUILD_INTERFACE:libcurl>)
-+
+-   target_link_libraries(xmlrpc_client xmlrpc ${client_LIBS} wldap32)
++   target_link_libraries(xmlrpc_client
++   PUBLIC xmlrpc ${client_LIBS} wldap32
++   PRIVATE  $<BUILD_INTERFACE:libcurl>
++   )
  else(WIN32)
 -    target_link_libraries(xmlrpc_client xmlrpc ${client_LIBS})
-+    target_link_libraries(xmlrpc_client
-+	PUBLIC xmlrpc ${client_LIBS}
-+	PRIVATE $<BUILD_INTERFACE:libcurl>)
++   target_link_libraries(xmlrpc_client
++   PUBLIC xmlrpc ${client_LIBS}
++   PRIVATE $<BUILD_INTERFACE:libcurl>
++   )
  endif(WIN32)
  set_target_properties(xmlrpc_client
-   PROPERTIES
-@@ -85,7 +93,7 @@ ensc_pkgconfig(xmlrpc_client)
- set_target_properties(xmlrpc_util PROPERTIES DEFINE_SYMBOL XMLRPC_CLIENT_EXPORTED __declspec(dllexport))
- 
- ### libxmlrpc_server.so
--add_library(xmlrpc_server SHARED
-+add_library(xmlrpc_server
-   registry.c method.c system_method.c)
- target_link_libraries(xmlrpc_server xmlrpc)
- list(APPEND lib_TARGETS xmlrpc_server)
-@@ -94,7 +102,7 @@ ensc_pkgconfig(xmlrpc_server)
- 
- ### libxmlrpc_server_abyss.so
- if(ENABLE_ABYSS_SERVER)
--  add_library(xmlrpc_server_abyss SHARED
-+  add_library(xmlrpc_server_abyss
-     xmlrpc_server_abyss.c abyss_handler.c)
-   target_link_libraries(xmlrpc_server_abyss xmlrpc_abyss xmlrpc_server)
-   list(APPEND lib_TARGETS xmlrpc_server_abyss)
-@@ -105,7 +113,7 @@ endif(ENABLE_ABYSS_SERVER)
- 
- ### libxmlrpc_server_cgi.so
- if(ENABLE_CGI_SERVER)
--  add_library(xmlrpc_server_cgi SHARED
-+  add_library(xmlrpc_server_cgi
-     xmlrpc_server_cgi)
-   target_link_libraries(xmlrpc_server_cgi xmlrpc_server)
-   list(APPEND lib_TARGETS xmlrpc_server_cgi)
-diff --git a/src/cpp/CMakeLists.txt b/src/cpp/CMakeLists.txt
-index 8925d15..ca64266 100644
---- a/src/cpp/CMakeLists.txt
-+++ b/src/cpp/CMakeLists.txt
-@@ -1,7 +1,7 @@
- # -*- cmake -*-
- 
- ####### libxmlrpc++.so
--add_library(xmlrpc++ SHARED
-+add_library(xmlrpc++
-   base64.cpp
-   env_wrap.cpp
-   fault.cpp
-@@ -22,20 +22,20 @@ list(APPEND lib_TARGETS xmlrpc++)
- ensc_pkgconfig(xmlrpc++)
- 
- ####### libxmlrpc_cpp.so
--add_library(xmlrpc_cpp            SHARED XmlRpcCpp)
-+add_library(xmlrpc_cpp  XmlRpcCpp.cpp)
- target_link_libraries(xmlrpc_cpp xmlrpc xmlrpc_server xmlrpc_client)
- list(APPEND lib_TARGETS xmlrpc_cpp)
- ensc_pkgconfig(xmlrpc_cpp)
- 
- ####### libxmlrpc_server++.so
--add_library(xmlrpc_server++       SHARED registry.cpp)
-+add_library(xmlrpc_server++ registry.cpp)
- target_link_libraries(xmlrpc_server++ xmlrpc++ xmlrpc_server)
- list(APPEND lib_TARGETS xmlrpc_server++)
- ensc_pkgconfig(xmlrpc_server++)
- 
- ####### libxmlrpc_server_abyss++.so
- if(ENABLE_ABYSS_SERVER)
--  add_library(xmlrpc_server_abyss++ SHARED server_abyss.cpp)
-+  add_library(xmlrpc_server_abyss++ server_abyss.cpp)
-   target_link_libraries(xmlrpc_server_abyss++ xmlrpc_server++ xmlrpc_server_abyss)
-   list(APPEND lib_TARGETS xmlrpc_server_abyss++)
-   ensc_pkgconfig(xmlrpc_server_abyss++)
-@@ -43,26 +43,26 @@ endif(ENABLE_ABYSS_SERVER)
- 
- ####### libxmlrpc_server_cgi++.so
- if(ENABLE_CGI_SERVER)
--  add_library(xmlrpc_server_cgi++ SHARED server_cgi.cpp)
-+  add_library(xmlrpc_server_cgi++ server_cgi.cpp)
-   target_link_libraries(xmlrpc_server_cgi++ xmlrpc_server++)
-   list(APPEND lib_TARGETS xmlrpc_server_cgi++)
-   ensc_pkgconfig(xmlrpc_server_cgi++)
- endif(ENABLE_CGI_SERVER)
- 
- ####### libxmlrpc_server_pstream++.so
--add_library(xmlrpc_server_pstream++ SHARED server_pstream.cpp server_pstream_conn)
-+add_library(xmlrpc_server_pstream++ server_pstream.cpp server_pstream_conn.cpp)
- target_link_libraries(xmlrpc_server_pstream++ xmlrpc_server++ xmlrpc_packetsocket)
- list(APPEND lib_TARGETS xmlrpc_server_pstream++)
- ensc_pkgconfig(xmlrpc_server_pstream++)
- 
- ####### libxmlrpc_packetsocket.so
--add_library(xmlrpc_packetsocket SHARED packetsocket.cpp)
-+add_library(xmlrpc_packetsocket packetsocket.cpp)
- target_link_libraries(xmlrpc_packetsocket xmlrpc++)
- list(APPEND lib_TARGETS xmlrpc_packetsocket)
- ensc_pkgconfig(xmlrpc_packetsocket)
- 
- ####### libxmlrpc_client++.so
--add_library(xmlrpc_client++       SHARED
-+add_library(xmlrpc_client++
-   client.cpp client_simple.cpp curl.cpp libwww.cpp wininet.cpp pstream.cpp)
- set_target_properties(xmlrpc_client++
    PROPERTIES
