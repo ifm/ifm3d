@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.12)
 cmake_policy(SET CMP0048 NEW)
 
 # Some generic settings
@@ -48,6 +48,7 @@ option(BUILD_SDK_PKG "Build install packages for development purposes" ON)
 option(FORCE_OPENCV3 "Force the build to require OpenCV 3" OFF)
 option(FORCE_OPENCV2 "Force the build to require OpenCV 2.4" OFF)
 option(BUILD_SHARED_LIBS "Build modules as shared libraries" ON)
+option(BUILD_DOC "Build documentation" OFF)
 
 # Installation root
 set(CPACK_SET_DESTDIR true)
@@ -107,15 +108,20 @@ add_subdirectory(third-party)
 
 # Build sub-modules
 add_subdirectory(modules/camera)
+list(APPEND DOXYGEN_MODULES "camera")
 
 if(BUILD_MODULE_FRAMEGRABBER)
   add_definitions(-DBUILD_MODULE_FRAMEGRABBER=ON)
   add_subdirectory(modules/framegrabber)
+  list(APPEND DOXYGEN_MODULES "framegrabber")
 endif()
+
 if(BUILD_MODULE_SWUPDATER)
   add_definitions(-DBUILD_MODULE_SWUPDATER=ON)
   add_subdirectory(modules/swupdater)
+  list(APPEND DOXYGEN_MODULES "swupdater")
 endif()
+
 if(BUILD_MODULE_IMAGE)
   # `image` relies on `framegrabber`, in the event the user
   # explicitly disabled the `framegrabber` but not `image`
@@ -124,21 +130,29 @@ if(BUILD_MODULE_IMAGE)
   # confuse the end-user.
   add_definitions(-DBUILD_MODULE_IMAGE=ON)
   add_subdirectory(modules/image)
+  list(APPEND DOXYGEN_MODULES "image")
 endif()
+
 if(BUILD_MODULE_OPENCV)
   add_definitions(-DBUILD_MODULE_OPENCV=ON)
   add_subdirectory(modules/opencv)
+  list(APPEND DOXYGEN_MODULES "opencv")
 endif()
+
 if(BUILD_MODULE_PCICCLIENT)
   add_subdirectory(modules/pcicclient)
+  list(APPEND DOXYGEN_MODULES "pcicclient")
 endif()
+
 if(BUILD_MODULE_TOOLS)
   add_subdirectory(modules/tools)
 endif()
+
 if(BUILD_MODULE_PYBIND11)
   add_definitions(-DBUILD_MODULE_PYBIND11)
   add_subdirectory(modules/pybind11)
 endif()
+
 if(BUILD_MODULE_STLIMAGE)
   # `stlimage`  like image relies on `framegrabber`, in the event the user
   # explicitly disabled the `framegrabber` but not `image`
@@ -147,6 +161,7 @@ if(BUILD_MODULE_STLIMAGE)
   # confuse the end-user.
   add_definitions(-DBUILD_MODULE_STLIMAGE=ON)
   add_subdirectory(modules/stlimage)
+  list(APPEND DOXYGEN_MODULES "stlimage")
 endif()
 
 ################################################
@@ -167,6 +182,13 @@ if(BUILD_SDK_PKG)
     DESTINATION ${CONFIG_PACKAGE_LOCATION}
     COMPONENT camera
     )
+endif()
+
+#################################################
+# Documentation
+#################################################
+if(BUILD_DOC)
+  add_subdirectory(doc)
 endif()
 
 #################################################
