@@ -207,8 +207,7 @@ namespace ifm3d
     xmlrpc_c::value const
     _XCallSession(const std::string& method, Args... args)
     {
-      std::string url =
-        this->XPrefix() + ifm3d::XMLRPC_MAIN + ifm3d::XMLRPC_SESSION;
+      std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN + _XSession();
       return this->xwrapper_->XCall(url, method, args...);
     }
 
