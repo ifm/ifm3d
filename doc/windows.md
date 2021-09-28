@@ -15,7 +15,7 @@ Visual Studio installer)
 version 2015, 2017 or 2019. The free 'Community' edition is sufficient. Be
 sure to select the 'Desktop development with C++' workflow.
 
-## Binary Dependencies
+## Binary Dependencies for ifm3d::image and ifm3d::opencv modules
 
 ### [PCL](http://www.pointclouds.org)
 
@@ -49,10 +49,59 @@ Download it and extract to a known location (this tutorial assumes a path of
 ## Source Dependencies
 
 `ifm3d` depends on several additional libraries (curl, xmlrpc-c, glog, and
-gtest) which are not available as binary packages on Windows. The following
-instructions detail how to compile them from source for your target.
+gtest) which are not available as binary packages on Windows.
 
-### Environment Configuration
+### Building source dependencies with ifm3d
+
+ifm3d from version 0.90.4 onwards provides ```BUILT_IN_DEPS``` option to cmake configure command,
+which fetch required dependencies and build it with ifm3d. On sucessfull first installation
+user can disable BUILT_IN_DEPS option and can use the installed dependencies for future builds of the ifm3d.
+
+**Note**: As gtest is not a part of the build time dependencies, to enable the testing of ifm3d
+please clone googletest as explained in [gtest](gtest) section.
+
+Following instructions detail how to build ifm3d along with its dependencies.
+
+```
+#set the environment variables
+set IFM3D_CMAKE_GENERATOR="Visual Studio 16 2019"
+set IFM3D_BUILD_DIR=C:\ifm3d
+set CONFIG=Release
+
+#make the working dir
+mkdir %IFM3D_BUILD_DIR%
+
+# Clone the repository
+cd %IFM3D_BUILD_DIR%
+git clone https://github.com/ifm/ifm3d.git
+cd %IFM3D_BUILD_DIR%\ifm3d
+
+# Configure
+mkdir build
+cd build
+cmake -G %IFM3D_CMAKE_GENERATOR% -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_SDK_PKG=ON -DGTEST_CMAKE_DIR=%IFM3D_BUILD_DIR%\googletest\googletest -Dgtest_force_shared_crt=TRUE -DCMAKE_PREFIX_PATH=%IFM3D_BUILD_DIR%\install -DCMAKE_BUILD_TYPE=%CONFIG% -DCMAKE_INSTALL_PREFIX=%IFM3D_BUILD_DIR%\install ..
+
+# Build ifm3d and dependencies
+cmake --build . --config %CONFIG% --target ALL_BUILD
+
+# run tests
+cmake --build . --config %CONFIG% --target check
+
+# install
+cmake --build . --config %CONFIG% --target install
+```
+On successful execution of install step, user can disable the BUILD_IN_DEPS flag by appending
+``` -DBUILD_IN_DEPS=OFF``` to cmake configure step, this will avoid building dependencies on every clean build.
+
+***Note***: By default ```ifm3d::Image``` and ```ifm3d::opencv``` modules are disabled, to enabled these modules
+use ```-DBUILD_MODULE_IMAGE=ON``` and ```-DBUILD_MODULE_OPENCV=ON``` respectively to cmake configure command.
+Also append the opencv install binary path to -DCMAKE_PREFIX_PATH as shown in [Building ifm3d](Building-ifm3d) section
+
+### Buidling the source dependencies independent of ifm3d
+
+The following instructions detail how to compile them from source for your target.
+
+#### Environment Configuration
 
 The following environment variables are used by this tutorial to make
 customization simpler. Modify them as needed for your environment. You can
@@ -73,7 +122,7 @@ be built:
 mkdir %IFM3D_BUILD_DIR%
 ```
 
-### [curl](https://curl.haxx.se/)
+##### [curl](https://curl.haxx.se/)
 ```
 cd %IFM3D_BUILD_DIR%
 git clone --branch curl-7_47_1 https://github.com/curl/curl.git
@@ -84,7 +133,7 @@ cmake -G %IFM3D_CMAKE_GENERATOR% -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DCMAKE_I
 cmake --build . --clean-first --config %CONFIG% --target INSTALL
 ```
 
-### [xmlrpc-c](http://xmlrpc-c.sourceforge.net/)
+##### [xmlrpc-c](http://xmlrpc-c.sourceforge.net/)
 ```
 cd %IFM3D_BUILD_DIR%
 git clone --branch 1.33.14-cmake https://github.com/ifm/xmlrpc-c.git
@@ -95,7 +144,7 @@ cmake -G %IFM3D_CMAKE_GENERATOR% -DCMAKE_INSTALL_PREFIX=%IFM3D_BUILD_DIR%\instal
 cmake --build . --clean-first --config %CONFIG% --target INSTALL
 ```
 
-### [glog](https://github.com/google/glog)
+##### [glog](https://github.com/google/glog)
 ```
 cd %IFM3D_BUILD_DIR%
 git clone --branch v0.3.5 https://github.com/google/glog.git
@@ -106,7 +155,7 @@ cmake -G %IFM3D_CMAKE_GENERATOR% -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=%
 cmake --build . --clean-first --config %CONFIG% --target INSTALL
 ```
 
-### [gtest](https://github.com/google/googletest.git)
+##### [gtest](https://github.com/google/googletest.git)
 ```
 cd %IFM3D_BUILD_DIR%
 git clone --branch release-1.8.1 https://github.com/google/googletest.git
@@ -115,7 +164,7 @@ NOTE: `gtest` is only needed to build and run unit tests. To skip, add
 `-DBUILD_TESTS=OFF` to the cmake configuration command line on the `ifm3d`
 library below.
 
-# Building ifm3d
+#### Building ifm3d
 ```
 # Clone the repository
 cd %IFM3D_BUILD_DIR%
