@@ -1379,12 +1379,115 @@ PYBIND11_MODULE(ifm3dpy, m)
     )");
 
   camera_o3r.def(
-    "schema",
+    "get",
+    [](const ifm3d::O3RCamera::Ptr& c, const std::vector<std::string>& path)
+    {
+      // Convert the JSON to a python JSON object using the json module
+      py::object json_loads = py::module::import("json").attr("loads");
+      return json_loads(c->Get().dump());
+    },
+    py::arg("path") = std::vector<std::string>(),
+    R"(
+      Returns the configuration formatted as JSON based on a path.
+      If the path is empty, returns the whole configuration.
+
+      Returns
+      -------
+      dict
+          The JSON configuration for the list of object path fragments
+    )");
+
+  camera_o3r.def(
+    "set",
+    [](const ifm3d::O3RCamera::Ptr& c, const py::dict& json)
+    {
+      // Convert the input JSON to string and load it
+      py::object json_dumps = py::module::import("json").attr("dumps");
+      c->Set(json_dumps(json).cast<std::string>());
+    },
+    py::arg("json"),
+    R"(
+      Overwrites parts of the temporary JSON configuration which is achieved
+      by merging the provided JSON fragment with the current temporary JSON.
+
+      Parameters
+      ----------
+      json : dict
+          The new temporay JSON configuration of the device.
+    )");
+
+  camera_o3r.def(
+    "get_init",
     [](const ifm3d::O3RCamera::Ptr& c)
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
-      return json_loads(c->Schema().dump());
+      return json_loads(c->Get().dump());
+    },
+    R"(
+      Return the initial JSON configuration.
+
+      Returns
+      -------
+      dict
+          The initial JSON configuration
+    )");
+
+  camera_o3r.def(
+    "save_init",
+    &ifm3d::O3RCamera::SaveInit,
+    R"(
+      Save to current temporary JSON configuration as initial JSON
+      configuration
+    )");
+
+  camera_o3r.def(
+    "get_init_status",
+    &ifm3d::O3RCamera::GetInitStatus,
+    R"(
+      Returns the init status of the device
+
+      Returns
+      -------
+      dict
+          The init status of the device
+    )");
+
+  camera_o3r.def(
+    "lock",
+    &ifm3d::O3RCamera::Lock,
+    py::arg("password"),
+    R"(
+      Release the lock from the Device
+
+      Returns
+      -------
+      string
+          The password used to unlock the device
+    )");
+
+  camera_o3r.def(
+    "unlock",
+    &ifm3d::O3RCamera::Unlock,
+    py::arg("password"),
+    R"(
+      Locks the device until it is unlocked.
+      If the device is unlocked and an empty password is provided the password
+      protection is removed.
+
+      Returns
+      -------
+      string
+          The password used to lock the device
+    )");
+
+  camera_o3r.def(
+    "get_schema",
+    [](const ifm3d::O3RCamera::Ptr& c)
+    {
+      // Convert the JSON to a python JSON object using the json module
+      py::object json_loads = py::module::import("json").attr("loads");
+      return json_loads(c->GetSchema().dump());
     },
     R"(
       Returns the current JSON schema configuration
