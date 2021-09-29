@@ -4,9 +4,9 @@
 find_package(Doxygen)
 
 if (DOXYGEN_FOUND)
-    list(TRANSFORM DOXYGEN_MODULES PREPEND "${PROJECT_SOURCE_DIR}/modules/")
-    list(TRANSFORM DOXYGEN_MODULES APPEND "/include")
-    string(REPLACE ";" " " DOXYGEN_INPUTS "${DOXYGEN_MODULES}")
+    foreach(DOXYGEN_MODULE IN LISTS DOXYGEN_MODULES)
+      string(APPEND DOXYGEN_INPUTS "${PROJECT_SOURCE_DIR}/modules/${DOXYGEN_MODULE}/include ")
+    endforeach(DOXYGEN_MODULE)
 
     # set input and output files
     set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
