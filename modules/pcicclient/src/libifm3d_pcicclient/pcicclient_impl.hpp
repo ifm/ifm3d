@@ -407,6 +407,8 @@ const std::string ifm3d::PCICClient::Impl::init_command =
 ifm3d::PCICClient::Impl::Impl(ifm3d::Camera::Ptr cam,
                               const std::uint16_t& pcic_port)
   : cam_(cam),
+    cam_port_(pcic_port == ifm3d::PCIC_PORT ? ifm3d::DEFAULT_PCIC_PORT :
+                                              pcic_port),
     connected_(false),
     io_service_(),
     sock_(io_service_),
@@ -420,11 +422,7 @@ ifm3d::PCICClient::Impl::Impl(ifm3d::Camera::Ptr cam,
   try
     {
       this->cam_ip_ = this->cam_->IP();
-      if (pcic_port == ifm3d::PCIC_PORT)
-        {
-          this->cam_port_ = pcic_port;
-        }
-      else
+      if (cam_port_ != pcic_port)
         {
           this->cam_port_ =
             std::stoi(this->cam_->DeviceParameter("PcicTcpPort"));
