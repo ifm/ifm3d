@@ -234,5 +234,7 @@ deploy:docs:
     - cp -r ${CI_PROJECT_DIR}/docs/* ./
     - touch .nojekyll
     - git add -A
-    - git commit -m "update docs"
+    - git commit -m "update docs" --allow-empty
     - git push
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^o3r\/main-next/'
