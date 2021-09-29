@@ -55,6 +55,29 @@ test:windows_2019:
   fi
   DOCKER_CFG="${DOCKER_CFG} }"
 
+build:linux:
+  stage: build
+  tags:
+    - shared_docker
+  variables:
+    BASE_IMAGE: ubuntu:16.04
+  image:
+    name: nexus.ifm.com:20443/ifm-robotics/ifm3d/kaniko:debug
+    entrypoint: [""]
+  script:
+    - *docker-config
+    - mkdir -p /kaniko/.docker
+    - echo "${DOCKER_CFG}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context ${CI_PROJECT_DIR}
+      --dockerfile docker/ifm-robotics/docker/Dockerfile
+      --reproducible
+      --snapshotMode time
+      --cache
+      --cache-repo "${CI_REGISTRY}/ifm-robotics/ifm3d/cache"
+      --destination "${CI_REGISTRY}/ifm-robotics/ifm3d:${DOCKER_TAG}${TAG_POSTFIX}"
+      --no-push
+      ${DOCKER_BUILD_ARGS}
+
 build:linux:docker:
   stage: build
   parallel:
