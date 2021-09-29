@@ -22,8 +22,8 @@
 #include <ifm3d/camera.h>
 #include <ifm3d/fg.h>
 
-#if defined(BUILD_MODULE_IMAGE)
-#  include <ifm3d/image.h>
+#if defined(BUILD_MODULE_STLIMAGE)
+#  include <ifm3d/stlimage.h>
 #endif
 
 #if defined(BUILD_MODULE_OPENCV)
@@ -216,11 +216,11 @@ ifm3d::JitterApp::Run()
   std::cout << "Stdev:  " << bb_stdev << " ms" << std::endl;
   std::cout << "Mad:    " << bb_mad << " ms" << std::endl;
 
-#if defined(BUILD_MODULE_IMAGE)
+#if defined(BUILD_MODULE_STLIMAGE)
   std::vector<float> im_results(nframes, 0.);
   std::cout << std::endl
-            << "Capturing frame data for ifm3d::ImageBuffer..." << std::endl;
-  auto im = std::make_shared<ifm3d::ImageBuffer>();
+            << "Capturing frame data for ifm3d::StlImageBuffer..." << std::endl;
+  auto im = std::make_shared<ifm3d::StlImageBuffer>();
   capture_frames(this->fg_, im, im_results);
   float im_median = median(im_results);
   float im_mean, im_stdev;
@@ -261,8 +261,8 @@ ifm3d::JitterApp::Run()
       // headers in the csv
       out << "ByteBuffer";
 
-#if defined(BUILD_MODULE_IMAGE)
-      out << ",ImageBuffer";
+#if defined(BUILD_MODULE_STLIMAGE)
+      out << ",StlImageBuffer";
 #endif
 
 #if defined(BUILD_MODULE_OPENCV)
@@ -275,7 +275,7 @@ ifm3d::JitterApp::Run()
         {
           out << bb_results[i];
 
-#if defined(BUILD_MODULE_IMAGE)
+#if defined(BUILD_MODULE_STLIMAGE)
           out << "," << im_results[i];
 #endif
 
