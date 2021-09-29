@@ -43,7 +43,7 @@ namespace ifm3d
     std::string GetInit();
     void SaveInit();
     std::string GetInitStatus();
-    json GetSchema();
+    std::string GetSchema();
     void Lock(const std::string& password);
     void Unlock(const std::string& password);
 
@@ -98,12 +98,11 @@ ifm3d::O3RCamera::Impl::GetInitStatus()
     .cvalue();
 }
 
-json
+std::string
 ifm3d::O3RCamera::Impl::GetSchema()
 {
-  std::string schema =
-    xmlrpc_c::value_string(this->xwrapper_->XCallMain("getSchema")).cvalue();
-  return json::parse(schema);
+  return xmlrpc_c::value_string(this->xwrapper_->XCallMain("getSchema"))
+    .cvalue();
 }
 
 void
