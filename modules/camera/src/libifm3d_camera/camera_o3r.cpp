@@ -27,7 +27,7 @@ ifm3d::O3RCamera::FactoryReset(bool keepNetworkSettings)
 json
 ifm3d::O3RCamera::Get(const std::vector<std::string>& path)
 {
-  return this->pImpl->Get(path);
+  return json::parse(this->pImpl->Get(path));
 }
 
 void
@@ -57,7 +57,7 @@ ifm3d::O3RCamera::GetInitStatus()
 json
 ifm3d::O3RCamera::GetSchema()
 {
-  return this->pImpl->GetSchema();
+  return json::parse(this->pImpl->GetSchema());
 }
 
 void
