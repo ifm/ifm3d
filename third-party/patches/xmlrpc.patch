@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index bf12979..0cb14a2 100644
+index fe89c23..622575d 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -89,9 +89,9 @@ else(DEFINED MUST_BUILD_CURL_CLIENT)
@@ -15,7 +15,7 @@ index bf12979..0cb14a2 100644
  
  if(MUST_BUILD_CURL_CLIENT)
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index efb03e4..19226c8 100644
+index cdde6f8..8eb460b 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
 @@ -26,10 +26,10 @@ if(MUST_BUILD_LIBWWW_CLIENT)
@@ -43,7 +43,7 @@ index efb03e4..19226c8 100644
 +   PRIVATE  $<BUILD_INTERFACE:libcurl>
 +   )
  else(WIN32)
--    target_link_libraries(xmlrpc_client xmlrpc ${client_LIBS})
+-   target_link_libraries(xmlrpc_client xmlrpc ${client_LIBS})
 +   target_link_libraries(xmlrpc_client
 +   PUBLIC xmlrpc ${client_LIBS}
 +   PRIVATE $<BUILD_INTERFACE:libcurl>

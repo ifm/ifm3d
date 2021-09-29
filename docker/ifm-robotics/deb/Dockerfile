@@ -3,6 +3,16 @@ ARG BASE_IMAGE=ubuntu:20.04
 FROM ${BASE_IMAGE} AS build
 ARG BASE_IMAGE
 
+# Set up the kitware ppa and install cmake
+RUN DEBIAN_FRONTEND=noninteractive apt-get update \
+    && apt-get -y install apt-transport-https curl
+
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y gnupg2 wget \
+    && UBUNTU_RELEASE=$(awk -F'=' '/UBUNTU_CODENAME/ {print $2}' /etc/os-release) \
+    && echo "deb https://apt.kitware.com/ubuntu/ ${UBUNTU_RELEASE} main" > "/etc/apt/sources.list.d/kitware.list" \
+    && wget -O - "https://apt.kitware.com/keys/kitware-archive-latest.asc" | gpg --dearmor -o /etc/apt/trusted.gpg.d/kitware.gpg
+
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         build-essential \
