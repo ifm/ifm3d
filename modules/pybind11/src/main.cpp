@@ -1384,7 +1384,7 @@ PYBIND11_MODULE(ifm3dpy, m)
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
-      return json_loads(c->Get().dump());
+      return json_loads(c->Get(path).dump());
     },
     py::arg("path") = std::vector<std::string>(),
     R"(
@@ -1403,7 +1403,7 @@ PYBIND11_MODULE(ifm3dpy, m)
     {
       // Convert the input JSON to string and load it
       py::object json_dumps = py::module::import("json").attr("dumps");
-      c->Set(json_dumps(json).cast<std::string>());
+      c->Set(json::parse(json_dumps(json).cast<std::string>()));
     },
     py::arg("json"),
     R"(
