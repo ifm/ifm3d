@@ -38,7 +38,7 @@ macro_ensure_out_of_source_build(
 option(BUILD_TESTS "Build unit tests" ON)
 option(BUILD_MODULE_FRAMEGRABBER "Build the framegrabber module" ON)
 option(BUILD_MODULE_SWUPDATER "Build the swupdater module" ON)
-option(BUILD_MODULE_IMAGE "Build the image module" ON)
+option(BUILD_MODULE_IMAGE "Build the image module" OFF)
 option(BUILD_MODULE_OPENCV "Build the OpenCV-only image container" OFF)
 option(BUILD_MODULE_STLIMAGE "Build the stl image module" ON)
 option(BUILD_MODULE_PCICCLIENT "Build the pcicclient module" OFF)
@@ -49,6 +49,7 @@ option(FORCE_OPENCV3 "Force the build to require OpenCV 3" OFF)
 option(FORCE_OPENCV2 "Force the build to require OpenCV 2.4" OFF)
 option(BUILD_SHARED_LIBS "Build modules as shared libraries" ON)
 option(BUILD_DOC "Build documentation" OFF)
+option(BUILD_IN_DEPS "download and build dependencies" ON)
 
 # Installation root
 set(CPACK_SET_DESTDIR true)
