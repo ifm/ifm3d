@@ -2,8 +2,8 @@
 ## Setup
 ################################################
 if(NOT BUILD_IN_DEPS)
-# Bring in pybind11, including cmake macros and variables
-find_package(pybind11 REQUIRED)
+  # Bring in pybind11, including cmake macros and variables
+  find_package(pybind11 REQUIRED)
 endif()
 
 # Query the selected interpreter for the installation path, or use the override
