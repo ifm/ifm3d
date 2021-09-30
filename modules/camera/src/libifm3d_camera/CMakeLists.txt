@@ -2,37 +2,44 @@
 ## Bring in dependent projects
 ################################################
 
-# NOTE: The `FindXMLRPC.cmake` file does not respect cross-compilation
-# environments or windows builds. so, we make the assumption the includes are
-# in a standard directory in your sysroot (for cross compiling) or included via
-# a custom xmlrpc-c library on Windows (See Windows build instructions).
-if (NOT WIN32 AND NOT CMAKE_CROSSCOMPILING)
-  find_package(XMLRPC REQUIRED c++ client)
-endif()
+if(NOT BUILD_IN_DEPS)
+  # NOTE: The `FindXMLRPC.cmake` file does not respect cross-compilation
+  # environments or windows builds. so, we make the assumption the includes are
+  # in a standard directory in your sysroot (for cross compiling) or included via
+  # a custom xmlrpc-c library on Windows (See Windows build instructions).
+  if (NOT WIN32 AND NOT CMAKE_CROSSCOMPILING)
+    find_package(XMLRPC REQUIRED c++ client)
+  endif()
 
-find_package(glog QUIET CONFIG NAMES google-glog glog)
-if (NOT TARGET glog::glog)
-  find_library(LIB_glog NAMES glog)
-else()
-  set(LIB_glog glog::glog)
-endif (NOT TARGET glog::glog)
+  find_package(glog QUIET CONFIG NAMES google-glog glog)
+  if (NOT TARGET glog::glog)
+    find_library(LIB_glog NAMES glog)
+  else()
+    set(LIB_glog glog::glog)
+  endif (NOT TARGET glog::glog)
 
-if(NOT WIN32)
+  if(NOT WIN32)
     find_library(LIB_xmlrpcxx NAMES xmlrpc++)
     find_library(LIB_xmlrpc NAMES xmlrpc)
     find_library(LIB_xmlrpc_clientxx NAMES xmlrpc_client++)
     find_library(LIB_xmlrpc_client NAMES xmlrpc_client)
-else()
-  find_package(
-    xmlrpc-c CONFIG
-    REQUIRED COMPONENTS xmlrpc xmlrpc_client xmlrpc++ xmlrpc_client++
-    )
-  set(LIB_xmlrpcxx xmlrpc-c::xmlrpc++)
-  set(LIB_xmlrpc xmlrpc-c::xmlrpc)
-  set(LIB_xmlrpc_clientxx xmlrpc-c::xmlrpc_client++)
-  set(LIB_xmlrpc_client xmlrpc-c::xmlrpc_client)
-endif(NOT WIN32)
-
+  else()
+    find_package(
+	  xmlrpc-c CONFIG
+	  REQUIRED COMPONENTS xmlrpc xmlrpc_client xmlrpc++ xmlrpc_client++
+	)
+    set(LIB_xmlrpcxx xmlrpc-c::xmlrpc++)
+    set(LIB_xmlrpc xmlrpc-c::xmlrpc)
+    set(LIB_xmlrpc_clientxx xmlrpc-c::xmlrpc_client++)
+    set(LIB_xmlrpc_client xmlrpc-c::xmlrpc_client)
+  endif(NOT WIN32)
+else (NOT BUILD_IN_DEPS)
+  set( LIB_glog glog)
+  set(LIB_xmlrpcxx xmlrpc++)
+  set(LIB_xmlrpc xmlrpc)
+  set(LIB_xmlrpc_clientxx xmlrpc_client++)
+  set(LIB_xmlrpc_client xmlrpc_client)
+endif(NOT BUILD_IN_DEPS)
 ################################################
 ## Target: libifm3d_camera.so
 ################################################
@@ -51,6 +58,7 @@ target_include_directories(ifm3d_camera
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${XMLRPC_INCLUDE_DIRS}
+    ${BUILTIN_INCLUDES}
     )
 
 # NOTE: we cannot use the following due to only requiring cmake 3.5
