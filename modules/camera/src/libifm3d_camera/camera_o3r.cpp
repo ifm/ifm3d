@@ -24,6 +24,54 @@ ifm3d::O3RCamera::FactoryReset(bool keepNetworkSettings)
   this->pImpl->FactoryReset(keepNetworkSettings);
 }
 
+json
+ifm3d::O3RCamera::Get(const std::vector<std::string>& path)
+{
+  return json::parse(this->pImpl->Get(path));
+}
+
+void
+ifm3d::O3RCamera::Set(const json& j)
+{
+  return this->pImpl->Set(j.dump());
+}
+
+json
+ifm3d::O3RCamera::GetInit()
+{
+  return this->pImpl->GetInit();
+}
+
+void
+ifm3d::O3RCamera::SaveInit()
+{
+  return this->pImpl->SaveInit();
+}
+
+std::string
+ifm3d::O3RCamera::GetInitStatus()
+{
+  return this->pImpl->GetInitStatus();
+}
+
+json
+ifm3d::O3RCamera::GetSchema()
+{
+  return json::parse(this->pImpl->GetSchema());
+}
+
+void
+ifm3d::O3RCamera::Lock(const std::string& password)
+{
+  return this->pImpl->Lock(password);
+}
+
+void
+ifm3d::O3RCamera::Unlock(const std::string& password)
+{
+  return this->pImpl->Unlock(password);
+}
+
 ifm3d::CameraBase::device_family
 ifm3d::O3RCamera::WhoAmI()
 {
@@ -33,14 +81,14 @@ ifm3d::O3RCamera::WhoAmI()
 void
 ifm3d::O3RCamera::FromJSON(const json& j)
 {
-  this->pImpl->SetTemporaryConfiguration(j.dump());
-  this->pImpl->SaveInitConfiguration();
+  this->Set(j);
+  this->SaveInit();
 }
 
 json
 ifm3d::O3RCamera::ToJSON()
 {
-  return json::parse(this->pImpl->GetTemporaryConfiguration());
+  return this->Get();
 }
 
 void
@@ -53,10 +101,4 @@ ifm3d::CameraBase::swu_version
 ifm3d::O3RCamera::SwUpdateVersion()
 {
   return ifm3d::CameraBase::swu_version::SWU_V2;
-}
-
-json
-ifm3d::O3RCamera::Schema()
-{
-  return this->pImpl->Schema();
 }

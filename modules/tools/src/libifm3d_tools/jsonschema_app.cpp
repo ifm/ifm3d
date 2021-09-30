@@ -28,7 +28,7 @@ ifm3d::JsonSchemaApp::Run()
     }
 
   json schema =
-    std::static_pointer_cast<ifm3d::O3RCamera>(this->cam_)->Schema();
+    std::static_pointer_cast<ifm3d::O3RCamera>(this->cam_)->GetSchema();
   std::cout << schema.dump(2) << std::endl;
 
   return 0;
