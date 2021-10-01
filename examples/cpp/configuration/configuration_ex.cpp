@@ -22,19 +22,10 @@ int main(){
     // Display the current configuration
     std::cout << std::setw(4) << conf << std::endl;
 
-    // // Configure the device from a configuration file
-    // std::ifstream file_set("/path/to/conf_set.json");
-    // file_set >> conf;
-    // cam->FromJSON(conf);
-
-    // FromJSON same as set + saveInit (for parameters that remain after reboot)
-    // set function alone does not maintain values after reboot.
     // Configure the device from a json string
-    cam->FromJSONStr(R"({"device":{"info": {"name": "my_o3r"}}})");
-
-    // Check that the configuration worked
-    conf = cam->Get();
-    std::cout << std::setw(4) << conf << std::endl;
+    cam->Set(R"("{"device":{"info": {"name": "my_new_o3r"}}}")");
+    // Make the configuration persistent
+    cam->SaveInit();
 
     return 0;
 }
