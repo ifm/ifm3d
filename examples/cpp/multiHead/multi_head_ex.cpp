@@ -8,12 +8,11 @@
  One feature of the O3R platform is to enable the use of multiple camera heads of different types (2D, 3D, various resolutions, etc). 
  In this example, we show how to retrieve the pcic port number for each head connected to the VPU along with its type and create `FrameGrabber` and `ImageBuffer` objects for each.
 */
-#include <opencv2/core/core.hpp>
 #include <ifm3d/camera/camera_o3r.h>
 #include <iostream>
 #include <iomanip>
 #include <ifm3d/fg.h>
-#include <ifm3d/image.h>
+#include <ifm3d/stlimage.h>
 
 
 // This function formats the timestamps for proper display
@@ -40,15 +39,15 @@ std::string formatTimestamp(ifm3d::TimePointT timestamp)
 int main(){
 
     // Declare the camera object
-    auto cam = ifm3d::CameraBase::MakeShared();
+    auto cam = std::make_shared<ifm3d::O3RCamera>();
     // Retreive ports configuration 
-    json conf = cam->ToJSON();
+    json conf = cam->Get();
     auto ports = conf["ports"];
     // Initialize the structures
     std::vector<int> pcic_ports;
     std::vector<std::string> types;
     std::vector<ifm3d::FrameGrabber::Ptr> fgs;
-    std::vector<ifm3d::ImageBuffer::Ptr> ims;
+    auto im =  std::make_shared<ifm3d::StlImageBuffer>(); 
 
     std::cout << "Available connections:" << std::endl;
 
@@ -62,11 +61,8 @@ int main(){
         //Display connected port with type
         std::cout << "Port: " << port.key() << "\t PCIC: " << pcic << "\t Type: " << type << std::endl;
         // Create list of FrameGrabber and ImageBuffer objects for connected ports    
-        auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, 10, pcic);
-        fgs.push_back(fg);
-        auto im = std::make_shared<ifm3d::ImageBuffer>();
-        ims.push_back(im);
-
+        auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, ifm3d::DEFAULT_SCHEMA_MASK, pcic);
+        fgs.push_back(fg);       
     }
 
     // Grab frames from each heads
@@ -75,14 +71,18 @@ int main(){
     ifm3d::TimePointT timestamp;
     for (auto fg : fgs)
     {
-        auto im = ims[i];
-        fg->WaitForFrame(im.get(), 3000);
+        if (! fg->WaitForFrame(im.get(), 3000))
+        {
+            std::cerr << "Timeout waiting for camera!" << std::endl;
+            return -1;
+        }
+
         i++;
         timestamp = im->TimeStamp();
         std::cout << "Timestamp of frame "
-                  << std::setw(2) << std::setfill('0')
-                  << ": " << formatTimestamp(timestamp)
-                  << std::endl;    
+                << std::setw(2) << std::setfill('0')
+                << ": " << formatTimestamp(timestamp)
+                << std::endl;  
     }
 
     return 0;
