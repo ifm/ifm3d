@@ -27,14 +27,13 @@ json conf = cam->Get();
 
 ## Write a new configuration
 
-To write a new configuration to the device, you need to provide said configuration in json formatting. You can provide a full configuration file: 
+To write a new configuration to the device, you need to provide said configuration in json formatting. The provided configuration can be a subset or the full configuration.
 ```cpp
-cam->FromJSON(conf);
+cam->Set(R"({"device":{"info": {"name": "my_o3r"}}})");
 ```
-
-You can also provide a json string with a subset of the configuration:
-```cpp
-cam->FromJSONStr(R"({"device":{"info": {"name": "my_o3r"}}})");
-```
-
 Note: we use [string literals](https://en.cppreference.com/w/cpp/language/string_literal) for easier readability.
+
+To make the configuration persistent over reboots, you need to use the following function:
+```cpp
+cam->SaveInit();
+```
