@@ -4,6 +4,7 @@ add_custom_target(ifm3d_sphinx
     DEPENDS ifm3d_doxygen 
     DEPENDS ifm3dpy
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/examples/python ${CMAKE_CURRENT_BINARY_DIR}/examples
     COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${IFM3DPY_DIR}"
         ${PYTHON_EXECUTABLE} -m sphinx.cmd.build -b html -D html_extra_path=${DOXYGEN_DIR}/html "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/html" 
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
