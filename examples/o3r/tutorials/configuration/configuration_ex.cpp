@@ -14,25 +14,28 @@
 int main(){
 
     // Create the camera object
-    auto cam = ifm3d::CameraBase::MakeShared();
+    auto cam = ifm3d::O3RCamera::MakeShared();
 
     // Get the current configuration of the camera in JSON format
-    json conf = cam->ToJSON();
-    // Display and then write to file
+    json conf = cam->get(); // Same as cam->get()
+
+    // Display the current configuration
     std::cout << std::setw(4) << conf << std::endl;
-    std::ofstream file_get("conf_get.json");
-    file_get << std::setw(4) << conf;
+    // std::ofstream file_get("conf_get.json");
+    // file_get << std::setw(4) << conf;
 
     // // Configure the device from a configuration file
     // std::ifstream file_set("/path/to/conf_set.json");
     // file_set >> conf;
     // cam->FromJSON(conf);
 
+    // FromJSON same as set + saveInit (for parameters that remain after reboot)
+    // set function alone does not maintain values after reboot.
     // Configure the device from a json string
-    cam->FromJSONStr("{\"device\":{\"info\": {\"name\": \"my_o3r\"}}}");
+    cam->FromJSONStr(R"({"device":{"info": {"name": "my_o3r"}}})");
 
     // Check that the configuration worked
-    conf = cam->ToJSON();
+    conf = cam->get();
     std::cout << std::setw(4) << conf << std::endl;
 
     return 0;

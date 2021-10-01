@@ -20,7 +20,9 @@ int main(){
     // Declare the FrameGrabber and ImageBuffer objects. 
     // One FrameGrabber per camera head (define the port number).
     auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, 10, 50012);
-    auto im =  std::make_shared<ifm3d::ImageBuffer>();
+    auto im =  std::make_shared<ifm3d::ImageBuffer>(); // ImageBuffer is legacy (openCV + PCL)
+    // now use StiBuffer. Is return sti collections and not cv::stuff
+    // for opencv use OpenCVBuffer
 
     //////////////////////////
     // Get a frame:
