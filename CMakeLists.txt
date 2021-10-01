@@ -143,6 +143,7 @@ endif()
 if(BUILD_O3R_EXAMPLES)
   add_definitions(-DBUILD_O3R_EXAMPLES=OFF)
   add_subdirectory(examples/o3r)
+endif()
 if(BUILD_MODULE_STLIMAGE)
   # `stlimage`  like image relies on `framegrabber`, in the event the user
   # explicitly disabled the `framegrabber` but not `image`
