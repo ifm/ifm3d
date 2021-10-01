@@ -1,12 +1,16 @@
 ################################################
 ## Bring in dependent projects
 ################################################
-find_package(glog QUIET CONFIG NAMES google-glog glog)
-if (NOT TARGET glog::glog)
-  find_library(LIB_glog NAMES glog)
-else()
-  set(LIB_glog glog::glog)
-endif (NOT TARGET glog::glog)
+if(NOT BUILD_IN_DEPS)
+  find_package(glog QUIET CONFIG NAMES google-glog glog)
+  if(NOT TARGET glog::glog)
+    find_library(LIB_glog NAMES glog)
+  else(NOT TARGET glog::glog)
+    set(LIB_glog glog::glog)
+  endif (NOT TARGET glog::glog)
+else(NOT BUILD_IN_DEPS)
+  set( LIB_glog glog)
+endif()
 
 ################################################
 ## Target: libifm3d_image.so
