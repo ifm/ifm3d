@@ -137,11 +137,6 @@ build:linux:deb:
           - ubuntu:20.04
           - ubuntu:18.04
           - ubuntu:16.04
-  variables:
-    REQUESTS_CA_BUNDLE: "/etc/ssl/certs/ca-certificates.crt"
-    HTTP_PROXY: ${CI_HTTP_PROXY}
-    HTTPS_PROXY: ${CI_HTTPS_PROXY}
-    NO_PROXY: ${CI_NO_PROXY}
 
   tags:
     - ${RUNNER}
