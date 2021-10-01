@@ -38,9 +38,15 @@ namespace ifm3d
     explicit Impl(std::shared_ptr<XMLRPCWrapper> xwrapper);
     ~Impl();
 
-    std::string GetTemporaryConfiguration();
-    void SetTemporaryConfiguration(const std::string& config);
-    void SaveInitConfiguration();
+    std::string Get(const std::vector<std::string>& path);
+    void Set(const std::string& config);
+    std::string GetInit();
+    void SaveInit();
+    std::string GetInitStatus();
+    std::string GetSchema();
+    void Lock(const std::string& password);
+    void Unlock(const std::string& password);
+
     void FactoryReset(bool keepNetworkSettings);
     void Reboot();
 
@@ -57,23 +63,58 @@ ifm3d::O3RCamera::Impl::Impl(std::shared_ptr<XMLRPCWrapper> xwrapper)
 ifm3d::O3RCamera::Impl::~Impl() {}
 
 std::string
-ifm3d::O3RCamera::Impl::GetTemporaryConfiguration()
+ifm3d::O3RCamera::Impl::Get(const std::vector<std::string>& path)
 {
-  return xmlrpc_c::value_string(
-           this->xwrapper_->XCallMain("get", std::vector<std::string>()))
+  return xmlrpc_c::value_string(this->xwrapper_->XCallMain("get", path))
     .cvalue();
 }
 
 void
-ifm3d::O3RCamera::Impl::SetTemporaryConfiguration(const std::string& config)
+ifm3d::O3RCamera::Impl::Set(const std::string& config)
 {
   this->xwrapper_->XCallMain("set", config);
 }
 
+std::string
+ifm3d::O3RCamera::Impl::GetInit()
+{
+  return xmlrpc_c::value_string(
+           this->xwrapper_->XCallMain("getInit", std::vector<std::string>()))
+    .cvalue();
+}
+
 void
-ifm3d::O3RCamera::Impl::SaveInitConfiguration()
+ifm3d::O3RCamera::Impl::SaveInit()
 {
   this->xwrapper_->XCallMain("saveInit");
+}
+
+std::string
+ifm3d::O3RCamera::Impl::GetInitStatus()
+{
+  return xmlrpc_c::value_string(
+           this->xwrapper_->XCallMain("getInitStatus",
+                                      std::vector<std::string>()))
+    .cvalue();
+}
+
+std::string
+ifm3d::O3RCamera::Impl::GetSchema()
+{
+  return xmlrpc_c::value_string(this->xwrapper_->XCallMain("getSchema"))
+    .cvalue();
+}
+
+void
+ifm3d::O3RCamera::Impl::Lock(const std::string& password)
+{
+  this->xwrapper_->XCallMain("lock", password);
+}
+
+void
+ifm3d::O3RCamera::Impl::Unlock(const std::string& password)
+{
+  this->xwrapper_->XCallMain("unlock", password);
 }
 
 void

@@ -17,6 +17,7 @@
 #include <ifm3d/tools/export_app.h>
 #include <ifm3d/tools/imager_types_app.h>
 #include <ifm3d/tools/import_app.h>
+#include <ifm3d/tools/jsonschema_app.h>
 #include <ifm3d/tools/ls_app.h>
 #include <ifm3d/tools/passwd_app.h>
 #include <ifm3d/tools/make_app.h>

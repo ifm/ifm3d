@@ -118,55 +118,119 @@ namespace ifm3d
 
 PYBIND11_MODULE(ifm3dpy, m)
 {
-  m.doc() = "Bindings for the ifm3d Camera Library";
+  m.doc() = "Bindings for the ifm3d Camera Library\n\n"
+            "Variables\n"
+            "______\n\n"
+            ".. csv-table::\n"
+            "\n";
+
+  auto add_attr = [&m](const std::string& name,
+                       const auto& value,
+                       const std::string& doc = "") {
+    m.attr(name.c_str()) = value;
+    m.doc() =
+      m.doc().cast<std::string>() + "   \"" + name + "\", \"" + doc + "\"\n";
+  };
 
   // Module metadata
-  m.attr("__version__") = std::to_string(IFM3D_VERSION_MAJOR) + "." +
-                          std::to_string(IFM3D_VERSION_MINOR) + "." +
-                          std::to_string(IFM3D_VERSION_PATCH);
-  m.attr("__package__") = "ifm3dpy";
+  add_attr("__version__",
+           std::to_string(IFM3D_VERSION_MAJOR) + "." +
+             std::to_string(IFM3D_VERSION_MINOR) + "." +
+             std::to_string(IFM3D_VERSION_PATCH),
+           "The ifm3d version.");
+
+  add_attr("__package__", "ifm3dpy", "The ifm3d package.");
 
   // Camera defaults
-  m.attr("DEFAULT_IP") = ifm3d::DEFAULT_IP;
-  m.attr("DEFAULT_XMLRPC_PORT") = ifm3d::DEFAULT_XMLRPC_PORT;
-  m.attr("DEFAULT_PASSWORD") = ifm3d::DEFAULT_PASSWORD;
+  add_attr("DEFAULT_IP", ifm3d::DEFAULT_IP, "The default IP to connect to.");
+  add_attr("DEFAULT_XMLRPC_PORT",
+           ifm3d::DEFAULT_XMLRPC_PORT,
+           "The default XMLRPC port.");
+  add_attr("DEFAULT_PASSWORD",
+           ifm3d::DEFAULT_PASSWORD,
+           "The default password.");
 
   // Constants used to create "pluggable schema masks"
-  m.attr("DEFAULT_SCHEMA_MASK") = ifm3d::DEFAULT_SCHEMA_MASK;
-  m.attr("IMG_RDIS") = ifm3d::IMG_RDIS;
-  m.attr("IMG_AMP") = ifm3d::IMG_AMP;
-  m.attr("IMG_RAMP") = ifm3d::IMG_RAMP;
-  m.attr("IMG_CART") = ifm3d::IMG_CART;
-  m.attr("IMG_UVEC") = ifm3d::IMG_UVEC;
-  m.attr("EXP_TIME") = ifm3d::EXP_TIME;
-  m.attr("IMG_GRAY") = ifm3d::IMG_GRAY;
-  m.attr("ILLU_TEMP") = ifm3d::ILLU_TEMP;
-  m.attr("INTR_CAL") = ifm3d::INTR_CAL;
-  m.attr("INV_INTR_CAL") = ifm3d::INV_INTR_CAL;
-  m.attr("JSON_MODEL") = ifm3d::JSON_MODEL;
+  add_attr("DEFAULT_SCHEMA_MASK",
+           ifm3d::DEFAULT_SCHEMA_MASK,
+           "The default pcic schema mask.");
+  add_attr("IMG_RDIS",
+           ifm3d::IMG_RDIS,
+           "Pcic schema constant for the radial distance image.");
+  add_attr("IMG_AMP",
+           ifm3d::IMG_AMP,
+           "Pcic schema constant for the normalized amplitude image.");
+  add_attr("IMG_RAMP",
+           ifm3d::IMG_RAMP,
+           "Pcic schema constant for the raw amplitude image.");
+  add_attr("IMG_CART",
+           ifm3d::IMG_CART,
+           "Pcic schema constant for the cartesian image.");
+  add_attr("IMG_UVEC",
+           ifm3d::IMG_UVEC,
+           "Pcic schema constant for the wrapped unit vectors.");
+  add_attr("EXP_TIME",
+           ifm3d::EXP_TIME,
+           "Pcic schema constant for the amplitude image.");
+  add_attr("IMG_GRAY",
+           ifm3d::IMG_GRAY,
+           "Pcic schema constant for the wrapped ambient light image.");
+  add_attr("ILLU_TEMP",
+           ifm3d::ILLU_TEMP,
+           "Pcic schema constant for the illu temp.");
+  add_attr("INTR_CAL",
+           ifm3d::INTR_CAL,
+           "Pcic schema constant for the intrinsic calibration.");
+  add_attr("INV_INTR_CAL",
+           ifm3d::INV_INTR_CAL,
+           "Pcic schema constant for the inverse intrinsic calibration.");
+  add_attr("JSON_MODEL",
+           ifm3d::JSON_MODEL,
+           "Pcic schema constant for the json model.");
 
   // Constants to use for querying supported firmware versions
-  m.attr("O3D_TIME_SUPPORT_MAJOR") = ifm3d::O3D_TIME_SUPPORT_MAJOR;
-  m.attr("O3D_TIME_SUPPORT_MINOR") = ifm3d::O3D_TIME_SUPPORT_MINOR;
-  m.attr("O3D_TIME_SUPPORT_PATCH") = ifm3d::O3D_TIME_SUPPORT_PATCH;
+  add_attr("O3D_TIME_SUPPORT_MAJOR",
+           ifm3d::O3D_TIME_SUPPORT_MAJOR,
+           "Constant for querying for O3D time support.");
+  add_attr("O3D_TIME_SUPPORT_MINOR",
+           ifm3d::O3D_TIME_SUPPORT_MINOR,
+           "Constant for querying for O3D time support.");
+  add_attr("O3D_TIME_SUPPORT_PATCH",
+           ifm3d::O3D_TIME_SUPPORT_PATCH,
+           "Constant for querying for O3D time support.");
 
-  m.attr("O3D_TMP_PARAMS_SUPPORT_MAJOR") = ifm3d::O3D_TMP_PARAMS_SUPPORT_MAJOR;
-  m.attr("O3D_TMP_PARAMS_SUPPORT_MINOR") = ifm3d::O3D_TMP_PARAMS_SUPPORT_MINOR;
-  m.attr("O3D_TMP_PARAMS_SUPPORT_PATCH") = ifm3d::O3D_TMP_PARAMS_SUPPORT_PATCH;
+  add_attr("O3D_TMP_PARAMS_SUPPORT_MAJOR",
+           ifm3d::O3D_TMP_PARAMS_SUPPORT_MAJOR,
+           "Constant for querying for O3D temporary parameter support.");
+  add_attr("O3D_TMP_PARAMS_SUPPORT_MINOR",
+           ifm3d::O3D_TMP_PARAMS_SUPPORT_MINOR,
+           "Constant for querying for O3D temporary parameter support.");
+  add_attr("O3D_TMP_PARAMS_SUPPORT_PATCH",
+           ifm3d::O3D_TMP_PARAMS_SUPPORT_PATCH,
+           "Constant for querying for O3D temporary parameter support.");
 
-  m.attr("O3D_INTRINSIC_PARAM_SUPPORT_MAJOR") =
-    ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MAJOR;
-  m.attr("O3D_INTRINSIC_PARAM_SUPPORT_MINOR") =
-    ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MINOR;
-  m.attr("O3D_INTRINSIC_PARAM_SUPPORT_PATCH") =
-    ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_PATCH;
+  add_attr("O3D_INTRINSIC_PARAM_SUPPORT_MAJOR",
+           ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MAJOR,
+           "Constant for querying for O3D intrinsic parameter support.");
+  add_attr("O3D_INTRINSIC_PARAM_SUPPORT_MINOR",
+           ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MINOR,
+           "Constant for querying for O3D intrinsic parameter support.");
+  add_attr("O3D_INTRINSIC_PARAM_SUPPORT_PATCH",
+           ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_PATCH,
+           "Constant for querying for O3D intrinsic parameter support.");
 
-  m.attr("O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR") =
-    ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR;
-  m.attr("O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR") =
-    ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR;
-  m.attr("O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH") =
-    ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH;
+  add_attr(
+    "O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR",
+    ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR,
+    "Constant for querying for O3D inverse intrinsic parameter support.");
+  add_attr(
+    "O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR",
+    ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR,
+    "Constant for querying for O3D inverse intrinsic parameter support.");
+  add_attr(
+    "O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH",
+    ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH,
+    "Constant for querying for O3D inverse intrinsic parameter support.");
 
   // clang-format does a poor job handling the alignment of raw strings
   // clang-format off
@@ -1312,6 +1376,126 @@ PYBIND11_MODULE(ifm3dpy, m)
       ----------
       keep_network_settings : bool
           A bool indicating wether to keep the current network settings
+    )");
+
+  camera_o3r.def(
+    "get",
+    [](const ifm3d::O3RCamera::Ptr& c, const std::vector<std::string>& path)
+    {
+      // Convert the JSON to a python JSON object using the json module
+      py::object json_loads = py::module::import("json").attr("loads");
+      return json_loads(c->Get(path).dump());
+    },
+    py::arg("path") = std::vector<std::string>(),
+    R"(
+      Returns the configuration formatted as JSON based on a path.
+      If the path is empty, returns the whole configuration.
+
+      Returns
+      -------
+      dict
+          The JSON configuration for the list of object path fragments
+    )");
+
+  camera_o3r.def(
+    "set",
+    [](const ifm3d::O3RCamera::Ptr& c, const py::dict& json)
+    {
+      // Convert the input JSON to string and load it
+      py::object json_dumps = py::module::import("json").attr("dumps");
+      c->Set(json::parse(json_dumps(json).cast<std::string>()));
+    },
+    py::arg("json"),
+    R"(
+      Overwrites parts of the temporary JSON configuration which is achieved
+      by merging the provided JSON fragment with the current temporary JSON.
+
+      Parameters
+      ----------
+      json : dict
+          The new temporay JSON configuration of the device.
+    )");
+
+  camera_o3r.def(
+    "get_init",
+    [](const ifm3d::O3RCamera::Ptr& c)
+    {
+      // Convert the JSON to a python JSON object using the json module
+      py::object json_loads = py::module::import("json").attr("loads");
+      return json_loads(c->Get().dump());
+    },
+    R"(
+      Return the initial JSON configuration.
+
+      Returns
+      -------
+      dict
+          The initial JSON configuration
+    )");
+
+  camera_o3r.def(
+    "save_init",
+    &ifm3d::O3RCamera::SaveInit,
+    R"(
+      Save to current temporary JSON configuration as initial JSON
+      configuration
+    )");
+
+  camera_o3r.def(
+    "get_init_status",
+    &ifm3d::O3RCamera::GetInitStatus,
+    R"(
+      Returns the init status of the device
+
+      Returns
+      -------
+      dict
+          The init status of the device
+    )");
+
+  camera_o3r.def(
+    "lock",
+    &ifm3d::O3RCamera::Lock,
+    py::arg("password"),
+    R"(
+      Release the lock from the Device
+
+      Returns
+      -------
+      string
+          The password used to unlock the device
+    )");
+
+  camera_o3r.def(
+    "unlock",
+    &ifm3d::O3RCamera::Unlock,
+    py::arg("password"),
+    R"(
+      Locks the device until it is unlocked.
+      If the device is unlocked and an empty password is provided the password
+      protection is removed.
+
+      Returns
+      -------
+      string
+          The password used to lock the device
+    )");
+
+  camera_o3r.def(
+    "get_schema",
+    [](const ifm3d::O3RCamera::Ptr& c)
+    {
+      // Convert the JSON to a python JSON object using the json module
+      py::object json_loads = py::module::import("json").attr("loads");
+      return json_loads(c->GetSchema().dump());
+    },
+    R"(
+      Returns the current JSON schema configuration
+
+      Returns
+      -------
+      dict
+          The current json schema configuration
     )");
 
   // clang-format on
