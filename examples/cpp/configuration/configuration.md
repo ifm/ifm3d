@@ -9,18 +9,20 @@ There are multiple functions available to read the current configuration of the 
 For this process, we have to initialize the camera object (please have a look at the code example provided for full details of the imported libraries).
 
 ```cpp
-auto cam = ifm3d::CameraBase::MakeShared();
+auto cam = ifm3d::O3RCamera::MakeShared();
 ```
 
-Note:
-    // auto cam = ifm3d::CameraBase::MakeShared(); //O3RCamera provides specific functions for O3R.
-    // auto cam_O3R = std::static_pointer_cast<ifm3d::O3RCamera>(cam);
+Note: if you are using multiple ifm devices (O3D, O3X, O3R), you can use the `CameraBase` class. Then, to use O3R specific functions you can cast the pointer to the relevant class:
+```cpp
+auto cam = ifm3d::CameraBase::MakeShared(); //O3RCamera provides specific functions for O3R.
+auto cam_O3R = std::static_pointer_cast<ifm3d::O3RCamera>(cam);
+```
 
 ## Read the current configuration
 
 The first provided function outputs the current configuration of the device (the VPU and each head currently attached). This function outputs the full configuration, including the parameters set for each camera head, but also other aspects like MAC and IP addresses, etc.
 ```cpp
-json conf = cam->ToJSON();
+json conf = cam->Get();
 ```
 
 ## Write a new configuration
