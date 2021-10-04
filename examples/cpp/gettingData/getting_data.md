@@ -1,11 +1,11 @@
-# How to: receive an image
-Corresponding code example: [getting_data_ex.cpp](getting_data_ex.cpp)
+# How to: receive an image {#ex_getting_data}
+Corresponding code example: [getting_data_ex.cpp](@ref source)
 
 You successfully installed the ifm3d library which contains all you need to use the O3R. This library wraps around PCIC and XML-RPC communication protocols to facilitate the communication with the device.
 
 At the end of this 'how to', you should be able to receive images and know the basic usage of the `O3RCamera`, `FrameGrabber` and `StlImageBuffer` classes.
 
-## `O3RCamera`, `FrameGrabber` and `StlImageBuffer`
+## O3RCamera, FrameGrabber and StlImageBuffer
 
 ifm3d provides three main classes:
 - `O3RCamera` holds the configuration of the camera heads, handles the connection, etc;
@@ -54,3 +54,6 @@ dist = im->DistanceImage();
 ifm3d::Image rgb;
 rgb = im->JPEGImage();
 ```
+
+## The full example {#source}
+@include configuration_ex.cpp

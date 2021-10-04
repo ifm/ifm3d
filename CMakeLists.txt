@@ -154,9 +154,9 @@ if(BUILD_MODULE_PYBIND11)
   add_definitions(-DBUILD_MODULE_PYBIND11)
   add_subdirectory(modules/pybind11)
 endif()
-if(BUILD_O3R_EXAMPLES)
-  add_definitions(-DBUILD_O3R_EXAMPLES=OFF)
-  add_subdirectory(examples/cpp)
+
+if(BUILD_EXAMPLES)
+  add_subdirectory(examples)
 endif()
 
 if(BUILD_MODULE_STLIMAGE)

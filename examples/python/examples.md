@@ -2,5 +2,6 @@
 
 :::{toctree}
 
-The Great Example <the_great_example/the_great_example>
+How to: configure the camera <configuration/configuration>
+How to: receive an image <gettingData/gettingData>
 :::
