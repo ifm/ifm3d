@@ -1,5 +1,4 @@
-# How to: receive an image {#ex_getting_data}
-Corresponding code example: [getting_data_ex.cpp](@ref source)
+# How to: receive an image
 
 You successfully installed the ifm3d library which contains all you need to use the O3R. This library wraps around PCIC and XML-RPC communication protocols to facilitate the communication with the device.
 
@@ -55,5 +54,13 @@ ifm3d::Image rgb;
 rgb = im->JPEGImage();
 ```
 
-## The full example {#source}
-@include configuration_ex.cpp
+## The full example
+
+### c++
+```{literalinclude} getting_data.cpp
+:language: cpp
+```
+### Python
+```{include} getting_data.py
+:code:
+```
