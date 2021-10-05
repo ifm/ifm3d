@@ -1,0 +1,19 @@
+deploy:python_wheels:
+  image: python:3
+  stage: deploy
+  tags:
+    - shared_docker
+  needs:
+    - job: build:windows_2019:python_wheel
+      artifacts: true
+    - job: build:linux:amd64:python_wheel
+      artifacts: true
+  variables:
+    TWINE_USERNAME: __token__
+    TWINE_PASSWORD: ${PYPI_TOKEN}
+  script:
+    - |
+      pip install --no-cache-dir twine
+      twine upload wheelhouse/*
+  rules:
+    - !reference [.tagged, rules]
