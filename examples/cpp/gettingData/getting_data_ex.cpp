@@ -38,22 +38,5 @@ int main(){
 
     std::cout << dist.height() << " " << dist.width() << std::endl;
 
-    // Calculate mean and std dev on a 3*3 pixel area:
-    // cv::Mat mean, std_dev;
-    // cv::meanStdDev(dist(cv::Range(height/2,height/2+3), cv::Range(width/2,width/2+3)), mean, std_dev);
-
-    // std::cout << "Distance values of 3*3 center area: " << dist(cv::Range(height/2,height/2+3), cv::Range(width/2,width/2+3)) << std::endl; 
-    // std::cout << "Mean: " << mean << std::endl;
-    // std::cout << "Standard deviation: " << std_dev << std::endl;
-
-    //////////////////////////
-    // For 2D data:
-    /////////////////////////
-    /*
-    ifm3d::Image rgb;
-    rgb = im->JPEGImage();
-    // Do something here  
-    */
-
     return 0;
 }
