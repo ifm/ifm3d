@@ -18,7 +18,8 @@ int main(){
     auto cam = std::make_shared<ifm3d::O3RCamera>();
     // Declare the FrameGrabber and ImageBuffer objects. 
     // One FrameGrabber per camera head (define the port number).
-    auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, ifm3d::DEFAULT_SCHEMA_MASK, 50012);
+    const auto FG_PCIC_PORT = cam->Get({"/ports/port2/data/pcicTCPPort"});
+    auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, ifm3d::DEFAULT_SCHEMA_MASK, FG_PCIC_PORT);
     auto im =  std::make_shared<ifm3d::StlImageBuffer>(); 
 
     //////////////////////////

@@ -18,11 +18,11 @@ auto cam = std::make_shared<ifm3d::O3RCamera>();
 auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, ifm3d::DEFAULT_SCHEMA_MASK, 50012);
 auto im =  std::make_shared<ifm3d::StlImageBuffer>();
 ```
-The `O3RCamera` class, counter-intuitively, refers to the computing unit (the VPU). It inherits its name from previous ifm 3D devices that only used one camera, with no distinction between sensing and computing units. It is able to distinguish between the different devices (O3R, O3D, O3X, ...) and therefore access the relevant functionalities.
+The `O3RCamera` class, counter-intuitively, refers to the computing unit (the VPU). It inherits its name from previous ifm 3D devices that only used one camera, with no distinction between sensing and computing units. 
 You can input:
 - `ip`: the IP address of the device;
 - `xmlrpc_port`: the XML_RPC port (it is fixed at the moment);
-- `password`: the password to connect to the VPU, if any.
+- `password`: the password to connect to the device (unused for the O3R).
 
 The `FrameGrabber` stores a reference to the passed in camera shared pointer and starts a worker thread to stream in pixel data from the device.
 Its inputs:
@@ -36,7 +36,7 @@ The `StlImageBuffer` class simply serves to store the received data. It allocate
 
 ## Receive an image
 
-You just need to call the `WaitForFrame` function. Input an `ImageBuffer` object as well as a timeout value in ms.
+You just need to call the `WaitForFrame` function. Input an `ImageBuffer` object as well as a timeout value in ms. Make sure the camera head is in "RUN" mode.
 ```cpp
 fg->WaitForFrame(im.get(), 1000);
 ```
