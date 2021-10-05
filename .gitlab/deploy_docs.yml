@@ -1,0 +1,22 @@
+deploy:docs:
+  stage: deploy
+  tags:
+    - shared_docker
+  image: bitnami/git
+  needs:
+    - job: build:linux:docs
+      artifacts: true
+  script:
+    - git config --global user.email "support.robotics@ifm.com"
+    - git config --global user.name "ifm-csr"
+    - git clone https://${DOCS_GIT_USERNAME}:${DOCS_GIT_PASSWORD}@${DOCS_GIT_REPO} repo
+    - cd repo
+    - git rm -rf .
+    - git clean -fxd
+    - cp -r ${CI_PROJECT_DIR}/docs/* ./
+    - touch .nojekyll
+    - git add -A
+    - git commit -m "update docs" --allow-empty
+    - git push
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^o3r\/main-next/'
