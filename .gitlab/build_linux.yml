@@ -1,0 +1,150 @@
+build:linux:
+  stage: build
+  tags:
+    - shared_docker
+  variables:
+    BASE_IMAGE: ubuntu:16.04
+  image:
+    name: nexus.ifm.com:20443/ifm-robotics/ifm3d/kaniko:debug
+    entrypoint: [""]
+  script:
+    - !reference [.docker-config, script]
+    - mkdir -p /kaniko/.docker
+    - echo "${DOCKER_CFG}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context ${CI_PROJECT_DIR}
+      --dockerfile docker/ifm-robotics/docker/Dockerfile
+      --reproducible
+      --snapshotMode time
+      --cache
+      --cache-repo "${CI_REGISTRY}/ifm-robotics/ifm3d/cache"
+      --destination "${CI_REGISTRY}/ifm-robotics/ifm3d:${DOCKER_TAG}${TAG_POSTFIX}"
+      --no-push
+      ${DOCKER_BUILD_ARGS}
+
+# Docker
+build:linux:docker:
+  stage: build
+  parallel:
+    matrix:
+      - RUNNER: shared_docker
+        BASE_IMAGE: ubuntu:20.04
+        TAG_POSTFIX: -ubuntu-amd64
+      - RUNNER: shared_docker_aarch64
+        USE_PROXY: "yes"
+        BASE_IMAGE: ubuntu:20.04
+        TAG_POSTFIX: -ubuntu-arm64
+      - RUNNER: shared_docker_aarch64
+        USE_PROXY: "yes"
+        BASE_IMAGE: nvcr.io/nvidia/l4t-base:r32.4.3
+        TAG_POSTFIX: -l4t-arm64
+  tags:
+    - ${RUNNER}
+  image:
+    name: nexus.ifm.com:20443/ifm-robotics/ifm3d/kaniko:debug
+    entrypoint: [""]
+  script:
+    - !reference [.docker-config, script]
+    - mkdir -p /kaniko/.docker
+    - echo "${DOCKER_CFG}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context ${CI_PROJECT_DIR}
+      --dockerfile docker/ifm-robotics/docker/Dockerfile
+      --reproducible
+      --snapshotMode time
+      --cache
+      --cache-repo "${CI_REGISTRY}/ifm-robotics/ifm3d/cache"
+      --destination "${CI_REGISTRY}/ifm-robotics/ifm3d:${DOCKER_TAG}${TAG_POSTFIX}"
+      ${DOCKER_BUILD_ARGS}
+  rules:
+    - !reference [.tagged, rules]
+    - !reference [.nightly, rules]
+
+# Debs
+build:linux:deb:
+  stage: build
+  parallel:
+    matrix:
+      - RUNNER: shared_docker_aarch64
+        USE_PROXY: "yes"
+        PLATFORM: linux/aarch64
+        BASE_IMAGE:
+          - nvcr.io/nvidia/l4t-base:r32.4.3
+          - ubuntu:20.04
+          - ubuntu:18.04
+          - ubuntu:16.04
+      - RUNNER: shared_docker
+        PLATFORM: linux/amd64
+        BASE_IMAGE:
+          - ubuntu:20.04
+          - ubuntu:18.04
+          - ubuntu:16.04
+  tags:
+    - ${RUNNER}
+  image:
+    name: nexus.ifm.com:20443/ifm-robotics/ifm3d/kaniko:debug
+    entrypoint: [""]
+  script:
+    - !reference [.docker-config, script]
+    - mkdir -p /kaniko/.docker
+    - echo "${DOCKER_CFG}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context ${CI_PROJECT_DIR}
+      --dockerfile docker/ifm-robotics/deb/Dockerfile
+      --no-push
+      --reproducible
+      --snapshotMode time
+      --cache
+      --cache-repo "${CI_REGISTRY}/ifm-robotics/ifm3d/cache"
+      ${DOCKER_BUILD_ARGS}
+    - cp /out/*.tar ${CI_PROJECT_DIR}/
+  artifacts:
+    paths:
+      - ifm3d-*.tar
+    expire_in: 1 week
+  rules:
+    - !reference [.tagged, rules]
+    - !reference [.nightly, rules]
+
+# Python wheels
+build:linux:amd64:python_wheel:
+  image: quay.io/pypa/manylinux2014_x86_64:latest
+  stage: build
+  tags:
+    - shared_docker
+  script:
+    - |
+      for PYBIN in /opt/python/*/bin; do
+        "${PYBIN}/pip" wheel ${CI_PROJECT_DIR} --no-deps -w /tmp/wheelhouse/
+      done
+      for whl in /tmp/wheelhouse/*.whl; do
+        auditwheel repair "$whl" -w /${CI_PROJECT_DIR}/wheelhouse/
+      done
+  artifacts:
+    paths:
+      - wheelhouse/*.whl
+    expire_in: 1 week
+  rules:
+    - !reference [.tagged, rules]
+
+# Docs
+build:linux:docs:
+  stage: build
+  tags:
+    - shared_docker
+  image:
+    name: nexus.ifm.com:20443/ifm-robotics/ifm3d/kaniko:debug
+    entrypoint: [""]
+  script:
+    - !reference [.docker-config, script]
+    - mkdir -p /kaniko/.docker
+    - echo "${DOCKER_CFG}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context ${CI_PROJECT_DIR}
+      --dockerfile docker/ifm-robotics/doc/Dockerfile
+      --no-push
+      --reproducible
+      --snapshotMode time
+      --cache
+      --cache-repo "${CI_REGISTRY}/ifm-robotics/ifm3d/cache"
+      ${DOCKER_BUILD_ARGS}
+    - mv /out ${CI_PROJECT_DIR}/docs
+  artifacts:
+    paths:
+      - docs
