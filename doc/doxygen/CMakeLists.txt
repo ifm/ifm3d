@@ -8,11 +8,11 @@ if (DOXYGEN_FOUND)
       string(APPEND DOXYGEN_INPUTS "${PROJECT_SOURCE_DIR}/modules/${DOXYGEN_MODULE}/include ")
     endforeach(DOXYGEN_MODULE)
 
-    if(BUILD_EXAMPLES)
-      string(APPEND DOXYGEN_INPUTS "${PROJECT_SOURCE_DIR}/examples/cpp ")
-    endif(BUILD_EXAMPLES)
+    # if(BUILD_EXAMPLES)
+    #   string(APPEND DOXYGEN_INPUTS "${PROJECT_SOURCE_DIR}/examples/cpp ")
+    # endif(BUILD_EXAMPLES)
 
-    set(DOXYGEN_EXAMPLE_PATH ${PROJECT_SOURCE_DIR}/examples/cpp)
+    # set(DOXYGEN_EXAMPLE_PATH ${PROJECT_SOURCE_DIR}/examples/cpp)
 
     # set input and output files
     set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
