@@ -1,48 +1,28 @@
-cmake_minimum_required(VERSION 3.16)
-
-##############################################################
-## finding the ifm3d lib.
-##############################################################
-find_package(ifm3d CONFIG
-  REQUIRED COMPONENTS camera framegrabber image
-  )
-
+# cmake_minimum_required(VERSION 3.16)
 
 ##############################################################
 ## Building the examples
 ##############################################################
 
 ## Configuration example
-add_executable(configuration_ex tutorials/configuration/configuration_ex.cpp)
-target_link_libraries(configuration_ex
-                      ifm3d::camera
+add_executable(configuration configuration/configuration.cpp)
+target_link_libraries(configuration
+                      ifm3d_camera
                       )
-set_target_properties(configuration_ex
-  PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/examples/o3r/tutorials/configuration"
-)                      
 
 ## Getting data example
-add_executable(getting_data_ex tutorials/gettingData/getting_data_ex.cpp)
-target_link_libraries(getting_data_ex
-                      ifm3d::camera
-                      ifm3d::framegrabber
-                      ifm3d::image
+add_executable(getting_data getting_data/getting_data.cpp)
+target_link_libraries(getting_data
+                      ifm3d_camera
+                      ifm3d_framegrabber
+                      ifm3d_stlimage
                       )
-set_target_properties(getting_data_ex
-  PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/examples/o3r/tutorials/gettingData"
-)
 
 
 ## Multi head example
-add_executable(multi_head_ex tutorials/multiHead/multi_head_ex.cpp)
-target_link_libraries(multi_head_ex
-                      ifm3d::camera
-                      ifm3d::framegrabber
-                      ifm3d::image
+add_executable(multi_head multi_head/multi_head.cpp)
+target_link_libraries(multi_head
+                      ifm3d_camera
+                      ifm3d_framegrabber
+                      ifm3d_stlimage
                       )
-set_target_properties(multi_head_ex
-  PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/examples/o3r/tutorials/multiHead"
-)
