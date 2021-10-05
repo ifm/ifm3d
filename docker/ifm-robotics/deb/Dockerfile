@@ -38,7 +38,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # build pybind11 with cmake - but first clone from the official github repo
-RUN git clone --branch v2.3.0 https://github.com/pybind/pybind11.git /pybind  \
+RUN git clone --branch v2.8.0 https://github.com/pybind/pybind11.git /pybind  \
     && mkdir -p /pybind/build \
     && cd /pybind/build \
     && cmake -GNinja \
