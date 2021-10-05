@@ -1,0 +1,21 @@
+# Run unit test
+test:windows_2019:
+  stage: test
+  tags:
+    - ifm3d_windows
+  variables:
+    GIT_CLEAN_FLAGS: none
+    HTTP_PROXY: ${CI_HTTP_PROXY}
+    HTTPS_PROXY: ${CI_HTTPS_PROXY}
+    NO_PROXY: ${CI_NO_PROXY}
+  script:
+    - cd build
+    - cmake.exe --build . --config Release --target check
+  dependencies:
+    - build:windows_2019
+  rules:
+    - if: $SKIP_TEST == "false"
+      when: never
+    - when: on_success
+  needs:
+    - build:windows_2019
