@@ -1,0 +1,44 @@
+build:windows_2019:
+  stage: build
+  tags:
+    - ifm3d_windows
+  variables:
+    HTTP_PROXY: ${CI_HTTP_PROXY}
+    HTTPS_PROXY: ${CI_HTTPS_PROXY}
+    NO_PROXY: ${CI_NO_PROXY}
+  script:
+    - mkdir build
+    - cd build
+    - 'cmake.exe -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=D:/ifm3d_deps/install_VS2019 -DBUILD_TESTS=ON -DCMAKE_PREFIX_PATH="D:/ifm3d_deps/install_VS2019;D:/ifm3d_deps/install_VS2019/PCL 1.12.0" -DGTEST_CMAKE_DIR=D:/ifm3d_deps/googletest/googletest -Dgtest_force_shared_crt=TRUE ..'
+    - "cmake.exe --build . --config Release --target ALL_BUILD"
+  rules:
+    - when: on_success
+
+build:windows_2019:python_wheel:
+  stage: build
+  parallel:
+    matrix:
+      - PYTHON_VERSION:
+          - "3.7.9"
+          - "3.8.10"
+          - "3.9.7"
+          - "3.10.0"
+  variables:
+    IFM3D_CMAKE_GENERATOR: "Visual Studio 16 2019"
+    IFM3D_BUILD_DIR: D:/ifm3d_deps
+    IFM3D_INSTALL_DIR: D:/ifm3d_deps/install
+    CONFIG: Release
+    HTTP_PROXY: ${CI_HTTP_PROXY}
+    HTTPS_PROXY: ${CI_HTTPS_PROXY}
+    NO_PROXY: ${CI_NO_PROXY}
+  tags:
+    - ifm3d_windows
+  script:
+    - |
+      & D:/ifm3d_deps/python/python.${env:PYTHON_VERSION}/tools/python.exe -m pip wheel ${CI_PROJECT_DIR} --no-deps -w ${CI_PROJECT_DIR}\wheelhouse/
+  artifacts:
+    paths:
+      - wheelhouse/*.whl
+    expire_in: 1 week
+  rules:
+    - !reference [.tagged, rules]
