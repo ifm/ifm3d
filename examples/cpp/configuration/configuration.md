@@ -9,12 +9,12 @@ There are multiple functions available to read the current configuration of the 
 For this process, we have to initialize the camera object (please have a look at the code example provided for full details of the imported libraries).
 
 ```cpp
-auto cam = ifm3d::O3RCamera::MakeShared();
+auto cam = std::make_shared<ifm3d::O3RCamera>();
 ```
 
 Note: if you are using multiple ifm devices (O3D, O3X, O3R), you can use the `CameraBase` class. Then, to use O3R specific functions you can cast the pointer to the relevant class:
 ```cpp
-auto cam = ifm3d::CameraBase::MakeShared(); //O3RCamera provides specific functions for O3R.
+auto cam = ifm3d::CameraBase::MakeShared(); 
 auto cam_O3R = std::static_pointer_cast<ifm3d::O3RCamera>(cam);
 ```
 
