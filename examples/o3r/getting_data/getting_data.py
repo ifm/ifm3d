@@ -12,4 +12,5 @@ if fg.wait_for_frame(im, 500)==False:
 
 # Read the distance image and display a pixel in the center
 dist = im.distance_image()
-print(dist[100, 100])
+(width, height) = dist.shape
+print(dist[int(width/2),int(height/2)])
