@@ -12,11 +12,23 @@ ifm3d provides three main classes:
 - `StlImageBuffer` stores the image data.
 
 Instantiating these objects is as follows:
-```cpp
+:::::{tabs}
+::::{group-tab} Python
+:::python
+cam = O3RCamera()
+fg = FrameGrabber(o3r, pcic_port=50012)
+im =  ImageBuffer()
+:::
+::::
+::::{group-tab} C++
+:::cpp
 auto cam = std::make_shared<ifm3d::O3RCamera>();
 auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, ifm3d::DEFAULT_SCHEMA_MASK, 50012);
 auto im =  std::make_shared<ifm3d::StlImageBuffer>();
-```
+:::
+::::
+:::::
+
 The `O3RCamera` class, counter-intuitively, refers to the computing unit (the VPU). It inherits its name from previous ifm 3D devices that only used one camera, with no distinction between sensing and computing units. 
 You can input:
 - `ip`: the IP address of the device;
@@ -36,29 +48,55 @@ The `StlImageBuffer` class simply serves to store the received data. It allocate
 ## Receive an image
 
 You just need to call the `WaitForFrame` function. Input an `ImageBuffer` object as well as a timeout value in ms. Make sure the camera head is in "RUN" mode.
-```cpp
+:::::{tabs}
+::::{group-tab} Python
+:::python
+fg.wait_for_frame(im, 1000)
+:::
+::::
+::::{group-tab} C++
+:::cpp
 fg->WaitForFrame(im.get(), 1000);
-```
+:::
+::::
+:::::
 
 And you're good to go! Now you can do something with all this data.
 
 ## Access the data
 
 Accessing the received data is done through the `StlImageBuffer`. Different data types are available depending on whether the camera is a 2D or a 3D camera. Simply access the image like so:
-```cpp
-// For 3D data: 
+:::::{tabs}
+::::{group-tab} Python
+:::python
+# For 3D data:
+dist = im.distance_image();
+# For 2D data:
+rgb = im.jpeg_image();
+:::
+::::
+::::{group-tab} C++
+:::cpp
+// For 3D data:
 auto dist = im->DistanceImage();
 // For 2D data:
 auto rgb = im->JPEGImage();
-```
+:::
+::::
+:::::
 
 ## The full example
+:::::{tabs}
+::::{group-tab} Python
+:::{literalinclude} getting_data.py
+:language: python
+:::
+::::
 
-### c++
-```{literalinclude} getting_data.cpp
+::::{group-tab} C++
+:::{literalinclude} getting_data.cpp
 :language: cpp
-```
-### Python
-```{include} getting_data.py
-:code:
+:::
+::::
+:::::
 ```
