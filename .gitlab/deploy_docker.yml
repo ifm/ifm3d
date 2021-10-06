@@ -11,23 +11,27 @@ deploy:linux:docker:
     - mkdir -p $HOME/.docker
     - echo "${DOCKER_CFG}" > $HOME/.docker/config.json
 
-    - >-
-      manifest-tool push from-args
-      --target "${CI_REGISTRY}/ifm-robotics/ifm3d:${DOCKER_TAG}-ubuntu"
-      --template "${CI_REGISTRY}/ifm-robotics/ifm3d:${DOCKER_TAG}-ubuntu-ARCH"
-      --platforms "linux/arm64,linux/amd64"
+    - |
+      for REGISTRY in NEXUS DOCKERHUB GHCR; do
 
-    - >-
-      manifest-tool push from-args
-      --target "${CI_REGISTRY}/ifm-robotics/ifm3d:${DOCKER_TAG}"
-      --template "${CI_REGISTRY}/ifm-robotics/ifm3d:${DOCKER_TAG}-ubuntu-ARCH"
-      --platforms "linux/arm64,linux/amd64"
+        TARGET=$(eval echo "\${${REGISTRY}_REPO}")
 
-    - >-
-      manifest-tool push from-args
-      --target "${CI_REGISTRY}/ifm-robotics/ifm3d:${DOCKER_TAG}-l4t"
-      --template "${CI_REGISTRY}/ifm-robotics/ifm3d:${DOCKER_TAG}-l4t-ARCH"
-      --platforms "linux/arm64"
+        manifest-tool push from-args \
+        --target "${TARGET}:${DOCKER_TAG}-ubuntu" \
+        --template "${TARGET}:${DOCKER_TAG}-ubuntu-ARCH" \
+        --platforms "linux/arm64,linux/amd64"
+
+        manifest-tool push from-args \
+        --target "${TARGET}:${DOCKER_TAG}" \
+        --template "${TARGET}:${DOCKER_TAG}-ubuntu-ARCH" \
+        --platforms "linux/arm64,linux/amd64"
+
+        manifest-tool push from-args \
+        --target "${TARGET}:${DOCKER_TAG}-l4t" \
+        --template "${TARGET}:${DOCKER_TAG}-l4t-ARCH" \
+        --platforms "linux/arm64"
+
+      done
   rules:
     - !reference [.tagged, rules]
     - !reference [.nightly, rules]
