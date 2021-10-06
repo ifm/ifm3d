@@ -14,7 +14,6 @@
 #include <ifm3d/fg.h>
 #include <ifm3d/stlimage.h>
 
-
 // This function formats the timestamps for proper display
 // a.k.a converts to local time
 std::string formatTimestamp(ifm3d::TimePointT timestamp)
@@ -42,27 +41,31 @@ int main(){
     auto cam = std::make_shared<ifm3d::O3RCamera>();
     // Retreive ports configuration 
     json conf = cam->Get();
-    auto ports = conf["ports"];
     // Initialize the structures
-    std::vector<int> pcic_ports;
-    std::vector<std::string> types;
     std::vector<ifm3d::FrameGrabber::Ptr> fgs;
     auto im =  std::make_shared<ifm3d::StlImageBuffer>(); 
 
     std::cout << "Available connections:" << std::endl;
 
-    for (const auto& port : ports.items())
+    // Retrieve all the ports numbers for display later.
+    std::vector<std::string> port_nbs;
+    for (auto port_nb : conf["ports"].items())
+    {
+        port_nbs.push_back(port_nb.key());
+    }
+
+    int j = 0;
+    for (const auto& port : conf["ports"])
     {
         // Create lists of connected PCIC ports along with types
-        auto pcic = port.value()["data"]["pcicTCPPort"];
-        auto type = port.value()["info"]["features"]["type"];
-        pcic_ports.push_back(pcic);
-        types.push_back(type);    
+        const auto pcic = port["/data/pcicTCPPort"_json_pointer];
+        const auto type = port["/info/features/type"_json_pointer];
         //Display connected port with type
-        std::cout << "Port: " << port.key() << "\t PCIC: " << pcic << "\t Type: " << type << std::endl;
+        std::cout << "Port: " << port_nbs[j] << "\t PCIC: " << pcic << "\t Type: " << type << std::endl;
         // Create list of FrameGrabber and ImageBuffer objects for connected ports    
         auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, ifm3d::DEFAULT_SCHEMA_MASK, pcic);
-        fgs.push_back(fg);       
+        fgs.push_back(fg);    
+        j++;
     }
 
     // Grab frames from each heads
