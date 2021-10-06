@@ -34,8 +34,7 @@ int main(){
     //////////////////////////
     // Example for 3D data:
     //////////////////////////
-    ifm3d::Image dist;
-    dist = im->DistanceImage();
+    auto dist = im->DistanceImage();
 
     std::cout << dist.height() << " " << dist.width() << std::endl;
 

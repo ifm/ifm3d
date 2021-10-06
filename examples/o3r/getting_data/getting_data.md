@@ -46,12 +46,10 @@ And you're good to go! Now you can do something with all this data.
 
 Accessing the received data is done through the `StlImageBuffer`. Different data types are available depending on whether the camera is a 2D or a 3D camera. Simply access the image like so:
 ```cpp
-// For 3D data:
-ifm3d::Image dist;  
-dist = im->DistanceImage();
+// For 3D data: 
+auto dist = im->DistanceImage();
 // For 2D data:
-ifm3d::Image rgb;
-rgb = im->JPEGImage();
+auto rgb = im->JPEGImage();
 ```
 
 ## The full example
