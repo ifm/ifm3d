@@ -208,6 +208,6 @@ $ sudo dpkg -i ifm3d_0.18.0_amd64-pcicclient.deb
 The examples can be built along with the rest of the library by switching the proper flag on. Assuming you are in the /build folder:
 
 ```
-$ cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_O3R_EXAMPLES=ON ..
+$ cmake -DBUILD_O3R_EXAMPLES=ON ..
 $ make
 ```
