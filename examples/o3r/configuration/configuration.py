@@ -9,6 +9,7 @@ config = o3r.get()
 
 # Print a little part from the config to verify the configuration
 print(json.dumps(config['device']['swVersion'], indent=4))
+# Note: this assumes that a camera is plugged into port 1
 print(config['ports']['port1']['state'])
 
 # Let's change the name of the device
