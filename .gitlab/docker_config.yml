@@ -23,7 +23,7 @@
     fi
     DOCKER_CFG="${DOCKER_CFG} }"
 
-    KANIKO_BUILD_ARGS="--reproducible --snapshotMode time --cache --cache-repo ${NEXUS_REPO}/cache"
+    KANIKO_BUILD_ARGS="--reproducible --snapshotMode time --cache --cache-repo ${GHCR_REPO}/cache"
 
     KANIKO_PUSH_ARGS="\
       --destination ${NEXUS_REPO}:${DOCKER_TAG}${TAG_POSTFIX}\
