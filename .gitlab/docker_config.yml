@@ -4,7 +4,6 @@
 
     DOCKER_CFG="{\"auths\":{"
 
-    DOCKER_CFG="${DOCKER_CFG}\"${NEXUS_REGISTRY}\":{\"auth\":\"$(echo -n "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" | base64)\"},"
     DOCKER_CFG="${DOCKER_CFG}\"${DOCKERHUB_REGISTRY}\":{\"auth\":\"$(echo -n "${DOCKERHUB_USERNAME}:${DOCKERHUB_PASSWORD}" | base64)\"},"
     DOCKER_CFG="${DOCKER_CFG}\"${GHCR_REGISTRY}\":{\"auth\":\"$(echo -n "${GHCR_USERNAME}:${GHCR_PASSWORD}" | base64)\"}"
 
@@ -26,7 +25,8 @@
     KANIKO_BUILD_ARGS="--reproducible --snapshotMode time --cache --cache-repo ${GHCR_REPO}/cache"
 
     KANIKO_PUSH_ARGS="\
-      --destination ${NEXUS_REPO}:${DOCKER_TAG}${TAG_POSTFIX}\
       --destination ${DOCKERHUB_REPO}:${DOCKER_TAG}${TAG_POSTFIX}\
       --destination ${GHCR_REPO}:${DOCKER_TAG}${TAG_POSTFIX}\
     "
+
+    REGISTRIES="DOCKERHUB GHCR"
