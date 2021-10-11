@@ -12,7 +12,7 @@ deploy:linux:docker:
     - echo "${DOCKER_CFG}" > $HOME/.docker/config.json
 
     - |
-      for REGISTRY in NEXUS DOCKERHUB GHCR; do
+      for REGISTRY in $REGISTRIES; do
 
         TARGET=$(eval echo "\${${REGISTRY}_REPO}")
 
