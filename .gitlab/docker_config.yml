@@ -1,7 +1,14 @@
 .docker-config:
   script: |
     DOCKER_BUILD_ARGS="--build-arg BASE_IMAGE=${BASE_IMAGE} --build-arg PYTHON_VERSION=3.9"
-    DOCKER_CFG="{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"${CI_REGISTRY_AUTH}\"}}"
+
+    DOCKER_CFG="{\"auths\":{"
+
+    DOCKER_CFG="${DOCKER_CFG}\"${DOCKERHUB_REGISTRY}\":{\"auth\":\"$(echo -n "${DOCKERHUB_USERNAME}:${DOCKERHUB_PASSWORD}" | base64)\"},"
+    DOCKER_CFG="${DOCKER_CFG}\"${GHCR_REGISTRY}\":{\"auth\":\"$(echo -n "${GHCR_USERNAME}:${GHCR_PASSWORD}" | base64)\"}"
+
+    DOCKER_CFG="${DOCKER_CFG}}"
+
     if [ "x${USE_PROXY}" != "x" ]; then
       export http_proxy=${CI_HTTP_PROXY}
       export https_proxy=${CI_HTTPS_PROXY}
@@ -14,3 +21,12 @@
       DOCKER_TAG=${CI_COMMIT_TAG}
     fi
     DOCKER_CFG="${DOCKER_CFG} }"
+
+    KANIKO_BUILD_ARGS="--reproducible --snapshotMode time --cache --cache-repo ${GHCR_REPO}/cache"
+
+    KANIKO_PUSH_ARGS="\
+      --destination ${DOCKERHUB_REPO}:${DOCKER_TAG}${TAG_POSTFIX}\
+      --destination ${GHCR_REPO}:${DOCKER_TAG}${TAG_POSTFIX}\
+    "
+
+    REGISTRIES="DOCKERHUB GHCR"

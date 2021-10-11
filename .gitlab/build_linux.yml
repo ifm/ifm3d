@@ -9,16 +9,13 @@ build:linux:
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]
+    - echo "${KANIKO_PUSH_ARGS}"
     - mkdir -p /kaniko/.docker
     - echo "${DOCKER_CFG}" > /kaniko/.docker/config.json
     - /kaniko/executor --context ${CI_PROJECT_DIR}
       --dockerfile docker/ifm-robotics/docker/Dockerfile
-      --reproducible
-      --snapshotMode time
-      --cache
-      --cache-repo "${CI_REGISTRY}/ifm-robotics/ifm3d/cache"
-      --destination "${CI_REGISTRY}/ifm-robotics/ifm3d:${DOCKER_TAG}${TAG_POSTFIX}"
-      --no-push
+      ${KANIKO_BUILD_ARGS}
+      ${KANIKO_PUSH_ARGS}
       ${DOCKER_BUILD_ARGS}
 
 # Docker
@@ -48,11 +45,8 @@ build:linux:docker:
     - echo "${DOCKER_CFG}" > /kaniko/.docker/config.json
     - /kaniko/executor --context ${CI_PROJECT_DIR}
       --dockerfile docker/ifm-robotics/docker/Dockerfile
-      --reproducible
-      --snapshotMode time
-      --cache
-      --cache-repo "${CI_REGISTRY}/ifm-robotics/ifm3d/cache"
-      --destination "${CI_REGISTRY}/ifm-robotics/ifm3d:${DOCKER_TAG}${TAG_POSTFIX}"
+      ${KANIKO_BUILD_ARGS}
+      ${KANIKO_PUSH_ARGS}
       ${DOCKER_BUILD_ARGS}
   rules:
     - !reference [.tagged, rules]
@@ -89,10 +83,7 @@ build:linux:deb:
     - /kaniko/executor --context ${CI_PROJECT_DIR}
       --dockerfile docker/ifm-robotics/deb/Dockerfile
       --no-push
-      --reproducible
-      --snapshotMode time
-      --cache
-      --cache-repo "${CI_REGISTRY}/ifm-robotics/ifm3d/cache"
+      ${KANIKO_BUILD_ARGS}
       ${DOCKER_BUILD_ARGS}
     - cp /out/*.tar ${CI_PROJECT_DIR}/
   artifacts:
@@ -139,10 +130,7 @@ build:linux:docs:
     - /kaniko/executor --context ${CI_PROJECT_DIR}
       --dockerfile docker/ifm-robotics/doc/Dockerfile
       --no-push
-      --reproducible
-      --snapshotMode time
-      --cache
-      --cache-repo "${CI_REGISTRY}/ifm-robotics/ifm3d/cache"
+      ${KANIKO_BUILD_ARGS}
       ${DOCKER_BUILD_ARGS}
     - mv /out ${CI_PROJECT_DIR}/docs
   artifacts:
