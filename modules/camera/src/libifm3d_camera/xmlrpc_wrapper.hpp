@@ -86,6 +86,10 @@ namespace ifm3d
         {
           LOG(ERROR) << url << "->" << method << ":" << ex.what();
 
+          if (std::strstr(ex.what(), "HTTP response code is 407, not 200"))
+            {
+              throw ifm3d::error_t(IFM3D_PROXY_AUTH_REQUIRED);
+            }
           if (!rpc->isFinished())
             {
               throw ifm3d::error_t(IFM3D_XMLRPC_TIMEOUT);
