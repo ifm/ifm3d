@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <string>
 #include <chrono>
+#include <vector>
 
 #include <ifm3d/camera.h>
 #include <ifm3d/fg.h>
@@ -458,6 +459,29 @@ PYBIND11_MODULE(ifm3dpy, m)
         Returns
         -------
         datetime.datetime
+      )")
+    .def(
+      "timestamps",
+      [](const ifm3d::StlImageBuffer::Ptr& buff)
+      {
+        // The system clock duration type is different on different platforms,
+        // which breaks pybind11 type resolution. We must explicitly cast from
+        // ifm3d::TimeStampT to a time_point with a duration that matches
+        // the system clock of the target platform.
+        auto time_stamps =  buff->TimeStamps();
+        std::vector<std::chrono::time_point<std::chrono::system_clock>> time_points;
+        std::transform(time_stamps.begin(), time_stamps.end(),
+          std::back_inserter(time_points),
+          [](ifm3d::TimePointT &timestamp)
+          { return std::chrono::time_point_cast<std::chrono::system_clock::duration>(timestamp);});
+        return py::cast(time_points);
+      },
+      R"(
+        Returns the list timestamps of the image data.
+
+        Returns
+        -------
+        list[datetime.datetime]
       )")
     .def(
       "illu_temp",
