@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] 
 
+### Added
+- HTTP 407 Proxy authentication required error detection
+
 ## 0.91.0 - 2021-10-05
 
 ### Added
