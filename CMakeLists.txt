@@ -48,6 +48,7 @@ option(BUILD_SDK_PKG "Build install packages for development purposes" ON)
 option(FORCE_OPENCV3 "Force the build to require OpenCV 3" OFF)
 option(FORCE_OPENCV2 "Force the build to require OpenCV 2.4" OFF)
 option(BUILD_SHARED_LIBS "Build modules as shared libraries" ON)
+option(BUILD_EXAMPLES "Build the examples" OFF)
 option(BUILD_DOC "Build documentation" OFF)
 option(BUILD_IN_DEPS "download and build dependencies" ON)
 
@@ -152,6 +153,10 @@ endif()
 if(BUILD_MODULE_PYBIND11)
   add_definitions(-DBUILD_MODULE_PYBIND11)
   add_subdirectory(modules/pybind11)
+endif()
+
+if(BUILD_EXAMPLES)
+  add_subdirectory(examples)
 endif()
 
 if(BUILD_MODULE_STLIMAGE)

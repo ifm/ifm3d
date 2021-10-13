@@ -14,7 +14,6 @@
 
 namespace ifm3d
 {
-
   extern IFM3D_TOOLS_EXPORT const int FG_TIMEOUT;
   /**
    *  FgApp provides the interface for ifm3d::Framgrabber dependent command
