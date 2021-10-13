@@ -203,3 +203,11 @@ $ sudo dpkg -i ifm3d_0.18.0_amd64-opencv.deb
 $ sudo dpkg -i ifm3d_0.18.0_amd64-tools.deb
 $ sudo dpkg -i ifm3d_0.18.0_amd64-pcicclient.deb
 ```
+#### Building the examples
+
+The examples can be built along with the rest of the library by switching the proper flag on. Assuming you are in the /build folder:
+
+```
+$ cmake -DBUILD_O3R_EXAMPLES=ON ..
+$ make
+```

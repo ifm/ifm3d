@@ -30,7 +30,8 @@ RUN apt-get update \
         python3-sphinx \
         python3-sphinx-automodapi \
         python3-sphinx-rtd-theme \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && pip3 install myst-parser
 
 # build pybind11 with cmake - but first clone from the official github repo
 RUN git clone --branch v2.8.0 https://github.com/pybind/pybind11.git /pybind  \
