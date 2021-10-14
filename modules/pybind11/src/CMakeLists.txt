@@ -49,6 +49,8 @@ target_include_directories(ifm3dpy
     $<BUILD_INTERFACE:${IFM3D_CAMERA_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_STLIMAGE_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${IFM3D_TOOLS_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${IFM3D_TOOLS_SOURCE_DIR}/src/bin>
     ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
@@ -62,6 +64,7 @@ target_link_libraries(
     ifm3d_camera
     ifm3d_stlimage
     pybind11::module
+    ifm3d_tools_shared
   )
 
 #------------------

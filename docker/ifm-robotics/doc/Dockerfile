@@ -56,10 +56,10 @@ RUN mkdir -p /ifm3d/build \
     && cd /ifm3d/build \
     && cmake -GNinja \ 
         -DCMAKE_INSTALL_PREFIX=/app \
-        -DBUILD_MODULE_OPENCV=ON \
+        -DBUILD_MODULE_IMAGE=OFF \
         -DBUILD_MODULE_PCICCLIENT=ON \
         -DBUILD_MODULE_PYBIND11=ON \
-        -DBUILD_MODULE_TOOLS=OFF \
+        -DBUILD_MODULE_TOOLS=ON \
         -DBUILD_DOC=ON \
         -DPYTHON_EXECUTABLE=/usr/bin/python3 \
         .. \

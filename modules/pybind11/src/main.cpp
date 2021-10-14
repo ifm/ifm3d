@@ -12,6 +12,8 @@
 #include <ifm3d/camera.h>
 #include <ifm3d/fg.h>
 #include <ifm3d/stlimage.h>
+#include <ifm3d/tools.h>
+#include "ifm3d.cpp"
 
 // Pybind must come after ifm3d because the pybind includes
 // set some macros that conflict with the nlohmann json.hpp
@@ -21,6 +23,7 @@
 #include <pybind11/chrono.h>
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
+#include <pybind11/iostream.h>
 
 #include "util.hpp"
 
@@ -119,8 +122,69 @@ namespace ifm3d
   }
 }
 
+// testing tools intergation
+
+#if PY_VERSION_HEX < 0x03000000
+#  define MyPyText_AsString PyString_AsString
+#else
+#  define MyPyText_AsString PyUnicode_AsUTF8
+#endif
+
+std::tuple<int,std::string>
+run(py::list inlist, bool std_out = false)
+{
+  int argc = (int)inlist.size();
+  std::unique_ptr<const char*[]> argv(new const char*[argc]);
+
+  for (int i = 0; i < argc; ++i)
+    argv.get()[i] = (char*)MyPyText_AsString(inlist[i].ptr());
+  if (std_out)
+    {
+      py::scoped_ostream_redirect stream(
+        std::cout,                               // std::ostream&
+        py::module::import("sys").attr("stdout") // Python output
+
+      );
+      const int ret = main(argc, argv.get());
+      return std::tuple<int, std::string>(ret,"");
+    }
+  else
+    {
+      std::stringstream buffer;
+      std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+      const int ret = main(argc, argv.get());
+      return std::tuple<int, std::string>(ret,buffer.str());
+    }
+}
+
 PYBIND11_MODULE(ifm3dpy, m)
 {
+  m.def(
+    "run_cmdtool",
+    []() {
+      py::list argv = py::module::import("sys").attr("argv");
+      run(argv, true);
+    },
+    "Entry point for the ifm3dpy console application");
+
+  m.def("run", &run,
+    R"(
+        This function provides python application interface to run command line tool
+
+        Parameters
+        ----------
+        inlist : py::list
+            command line parameter in the list. e.g. to call a 'ls' command
+            ['ifm3dpy', '--ip=192.168.0.69', 'ls']
+        std_out : bool
+            provides out on the python sys.stdout
+
+        Returns
+        -------
+        Tuple(int,string): py::tuple(int,string)
+            execution state and output string.
+      )");
+
   m.doc() = "Bindings for the ifm3d Camera Library\n\n"
             "Variables\n"
             "______\n\n"
