@@ -47,31 +47,24 @@ int main(){
 
     std::cout << "Available connections:" << std::endl;
 
-    // Retrieve all the ports numbers for display later.
-    std::vector<std::string> port_nbs;
-    for (auto port_nb : conf["ports"].items())
-    {
-        port_nbs.push_back(port_nb.key());
-    }
-
-    int j = 0;
-    for (const auto& port : conf["ports"])
+    for (const auto& port : conf["ports"].items())
     {
         // Create lists of connected PCIC ports along with types
-        const auto pcic = port["/data/pcicTCPPort"_json_pointer];
-        const auto type = port["/info/features/type"_json_pointer];
+        nlohmann::json::json_pointer p1("/ports/"+port.key()+"/data/pcicTCPPort");
+        const auto pcic = conf[p1];
+        nlohmann::json::json_pointer p2("/ports/"+port.key()+"/info/features/type");
+        const auto type = conf[p2];
         //Display connected port with type
-        std::cout << "Port: " << port_nbs[j] << "\t PCIC: " << pcic << "\t Type: " << type << std::endl;
+        std::cout << "Port: " << port.key() 
+                  << "\t PCIC: " << pcic 
+                  << "\t Type: " << type << std::endl;
         // Create list of FrameGrabber and ImageBuffer objects for connected ports    
         auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, ifm3d::DEFAULT_SCHEMA_MASK, pcic);
         fgs.push_back(fg);    
-        j++;
     }
 
     // Grab frames from each heads
-    int i = 0;
     // The timestamp has two parts, the timestamp in seconds and the timestamp in nanoseconds
-    ifm3d::TimePointT timestamp;
     for (auto fg : fgs)
     {
         if (! fg->WaitForFrame(im.get(), 3000))
@@ -80,11 +73,9 @@ int main(){
             return -1;
         }
 
-        i++;
-        timestamp = im->TimeStamp();
         std::cout << "Timestamp of frame "
                 << std::setw(2) << std::setfill('0')
-                << ": " << formatTimestamp(timestamp)
+                << ": " << formatTimestamp(im->TimeStamp())
                 << std::endl;  
     }
 
