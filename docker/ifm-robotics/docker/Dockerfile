@@ -78,6 +78,7 @@ RUN git clone --branch v2.8.0 https://github.com/pybind/pybind11.git /pybind  \
     && mkdir -p /pybind/build \
     && cd /pybind/build \
     && cmake -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
         -DPYBIND11_TEST=OFF \
         -DCMAKE_INSTALL_PREFIX=/app \
         -DPYTHON_EXECUTABLE=/home/ifm/venv/bin/python${PYTHON_VERSION} \
@@ -96,6 +97,7 @@ COPY . /ifm3d
 RUN mkdir -p /ifm3d/build \
     && cd /ifm3d/build \
     && cmake -GNinja \ 
+        -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/app \
         -DBUILD_MODULE_OPENCV=ON \
         -DBUILD_MODULE_PCICCLIENT=ON \
