@@ -4,6 +4,9 @@ ARG PYTHON_VERSION=3.9
 # Set the base image
 ARG BASE_IMAGE=ubuntu:20.04
 
+# the cmake version to use for building
+ARG CMAKE_VERSION=3.20.6
+
 # if defined, we run unit tests when building ifm3d
 ARG RUN_TESTS
 
@@ -42,16 +45,7 @@ RUN python${PYTHON_VERSION} -m venv /home/ifm/venv \
 # This stage is used for building ifm3d
 FROM base AS build
 ARG PYTHON_VERSION
-
-# Set up the kitware ppa and install cmake
-RUN DEBIAN_FRONTEND=noninteractive apt-get update \
-    && apt-get -y install apt-transport-https curl
-
-RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y gnupg2 wget \
-    && UBUNTU_RELEASE=$(awk -F'=' '/UBUNTU_CODENAME/ {print $2}' /etc/os-release) \
-    && echo "deb https://apt.kitware.com/ubuntu/ ${UBUNTU_RELEASE} main" > "/etc/apt/sources.list.d/kitware.list" \
-    && wget -O - "https://apt.kitware.com/keys/kitware-archive-latest.asc" | gpg --dearmor -o /etc/apt/trusted.gpg.d/kitware.gpg
+ARG CMAKE_VERSION
 
 # Install build-time dependencies
 RUN apt-get update \
@@ -71,13 +65,19 @@ RUN apt-get update \
         libxmlrpc-c++8-dev \
         locales \
         ninja-build \
+        wget \
     && rm -rf /var/lib/apt/lists/*
+
+# Install cmake 
+RUN wget -O - "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-$(uname -i).tar.gz" \
+    | tar -xz --strip-components=1 -C /usr
 
 # build pybind11 with cmake - but first clone from the official github repo
 RUN git clone --branch v2.8.0 https://github.com/pybind/pybind11.git /pybind  \
     && mkdir -p /pybind/build \
     && cd /pybind/build \
     && cmake -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
         -DPYBIND11_TEST=OFF \
         -DCMAKE_INSTALL_PREFIX=/app \
         -DPYTHON_EXECUTABLE=/home/ifm/venv/bin/python${PYTHON_VERSION} \
@@ -96,6 +96,7 @@ COPY . /ifm3d
 RUN mkdir -p /ifm3d/build \
     && cd /ifm3d/build \
     && cmake -GNinja \ 
+        -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/app \
         -DBUILD_MODULE_OPENCV=ON \
         -DBUILD_MODULE_PCICCLIENT=ON \
@@ -113,7 +114,7 @@ ARG PYTHON_VERSION
 
 # Copy the build output
 COPY --from=build /app /usr
-COPY --from=build /home/ifm/venv/ /home/ifm/venv/
+COPY --from=build --chown=ifm:ifm /home/ifm/venv/ /home/ifm/venv/
 
 # Install runtime requirements
 RUN apt-get update \
@@ -135,7 +136,6 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 RUN echo "ifm ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers
-RUN chown -R ifm:ifm /home/ifm/venv
 
 USER ifm
 ENV VIRTUAL_ENV="/home/ifm/venv"
