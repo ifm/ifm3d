@@ -115,7 +115,7 @@ ARG PYTHON_VERSION
 
 # Copy the build output
 COPY --from=build /app /usr
-COPY --from=build /home/ifm/venv/ /home/ifm/venv/
+COPY --from=build --chown=ifm:ifm /home/ifm/venv/ /home/ifm/venv/
 
 # Install runtime requirements
 RUN apt-get update \
@@ -137,7 +137,6 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 RUN echo "ifm ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers
-RUN chown -R ifm:ifm /home/ifm/venv
 
 USER ifm
 ENV VIRTUAL_ENV="/home/ifm/venv"
