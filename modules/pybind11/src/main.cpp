@@ -13,7 +13,6 @@
 #include <ifm3d/fg.h>
 #include <ifm3d/stlimage.h>
 #include <ifm3d/tools.h>
-#include "ifm3d.cpp"
 
 // Pybind must come after ifm3d because the pybind includes
 // set some macros that conflict with the nlohmann json.hpp
@@ -133,11 +132,13 @@ namespace ifm3d
 std::tuple<int,std::string>
 run(py::list inlist, bool std_out = false)
 {
-  int argc = (int)inlist.size();
-  std::unique_ptr<const char*[]> argv(new const char*[argc]);
+  int argc = static_cast<int>(inlist.size());
+  auto argv = std::make_unique<const char*[]>(argc);
 
   for (int i = 0; i < argc; ++i)
-    argv.get()[i] = (char*)MyPyText_AsString(inlist[i].ptr());
+    {
+      argv.get()[i] = (char*)MyPyText_AsString(inlist[i].ptr());
+    }
   if (std_out)
     {
       py::scoped_ostream_redirect stream(
@@ -145,14 +146,14 @@ run(py::list inlist, bool std_out = false)
         py::module::import("sys").attr("stdout") // Python output
 
       );
-      const int ret = main(argc, argv.get());
+      const int ret = ifm3d::CmdLineApp::Execute(argc, argv.get());
       return std::tuple<int, std::string>(ret,"");
     }
   else
     {
       std::stringstream buffer;
       std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
-      const int ret = main(argc, argv.get());
+      const int ret = ifm3d::CmdLineApp::Execute(argc, argv.get());
       return std::tuple<int, std::string>(ret,buffer.str());
     }
 }
