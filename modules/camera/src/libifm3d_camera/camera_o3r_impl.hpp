@@ -78,8 +78,7 @@ ifm3d::O3RCamera::Impl::Set(const std::string& config)
 std::string
 ifm3d::O3RCamera::Impl::GetInit()
 {
-  return xmlrpc_c::value_string(
-           this->xwrapper_->XCallMain("getInit", std::vector<std::string>()))
+  return xmlrpc_c::value_string(this->xwrapper_->XCallMain("getInit"))
     .cvalue();
 }
 
