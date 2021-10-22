@@ -412,7 +412,7 @@ ifm3d::StlImageBuffer::Impl::ImCreate(ifm3d::image_chunk im,
       this->bad_.create(this->conf_.width(),
                         this->conf_.height(),
                         1,
-                        this->conf_.dataFormat());
+                        ifm3d::pixel_format::FORMAT_8U);
       int index = 0;
       if (this->conf_.dataFormat() == ifm3d::pixel_format::FORMAT_16U)
         {
