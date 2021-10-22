@@ -1,3 +1,64 @@
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased] 
+
+## 0.92.0 - 2021-10-22
+### Added
+- HTTP 407 Proxy authentication required error detection
+- Python 3.10 builds
+- Docker image on DockerHub: ifmrobotics/ifm3d
+- Docker image on GHCR: ghcr.io/ifm/ifm3d:latest
+- Basic usage tutorials
+
+### Fixed
+- O3R broken XYZImage 
+- O3R getInit() method
+- Use the correct base image for arm64 based containers
+
+### Changed
+- Docker images now build ifm3d in Release mode 
+
+## 0.91.0 - 2021-10-05
+
+### Added
+- O3R specific methods
+
+## 0.90.2 - 2021-09-16
+
+- stlImage module (Image container based on STL)
+- Removed copying of the tools header
+- Example to upload docker container to O3R
+
+## 0.90.1 - 2021-08-17
+
+### Added
+- Basic c++ tutorials
+- Support for the new JSON based XML-RPC interface
+- Support for 2D image data
+- ifm3dpy_viewer python example
+- Generate version based on last tag and commits since
+
+### Changed
+- Split Camera implementation into multiple classes
+- IsO3D/IsO3X/IsO3R replaced by WhoAmI/AmI functions
+
+## 0.90.0 - 2021-01-18
+
+### Added
+
+- Basic O3R support
+- Support for the compressed image format introduced for O3R
+- Initial IPv4 Discovery in the ifm3d command line tool
+
+### Removed
+
+- Hardcoded compiler Flags for Linux
+- Copy of the header files during CMake build
+
 ## Changes between ifm3d 0.18.0 and 0.20.0 [Unreleased]
 * Added clang format support for formatting
 * Changed License Headers to SPDX format
@@ -12,10 +73,6 @@
 * Bugfixes
   * #284 ifm3d Compiling error at swupdater app with VS2019 and Windows
   * #283 Imported target "ifm3d::image" includes non-existent path "/usr/include/opencv"
-
-## [0.91.0] - 2021-02-15
-### Added
-- Support for the compressed image format introduced for O3R
 
 ## Changes between ifm3d 0.17.0 and 0.18.0
 * Support for latest O3D3XX firmware (1.30.5309)
