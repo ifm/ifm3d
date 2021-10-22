@@ -77,7 +77,7 @@ namespace ifm3d
      */
     void Reset(ifm3d::CameraBase::Ptr cam,
                std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK,
-			   std::uint16_t pcic_port = ifm3d::PCIC_PORT);
+               std::uint16_t pcic_port = ifm3d::PCIC_PORT);
 
   private:
     ifm3d::FrameGrabber::Ptr fg_;
@@ -1426,7 +1426,7 @@ PYBIND11_MODULE(ifm3dpy, m)
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
-      return json_loads(c->Get().dump());
+      return json_loads(c->GetInit().dump());
     },
     R"(
       Return the initial JSON configuration.
