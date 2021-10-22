@@ -39,7 +39,7 @@ ifm3d::O3RCamera::Set(const json& j)
 json
 ifm3d::O3RCamera::GetInit()
 {
-  return this->pImpl->GetInit();
+  return json::parse(this->pImpl->GetInit());
 }
 
 void
