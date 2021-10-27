@@ -10,6 +10,13 @@
 
 namespace ifm3d
 {
+  struct PortInfo
+  {
+    std::string port;
+    uint16_t pcic_port;
+    std::string type;
+  };
+
   /**
    * Camera specialization for O3R
    */
@@ -55,6 +62,16 @@ namespace ifm3d
       const std::vector<std::string>& path = std::vector<std::string>());
 
     /**
+     * Returns a part of the configuration formatted as JSON based on a
+     * JSON pointer.
+     *
+     * @param[in] ptr A JSON pointer to retrieve the information for
+     *
+     * @return The partial JSON configuration for the given JSON pointer
+     */
+    json GetPartial(const json::json_pointer& ptr);
+
+    /**
      * Overwrites parts of the temporary JSON configuration which is achieved
      * by merging the provided JSON fragment with the current temporary JSON.
      *
@@ -85,7 +102,7 @@ namespace ifm3d
     /**
      * Release the lock from the Device
      *
-     * @param[in] the password used to unlock the device
+     * @param[in] password the password used to unlock the device
      */
     void Lock(const std::string& password);
 
@@ -94,9 +111,25 @@ namespace ifm3d
      * If the device is unlocked and an empty password is provided the password
      * protection is removed.
      *
-     * @param[in] the password used to lock the device
+     * @param[in] password the password used to lock the device
      */
     void Unlock(const std::string& password);
+
+    /**
+     * Returns a list containing information about all connected ports
+     *
+     * @return the list of ports
+     */
+    std::vector<PortInfo> Ports();
+
+    /**
+     * Returns information about a given port
+     *
+     * @param[in] port the port for which to get the information
+     *
+     * @return the port information
+     */
+    PortInfo Port(const std::string& port);
 
     void Reboot(const boot_mode& mode =
                   ifm3d::CameraBase::boot_mode::PRODUCTIVE) override;
