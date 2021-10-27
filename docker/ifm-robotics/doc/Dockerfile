@@ -30,8 +30,7 @@ RUN apt-get update \
         python3-sphinx \
         python3-sphinx-automodapi \
         python3-sphinx-rtd-theme \
-    && rm -rf /var/lib/apt/lists/* \
-    && pip3 install myst-parser
+    && rm -rf /var/lib/apt/lists/*
 
 # build pybind11 with cmake - but first clone from the official github repo
 RUN git clone --branch v2.8.0 https://github.com/pybind/pybind11.git /pybind  \
@@ -50,6 +49,8 @@ RUN git clone --branch v2.8.0 https://github.com/pybind/pybind11.git /pybind  \
 ENV IFM3D_IP 192.168.0.69
 
 COPY . /ifm3d
+
+RUN pip3 install -r /ifm3d/doc/sphinx/requirements.txt
 
 RUN mkdir -p /ifm3d/build \
     && cd /ifm3d/build \
