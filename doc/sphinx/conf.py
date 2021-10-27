@@ -30,6 +30,7 @@ author = 'ifm electronic'
 extensions = [
     'sphinx_automodapi.automodapi',
     'myst_parser',
+    'sphinx_tabs.tabs',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -76,3 +77,5 @@ html_static_path = ['_static']
 myst_enable_extensions = [
     "colon_fence"
 ]
+
+sphinx_tabs_disable_tab_closing = True
