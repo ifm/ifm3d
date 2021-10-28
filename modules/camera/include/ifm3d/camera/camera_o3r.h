@@ -69,7 +69,7 @@ namespace ifm3d
      *
      * @return The partial JSON configuration for the given JSON pointer
      */
-    json GetPartial(const json::json_pointer& ptr);
+    json ResolveConfig(const json::json_pointer& ptr);
 
     /**
      * Overwrites parts of the temporary JSON configuration which is achieved

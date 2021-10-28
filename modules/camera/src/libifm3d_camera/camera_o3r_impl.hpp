@@ -40,7 +40,7 @@ namespace ifm3d
     ~Impl();
 
     json Get(const std::vector<std::string>& path);
-    json GetPartial(const json::json_pointer& ptr);
+    json ResolveConfig(const json::json_pointer& ptr);
     void Set(const std::string& config);
     json GetInit();
     void SaveInit();
@@ -74,10 +74,9 @@ ifm3d::O3RCamera::Impl::Get(const std::vector<std::string>& path)
 }
 
 json
-ifm3d::O3RCamera::Impl::GetPartial(const json::json_pointer& ptr)
+ifm3d::O3RCamera::Impl::ResolveConfig(const json::json_pointer& ptr)
 {
-  return this->Get(
-    std::vector<std::string>{ptr.parent_pointer().to_string()})[ptr];
+  return this->Get({})[ptr];
 }
 
 void
@@ -131,7 +130,7 @@ ifm3d::PortInfo
 ifm3d::O3RCamera::Impl::Port(const std::string& port)
 {
   auto port_data =
-    GetPartial(json::json_pointer(fmt::format("/ports/{0}", port)));
+    ResolveConfig(json::json_pointer(fmt::format("/ports/{0}", port)));
 
   if (port_data.is_null())
     {
@@ -148,7 +147,7 @@ ifm3d::O3RCamera::Impl::Ports()
 {
   std::vector<ifm3d::PortInfo> result;
 
-  auto ports = GetPartial("/ports"_json_pointer);
+  auto ports = ResolveConfig("/ports"_json_pointer);
   for (const auto& port : ports.items())
     {
       auto port_key = port.key();

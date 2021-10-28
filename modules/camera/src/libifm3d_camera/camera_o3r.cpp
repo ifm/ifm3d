@@ -31,9 +31,9 @@ ifm3d::O3RCamera::Get(const std::vector<std::string>& path)
 }
 
 json
-ifm3d::O3RCamera::GetPartial(const json::json_pointer& ptr)
+ifm3d::O3RCamera::ResolveConfig(const json::json_pointer& ptr)
 {
-  return this->pImpl->GetPartial(ptr);
+  return this->pImpl->ResolveConfig(ptr);
 }
 
 void
