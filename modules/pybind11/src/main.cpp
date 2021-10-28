@@ -25,6 +25,7 @@
 #include "util.hpp"
 
 namespace py = pybind11;
+using namespace pybind11::literals;
 
 namespace ifm3d
 {
@@ -108,12 +109,13 @@ namespace ifm3d
   }
 
   void
-  FrameGrabberWrapper::Reset(ifm3d::CameraBase::Ptr cam, std::uint16_t mask,
+  FrameGrabberWrapper::Reset(ifm3d::CameraBase::Ptr cam,
+                             std::uint16_t mask,
                              const std::uint16_t pcic_port)
   {
     // Two distinct steps (required because O3X only accepts one connection)
     this->fg_.reset();
-    this->fg_ = std::make_shared<ifm3d::FrameGrabber>(cam, mask,pcic_port);
+    this->fg_ = std::make_shared<ifm3d::FrameGrabber>(cam, mask, pcic_port);
   }
 }
 
@@ -232,6 +234,55 @@ PYBIND11_MODULE(ifm3dpy, m)
     "O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH",
     ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH,
     "Constant for querying for O3D inverse intrinsic parameter support.");
+
+  // pybind doesn't support custom exception classes with additional parameters
+  // so we create a new exception class dynamically using the python type()
+  // function.
+  py::object pyerror = py::module::import("builtins").attr("RuntimeError");
+  py::object pytype =
+    py::reinterpret_borrow<py::object>((PyObject*)&PyType_Type);
+  py::dict attributes;
+
+  py::dict error_attributes(
+    "__init__"_a = py::cpp_function(
+      [](py::object self,
+         int errnum,
+         const std::string& msg,
+         const std::string& what) {
+        self.attr("code") = errnum;
+        self.attr("message") = msg;
+        self.attr("what") = what;
+      },
+      py::arg("errnum"),
+      py::arg("msg"),
+      py::arg("what"),
+      py::is_method(py::none())),
+    "__str__"_a =
+      py::cpp_function([](py::object self) { return self.attr("what"); },
+                       py::is_method(py::none())));
+
+  static auto error_class =
+    pytype("Error", py::make_tuple(pyerror), error_attributes);
+  m.attr("Error") = error_class;
+
+  py::register_local_exception_translator([](std::exception_ptr p) {
+    try
+      {
+        if (p)
+          {
+            std::rethrow_exception(p);
+          }
+      }
+    catch (const ifm3d::error_t& e)
+      {
+        auto error = error_class(e.code(), e.message(), e.what());
+        PyErr_SetObject(error_class.ptr(), error.ptr());
+      }
+    catch (const std::exception& e)
+      {
+        PyErr_SetString(PyExc_RuntimeError, e.what());
+      }
+  });
 
   // clang-format does a poor job handling the alignment of raw strings
   // clang-format off
