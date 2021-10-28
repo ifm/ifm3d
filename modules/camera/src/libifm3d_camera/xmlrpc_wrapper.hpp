@@ -97,11 +97,11 @@ namespace ifm3d
           else if (!rpc->isSuccessful())
             {
               xmlrpc_c::fault f = rpc->getFault();
-              throw ifm3d::error_t(f.getCode());
+              throw ifm3d::error_t(f.getCode(), f.getDescription());
             }
           else
             {
-              throw ifm3d::error_t(IFM3D_XMLRPC_FAILURE);
+              throw ifm3d::error_t(IFM3D_XMLRPC_FAILURE, ex.what());
             }
         }
     }

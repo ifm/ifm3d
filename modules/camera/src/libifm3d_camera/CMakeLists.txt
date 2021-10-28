@@ -93,6 +93,7 @@ target_link_libraries(
     ${LIB_xmlrpcxx}
     ${LIB_xmlrpc}
     $<BUILD_INTERFACE:asio>
+    $<BUILD_INTERFACE:fmt::fmt-header-only>
   )
 
 set_target_properties(
