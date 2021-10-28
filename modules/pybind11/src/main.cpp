@@ -1535,12 +1535,12 @@ PYBIND11_MODULE(ifm3dpy, m)
     )");
 
   camera_o3r.def(
-    "get_partial",
+    "resolve_config",
     [](const ifm3d::O3RCamera::Ptr& c, const std::string& ptr)
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
-      return json_loads(c->GetPartial(json::json_pointer(ptr)).dump());
+      return json_loads(c->ResolveConfig(json::json_pointer(ptr)).dump());
     },
     py::arg("ptr"),
     R"(
