@@ -29,7 +29,7 @@ main(int argc, const char** argv)
 
       if (!app->CheckCompatibility())
         {
-          throw ifm3d::error_t(IFM3D_UNSUPPORTED_DEVICE);
+          throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
         }
 
       err = app->Run();

@@ -303,12 +303,14 @@ ifm3d::CameraBase::ForceTrigger()
 json
 ifm3d::CameraBase::ToJSON()
 {
-  return {};
+  throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
 }
 
 void
 ifm3d::CameraBase::FromJSON(const json& j)
-{}
+{
+  throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+}
 
 std::string
 ifm3d::CameraBase::ToJSONStr()
