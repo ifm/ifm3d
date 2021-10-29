@@ -50,7 +50,6 @@ target_include_directories(ifm3dpy
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_STLIMAGE_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_TOOLS_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${IFM3D_TOOLS_SOURCE_DIR}/src/bin>
     ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
