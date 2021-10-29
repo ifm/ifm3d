@@ -121,23 +121,16 @@ namespace ifm3d
   }
 }
 
-// testing tools intergation
-
-#if PY_VERSION_HEX < 0x03000000
-#  define MyPyText_AsString PyString_AsString
-#else
-#  define MyPyText_AsString PyUnicode_AsUTF8
-#endif
-
+/* run the command of ifm3d tools */
 std::tuple<int,std::string>
-run(py::list inlist, bool std_out = false)
+run(py::list inlist, const bool& std_out = false)
 {
-  int argc = static_cast<int>(inlist.size());
+  const size_t argc = static_cast<size_t>(inlist.size());
   auto argv = std::make_unique<const char*[]>(argc);
 
-  for (int i = 0; i < argc; ++i)
+  for (size_t i = 0; i < argc; ++i)
     {
-      argv.get()[i] = (char*)MyPyText_AsString(inlist[i].ptr());
+      argv.get()[i] = PyUnicode_AsUTF8(inlist[i].ptr());
     }
   if (std_out)
     {
@@ -152,7 +145,7 @@ run(py::list inlist, bool std_out = false)
   else
     {
       std::stringstream buffer;
-      std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+      std::cout.rdbuf(buffer.rdbuf());
       const int ret = ifm3d::CmdLineApp::Execute(argc, argv.get());
       return std::tuple<int, std::string>(ret,buffer.str());
     }
@@ -161,24 +154,31 @@ run(py::list inlist, bool std_out = false)
 PYBIND11_MODULE(ifm3dpy, m)
 {
   m.def(
-    "run_cmdtool",
+    "_run_cmdtool",
     []() {
       py::list argv = py::module::import("sys").attr("argv");
       run(argv, true);
     },
     "Entry point for the ifm3dpy console application");
 
-  m.def("run", &run,
+  m.def(
+    "run",
+    [](py::list argv) -> std::tuple<int, std::string> {
+      /* check if ifm3dpy is first element if not insert */
+      if (argv[0].cast<std::string>() != "ifm3dpy")
+        {
+          argv.insert(0, "ifm3dpy");
+        }
+     return run(argv);
+    },
     R"(
         This function provides python application interface to run command line tool
 
         Parameters
         ----------
-        inlist : py::list
+        argv : py::list
             command line parameter in the list. e.g. to call a 'ls' command
-            ['ifm3dpy', '--ip=192.168.0.69', 'ls']
-        std_out : bool
-            provides out on the python sys.stdout
+            ['ls', '--ip=192.168.0.69']
 
         Returns
         -------

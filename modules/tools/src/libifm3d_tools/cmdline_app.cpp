@@ -176,7 +176,7 @@ ifm3d::CmdLineApp::CheckCompatibility()
 }
 
 int
-ifm3d::CmdLineApp::Execute(int argc, const char** argv)
+ifm3d::CmdLineApp::Execute(size_t argc, const char** argv)
 {
   int err = 0;
   try

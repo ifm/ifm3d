@@ -51,7 +51,7 @@ namespace ifm3d
     /**
     * Method to execute ifm3d commands
     */
-    static int Execute(int argc, const char** argv);
+    static int Execute(size_t argc, const char** argv);
 
   protected:
     cxxopts::Options all_opts_;
