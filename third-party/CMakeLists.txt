@@ -3,6 +3,7 @@ if(BUILD_IN_DEPS)
   include(FetchContent)
   list(APPEND BUILTIN_INCLUDES "" PARENT_SCOPE)
 
+  set(DEPENDENCIES_DOWNLOAD "${CMAKE_BINARY_DIR}/dependencies/downloads")
   FetchContent_Declare(
     curl
     FETCHCONTENT_FULLY_DISCONNECTED ON
@@ -10,7 +11,7 @@ if(BUILD_IN_DEPS)
     GIT_TAG "curl-7_78_0"
     GIT_PROGRESS TRUE
     GIT_SHALLOW TRUE
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/third-party/downloads/curl"
+    SOURCE_DIR "${DEPENDENCIES_DOWNLOAD}/curl"
   )
 
   FetchContent_MakeAvailable(curl)
@@ -32,7 +33,7 @@ if(BUILD_IN_DEPS)
     GIT_TAG "31b26e833bf00265a500ae0afe58775703670654"
     GIT_PROGRESS ON
     GIT_SHALLOW ON
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/third-party/downloads/xmlrpc-c"
+    SOURCE_DIR "${DEPENDENCIES_DOWNLOAD}/xmlrpc-c"
     PATCH_COMMAND git apply  --ignore-space-change --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/patches/xmlrpc.patch
   )
 
@@ -57,7 +58,7 @@ if(BUILD_IN_DEPS)
     GIT_TAG "v0.3.5"
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/third-party/downloads/glog"
+    SOURCE_DIR "${DEPENDENCIES_DOWNLOAD}/glog"
   )
 
   FetchContent_Populate(glog)
@@ -73,7 +74,7 @@ if(BUILD_IN_DEPS)
     GIT_TAG "tags/v2.8.0"
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/third-party/downloads/pybind11"
+    SOURCE_DIR "${DEPENDENCIES_DOWNLOAD}/pybind11"
   )
 
   FetchContent_MakeAvailable(pybind11)
