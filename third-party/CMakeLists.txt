@@ -10,7 +10,6 @@ if(BUILD_IN_DEPS)
     GIT_TAG "curl-7_78_0"
     GIT_PROGRESS TRUE
     GIT_SHALLOW TRUE
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/third-party/downloads/curl"
   )
 
   FetchContent_MakeAvailable(curl)
@@ -32,7 +31,6 @@ if(BUILD_IN_DEPS)
     GIT_TAG "31b26e833bf00265a500ae0afe58775703670654"
     GIT_PROGRESS ON
     GIT_SHALLOW ON
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/third-party/downloads/xmlrpc-c"
     PATCH_COMMAND git apply  --ignore-space-change --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/patches/xmlrpc.patch
   )
 
@@ -57,7 +55,6 @@ if(BUILD_IN_DEPS)
     GIT_TAG "v0.3.5"
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/third-party/downloads/glog"
   )
 
   FetchContent_Populate(glog)
@@ -73,7 +70,6 @@ if(BUILD_IN_DEPS)
     GIT_TAG "tags/v2.8.0"
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/third-party/downloads/pybind11"
   )
 
   FetchContent_MakeAvailable(pybind11)
