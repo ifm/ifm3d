@@ -1,12 +1,10 @@
 
-ifm3d - Camera and Imager Configuration
-=======================================
+## Camera and Imager Configuration
 
 Configuring the parameters of an ifm 3D camera is accomplished in ifm3d in one
 of two ways: 1) via the `ifm3d` command line tool; 2) via the `ifm3d`
-library's `camera` module API. This document focuses on the `ifm3d` command
-line tool. An ever-growing repository of API usage examples can be found
-[here](https://github.com/ifm/ifm3d-examples).
+library's `camera` module API. We show below how to do so with the command line tool. 
+Please refer to the {doc}`../examples/o3r/index` for instructions on configuring the camera through `ifm3d` library.
 
 The primary mechanism for using the `ifm3d` command line tool to configure an
 ifm 3D camera is to utilize the `dump` and `config` subcommands to `ifm3d`. The
@@ -19,7 +17,7 @@ stream passed to it.
 
 The remainder of this document will contain a set of examples and associated
 narrative in hopes of demonstrating how to leverage `ifm3d` to configure your
-3D camera. For puproses of this document, an ifm O3D303 will be
+3D camera. For purposes of this document, an ifm O3D303 will be
 utilized. However, the techniques shown here apply to any supported `ifm3d`
 camera (e.g., O3X). Additionally, since the camera state is serialized via
 JSON, some of the examples below will utilize the
@@ -32,13 +30,15 @@ into `ifm3d config` in discrete steps. Again, the remainder of this document
 will assume `jq` is available. (To install `jq` on Ubuntu:
 `sudo apt-get install jq`).
 
-Dump
-----
+### Dump
+
 
 Serializing the current state of the camera is accomplished through the `ifm3d
-dump` command. Exemplary output for an O3D303 is shown below.
+dump` command. Exemplary output is shown below:
 
-```
+:::::{tabs}
+::::{group-tab} O3D example
+:::bash
 $ ifm3d dump
 {
   "ifm3d": {
@@ -174,7 +174,186 @@ $ ifm3d dump
     }
   }
 }
-```
+:::
+::::
+::::{group-tab} O3R example
+:::bash
+$ ifm3d dump
+{
+  "device": {
+    "clock": {
+      "currentTime": 1581108383428570624
+    },
+    "diagnostic": {
+      "temperatures": [],
+      "upTime": 17739000000000
+    },
+    "info": {
+      "device": "0301",
+      "deviceTreeBinaryBlob": "tegra186-quill-p3310-1000-c03-00-base.dtb",
+      "features": {},
+      "name": "",
+      "partNumber": "M03975",
+      "productionState": "AA",
+      "serialNumber": "000201234159",
+      "vendor": "0001"
+    },
+    "network": {
+      "authorized_keys": "",
+      "ipAddressConfig": 0,
+      "macEth0": "00:04:4B:EA:9F:35",
+      "macEth1": "00:02:01:23:41:59",
+      "networkSpeed": 1000,
+      "staticIPv4Address": "192.168.0.69",
+      "staticIPv4Gateway": "192.168.0.201",
+      "staticIPv4SubNetMask": "255.255.255.0",
+      "useDHCP": false
+    },
+    "state": {
+      "errorMessage": "",
+      "errorNumber": ""
+    },
+    "swVersion": {
+      "kernel": "4.9.140-l4t-r32.4+gc35f5eb9d1d9",
+      "l4t": "r32.4.3",
+      "os": "0.13.13-221",
+      "schema": "v0.1.0",
+      "swu": "0.15.12"
+    }
+  },
+  "ports": {
+    "port0": {
+      "acquisition": {
+        "framerate": 10.0,
+        "version": {
+          "major": 0,
+          "minor": 0,
+          "patch": 0
+        }
+      },
+      "data": {
+        "algoDebugConfig": {},
+        "availablePCICOutput": [],
+        "pcicTCPPort": 50010
+      },
+      "info": {
+        "device": "2301",
+        "deviceTreeBinaryBlobOverlay": "001-ov9782.dtbo",
+        "features": {
+          "fov": {
+            "horizontal": 127,
+            "vertical": 80
+          },
+          "resolution": {
+            "height": 800,
+            "width": 1280
+          },
+          "type": "2D"
+        },
+        "name": "",
+        "partNumber": "M03933",
+        "productionState": "AA",
+        "sensor": "OV9782",
+        "sensorID": "OV9782_127x80_noIllu_Csample",
+        "serialNumber": "000000000280",
+        "vendor": "0001"
+      },
+      "mode": "experimental_autoexposure2D",
+      "processing": {
+        "extrinsicHeadToUser": {
+          "rotX": 0.0,
+          "rotY": 0.0,
+          "rotZ": 0.0,
+          "transX": 0.0,
+          "transY": 0.0,
+          "transZ": 0.0
+        },
+        "version": {
+          "major": 0,
+          "minor": 0,
+          "patch": 0
+        }
+      },
+      "state": "RUN"
+    },
+    "port2": {
+      "acquisition": {
+        "exposureLong": 5000,
+        "exposureShort": 400,
+        "framerate": 10.0,
+        "offset": 0.0,
+        "version": {
+          "major": 0,
+          "minor": 0,
+          "patch": 0
+        }
+      },
+      "data": {
+        "algoDebugConfig": {},
+        "availablePCICOutput": [],
+        "pcicTCPPort": 50012
+      },
+      "info": {
+        "device": "3101",
+        "deviceTreeBinaryBlobOverlay": "001-irs2381c.dtbo",
+        "features": {
+          "fov": {
+            "horizontal": 60,
+            "vertical": 45
+          },
+          "resolution": {
+            "height": 172,
+            "width": 224
+          },
+          "type": "3D"
+        },
+        "name": "",
+        "partNumber": "M03933",
+        "productionState": "AA",
+        "sensor": "IRS2381C",
+        "sensorID": "IRS2381C_60x45_4x2W_60x45_C2",
+        "serialNumber": "000000000280",
+        "vendor": "0001"
+      },
+      "mode": "standard_range4m",
+      "processing": {
+        "diParam": {
+          "anfFilterSizeDiv2": 2,
+          "enableDynamicSymmetry": true,
+          "enableStraylight": true,
+          "enableTemporalFilter": true,
+          "excessiveCorrectionThreshAmp": 0.3,
+          "excessiveCorrectionThreshDist": 0.08,
+          "maxDistNoise": 0.02,
+          "maxSymmetry": 0.4,
+          "medianSizeDiv2": 0,
+          "minAmplitude": 20.0,
+          "minReflectivity": 0.0,
+          "mixedPixelFilterMode": 1,
+          "mixedPixelThresholdRad": 0.15
+        },
+        "extrinsicHeadToUser": {
+          "rotX": 0.0,
+          "rotY": 0.0,
+          "rotZ": 0.0,
+          "transX": 0.0,
+          "transY": 0.0,
+          "transZ": 0.0
+        },
+        "version": {
+          "major": 0,
+          "minor": 0,
+          "patch": 0
+        }
+      },
+      "state": "RUN"
+    }
+  }
+}
+:::
+::::
+:::::
+
 
 In the example above, we serialize the entire state of the camera. This is
 useful to, for example, save to a file, edit, and push out to one or more
@@ -192,8 +371,7 @@ It follows that the entire JSON serialized configuration may be further
 processed either programmatically or manually via a text editor.
 
 
-Config
-------
+### Config
 
 Mutating parameters on the camera is done by creating a *desired* camera state
 encoded in JSON compliant to the output produced by `ifm3d dump`. For example,
@@ -261,6 +439,3 @@ In summary, the primary concept in configuring your camera via `ifm3d` is that
 the `dump` subcommand can be used to access the current camera state while the
 `config` subcommand is used to declare and mutate the camera into a desired
 state -- assuming the desired state is valid.
-
-If there are questions, please post them to our
-[issue tracker](https://github.com/ifm/ifm3d/issues).

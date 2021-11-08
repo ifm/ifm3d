@@ -8,7 +8,7 @@ All generic functionality from the `camera` and `framegrabber` modules
 are exposed as Python APIs. Additionally, a custom `ImageBuffer` implementation
 exposes frame data to Python as `numpy` arrays in a zero copy manner.
 
-> :warning: Support for python 2.x has been deprecated in accordance with the
+> ⚠️ Support for python 2.x has been deprecated in accordance with the
 > general python 2 end of life. These instructions may work for python 2 but
 > are not officially supported or tested.
 
