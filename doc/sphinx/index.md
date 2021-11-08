@@ -1,14 +1,17 @@
-Welcome to ifm3d's documentation!
-=================================
-
 :::{toctree}
 :hidden:
-
-Home page <self>
-Examples <examples/o3r/index>
+:name: test
+Overview <self>
+Installation instructions <content/installation_instructions>
+Basic library usage <examples/o3r/index>
+Command Line tool <cli_link>
 Python API <python_api>
 C++ API <cpp_api/annotated>
-:::
+::: 
+
+```{include} ../../../README.md
+:relative-images: 
+```
 
 Indices and tables
 ==================

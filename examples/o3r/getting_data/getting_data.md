@@ -1,8 +1,12 @@
 # How to: receive an image
 
-You successfully installed the ifm3d library which contains all you need to use the O3R. This library wraps around PCIC and XML-RPC communication protocols to facilitate the communication with the device.
+A primary objective of `ifm3d` is to make it as simple and performant as possible to acquire pixel data from an ifm 3D camera. 
+Additionally, those data should be encoded in a useful format for performing computer vision and/or robotics perception tasks. 
+A typical `ifm3d` client program will follow the structure of a control loop whereby images are continuously acquired from the camera and acted upon in some application-specific way. 
 
 At the end of this 'how to', you should be able to receive images and know the basic usage of the `O3RCamera`, `FrameGrabber` and `StlImageBuffer` classes.
+
+>Note: for O3D or O3X devices, simply use the `Camera` class in place of the `O3RCamera` in the following code.
 
 ## O3RCamera, FrameGrabber and StlImageBuffer
 
@@ -45,6 +49,12 @@ The `StlImageBuffer` class simply serves to store the received data. It allocate
 
 > Note: instantiating the objects is done the same way for any imager type (2D, 3D, different resolutions, etc).
 
+Note that `ifm3d` encourages the use of `std::shared_ptr` as a means to manage the ownership and lifetimes of the core actors in an `ifm3d` program. 
+Indeed, you will notice that there is no need to explicitly allocate and deallocate memory. 
+To instantiate the `ifm3d::O3RCamera` object (or `ifm3d::Camera`), a call to `ifm3d::O3RCamera::MakeShared()` is made (or `ifm3d::Camera::MakeShared()`), rather than calling `std::make_shared` directly. 
+This wrapper function is used to handle direct hardware probing to determine the type of camera that is connected. 
+For example, this may be an O3R, O3D303, O3X, or something else. Regardless, a `std::shared_ptr` is returned from this call.
+
 ## Receive an image
 
 You just need to call the `WaitForFrame` function. Input an `ImageBuffer` object as well as a timeout value in ms. Make sure the camera head is in "RUN" mode.
@@ -62,6 +72,11 @@ fg->WaitForFrame(im.get(), 1000);
 :::::
 
 And you're good to go! Now you can do something with all this data.
+> Note : 
+> The `WaitForFrame` method is called on our `ifm3d::FrameGrabber` pointer. 
+> It is passed the *raw* pointer to the `ifm3d::ImageBuffer` and a timeout in milliseconds. 
+> If a new frame from the camera cannot be acquired within the timeout, `WaitForFrame` will return false.
+> For the curious, we pass the raw pointer to the `ImageBuffer` as opposed to the smart pointer because it is more performant (the `std::shared_ptr` reference count does not need to be incremented and decremented with every call to `WaitForFrame` and, semantically, the `FrameGrabber` via the `WaitForFrame` call does not participate in the ownership of the `ImageBuffer`).
 
 ## Access the data
 
