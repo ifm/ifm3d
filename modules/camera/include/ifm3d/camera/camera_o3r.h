@@ -103,7 +103,15 @@ namespace ifm3d
     device_family WhoAmI() override;
     ifm3d::CameraBase::swu_version SwUpdateVersion() override;
 
+    /**
+     * @copydoc CameraBase::ToJSON()
+     * Equivalent to the @ref Get() method
+     */
     json ToJSON() override;
+    /**
+     * @copydoc CameraBase::FromJSON()
+     * Equivalent to @ref Set() followed by @ref SaveInit()
+     */ 
     void FromJSON(const json& j) override;
 
   private:
