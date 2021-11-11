@@ -65,7 +65,7 @@ Following instructions detail how to build ifm3d along with its dependencies.
 #set the environment variables
 set IFM3D_CMAKE_GENERATOR="Visual Studio 16 2019"
 set IFM3D_BUILD_DIR=C:\ifm3d
-set CONFIG=Release
+set CONFIG=Release #set to Debug for debug binaries
 
 #make the working dir
 mkdir %IFM3D_BUILD_DIR%
