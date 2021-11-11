@@ -17,6 +17,7 @@
 #include <camera_base_impl.hpp>
 #include <discovery.hpp>
 #include <xmlrpc_wrapper.hpp>
+#include <fmt/core.h>
 
 //================================================
 // Public constants
@@ -96,6 +97,22 @@ const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR = 1;
 const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR = 30;
 const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH = 4123;
 
+namespace ifm3d
+{
+  struct Version
+  {
+    constexpr Version(size_t major, size_t minor, size_t patch)
+      : major_num(major),
+        minor_num(minor),
+        patch_num(patch)
+    {}
+    const size_t major_num;
+    const size_t minor_num;
+    const size_t patch_num;
+  };
+
+  constexpr Version O3R_MINIMUM_FIRWARE_SUPPORTED(0, 11, 3);
+}
 //================================================
 // Function for Searching Devices on Network
 //================================================
@@ -124,8 +141,25 @@ ifm3d::CameraBase::MakeShared(const std::string& ip,
       //
       if (base->AmI(device_family::O3R))
         {
-          VLOG(IFM3D_TRACE) << "Instantiating O3R...";
-          return std::make_shared<ifm3d::O3RCamera>(ip, xmlrpc_port);
+          if (base->CheckMinimumFirmwareVersion(
+                ifm3d::O3R_MINIMUM_FIRWARE_SUPPORTED.major_num,
+                ifm3d::O3R_MINIMUM_FIRWARE_SUPPORTED.minor_num,
+                ifm3d::O3R_MINIMUM_FIRWARE_SUPPORTED.patch_num))
+            {
+              VLOG(IFM3D_TRACE) << "Instantiating O3R...";
+              return std::make_shared<ifm3d::O3RCamera>(ip, xmlrpc_port);
+            }
+          else
+            {
+              const std::string error_msg =
+                fmt::format("Please update the firmware, minimum firmware version required is {0}.{1}.{2}",
+                ifm3d::O3R_MINIMUM_FIRWARE_SUPPORTED.major_num,
+                ifm3d::O3R_MINIMUM_FIRWARE_SUPPORTED.minor_num,
+                ifm3d::O3R_MINIMUM_FIRWARE_SUPPORTED.patch_num);
+
+              VLOG(IFM3D_TRACE) << error_msg;
+              throw error_t(IFM3D_INVALID_FIRMWARE_VERSION, error_msg);
+            }
         }
       if (base->AmI(device_family::O3X))
         {
