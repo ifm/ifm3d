@@ -1,6 +1,5 @@
+include(FetchContent)
 if(BUILD_IN_DEPS)
-  cmake_minimum_required(VERSION 3.11)
-  include(FetchContent)
   list(APPEND BUILTIN_INCLUDES "" PARENT_SCOPE)
 
   FetchContent_Declare(
