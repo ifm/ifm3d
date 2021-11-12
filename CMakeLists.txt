@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.11)
 cmake_policy(SET CMP0048 NEW)
 
 # Some generic settings
@@ -57,6 +57,10 @@ set(CPACK_SET_DESTDIR true)
 set(CMAKE_INSTALL_PREFIX "/usr" CACHE STRING "CMake install prefix")
 set(CPACK_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
+#add postfix d to all target binaries on Debug build
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+  set(CMAKE_DEBUG_POSTFIX d)
+endif(CMAKE_BUILD_TYPE MATCHES Debug)
 # Installation paths
 set(_lib lib CACHE STRING "Basename of the library-directory")
 set(_bin bin CACHE STRING "Basename of the bin-directory")

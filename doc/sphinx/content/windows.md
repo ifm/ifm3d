@@ -7,15 +7,15 @@ a Windows platform using Visual Studio.
 
 ## Build tools
 
-* [CMake v3.5.0](http://www.cmake.org) or newer (also available through the
+* [CMake v3.11.0](http://www.cmake.org) or newer (also available through the
 Visual Studio installer)
 * [Git for Windows](https://gitforwindows.org) (also available through the
 Visual Studio installer)
 * [Microsoft Visual Studio](https://www.visualstudio.com)
-version 2015, 2017 or 2019. The free 'Community' edition is sufficient. Be
+version 2017 or 2019. The free 'Community' edition is sufficient. Be
 sure to select the 'Desktop development with C++' workflow.
 
-## Binary Dependencies for ifm3d::image and ifm3d::opencv modules
+## Binary Dependencies for ifm3d::image and ifm3d::opencv optional modules
 
 ### [PCL](http://www.pointclouds.org)
 
@@ -24,7 +24,6 @@ releases page. `ifm3d` is tested against version v1.8.1 which can be
 downloaded and installed via the following links.
 
 Choose ONE of the following based on your target version of Visual Studio.
- * Visual Studio 2015: [PCL-1.8.1-AllInOne-msvc2015-win64.exe](https://github.com/PointCloudLibrary/pcl/releases/download/pcl-1.8.1/PCL-1.8.1-AllInOne-msvc2015-win64.exe)
  * Visual Studio 2017/2019: [PCL-1.8.1-AllInOne-msvc2017-win64.exe](https://github.com/PointCloudLibrary/pcl/releases/download/pcl-1.8.1/PCL-1.8.1-AllInOne-msvc2017-win64.exe)
 
 **NOTE**: Opt-in to installing the 3rd party dependencies of `PCL`. `ifm3d`
@@ -66,7 +65,7 @@ Following instructions detail how to build ifm3d along with its dependencies.
 #set the environment variables
 set IFM3D_CMAKE_GENERATOR="Visual Studio 16 2019"
 set IFM3D_BUILD_DIR=C:\ifm3d
-set CONFIG=Release
+set CONFIG=Release #set to Debug for debug binaries
 
 #make the working dir
 mkdir %IFM3D_BUILD_DIR%
@@ -83,9 +82,6 @@ cmake -G %IFM3D_CMAKE_GENERATOR% -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_S
 
 # Build ifm3d and dependencies
 cmake --build . --config %CONFIG% --target ALL_BUILD
-
-# run tests
-cmake --build . --config %CONFIG% --target check
 
 # install
 cmake --build . --config %CONFIG% --target install
@@ -106,10 +102,9 @@ The following instructions detail how to compile them from source for your targe
 The following environment variables are used by this tutorial to make
 customization simpler. Modify them as needed for your environment. You can
 obtain a list of valid cmake generator strings via `cmake -h`. Again, `ifm3d`
-supports version 2015 and newer.
+supports version 2017 and newer.
 
 ```
-set IFM3D_BOOST_ROOT="C:\Program Files\PCL 1.8.1\3rdParty\Boost"
 set IFM3D_OPENCV_PATH=C:\opencv\build
 set IFM3D_CMAKE_GENERATOR="Visual Studio 15 2017 Win64"
 set IFM3D_BUILD_DIR=C:\ifm3d
@@ -194,11 +189,6 @@ If built targeting Visual Studio 2017/2019:
 set PATH=%IFM3D_BUILD_DIR%\install\bin;%IFM3D_OPENCV_PATH%\x64\vc15\bin;%PATH%
 ```
 
-If built targeting Visual Studio 2015:
-```
-set PATH=%IFM3D_BUILD_DIR%\install\bin;%IFM3D_OPENCV_PATH%\x64\vc14\bin;%PATH%
-```
-
 After that you should be able to run the ifm3d tool
 ```
 ifm3d
@@ -209,21 +199,6 @@ The `ifm3d` library offers an alternative image buffer implementation which
 only depends on `OpenCV`, thus eliminating a dependency on `PCL`. In order to
 build `ifm3d` without a dependency on `PCL`, the following modifications to
 the instructions above are necessary.
-
-## Download Boost
-
-`ifm3d` takes a dependency on the `Boost` libraries which are also distributed by `the `PCL all-in-one installer. Since we will not be installing `PCL`, `Boost` must be downloaded individually. Binaries for the latest release are available here (choose the version which matches your target msvc version):
-
-* Visual Studio 2015: [boost_1_72_0-msvc-14.0-64.exe](https://sourceforge.net/projects/boost/files/boost-binaries/1.72.0/boost_1_72_0-msvc-14.0-64.exe/download)
-* Visual Studio 2017: [boost_1_72_0-msvc-14.1-64.exe](https://sourceforge.net/projects/boost/files/boost-binaries/1.72.0/boost_1_72_0-msvc-14.1-64.exe/download)
-* Visual Studio 2019: [boost_1_72_0-msvc-14.2-64.exe](https://sourceforge.net/projects/boost/files/boost-binaries/1.72.0/boost_1_72_0-msvc-14.2-64.exe/download)
-
-## Set the proper BOOST_ROOT path
-
-In the environment setup step, choose the proper path for BOOST_ROOT:
-```
-set IFM3D_BOOST_ROOT="C:\local\boost_1_72_0"
-```
 
 ## Select the OpenCV Image Container
 
