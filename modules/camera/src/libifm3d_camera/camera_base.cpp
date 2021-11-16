@@ -111,7 +111,7 @@ namespace ifm3d
     const size_t patch_num;
   };
 
-  constexpr Version O3R_MINIMUM_FIRWARE_SUPPORTED(0, 11, 3);
+  constexpr Version O3R_MINIMUM_FIRWARE_SUPPORTED(0, 13, 13);
 }
 //================================================
 // Function for Searching Devices on Network
