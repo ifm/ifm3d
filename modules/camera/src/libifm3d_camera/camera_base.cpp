@@ -97,22 +97,7 @@ const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR = 1;
 const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR = 30;
 const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH = 4123;
 
-namespace ifm3d
-{
-  struct Version
-  {
-    constexpr Version(size_t major, size_t minor, size_t patch)
-      : major_num(major),
-        minor_num(minor),
-        patch_num(patch)
-    {}
-    const size_t major_num;
-    const size_t minor_num;
-    const size_t patch_num;
-  };
-
-  constexpr Version O3R_MINIMUM_FIRWARE_SUPPORTED(0, 13, 13);
-}
+constexpr ifm3d::Version O3R_MINIMUM_FIRWARE_SUPPORTED(1, 13, 13);
 //================================================
 // Function for Searching Devices on Network
 //================================================
@@ -142,9 +127,9 @@ ifm3d::CameraBase::MakeShared(const std::string& ip,
       if (base->AmI(device_family::O3R))
         {
           if (base->CheckMinimumFirmwareVersion(
-                ifm3d::O3R_MINIMUM_FIRWARE_SUPPORTED.major_num,
-                ifm3d::O3R_MINIMUM_FIRWARE_SUPPORTED.minor_num,
-                ifm3d::O3R_MINIMUM_FIRWARE_SUPPORTED.patch_num))
+                O3R_MINIMUM_FIRWARE_SUPPORTED.major_num,
+                O3R_MINIMUM_FIRWARE_SUPPORTED.minor_num,
+                O3R_MINIMUM_FIRWARE_SUPPORTED.patch_num))
             {
               VLOG(IFM3D_TRACE) << "Instantiating O3R...";
               return std::make_shared<ifm3d::O3RCamera>(ip, xmlrpc_port);
@@ -152,10 +137,8 @@ ifm3d::CameraBase::MakeShared(const std::string& ip,
           else
             {
               const std::string error_msg =
-                fmt::format("Please update the firmware, minimum firmware version required is {0}.{1}.{2}",
-                ifm3d::O3R_MINIMUM_FIRWARE_SUPPORTED.major_num,
-                ifm3d::O3R_MINIMUM_FIRWARE_SUPPORTED.minor_num,
-                ifm3d::O3R_MINIMUM_FIRWARE_SUPPORTED.patch_num);
+                fmt::format("Please update the firmware, minimum firmware version required is {}",
+                O3R_MINIMUM_FIRWARE_SUPPORTED);
 
               VLOG(IFM3D_TRACE) << error_msg;
               throw error_t(IFM3D_INVALID_FIRMWARE_VERSION, error_msg);
@@ -327,7 +310,7 @@ ifm3d::CameraBase::CheckMinimumFirmwareVersion(unsigned int major,
                                                unsigned int minor,
                                                unsigned int patch)
 {
-  return this->pImpl->CheckMinimumFirmwareVersion(major, minor, patch);
+  return this->pImpl->CheckMinimumFirmwareVersion(ifm3d::Version(major,minor,patch));
 }
 
 void
