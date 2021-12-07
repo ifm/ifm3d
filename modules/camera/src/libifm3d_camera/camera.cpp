@@ -992,11 +992,13 @@ ifm3d::Camera::FromJSON(const json& j)
                 j_im.erase("TemporalFilter");
               }
 
-              // When the TemporalFilterType is set for example, there are additional parameters.
-              // They do not exist in the basic application. When trying to import them, ifm3d will
-              // fail.
-              // In case an temporal filter is set, we have to reload the application.
-              bool reloadApp=( std::stoi( j_im["TemporalFilterType"].get<std::string>() ) != 0 );
+            // When the TemporalFilterType is set for example, there are additional parameters.
+            // They do not exist in the basic application. When trying to import them, ifm3d will
+            // fail.
+            // In case an temporal filter is set, we have to reload the application.
+            bool reloadApp =
+              (!j_im["TemporalFilterType"].is_null() && std::stoi(
+                 j_im["TemporalFilterType"].get<std::string>()) != 0);
 
               this->FromJSON_(curr_app["Imager"], j_im,
                 [this](const std::string& k, const std::string& v)
