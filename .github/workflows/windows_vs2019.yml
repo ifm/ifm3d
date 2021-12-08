@@ -58,7 +58,7 @@ jobs:
         git clone --branch 1.33.14-cmake https://github.com/ifm/xmlrpc-c.git
         mkdir xmlrpc-c\build
         cd xmlrpc-c\build
-        cmake -G "Visual Studio 16 2019" -Ax64 -DCMAKE_INSTALL_PREFIX=c:\deps2019\install ..
+        cmake -G "Visual Studio 16 2019" -Ax64 -DCMAKE_INSTALL_PREFIX=c:\deps2019\install -DBUILD_SHARED_LIBS=ON ..
         cmake --build . --clean-first --config Release --target INSTALL
 
     - name: Build dependency - glog
