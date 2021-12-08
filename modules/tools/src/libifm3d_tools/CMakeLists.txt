@@ -57,10 +57,10 @@ if (BUILD_MODULE_SWUPDATER)
     )
 endif()
 
-if (BUILD_MODULE_IMAGE)
+if (BUILD_MODULE_STLIMAGE)
   target_include_directories(ifm3d_tools_shared
     PUBLIC
-      $<BUILD_INTERFACE:${IFM3D_IMAGE_SOURCE_DIR}/include>
+      $<BUILD_INTERFACE:${IFM3D_STLIMAGE_SOURCE_DIR}/include>
     )
 endif()
 
@@ -106,10 +106,10 @@ if (BUILD_MODULE_SWUPDATER)
     )
 endif()
 
-if (BUILD_MODULE_IMAGE)
+if (BUILD_MODULE_STLIMAGE)
   target_link_libraries(
     ifm3d_tools_shared
-    ifm3d_image
+    ifm3d_stlimage
     )
 endif()
 
