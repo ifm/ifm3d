@@ -27,8 +27,9 @@ ifm3d::ByteBuffer<Derived>::ByteBuffer()
       {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.}),
     intrinsic_available(false),
     inverse_intrinsic_available(false),
-    exposure_times_({0,0,0}),
-    time_stamp_({ std::chrono::system_clock::now(),std::chrono::system_clock::now() }),
+    exposure_times_({0, 0, 0}),
+    time_stamp_(
+      {std::chrono::system_clock::now(), std::chrono::system_clock::now()}),
     json_model_("{}")
 { }
 
@@ -249,10 +250,10 @@ ifm3d::ByteBuffer<Derived>::Organize()
   gidx = ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::GRAY);
   extidx = ifm3d::get_chunk_index(this->bytes_,
                                   ifm3d::image_chunk::EXTRINSIC_CALIBRATION);
-  jsonidx= ifm3d::get_chunk_index(this->bytes_,
-                                  ifm3d::image_chunk::JSON_MODEL);
-  dist_noiseidx = ifm3d::get_chunk_index(this->bytes_,
-                                        ifm3d::image_chunk::DISTANCE_NOISE);
+  jsonidx =
+    ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::JSON_MODEL);
+  dist_noiseidx =
+    ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::DISTANCE_NOISE);
 
   // As parameter will not change so only grabed and stored
   // for the first time
@@ -270,25 +271,19 @@ ifm3d::ByteBuffer<Derived>::Organize()
         ifm3d::image_chunk::INVERSE_INTRINSIC_CALIBRATION);
     }
 
-  if( !inverse_intrinsic_available )
-  {
-    invintridx = ifm3d::get_chunk_index(this->bytes_,
-                                  ifm3d::image_chunk::INVERSE_INTRINSIC_CALIBRATION);
-  }
+  if (!inverse_intrinsic_available)
+    {
+      invintridx = ifm3d::get_chunk_index(
+        this->bytes_,
+        ifm3d::image_chunk::INVERSE_INTRINSIC_CALIBRATION);
+    }
 
-
-  VLOG(IFM3D_PROTO_DEBUG) << "xyzidx=" << xyzidx
-                          << ", xidx=" << xidx
-                          << ", yidx=" << yidx
-                          << ", zidx=" << zidx
-                          << ", aidx=" << aidx
-                          << ", raw_aidx=" << raw_aidx
-                          << ", cidx=" << cidx
-                          << ", didx=" << didx
-                          << ", uidx=" << uidx
-                          << ", extidx=" << extidx
-                          << ", gidx=" << gidx
-                          << ", intridx=" << intridx
+  VLOG(IFM3D_PROTO_DEBUG) << "xyzidx=" << xyzidx << ", xidx=" << xidx
+                          << ", yidx=" << yidx << ", zidx=" << zidx
+                          << ", aidx=" << aidx << ", raw_aidx=" << raw_aidx
+                          << ", cidx=" << cidx << ", didx=" << didx
+                          << ", uidx=" << uidx << ", extidx=" << extidx
+                          << ", gidx=" << gidx << ", intridx=" << intridx
                           << ", invintridx=" << invintridx
                           << ", distnoiseidx=" << dist_noiseidx;
 
@@ -311,15 +306,16 @@ ifm3d::ByteBuffer<Derived>::Organize()
         ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 44);
       // convert the time stamp into a TimePointT
       this->time_stamp_[0] =
-          ifm3d::TimePointT{std::chrono::seconds{timestampSec} +
+        ifm3d::TimePointT{std::chrono::seconds{timestampSec} +
                           std::chrono::nanoseconds{timestampNsec}};
       // O3X device provides an offeset in Usec releative to timestamp
       // calculated as time_stamp_[0]
       const std::uint32_t ethernetTimeinUsecOffset =
-          ifm3d::mkval<std::uint32_t>(this->bytes_.data()+cidx+28);
+        ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 28);
 
       this->time_stamp_[1] =
-          ifm3d::TimePointT{this->time_stamp_[0] + std::chrono::microseconds{ethernetTimeinUsecOffset}};
+        ifm3d::TimePointT{this->time_stamp_[0] +
+                          std::chrono::microseconds{ethernetTimeinUsecOffset}};
     }
   else
     {
@@ -378,23 +374,18 @@ ifm3d::ByteBuffer<Derived>::Organize()
               INVALID_FMT;
   std::uint32_t invintrfmt =
     INVINTR_OK ?
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data()+invintridx+24) :
-    INVALID_FMT;
+      ifm3d::mkval<std::uint32_t>(this->bytes_.data() + invintridx + 24) :
+      INVALID_FMT;
   std::uint32_t dist_noisefmt =
     DIST_NOISE_OK ?
-    ifm3d::mkval<std::uint32_t>(this->bytes_.data() + dist_noiseidx + 24) :
-    INVALID_FMT;
+      ifm3d::mkval<std::uint32_t>(this->bytes_.data() + dist_noiseidx + 24) :
+      INVALID_FMT;
 
-  VLOG(IFM3D_PROTO_DEBUG) << "xfmt=" << xfmt
-                          << ", yfmt=" << yfmt
-                          << ", zfmt=" << zfmt
-                          << ", afmt=" << afmt
-                          << ", raw_afmt=" << raw_afmt
-                          << ", cfmt=" << cfmt
-                          << ", dfmt=" << dfmt
-                          << ", ufmt=" << ufmt
-                          << ", extfmt=" << extfmt
-                          << ", gfmt=" << gfmt
+  VLOG(IFM3D_PROTO_DEBUG) << "xfmt=" << xfmt << ", yfmt=" << yfmt
+                          << ", zfmt=" << zfmt << ", afmt=" << afmt
+                          << ", raw_afmt=" << raw_afmt << ", cfmt=" << cfmt
+                          << ", dfmt=" << dfmt << ", ufmt=" << ufmt
+                          << ", extfmt=" << extfmt << ", gfmt=" << gfmt
                           << ", intrfmt= " << intrfmt
                           << ", invintrfmt= " << invintrfmt
                           << ", distnoisefmt= " << dist_noisefmt;
@@ -582,10 +573,12 @@ ifm3d::ByteBuffer<Derived>::Organize()
       im_wrapper(ifm3d::image_chunk::RAW_AMPLITUDE, raw_afmt, raw_aidx);
     }
   if (DIST_NOISE_OK)
-  {
-    dist_noiseidx += pixel_data_offset;
-    im_wrapper(ifm3d::image_chunk::DISTANCE_NOISE, dist_noisefmt, dist_noiseidx);
-  }
+    {
+      dist_noiseidx += pixel_data_offset;
+      im_wrapper(ifm3d::image_chunk::DISTANCE_NOISE,
+                 dist_noisefmt,
+                 dist_noiseidx);
+    }
 
   //
   // point cloud construction

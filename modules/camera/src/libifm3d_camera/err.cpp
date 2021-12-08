@@ -116,7 +116,8 @@ ifm3d::strerror(int errnum)
     case IFM3D_CURL_ABORTED:
       return "Lib: An HTTP operation with CURL was aborted.";
     case IFM3D_SWUPDATE_BAD_STATE:
-      return "Lib: SWUpdater process on camera is in invalid state. Reboot the camera and try again.";
+      return "Lib: SWUpdater process on camera is in invalid state. Reboot "
+             "the camera and try again.";
     case IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_DEVICE:
       return "Lib: Current device does not support distance noise image";
     case IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_FIRMWARE:

@@ -511,7 +511,7 @@ TEST(Image, TimeStamp)
   ifm3d::FrameGrabber::Ptr fg =
     std::make_shared<ifm3d::FrameGrabber>(cam,
                                           ifm3d::IMG_AMP | ifm3d::IMG_CART);
-                                          
+
   std::array<ifm3d::TimePointT, 2> tps;
   // get two consecutive timestamps
   for (ifm3d::TimePointT& t : tps)
@@ -561,9 +561,9 @@ TEST(Image, TimeStamps)
 
   ifm3d::ImageBuffer::Ptr img = std::make_shared<ifm3d::ImageBuffer>();
   ifm3d::FrameGrabber::Ptr fg =
-    std::make_shared<ifm3d::FrameGrabber>(
-      cam, ifm3d::IMG_AMP|ifm3d::IMG_CART);
-      
+    std::make_shared<ifm3d::FrameGrabber>(cam,
+                                          ifm3d::IMG_AMP | ifm3d::IMG_CART);
+
   std::array<std::vector<ifm3d::TimePointT>, 2> tps;
   // get two consecutive timestamps
   for (auto& t : tps)
@@ -575,14 +575,16 @@ TEST(Image, TimeStamps)
   // checking for position 0 (last phase capture timestamp)
   EXPECT_LT(tps[0][0], tps[1][0]);
   auto tdiff = std::chrono::duration_cast<std::chrono::milliseconds>(
-    tps[1][0] - tps[0][0]).count();
+                 tps[1][0] - tps[0][0])
+                 .count();
   EXPECT_GT(tdiff, 20);
 
   // the first time point need to be smaller than the second one
   // checking for position 1 (timestamp while sending data on ethernet)
   EXPECT_LT(tps[0][1], tps[1][1]);
-  tdiff = std::chrono::duration_cast<std::chrono::milliseconds>(
-    tps[1][1] - tps[0][1]).count();
+  tdiff = std::chrono::duration_cast<std::chrono::milliseconds>(tps[1][1] -
+                                                                tps[0][1])
+            .count();
   EXPECT_GT(tdiff, 20);
 }
 
@@ -614,9 +616,9 @@ TEST(Image, DistanceNoiseImage)
   ifm3d::Camera::Ptr cam = std::make_shared<ifm3d::Camera>();
 
   ifm3d::ImageBuffer::Ptr img = std::make_shared<ifm3d::ImageBuffer>();
-  ifm3d::FrameGrabber::Ptr fg =
-    std::make_shared<ifm3d::FrameGrabber>(
-      cam, ifm3d::DEFAULT_SCHEMA_MASK | ifm3d::IMG_DIS_NOISE);
+  ifm3d::FrameGrabber::Ptr fg = std::make_shared<ifm3d::FrameGrabber>(
+    cam,
+    ifm3d::DEFAULT_SCHEMA_MASK | ifm3d::IMG_DIS_NOISE);
 
   ASSERT_TRUE(fg->WaitForFrame(img.get(), 1000));
 

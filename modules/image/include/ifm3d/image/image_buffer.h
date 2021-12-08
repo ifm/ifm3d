@@ -89,10 +89,10 @@ namespace ifm3d
     cv::Mat XYZImage();
 
     /**
-    * Accessor for the OpenCV encoding of the DistanceNoiseImage
-    *
-    * This image is only vailable for O3X camera
-    */
+     * Accessor for the OpenCV encoding of the DistanceNoiseImage
+     *
+     * This image is only vailable for O3X camera
+     */
     cv::Mat DistanceNoiseImage();
 
     /**
