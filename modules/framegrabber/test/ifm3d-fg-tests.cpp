@@ -417,9 +417,9 @@ TEST(FrameGrabber, DistanceNoiseSchema)
     }
   if (cam->AmI(ifm3d::Camera::device_family::O3X) &&
       cam->CheckMinimumFirmwareVersion(
-                        ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MAJOR,
-                        ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MINOR,
-                        ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_PATCH))
+        ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MAJOR,
+        ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MINOR,
+        ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_PATCH))
     {
       auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, mask);
       auto buff = std::make_shared<MyBuff>();

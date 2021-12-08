@@ -98,8 +98,8 @@ const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR = 30;
 const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH = 4123;
 
 const unsigned int ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MAJOR = 1;
-const unsigned int ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MINOR = 0;
-const unsigned int ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_PATCH = 163;
+const unsigned int ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MINOR = 1;
+const unsigned int ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_PATCH = 190;
 
 constexpr ifm3d::Version O3R_MINIMUM_FIRWARE_SUPPORTED(0, 13, 13);
 
@@ -142,8 +142,9 @@ ifm3d::CameraBase::MakeShared(const std::string& ip,
           else
             {
               const std::string error_msg =
-                fmt::format("Please update the firmware, minimum firmware version required is {}",
-                O3R_MINIMUM_FIRWARE_SUPPORTED);
+                fmt::format("Please update the firmware, minimum firmware "
+                            "version required is {}",
+                            O3R_MINIMUM_FIRWARE_SUPPORTED);
 
               VLOG(IFM3D_TRACE) << error_msg;
               throw error_t(IFM3D_INVALID_FIRMWARE_VERSION, error_msg);
@@ -315,7 +316,8 @@ ifm3d::CameraBase::CheckMinimumFirmwareVersion(unsigned int major,
                                                unsigned int minor,
                                                unsigned int patch)
 {
-  return this->pImpl->CheckMinimumFirmwareVersion(ifm3d::Version(major,minor,patch));
+  return this->pImpl->CheckMinimumFirmwareVersion(
+    ifm3d::Version(major, minor, patch));
 }
 
 void
