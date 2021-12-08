@@ -59,11 +59,11 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const unsigned int
     O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH;
 
-   extern IFM3D_CAMERA_EXPORT const unsigned int
+  extern IFM3D_CAMERA_EXPORT const unsigned int
     O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MAJOR;
-   extern IFM3D_CAMERA_EXPORT const unsigned int
+  extern IFM3D_CAMERA_EXPORT const unsigned int
     O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MINOR;
-   extern IFM3D_CAMERA_EXPORT const unsigned int
+  extern IFM3D_CAMERA_EXPORT const unsigned int
     O3X_DISTANCE_NOISE_IMAGE_SUPPORT_PATCH;
 
   class XMLRPCWrapper;

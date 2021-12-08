@@ -132,7 +132,7 @@ ifm3d::strerror(int errnum)
     case IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_DEVICE:
       return "Lib: Current device does not support distance noise image";
     case IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_FIRMWARE:
-        return "Lib: Firmware does not support distance noise image";
+      return "Lib: Firmware does not support distance noise image";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
       return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:

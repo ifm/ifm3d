@@ -135,7 +135,7 @@ git clone --branch 1.33.14-cmake https://github.com/ifm/xmlrpc-c.git
 cd %IFM3D_BUILD_DIR%\xmlrpc-c
 mkdir build
 cd build
-cmake -G %IFM3D_CMAKE_GENERATOR% -DCMAKE_INSTALL_PREFIX=%IFM3D_BUILD_DIR%\install ..
+cmake -G %IFM3D_CMAKE_GENERATOR% -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=%IFM3D_BUILD_DIR%\install ..
 cmake --build . --clean-first --config %CONFIG% --target INSTALL
 ```
 

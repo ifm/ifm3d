@@ -359,8 +359,9 @@ namespace ifm3d
     /**
      * Returns the time stamps of the image data for O3X devices
      * Value at index 0 will represent the time at which  phase data is read.
-     * Value at index 1 will represent the time at which datais transferred over ethernet.
-     * 
+     * Value at index 1 will represent the time at which datais transferred
+     * over ethernet.
+     *
      * Returns the timestamp of phase data for O3R device
      */
     std::vector<ifm3d::TimePointT> TimeStamps();

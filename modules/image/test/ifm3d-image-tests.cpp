@@ -648,5 +648,3 @@ TEST(Image, DistanceNoiseImage)
 
   EXPECT_TRUE(dist_noise.type() == CV_16UC1);
 }
-
-

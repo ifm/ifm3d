@@ -111,7 +111,7 @@ namespace ifm3d
     /**
      * @copydoc CameraBase::FromJSON()
      * Equivalent to @ref Set() followed by @ref SaveInit()
-     */ 
+     */
     void FromJSON(const json& j) override;
 
   private:

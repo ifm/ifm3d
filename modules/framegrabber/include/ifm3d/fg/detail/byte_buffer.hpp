@@ -312,11 +312,11 @@ ifm3d::ByteBuffer<Derived>::Organize()
                           std::chrono::nanoseconds{timestampNsec}});
       // O3X device provides an offeset in Usec releative to timestamp
       // calculated as time_stamp_[0]
-        const std::uint32_t ethernetTimeinUsecOffset =
+      const std::uint32_t ethernetTimeinUsecOffset =
         ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 28);
-       this->time_stamps_.push_back(
-        ifm3d::TimePointT{this->time_stamps_[0] + std::chrono::microseconds{
-                                                    ethernetTimeinUsecOffset}});
+      this->time_stamps_.push_back(ifm3d::TimePointT{
+        this->time_stamps_[0] +
+        std::chrono::microseconds{ethernetTimeinUsecOffset}});
     }
   else
     {
@@ -753,8 +753,8 @@ ifm3d::ByteBuffer<Derived>::Organize()
     {
       dist_noiseidx += pixel_data_offset;
       im_wrapper(ifm3d::image_chunk::DISTANCE_NOISE,
-                  dist_noisefmt,
-                  dist_noiseidx);
+                 dist_noisefmt,
+                 dist_noiseidx);
     }
 
   //
