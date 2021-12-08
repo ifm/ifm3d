@@ -150,10 +150,6 @@ if(BUILD_MODULE_PCICCLIENT)
   list(APPEND DOXYGEN_MODULES "pcicclient")
 endif()
 
-if(BUILD_MODULE_TOOLS)
-  add_subdirectory(modules/tools)
-endif()
-
 if(BUILD_MODULE_PYBIND11)
   add_definitions(-DBUILD_MODULE_PYBIND11)
   add_subdirectory(modules/pybind11)
@@ -174,6 +170,9 @@ if(BUILD_MODULE_STLIMAGE)
   list(APPEND DOXYGEN_MODULES "stlimage")
 endif()
 
+if(BUILD_MODULE_TOOLS)
+  add_subdirectory(modules/tools)
+endif()
 ################################################
 ## Sub-modules are done, finish up the cmake package
 ################################################
