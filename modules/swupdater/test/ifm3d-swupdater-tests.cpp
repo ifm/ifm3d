@@ -45,14 +45,14 @@ TEST_F(SWUpdater, DetectBootMode)
   EXPECT_FALSE(swu->WaitForRecovery(5000));
 
   swu->RebootToRecovery();
-  EXPECT_TRUE(swu->WaitForRecovery(60000));
+  EXPECT_TRUE(swu->WaitForRecovery(80000));
 
   EXPECT_FALSE(swu->WaitForProductive(-1));
   EXPECT_TRUE(swu->WaitForRecovery(-1));
   EXPECT_FALSE(swu->WaitForProductive(5000));
 
   swu->RebootToProductive();
-  EXPECT_TRUE(swu->WaitForProductive(60000));
+  EXPECT_TRUE(swu->WaitForProductive(80000));
 
   EXPECT_TRUE(swu->WaitForProductive(-1));
   EXPECT_FALSE(swu->WaitForRecovery(-1));
@@ -67,11 +67,11 @@ TEST_F(SWUpdater, FlashEmptyFile)
   EXPECT_FALSE(swu->WaitForRecovery(-1));
 
   swu->RebootToRecovery();
-  EXPECT_TRUE(swu->WaitForRecovery(60000));
+  EXPECT_TRUE(swu->WaitForRecovery(80000));
 
-  std::vector<std::uint8_t> bytes(100000, 0);
+  std::vector<std::uint8_t> bytes(80000, 0);
   EXPECT_THROW(swu->FlashFirmware(bytes, 120000), ifm3d::error_t);
 
   swu->RebootToProductive();
-  EXPECT_TRUE(swu->WaitForProductive(60000));
+  EXPECT_TRUE(swu->WaitForProductive(80000));
 }
