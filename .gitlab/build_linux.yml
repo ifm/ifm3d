@@ -27,11 +27,9 @@ build:linux:docker:
         BASE_IMAGE: ubuntu:20.04
         TAG_POSTFIX: -ubuntu-amd64
       - RUNNER: shared_docker_aarch64
-        USE_PROXY: "yes"
         BASE_IMAGE: ubuntu:20.04
         TAG_POSTFIX: -ubuntu-arm64
       - RUNNER: shared_docker_aarch64
-        USE_PROXY: "yes"
         BASE_IMAGE: nvcr.io/nvidia/l4t-base:r32.4.3
         TAG_POSTFIX: -l4t-arm64
   tags:
@@ -58,7 +56,6 @@ build:linux:deb:
   parallel:
     matrix:
       - RUNNER: shared_docker_aarch64
-        USE_PROXY: "yes"
         PLATFORM: linux/aarch64
         BASE_IMAGE:
           - nvcr.io/nvidia/l4t-base:r32.4.3
