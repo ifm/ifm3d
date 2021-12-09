@@ -97,7 +97,7 @@ const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR = 1;
 const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR = 30;
 const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH = 4123;
 
-constexpr ifm3d::Version O3R_MINIMUM_FIRWARE_SUPPORTED(1, 13, 13);
+constexpr ifm3d::Version O3R_MINIMUM_FIRWARE_SUPPORTED(0, 13, 13);
 //================================================
 // Function for Searching Devices on Network
 //================================================
