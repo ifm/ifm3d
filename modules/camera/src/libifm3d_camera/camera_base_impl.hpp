@@ -7,14 +7,72 @@
 #define IFM3D_CAMERA_CAMERA_BASE_IMPL_HPP
 
 #include <vector>
+#include <fmt/ostream.h>
 #include <ifm3d/camera/camera_base.h>
 #include <ifm3d/camera/logging.h>
 #include <xmlrpc_wrapper.hpp>
 
 namespace ifm3d
 {
-  class XMLRPCWrapper;
+  //  internal struct for Version values and its comparision
+  struct Version
+  {
+    constexpr Version(size_t major, size_t minor, size_t patch)
+      : major_num(major),
+        minor_num(minor),
+        patch_num(patch)
 
+    {}
+    const size_t major_num;
+    const size_t minor_num;
+    const size_t patch_num;
+
+    constexpr bool
+    operator<(const Version& rhs) const
+    {
+      return (((major_num < rhs.major_num) << 2) +
+              ((minor_num < rhs.minor_num) << 1) +
+              ((patch_num < rhs.patch_num))) != 0;
+    }
+
+    constexpr bool
+    operator==(const Version& rhs) const
+    {
+      return ((major_num == rhs.major_num) && (minor_num == rhs.minor_num) &&
+              (patch_num == rhs.patch_num));
+    }
+
+    constexpr bool
+    operator!=(const Version& rhs) const { return !(*this == rhs); }
+
+    constexpr bool
+    operator>=(const Version& rhs) const
+    {
+      return !(*this < rhs);
+    }
+
+    constexpr bool
+    operator>(const Version& rhs) const
+    {
+      return rhs < *this;
+    }
+
+    constexpr bool
+    operator<=(const Version& rhs) const
+    {
+      return !(rhs < *this);
+    }
+
+    /* To support fmt ostream */
+    friend std::ostream&
+    operator<<(std::ostream& os, const Version& version)
+    {
+      return os << version.major_num << '.' << version.minor_num << '.'
+                << version.patch_num;
+    }
+  }; // end of Version
+
+  class XMLRPCWrapper;
   //============================================================
   // Impl interface
   //============================================================
@@ -30,9 +88,7 @@ namespace ifm3d
     std::string IP();
     std::uint16_t XMLRPCPort();
 
-    bool CheckMinimumFirmwareVersion(unsigned int major,
-                                     unsigned int minor,
-                                     unsigned int patch);
+    bool CheckMinimumFirmwareVersion(const Version& minimum_version);
 
     //
     // public xmlrpc interface methods
@@ -46,7 +102,6 @@ namespace ifm3d
   protected:
     std::shared_ptr<XMLRPCWrapper> xwrapper_;
   }; // end: class Camera::Impl
-
 } // end: namespace ifm3d
 
 //============================================================
@@ -112,9 +167,8 @@ ifm3d::CameraBase::Impl::DeviceParameter(const std::string& param)
 }
 
 bool
-ifm3d::CameraBase::Impl::CheckMinimumFirmwareVersion(unsigned int major,
-                                                     unsigned int minor,
-                                                     unsigned int patch)
+ifm3d::CameraBase::Impl::CheckMinimumFirmwareVersion(
+  const ifm3d::Version& minimum_version)
 {
 
   auto data = this->xwrapper_->value_struct_to_map(
@@ -130,31 +184,7 @@ ifm3d::CameraBase::Impl::CheckMinimumFirmwareVersion(unsigned int major,
   const auto cmajor = std::stoi(strings[0], nullptr);
   const auto cminor = std::stoi(strings[1], nullptr);
   const auto cpatch = std::stoi(strings[2], nullptr);
-  auto res = false;
-  if (cmajor > major)
-    {
-      res = true;
-    }
-  else if (cmajor == major)
-    {
-      if (cminor > minor)
-        {
-          res = true;
-        }
-      else if (cminor == minor)
-        {
-          if (cpatch > patch)
-            {
-              res = true;
-            }
-          else if (cpatch == patch)
-            {
-              res = true;
-            }
-        }
-    }
-
-  return res;
+  return ifm3d::Version(cmajor, cminor, cpatch) >= minimum_version;
 }
 
 std::vector<std::string>
