@@ -17,6 +17,7 @@
 #include <camera_base_impl.hpp>
 #include <discovery.hpp>
 #include <xmlrpc_wrapper.hpp>
+#include <fmt/core.h>
 
 //================================================
 // Public constants
@@ -96,6 +97,7 @@ const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR = 1;
 const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR = 30;
 const unsigned int ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH = 4123;
 
+constexpr ifm3d::Version O3R_MINIMUM_FIRWARE_SUPPORTED(1, 13, 13);
 //================================================
 // Function for Searching Devices on Network
 //================================================
@@ -124,8 +126,23 @@ ifm3d::CameraBase::MakeShared(const std::string& ip,
       //
       if (base->AmI(device_family::O3R))
         {
-          VLOG(IFM3D_TRACE) << "Instantiating O3R...";
-          return std::make_shared<ifm3d::O3RCamera>(ip, xmlrpc_port);
+          if (base->CheckMinimumFirmwareVersion(
+                O3R_MINIMUM_FIRWARE_SUPPORTED.major_num,
+                O3R_MINIMUM_FIRWARE_SUPPORTED.minor_num,
+                O3R_MINIMUM_FIRWARE_SUPPORTED.patch_num))
+            {
+              VLOG(IFM3D_TRACE) << "Instantiating O3R...";
+              return std::make_shared<ifm3d::O3RCamera>(ip, xmlrpc_port);
+            }
+          else
+            {
+              const std::string error_msg =
+                fmt::format("Please update the firmware, minimum firmware version required is {}",
+                O3R_MINIMUM_FIRWARE_SUPPORTED);
+
+              VLOG(IFM3D_TRACE) << error_msg;
+              throw error_t(IFM3D_INVALID_FIRMWARE_VERSION, error_msg);
+            }
         }
       if (base->AmI(device_family::O3X))
         {
@@ -293,7 +310,7 @@ ifm3d::CameraBase::CheckMinimumFirmwareVersion(unsigned int major,
                                                unsigned int minor,
                                                unsigned int patch)
 {
-  return this->pImpl->CheckMinimumFirmwareVersion(major, minor, patch);
+  return this->pImpl->CheckMinimumFirmwareVersion(ifm3d::Version(major,minor,patch));
 }
 
 void
