@@ -191,7 +191,7 @@ namespace ifm3d
       @return refernce of the value at the index
     */
     template <typename T>
-    T& at(const std::uint32_t index);
+    T& at(const std::size_t index);
     /*@overload considering image as 2D
       @param row 1st dimension index
       @param col 2nd dimension index
@@ -333,7 +333,7 @@ namespace ifm3d
       @param Index of the pixel considering image as 1D array
       @return refernce of the value at the index
     */
-    Tp& at(const std::uint32_t index);
+    Tp& at(const std::size_t index);
     /*@overload considering image as 2D
       @param row 1st dimension index
       @param col 2nd dimension index
