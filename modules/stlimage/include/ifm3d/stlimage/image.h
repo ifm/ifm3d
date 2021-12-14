@@ -79,10 +79,10 @@ namespace ifm3d
   get the pointer to the row first, and then just use the plain C operator [] :
   @code
      Image I(100,100,1,FORMAT_8U);
-      for(int i = 0; i < I.rows; i++)
+      for(int i = 0; i < I.height(); i++)
       {
           const uint8_t* rowi = M.ptr<uint8_t>(i);
-          for(int j = 0; j < I.cols; j++)
+          for(int j = 0; j < I.width(); j++)
               {
                 //some operation here
               }
@@ -109,6 +109,10 @@ namespace ifm3d
     std::size_t data_size_in_bytes_;
     /* @brief size of the memory allocated*/
     size_t size_;
+    /* @brief bytes to store pixel */
+    size_t bytes_per_pixel;
+    /* @brief bytes per row */
+    size_t bytes_per_row;
 
     class ImageAllocator;
     std::shared_ptr<ImageAllocator> image_allocator_;

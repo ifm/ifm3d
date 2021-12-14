@@ -18,31 +18,32 @@ template <typename T>
 T*
 ifm3d::Image::ptr(const std::uint32_t row)
 {
-  return (T*)(data_ + row * cols_ * nchannel_ * data_size_in_bytes_);
+  return (T*)(data_ + row * bytes_per_row);
 }
 
 template <typename T>
 T*
 ifm3d::Image::ptr(const std::uint32_t row, const std::uint32_t col)
 {
-  return &(ptr<T>(row)[col]);
+  return (T*)(data_ + row * bytes_per_row + col * bytes_per_pixel);
 }
 
 template <typename T>
 T&
 ifm3d::Image::at(const std::uint32_t index)
 {
-  int idx = index * sizeof(T);
+  int idx = index * bytes_per_pixel;
   return *((T*)(data_ + idx));
 }
 
 template <typename T>
 T&
-ifm3d::Image::at(const std::uint32_t row, const std::uint32_t col)
+ifm3d::Image::at(const std::uint32_t row,const std::uint32_t col)
 {
   int idx = row * cols_ + col;
   return at<T>(idx);
 }
+
 template <typename T>
 void
 ifm3d::Image::setTo(const T val, ifm3d::Image& mask)
