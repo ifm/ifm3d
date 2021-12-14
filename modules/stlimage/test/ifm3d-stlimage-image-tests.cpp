@@ -237,3 +237,33 @@ TEST(StlImage, iterators)
       val++;
     }
 }
+
+TEST(StlImage, ptr_comparision)
+{
+  const int height = 100;
+  const int width = 100;
+  const int nchannel = 3;
+
+  ifm3d::Image img(width, height, 3, ifm3d::pixel_format::FORMAT_32F);
+  ifm3d::Point3D_32F point;
+  // fill the image with values
+  for (int i = 0; i < height * width; i++)
+    {
+      point.val[0] = static_cast<float>(rand());
+      point.val[1] = static_cast<float>(rand());
+      point.val[2] = static_cast<float>(rand());
+      EXPECT_NO_FATAL_FAILURE(img.at<ifm3d::Point3D_32F>(i) = point);
+    }
+
+  for (int i = 0; i < img.height(); i++)
+    {
+      for (int j = 0; j < img.width(); j++)
+        {
+          auto ptr = img.ptr<float>(i, j);
+          auto ptr_struct = img.ptr<ifm3d::Point3D_32F>(i, j);
+          EXPECT_TRUE(ptr[0] == ptr_struct->val[0]);
+          EXPECT_TRUE( ptr[1] == ptr_struct->val[1]);
+          EXPECT_TRUE(ptr[2] == ptr_struct->val[2]);
+        }
+    }
+}
