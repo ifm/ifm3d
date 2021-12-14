@@ -18,14 +18,15 @@ template <typename T>
 T*
 ifm3d::Image::ptr(const std::uint32_t row)
 {
-  return  static_cast<T*>(data_ + row * bytes_per_row);
+  return reinterpret_cast<T*>(data_ + row * bytes_per_row);
 }
 
 template <typename T>
 T*
 ifm3d::Image::ptr(const std::uint32_t row, const std::uint32_t col)
 {
-  return static_cast<T*>((data_ + row * bytes_per_row + col * bytes_per_pixel));
+  return reinterpret_cast<T*>(
+    (data_ + row * bytes_per_row + col * bytes_per_pixel));
 }
 
 template <typename T>
@@ -33,7 +34,7 @@ T&
 ifm3d::Image::at(const std::size_t index)
 {
   auto idx = index * bytes_per_pixel;
-  return *(static_cast<T*>((data_ + idx));
+  return *(reinterpret_cast<T*>((data_ + idx)));
 }
 
 template <typename T>
@@ -55,7 +56,7 @@ ifm3d::Image::setTo(const T val, ifm3d::Image& mask)
           std::uint32_t index = i * cols_ + j;
           if (mask.at<uint8_t>(index) != 0)
             {
-              T* ptr = static_cast<T*>(data_ +
+              T* ptr = reinterpret_cast<T*>(data_ +
                             index * nchannel_ * data_size_in_bytes_);
               for (std::uint32_t k = 0; k < nchannel_; k++)
                 {
