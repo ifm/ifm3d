@@ -18,31 +18,33 @@ template <typename T>
 T*
 ifm3d::Image::ptr(const std::uint32_t row)
 {
-  return (T*)(data_ + row * cols_ * nchannel_ * data_size_in_bytes_);
+  return reinterpret_cast<T*>(data_ + row * bytes_per_row);
 }
 
 template <typename T>
 T*
 ifm3d::Image::ptr(const std::uint32_t row, const std::uint32_t col)
 {
-  return &(ptr<T>(row)[col]);
+  return reinterpret_cast<T*>(
+    (data_ + row * bytes_per_row + col * bytes_per_pixel));
 }
 
 template <typename T>
 T&
-ifm3d::Image::at(const std::uint32_t index)
+ifm3d::Image::at(const std::size_t index)
 {
-  int idx = index * sizeof(T);
-  return *((T*)(data_ + idx));
+  auto idx = index * bytes_per_pixel;
+  return *(reinterpret_cast<T*>((data_ + idx)));
 }
 
 template <typename T>
 T&
-ifm3d::Image::at(const std::uint32_t row, const std::uint32_t col)
+ifm3d::Image::at(const std::uint32_t row,const std::uint32_t col)
 {
-  int idx = row * cols_ + col;
+  auto idx = row * cols_ + col;
   return at<T>(idx);
 }
+
 template <typename T>
 void
 ifm3d::Image::setTo(const T val, ifm3d::Image& mask)
@@ -54,7 +56,7 @@ ifm3d::Image::setTo(const T val, ifm3d::Image& mask)
           std::uint32_t index = i * cols_ + j;
           if (mask.at<uint8_t>(index) != 0)
             {
-              T* ptr = (T*)((uint8_t*)data_ +
+              T* ptr = reinterpret_cast<T*>(data_ +
                             index * nchannel_ * data_size_in_bytes_);
               for (std::uint32_t k = 0; k < nchannel_; k++)
                 {
@@ -373,7 +375,7 @@ ifm3d::Image_<Tp>::ptr(const std::uint32_t row, const std::uint32_t col)
 
 template <typename Tp>
 Tp&
-ifm3d::Image_<Tp>::at(const std::uint32_t index)
+ifm3d::Image_<Tp>::at(const std::size_t index)
 {
   return Image::at<Tp>(index);
 }

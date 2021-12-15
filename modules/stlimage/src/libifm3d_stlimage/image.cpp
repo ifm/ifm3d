@@ -87,7 +87,9 @@ ifm3d::Image::Image()
     cols_(0),
     nchannel_(0),
     data_size_in_bytes_(0),
-    size_(0)
+    size_(0),
+    bytes_per_pixel(0),
+    bytes_per_row(0)
 {}
 
 ifm3d::Image::Image(const std::uint32_t cols,
@@ -108,7 +110,16 @@ ifm3d::Image::create(const std::uint32_t cols,
   rows_ = rows;
   nchannel_ = nchannel;
   data_format_ = format;
-  data_size_in_bytes_ = PIX_SZ[static_cast<std::uint32_t>(format)];
+  if (PIX_SZ.find(static_cast<std::uint32_t>(format)) != PIX_SZ.end())
+    {
+      data_size_in_bytes_ = PIX_SZ[static_cast<std::uint32_t>(format)];
+    }
+  else
+    {
+      throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_NOT_SUPPORTED);
+    }
+  bytes_per_pixel = data_size_in_bytes_ * nchannel;
+  bytes_per_row = bytes_per_pixel * cols_;
   size_ = cols * rows * nchannel_ * data_size_in_bytes_;
   image_allocator_ = std::make_shared<ifm3d::Image::ImageAllocator>();
   data_ = image_allocator_->allocate(size_);
