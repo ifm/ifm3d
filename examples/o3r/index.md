@@ -1,4 +1,4 @@
-# O3R examples
+# Basic Library Usage
 
 :::{toctree}
 

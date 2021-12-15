@@ -1,19 +1,15 @@
 # ifm3d library
 
 :::{toctree}
-:hidden:
-:name: test
-Overview <self>
+:titlesonly:
+Overview <content/README>
 Installation instructions <content/installation_instructions>
-Basic library usage <examples/o3r/index>
+Basic library usage <content/examples/o3r/index>
 Command Line tool <cli_link>
 Python API <python_api>
 C++ API <cpp_api/annotated>
 ::: 
 
-```{include} ../../../README.md
-:relative-images: 
-```
 
 Indices and tables
 ==================
