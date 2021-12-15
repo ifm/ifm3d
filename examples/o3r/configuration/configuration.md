@@ -1,6 +1,6 @@
 # How to: configure the camera
 
-The O3R has multiple parameters that have an influence on the point cloud. Some of them affect the raw measurement and others modify how the data is converted into x,y,z, etc values. These parameters can be changed to better fit your applications and we are going to see how here. You can refer to [this page](INSERT-LINK) for a detailed description of each parameter.
+The O3R has multiple parameters that have an influence on the point cloud. Some of them affect the raw measurement and others modify how the data is converted into x,y,z, etc values. These parameters can be changed to better fit your applications and we are going to see how here. You can refer to [this page](documentation/O3R/Parameters/parameters:Settings%20Description) for a detailed description of each parameter.
 
 There are multiple functions available to read the current configuration of the device and to set a new one. We are using JSON formatting.
 
