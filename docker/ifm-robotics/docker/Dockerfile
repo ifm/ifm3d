@@ -135,7 +135,7 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-RUN echo "ifm ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers
+RUN echo "ifm ALL=(ALL) NOPASSWD: ALL" | tee /etc/sudoers.d/ifm
 
 USER ifm
 ENV VIRTUAL_ENV="/home/ifm/venv"
