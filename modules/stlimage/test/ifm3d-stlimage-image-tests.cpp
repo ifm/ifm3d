@@ -262,7 +262,7 @@ TEST(StlImage, ptr_comparision)
           auto ptr = img.ptr<float>(i, j);
           auto ptr_struct = img.ptr<ifm3d::Point3D_32F>(i, j);
           EXPECT_TRUE(ptr[0] == ptr_struct->val[0]);
-          EXPECT_TRUE( ptr[1] == ptr_struct->val[1]);
+          EXPECT_TRUE(ptr[1] == ptr_struct->val[1]);
           EXPECT_TRUE(ptr[2] == ptr_struct->val[2]);
         }
     }
@@ -270,8 +270,7 @@ TEST(StlImage, ptr_comparision)
 
 TEST(StlImage, invalid_data_type)
 {
-  EXPECT_NO_THROW(
-    ifm3d::Image(100, 100, 3, ifm3d::pixel_format::FORMAT_32F));
+  EXPECT_NO_THROW(ifm3d::Image(100, 100, 3, ifm3d::pixel_format::FORMAT_32F));
   EXPECT_THROW(
     ifm3d::Image img(100, 100, 3, static_cast<ifm3d::pixel_format>(1000)),
     ifm3d::error_t);

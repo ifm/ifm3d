@@ -43,7 +43,10 @@ namespace ifm3d
     }
 
     constexpr bool
-    operator!=(const Version& rhs) const { return !(*this == rhs); }
+    operator!=(const Version& rhs) const
+    {
+      return !(*this == rhs);
+    }
 
     constexpr bool
     operator>=(const Version& rhs) const

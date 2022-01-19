@@ -37,6 +37,8 @@ const int IFM3D_SWUPDATE_BAD_STATE = -1000023;
 const int IFM3D_CONFIDENCE_IMAGE_FORMAT_NOT_SUPPORTED = -1000024;
 const int IFM3D_PROXY_AUTH_REQUIRED = -1000025;
 const int IFM3D_PIXEL_FORMAT_NOT_SUPPORTED = 1000026;
+const int IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_DEVICE = -1000027;
+const int IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_FIRMWARE = -1000028;
 
 // sensor errors
 const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
@@ -127,6 +129,10 @@ ifm3d::strerror(int errnum)
              "Disable proxy and try again.";
     case IFM3D_PIXEL_FORMAT_NOT_SUPPORTED:
       return "Lib: unknown size of the pixel format";
+    case IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_DEVICE:
+      return "Lib: Current device does not support distance noise image";
+    case IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_FIRMWARE:
+      return "Lib: Firmware does not support distance noise image";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
       return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:

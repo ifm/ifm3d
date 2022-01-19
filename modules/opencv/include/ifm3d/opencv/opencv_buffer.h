@@ -42,6 +42,7 @@ namespace ifm3d
     cv::Mat ConfidenceImage();
     cv::Mat XYZImage();
     cv::Mat JPEGImage();
+    cv::Mat DistanceNoiseImage();
 
   protected:
     template <typename T>
@@ -73,6 +74,7 @@ namespace ifm3d
     cv::Mat conf_;
     cv::Mat xyz_;
     cv::Mat jpeg_;
+    cv::Mat dis_noise_;
     cv::Mat_<std::uint8_t> bad_; // bad pixel mask
 
   }; // end: class OpenCVBuffer

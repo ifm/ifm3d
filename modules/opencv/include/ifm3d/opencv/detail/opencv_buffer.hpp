@@ -147,6 +147,13 @@ ifm3d::OpenCVBuffer::JPEGImage()
   return this->jpeg_;
 }
 
+inline cv::Mat
+ifm3d::OpenCVBuffer::DistanceNoiseImage()
+{
+  this->Organize();
+  return this->dis_noise_;
+}
+
 template <typename T>
 inline void
 ifm3d::OpenCVBuffer::ImCreate(ifm3d::image_chunk im,
@@ -191,6 +198,10 @@ ifm3d::OpenCVBuffer::ImCreate(ifm3d::image_chunk im,
                             CV_8UC1,
                             (void*)(bytes.data() + idx));
       return;
+
+    case ifm3d::image_chunk::DISTANCE_NOISE:
+      mat = &this->dis_noise_;
+      break;
 
     default:
       return;

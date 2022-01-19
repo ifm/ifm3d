@@ -542,6 +542,67 @@ TEST(Image, TimeStamp)
   EXPECT_GT(tdiff, 20);
 }
 
+TEST(Image, TimeStamps)
+{
+  std::string json =
+    R"(
+        {
+          "o3d3xx":
+          {
+            "Device":
+            {
+              "ActiveApplication": "1"
+            },
+            "Apps":
+            [
+              {
+                "TriggerMode": "1",
+                "Index": "1",
+                "Imager":
+                {
+                    "ExposureTime": "5000",
+                    "ExposureTimeList": "125;5000",
+                    "ExposureTimeRatio": "40",
+                    "Type":"under5m_moderate"
+                }
+              }
+           ]
+          }
+        }
+      )";
+
+  ifm3d::Camera::Ptr cam = std::make_shared<ifm3d::Camera>();
+  cam->FromJSON(nlohmann::json::parse(json));
+
+  ifm3d::ImageBuffer::Ptr img = std::make_shared<ifm3d::ImageBuffer>();
+  ifm3d::FrameGrabber::Ptr fg =
+    std::make_shared<ifm3d::FrameGrabber>(cam,
+                                          ifm3d::IMG_AMP | ifm3d::IMG_CART);
+
+  std::array<std::vector<ifm3d::TimePointT>, 2> tps;
+  // get two consecutive timestamps
+  for (auto& t : tps)
+    {
+      EXPECT_TRUE(fg->WaitForFrame(img.get(), 1000));
+      t = img->TimeStamps();
+    }
+
+  // checking for position 0 (last phase capture timestamp)
+  EXPECT_LT(tps[0][0], tps[1][0]);
+  auto tdiff = std::chrono::duration_cast<std::chrono::milliseconds>(
+                 tps[1][0] - tps[0][0])
+                 .count();
+  EXPECT_GT(tdiff, 20);
+
+  // the first time point need to be smaller than the second one
+  // checking for position 1 (timestamp while sending data on ethernet)
+  EXPECT_LT(tps[0][1], tps[1][1]);
+  tdiff = std::chrono::duration_cast<std::chrono::milliseconds>(tps[1][1] -
+                                                                tps[0][1])
+            .count();
+  EXPECT_GT(tdiff, 20);
+}
+
 TEST(Image, IlluTemp)
 {
   ifm3d::Camera::Ptr cam = std::make_shared<ifm3d::Camera>();
@@ -564,4 +625,26 @@ TEST(Image, IlluTemp)
 
   EXPECT_GT(illu_temp, 10);
   EXPECT_LT(illu_temp, 90);
+}
+
+TEST(Image, DistanceNoiseImage)
+{
+  ifm3d::Camera::Ptr cam = std::make_shared<ifm3d::Camera>();
+
+  // only supported on O3X
+  if (!cam->AmI(ifm3d::Camera::device_family::O3X))
+    {
+      return;
+    }
+
+  ifm3d::ImageBuffer::Ptr img = std::make_shared<ifm3d::ImageBuffer>();
+  ifm3d::FrameGrabber::Ptr fg = std::make_shared<ifm3d::FrameGrabber>(
+    cam,
+    ifm3d::DEFAULT_SCHEMA_MASK | ifm3d::IMG_DIS_NOISE);
+
+  ASSERT_TRUE(fg->WaitForFrame(img.get(), 1000));
+
+  auto dist_noise = img->DistanceNoiseImage();
+
+  EXPECT_TRUE(dist_noise.type() == CV_16UC1);
 }

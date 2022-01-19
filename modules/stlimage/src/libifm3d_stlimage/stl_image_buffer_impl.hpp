@@ -294,7 +294,7 @@ ifm3d::StlImageBuffer::Impl::ImCreate(ifm3d::image_chunk im,
       break;
 
     case ifm3d::image_chunk::JPEG:
-      this->jpeg_ = ifm3d::Image(1,npts,1, ifm3d::pixel_format::FORMAT_8U);
+      this->jpeg_ = ifm3d::Image(1, npts, 1, ifm3d::pixel_format::FORMAT_8U);
       std::memcpy((void*)this->jpeg_.ptr(0),
                   (void*)(bytes.data() + idx),
                   static_cast<int>(npts));

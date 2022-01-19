@@ -39,7 +39,7 @@ ifm3d::Image::at(const std::size_t index)
 
 template <typename T>
 T&
-ifm3d::Image::at(const std::uint32_t row,const std::uint32_t col)
+ifm3d::Image::at(const std::uint32_t row, const std::uint32_t col)
 {
   auto idx = row * cols_ + col;
   return at<T>(idx);
@@ -56,8 +56,8 @@ ifm3d::Image::setTo(const T val, ifm3d::Image& mask)
           std::uint32_t index = i * cols_ + j;
           if (mask.at<uint8_t>(index) != 0)
             {
-              T* ptr = reinterpret_cast<T*>(data_ +
-                            index * nchannel_ * data_size_in_bytes_);
+              T* ptr = reinterpret_cast<T*>(data_ + index * nchannel_ *
+                                                      data_size_in_bytes_);
               for (std::uint32_t k = 0; k < nchannel_; k++)
                 {
                   ptr[k] = val;

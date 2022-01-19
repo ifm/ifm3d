@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] 
 ### Added
+- Document for schema
+- Document for O3X parameters
+- Added functionality to get timestamp at which data is send over ethernet
+- Support for Distance noise image for O3X Devices
+- Support for latest O3X firmware (1.1.190)
+- New Parameters for O3X device: AbsDistStraylightThreshold, EnableStraylightCorrection, EnableNoiseEstimation,
+  CompensateAmbientLightDrift, DistNoiseThreshold, EnableNoiseEstimation, RelAmpStraylightThreshold
+- Added the O3X FW 1.1.166 to the compatibility list
+- Added compatibility list to swupdate document
 - error_t::message() function to retrieve details about exceptions
 - custom python exception type: ifm3dpy.Error
 

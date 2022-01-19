@@ -115,6 +115,12 @@ ifm3d::ImageBuffer::JPEGImage()
   this->Organize();
   return this->pImpl->JPEGImage();
 }
+cv::Mat
+ifm3d::ImageBuffer::DistanceNoiseImage()
+{
+  this->Organize();
+  return this->pImpl->DistanceNoiseImage();
+}
 
 pcl::PointCloud<ifm3d::PointT>::Ptr
 ifm3d::ImageBuffer::Cloud()
