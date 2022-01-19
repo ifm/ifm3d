@@ -487,7 +487,13 @@ ifm3d::Camera::FromJSON_(
           continue;
         }
       std::string val = j_new[key].get<std::string>();
-      if (j_curr[key].get<std::string>() != val)
+      if (j_curr[key].is_null())
+        {
+          const auto msg =
+            key + std::string(" parameter is not supported in firmware");
+          throw std::runtime_error(msg);
+        }
+      else if (j_curr[key].get<std::string>() != val)
         {
           try
             {
@@ -542,6 +548,28 @@ ifm3d::Camera::FromJSON_(
           this->pImpl->StopEditingApplication();
         }
     }
+}
+
+bool
+ifm3d::Camera::getAppJSON(int index, const json& j, json& app) /*static*/
+{
+  bool app_found = false;
+  app = json({});
+
+  json curr_apps = j["ifm3d"]["Apps"];
+
+  // Just find application with current index
+  for (auto& a : curr_apps)
+    {
+      if (std::stoi(a["Index"].get<std::string>()) == index)
+        {
+          app = a;
+          app_found = true;
+          break;
+        }
+    }
+
+  return (app_found);
 }
 
 void
@@ -638,18 +666,7 @@ ifm3d::Camera::FromJSON(const json& j)
             // now in `current` (which is a whole camera dump)
             // we need to find the application at index `idx`.
             json curr_app = json({});
-            json curr_apps = current["ifm3d"]["Apps"];
-            bool app_found = false;
-            for (auto& a : curr_apps)
-              {
-                if (std::stoi(a["Index"].get<std::string>()) == idx)
-                  {
-                    curr_app = a;
-                    app_found = true;
-                    break;
-                  }
-              }
-
+            bool app_found = getAppJSON(idx, current, curr_app);
             if (!app_found)
               {
                 LOG(ERROR) << "Could not find an application at index=" << idx;
@@ -691,6 +708,15 @@ ifm3d::Camera::FromJSON(const json& j)
                 j_im.erase("TemporalFilter");
               }
 
+            // When the TemporalFilterType is set for example, there are
+            // additional parameters. They do not exist in the basic
+            // application. When trying to import them, ifm3d will fail. In
+            // case an temporal filter is set, we have to reload the
+            // application.
+            bool reloadApp =
+              (!j_im["TemporalFilterType"].is_null() &&
+               std::stoi(j_im["TemporalFilterType"].get<std::string>()) != 0);
+
             this->FromJSON_(
               curr_app["Imager"],
               j_im,
@@ -704,9 +730,15 @@ ifm3d::Camera::FromJSON(const json& j)
                     this->pImpl->SetImagerParameter(k, v);
                   }
               },
-              [this]() { this->pImpl->SaveApp(); },
+              [this, j_im]() { this->pImpl->SaveApp(); },
               "Imager",
               idx);
+
+            if (reloadApp)
+              {
+                current = this->ToJSON_(false);
+                app_found = getAppJSON(idx, current, curr_app);
+              }
 
             if (!this->AmI(device_family::O3X))
               {

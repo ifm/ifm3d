@@ -53,6 +53,7 @@ namespace ifm3d
     AMPLITUDE = 101, // normalized amplitude
     RAW_AMPLITUDE = 103,
     GRAY = 104, // ambient light
+    DISTANCE_NOISE = 105,
     CARTESIAN_X = 200,
     CARTESIAN_Y = 201,
     CARTESIAN_Z = 202,
@@ -356,10 +357,12 @@ namespace ifm3d
     ifm3d::TimePointT TimeStamp();
 
     /**
-     * Returns the timestamp of phase data for O3R device
+     * Returns the time stamps of the image data for O3X devices
+     * Value at index 0 will represent the time at which  phase data is read.
+     * Value at index 1 will represent the time at which datais transferred
+     * over ethernet.
      *
-     * NOTE: For O3D and O3X camera it only returns confidence
-     * Image timestamp
+     * Returns the timestamps of phase data for O3R device
      */
     std::vector<ifm3d::TimePointT> TimeStamps();
 

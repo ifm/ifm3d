@@ -27,7 +27,7 @@ tagged [release version](https://github.com/ifm/ifm3d/releases) for production.
   <tr>
     <td>0.92.0 </td>
     <td>1.6.2114, 1.23.1522, 1.23.1522, 1.23.2848, 1.30.4123, 1.30.5309</td>
-    <td>1.0.122, 1.0.126, 1.0.156</td>
+    <td>1.0.122, 1.0.126, 1.0.156, 1.1.190</td>
     <td>0.13.11</td>
     <td>16.04,18.04,20.04</td>
     <td>Removed Boost dependence,Added clang-format,SPDX license Headers</td>

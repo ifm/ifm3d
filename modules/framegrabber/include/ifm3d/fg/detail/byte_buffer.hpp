@@ -211,6 +211,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
   std::size_t invintridx = INVALID_IDX;
   std::size_t jsonidx = INVALID_IDX;
   std::size_t jpegidx = INVALID_IDX;
+  std::size_t dist_noiseidx = INVALID_IDX;
 
   xyzidx =
     ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::CARTESIAN_ALL);
@@ -254,6 +255,8 @@ ifm3d::ByteBuffer<Derived>::Organize()
   jsonidx =
     ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::JSON_MODEL);
   jpegidx = ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::JPEG);
+  dist_noiseidx =
+    ifm3d::get_chunk_index(this->bytes_, ifm3d::image_chunk::DISTANCE_NOISE);
 
   // As parameter will not change so only grabed and stored
   // for the first time
@@ -278,8 +281,8 @@ ifm3d::ByteBuffer<Derived>::Organize()
                           << ", uidx=" << uidx << ", extidx=" << extidx
                           << ", gidx=" << gidx << ", intridx=" << intridx
                           << ", invintridx=" << invintridx
-                          << ", jsonidx=" << jsonidx
-                          << ", jpegidx=" << jpegidx;
+                          << ", jsonidx=" << jsonidx << ", jpegidx=" << jpegidx
+                          << ", distnoiseidx=" << dist_noiseidx;
 
   // to get the metadata we use the confidence image for 3d and
   // the jpeg image for 2d
@@ -307,6 +310,13 @@ ifm3d::ByteBuffer<Derived>::Organize()
       this->time_stamps_.push_back(
         ifm3d::TimePointT{std::chrono::seconds{timestampSec} +
                           std::chrono::nanoseconds{timestampNsec}});
+      // O3X device provides an offeset in Usec releative to timestamp
+      // calculated as time_stamp_[0]
+      const std::uint32_t ethernetTimeinUsecOffset =
+        ifm3d::mkval<std::uint32_t>(this->bytes_.data() + cidx + 28);
+      this->time_stamps_.push_back(ifm3d::TimePointT{
+        this->time_stamps_[0] +
+        std::chrono::microseconds{ethernetTimeinUsecOffset}});
     }
   else
     {
@@ -327,6 +337,7 @@ ifm3d::ByteBuffer<Derived>::Organize()
     ((xidx != INVALID_IDX) && (yidx != INVALID_IDX) && (zidx != INVALID_IDX));
   bool JSON_OK = (jsonidx != INVALID_IDX);
   bool JPEG_OK = (jpegidx != INVALID_IDX);
+  bool DIST_NOISE_OK = (dist_noiseidx != INVALID_IDX);
 
   // pixel format of each image
   std::uint32_t INVALID_FMT = std::numeric_limits<std::uint32_t>::max();
@@ -370,6 +381,10 @@ ifm3d::ByteBuffer<Derived>::Organize()
   std::uint32_t jpegfmt =
     JPEG_OK ? ifm3d::mkval<std::uint32_t>(this->bytes_.data() + jpegidx + 24) :
               INVALID_FMT;
+  std::uint32_t dist_noisefmt =
+    DIST_NOISE_OK ?
+      ifm3d::mkval<std::uint32_t>(this->bytes_.data() + dist_noiseidx + 24) :
+      INVALID_FMT;
 
   VLOG(IFM3D_PROTO_DEBUG) << "xfmt=" << xfmt << ", yfmt=" << yfmt
                           << ", zfmt=" << zfmt << ", afmt=" << afmt
@@ -378,8 +393,8 @@ ifm3d::ByteBuffer<Derived>::Organize()
                           << ", extfmt=" << extfmt << ", gfmt=" << gfmt
                           << ", intrfmt= " << intrfmt
                           << ", invintrfmt= " << invintrfmt
-                          << ", jpegfmt= " << jpegfmt;
-
+                          << ", jpegfmt= " << jpegfmt
+                          << ", distnoisefmt= " << dist_noisefmt;
   // get the image dimensions
   std::uint32_t width =
     ifm3d::mkval<std::uint32_t>(this->bytes_.data() + metaidx + 16);
@@ -733,6 +748,13 @@ ifm3d::ByteBuffer<Derived>::Organize()
                                     1,
                                     chunk_size - pixel_data_offset,
                                     this->bytes_);
+    }
+  if (DIST_NOISE_OK)
+    {
+      dist_noiseidx += pixel_data_offset;
+      im_wrapper(ifm3d::image_chunk::DISTANCE_NOISE,
+                 dist_noisefmt,
+                 dist_noiseidx);
     }
 
   //
