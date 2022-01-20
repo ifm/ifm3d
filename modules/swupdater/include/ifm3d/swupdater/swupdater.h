@@ -16,7 +16,7 @@ namespace ifm3d
   /* const for the swupdate recovery port value */
   extern IFM3D_SWUPDATER_EXPORT const std::uint16_t SWUPDATER_RECOVERY_PORT;
 
-  class SWUpdater
+  class IFM3D_SWUPDATER_EXPORT SWUpdater
   {
   public:
     using Ptr = std::shared_ptr<SWUpdater>;
@@ -131,7 +131,7 @@ namespace ifm3d
      */
     bool FlashFirmware(const std::string& swu_file, long timeout_millis = 0);
 
-    class Impl;
+   class IFM3D_SWUPDATER_LOCAL Impl;
 
   private:
     std::unique_ptr<Impl> pImpl;
