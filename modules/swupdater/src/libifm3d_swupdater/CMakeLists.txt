@@ -61,6 +61,10 @@ set_target_properties(
   LINKER_LANGUAGE CXX
   )
 
+if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+  set_target_properties(ifm3d_swupdater PROPERTIES CXX_VISIBILITY_PRESET hidden)
+endif()
+
 #------------------
 # Installation
 #------------------
