@@ -3,7 +3,7 @@ build:linux:
   tags:
     - shared_docker
   variables:
-    BASE_IMAGE: ubuntu:16.04
+    BASE_IMAGE: ubuntu:18.04
   image:
     name: nexus.ifm.com:20443/ifm-robotics/ifm3d/kaniko:debug
     entrypoint: [""]
@@ -61,13 +61,11 @@ build:linux:deb:
           - nvcr.io/nvidia/l4t-base:r32.4.3
           - ubuntu:20.04
           - ubuntu:18.04
-          - ubuntu:16.04
       - RUNNER: shared_docker
         PLATFORM: linux/amd64
         BASE_IMAGE:
           - ubuntu:20.04
           - ubuntu:18.04
-          - ubuntu:16.04
   tags:
     - ${RUNNER}
   image:
