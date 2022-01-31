@@ -23,6 +23,7 @@ add_executable(ifm3d-camera-tests ${TEST_SOURCES})
 target_link_libraries(ifm3d-camera-tests
                       gtest_main
                       ifm3d_camera
+                      $<BUILD_INTERFACE:fmt::fmt-header-only>
                       )
 
 if(NOT CMAKE_CROSSCOMPILING)
