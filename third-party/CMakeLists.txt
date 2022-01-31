@@ -1,3 +1,5 @@
+set(CMAKE_CXX_STANDARD 14)
+
 include(FetchContent)
 if(BUILD_IN_DEPS)
   list(APPEND BUILTIN_INCLUDES "" PARENT_SCOPE)
