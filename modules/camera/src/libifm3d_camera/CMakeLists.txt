@@ -61,18 +61,6 @@ target_include_directories(ifm3d_camera
     ${BUILTIN_INCLUDES}
     )
 
-# NOTE: we cannot use the following due to only requiring cmake 3.5
-#
-#target_compile_features(ifm3d_camera_shared
-#  PUBLIC "cxx_std_${CMAKE_CXX_STANDARD}"
-#  )
-#
-# ... so, we do a more ugly thing here instead
-#
-target_compile_options(ifm3d_camera
-  PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++${CMAKE_CXX_STANDARD}>
-  )
-
 if(WIN32)
   target_compile_definitions(
     ifm3d_camera PRIVATE
