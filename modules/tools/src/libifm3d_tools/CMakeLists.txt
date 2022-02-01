@@ -71,11 +71,6 @@ if (BUILD_MODULE_OPENCV)
     )
 endif()
 
-
-target_compile_options(ifm3d_tools_shared
-  PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++${CMAKE_CXX_STANDARD}>
-  )
-
 if(WIN32)
     target_compile_definitions(ifm3d_tools_shared PRIVATE
         IFM3D_TOOLS_DLL_BUILD=1)

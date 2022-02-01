@@ -36,10 +36,6 @@ target_include_directories(ifm3d_framegrabber
     ${CMAKE_CURRENT_SOURCE_DIR}/algo
   )
 
-target_compile_options(ifm3d_framegrabber
-  PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++${CMAKE_CXX_STANDARD}>
-  )
-
 if(WIN32)
     target_compile_definitions(ifm3d_framegrabber PRIVATE
         IFM3D_FRAME_GRABBER_DLL_BUILD=1)
