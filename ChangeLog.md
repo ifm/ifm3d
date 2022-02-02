@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - error_t::message() function to retrieve details about exceptions
 - custom python exception type: ifm3dpy.Error
 
+### Fixed
+- O3R FW detection
+
 ## 0.92.0 - 2021-10-22
 ### Added
 - HTTP 407 Proxy authentication required error detection
