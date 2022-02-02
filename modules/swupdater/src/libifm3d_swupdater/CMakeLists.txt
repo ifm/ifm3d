@@ -35,10 +35,6 @@ target_include_directories(ifm3d_swupdater
     ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
-target_compile_options(ifm3d_swupdater
-  PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++${CMAKE_CXX_STANDARD}>
-  )
-
 if(WIN32)
     target_compile_definitions(ifm3d_swupdater PRIVATE
         IFM3D_SWUPDATER_DLL_BUILD=1)

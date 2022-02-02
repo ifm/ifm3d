@@ -24,10 +24,6 @@ target_include_directories(ifm3d_opencv
     ${OpenCV_INCLUDE_DIRS}
   )
 
-target_compile_options(ifm3d_opencv
-  INTERFACE $<$<COMPILE_LANGUAGE:CXX>:-std=c++${CMAKE_CXX_STANDARD}>
-  )
-
 target_link_libraries(ifm3d_opencv
   INTERFACE
     ifm3d_framegrabber
