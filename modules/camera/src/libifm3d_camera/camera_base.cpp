@@ -101,7 +101,7 @@ const unsigned int ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MAJOR = 1;
 const unsigned int ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MINOR = 1;
 const unsigned int ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_PATCH = 190;
 
-constexpr ifm3d::Version O3R_MINIMUM_FIRWARE_SUPPORTED(0, 13, 13);
+const ifm3d::SemVer O3R_MINIMUM_FIRWARE_SUPPORTED(0, 13, 13);
 
 //================================================
 // Function for Searching Devices on Network
@@ -317,7 +317,7 @@ ifm3d::CameraBase::CheckMinimumFirmwareVersion(unsigned int major,
                                                unsigned int patch)
 {
   return this->pImpl->CheckMinimumFirmwareVersion(
-    ifm3d::Version(major, minor, patch));
+    ifm3d::SemVer(major, minor, patch));
 }
 
 void

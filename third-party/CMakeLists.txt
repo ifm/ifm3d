@@ -1,3 +1,5 @@
+set(CMAKE_CXX_STANDARD 14)
+
 include(FetchContent)
 if(BUILD_IN_DEPS)
   list(APPEND BUILTIN_INCLUDES "" PARENT_SCOPE)
@@ -47,6 +49,9 @@ if(BUILD_IN_DEPS)
 
   list(APPEND BUILTIN_INCLUDES ${xmlrpc_src_dir}/include ${xmlrpc_src_dir}/lib/util/include ${xmlrpc_bin_dir}/include  ${xmlrpc_bin_dir})
   set( BUILTIN_INCLUDES ${BUILTIN_INCLUDES} PARENT_SCOPE)
+  if(WIN32)
+    target_compile_definitions(xmlrpc PUBLIC _HAS_AUTO_PTR_ETC=1)
+  endif()
 
   FetchContent_Declare(
    glog
@@ -62,6 +67,9 @@ if(BUILD_IN_DEPS)
 
   add_subdirectory(${glog_src_dir} ${glog_bin_dir})
   list(APPEND BUILTIN_INCLUDES ${glog_src_dir} ${glog_bin_dir} ${glog_src_dir}/src)
+  if(WIN32)
+    target_compile_definitions(logging_unittest PUBLIC _HAS_AUTO_PTR_ETC=1)
+  endif()
 
   FetchContent_Declare(
    pybind11
