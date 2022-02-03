@@ -34,6 +34,13 @@ set_target_properties(ifm3d_opencv PROPERTIES
   EXPORT_NAME opencv
   )
 
+if(USE_LEGACY_COORDINATES)
+  target_compile_definitions(ifm3d_opencv 
+    INTERFACE
+      IFM3D_USE_LEGACY_COORDINATES
+  )
+endif()
+
 ################################################
 ## Process child CMakeLists.txt files
 ################################################
