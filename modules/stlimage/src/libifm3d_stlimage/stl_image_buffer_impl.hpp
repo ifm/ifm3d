@@ -174,10 +174,16 @@ namespace ifm3d
               bad_ptr = this->bad_.ptr<uint8_t>(row);
             }
 
+#if IFM3D_USE_LEGACY_COORDINATES
           // convert to ifm3d coord frame
           x_ = ifm3d::mkval<T>(bytes.data() + zidx);
           y_ = -ifm3d::mkval<T>(bytes.data() + xidx);
           z_ = -ifm3d::mkval<T>(bytes.data() + yidx);
+#else
+          x_ = ifm3d::mkval<T>(bytes.data() + xidx);
+          y_ = ifm3d::mkval<T>(bytes.data() + yidx);
+          z_ = ifm3d::mkval<T>(bytes.data() + zidx);
+#endif
 
           if (bad_ptr[col] == 0)
             {
