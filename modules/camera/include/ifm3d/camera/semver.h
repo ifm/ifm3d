@@ -43,10 +43,7 @@ namespace ifm3d
       return major_num < rhs.major_num ||
              (major_num == rhs.major_num &&
               (minor_num < rhs.minor_num ||
-               (minor_num == rhs.minor_num &&
-                (patch_num < rhs.patch_num ||
-                 (patch_num == rhs.patch_num && prerelease.has_value() &&
-                  !(rhs.prerelease.has_value()))))));
+               (minor_num == rhs.minor_num && (patch_num < rhs.patch_num))));
     }
 
     constexpr bool
