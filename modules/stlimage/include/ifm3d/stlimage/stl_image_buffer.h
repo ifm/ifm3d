@@ -90,6 +90,11 @@ namespace ifm3d
      */
     ifm3d::Image JPEGImage();
 
+    /**
+     * Accessor for the OpenCV encoding of the DistanceNoiseImage
+     */
+    ifm3d::Image DistanceNoiseImage();
+
   protected:
     /**
      * Hook called by the base class to populate the image containers.
