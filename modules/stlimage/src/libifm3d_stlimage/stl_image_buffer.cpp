@@ -113,6 +113,13 @@ ifm3d::StlImageBuffer::JPEGImage()
   return this->pImpl->JPEGImage();
 }
 
+ifm3d::Image
+ifm3d::StlImageBuffer::DistanceNoiseImage()
+{
+  this->Organize();
+  return this->pImpl->DistanceNoiseImage();
+}
+
 void
 ifm3d::StlImageBuffer::_ImCreate(ifm3d::image_chunk im,
                                  std::uint32_t fmt,
