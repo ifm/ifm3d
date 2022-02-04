@@ -255,6 +255,9 @@ PYBIND11_MODULE(ifm3dpy, m)
   add_attr("JSON_MODEL",
            ifm3d::JSON_MODEL,
            "Pcic schema constant for the json model.");
+  add_attr("IMG_DISN",
+           ifm3d::IMG_DIS_NOISE,
+           "Pcic schema constant for the distance noise image.");
 
   // Constants to use for querying supported firmware versions
   add_attr("O3D_TIME_SUPPORT_MAJOR",
@@ -622,6 +625,20 @@ PYBIND11_MODULE(ifm3dpy, m)
           -------
           numpy.ndarray
               Jpeg encoded image data
+        )")
+    .def(
+      "distance_noise_image",
+      [](const ifm3d::StlImageBuffer::Ptr& buff)
+      {
+        return ifm3d::image_to_array(buff->DistanceNoiseImage());
+        },
+        R"(
+          Retrieves the distance noise image
+
+          Returns
+          -------
+          numpy.ndarray
+              Image organized on the pixel array [rows, cols]
         )");
 
   py::class_<ifm3d::FrameGrabberWrapper, ifm3d::FrameGrabberWrapper::Ptr>(
