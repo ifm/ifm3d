@@ -87,8 +87,8 @@ static std::vector<std::string> INVALID_VERSION_STRINGS{
 static std::vector<std::tuple<std::string, std::string, int, bool>>
   COMPARE_VERSIONS{
     {"1.0.0", "1.0.0", 0, true},
-    {"1.0.0-prerelease", "1.0.0", -1, false},
-    {"1.0.0-prerelease+meta", "1.0.0", -1, false},
+    {"1.0.0-prerelease", "1.0.0", 0, false},
+    {"1.0.0-prerelease+meta", "1.0.0", 0, false},
     {"1.0.0+meta", "1.0.0", 0, false},
     {"1.1.0", "1.0.0", +1, false},
     {"1.0.1", "1.0.0", +1, false},
