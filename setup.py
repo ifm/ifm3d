@@ -20,7 +20,7 @@ import platform
 import subprocess
 
 from distutils.version import LooseVersion
-from setuptools import setup, Extension
+from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 
 #
@@ -85,8 +85,8 @@ class CMakeBuild(build_ext):
         # Build with cmake -- build only camera and framegrabber. Also build
         # them as static libs so the resulting python module is isolated.
         cmake_args = ['-DBUILD_MODULE_IMAGE=OFF',
-                      '-DBUILD_MODULE_SWUPDATER=OFF',
-                      '-DBUILD_MODULE_TOOLS=OFF',
+                      '-DBUILD_MODULE_SWUPDATER=ON',
+                      '-DBUILD_MODULE_TOOLS=ON',
                       '-DBUILD_MODULE_PYBIND11=ON',
                       '-DBUILD_TESTS=OFF',
                       '-DBUILD_SHARED_LIBS=OFF',
@@ -143,4 +143,6 @@ setup(
     ext_modules=[CMakeExtension('IFM3D_PYBIND11')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
+    packages = find_packages(),
+    entry_points ={'console_scripts': ['ifm3dpy = ifm3dpy:_run_cmdtool']}
 )

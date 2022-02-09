@@ -6,6 +6,7 @@
 
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/tools/mutable_args.h>
+#include <ifm3d/tools/make_app.h>
 #include <cstdint>
 #include <iostream>
 #include <string>
@@ -172,4 +173,39 @@ bool
 ifm3d::CmdLineApp::CheckCompatibility()
 {
   return true;
+}
+
+int
+ifm3d::CmdLineApp::Execute(size_t argc, const char** argv)
+{
+  int err = 0;
+  try
+    {
+      ifm3d::CmdLineApp::Ptr app = ifm3d::make_app(argc, argv);
+
+      if (!app->CheckCompatibility())
+        {
+          throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+        }
+
+      err = app->Run();
+    }
+  catch (const ifm3d::error_t& ex)
+    {
+      std::cerr << "ifm3d error: " << ex.code() << std::endl
+                << ex.what() << std::endl;
+      return 1;
+    }
+  catch (const std::exception& ex)
+    {
+      std::cerr << "ifm3d error: " << ex.what() << std::endl;
+      return 1;
+    }
+  catch (...)
+    {
+      std::cerr << "ifm3d failed - error unknown!" << std::endl;
+      return 1;
+    }
+
+  return err;
 }
