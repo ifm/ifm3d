@@ -48,6 +48,11 @@ namespace ifm3d
 
     virtual bool CheckCompatibility();
 
+    /**
+    * Method to execute ifm3d commands
+    */
+    static int Execute(size_t argc, const char** argv);
+
   protected:
     cxxopts::Options all_opts_;
     std::unique_ptr<cxxopts::ParseResult> vm_;
