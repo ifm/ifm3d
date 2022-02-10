@@ -190,7 +190,7 @@ PYBIND11_MODULE(ifm3dpy, m)
   add_attr("JSON_MODEL",
            ifm3d::JSON_MODEL,
            "Pcic schema constant for the json model.");
-  add_attr("IMG_DISN",
+  add_attr("IMG_DIS_NOISE",
            ifm3d::IMG_DIS_NOISE,
            "Pcic schema constant for the distance noise image.");
 
