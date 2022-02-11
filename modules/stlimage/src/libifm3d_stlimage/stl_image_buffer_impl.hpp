@@ -40,6 +40,7 @@ namespace ifm3d
     ifm3d::Image ConfidenceImage();
     ifm3d::Image XYZImage();
     ifm3d::Image JPEGImage();
+    ifm3d::Image DistanceNoiseImage();
 
     void ImCreate(ifm3d::image_chunk im,
                   std::uint32_t fmt,
@@ -68,6 +69,7 @@ namespace ifm3d
     ifm3d::Image conf_;
     ifm3d::Image xyz_;
     ifm3d::Image jpeg_;
+    ifm3d::Image dist_noise_;
     ifm3d::Image bad_; // mask of bad pixels
 
     template <typename T>
@@ -262,6 +264,12 @@ ifm3d::StlImageBuffer::Impl::JPEGImage()
   return this->jpeg_;
 }
 
+ifm3d::Image
+ifm3d::StlImageBuffer::Impl::DistanceNoiseImage()
+{
+  return this->dist_noise_;
+}
+
 void
 ifm3d::StlImageBuffer::Impl::ImCreate(ifm3d::image_chunk im,
                                       std::uint32_t fmt,
@@ -305,6 +313,10 @@ ifm3d::StlImageBuffer::Impl::ImCreate(ifm3d::image_chunk im,
                   (void*)(bytes.data() + idx),
                   static_cast<int>(npts));
       return;
+
+    case ifm3d::image_chunk::DISTANCE_NOISE:
+      image = &this->dist_noise_;
+      break;
 
     default:
       return;

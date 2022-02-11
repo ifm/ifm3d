@@ -5,6 +5,7 @@
 #include <vector>
 #include <ifm3d/camera.h>
 #include <ifm3d/fg.h>
+#include <ifm3d/fg/byte_buffer.h>
 #include <ifm3d/stlimage.h>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
@@ -593,4 +594,25 @@ TEST(StlImageBuffer, IlluTemp)
 
   EXPECT_GT(illu_temp, 10);
   EXPECT_LT(illu_temp, 90);
+}
+
+TEST(StlImageBuffer, DistanceNoiseImage)
+{
+  ifm3d::Camera::Ptr cam = std::make_shared<ifm3d::Camera>("192.168.0.68");
+
+  // only supported on O3X
+  if (!cam->AmI(ifm3d::Camera::device_family::O3X))
+  {
+    return;
+  }
+
+  ifm3d::StlImageBuffer::Ptr img = std::make_shared<ifm3d::StlImageBuffer>();
+  ifm3d::FrameGrabber::Ptr fg = std::make_shared<ifm3d::FrameGrabber>(
+    cam,
+    ifm3d::DEFAULT_SCHEMA_MASK | ifm3d::IMG_DIS_NOISE);
+
+  ASSERT_TRUE(fg->WaitForFrame(img.get(), 1000));
+
+  auto dist_noise = img->DistanceNoiseImage();
+  EXPECT_TRUE(dist_noise.dataFormat() == ifm3d::pixel_format::FORMAT_16U);
 }
