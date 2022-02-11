@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added compatibility list to swupdate document
 - error_t::message() function to retrieve details about exceptions
 - custom python exception type: ifm3dpy.Error
+- Added timeout option in swupdate command of tools
 
 ### Fixed
 - O3R FW detection
