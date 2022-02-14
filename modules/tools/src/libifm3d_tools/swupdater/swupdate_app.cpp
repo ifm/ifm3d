@@ -37,7 +37,9 @@ ifm3d::SWUpdateApp::SWUpdateApp(int argc,
     ("q,quiet","Disable status output",
      cxxopts::value<bool>()->default_value("false"))
     ("swupdate-port","port for swupdate",
-     cxxopts::value<unsigned short>()->default_value("8080"));
+     cxxopts::value<unsigned short>()->default_value("8080"))
+   ("timeout", "time in seconds for the swupdate to complete",
+     cxxopts::value<unsigned int>()->default_value("600"));
 
   // clang-format on
   this->_Parse(argc, argv);
@@ -57,6 +59,20 @@ ifm3d::SWUpdateApp::Run()
   auto const quiet = (*this->vm_)["quiet"].as<bool>();
   auto const swupdate_port =
     (*this->vm_)["swupdate-port"].as<unsigned short>();
+  auto const timeout_sec = (*this->vm_)["timeout"].as<unsigned int>();
+  auto const timeout_millisec = std::chrono::milliseconds(std::chrono::seconds(timeout_sec));
+
+  const std::chrono::time_point<std::chrono::system_clock> start_time =
+    std::chrono::system_clock::now();
+
+  auto get_remaining_timeout = [&start_time, &timeout_millisec]() -> long {
+    const std::chrono::time_point<std::chrono::system_clock> now =
+      std::chrono::system_clock::now();
+    auto utilized_time =
+      std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time);
+
+    return (timeout_millisec  - utilized_time).count();
+  };
 
   ifm3d::SWUpdater::Ptr swupdater;
   if (quiet)
@@ -134,7 +150,7 @@ ifm3d::SWUpdateApp::Run()
           std::cout << "Rebooting device to productive mode..." << std::endl;
         }
       swupdater->RebootToProductive();
-      if (!swupdater->WaitForProductive(60000))
+      if (!swupdater->WaitForProductive(get_remaining_timeout()))
         {
           if (!quiet)
             {
@@ -208,7 +224,7 @@ ifm3d::SWUpdateApp::Run()
                             << std::endl;
                 }
               swupdater->RebootToRecovery();
-              if (!swupdater->WaitForRecovery(60000))
+              if (!swupdater->WaitForRecovery(get_remaining_timeout()))
                 {
                   if (!quiet)
                     {
@@ -219,7 +235,7 @@ ifm3d::SWUpdateApp::Run()
                 }
             }
 
-          if (!swupdater->FlashFirmware(bytes, 300000))
+          if (!swupdater->FlashFirmware(bytes, get_remaining_timeout()))
             {
               if (!quiet)
                 {
@@ -235,7 +251,7 @@ ifm3d::SWUpdateApp::Run()
               std::cout << "Update successful, waiting for device to reboot..."
                         << std::endl;
             }
-          if (!swupdater->WaitForProductive(100000))
+          if (!swupdater->WaitForProductive(get_remaining_timeout()))
             {
               if (!quiet)
                 {
