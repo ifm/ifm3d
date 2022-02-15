@@ -12,6 +12,18 @@ Development containers are available. They are built nightly with the latest ver
 ```
 $ docker pull ghcr.io/ifm/ifm3d:latest
 ```
+### Python
+> Note: We recommend for testing purposes to install the ifm3dpy package in an clean python environment first. You can use `python -m venv "venv-name"` to create a new virtual environment.
+
+You can use the official PyPI package to install the ifm3dpy within your virtual environment:
+
+```python
+pip install ifm3dpy
+```
+Now, you can [check your installation](check_install_py.md).
+
+### Windows
+To build from source on Windows, please follow the instructions for the stable release below.
 
 ## Stable release
 
