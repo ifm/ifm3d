@@ -1,3 +1,13 @@
+## Python installation
+> Note: We recommend for testing purposes to install the ifm3dpy package in an clean python environment first. You can use `python -m venv "venv-name"` to create a new virtual environment.
+
+You can use the official PyPI package to install the ifm3dpy within your virtual environment:
+
+```python
+pip install ifm3dpy
+```
+Now, you can [check your installation](check_install_py.md).
+
 ## Check the ifm3dpy installation
 
 Let's verify quickly that the installation worked! This command should display the list of packages installed in your environment:
