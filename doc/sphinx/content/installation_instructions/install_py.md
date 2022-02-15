@@ -8,7 +8,7 @@ pip install ifm3dpy
 ```
 Now, you can [check your installation](check_install_py.md).
 
-## Check the ifm3dpy installation
+### Check the ifm3dpy installation
 
 Let's verify quickly that the installation worked! This command should display the list of packages installed in your environment:
 
