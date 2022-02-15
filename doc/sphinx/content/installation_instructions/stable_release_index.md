@@ -7,5 +7,5 @@ Linux for Tegra <install_linux_tegra>
 Linux source build <source_build>
 Windows <windows>
 ROS/ROS2 binaries <install_ros_bin>
-Docker *coming soon*
+Docker <install_docker>
 :::
