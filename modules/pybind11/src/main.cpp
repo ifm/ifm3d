@@ -122,7 +122,7 @@ namespace ifm3d
 }
 
 /* run the command of ifm3d tools */
-std::tuple<int,std::string>
+std::tuple<int, std::string>
 run(py::list inlist, const bool& std_out = false)
 {
   const size_t argc = static_cast<size_t>(inlist.size());
@@ -140,14 +140,14 @@ run(py::list inlist, const bool& std_out = false)
 
       );
       const int ret = ifm3d::CmdLineApp::Execute(argc, argv.get());
-      return std::tuple<int, std::string>(ret,"");
+      return std::tuple<int, std::string>(ret, "");
     }
   else
     {
       std::stringstream buffer;
       std::cout.rdbuf(buffer.rdbuf());
       const int ret = ifm3d::CmdLineApp::Execute(argc, argv.get());
-      return std::tuple<int, std::string>(ret,buffer.str());
+      return std::tuple<int, std::string>(ret, buffer.str());
     }
 }
 
@@ -169,7 +169,7 @@ PYBIND11_MODULE(ifm3dpy, m)
         {
           argv.insert(0, "ifm3dpy");
         }
-     return run(argv);
+      return run(argv);
     },
     R"(
         This function provides python application interface to run command line tool
@@ -1535,6 +1535,25 @@ PYBIND11_MODULE(ifm3dpy, m)
     )");
 
   camera_o3r.def(
+    "resolve_config",
+    [](const ifm3d::O3RCamera::Ptr& c, const std::string& ptr)
+    {
+      // Convert the JSON to a python JSON object using the json module
+      py::object json_loads = py::module::import("json").attr("loads");
+      return json_loads(c->ResolveConfig(json::json_pointer(ptr)).dump());
+    },
+    py::arg("ptr"),
+    R"(
+      Returns a part of the configuration formatted as JSON based on a
+      JSON pointer.
+
+      Returns
+      -------
+      dict
+          The partial JSON configuration for the given JSON pointer
+    )");
+
+  camera_o3r.def(
     "set",
     [](const ifm3d::O3RCamera::Ptr& c, const py::dict& json)
     {
@@ -1619,6 +1638,31 @@ PYBIND11_MODULE(ifm3dpy, m)
     )");
 
   camera_o3r.def(
+    "port",
+    &ifm3d::O3RCamera::Port,
+    py::arg("port"),
+    R"(
+      Returns information about a given port
+      
+      Returns
+      -------
+      PortInfo
+          the port information
+    )"); 
+
+  camera_o3r.def(
+    "ports",
+    &ifm3d::O3RCamera::Ports,
+    R"(
+      Returns a list containing information about all connected ports
+
+      Returns
+      -------
+      PortInfo
+          the list of ports
+    )");
+
+  camera_o3r.def(
     "get_schema",
     [](const ifm3d::O3RCamera::Ptr& c)
     {
@@ -1634,6 +1678,20 @@ PYBIND11_MODULE(ifm3dpy, m)
       dict
           The current json schema configuration
     )");
+
+  py::class_<ifm3d::PortInfo>(m, "PortInfo")
+    .def_readonly("port", &ifm3d::PortInfo::port)
+    .def_readonly("pcic_port", &ifm3d::PortInfo::pcic_port)
+    .def_readonly("type", &ifm3d::PortInfo::type)
+    .def("__repr__",
+        [](const ifm3d::PortInfo &a) {
+            return py::dict(
+              "port"_a = a.port,
+              "pcic_port"_a = a.pcic_port,
+              "type"_a = a.type
+            ).attr("__repr__")();
+        }
+    );
 
   // clang-format on
 }

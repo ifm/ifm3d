@@ -27,7 +27,13 @@ ifm3d::O3RCamera::FactoryReset(bool keepNetworkSettings)
 json
 ifm3d::O3RCamera::Get(const std::vector<std::string>& path)
 {
-  return json::parse(this->pImpl->Get(path));
+  return this->pImpl->Get(path);
+}
+
+json
+ifm3d::O3RCamera::ResolveConfig(const json::json_pointer& ptr)
+{
+  return this->pImpl->ResolveConfig(ptr);
 }
 
 void
@@ -39,7 +45,7 @@ ifm3d::O3RCamera::Set(const json& j)
 json
 ifm3d::O3RCamera::GetInit()
 {
-  return json::parse(this->pImpl->GetInit());
+  return this->pImpl->GetInit();
 }
 
 void
@@ -70,6 +76,18 @@ void
 ifm3d::O3RCamera::Unlock(const std::string& password)
 {
   return this->pImpl->Unlock(password);
+}
+
+ifm3d::PortInfo
+ifm3d::O3RCamera::Port(const std::string& port)
+{
+  return this->pImpl->Port(port);
+}
+
+std::vector<ifm3d::PortInfo>
+ifm3d::O3RCamera::Ports()
+{
+  return this->pImpl->Ports();
 }
 
 ifm3d::CameraBase::device_family

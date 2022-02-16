@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - The conversion of the camera frame is now a compile time option (Use `-DUSE_LEGACY_COORDINATES=ON` to keep the old behaviour)
+- O3RCamera::Port & O3RCamera::Ports methods to get information (pcic port & type) of connected ports
+- O3RCamera::ResolveConfig convencience method to access specific parts of the configuration
 
 ## 0.92.0 - 2021-10-22
 ### Added
