@@ -122,7 +122,7 @@ namespace ifm3d
 }
 
 /* run the command of ifm3d tools */
-std::tuple<int,std::string>
+std::tuple<int, std::string>
 run(py::list inlist, const bool& std_out = false)
 {
   const size_t argc = static_cast<size_t>(inlist.size());
@@ -140,14 +140,14 @@ run(py::list inlist, const bool& std_out = false)
 
       );
       const int ret = ifm3d::CmdLineApp::Execute(argc, argv.get());
-      return std::tuple<int, std::string>(ret,"");
+      return std::tuple<int, std::string>(ret, "");
     }
   else
     {
       std::stringstream buffer;
       std::cout.rdbuf(buffer.rdbuf());
       const int ret = ifm3d::CmdLineApp::Execute(argc, argv.get());
-      return std::tuple<int, std::string>(ret,buffer.str());
+      return std::tuple<int, std::string>(ret, buffer.str());
     }
 }
 
@@ -169,7 +169,7 @@ PYBIND11_MODULE(ifm3dpy, m)
         {
           argv.insert(0, "ifm3dpy");
         }
-     return run(argv);
+      return run(argv);
     },
     R"(
         This function provides python application interface to run command line tool

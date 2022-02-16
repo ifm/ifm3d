@@ -60,7 +60,8 @@ ifm3d::SWUpdateApp::Run()
   auto const swupdate_port =
     (*this->vm_)["swupdate-port"].as<unsigned short>();
   auto const timeout_sec = (*this->vm_)["timeout"].as<unsigned int>();
-  auto const timeout_millisec = std::chrono::milliseconds(std::chrono::seconds(timeout_sec));
+  auto const timeout_millisec =
+    std::chrono::milliseconds(std::chrono::seconds(timeout_sec));
 
   const std::chrono::time_point<std::chrono::system_clock> start_time =
     std::chrono::system_clock::now();
@@ -71,7 +72,7 @@ ifm3d::SWUpdateApp::Run()
     auto utilized_time =
       std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time);
 
-    return (timeout_millisec  - utilized_time).count();
+    return (timeout_millisec - utilized_time).count();
   };
 
   ifm3d::SWUpdater::Ptr swupdater;
