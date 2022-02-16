@@ -602,9 +602,9 @@ TEST(StlImageBuffer, DistanceNoiseImage)
 
   // only supported on O3X
   if (!cam->AmI(ifm3d::Camera::device_family::O3X))
-  {
-    return;
-  }
+    {
+      return;
+    }
 
   ifm3d::StlImageBuffer::Ptr img = std::make_shared<ifm3d::StlImageBuffer>();
   ifm3d::FrameGrabber::Ptr fg = std::make_shared<ifm3d::FrameGrabber>(
