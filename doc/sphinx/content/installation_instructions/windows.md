@@ -1,11 +1,11 @@
-# Building ifm3d from source on Windows
+## Building ifm3d from source on Windows
 
 This tutorial details how to compile the ifm3d library and its dependencies on
 a Windows platform using Visual Studio.
 
-# Dependencies
+### Dependencies
 
-## Build tools
+#### Build tools
 
 * [CMake v3.11.0](http://www.cmake.org) or newer (also available through the
 Visual Studio installer)
@@ -15,9 +15,9 @@ Visual Studio installer)
 version 2017 or 2019. The free 'Community' edition is sufficient. Be
 sure to select the 'Desktop development with C++' workflow.
 
-## Binary Dependencies for ifm3d::image and ifm3d::opencv optional modules
+#### Binary Dependencies for ifm3d::image and ifm3d::opencv optional modules
 
-### [PCL](http://www.pointclouds.org)
+##### [PCL](http://www.pointclouds.org)
 
 PCL is available in binary form for Windows platforms via the project's GitHub
 releases page. `ifm3d` is tested against version v1.8.1 which can be
@@ -34,7 +34,7 @@ this tutorial builds against the version of `boost` provided along with
 **NOTE**: It is possible to build an ifm3d variant which does not depend on the
 `PCL` library. See [Appendix A](#appendex-a) below for instructions.
 
-### [OpenCV 3.4](https://opencv.org/)
+##### [OpenCV 3.4](https://opencv.org/)
 
 OpenCV 3.4 is available in binary form for Windows platforms from the [OpenCV
 Releases](https://opencv.org/releases/) page. `ifm3d` is tested against
@@ -45,12 +45,12 @@ v3.4.9, available from the following link:
 Download it and extract to a known location (this tutorial assumes a path of
 `C:\opencv`.
 
-## Source Dependencies
+#### Source Dependencies
 
 `ifm3d` depends on several additional libraries (curl, xmlrpc-c, glog, and
 gtest) which are not available as binary packages on Windows.
 
-### Building source dependencies with ifm3d
+##### Building source dependencies with ifm3d
 
 ifm3d from version 0.90.4 onwards provides ```BUILT_IN_DEPS``` option to cmake configure command,
 which fetch required dependencies and build it with ifm3d. On sucessfull first installation
@@ -93,11 +93,11 @@ On successful execution of install step, user can disable the BUILD_IN_DEPS flag
 use ```-DBUILD_MODULE_IMAGE=ON``` and ```-DBUILD_MODULE_OPENCV=ON``` respectively to cmake configure command.
 Also append the opencv install binary path to -DCMAKE_PREFIX_PATH as shown in [Building ifm3d](Building-ifm3d) section
 
-### Buidling the source dependencies independent of ifm3d
+##### Buidling the source dependencies independent of ifm3d
 
 The following instructions detail how to compile them from source for your target.
 
-#### Environment Configuration
+###### Environment Configuration
 
 The following environment variables are used by this tutorial to make
 customization simpler. Modify them as needed for your environment. You can
@@ -117,7 +117,7 @@ be built:
 mkdir %IFM3D_BUILD_DIR%
 ```
 
-##### [curl](https://curl.haxx.se/)
+###### [curl](https://curl.haxx.se/)
 ```
 cd %IFM3D_BUILD_DIR%
 git clone --branch curl-7_47_1 https://github.com/curl/curl.git
@@ -128,7 +128,7 @@ cmake -G %IFM3D_CMAKE_GENERATOR% -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DCMAKE_I
 cmake --build . --clean-first --config %CONFIG% --target INSTALL
 ```
 
-##### [xmlrpc-c](http://xmlrpc-c.sourceforge.net/)
+###### [xmlrpc-c](http://xmlrpc-c.sourceforge.net/)
 ```
 cd %IFM3D_BUILD_DIR%
 git clone --branch 1.33.14-cmake https://github.com/ifm/xmlrpc-c.git
@@ -139,7 +139,7 @@ cmake -G %IFM3D_CMAKE_GENERATOR% -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=%
 cmake --build . --clean-first --config %CONFIG% --target INSTALL
 ```
 
-##### [glog](https://github.com/google/glog)
+###### [glog](https://github.com/google/glog)
 ```
 cd %IFM3D_BUILD_DIR%
 git clone --branch v0.3.5 https://github.com/google/glog.git
@@ -150,7 +150,7 @@ cmake -G %IFM3D_CMAKE_GENERATOR% -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=%
 cmake --build . --clean-first --config %CONFIG% --target INSTALL
 ```
 
-##### [gtest](https://github.com/google/googletest.git)
+###### [gtest](https://github.com/google/googletest.git)
 ```
 cd %IFM3D_BUILD_DIR%
 git clone --branch release-1.8.1 https://github.com/google/googletest.git
@@ -159,7 +159,7 @@ NOTE: `gtest` is only needed to build and run unit tests. To skip, add
 `-DBUILD_TESTS=OFF` to the cmake configuration command line on the `ifm3d`
 library below.
 
-#### Building ifm3d
+### Building ifm3d
 ```
 # Clone the repository
 cd %IFM3D_BUILD_DIR%
@@ -178,7 +178,7 @@ cmake --build . --config %CONFIG% --target check
 cmake --build . --config %CONFIG% --target INSTALL
 ```
 
-# Running the ifm3d command line tool
+### Running the ifm3d command line tool
 After Building `ifm3d`, the binary files will be installed at
 ``%IFM3D_BUILD_DIR%\install\bin``. To run the ifm3d tool you need to add this
 directory to your path. You will also need to add the opencv directory to
@@ -194,13 +194,13 @@ After that you should be able to run the ifm3d tool
 ifm3d
 ```
 
-# Appendix A: Building without PCL
+### Appendix A: Building without PCL
 The `ifm3d` library offers an alternative image buffer implementation which
 only depends on `OpenCV`, thus eliminating a dependency on `PCL`. In order to
 build `ifm3d` without a dependency on `PCL`, the following modifications to
 the instructions above are necessary.
 
-## Select the OpenCV Image Container
+#### Select the OpenCV Image Container
 
 The `ifm3d::ImageBuffer` module (has dependency on PCL) must be disabled with
 the flag `-DBUILD_MODULE_IMAGE=OFF` and the `ifm3d::OpenCV`Buffer module must
