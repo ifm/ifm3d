@@ -795,6 +795,20 @@ ifm3d::ByteBuffer<Derived>::Organize()
     {
       // renamed to extrinsic_optic_to_user in O3R
       this->extrinsics_ = distance_image_info->getExtrinsicOpticToUser();
+
+      auto intrinsicCalibration =
+        distance_image_info->getIntrinsicCalibration();
+      auto inverseIntrinsicCalibration =
+        distance_image_info->getInverseIntrinsicCalibration();
+
+      this->intrinsics_ =
+        std::vector<float>(std::begin(intrinsicCalibration.model_parameters),
+                           std::end(intrinsicCalibration.model_parameters));
+
+      this->inverseIntrinsics_ = std::vector<float>(
+        std::begin(inverseIntrinsicCalibration.model_parameters),
+        std::end(inverseIntrinsicCalibration.model_parameters));
+
       auto timestamps_nsec = distance_image_info->getTimestamps();
       this->time_stamps_.resize(0);
 

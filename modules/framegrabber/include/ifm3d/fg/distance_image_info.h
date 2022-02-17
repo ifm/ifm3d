@@ -64,6 +64,18 @@ namespace ifm3d
     {
       return extrinsic_optic_to_user;
     }
+
+    auto
+    getIntrinsicCalibration()
+    {
+      return intrinsic_calibration;
+    }
+
+    auto
+    getInverseIntrinsicCalibration()
+    {
+      return inverse_intrinsic_calibration;
+    }
     auto
     getNPTS()
     {
