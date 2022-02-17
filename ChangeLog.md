@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] 
 
-## 0.92.0 - 2022-02-17
+## 0.93.0 - 2022-02-17
 ### Added
 - Document for schema
 - Document for O3X parameters
