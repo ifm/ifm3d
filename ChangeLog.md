@@ -1,3 +1,7 @@
+## Unrelease
+* Bugfixes
+ * Pcicclient deadlock after the timeout occur.
+
 ## Changes between ifm3d 0.20.0 and 0.20.1
 * Support for Distance noise image for O3X Devices
 * Straylight Correction
