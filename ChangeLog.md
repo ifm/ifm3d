@@ -1,4 +1,4 @@
-## Unrelease
+## Changes between ifm3d 0.20.1 and 0.20.2
 * Bugfixes
  * Pcicclient deadlock after the timeout occur.
 
