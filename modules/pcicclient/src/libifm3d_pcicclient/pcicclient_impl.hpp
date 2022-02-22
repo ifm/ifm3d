@@ -592,8 +592,9 @@ ifm3d::PCICClient::Impl::Call(const std::string& request,
                   this->in_cv_.notify_all();
                   if (this->thread_ && this->thread_->joinable())
                     {
-                      LOG(WARNING) << "PCICClient::Call: Timed out waiting "
-                                   << "for a resopnse. Now Ready to take new call";
+                      LOG(WARNING)
+                        << "PCICClient::Call: Timed out waiting "
+                        << "for a resopnse. Now Ready to take new call";
                     }
                   return false;
                 }
