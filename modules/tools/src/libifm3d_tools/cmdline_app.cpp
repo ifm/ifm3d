@@ -175,6 +175,16 @@ ifm3d::CmdLineApp::CheckCompatibility()
   return true;
 }
 
+bool
+ifm3d::CmdLineApp::CheckAppCompatibility()
+{
+  if (this->vm_->count("help"))
+    {
+      return true;
+    }
+  return CheckCompatibility();
+}
+
 int
 ifm3d::CmdLineApp::Execute(size_t argc, const char** argv)
 {
@@ -183,7 +193,7 @@ ifm3d::CmdLineApp::Execute(size_t argc, const char** argv)
     {
       ifm3d::CmdLineApp::Ptr app = ifm3d::make_app(argc, argv);
 
-      if (!app->CheckCompatibility())
+      if (!app->CheckAppCompatibility())
         {
           throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
         }
