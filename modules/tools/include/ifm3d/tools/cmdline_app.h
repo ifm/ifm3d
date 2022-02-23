@@ -46,7 +46,10 @@ namespace ifm3d
      */
     virtual int Run();
 
-    virtual bool CheckCompatibility();
+    /**
+     * checks the subcommand and options compatibility with device.
+     */
+    bool CheckAppCompatibility();
 
     /**
      * Method to execute ifm3d commands
@@ -70,6 +73,11 @@ namespace ifm3d
      * @param agrv : array of the command line options
      */
     void _Parse(int argc, const char** argv);
+
+    /**
+     * checks if the app is compatiable with device
+     */
+    virtual bool CheckCompatibility();
 
   }; // end: class CmdLineApp
 
