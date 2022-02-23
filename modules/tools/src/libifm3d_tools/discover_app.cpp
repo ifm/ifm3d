@@ -7,6 +7,7 @@
 #include <iostream>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/camera/camera.h>
+#include <ifm3d/camera/err.h>
 
 ifm3d::DiscoverApp::DiscoverApp(int argc,
                                 const char** argv,
@@ -27,10 +28,10 @@ ifm3d::DiscoverApp::Run()
 
   for (const auto& device : devices)
     {
+      auto ip_address = device.GetIPAddress();
       try
         {
-          auto ip_address = device.GetIPAddress();
-          auto cam = ifm3d::Camera::MakeShared(ip_address);
+          auto cam = ifm3d::CameraBase::MakeShared(ip_address);
           auto device_type = "";
           if (cam->AmI(ifm3d::Camera::device_family::O3D))
             {
@@ -46,11 +47,15 @@ ifm3d::DiscoverApp::Run()
             }
           else
             {
-              std::cout << ip_address << " ( unsupported device )"
+              std::cout << ip_address << " (Unsupported device)"
                         << std::endl;
               continue;
             }
           std::cout << ip_address << " (" << device_type << ")" << std::endl;
+        }
+      catch (ifm3d::error_t &e)
+        {
+          std::cout << ip_address << "(Unable to identify)" << std::endl;
         }
       catch (std::exception& exp)
         {
