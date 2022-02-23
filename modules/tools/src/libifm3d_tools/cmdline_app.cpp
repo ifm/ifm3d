@@ -195,7 +195,7 @@ ifm3d::CmdLineApp::Execute(size_t argc, const char** argv)
 
       if (!app->CheckAppCompatibility())
         {
-          throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+          throw ifm3d::error_t(IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE);
         }
 
       err = app->Run();

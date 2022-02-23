@@ -40,6 +40,8 @@ const int IFM3D_PIXEL_FORMAT_NOT_SUPPORTED = 1000026;
 const int IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_DEVICE = -1000027;
 const int IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_FIRMWARE = -1000028;
 const int IFM3D_INVALID_PORT = -1000029;
+const int IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE = -1000030;
+
 // sensor errors
 const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
 const int IFM3D_INVALID_PARAM = 101000;
@@ -136,6 +138,8 @@ ifm3d::strerror(int errnum)
     case IFM3D_INVALID_PORT:
       return "The given port is invalid or not connected. Please make sure "
              "the port is connected and try again.";
+    case IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE:
+      return "Lib: Command is not supported by device";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
       return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:
