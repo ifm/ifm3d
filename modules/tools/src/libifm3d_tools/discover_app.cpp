@@ -26,6 +26,11 @@ ifm3d::DiscoverApp::Run()
 
   auto devices = ifm3d::Camera::DeviceDiscovery();
 
+  if (devices.empty())
+  {
+    std::cout << "Info: No devices available" << std::endl;
+  }
+
   for (const auto& device : devices)
     {
       auto ip_address = device.GetIPAddress();
