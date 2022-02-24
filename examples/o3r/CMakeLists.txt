@@ -26,3 +26,13 @@ target_link_libraries(multi_head
                       ifm3d_framegrabber
                       ifm3d_stlimage
                       )
+
+# Heads "sync" example
+find_package(fmt)
+add_executable(time_sync time_sync/time_sync.cpp)
+target_link_libraries(time_sync
+                      ifm3d_camera
+                      ifm3d_framegrabber
+                      ifm3d_stlimage
+                      fmt::fmt
+                      )
