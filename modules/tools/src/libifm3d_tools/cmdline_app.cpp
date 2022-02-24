@@ -202,8 +202,15 @@ ifm3d::CmdLineApp::Execute(size_t argc, const char** argv)
     }
   catch (const ifm3d::error_t& ex)
     {
-      std::cerr << "ifm3d error: " << ex.code() << std::endl
-                << ex.what() << std::endl;
+      if (ex.code() == IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE)
+        {
+          std::cerr << ex.what() << std::endl;
+        }
+      else
+        {
+          std::cerr << "ifm3d error: " << ex.code() << std::endl
+                    << ex.what() << std::endl;
+        }
       return 1;
     }
   catch (const std::exception& ex)
