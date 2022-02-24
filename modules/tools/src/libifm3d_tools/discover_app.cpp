@@ -27,9 +27,9 @@ ifm3d::DiscoverApp::Run()
   auto devices = ifm3d::Camera::DeviceDiscovery();
 
   if (devices.empty())
-  {
-    std::cout << "Info: No devices available" << std::endl;
-  }
+    {
+      std::cout << "Info: No devices available" << std::endl;
+    }
 
   for (const auto& device : devices)
     {
@@ -52,13 +52,12 @@ ifm3d::DiscoverApp::Run()
             }
           else
             {
-              std::cout << ip_address << " (Unsupported device)"
-                        << std::endl;
+              std::cout << ip_address << " (Unsupported device)" << std::endl;
               continue;
             }
           std::cout << ip_address << " (" << device_type << ")" << std::endl;
         }
-      catch (ifm3d::error_t &e)
+      catch (ifm3d::error_t& e)
         {
           std::cout << ip_address << "(Unable to identify)" << std::endl;
         }
