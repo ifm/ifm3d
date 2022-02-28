@@ -1,5 +1,24 @@
 ## Installing ifm3d from source
-
+### Overview of the available build flags
+| Flag name | Description | Default value |
+| --------- | ----------- | ------------- |
+| BUILD_MODULE_FRAMEGRABBER | Build the framegrabber module | ON | 
+| BUILD_MODULE_STLIMAGE | Build the stl image module (Only relies on standard c++ libraries) | ON | 
+| BUILD_MODULE_IMAGE **DEPRECATED**| Build the image module (Depends on OpenCV and PCL) | OFF | 
+| BUILD_MODULE_OPENCV **DEPRECATED**| Build the OpenCV-only image container | OFF |
+| BUILD_MODULE_TOOLS | Build the command-line utility | ON |  
+| BUILD_IN_DEPS | Download and build dependencies | ON | 
+| BUILD_MODULE_PYBIND11 | Build the ifm3dpy python package (it can also be installed directly through `pip`) | OFF | 
+| USE_LEGACY_COORDINATES | Use the legacy coordinates (ifm3d <= 0.92.x) with swapped axis | OFF | 
+| BUILD_MODULE_SWUPDATER | Build the swupdater module | ON | 
+| BUILD_SDK_PKG | Build install packages for development purposes | ON | 
+| FORCE_OPENCV3 | Force the build to require OpenCV 3 | OFF | 
+| FORCE_OPENCV2 | Force the build to require OpenCV 2.4 | OFF | 
+| BUILD_SHARED_LIBS | Build modules as shared libraries | ON | 
+| BUILD_EXAMPLES | Build the examples | OFF | 
+| BUILD_DOC | Build documentation | OFF | 
+| BUILD_TESTS | Build unit tests | ON
+| BUILD_MODULE_PCICCLIENT | Build the pcicclient module | OFF | 
 ### Build Dependencies
 
 <table>
