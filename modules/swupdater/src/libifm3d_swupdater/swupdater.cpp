@@ -70,8 +70,8 @@ ifm3d::SWUpdater::WaitForProductive(long timeout_millis)
 }
 
 bool
-ifm3d::SWUpdater::FlashFirmware(const std::vector<std::uint8_t>& bytes,
+ifm3d::SWUpdater::FlashFirmware(const std::string& swu_file,
                                 long timeout_millis)
 {
-  return this->pImpl->FlashFirmware(bytes, timeout_millis);
+  return this->pImpl->FlashFirmware(swu_file, timeout_millis);
 }

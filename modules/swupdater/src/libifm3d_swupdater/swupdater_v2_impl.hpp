@@ -70,13 +70,13 @@ namespace ifm3d
 
     void RebootToRecovery() override;
     void RebootToProductive() override;
-    bool FlashFirmware(const std::vector<std::uint8_t>& bytes,
+    bool FlashFirmware(const std::string& swu_file,
                        long timeout_millis) override;
 
   private:
     bool CheckRecovery() override;
     bool CheckProductive() override;
-    void UploadFirmware(const std::vector<std::uint8_t>& bytes,
+    void UploadFirmware(const std::string& swu_file,
                         long timeout_millis) override;
     void OnWebSocketData(const std::string json_string);
 
@@ -286,8 +286,7 @@ ifm3d::ImplV2::RebootToProductive()
 }
 
 bool
-ifm3d::ImplV2::FlashFirmware(const std::vector<std::uint8_t>& bytes,
-                             long timeout_millis)
+ifm3d::ImplV2::FlashFirmware(const std::string& swu_file, long timeout_millis)
 {
   auto t_start = std::chrono::system_clock::now();
   long remaining_time = timeout_millis;
@@ -300,7 +299,7 @@ ifm3d::ImplV2::FlashFirmware(const std::vector<std::uint8_t>& bytes,
   /* connect to websocket */
   websocket_->connect(status_url_);
   /*upload buffer */
-  this->UploadFirmware(bytes, remaining_time);
+  this->UploadFirmware(swu_file, remaining_time);
   std::unique_lock<std::mutex> lk(m_);
   cv_.wait(lk, [&] {
     return (this->sw_status_ == SWUPATER_V2_STATUS_SUCCESS ||
@@ -361,8 +360,7 @@ ifm3d::ImplV2::CheckProductive()
 }
 
 void
-ifm3d::ImplV2::UploadFirmware(const std::vector<std::uint8_t>& bytes,
-                              long timeout_millis)
+ifm3d::ImplV2::UploadFirmware(const std::string& swu_file, long timeout_millis)
 {
   curl_global_init(CURL_GLOBAL_ALL);
   struct curl_httppost* httppost = NULL;
@@ -372,12 +370,8 @@ ifm3d::ImplV2::UploadFirmware(const std::vector<std::uint8_t>& bytes,
                &last_post,
                CURLFORM_COPYNAME,
                "upload",
-               CURLFORM_BUFFER,
-               ifm3d::SWUPATER_V2_FILENAME.c_str(),
-               CURLFORM_BUFFERPTR,
-               bytes.data(),
-               CURLFORM_BUFFERLENGTH,
-               bytes.size(),
+               CURLFORM_FILECONTENT,
+               swu_file.c_str(),
                CURLFORM_END);
 
   auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();

@@ -17,6 +17,7 @@
 #include <ifm3d/camera/err.h>
 #include <ifm3d/camera/logging.h>
 #include <ifm3d/contrib/nlohmann/json.hpp>
+#include <iostream>
 
 namespace ifm3d
 {
@@ -53,7 +54,7 @@ namespace ifm3d
     bool WaitForRecovery(long timeout_millis);
     virtual void RebootToProductive();
     bool WaitForProductive(long timeout_millis);
-    virtual bool FlashFirmware(const std::vector<std::uint8_t>& bytes,
+    virtual bool FlashFirmware(const std::string& swu_file,
                                long timeout_millis);
 
   protected:
@@ -69,7 +70,7 @@ namespace ifm3d
 
     virtual bool CheckProductive();
 
-    virtual void UploadFirmware(const std::vector<std::uint8_t>& bytes,
+    virtual void UploadFirmware(const std::string& swu_file,
                                 long timeout_millis);
 
     virtual bool WaitForUpdaterStatus(int desired_state, long timeout_millis);
@@ -313,9 +314,8 @@ ifm3d::SWUpdater::Impl::WaitForProductive(long timeout_millis)
     }
   return true;
 }
-
 bool
-ifm3d::SWUpdater::Impl::FlashFirmware(const std::vector<std::uint8_t>& bytes,
+ifm3d::SWUpdater::Impl::FlashFirmware(const std::string& swu_file,
                                       long timeout_millis)
 {
   auto t_start = std::chrono::system_clock::now();
@@ -348,7 +348,7 @@ ifm3d::SWUpdater::Impl::FlashFirmware(const std::vector<std::uint8_t>& bytes,
       return false;
     }
 
-  this->UploadFirmware(bytes, remaining_time);
+  this->UploadFirmware(swu_file, remaining_time);
 
   remaining_time = get_remaining_time();
   if (remaining_time <= 0)
@@ -419,26 +419,36 @@ ifm3d::SWUpdater::Impl::CheckProductive()
 }
 
 void
-ifm3d::SWUpdater::Impl::UploadFirmware(const std::vector<std::uint8_t>& bytes,
+ifm3d::SWUpdater::Impl::UploadFirmware(const std::string& swu_file,
                                        long timeout_millis)
 {
+  curl_global_init(CURL_GLOBAL_ALL);
+  struct curl_httppost* httppost = NULL;
+  struct curl_httppost* last_post = NULL;
+
+  curl_formadd(&httppost,
+               &last_post,
+               CURLFORM_COPYNAME,
+               "upload",
+               CURLFORM_FILE,
+               swu_file.c_str(),
+               CURLFORM_CONTENTTYPE,
+               SWUPDATER_CONTENT_TYPE_HEADER.c_str(),
+               CURLFORM_END);
+
   auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();
-  c->AddHeader(SWUPDATER_CONTENT_TYPE_HEADER.c_str());
-  c->AddHeader(SWUPDATER_FILENAME_HEADER.c_str());
-  c->SetHeader();
+
   c->Call(curl_easy_setopt, CURLOPT_URL, this->upload_url_.c_str());
-  c->Call(curl_easy_setopt, CURLOPT_POST, 1);
-  c->Call(curl_easy_setopt,
-          CURLOPT_POSTFIELDSIZE,
-          static_cast<long>(bytes.size()));
-  c->Call(curl_easy_setopt, CURLOPT_POSTFIELDS, bytes.data());
-  c->Call(curl_easy_setopt,
-          CURLOPT_WRITEFUNCTION,
-          &ifm3d::SWUpdater::Impl::StatusWriteCallbackIgnore);
+  c->Call(curl_easy_setopt, CURLOPT_HTTPPOST, httppost);
+  c->Call(curl_easy_setopt, CURLOPT_TIMEOUT, 80);
+  c->Call(curl_easy_setopt, CURLOPT_TCP_KEEPALIVE, 1);
+  c->Call(curl_easy_setopt, CURLOPT_MAXREDIRS, 50);
   c->Call(curl_easy_setopt,
           CURLOPT_CONNECTTIMEOUT,
           ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
-  c->Call(curl_easy_setopt, CURLOPT_TIMEOUT_MS, timeout_millis);
+  c->Call(curl_easy_setopt,
+          CURLOPT_WRITEFUNCTION,
+          &ifm3d::SWUpdater::Impl::StatusWriteCallbackIgnore);
 
   // Workaround -- device does not close the connection after the firmware has
   // been transferred. Register an xfer callback and terminate the transaction
@@ -454,6 +464,7 @@ ifm3d::SWUpdater::Impl::UploadFirmware(const std::vector<std::uint8_t>& bytes,
   try
     {
       c->Call(curl_easy_perform);
+      curl_formfree(httppost);
     }
   catch (const ifm3d::error_t& e)
     {
@@ -519,8 +530,7 @@ ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
         }
 
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    }
-  while (status_id != desired_status);
+  } while (status_id != desired_status);
 
   return true;
 }
