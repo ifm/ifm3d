@@ -7,6 +7,7 @@
 #include <ifm3d/camera/err.h>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
+#include <fstream>
 
 class SWUpdater : public ::testing::Test
 {
@@ -69,8 +70,12 @@ TEST_F(SWUpdater, FlashEmptyFile)
   swu->RebootToRecovery();
   EXPECT_TRUE(swu->WaitForRecovery(80000));
 
-  std::vector<std::uint8_t> bytes(100000, 0);
-  EXPECT_THROW(swu->FlashFirmware(bytes, 120000), ifm3d::error_t);
+  std::string swu_file("swu_test_file.swu");
+  std::fstream infile;
+  infile.open(swu_file, std::ios::out);
+  infile.close();
+
+  EXPECT_THROW(swu->FlashFirmware(swu_file, 120000), ifm3d::error_t);
 
   swu->RebootToProductive();
   EXPECT_TRUE(swu->WaitForProductive(80000));

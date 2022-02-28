@@ -114,7 +114,7 @@ namespace ifm3d
      * Uploads a firmware image to the camera's recovery system.
      * Assumes device has already been rebooted to recovery mode.
      *
-     * @param[in] bytes The firmware image data to flash to the camera.
+     * @param[in] swu_file The firmware image file to flash to the camera.
      *
      * @param[in] timeout_millis Timeout in millis to wait for the firmware
      *                           upload to complete. If `timeout_millis` is set
@@ -129,8 +129,7 @@ namespace ifm3d
      *
      * @throw ifm3d::error_t on error
      */
-    bool FlashFirmware(const std::vector<std::uint8_t>& bytes,
-                       long timeout_millis = 0);
+    bool FlashFirmware(const std::string& swu_file, long timeout_millis = 0);
 
     class Impl;
 

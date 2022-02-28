@@ -165,56 +165,9 @@ ifm3d::SWUpdateApp::Run()
   else
     {
       // Read the file in
-      std::shared_ptr<std::istream> ifs;
-      std::vector<std::uint8_t> bytes;
-      std::cout << "Start reading update file this may take some time\n";
-      auto start = std::chrono::steady_clock::now();
-
       std::string infile = (*this->vm_)["file"].as<std::string>();
-      if (infile == "-")
-        {
-#ifdef _WIN32
-          // on windows we need to reopen stdin in binary mode
-          _setmode(_fileno(stdin), O_BINARY);
-#endif
 
-          ifs.reset(&std::cin, [](...) {});
-
-          char b;
-          while (ifs->get(b))
-            {
-              bytes.push_back(*(reinterpret_cast<std::uint8_t*>(&b)));
-            }
-        }
-      else
-        {
-          ifs.reset(
-            new std::ifstream(infile, std::ios::in | std::ios::binary));
-          if (!*ifs)
-            {
-              std::cerr << "Could not open file: " << infile << std::endl;
-              throw ifm3d::error_t(IFM3D_IO_ERROR);
-            }
-          ifs->unsetf(std::ios::skipws);
-          std::streampos file_size;
-          ifs->seekg(0, std::ios::end);
-          file_size = ifs->tellg();
-          ifs->seekg(0, std::ios::beg);
-
-          bytes.reserve(file_size);
-          bytes.insert(bytes.begin(),
-                       std::istream_iterator<std::uint8_t>(*ifs),
-                       std::istream_iterator<std::uint8_t>());
-        }
-      auto stop = std::chrono::steady_clock::now();
-      std::cout << "Elapsed time for reading the update file: "
-                << std::chrono::duration_cast<std::chrono::milliseconds>(stop -
-                                                                         start)
-                       .count() /
-                     1000.0f
-                << " s\n";
-
-      if (!bytes.empty())
+      if (!infile.empty())
         {
           // Reboot to recovery if not already in recovery
           if (!swupdater->WaitForRecovery(-1))
@@ -236,7 +189,7 @@ ifm3d::SWUpdateApp::Run()
                 }
             }
 
-          if (!swupdater->FlashFirmware(bytes, get_remaining_timeout()))
+          if (!swupdater->FlashFirmware(infile, get_remaining_timeout()))
             {
               if (!quiet)
                 {
