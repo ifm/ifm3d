@@ -15,7 +15,7 @@ ifm3d::FgApp::FgApp(int argc, const char** argv, const std::string& name)
   this->all_opts_.add_options("global")(
     "pcic-port",
     "port number for pcic communication",
-    cxxopts::value<unsigned short>()->default_value(std::to_string(ifm3d::PCIC_PORT)));
+    cxxopts::value<unsigned short>()->default_value(std::to_string(ifm3d::DEFAULT_PCIC_PORT)));
   // clang-format on
   this->_Parse(argc, argv);
 

@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] 
+### Added
+-
+### Fixed
+- Error code from 7 digit to 6 digit for Lib error codes
+- Discover app for O3R devices
+- ifm3d::tools compatibility for O3R devices
 
 ## 0.93.0 - 2022-02-17
 ### Added

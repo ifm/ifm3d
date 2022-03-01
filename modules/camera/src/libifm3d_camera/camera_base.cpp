@@ -171,6 +171,7 @@ ifm3d::CameraBase::MakeShared(const std::string& ip,
       if (ex.code() == IFM3D_XMLRPC_TIMEOUT)
         {
           LOG(WARNING) << "Could not probe device type: " << ex.what();
+          throw;
         }
       else
         {
