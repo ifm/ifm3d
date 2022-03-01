@@ -175,6 +175,16 @@ ifm3d::CmdLineApp::CheckCompatibility()
   return true;
 }
 
+bool
+ifm3d::CmdLineApp::CheckAppCompatibility()
+{
+  if (this->vm_->count("help"))
+    {
+      return true;
+    }
+  return CheckCompatibility();
+}
+
 int
 ifm3d::CmdLineApp::Execute(size_t argc, const char** argv)
 {
@@ -183,17 +193,24 @@ ifm3d::CmdLineApp::Execute(size_t argc, const char** argv)
     {
       ifm3d::CmdLineApp::Ptr app = ifm3d::make_app(argc, argv);
 
-      if (!app->CheckCompatibility())
+      if (!app->CheckAppCompatibility())
         {
-          throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+          throw ifm3d::error_t(IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE);
         }
 
       err = app->Run();
     }
   catch (const ifm3d::error_t& ex)
     {
-      std::cerr << "ifm3d error: " << ex.code() << std::endl
-                << ex.what() << std::endl;
+      if (ex.code() == IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE)
+        {
+          std::cerr << ex.what() << std::endl;
+        }
+      else
+        {
+          std::cerr << "ifm3d error: " << ex.code() << std::endl
+                    << ex.what() << std::endl;
+        }
       return 1;
     }
   catch (const std::exception& ex)
