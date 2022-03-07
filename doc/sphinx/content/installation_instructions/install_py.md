@@ -6,7 +6,7 @@ You can use the official PyPI package to install the ifm3dpy within your virtual
 ```python
 pip install ifm3dpy
 ```
-Now, you can [check your installation](check_install_py.md).
+Now, you can check your installation.
 
 ### Check the ifm3dpy installation
 
