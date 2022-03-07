@@ -110,6 +110,10 @@ Note: The package name may differ in different flavours of Linux.
 Above apt-get commands are specific to Debian based systems
 
 ### Building From Source
+Start with cloning the code from the ifm3d github repository {{ '[here]({})'.format(ifm3d_gh_url) }}.  
+
+⚠ The code on the branch {{ ifm3d_main_branch }} is updated nightly and contains the latest changes to the library. It is typically a work in progress.  
+⚠ We recommend using tagged versions for your builds, to ensure consistency between builds. The latest tagged version can be found {{ '[here]({})'.format(ifm3d_latest_tag_url) }}.
 
 #### The default build
 
@@ -137,7 +141,7 @@ $ cmake --build .
 $ sudo cmake --build . --target install
 ```
 
-> Note: Many `ifm3d` users ultimately plan to use this library along with its associated [ROS wrapper](https://github.com/ifm/ifm3d-ros). 
+> Note: Many `ifm3d` users ultimately plan to use this library along with its associated [ROS wrapper](ROS/index:ROS%20wrappers%20for%20ifm3d).
 > If this is the case, you need to be sure that the version of OpenCV that you link to in both `ifm3d` and `ifm3d-ros` are consistent. 
 > To give you some control over that, the build process allows you to explicitly call out which version of OpenCV you wish to use. 
 > For example, if you are using OpenCV 2.4, your `cmake` line above should look something like: `$ cmake -DCMAKE_INSTALL_PREFIX=/usr -DFORCE_OPENCV2=ON ..`. 
