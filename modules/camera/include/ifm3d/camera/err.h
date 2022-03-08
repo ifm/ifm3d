@@ -9,6 +9,7 @@
 #define __IFM3D_CAMERA_ERR_H__
 
 #include <exception>
+#include <string>
 #include <ifm3d/camera/camera_export.h>
 
 // library errors
@@ -97,7 +98,7 @@ namespace ifm3d
      * The ctor simply sets the error value into a local instance variable that
      * may be retrieved with a call to `code()`.
      */
-    error_t(int errnum);
+    error_t(int errnum, const std::string& msg = "");
 
     /**
      * Exception message
@@ -109,12 +110,22 @@ namespace ifm3d
      */
     int code() const noexcept;
 
+    /**
+     * operator()
+     * */
+    void operator()(const int errnum, const std::string& msg = "");
+
   private:
     /**
      * The error code from the sensor/system/library that this exception
      * wraps.
      */
     int errnum_;
+
+    /**
+     * The error message from the user
+     */
+    std::string user_message_;
 
   }; // end: class error_t
 
