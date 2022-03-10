@@ -61,6 +61,9 @@ please clone googletest as explained in [gtest](gtest) section.
 
 Following instructions detail how to build ifm3d along with its dependencies.
 
+⚠ The code on the branch {{ ifm3d_main_branch }} is updated nightly and contains the latest changes to the library. It is typically a work in progress.   
+⚠ We recommend using tagged versions for your builds, to ensure consistency between builds. The latest tagged version can be found {{ '[here]({})'.format(ifm3d_latest_tag_url) }}.
+
 ```
 #set the environment variables
 set IFM3D_CMAKE_GENERATOR="Visual Studio 16 2019"
@@ -160,6 +163,9 @@ NOTE: `gtest` is only needed to build and run unit tests. To skip, add
 library below.
 
 ### Building ifm3d
+⚠ The code on the branch {{ ifm3d_main_branch }} is updated nightly and contains the latest changes to the library. It is typically a work in progress.   
+⚠ We recommend using tagged versions for your builds, to ensure consistency between builds. The latest tagged version can be found {{ '[here]({})'.format(ifm3d_latest_tag_url) }}.
+
 ```
 # Clone the repository
 cd %IFM3D_BUILD_DIR%
