@@ -246,10 +246,17 @@ ifm3d Software Compatibility Matrix
     reload app during config when temporal filter is set</td>
   </tr>
   <tr>
-    <td>0.20.1 </td>
+    <td>0.20.2 </td>
     <td>1.6.2114, 1.23.1522, 1.23.1522, 1.23.2848, 1.30.4123, 1.30.5309</td>
     <td>1.0.122, 1.0.126, 1.0.156, 1.1.190</td>
     <td>18.04,20.04</td>
     <td>Bugfix for pcicclient deadlock on network interruption</td>
+  </tr>
+  <tr>
+    <td>0.20.3 </td>
+    <td>1.6.2114, 1.23.1522, 1.23.1522, 1.23.2848, 1.30.4123, 1.30.5309</td>
+    <td>1.0.122, 1.0.126, 1.0.156, 1.1.190</td>
+    <td>18.04,20.04</td>
+    <td>Resolved pcicclient deadlock after the timeout occur on windows</td>
   </tr>
 </table>
