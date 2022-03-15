@@ -9,6 +9,7 @@
 #include <vector>
 #include <unordered_map>
 #include <limits>
+#include <stdexcept>
 
 namespace ifm3d
 {
