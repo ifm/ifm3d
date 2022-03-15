@@ -388,6 +388,16 @@ namespace ifm3d
      */
     std::condition_variable in_cv_;
 
+    /**
+     * Network error
+     */
+    ifm3d::error_t network_error_;
+
+    /**
+     * Network error flag
+     */
+    std::atomic_bool network_interrupted_;
+
   }; // end: class FrameGrabber::Impl
 
 } // end: namespace ifm3d
@@ -415,7 +425,9 @@ ifm3d::PCICClient::Impl::Impl(ifm3d::Camera::Ptr cam,
     in_content_buffer_(),
     in_post_content_buffer_(ifm3d::POST_CONTENT_BUFFER_LENGTH, ' '),
     out_pre_content_buffer_(ifm3d::PRE_CONTENT_BUFFER_LENGTH, ' '),
-    out_post_content_buffer_("\r\n")
+    out_post_content_buffer_("\r\n"),
+    network_error_(0, ""),
+    network_interrupted_(false)
 {
   try
     {
@@ -464,7 +476,6 @@ ifm3d::PCICClient::Impl::~Impl()
       this->Stop();
       this->thread_->join();
     }
-
   VLOG(IFM3D_TRACE) << "FrameGrabber destroyed.";
 }
 
@@ -532,8 +543,9 @@ ifm3d::PCICClient::Impl::Call(
 
   // Wait until sending is complete
   std::unique_lock<std::mutex> out_mutex_lock(this->out_mutex_);
-  this->out_cv_.wait(out_mutex_lock,
-                     [this] { return this->out_completed_.load(); });
+  this->out_cv_.wait(out_mutex_lock, [this] {
+    return (this->out_completed_.load() || this->network_interrupted_.load());
+  });
 
   return callback_id;
 }
@@ -569,6 +581,11 @@ ifm3d::PCICClient::Impl::Call(const std::string& request,
 
   if (call_thread_ && call_thread_->joinable())
     call_thread_->join();
+
+  if (network_interrupted_.load())
+    {
+      throw network_error_;
+    }
 
   // Check the return value of our PCIC Call
   auto predicate = [&has_result] { return has_result.load(); };
@@ -659,6 +676,19 @@ ifm3d::PCICClient::Impl::DoConnect()
                   std::placeholders::_1));
       this->io_service_.run();
     }
+  catch (const ifm3d::error_t& ex)
+    {
+      if (ex.code() != IFM3D_THREAD_INTERRUPTED)
+        {
+          LOG(ERROR) << "Exception: " << ex.what();
+          network_error_(ex.code(), ex.what());
+          network_interrupted_.store(true);
+        }
+      else
+        {
+          LOG(WARNING) << "Exception: " << ex.what();
+        }
+    }
   catch (const std::exception& ex)
     {
       LOG(WARNING) << "Exception: " << ex.what();
@@ -672,7 +702,7 @@ ifm3d::PCICClient::Impl::ConnectHandler(const asio::error_code& ec)
 {
   if (ec)
     {
-      throw ifm3d::error_t(ec.value());
+      throw ifm3d::error_t(ec.value(), ec.message());
     }
   this->DoRead(State::PRE_CONTENT);
 
@@ -683,7 +713,7 @@ ifm3d::PCICClient::Impl::ConnectHandler(const asio::error_code& ec)
     [&, this](const asio::error_code& ec, std::size_t bytes_transferred) {
       if (ec)
         {
-          throw ifm3d::error_t(ec.value());
+          throw ifm3d::error_t(ec.value(), ec.message());
         }
       this->connected_.store(true);
     });
@@ -716,7 +746,7 @@ ifm3d::PCICClient::Impl::ReadHandler(State state,
 {
   if (ec)
     {
-      throw ifm3d::error_t(ec.value());
+      throw ifm3d::error_t(ec.value(), ec.message());
     }
 
   if (bytes_remaining - bytes_transferred > 0)
@@ -829,7 +859,7 @@ ifm3d::PCICClient::Impl::WriteHandler(State state,
 {
   if (ec)
     {
-      throw ifm3d::error_t(ec.value());
+      throw ifm3d::error_t(ec.value(), ec.message());
     }
 
   if (bytes_remaining - bytes_transferred > 0)

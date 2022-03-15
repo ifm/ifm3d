@@ -5,6 +5,7 @@
  */
 
 #include <ifm3d/camera/err.h>
+#include <string>
 #include <cstring>
 
 // library errors
@@ -185,7 +186,11 @@ ifm3d::strerror(int errnum)
     }
 }
 
-ifm3d::error_t::error_t(int errnum) : std::exception(), errnum_(errnum) { }
+ifm3d::error_t::error_t(int errnum, const std::string& msg)
+  : std::exception(),
+    errnum_(errnum),
+    user_message_(msg)
+{ }
 
 int
 ifm3d::error_t::code() const noexcept
@@ -196,5 +201,16 @@ ifm3d::error_t::code() const noexcept
 const char*
 ifm3d::error_t::what() const noexcept
 {
+  if (!user_message_.empty())
+    {
+      return this->user_message_.c_str();
+    }
   return ifm3d::strerror(this->code());
+}
+
+void
+ifm3d::error_t::operator()(const int errnum, const std::string& msg)
+{
+  this->errnum_ = errnum;
+  this->user_message_ = msg;
 }
