@@ -7,7 +7,6 @@
 #ifndef __IFM3D_FG_DETAIL_BYTE_BUFFER_HPP__
 #define __IFM3D_FG_DETAIL_BYTE_BUFFER_HPP__
 
-#include <glog/logging.h>
 #include <ifm3d/camera/logging.h>
 #include <ifm3d/camera/err.h>
 #include <ifm3d/fg/distance_image_info.h>
@@ -193,7 +192,6 @@ ifm3d::ByteBuffer<Derived>::Organize()
     {
       return;
     }
-  VLOG(IFM3D_PROTO_DEBUG) << "entering Organize";
 
   // indices to the start of each chunk of interest in the buffer
   std::size_t xyzidx = INVALID_IDX;
@@ -274,16 +272,6 @@ ifm3d::ByteBuffer<Derived>::Organize()
         ifm3d::image_chunk::INVERSE_INTRINSIC_CALIBRATION);
     }
 
-  VLOG(IFM3D_PROTO_DEBUG) << "xyzidx=" << xyzidx << ", xidx=" << xidx
-                          << ", yidx=" << yidx << ", zidx=" << zidx
-                          << ", aidx=" << aidx << ", raw_aidx=" << raw_aidx
-                          << ", cidx=" << cidx << ", didx=" << didx
-                          << ", uidx=" << uidx << ", extidx=" << extidx
-                          << ", gidx=" << gidx << ", intridx=" << intridx
-                          << ", invintridx=" << invintridx
-                          << ", jsonidx=" << jsonidx << ", jpegidx=" << jpegidx
-                          << ", distnoiseidx=" << dist_noiseidx;
-
   // to get the metadata we use the confidence image for 3d and
   // the jpeg image for 2d
   std::size_t metaidx = cidx != INVALID_IDX ? cidx : jpegidx;
@@ -291,7 +279,6 @@ ifm3d::ByteBuffer<Derived>::Organize()
   // if we do not have a confidence or jpeg image we cannot go further
   if (metaidx == INVALID_IDX)
     {
-      LOG(ERROR) << "No confidence or jpeg image found!";
       throw ifm3d::error_t(IFM3D_IMG_CHUNK_NOT_FOUND);
     }
 
@@ -386,24 +373,12 @@ ifm3d::ByteBuffer<Derived>::Organize()
       ifm3d::mkval<std::uint32_t>(this->bytes_.data() + dist_noiseidx + 24) :
       INVALID_FMT;
 
-  VLOG(IFM3D_PROTO_DEBUG) << "xfmt=" << xfmt << ", yfmt=" << yfmt
-                          << ", zfmt=" << zfmt << ", afmt=" << afmt
-                          << ", raw_afmt=" << raw_afmt << ", cfmt=" << cfmt
-                          << ", dfmt=" << dfmt << ", ufmt=" << ufmt
-                          << ", extfmt=" << extfmt << ", gfmt=" << gfmt
-                          << ", intrfmt= " << intrfmt
-                          << ", invintrfmt= " << invintrfmt
-                          << ", jpegfmt= " << jpegfmt
-                          << ", distnoisefmt= " << dist_noisefmt;
   // get the image dimensions
   std::uint32_t width =
     ifm3d::mkval<std::uint32_t>(this->bytes_.data() + metaidx + 16);
   std::uint32_t height =
     ifm3d::mkval<std::uint32_t>(this->bytes_.data() + metaidx + 20);
   std::uint32_t npts = width * height;
-
-  VLOG(IFM3D_PROTO_DEBUG) << "npts=" << npts << ", width x height=" << width
-                          << " x " << height;
 
   auto im_wrapper = [this, width, height, npts](ifm3d::image_chunk im,
                                                 std::uint32_t fmt,
@@ -499,7 +474,6 @@ ifm3d::ByteBuffer<Derived>::Organize()
         break;
 
       default:
-        LOG(ERROR) << "Cannot create image with pixel format = " << fmt;
         throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
       }
   };
@@ -535,7 +509,6 @@ ifm3d::ByteBuffer<Derived>::Organize()
           break;
 
         default:
-          LOG(ERROR) << "Cannot create cloud with pixel format = " << fmt;
           throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
         }
     };
@@ -609,8 +582,6 @@ ifm3d::ByteBuffer<Derived>::Organize()
   //
   if (CART_OK)
     {
-      VLOG(IFM3D_PROTO_DEBUG) << "point cloud construction";
-
       xidx += pixel_data_offset;
       yidx += pixel_data_offset;
       zidx += pixel_data_offset;
@@ -618,9 +589,6 @@ ifm3d::ByteBuffer<Derived>::Organize()
     }
   else if (D_OK && distance_image_info != nullptr) // O3R device
     {
-      VLOG(IFM3D_PROTO_DEBUG)
-        << "point cloud construction from compressed ifoutput";
-
       // the x,y,z and distance matrices are derived from
       // the distance image info data
       std::vector<std::uint8_t> xyzd_bytes =
@@ -658,18 +626,12 @@ ifm3d::ByteBuffer<Derived>::Organize()
       if (intrfmt !=
           static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F))
         {
-          LOG(ERROR) << "Intrinsic are expected to be float, not: " << intrfmt;
           throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
         }
       if (header_version < 2 &&
           (chunk_size - pixel_data_offset) !=
             ifm3d::NUM_INTRINSIC_PARAM * UINT32_DATA_SIZE)
         {
-          LOG(ERROR) << "Header Version expected value is >=2, not :"
-                     << header_version
-                     << "Intrinsic param dataLength expected value 64, not :"
-                     << chunk_size - pixel_data_offset;
-
           throw ifm3d::error_t(IFM3D_HEADER_VERSION_MISMATCH);
         }
       for (std::size_t i = 0; i < ifm3d::NUM_INTRINSIC_PARAM;
@@ -693,19 +655,12 @@ ifm3d::ByteBuffer<Derived>::Organize()
       if (invintrfmt !=
           static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F))
         {
-          LOG(ERROR) << "Inverse intrinsic are expected to be float, not: "
-                     << invintrfmt;
           throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
         }
       if (header_version < 2 &&
           (chunk_size - pixel_data_offset) !=
             ifm3d::NUM_INTRINSIC_PARAM * UINT32_DATA_SIZE)
         {
-          LOG(ERROR) << "Header Version expected value is >=2, not :"
-                     << header_version
-                     << "Intrinsic param dataLength expected value 64, not :"
-                     << chunk_size - pixel_data_offset;
-
           throw ifm3d::error_t(IFM3D_HEADER_VERSION_MISMATCH);
         }
       for (std::size_t i = 0; i < ifm3d::NUM_INTRINSIC_PARAM;
@@ -736,8 +691,6 @@ ifm3d::ByteBuffer<Derived>::Organize()
       if (jpegfmt !=
           static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32U))
         {
-          LOG(ERROR) << "JPEG are expected to be unsigned 32bit int, not: "
-                     << invintrfmt;
           throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
         }
       this->ImCreate<std::uint32_t>(ifm3d::image_chunk::JPEG,
@@ -762,7 +715,6 @@ ifm3d::ByteBuffer<Derived>::Organize()
   //
   if (EXT_OK)
     {
-      VLOG(IFM3D_PROTO_DEBUG) << "extrinsic calibration";
       // size of the chunk data
       std::uint32_t chunk_size =
         ifm3d::mkval<uint32_t>(this->bytes_.data() + extidx + 4);
@@ -770,19 +722,12 @@ ifm3d::ByteBuffer<Derived>::Organize()
       if (extfmt !=
           static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F))
         {
-          LOG(ERROR) << "Extrinsics are expected to be float32, not: "
-                     << extfmt;
           throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
         }
       if (header_version < 2 &&
           (chunk_size - pixel_data_offset) !=
             ifm3d::NUM_EXTRINSIC_PARAM * UINT32_DATA_SIZE)
         {
-          LOG(ERROR) << "Header Version expected value is >= 2, not :"
-                     << header_version
-                     << "Extrinsic param dataLength expected value 24, not :"
-                     << chunk_size - pixel_data_offset;
-
           throw ifm3d::error_t(IFM3D_HEADER_VERSION_MISMATCH);
         }
       for (std::size_t i = 0; i < ifm3d::NUM_EXTRINSIC_PARAM; ++i, extidx += 4)
@@ -884,17 +829,11 @@ ifm3d::ByteBuffer<Derived>::Organize()
           extime_idx += 4;
           bytes_left -= 4;
 
-          DLOG(INFO) << "IlluTemp= " << this->illu_temp_;
         }
       else
         {
           this->illu_temp_ = 0;
         }
-    }
-  else
-    {
-      VLOG(IFM3D_PROTO_DEBUG)
-        << "illu temp and exposure times skipped (can't trust extidx)";
     }
 
   this->_SetDirty(false);
