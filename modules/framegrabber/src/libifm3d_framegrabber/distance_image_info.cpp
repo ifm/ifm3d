@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <glog/logging.h>
 #include <o3r_uncompress_di.h>
 #include <ifm3d/fg/byte_buffer.h>
 #include <ifm3d/fg/distance_image_info.h>
