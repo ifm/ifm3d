@@ -1,3 +1,7 @@
+## Changes between ifm3d 0.20.2 and 0.20.3
+* Bugfixes
+ * Pcicclient deadlock after the timeout occur on windows
+
 ## Changes between ifm3d 0.20.1 and 0.20.2
 * Bugfixes
  * Pcicclient deadlock after the timeout occur.
