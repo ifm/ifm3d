@@ -64,6 +64,7 @@ target_link_libraries(
     ifm3d_stlimage
     pybind11::module
     ifm3d_tools_shared
+    ifm3d_swupdater
   )
 
 #------------------
