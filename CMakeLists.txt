@@ -35,7 +35,7 @@ macro_ensure_out_of_source_build(
   "Please build ${PROJECT_NAME} out-of-source")
 
 # Conditionally turn on/off parts of the build (global-level)
-option(BUILD_TESTS "Build unit tests" ON)
+option(BUILD_TESTS "Build unit tests" OFF)
 option(BUILD_MODULE_FRAMEGRABBER "Build the framegrabber module" ON)
 option(BUILD_MODULE_SWUPDATER "Build the swupdater module" ON)
 option(BUILD_MODULE_PCICCLIENT "Build the pcicclient module" OFF)
