@@ -24,8 +24,6 @@ ifm3d::FgApp::FgApp(int argc, const char** argv, const std::string& name)
   if (!(this->vm_->count("help")))
     {
       this->fg_ =
-        std::make_shared<ifm3d::FrameGrabber>(this->cam_,
-                                              ifm3d::DEFAULT_SCHEMA_MASK,
-                                              this->pcic_port_);
+        std::make_shared<ifm3d::FrameGrabber>(this->cam_, this->pcic_port_);
     }
 }

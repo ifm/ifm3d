@@ -68,7 +68,7 @@ if(WIN32)
     IFM3D_CAMERA_DLL_BUILD=1
     )
 endif(WIN32)
-
+  
 #------------------
 # Linker settings
 #------------------

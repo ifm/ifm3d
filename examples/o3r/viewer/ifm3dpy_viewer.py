@@ -6,9 +6,10 @@
 # THE PROGRAM IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND.
 #
 
-from ifm3dpy import O3RCamera, FrameGrabber, ImageBuffer
+from ifm3dpy import O3RCamera, FrameGrabber, Frame
 import cv2
 import argparse
+import asyncio
 
 try:
     import open3d as o3d
@@ -17,34 +18,33 @@ except ModuleNotFoundError:
     OPEN3D_AVAILABLE = False
 
 
-def get_jpeg(buf):
-    return cv2.imdecode(buf.jpeg_image(), cv2.IMREAD_UNCHANGED)
+def get_jpeg(frame):
+    return cv2.imdecode(frame.get_image(260), cv2.IMREAD_UNCHANGED)
 
 
-def get_distance(buf):
-    img = cv2.normalize(buf.distance_image(), None, 0,
+def get_distance(frame):
+    img = cv2.normalize(frame.get_image(100), None, 0,
                         255, cv2.NORM_MINMAX, cv2.CV_8U)
     img = cv2.applyColorMap(img, cv2.COLORMAP_JET)
     return img
 
 
-def get_amplitude(buf):
-    return buf.amplitude_image()
+def get_amplitude(frame):
+    return frame.get_image(101)
 
 
-def get_xyz(buf):
-    return buf.xyz_image()
+def get_xyz(frame):
+    return frame.get_image(4294967296)
 
 
-def display_2d(fg, buf, getter, title):
+async def display_2d(fg, getter, title):
     cv2.startWindowThread()
     cv2.namedWindow(title, cv2.WINDOW_NORMAL)
 
     while True:
-        while not fg.wait_for_frame(buf, 500):
-            continue
+        frame = await fg.wait_for_frame()
 
-        img = getter(buf)
+        img = getter(frame)
 
         cv2.imshow(title, img)
         cv2.waitKey(15)
@@ -55,17 +55,16 @@ def display_2d(fg, buf, getter, title):
     cv2.destroyAllWindows()
 
 
-def display_3d(fg, buf, getter, title):
+async def display_3d(fg, getter, title):
     vis = o3d.visualization.Visualizer()
     vis.create_window(title)
 
     first = True
 
     while True:
-        while not fg.wait_for_frame(buf, 500):
-            continue
+        frame = await fg.wait_for_frame()
 
-        img = getter(buf)
+        img = getter(frame)
 
         img = img.reshape(img.shape[0]*img.shape[1], 3)
         pcd = o3d.geometry.PointCloud()
@@ -83,7 +82,7 @@ def display_3d(fg, buf, getter, title):
     vis.destroy_window()
 
 
-def main():
+async def main():
     image_choices = ["jpeg", "distance", "amplitude"]
     if OPEN3D_AVAILABLE:
         image_choices += ["xyz"]
@@ -103,14 +102,13 @@ def main():
 
     cam = O3RCamera(args.ip, args.xmlrpc_port)
     fg = FrameGrabber(cam, pcic_port=args.pcic_port)
-    buf = ImageBuffer()
     title = "O3R Port {}".format(str(args.pcic_port))
 
     if args.image == "xyz":
-        display_3d(fg, buf, getter, title)
+        await display_3d(fg, getter, title)
     else:
-        display_2d(fg, buf, getter, title)
+        await display_2d(fg, getter, title)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

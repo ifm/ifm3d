@@ -18,7 +18,6 @@
 
 #include <ifm3d/camera/camera_o3r.h>
 #include <ifm3d/fg.h>
-#include <ifm3d/stlimage.h>
 #include <ifm3d/fg/distance_image_info.h>
 
 std::mutex mutex;  
@@ -45,7 +44,7 @@ std::string formatTimestamp(ifm3d::TimePointT timestamp)
     return s.str();
 }
 
-int getFrameTime(ifm3d::FrameGrabber::Ptr fg, ifm3d::StlImageBuffer::Ptr im, ifm3d::TimePointT &t, int &ready){
+int getFrameTime(ifm3d::FrameGrabber::Ptr fg, ifm3d::TimePointT &t, int &ready){
   /**
    * Grab frame from a camera head and update global variable 
    * with the timestamp of the frame.
@@ -54,7 +53,8 @@ int getFrameTime(ifm3d::FrameGrabber::Ptr fg, ifm3d::StlImageBuffer::Ptr im, ifm
    */
   int i = 0;
   while (true) {
-    if (! fg->WaitForFrame(im.get(), 1000))
+    auto frame = fg->WaitForFrame();
+    if (frame.wait_for(std::chrono::milliseconds(1000)) != std::future_status::ready)
     {
       std::cerr << "Timeout waiting for camera!" << std::endl;
       return -1;
@@ -63,7 +63,7 @@ int getFrameTime(ifm3d::FrameGrabber::Ptr fg, ifm3d::StlImageBuffer::Ptr im, ifm
       i+=1;
       if (i == 10){
         std::lock_guard<std::mutex> guard(mutex);
-        t = im->TimeStamp();
+        t = frame.get()->TimeStamps().front();
         i = 0;
         ready = 1;
       }
@@ -81,10 +81,8 @@ int main(){
   json conf = o3r->Get();
   // Declare the FrameGrabber and ImageBuffer objects. 
   // One FrameGrabber per camera head (define the port number).
-  auto im0 =  std::make_shared<ifm3d::StlImageBuffer>(); 
-  auto im1 =  std::make_shared<ifm3d::StlImageBuffer>();   
-  auto fg0 = std::make_shared<ifm3d::FrameGrabber>(o3r, ifm3d::DEFAULT_SCHEMA_MASK, 50012);
-  auto fg1 = std::make_shared<ifm3d::FrameGrabber>(o3r, ifm3d::DEFAULT_SCHEMA_MASK, 50013);
+  auto fg0 = std::make_shared<ifm3d::FrameGrabber>(o3r, 50012);
+  auto fg1 = std::make_shared<ifm3d::FrameGrabber>(o3r, 50013);
 
   std::thread thread0;
   std::thread thread1;
@@ -111,13 +109,14 @@ int main(){
   std::vector<ifm3d::FrameGrabber::Ptr> fgs;
   fgs.push_back(fg0); fgs.push_back(fg1);
   for (auto fg: fgs) {
-    if (! fg->WaitForFrame(im0.get(), 1000))
+    auto frame = fg->WaitForFrame();
+    if (frame.wait_for(std::chrono::milliseconds(1000)) != std::future_status::ready)
     {
       std::cerr << "Timeout waiting for camera!" << std::endl;
       return -1;
     }
     else {
-      timestamps.push_back(im0->TimeStamp());
+      timestamps.push_back(frame.get()->TimeStamps().front());
     }
   }
   ifm3d::TimePointT t0;
@@ -127,12 +126,12 @@ int main(){
   // Start grabbing frames in the right order
   if (abs(std::chrono::duration_cast<std::chrono::milliseconds>(timestamps[0] - timestamps[1]).count())>=50)
   {
-    thread1 = std::thread{ getFrameTime, fg1, im1, std::ref(t1), std::ref(ready1) };
-    thread0 = std::thread{ getFrameTime, fg0, im0, std::ref(t0), std::ref(ready0)};
+    thread1 = std::thread{ getFrameTime, fg1, std::ref(t1), std::ref(ready1) };
+    thread0 = std::thread{ getFrameTime, fg0, std::ref(t0), std::ref(ready0)};
   }
   else {
-    thread0 = std::thread{ getFrameTime, fg0, im0, std::ref(t0), std::ref(ready0) };
-    thread1 = std::thread{ getFrameTime, fg1, im1, std::ref(t1), std::ref(ready1) };
+    thread0 = std::thread{ getFrameTime, fg0, std::ref(t0), std::ref(ready0) };
+    thread1 = std::thread{ getFrameTime, fg1, std::ref(t1), std::ref(ready1) };
   }
   using namespace std::chrono_literals;
   // Display delay

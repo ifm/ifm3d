@@ -16,35 +16,25 @@
 #include <ifm3d/camera.h>
 #include <ifm3d/fg.h>
 
-// Dummy/minimal image container
-class MyBuff : public ifm3d::ByteBuffer<MyBuff>
+// Dummy/minimal image container -- used for calculating hz
+// recieving bytes but not constructing any images
+class NullOrganizer : public ifm3d::Organizer
 {
 public:
-  MyBuff() : ifm3d::ByteBuffer<MyBuff>() {}
+  NullOrganizer() : ifm3d::Organizer() {}
 
-  template <typename T>
-  void
-  ImCreate(ifm3d::image_chunk im,
-           std::uint32_t fmt,
-           std::size_t idx,
-           std::uint32_t width,
-           std::uint32_t height,
-           int nchan,
-           std::uint32_t npts,
-           const std::vector<std::uint8_t>& bytes)
-  {}
+  virtual Result
+  Organize(const std::vector<uint8_t>& data,
+           const std::set<ifm3d::ImageId>& requestedImages)
+  {
+    return {};
+  };
 
-  template <typename T>
-  void
-  CloudCreate(std::uint32_t fmt,
-              std::size_t xidx,
-              std::size_t yidx,
-              std::size_t zidx,
-              std::uint32_t width,
-              std::uint32_t height,
-              std::uint32_t npts,
-              const std::vector<std::uint8_t>& bytes)
-  {}
+  virtual std::set<ifm3d::image_chunk>
+  GetImageChunks(ifm3d::ImageId id)
+  {
+    return {};
+  };
 };
 
 ifm3d::HzApp::HzApp(int argc, const char** argv, const std::string& name)
@@ -86,8 +76,6 @@ ifm3d::HzApp::Run()
 
   std::vector<double> stats;
 
-  auto buff = std::make_shared<ifm3d::ByteBuffer<MyBuff>>();
-
   for (int i = 0; i < nruns; i++)
     {
       auto start = std::chrono::steady_clock::now();
@@ -98,14 +86,18 @@ ifm3d::HzApp::Run()
               this->fg_->SWTrigger();
             }
 
-          if (!this->fg_->WaitForFrame(buff.get(), ifm3d::FG_TIMEOUT))
+          auto future = this->fg_->WaitForFrame();
+          if (future.wait_for(std::chrono::milliseconds(FG_TIMEOUT)) !=
+              std::future_status::ready)
             {
               std::cerr << "Timeout waiting for camera!" << std::endl;
               return -1;
             }
+          future.get();
         }
       auto stop = std::chrono::steady_clock::now();
       auto diff = stop - start;
+      std::cout << diff.count() << std::endl;
       stats.push_back(std::chrono::duration<double>(diff).count());
     }
 
