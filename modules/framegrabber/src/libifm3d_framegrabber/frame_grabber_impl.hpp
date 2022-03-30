@@ -488,7 +488,7 @@ ifm3d::FrameGrabber::Impl::ErrorHandler()
 {
   std::size_t buffer_size = this->payload_buffer_.size();
 
-  bool buffer_valid = buffer_valid >= 4 + 9;
+  bool buffer_valid = buffer_size >= 4 + 9;
 
   if (buffer_valid)
     {
