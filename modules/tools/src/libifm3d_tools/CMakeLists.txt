@@ -87,13 +87,6 @@ if (BUILD_MODULE_SWUPDATER)
     )
 endif()
 
-if (BUILD_MODULE_OPENCV)
-  target_link_libraries(
-    ifm3d_tools_shared
-    ifm3d_opencv
-    )
-endif()
-
 set_target_properties(ifm3d_tools_shared PROPERTIES
   VERSION ${IFM3D_VERSION}
   OUTPUT_NAME ifm3d_tools
