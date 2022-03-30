@@ -1,4 +1,4 @@
-project(IFM3D_FG CXX)
+project(IFM3D_FG2 CXX)
 set(IFM3D_FG_MODULE_NAME "libifm3d-framegrabber")
 
 include_directories(${IFM3D_FG_SOURCE_DIR}/include)

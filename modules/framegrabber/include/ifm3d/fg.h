@@ -1,15 +1,12 @@
-// -*- c++ -*-
 /*
- * Copyright 2018-present ifm electronic, gmbh
- * Copyright 2017 Love Park Robotics, LLC
+ * Copyright 2022-present ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_FG_H__
-#define __IFM3D_FG_H__
+#ifndef IFM3D_FG_H
+#define IFM3D_FG_H
 
-#include <ifm3d/fg/schema.h>
-#include <ifm3d/fg/byte_buffer.h>
 #include <ifm3d/fg/frame_grabber.h>
+#include <ifm3d/fg/frame.h>
 
-#endif // __IFM3D_FG_H__
+#endif // IFM3D_FG_H

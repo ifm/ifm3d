@@ -38,20 +38,14 @@ macro_ensure_out_of_source_build(
 option(BUILD_TESTS "Build unit tests" ON)
 option(BUILD_MODULE_FRAMEGRABBER "Build the framegrabber module" ON)
 option(BUILD_MODULE_SWUPDATER "Build the swupdater module" ON)
-option(BUILD_MODULE_IMAGE "Build the image module" OFF)
-option(BUILD_MODULE_OPENCV "Build the OpenCV-only image container" OFF)
-option(BUILD_MODULE_STLIMAGE "Build the stl image module" ON)
 option(BUILD_MODULE_PCICCLIENT "Build the pcicclient module" OFF)
 option(BUILD_MODULE_TOOLS "Build the tools module" ON)
 option(BUILD_MODULE_PYBIND11 "Build the python bindings module" OFF)
 option(BUILD_SDK_PKG "Build install packages for development purposes" ON)
-option(FORCE_OPENCV3 "Force the build to require OpenCV 3" OFF)
-option(FORCE_OPENCV2 "Force the build to require OpenCV 2.4" OFF)
 option(BUILD_SHARED_LIBS "Build modules as shared libraries" ON)
 option(BUILD_EXAMPLES "Build the examples" OFF)
 option(BUILD_DOC "Build documentation" OFF)
 option(BUILD_IN_DEPS "download and build dependencies" ON)
-option(USE_LEGACY_COORDINATES "Use the legacy coordinates with swapped axis" OFF)
 
 # Installation root
 set(CPACK_SET_DESTDIR true)
@@ -71,7 +65,7 @@ set(_include include CACHE STRING "Basename of the include-directory")
 set(GTEST_CMAKE_DIR "/usr/src/gtest" CACHE STRING "GTest cmake project dir")
 
 # Global compiler flags
-set(CMAKE_CXX_EXTENSIONS OFF) # OFF -> -std=c++14, ON -> -std=gnu++14
+set(CMAKE_CXX_EXTENSIONS OFF) # OFF -> -std=c++17, ON -> -std=gnu++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 if(WIN32)
@@ -129,23 +123,6 @@ if(BUILD_MODULE_SWUPDATER)
   list(APPEND DOXYGEN_MODULES "swupdater")
 endif()
 
-if(BUILD_MODULE_IMAGE)
-  # `image` relies on `framegrabber`, in the event the user
-  # explicitly disabled the `framegrabber` but not `image`
-  # we are going to let the compiler convey the message (for now) instead of
-  # doing some implicit CMake stuff that will be hard to maintain and
-  # confuse the end-user.
-  add_definitions(-DBUILD_MODULE_IMAGE=ON)
-  add_subdirectory(modules/image)
-  list(APPEND DOXYGEN_MODULES "image")
-endif()
-
-if(BUILD_MODULE_OPENCV)
-  add_definitions(-DBUILD_MODULE_OPENCV=ON)
-  add_subdirectory(modules/opencv)
-  list(APPEND DOXYGEN_MODULES "opencv")
-endif()
-
 if(BUILD_MODULE_PCICCLIENT)
   add_subdirectory(modules/pcicclient)
   list(APPEND DOXYGEN_MODULES "pcicclient")
@@ -158,17 +135,6 @@ endif()
 
 if(BUILD_EXAMPLES)
   add_subdirectory(examples)
-endif()
-
-if(BUILD_MODULE_STLIMAGE)
-  # `stlimage`  like image relies on `framegrabber`, in the event the user
-  # explicitly disabled the `framegrabber` but not `image`
-  # we are going to let the compiler convey the message (for now) instead of
-  # doing some implicit CMake stuff that will be hard to maintain and
-  # confuse the end-user.
-  add_definitions(-DBUILD_MODULE_STLIMAGE=ON)
-  add_subdirectory(modules/stlimage)
-  list(APPEND DOXYGEN_MODULES "stlimage")
 endif()
 
 if(BUILD_MODULE_TOOLS)
