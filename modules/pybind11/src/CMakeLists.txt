@@ -45,10 +45,9 @@ add_library(ifm3dpy MODULE main.cpp)
 #------------------
 target_include_directories(ifm3dpy
   PRIVATE
-    $<BUILD_INTERFACE:${IFM3D_FG_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
-    $<BUILD_INTERFACE:${IFM3D_STLIMAGE_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${IFM3D_FG_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_TOOLS_SOURCE_DIR}/include>
     ${CMAKE_CURRENT_SOURCE_DIR}
   )
@@ -61,7 +60,6 @@ target_link_libraries(
   PRIVATE
     ifm3d_framegrabber
     ifm3d_camera
-    ifm3d_stlimage
     pybind11::module
     ifm3d_tools_shared
     ifm3d_swupdater
@@ -75,6 +73,8 @@ set_target_properties(
   EXPORT_NAME ${_component_name}
   PREFIX "${PYTHON_MODULE_PREFIX}"
   SUFFIX "${PYTHON_MODULE_EXTENSION}"
+  DEBUG_POSTFIX ""
+  CXX_VISIBILITY_PRESET "hidden"
   )
 
 #------------------

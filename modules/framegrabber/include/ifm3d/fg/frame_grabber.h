@@ -1,19 +1,22 @@
-// -*- c++ -*-
 /*
- * Copyright 2018-present ifm electronic, gmbh
- * Copyright 2017 Love Park Robotics, LLC
+ * Copyright 2022-present ifm electronic, gmbh
+
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_FG_FRAME_GRABBER_H__
-#define __IFM3D_FG_FRAME_GRABBER_H__
+#ifndef IFM3D_FG_FRAMEGRABBER_H
+#define IFM3D_FG_FRAMEGRABBER_H
 
 #include <cstdint>
+#include <future>
 #include <memory>
+#include <optional>
 #include <vector>
+#include <type_traits>
 #include <ifm3d/camera/camera.h>
-#include <ifm3d/fg/byte_buffer.h>
-#include <ifm3d/fg/schema.h>
+#include <ifm3d/fg/image.h>
+#include <ifm3d/fg/organizer.h>
+#include <ifm3d/fg/frame.h>
 
 namespace ifm3d
 {
@@ -24,21 +27,16 @@ namespace ifm3d
   {
   public:
     using Ptr = std::shared_ptr<FrameGrabber>;
+    using NewFrameCallback = std::function<void(Frame::Ptr)>;
 
     /**
-     * Stores a reference to the passed in camera shared pointer and starts a
-     * worker thread to stream in pixel data from the device.
+     * Stores a reference to the passed in camera shared pointer
      *
      * @param[in] cam The camera instance to grab frames from
-     * @param[in] mask A bitmask encoding the image acquisition schema
-     *                 to stream in from the camera.
-     * @param[in] nat_pcic_port Port for devices behind NAT router,
-     *                          user must provide this value according to there
-     *                          NAT router configuration.
+     * @param[in] pcic_port TCP port for the pcic connection
      */
     FrameGrabber(ifm3d::CameraBase::Ptr cam,
-                 std::uint16_t mask = ifm3d::DEFAULT_SCHEMA_MASK,
-                 const std::uint16_t nat_pcic_port = ifm3d::PCIC_PORT);
+                 std::optional<std::uint16_t> pcic_port = std::nullopt);
 
     /**
      * Cleans up resources held by the framegrabbing thread object and blocks
@@ -70,76 +68,76 @@ namespace ifm3d
     void SWTrigger();
 
     /**
-     * This function is used to grab and parse out time synchronized image data
-     * from the camera. It will call `SetBytes` on the passed in `ByteBuffer`
-     * as well as (optionally, but by default) call `Organize`. Calling
-     * `Organize` is the default behavior so the `buff` output parameter is
-     * assumed to be synchronized and ready for analysis provided this function
-     * returns true. In certain applications, it may be a performance
-     * enhancement to not call `Organize` but rather handle that outside of the
-     * `FrameGrabber`.
-     *
-     * @param[out] buff A pointer to an `ifm3d::ByteBuffer<Dervied>` object to
-     *                  update with the latest data from the camera.
-     *
-     * @param[in] timeout_millis Timeout in millis to wait for new image data
-     *                           from the FrameGrabber. If `timeout_millis` is
-     *                           set to 0, this function will block
-     *                           indefinitely.
-     * @param[in] copy_buff Flag indicating whether the framegrabber's internal
-     *                           buffer should be copied (O(n)) or swapped
-     *                           (O(1)) with the raw bytes of the passed in
-     *                           `buff`. You should only flag this as `true` if
-     *                           you are planning to use multiple clients with
-     *                           a single `FrameGrabber` -- even then, think
-     *                           carefully before copying data around.
-     * @param[in] organize Flag indicating whether or not `Organize` should be
-     *                           called on the `ByteBuffer` before returning.
-     *
-     * @return true if a new buffer was acquired w/in `timeout_millis`, false
-     *              otherwise.
+     * The callback will be executed whenever a new frame is available.
+     * It receives a Frame::Ptr to the received frame as an argument.
      */
-    template <typename T>
-    bool
-    WaitForFrame(ifm3d::ByteBuffer<T>* buff,
-                 long timeout_millis = 0,
-                 bool copy_buff = false,
-                 bool organize = true)
+    void OnNewFrame(NewFrameCallback callback = nullptr);
+
+    /**
+     * Starts the worker thread for streaming in pixel data from the device
+     *
+     * @param[in] images set of ImageIds for receiving, passing in an empty set
+     * will received all available images.
+     * The ImageIds are specific to the current Organizer. See image_id for a
+     * list of ImageIds available with the default Organizer
+     */
+    bool Start(const std::set<ImageId>& images = {});
+
+    /**
+     * Starts the worker thread for streaming in pixel data from the device
+     *
+     * @param[in] images set of ImageIds for receiving, passing in an empty set
+     * will received all available images.
+     * The ImageIds are specific to the current Organizer. See image_id for a
+     * list of ImageIds available with the default Organizer
+     */
+    template <typename T, typename... Args>
+    typename std::enable_if_t<std::is_enum_v<T>, bool>
+    Start(std::set<ImageId>& images, T id, Args... args)
     {
-      bool retval = this->WaitForFrame(
-        timeout_millis,
-        [buff, copy_buff](std::vector<std::uint8_t>& frame_data) {
-          buff->SetBytes(frame_data, copy_buff);
-        });
-
-      // NOTE: it is an optimization to keep the call to Organize() outside of
-      //       the lambda.
-      if (retval && organize)
-        {
-          buff->Organize();
-        }
-
-      return retval;
+      images.insert(static_cast<ImageId>(id));
+      return Start(images, args...);
     }
 
-  protected:
     /**
-     * This is a convenience/wrapper function used to proxy `WaitForFrame`
-     * calls through to the pimpl class w/o requiring the pimpl to know about
-     * the ByteBuffer CRTP class hierarchy -- i.e., it operates on a vector of
-     * bytes not an `ifm3d::ByteBuffer<Derived>`.
+     * Starts the worker thread for streaming in pixel data from the device
      *
-     * @param[in] timeout_millis Timeout in millis to wait for new image data
-     *                           from the FrameGrabber. If `timeout_millis` is
-     *                           set to 0, this function will block
-     *                           indefinitely.
-     *
-     * @param[in] set_bytes A mutator function that will be called with the
-     *                      latest frame data bytes from the camera.
+     * @param[in] images set of ImageIds for receiving, passing in an empty set
+     * will received all available images.
+     * The ImageIds are specific to the current Organizer. See image_id for a
+     * list of ImageIds available with the default Organizer
      */
-    bool WaitForFrame(
-      long timeout_millis,
-      std::function<void(std::vector<std::uint8_t>&)> set_bytes);
+    template <typename T, typename... Args>
+    typename std::enable_if_t<std::is_enum_v<T>, bool>
+    Start(T id, Args... args)
+    {
+      std::set<ImageId> images;
+      images.insert(static_cast<ImageId>(id));
+      return Start(images, args...);
+    }
+
+    /**
+     * Stops the worker thread for streaming in pixel data from the device
+     */
+    bool Stop();
+
+    /**
+     * Returns true if the worker thread is currently running
+     */
+    bool IsRunning();
+
+    /**
+     * Returns a future that will resolve when a new frame is available
+     */
+    std::shared_future<Frame::Ptr> WaitForFrame();
+
+    /**
+     * This allows to override the Organizer which is used for extracting the
+     * data from the raw PCIC stream.
+     *
+     * @param organizer The new organizer to be used
+     */
+    void SetOrganizer(std::unique_ptr<Organizer> organizer);
 
   private:
     class Impl;
@@ -149,4 +147,4 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
-#endif // __IFM3D_FG_FRAME_GRABBER_H__
+#endif // IFM3D_FG_FRAMEGRABBER_H

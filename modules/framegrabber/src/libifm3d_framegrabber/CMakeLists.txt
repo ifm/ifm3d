@@ -15,8 +15,8 @@ endif()
 ################################################
 ## Target: libifm3d_framegrabber.so
 ################################################
-file(GLOB IFM3D_FG_SOURCES *.cpp)
-add_library(ifm3d_framegrabber
+file(GLOB IFM3D_FG_SOURCES CONFIGURE_DEPENDS *.cpp *.hpp)
+add_library(ifm3d_framegrabber 
             ${IFM3D_FG_SOURCES}
             ${CMAKE_CURRENT_SOURCE_DIR}/algo/o3r_uncompress_di.cpp
             )
@@ -37,9 +37,10 @@ target_include_directories(ifm3d_framegrabber
   )
 
 if(WIN32)
-    target_compile_definitions(ifm3d_framegrabber PRIVATE
+    target_compile_definitions(ifm3d_framegrabber
+      PRIVATE
         IFM3D_FRAME_GRABBER_DLL_BUILD=1)
-endif(WIN32)
+endif(WIN32) 
 
 #------------------
 # Linker settings
@@ -55,6 +56,7 @@ target_link_libraries(
     ifm3d_camera
     Threads::Threads
     $<BUILD_INTERFACE:asio>
+    $<BUILD_INTERFACE:fmt::fmt-header-only>
   )
 
 set_target_properties(

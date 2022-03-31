@@ -1,14 +1,14 @@
-#ifndef IFM3D_FRAME_GRABBER_EXPORT_HPP
-#define IFM3D_FRAME_GRABBER_EXPORT_HPP
+#ifndef IFM3D_FG_EXPORT_HPP
+#define IFM3D_FG_EXPORT_HPP
 
 #if defined(IFM3D_CAMERA_STATIC_LIB) || !defined(_MSC_VER)
-#  define IFM3D_FRAME_GRABBER_EXPORT
+#  define IFM3D_FG_EXPORT
 #else
-#  ifdef IFM3D_FRAME_GRABBER_DLL_BUILD
-#    define IFM3D_FRAME_GRABBER_EXPORT __declspec(dllexport)
+#  ifdef IFM3D_FG_DLL_BUILD
+#    define IFM3D_FG_EXPORT __declspec(dllexport)
 #  else
-#    define IFM3D_FRAME_GRABBER_EXPORT __declspec(dllimport)
+#    define IFM3D_FG_EXPORT __declspec(dllimport)
 #  endif
 #endif
 
-#endif /* IFM3D_FRAME_GRABBER_EXPORT_HPP */
+#endif /* IFM3D_FG_EXPORT_HPP */

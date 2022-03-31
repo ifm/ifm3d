@@ -66,6 +66,44 @@ namespace ifm3d
   extern IFM3D_CAMERA_EXPORT const unsigned int
     O3X_DISTANCE_NOISE_IMAGE_SUPPORT_PATCH;
 
+  enum class pixel_format : std::uint32_t
+  {
+    FORMAT_8U = 0,
+    FORMAT_8S = 1,
+    FORMAT_16U = 2,
+    FORMAT_16S = 3,
+    FORMAT_32U = 4,
+    FORMAT_32S = 5,
+    FORMAT_32F = 6,
+    FORMAT_64U = 7,
+    FORMAT_64F = 8,
+    FORMAT_16U2 = 9,
+    FORMAT_32F3 = 10
+  };
+
+  enum class image_chunk : std::uint32_t
+  {
+    RADIAL_DISTANCE = 100,
+    AMPLITUDE = 101, // normalized amplitude
+    RAW_AMPLITUDE = 103,
+    GRAY = 104, // ambient light
+    DISTANCE_NOISE = 105,
+    CARTESIAN_X = 200,
+    CARTESIAN_Y = 201,
+    CARTESIAN_Z = 202,
+    CARTESIAN_ALL = 203,
+    UNIT_VECTOR_ALL = 223,
+    JPEG = 260,
+    CONFIDENCE = 300,
+    DIAGNOSTIC_DATA = 302,
+    EXTRINSIC_CALIBRATION = 400,
+    INTRINSIC_CALIBRATION = 401,
+    INVERSE_INTRINSIC_CALIBRATION = 402,
+    O3R_DISTANCE_IMAGE_INFORMATION = 420,
+    JSON_MODEL = 500,
+    ALGO_DEBUG = 900,
+  };
+
   class XMLRPCWrapper;
 
   /**
