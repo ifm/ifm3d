@@ -22,51 +22,32 @@
 #include <ifm3d/camera.h>
 #include <ifm3d/fg.h>
 
-#if defined(BUILD_MODULE_STLIMAGE)
-#  include <ifm3d/stlimage.h>
-#endif
+// Dummy/minimal image container -- used for testing jitter in
+// recieving bytes but not constructing any images
+class NullOrganizer : public ifm3d::Organizer
+{
+public:
+  NullOrganizer() : ifm3d::Organizer() {}
 
-#if defined(BUILD_MODULE_OPENCV)
-#  include <ifm3d/opencv.h>
-#endif
+  virtual Result
+  Organize(const std::vector<uint8_t>& data,
+           const std::set<ifm3d::ImageId>& requestedImages)
+  {
+    return {};
+  };
+
+  virtual std::set<ifm3d::image_chunk>
+  GetImageChunks(ifm3d::ImageId id)
+  {
+    return {};
+  };
+};
 
 // Make sure we use a steady_clock -- prefer the high_resolution_clock
 // on platforms where it is steady.
 using Clock_t = std::conditional<std::chrono::high_resolution_clock::is_steady,
                                  std::chrono::high_resolution_clock,
                                  std::chrono::steady_clock>::type;
-
-// Dummy/minimal image container -- used for testing jitter in
-// recieving bytes but not constructing any image containers
-class MyBuff : public ifm3d::ByteBuffer<MyBuff>
-{
-public:
-  MyBuff() : ifm3d::ByteBuffer<MyBuff>() {}
-
-  template <typename T>
-  void
-  ImCreate(ifm3d::image_chunk im,
-           std::uint32_t fmt,
-           std::size_t idx,
-           std::uint32_t width,
-           std::uint32_t height,
-           int nchan,
-           std::uint32_t npts,
-           const std::vector<std::uint8_t>& bytes)
-  {}
-
-  template <typename T>
-  void
-  CloudCreate(std::uint32_t fmt,
-              std::size_t xidx,
-              std::size_t yidx,
-              std::size_t zidx,
-              std::uint32_t width,
-              std::uint32_t height,
-              std::uint32_t npts,
-              const std::vector<std::uint8_t>& bytes)
-  {}
-};
 
 ifm3d::JitterApp::JitterApp(int argc,
                             const char** argv,
@@ -154,15 +135,14 @@ mad(const std::vector<T>& arr, T center)
 //
 // Captures the timing metrics
 //
-template <typename T>
 void
-capture_frames(ifm3d::FrameGrabber::Ptr fg, T buff, std::vector<float>& results)
+capture_frames(ifm3d::FrameGrabber::Ptr fg, std::vector<float>& results)
 {
   int nframes = results.size();
 
   // get one-time allocations out of the way, and, make
   // sure it doesn't get optimized away by the compiler
-  if (!fg->WaitForFrame(buff.get(), ifm3d::FG_TIMEOUT))
+  if (fg->WaitForFrame().wait_for(std::chrono::milliseconds(ifm3d::FG_TIMEOUT)) != std::future_status::ready)
     {
       std::cerr << "Timeout waiting for first image acquisition!" << std::endl;
       return;
@@ -171,15 +151,19 @@ capture_frames(ifm3d::FrameGrabber::Ptr fg, T buff, std::vector<float>& results)
   for (int i = 0; i < nframes; ++i)
     {
       auto t1 = Clock_t::now();
-      if (!fg->WaitForFrame(buff.get(), ifm3d::FG_TIMEOUT))
+      auto future = fg->WaitForFrame();
+      if (future.wait_for(std::chrono::milliseconds(ifm3d::FG_TIMEOUT)) !=
+          std::future_status::ready)
         {
           std::cerr << "Timeout waiting for image acquisition!" << std::endl;
           return;
         }
+      future.get();
       auto t2 = Clock_t::now();
 
       std::chrono::duration<float, std::milli> fp_ms = t2 - t1;
       results[i] = fp_ms.count();
+      std::cout << fp_ms.count() << std::endl;
     }
 }
 
@@ -195,6 +179,8 @@ ifm3d::JitterApp::Run()
       return 0;
     }
 
+  //this->fg_->SetOrganizer(std::make_unique<NullOrganizer>());
+
   int nframes = (*this->vm_)["nframes"].as<int>();
   nframes = nframes <= 0 ? 100 : nframes;
   std::string outfile = (*this->vm_)["outfile"].as<std::string>();
@@ -203,9 +189,9 @@ ifm3d::JitterApp::Run()
   // capture data for computing jitter statistics
   //
   std::vector<float> bb_results(nframes, 0.);
-  std::cout << "Capturing frame data for ifm3d::ByteBuffer..." << std::endl;
-  auto bb = std::make_shared<ifm3d::ByteBuffer<MyBuff>>();
-  capture_frames(this->fg_, bb, bb_results);
+  std::cout << "Capturing frame data..." << std::endl;
+  
+  capture_frames(this->fg_, bb_results);
   float bb_median = median(bb_results);
   float bb_mean, bb_stdev;
   std::tie(bb_mean, bb_stdev) = mean_stdev(bb_results);
@@ -216,39 +202,6 @@ ifm3d::JitterApp::Run()
   std::cout << "Stdev:  " << bb_stdev << " ms" << std::endl;
   std::cout << "Mad:    " << bb_mad << " ms" << std::endl;
 
-#if defined(BUILD_MODULE_STLIMAGE)
-  std::vector<float> im_results(nframes, 0.);
-  std::cout << std::endl
-            << "Capturing frame data for ifm3d::StlImageBuffer..." << std::endl;
-  auto im = std::make_shared<ifm3d::StlImageBuffer>();
-  capture_frames(this->fg_, im, im_results);
-  float im_median = median(im_results);
-  float im_mean, im_stdev;
-  std::tie(im_mean, im_stdev) = mean_stdev(im_results);
-  float im_mad = mad(im_results, im_median);
-
-  std::cout << "Mean:   " << im_mean << " ms" << std::endl;
-  std::cout << "Median: " << im_median << " ms" << std::endl;
-  std::cout << "Stdev:  " << im_stdev << " ms" << std::endl;
-  std::cout << "Mad:    " << im_mad << " ms" << std::endl;
-#endif
-
-#if defined(BUILD_MODULE_OPENCV)
-  std::vector<float> oc_results(nframes, 0.);
-  std::cout << std::endl
-            << "Capturing frame data for ifm3d::OpenCVBuffer..." << std::endl;
-  auto oc = std::make_shared<ifm3d::OpenCVBuffer>();
-  capture_frames(this->fg_, oc, oc_results);
-  float oc_median = median(oc_results);
-  float oc_mean, oc_stdev;
-  std::tie(oc_mean, oc_stdev) = mean_stdev(oc_results);
-  float oc_mad = mad(oc_results, oc_median);
-
-  std::cout << "Mean:   " << oc_mean << " ms" << std::endl;
-  std::cout << "Median: " << oc_median << " ms" << std::endl;
-  std::cout << "Stdev:  " << oc_stdev << " ms" << std::endl;
-  std::cout << "Mad:    " << oc_mad << " ms" << std::endl;
-#endif
 
   //
   // compute summary statistics
@@ -261,28 +214,12 @@ ifm3d::JitterApp::Run()
       // headers in the csv
       out << "ByteBuffer";
 
-#if defined(BUILD_MODULE_STLIMAGE)
-      out << ",StlImageBuffer";
-#endif
-
-#if defined(BUILD_MODULE_OPENCV)
-      out << ",OpenCVBuffer";
-#endif
       out << std::endl;
 
       // csv data
       for (int i = 0; i < nframes; ++i)
         {
           out << bb_results[i];
-
-#if defined(BUILD_MODULE_STLIMAGE)
-          out << "," << im_results[i];
-#endif
-
-#if defined(BUILD_MODULE_OPENCV)
-          out << "," << oc_results[i];
-#endif
-
           out << std::endl;
         }
       out.close();

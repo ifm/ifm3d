@@ -1,20 +1,29 @@
 /*
- * Copyright 2020 ifm electronic, gmbh
+ * Copyright 2022-present ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <iostream>
 #include <glog/logging.h>
 #include <o3r_uncompress_di.h>
-#include <ifm3d/fg/byte_buffer.h>
+#include <ifm3d/camera/logging.h>
+#include <ifm3d/camera/camera.h>
+#include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/fg/distance_image_info.h>
 #include <tuple>
+#include <glog/logging.h>
 
 namespace ifm3d
 {
   const std::size_t NUM_EXPOSURE_TIMESTAMP = 3;
   const std::size_t NUM_EXPOSURE_TIME = 3;
+
+  constexpr auto FLOAT_DATA_SIZE = sizeof(float);
+  constexpr auto UINT32_DATA_SIZE = sizeof(std::uint32_t);
+  constexpr auto UINT16_DATA_SIZE = sizeof(std::uint16_t);
+
   std::vector<std::uint16_t>
   readU16Vector(std::size_t idx,
                 const std::vector<std::uint8_t>& data_buffer,
@@ -74,43 +83,30 @@ namespace ifm3d
     std::uint32_t data_offset{FLOAT_DATA_SIZE};
     IntrinsicCalibration intrinsicCalibration;
     intrinsicCalibration.model_iD = ifm3d::mkval<std::uint32_t>(data_buffer);
-    for (auto i = 0; i < NR_MODEL_PARAMS; i++)
+    for (auto [i, offset] = std::tuple{0, FLOAT_DATA_SIZE};
+         i < NR_MODEL_PARAMS;
+         ++i, offset += FLOAT_DATA_SIZE)
       {
         intrinsicCalibration.model_parameters[i] =
           ifm3d::mkval<float>(data_buffer + data_offset);
-        data_offset += FLOAT_DATA_SIZE;
       }
     return intrinsicCalibration;
   }
 
   DistanceImageInfoPtr
   CreateDistanceImageInfo(const std::vector<std::uint8_t>& data_buffer,
+                          const std::size_t distimageinfo_idx,
                           const std::size_t dist_idx,
                           const std::size_t amp_idx,
                           const std::uint32_t width,
                           const std::uint32_t height)
   {
-    if (data_buffer.size() < ifm3d::IMG_BUFF_START)
-      {
-        return {};
-      }
-    // Index of Distance Image Info chunk
-    auto distimageidx = ifm3d::get_chunk_index(
-      data_buffer,
-      ifm3d::image_chunk::O3R_DISTANCE_IMAGE_INFORMATION);
-
-    if (distimageidx == INVALID_IDX || dist_idx == INVALID_IDX ||
-        amp_idx == INVALID_IDX)
-      {
-        return {};
-      }
-
     // header size
     auto header_size = ifm3d::mkval<std::uint32_t>(
-      data_buffer.data() + distimageidx + HEADER_SIZE_INFO_OFFSET);
+      data_buffer.data() + distimageinfo_idx + HEADER_SIZE_INFO_OFFSET);
 
     auto chunk_size = ifm3d::mkval<uint32_t>(
-      data_buffer.data() + distimageidx + CHUNK_SIZE_INFO_OFFSET);
+      data_buffer.data() + distimageinfo_idx + CHUNK_SIZE_INFO_OFFSET);
 
     if (DISTANCE_IMAGE_INFO_DATA_SIZE > chunk_size)
       {
@@ -123,34 +119,34 @@ namespace ifm3d
     auto data_offset = header_size;
     // Version
     auto dist_info_version = ifm3d::mkval<std::uint32_t>(
-      data_buffer.data() + distimageidx + data_offset);
+      data_buffer.data() + distimageinfo_idx + data_offset);
     data_offset += UINT32_DATA_SIZE;
     // Distance Resolution
-    auto dist_resolution =
-      ifm3d::mkval<float>(data_buffer.data() + distimageidx + data_offset);
+    auto dist_resolution = ifm3d::mkval<float>(
+      data_buffer.data() + distimageinfo_idx + data_offset);
     data_offset += FLOAT_DATA_SIZE;
     // Amplitude Resolution
-    auto ampl_resolution =
-      ifm3d::mkval<float>(data_buffer.data() + distimageidx + data_offset);
+    auto ampl_resolution = ifm3d::mkval<float>(
+      data_buffer.data() + distimageinfo_idx + data_offset);
     data_offset += FLOAT_DATA_SIZE;
     // Ampl Normalization Factor Vector
     std::vector<float> amp_norm_factors{
-      readFloatVector(data_buffer.data() + distimageidx + data_offset,
+      readFloatVector(data_buffer.data() + distimageinfo_idx + data_offset,
                       AMPL_NORM_FACTOR_VECTOR_SIZE)};
     data_offset += amp_norm_factors.size() * FLOAT_DATA_SIZE;
     // Extrinsic Optic to User Vector
     std::vector<float> extrinsic_optic_to_user{
-      readFloatVector(data_buffer.data() + distimageidx + data_offset,
+      readFloatVector(data_buffer.data() + distimageinfo_idx + data_offset,
                       EXTR_OPTIC_USER_VECTOR_SIZE)};
     data_offset += extrinsic_optic_to_user.size() * FLOAT_DATA_SIZE;
     // Intrinsic Calibration
     IntrinsicCalibration intrinsic_calibration =
-      readIntrinsicCalibrationStruct(data_buffer.data() + distimageidx +
+      readIntrinsicCalibrationStruct(data_buffer.data() + distimageinfo_idx +
                                      data_offset);
     data_offset += sizeof(intrinsic_calibration);
     // Inverse Intrinsic Calibration
     IntrinsicCalibration inverse_intrinsic_calibration =
-      readIntrinsicCalibrationStruct(data_buffer.data() + distimageidx +
+      readIntrinsicCalibrationStruct(data_buffer.data() + distimageinfo_idx +
                                      data_offset);
     data_offset += sizeof(inverse_intrinsic_calibration);
     std::vector<uint64_t> timestamps_nsec{};
@@ -161,14 +157,14 @@ namespace ifm3d
         size_t offset = 0;
         /* ExposureTimestamps */
         std::tie(timestamps_nsec, offset) = readTVector<uint64_t>(
-          data_buffer.data() + distimageidx + data_offset,
+          data_buffer.data() + distimageinfo_idx + data_offset,
           NUM_EXPOSURE_TIMESTAMP);
         data_offset += offset;
 
         /* Exposure Times */
-        std::tie(exposure_time_sec, offset) =
-          readTVector<float>(data_buffer.data() + distimageidx + data_offset,
-                             NUM_EXPOSURE_TIME);
+        std::tie(exposure_time_sec, offset) = readTVector<float>(
+          data_buffer.data() + distimageinfo_idx + data_offset,
+          NUM_EXPOSURE_TIME);
         data_offset += offset;
       }
     /*exposure_timestamps will be blank for header version 1 of dist image
@@ -180,8 +176,8 @@ namespace ifm3d
       }
 
     VLOG(IFM3D_PROTO_DEBUG)
-      << "O3R_DISTANCE_IMAGE_INFORMATION \n\t-Chunk Index: " << distimageidx
-      << "\n\t-Chunk size: " << chunk_size
+      << "O3R_DISTANCE_IMAGE_INFORMATION \n\t-Chunk Index: "
+      << distimageinfo_idx << "\n\t-Chunk size: " << chunk_size
       << "\n\t-Chunk end index: " << data_offset
       << "\n\t-Header size: " << header_size
       << "\n\t-Version: " << dist_info_version << "\n\t-dist_idx: " << dist_idx
@@ -251,23 +247,28 @@ namespace ifm3d
         u16Dist[i] = u16_distance_buffer[i];
       }
 
-    if (xyzdFromDistance(
-          xyzd + 3 * npts, // distance
-          xyzd,            // X
-          xyzd + npts,     // Y
-          xyzd + 2 * npts, // Z
-          u16Dist,
-          dist_resolution,
-          intrinsic_calibration.model_iD,
-          intrinsic_calibration.model_parameters,
-          extrinsic_optic_to_user[static_cast<int>(extrinsic_param::TRANS_X)],
-          extrinsic_optic_to_user[static_cast<int>(extrinsic_param::TRANS_Y)],
-          extrinsic_optic_to_user[static_cast<int>(extrinsic_param::TRANS_Z)],
-          extrinsic_optic_to_user[static_cast<int>(extrinsic_param::ROT_X)],
-          extrinsic_optic_to_user[static_cast<int>(extrinsic_param::ROT_Y)],
-          extrinsic_optic_to_user[static_cast<int>(extrinsic_param::ROT_Z)],
-          width,
-          height) != 0)
+    if (xyzdFromDistance(xyzd + 3 * npts, // distance
+                         xyzd,            // X
+                         xyzd + npts,     // Y
+                         xyzd + 2 * npts, // Z
+                         u16Dist,
+                         dist_resolution,
+                         intrinsic_calibration.model_iD,
+                         intrinsic_calibration.model_parameters,
+                         extrinsic_optic_to_user[static_cast<int>(
+                           ifm3d::extrinsic_param::TRANS_X)],
+                         extrinsic_optic_to_user[static_cast<int>(
+                           ifm3d::extrinsic_param::TRANS_Y)],
+                         extrinsic_optic_to_user[static_cast<int>(
+                           ifm3d::extrinsic_param::TRANS_Z)],
+                         extrinsic_optic_to_user[static_cast<int>(
+                           ifm3d::extrinsic_param::ROT_X)],
+                         extrinsic_optic_to_user[static_cast<int>(
+                           ifm3d::extrinsic_param::ROT_Y)],
+                         extrinsic_optic_to_user[static_cast<int>(
+                           ifm3d::extrinsic_param::ROT_Z)],
+                         width,
+                         height) != 0)
       {
         LOG(ERROR) << "xyzdFromDistance calculation interrupted";
         return {};

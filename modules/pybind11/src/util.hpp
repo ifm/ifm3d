@@ -7,7 +7,7 @@
 #define IFM3D_PY_UTIL_HPP
 
 #include <stdexcept>
-#include <ifm3d/stlimage/image.h>
+#include <ifm3d/fg/image.h>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>

@@ -1,6 +1,5 @@
-// -*- c++ -*-
 /*
- * Copyright 2020 ifm electronic, gmbh
+ * Copyright 2022-present ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
 #ifndef IFM3D_DISTANCE_IMAGE_INFO_H
@@ -21,6 +20,19 @@ namespace ifm3d
   constexpr auto NR_MODEL_PARAMS = 32;
   constexpr auto AMPL_NORM_FACTOR_VECTOR_SIZE = 3;
   constexpr auto EXTR_OPTIC_USER_VECTOR_SIZE = 6;
+
+  enum class extrinsic_param : std::uint32_t
+  {
+    TRANS_X = 0, // Translation along x-direction in meters.
+    TRANS_Y = 1, // Translation along y-direction in meters.
+    TRANS_Z = 2, // Translation along Z-direction in meters.
+    ROT_X = 3,   // Rotation along x-axis in radians. Positive values indicate
+                 // clockwise rotation.
+    ROT_Y = 4,   // Rotation along y-axis in radians. Positive values indicate
+                 // clockwise rotation.
+    ROT_Z = 5    // Rotation along z-axis in radians. Positive values indicate
+                 // clockwise rotation.
+  };
 
   struct IntrinsicCalibration
   {
@@ -81,6 +93,16 @@ namespace ifm3d
     {
       return (width * height);
     }
+    auto
+    getWidth()
+    {
+      return width;
+    }
+    auto
+    getHeight()
+    {
+      return height;
+    }
 
     /**
      * @brief returns the timestamps in nano seconds
@@ -104,6 +126,7 @@ namespace ifm3d
   using DistanceImageInfoPtr = std::unique_ptr<DistanceImageInfo>;
   DistanceImageInfoPtr CreateDistanceImageInfo(
     const std::vector<std::uint8_t>& data_buffer,
+    const std::size_t distimageinfo_idx,
     const std::size_t dist_idx,
     const std::size_t amp_idx,
     const std::uint32_t width,

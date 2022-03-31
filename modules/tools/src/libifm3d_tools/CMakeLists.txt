@@ -57,20 +57,6 @@ if (BUILD_MODULE_SWUPDATER)
     )
 endif()
 
-if (BUILD_MODULE_STLIMAGE)
-  target_include_directories(ifm3d_tools_shared
-    PUBLIC
-      $<BUILD_INTERFACE:${IFM3D_STLIMAGE_SOURCE_DIR}/include>
-    )
-endif()
-
-if (BUILD_MODULE_OPENCV)
-  target_include_directories(ifm3d_tools_shared
-    PUBLIC
-      $<BUILD_INTERFACE:${IFM3D_OPENCV_SOURCE_DIR}/include>
-    )
-endif()
-
 if(WIN32)
     target_compile_definitions(ifm3d_tools_shared PRIVATE
         IFM3D_TOOLS_DLL_BUILD=1)
@@ -98,20 +84,6 @@ if (BUILD_MODULE_SWUPDATER)
   target_link_libraries(
     ifm3d_tools_shared
     ifm3d_swupdater
-    )
-endif()
-
-if (BUILD_MODULE_STLIMAGE)
-  target_link_libraries(
-    ifm3d_tools_shared
-    ifm3d_stlimage
-    )
-endif()
-
-if (BUILD_MODULE_OPENCV)
-  target_link_libraries(
-    ifm3d_tools_shared
-    ifm3d_opencv
     )
 endif()
 
