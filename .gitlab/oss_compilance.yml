@@ -1,0 +1,24 @@
+# oss_compilance 
+build:oss_compilance:
+  image: 
+    name: nexus.ifm.com:20443/ifm-robotics/docker-oss-compliance
+    entrypoint: [""]
+  stage: build
+  tags:
+      - shared_docker
+  cache:
+    - key:
+        files:
+          - oss-compliance_cache.lock
+      paths:
+        - $CI_PROJECT_DIR/cache
+  script:
+    - mkdir -p $CI_PROJECT_DIR/oss-compliance
+    - cd /app
+    - python generate_html.py --cache $CI_PROJECT_DIR/cache --out $CI_PROJECT_DIR/oss-compliance ghcr.io/ifm/ifm3d:latest ifm3d
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/oss-compliance
+    expire_in: 1 week
+  rules:
+    - !reference [.tagged, rules]
