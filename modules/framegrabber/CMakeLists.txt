@@ -18,7 +18,7 @@ endif()
 ################################################
 if(BUILD_SDK_PKG)
   install(DIRECTORY ${IFM3D_FG_SOURCE_DIR}/include
-    DESTINATION ${CPACK_INSTALL_PREFIX}
+    DESTINATION .
     COMPONENT framegrabber
     PATTERN "*.in" EXCLUDE
     PATTERN ".git" EXCLUDE

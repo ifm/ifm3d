@@ -3,6 +3,23 @@
 This tutorial details how to compile the ifm3d library and its dependencies on
 a Windows platform using Visual Studio.
 
+### How to install and use ifm3d binaries
+1. Installation
+
+    Download the ifm3d installer ifm3d_windows_x.x.x.exe.
+
+    This installer provides binaries for Windows OS for Visual Studio 2019 and above. For any other compiler we recommend to build ifm3d from sources.
+
+    Follow the instructions on the installer. It will install binaries at default location as C:/ProgramFiles/ifm3d x.x.x. Make a environment variable with this path.
+    ```
+    IFM3D_BINARY_DIR = C:/ProgramFiles/ifm3d x.x.x/bin      # Please put the correct install path in case installation is done on other than default path
+    ```
+2. Usage
+
+    Clone ifm3d-example.
+
+    Add install path (IFM3D_BINARY_DIR) to CMAKE_PREFIX_PATH and build ifm3d-example.
+
 ### Dependencies
 
 #### Build tools

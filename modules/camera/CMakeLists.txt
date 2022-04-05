@@ -26,7 +26,7 @@ endif()
 ################################################
 if(BUILD_SDK_PKG)
   install(DIRECTORY ${IFM3D_CAMERA_SOURCE_DIR}/include ${IFM3D_CAMERA_BINARY_DIR}/include
-    DESTINATION ${CPACK_INSTALL_PREFIX}
+    DESTINATION .
     COMPONENT camera
     PATTERN "*.in" EXCLUDE
     PATTERN ".git" EXCLUDE

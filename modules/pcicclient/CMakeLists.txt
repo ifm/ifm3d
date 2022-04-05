@@ -20,7 +20,7 @@ endif()
 ################################################
 if(BUILD_SDK_PKG)
   install(DIRECTORY ${IFM3D_PCICCLIENT_SOURCE_DIR}/include
-    DESTINATION ${CPACK_INSTALL_PREFIX}
+    DESTINATION .
     COMPONENT pcicclient
     PATTERN "*.in" EXCLUDE
     PATTERN ".git" EXCLUDE
