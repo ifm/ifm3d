@@ -2,12 +2,11 @@
 post:oss_compilance:
   stage: post_deploy
   needs:
-    - job: deploy:linux:docker
+    - job:deploy:linux:docker
       artifacts: false
   image: 
     name: nexus.ifm.com:20443/ifm-robotics/docker-oss-compliance
     entrypoint: [""]
-  stage: build
   tags:
       - shared_docker
   cache:
