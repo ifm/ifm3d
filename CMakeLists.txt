@@ -46,16 +46,18 @@ option(BUILD_SHARED_LIBS "Build modules as shared libraries" ON)
 option(BUILD_EXAMPLES "Build the examples" OFF)
 option(BUILD_DOC "Build documentation" OFF)
 option(BUILD_IN_DEPS "download and build dependencies" ON)
+option(CREATE_WIN_INSTALLER "Create windows installer" OFF)
 
 # Installation root
-set(CPACK_SET_DESTDIR true)
+if(NOT WIN32)
+  set(CPACK_SET_DESTDIR true)
+endif()
 set(CMAKE_INSTALL_PREFIX "/usr" CACHE STRING "CMake install prefix")
 set(CPACK_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
-#add postfix d to all target binaries on Debug build
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-  set(CMAKE_DEBUG_POSTFIX d)
-endif(CMAKE_BUILD_TYPE MATCHES Debug)
+#add postfix d to all target binaries for Debug build
+set(CMAKE_DEBUG_POSTFIX d)
+
 # Installation paths
 set(_lib lib CACHE STRING "Basename of the library-directory")
 set(_bin bin CACHE STRING "Basename of the bin-directory")
@@ -105,7 +107,17 @@ if(BUILD_TESTS)
 endif()
 
 # Include third-party depencency libs
-add_subdirectory(third-party)
+if(CREATE_WIN_INSTALLER)
+  add_subdirectory(third-party EXCLUDE_FROM_ALL)
+
+  # Copy DLLs and libs to CMAKE_INSTALL_PREFIX
+  install(SCRIPT ${CMAKE_SOURCE_DIR}/cmake/windows_installer/cp_dll_script.cmake)
+
+  #Include cpack.cmake script
+  include(${CMAKE_SOURCE_DIR}/cmake/windows_installer/cpack.cmake)
+else()
+  add_subdirectory(third-party)
+endif(CREATE_WIN_INSTALLER)
 
 # Build sub-modules
 add_subdirectory(modules/camera)
@@ -170,59 +182,61 @@ endif()
 #################################################
 # Packaging stuff - for now, we build debs only
 #################################################
-file(COPY ${IFM3D_SOURCE_DIR}/cmake/utils/ifm3d-dpkg-deps.py.in
-  DESTINATION ${IFM3D_BINARY_DIR}
-  FILE_PERMISSIONS OWNER_READ
-                   OWNER_WRITE
-                   OWNER_EXECUTE
-                   GROUP_READ
-                   GROUP_EXECUTE
-                   WORLD_READ
-                   WORLD_EXECUTE
-  )
-configure_file(
-  ${IFM3D_BINARY_DIR}/ifm3d-dpkg-deps.py.in
-  ${IFM3D_BINARY_DIR}/ifm3d-dpkg-deps.py
-  @ONLY
-  )
+if(NOT WIN32)
+  file(COPY ${IFM3D_SOURCE_DIR}/cmake/utils/ifm3d-dpkg-deps.py.in
+    DESTINATION ${IFM3D_BINARY_DIR}
+    FILE_PERMISSIONS OWNER_READ
+                     OWNER_WRITE
+                     OWNER_EXECUTE
+                     GROUP_READ
+                     GROUP_EXECUTE
+                     WORLD_READ
+                     WORLD_EXECUTE
+    )
+  configure_file(
+    ${IFM3D_BINARY_DIR}/ifm3d-dpkg-deps.py.in
+    ${IFM3D_BINARY_DIR}/ifm3d-dpkg-deps.py
+    @ONLY
+    )
 
-# Turn on component-based installation
-set(CPACK_DEB_COMPONENT_INSTALL ON)
-set(CPACK_GENERATOR "DEB")
+  # Turn on component-based installation
+  set(CPACK_DEB_COMPONENT_INSTALL ON)
+  set(CPACK_GENERATOR "DEB")
 
-# Package architecture
-find_program(DPKG_CMD dpkg)
-if(NOT CMAKE_CROSSCOMPILING)
-  if(NOT DPKG_CMD)
-    message(STATUS
-      "Cannot find dpkg in your path, default to ${CMAKE_SYSTEM_PROCESSOR}.")
-    set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "${CMAKE_SYSTEM_PROCESSOR}")
+  # Package architecture
+  find_program(DPKG_CMD dpkg)
+  if(NOT CMAKE_CROSSCOMPILING)
+    if(NOT DPKG_CMD)
+      message(STATUS
+        "Cannot find dpkg in your path, default to ${CMAKE_SYSTEM_PROCESSOR}.")
+      set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "${CMAKE_SYSTEM_PROCESSOR}")
+    else()
+      execute_process(COMMAND "${DPKG_CMD}" --print-architecture
+        OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    endif(NOT DPKG_CMD)
   else()
-    execute_process(COMMAND "${DPKG_CMD}" --print-architecture
-      OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      )
-  endif(NOT DPKG_CMD)
-else()
-  # big assumption here
-  set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "armhf")
-endif()
+    # big assumption here
+    set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "armhf")
+  endif()
 
-set(CPACK_DEBIAN_PACKAGE_SECTION Libraries)
-set(CPACK_DEBIAN_PACKAGE_NAME ${GIT_PROJECT_NAME})
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "C++ sensor interface to ifm 3D cameras")
-set(CPACK_PACKAGE_VENDOR "ifm robotics")
-set(CPACK_PACKAGE_CONTACT "Sean Kelly <sean.kelly@ifm.com>")
-set(CPACK_PACKAGE_VERSION_MAJOR ${IFM3D_VERSION_MAJOR})
-set(CPACK_PACKAGE_VERSION_MINOR ${IFM3D_VERSION_MINOR})
-set(CPACK_PACKAGE_VERSION_PATCH ${IFM3D_VERSION_PATCH})
-set(CPACK_PACKAGE_FILE_NAME
-    "${GIT_PROJECT_NAME}_${IFM3D_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
+  set(CPACK_DEBIAN_PACKAGE_SECTION Libraries)
+  set(CPACK_DEBIAN_PACKAGE_NAME ${GIT_PROJECT_NAME})
+  set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "C++ sensor interface to ifm 3D cameras")
+  set(CPACK_PACKAGE_VENDOR "ifm")
+  set(CPACK_PACKAGE_CONTACT "support.robotics@ifm.com")
+  set(CPACK_PACKAGE_VERSION_MAJOR ${IFM3D_VERSION_MAJOR})
+  set(CPACK_PACKAGE_VERSION_MINOR ${IFM3D_VERSION_MINOR})
+  set(CPACK_PACKAGE_VERSION_PATCH ${IFM3D_VERSION_PATCH})
+  set(CPACK_PACKAGE_FILE_NAME
+      "${GIT_PROJECT_NAME}_${IFM3D_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
 
-# dynamically create dependencies of the various modules
-#set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON) # <-- Good idea, doesn't work for us
-add_custom_target(repackage
-  COMMAND ${IFM3D_BINARY_DIR}/ifm3d-dpkg-deps.py ${IFM3D_BINARY_DIR}/*.deb
-  )
+  # dynamically create dependencies of the various modules
+  #set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON) # <-- Good idea, doesn't work for us
+  add_custom_target(repackage
+    COMMAND ${IFM3D_BINARY_DIR}/ifm3d-dpkg-deps.py ${IFM3D_BINARY_DIR}/*.deb
+    )
 
-include(CPack)
+  include(CPack)
+endif(NOT WIN32)

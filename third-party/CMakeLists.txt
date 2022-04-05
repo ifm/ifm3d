@@ -43,7 +43,7 @@ if(BUILD_IN_DEPS)
   FetchContent_GetProperties(xmlrpc-c BINARY_DIR xmlrpc_bin_dir)
 
   list(APPEND CMAKE_MODULE_PATH "${xmlrpc_bin_dir}")
-  add_subdirectory(${xmlrpc-c_SOURCE_DIR} ${xmlrpc_bin_dir})
+  add_subdirectory(${xmlrpc_src_dir} ${xmlrpc_bin_dir})
   unset(BUILD_TOOLS)
   unset(ENABLE_EXAMPLES)
 
@@ -86,7 +86,6 @@ if(BUILD_IN_DEPS)
   list(APPEND CMAKE_MODULE_PATH "${pybind_bin_dir}")
   list(APPEND BUILTIN_INCLUDES ${pybind_src_dir}/include ${pybind_bin_dir}/include  ${pybind_bin_dir})
   set( BUILTIN_INCLUDES ${BUILTIN_INCLUDES} PARENT_SCOPE)
-
 endif(BUILD_IN_DEPS)
 
 FetchContent_Declare(
@@ -104,4 +103,3 @@ add_subdirectory(cxxopts-2.2.0)
 
 #adding websocketpp
 add_subdirectory(websocketpp)
-

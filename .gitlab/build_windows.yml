@@ -9,8 +9,17 @@ build:windows_2019:
   script:
     - mkdir build
     - cd build
-    - 'cmake.exe -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=D:/ifm3d_deps/install_VS2019 -DBUILD_TESTS=ON -DCMAKE_PREFIX_PATH="D:/ifm3d_deps/install_VS2019;D:/ifm3d_deps/install_VS2019/PCL 1.12.0" -DGTEST_CMAKE_DIR=D:/ifm3d_deps/googletest/googletest -Dgtest_force_shared_crt=TRUE ..'
+    - 'cmake.exe -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON  -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=D:/ifm3d_deps/install_VS2019 -DBUILD_MODULE_PCICCLIENT=ON -DBUILD_MODULE_OPENCV=OFF -DBUILD_TESTS=OFF -DCMAKE_PREFIX_PATH="D:/ifm3d_deps/install_VS2019;D:/ifm3d_deps/install_VS2019/PCL 1.12.0" -DGTEST_CMAKE_DIR=D:/ifm3d_deps/googletest/googletest -Dgtest_force_shared_crt=TRUE -DCREATE_WIN_INSTALLER=ON ..'
+    - "cmake.exe --build . --config Debug --target ALL_BUILD"
+    - 'cmake.exe -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=D:/ifm3d_deps/install_VS2019 -DBUILD_MODULE_PCICCLIENT=ON -DCMAKE_PREFIX_PATH="D:/ifm3d_deps/install_VS2019;D:/ifm3d_deps/install_VS2019/PCL 1.12.0" -DBUILD_TESTS=OFF -DGTEST_CMAKE_DIR=D:/ifm3d_deps/googletest/googletest -Dgtest_force_shared_crt=TRUE -DCREATE_WIN_INSTALLER=ON ..'
     - "cmake.exe --build . --config Release --target ALL_BUILD"
+    - 'cpack --config CPackConfig.cmake -C "Debug;Release"'
+    - "compress-archive -path './_CPack_Packages/win64/NSIS/ifm3d_windows_*/*' -destinationpath '../ifm3d_installer/ifm3d_windows_binaries.zip' -update -compressionlevel optimal"
+  artifacts:
+    name : "ifm3d_ windows_installer"
+    paths:
+      - ifm3d_installer/*.exe
+      - ifm3d_installer/*.zip
   rules:
     - when: on_success
 
