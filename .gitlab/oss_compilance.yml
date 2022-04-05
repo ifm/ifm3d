@@ -1,8 +1,8 @@
 # oss_compilance 
 deploy:oss_compilance:
-  stage: deploy
+  stage: .post
   needs:
-    - job: ["linux:docker"] 
+    - job: deploy:linux:docker
       artifacts: false
   image: 
     name: nexus.ifm.com:20443/ifm-robotics/docker-oss-compliance
