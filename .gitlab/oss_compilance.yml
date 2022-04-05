@@ -1,6 +1,6 @@
 # oss_compilance 
 deploy:oss_compilance:
-  stage: deploy
+  stage: post_deploy
   needs:
     - job: deploy:linux:docker
       artifacts: false
@@ -25,4 +25,3 @@ deploy:oss_compilance:
     expire_in: 1 week
   rules:
     - !reference [.tagged, rules]
-    - !reference [.nightly, rules]
