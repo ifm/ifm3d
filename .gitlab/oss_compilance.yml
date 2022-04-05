@@ -1,6 +1,6 @@
 # oss_compilance 
-post:oss_compilance:
-  stage: post_deploy
+deploy:oss_compilance:
+  stage: deploy
   needs:
     - job: deploy:linux:docker
       artifacts: false
