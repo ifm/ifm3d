@@ -1,5 +1,5 @@
 # oss_compilance 
-deploy:oss_compilance:
+post:oss_compilance:
   stage: post_deploy
   needs:
     - job: deploy:linux:docker
