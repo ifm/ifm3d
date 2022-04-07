@@ -94,6 +94,7 @@ $ sudo apt-get update && sudo apt-get -y upgrade
 $ sudo apt-get update && sudo apt-get install -y 
       git \ 
       jq \ 
+      libssl-dev \
       libcurl4-openssl-dev \
       libgtest-dev libgoogle-glog-dev  \
       libxmlrpc-c++8-dev \ 
@@ -146,7 +147,7 @@ $ sudo cmake --build . --target install
 > To give you some control over that, the build process allows you to explicitly call out which version of OpenCV you wish to use. 
 > For example, if you are using OpenCV 2.4, your `cmake` line above should look something like: `$ cmake -DCMAKE_INSTALL_PREFIX=/usr -DFORCE_OPENCV2=ON ..`. 
 > Similarly, if you are using OpenCV 3, your `cmake` line above should look something like: `$ cmake -DCMAKE_INSTALL_PREFIX=/usr -DFORCE_OPENCV3=ON ..`
-
+> Note that as of version 1.0.1, the `ifm3d-ros2` wrapper does not require OpenCV anymore.
 #### Building the Python Bindings
 
 There are several options available for building and/or installing the `ifm3dpy` module. The most simple one is to install with pip:
