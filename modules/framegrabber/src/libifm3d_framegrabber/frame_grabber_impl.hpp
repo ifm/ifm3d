@@ -22,11 +22,11 @@
 #include <system_error>
 #include <thread>
 #include <vector>
-#include <iostream>
 #include <asio/use_future.hpp>
 #include <asio.hpp>
 #include <glog/logging.h>
 #include <ifm3d/camera.h>
+#include <ifm3d/fg/schema.h>
 #include <default_organizer.hpp>
 #include <fmt/core.h>
 
@@ -59,7 +59,7 @@ namespace ifm3d
 
     void OnNewFrame(NewFrameCallback callback);
 
-    bool Start(const std::set<image_id>& images);
+    bool Start(const std::set<ifm3d::image_id>& images);
     bool Stop();
     bool IsRunning();
 
@@ -74,7 +74,8 @@ namespace ifm3d
     void SendCommand(const std::string& ticket_id, const std::string& command);
     void SendCommand(const std::string& ticket_id,
                      const std::vector<std::uint8_t>& command);
-
+    void SetSchema();
+    std::set<ifm3d::image_id> GetImageChunks(ifm3d::image_id id);
     //
     // ASIO event handlers
     //
@@ -98,14 +99,13 @@ namespace ifm3d
     ifm3d::CameraBase::Ptr cam_;
 
     std::string cam_ip_;
-    int pcic_port_;
+    uint16_t pcic_port_;
     asio::io_service io_service_;
     asio::ip::tcp::socket sock_;
     asio::ip::tcp::endpoint endpoint_;
     std::unique_ptr<std::thread> thread_;
     std::unique_ptr<Organizer> organizer_;
     std::set<image_id> requested_images_;
-
     //
     // Holds the raw 'Ticket' bytes received from the sensor:
     //
@@ -224,12 +224,11 @@ ifm3d::FrameGrabber::Impl::WaitForFrame()
 }
 
 bool
-ifm3d::FrameGrabber::Impl::Start(const std::set<image_id>& images)
+ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::image_id>& images)
 {
   if (!this->thread_)
     {
       this->requested_images_ = images;
-
       this->thread_ = std::make_unique<std::thread>(
         std::bind(&ifm3d::FrameGrabber::Impl::Run, this));
 
@@ -317,7 +316,7 @@ ifm3d::FrameGrabber::Impl::SendCommand(
   const std::vector<std::uint8_t>& content)
 {
   std::string prefix =
-    fmt::format("{0}L{1:09}\r\n{0}", TICKET_COMMAND_p, 4 + content.size() + 2);
+    fmt::format("{0}L{1:09}\r\n{0}", ticket_id, 4 + content.size() + 2);
   std::string suffix = "\r\n";
 
   asio::write(this->sock_,
@@ -335,16 +334,13 @@ ifm3d::FrameGrabber::Impl::ConnectHandler(const asio::error_code& ec)
       throw ifm3d::error_t(ec.value());
     }
 
+  // Set the schema
+  SetSchema();
+
   if (requested_images_.find(static_cast<image_id>(image_chunk::ALGO_DEBUG)) !=
       requested_images_.end())
     {
       SendCommand(TICKET_COMMAND_p, "p8");
-    }
-
-  if (this->cam_->AmI(Camera::device_family::O3D))
-    {
-      std::string schema = json({}).dump(); // TODO
-      std::string schema_len = fmt::format("{:09}", schema.length());
     }
 
   this->sock_.async_read_some(
@@ -436,6 +432,13 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
     {
       this->ErrorHandler();
     }
+  else if (ticket_id == ifm3d::TICKET_COMMAND_c)
+    {
+      if (this->payload_buffer_.at(4) != '*')
+        {
+          LOG(ERROR) << "Error Setting Schema on device";
+        }
+    }
 
   this->payload_buffer_.clear();
 
@@ -503,6 +506,99 @@ ifm3d::FrameGrabber::Impl::ErrorHandler()
     {
       LOG(WARNING) << "Bad error message!";
     }
+}
+
+void
+ifm3d::FrameGrabber::Impl::SetSchema()
+{
+  std::set<ifm3d::image_id> image_chunk_ids;
+  for (auto image_id : this->requested_images_)
+    {
+      auto image_ids = GetImageChunks(image_id);
+      image_chunk_ids.insert(image_ids.begin(), image_ids.end());
+    }
+
+  // Add confidence image
+  image_chunk_ids.insert(ifm3d::image_id::CONFIDENCE);
+  // Add O3D specific invariants
+  if (this->cam_->AmI(ifm3d::CameraBase::device_family::O3D))
+    {
+      image_chunk_ids.insert(ifm3d::image_id::EXTRINSIC_CALIBRATION);
+    }
+
+  std::string schema = ifm3d::make_schema(image_chunk_ids, cam_->WhoAmI());
+
+  if (this->cam_->AmI(ifm3d::CameraBase::device_family::O3X))
+    {
+      // O3X does not set the schema via PCIC, rather we set it via
+      // XMLRPC using the camera interface.
+      VLOG(IFM3D_PROTO_DEBUG) << "o3x schema: " << std::endl << schema;
+      try
+        {
+          this->cam_->FromJSONStr(schema);
+        }
+      catch (const std::exception& ex)
+        {
+          LOG(ERROR) << "Failed to set schema on O3X: " << ex.what();
+          LOG(WARNING) << "Running with currently applied schema";
+        }
+      return;
+    }
+
+  // Setting schema for O3D O3R devices
+  const std::string c_length = fmt::format("{0}{1:09}", "c", schema.size());
+  SendCommand(TICKET_COMMAND_c, c_length + schema);
+  VLOG(IFM3D_PROTO_DEBUG) << "schema: " << schema;
+  return;
+}
+
+std::set<ifm3d::image_id>
+ifm3d::FrameGrabber::Impl::GetImageChunks(image_id id)
+{
+  auto device_type = cam_->WhoAmI();
+
+  switch (static_cast<image_id>(id))
+    {
+      case image_id::XYZ: {
+        if (device_type == ifm3d::CameraBase::device_family::O3R)
+          return {
+            image_id::XYZ,
+            image_id::O3R_DISTANCE_IMAGE_INFORMATION,
+            image_id::RADIAL_DISTANCE,
+            image_id::AMPLITUDE,
+          };
+        else if (device_type == ifm3d::CameraBase::device_family::O3D)
+          return {
+            image_id::CARTESIAN_X,
+            image_id::CARTESIAN_Y,
+            image_id::CARTESIAN_Z,
+          };
+        else
+          return {id};
+      }
+    case image_id::RADIAL_DISTANCE:
+    case image_id::AMPLITUDE:
+    case image_id::EXPOSURE_TIME:
+    case image_id::EXTRINSIC_CALIBRATION:
+    case image_id::INTRINSIC_CALIBRATION:
+      case image_id::INVERSE_INTRINSIC_CALIBRATION: {
+        if (device_type == ifm3d::CameraBase::device_family::O3R)
+          {
+            return {id,
+                    image_id::O3R_DISTANCE_IMAGE_INFORMATION,
+                    image_id::RADIAL_DISTANCE,
+                    image_id::AMPLITUDE};
+          }
+        else
+          {
+            return {id};
+          }
+      }
+
+    default:
+      return {id};
+    }
+  return {};
 }
 
 #endif // IFM3D_FG_FRAMEGRABBER_IMPL_H

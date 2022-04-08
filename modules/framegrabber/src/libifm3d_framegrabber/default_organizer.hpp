@@ -24,8 +24,6 @@ namespace ifm3d
     Result Organize(const std::vector<uint8_t>& data,
                     const std::set<image_id>& requestedImages) override;
 
-    std::set<image_chunk> GetImageChunks(image_id id) override;
-
   private:
     Image CreatePixelMask(Image& confidence);
     std::map<image_id, Image> ExtractDistanceImageInfo(
