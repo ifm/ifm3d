@@ -31,7 +31,7 @@ ifm3d::FrameGrabber::OnNewFrame(NewFrameCallback callback)
 }
 
 bool
-ifm3d::FrameGrabber::Start(const std::set<image_id>& images)
+ifm3d::FrameGrabber::Start(const std::set<ifm3d::image_id>& images)
 {
   return this->pImpl->Start(images);
 }

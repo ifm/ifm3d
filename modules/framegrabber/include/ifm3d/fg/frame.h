@@ -42,7 +42,8 @@ namespace ifm3d
     O3R_DISTANCE_IMAGE_INFORMATION = static_cast<uint64_t>(ifm3d::image_chunk::O3R_DISTANCE_IMAGE_INFORMATION),
     JSON_MODEL = static_cast<uint64_t>(ifm3d::image_chunk::JSON_MODEL),
     ALGO_DEBUG = static_cast<uint64_t>(ifm3d::image_chunk::ALGO_DEBUG),
-
+    EXPOSURE_TIME,
+    ILLUMINATION_TEMP,
     XYZ = std::numeric_limits<std::uint32_t>::max(), // The point cloud encoded as a 3 channel XYZ image
 
     // clang-format on
