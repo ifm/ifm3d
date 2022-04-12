@@ -1,8 +1,11 @@
 # ifm3dpy Viewer
 
-This is an example application for retrieving different kinds of images from an 
+This is an example application for retrieving different kinds of images from an O3R platform.
 
-## Installation ## 
+## Download the code
+If you built ifm3d from source, you already have the code, in ifm3d/examples/o3r/viewer. 
+If not, you can find the script [here](https://github.com/ifm/ifm3d/tree/o3r/main-next/examples/o3r/viewer).
+## Installation 
 
 The recommended way is to use a venv. 
 
@@ -24,13 +27,17 @@ python3 -m venv my_venv
 |          | PowerShell      | PS C:\> <venv>\Scripts\Activate.ps1     |
 
 ### Install ifm3dpy
+#### From pip
+```sh
+pip install ifm3dpy
+```
 #### From Source
 ```sh
 # In the ifm3d root folder
 pip install -r requirements.txt
 pip install .
 ```
-Consider [the python documentation](../../../doc/python.md) for more details.
+Consider [the python documentation](../../../doc/sphinx/content/python.md) for more details.
 
 ### Install requirements
 ```sh
