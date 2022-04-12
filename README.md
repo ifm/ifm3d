@@ -1,19 +1,24 @@
 
 # ifm3d Overview
 
-Library and utilities for working with ifm pmd-based 3D ToF Cameras.
+Library and utilities for working with ifm pmd-based 3D ToF Perception devices. Compatible with the O3R, O3D and O3X platforms. 
+This library is available in python, c++, and has wrappers for ROS and ROS2.
+Comprehensive documentation is available on [ifm3d.com](https://ifm3d.com/).
 
 ![Build (Ubuntu)](https://github.com/ifm/ifm3d/workflows/Build%20(Ubuntu)/badge.svg?branch=master)
 ![Build (Windows)](https://github.com/ifm/ifm3d/workflows/Build%20(Windows)/badge.svg?branch=master)
 
-## Release versions
+| 3D cloud | Distance | RGB |
+| -- | -- | -- |
+| ![3D cloud of a stack of boxes](xyz.png) | ![Distance image of a stack of boxes](distance.png) | ![RGB image of a stack of boxes](jpeg.png) |
+## Released Versions
 
 ⚠️ Note that the `master` branch is generally in a work in progress state and you probably want to use a
 tagged [release version](https://github.com/ifm/ifm3d/releases) for production.
 
-⚠️ branch `o3r/main-next` is an early adopters version which may/will contain changes to the interface in the future.
+⚠️ Branch `o3r/main-next` is an early adopters version which may/will contain changes to the interface in the future.
 
-## Current Revision
+### Current Revision
 
 <table>
   <tr>
@@ -25,12 +30,12 @@ tagged [release version](https://github.com/ifm/ifm3d/releases) for production.
     <th>Notes</th>
   </tr>
   <tr>
-    <td>0.92.0 </td>
+    <td>0.92.0, 0.93.0 </td>
     <td>1.6.2114, 1.23.1522, 1.23.1522, 1.23.2848, 1.30.4123, 1.30.5309</td>
     <td>1.0.122, 1.0.126, 1.0.156, 1.1.190</td>
     <td>0.13.11</td>
     <td>16.04,18.04,20.04</td>
-    <td>Removed Boost dependence,Added clang-format,SPDX license Headers</td>
+    <td>Removed Boost dependency, Added clang-format, SPDX license Headers</td>
   </tr>
 </table>
 
@@ -63,9 +68,9 @@ The ifm3d software is organized into modules, they are:
     <td>Provides a bridge from raw camera bytes to OpenCV and PCL image encodings.</td>
   </tr>
   <tr>
-    <td>opencv</td>
+    <td>opencv - DEPRECATED</td>
     <td>This is an officially supported and alternate data container to the
-    default Image module. This module provides a bridge from raw camera bytes
+    STLImage module. This module provides a bridge from raw camera bytes
     to OpenCV image encodings without any dependence upon PCL.</td>
   </tr>
   <tr>
@@ -93,22 +98,25 @@ The ifm3d software is organized into modules, they are:
   </tr>
 </table>
 
-As of version 0.9.0, we have removed the `viewer` sub-command from the `ifm3d`
-command line tool (part of the `tools` module). The objective was to lessen the
-dependencies for the core library. However, a *clone* of the pre-0.9.0
-viewer is available in its own repository:
-[ifm3d-pcl-viewer](https://github.com/ifm/ifm3d-pcl-viewer).
+## Installation instructions
+Please refer to the corresponding section on [ifm3d.com](https://ifm3d.com/).
 
-## Additional Resources 
-* [Viewing the Point Cloud](https://github.com/ifm/ifm3d-pcl-viewer)
-* [ROS](https://github.com/ifm/ifm3d-ros)
-* [ROS 2](https://github.com/ifm/ifm3d-ros2)
+## Supported docker containers
+Docker containers are available for the ifm3d library, both on [ghcr](https://github.com/orgs/ifm/packages?repo_name=ifm3d) and on the [dockerhub](https://hub.docker.com/r/ifmrobotics/ifm3d). 
+You can pull them with:
+```bash
+docker pull ghcr.io/ifm/ifm3d:stable
+```
+OR
+```bash
+docker pull ifmrobotics/ifm3d:stable
+```
+Note that we provide 2 tags, *stable* always points to the latest tagged version, and *latest* is built nightly with the latest changes on the o3r/main-next branch. The *latest* tag is typically a work in progress.
 
-## Known Issues, Bugs, and our TODO list
+## Report a bug and check the known issues
 
 Please see the [Github Issue Tracker](https://github.com/ifm/ifm3d/issues).
 
-
 ## LICENSE
 
-Please see the file called [LICENSE](LICENSE).
+Please see the [LICENSE](LICENSE) file.
