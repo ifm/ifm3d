@@ -25,13 +25,13 @@ public:
 
   virtual Result
   Organize(const std::vector<uint8_t>& data,
-           const std::set<ifm3d::ImageId>& requestedImages)
+           const std::set<ifm3d::image_id>& requestedImages)
   {
     return {};
   };
 
   virtual std::set<ifm3d::image_chunk>
-  GetImageChunks(ifm3d::ImageId id)
+  GetImageChunks(ifm3d::image_id id)
   {
     return {};
   };

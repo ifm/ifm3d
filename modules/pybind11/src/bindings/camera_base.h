@@ -20,43 +20,43 @@ bind_camera_base(pybind11::module_& m)
 
   // Types
 
-  py::enum_<ifm3d::CameraBase::boot_mode>(camera_base, "boot_mode")
-    .value("PRODUCTIVE", ifm3d::CameraBase::boot_mode::PRODUCTIVE)
-    .value("RECOVERY", ifm3d::CameraBase::boot_mode::RECOVERY);
+  py::enum_<ifm3d::CameraBase::boot_mode>(camera_base, "boot_mode", "Enum: Camera boot up modes.")
+    .value("PRODUCTIVE", ifm3d::CameraBase::boot_mode::PRODUCTIVE, "the normal runtime firmware comes up")
+    .value("RECOVERY", ifm3d::CameraBase::boot_mode::RECOVERY, "allows you to flash new firmware");
 
-  py::enum_<ifm3d::CameraBase::operating_mode>(camera_base, "operating_mode")
-    .value("RUN", ifm3d::CameraBase::operating_mode::RUN)
-    .value("EDIT", ifm3d::CameraBase::operating_mode::EDIT);
+  py::enum_<ifm3d::CameraBase::operating_mode>(camera_base, "operating_mode", "Enum: Camera operating modes")
+    .value("RUN", ifm3d::CameraBase::operating_mode::RUN, "streaming pixel data")
+    .value("EDIT", ifm3d::CameraBase::operating_mode::EDIT, "configuring the device/applications");
 
-  py::enum_<ifm3d::CameraBase::trigger_mode>(camera_base, "trigger_mode")
+  py::enum_<ifm3d::CameraBase::trigger_mode>(camera_base, "trigger_mode", "Enum: Image acquisition trigger modes")
     .value("FREE_RUN", ifm3d::CameraBase::trigger_mode::FREE_RUN)
     .value("SW", ifm3d::CameraBase::trigger_mode::SW);
 
-  py::enum_<ifm3d::CameraBase::import_flags>(camera_base, "import_flags")
+  py::enum_<ifm3d::CameraBase::import_flags>(camera_base, "import_flags", "Enum: Import flags used when importing a Vision Assistant configuration")
     .value("GLOBAL", ifm3d::CameraBase::import_flags::GLOBAL)
     .value("NET", ifm3d::CameraBase::import_flags::NET)
     .value("APPS", ifm3d::CameraBase::import_flags::APPS);
 
-  py::enum_<ifm3d::CameraBase::spatial_filter>(camera_base, "spatial_filter")
+  py::enum_<ifm3d::CameraBase::spatial_filter>(camera_base, "spatial_filter", "Enum: Convenience constants for spatial filter types")
     .value("OFF", ifm3d::CameraBase::spatial_filter::OFF)
     .value("MEDIAN", ifm3d::CameraBase::spatial_filter::MEDIAN)
     .value("MEAN", ifm3d::CameraBase::spatial_filter::MEAN)
     .value("BILATERAL", ifm3d::CameraBase::spatial_filter::BILATERAL);
 
-  py::enum_<ifm3d::CameraBase::temporal_filter>(camera_base, "temporal_filter")
+  py::enum_<ifm3d::CameraBase::temporal_filter>(camera_base, "temporal_filter", "Enum: Convenience constants for temporal filter types")
     .value("OFF", ifm3d::CameraBase::temporal_filter::OFF)
     .value("MEAN", ifm3d::CameraBase::temporal_filter::MEAN)
     .value("ADAPTIVE_EXP", ifm3d::CameraBase::temporal_filter::ADAPTIVE_EXP);
 
-  py::enum_<ifm3d::CameraBase::mfilt_mask_size>(camera_base, "mfilt_mask_size")
-  .value("_3x3", ifm3d::CameraBase::mfilt_mask_size::_3x3)
-  .value("_5x5", ifm3d::CameraBase::mfilt_mask_size::_5x5);
+  py::enum_<ifm3d::CameraBase::mfilt_mask_size>(camera_base, "mfilt_mask_size", "Enum: Convenient constants for median filter mask sizes")
+    .value("_3x3", ifm3d::CameraBase::mfilt_mask_size::_3x3)
+    .value("_5x5", ifm3d::CameraBase::mfilt_mask_size::_5x5);
 
-  py::enum_<ifm3d::CameraBase::device_family>(camera_base, "device_family")
-  .value("UNKNOWN", ifm3d::CameraBase::device_family::UNKNOWN)
-  .value("O3D", ifm3d::CameraBase::device_family::O3D)
-  .value("O3X", ifm3d::CameraBase::device_family::O3X)
-  .value("O3R", ifm3d::CameraBase::device_family::O3R);
+  py::enum_<ifm3d::CameraBase::device_family>(camera_base, "device_family", "Enum: The family of the device")
+    .value("UNKNOWN", ifm3d::CameraBase::device_family::UNKNOWN)
+    .value("O3D", ifm3d::CameraBase::device_family::O3D)
+    .value("O3X", ifm3d::CameraBase::device_family::O3X)
+    .value("O3R", ifm3d::CameraBase::device_family::O3R);
 
   // Ctor
 

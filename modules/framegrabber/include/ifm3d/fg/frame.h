@@ -16,16 +16,49 @@
 
 namespace ifm3d
 {
-  using ImageId = std::uint64_t;
+  /**
+   * image_ids available for use with the default Organizer.
+   */
+  enum class image_id : uint64_t
+  {
+    // clang-format off
+
+    RADIAL_DISTANCE = static_cast<uint64_t>(ifm3d::image_chunk::RADIAL_DISTANCE),
+    AMPLITUDE = static_cast<uint64_t>(ifm3d::image_chunk::AMPLITUDE),
+    RAW_AMPLITUDE = static_cast<uint64_t>(ifm3d::image_chunk::RAW_AMPLITUDE),
+    GRAY = static_cast<uint64_t>(ifm3d::image_chunk::GRAY),
+    DISTANCE_NOISE = static_cast<uint64_t>(ifm3d::image_chunk::DISTANCE_NOISE),
+    CARTESIAN_X = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_X),
+    CARTESIAN_Y = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_Y),
+    CARTESIAN_Z = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_Z),
+    CARTESIAN_ALL = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_ALL),
+    UNIT_VECTOR_ALL = static_cast<uint64_t>(ifm3d::image_chunk::UNIT_VECTOR_ALL),
+    JPEG = static_cast<uint64_t>(ifm3d::image_chunk::JPEG),
+    CONFIDENCE = static_cast<uint64_t>(ifm3d::image_chunk::CONFIDENCE),
+    DIAGNOSTIC_DATA = static_cast<uint64_t>(ifm3d::image_chunk::DIAGNOSTIC_DATA),
+    EXTRINSIC_CALIBRATION = static_cast<uint64_t>(ifm3d::image_chunk::EXTRINSIC_CALIBRATION),
+    INTRINSIC_CALIBRATION = static_cast<uint64_t>(ifm3d::image_chunk::INTRINSIC_CALIBRATION),
+    INVERSE_INTRINSIC_CALIBRATION = static_cast<uint64_t>(ifm3d::image_chunk::INVERSE_INTRINSIC_CALIBRATION),
+    O3R_DISTANCE_IMAGE_INFORMATION = static_cast<uint64_t>(ifm3d::image_chunk::O3R_DISTANCE_IMAGE_INFORMATION),
+    JSON_MODEL = static_cast<uint64_t>(ifm3d::image_chunk::JSON_MODEL),
+    ALGO_DEBUG = static_cast<uint64_t>(ifm3d::image_chunk::ALGO_DEBUG),
+
+    XYZ = std::numeric_limits<std::uint32_t>::max(), // The point cloud encoded as a 3 channel XYZ image
+
+    // clang-format on
+  };
   using TimePointT = std::chrono::time_point<std::chrono::system_clock,
                                              std::chrono::nanoseconds>;
 
+  /**
+   * Represent a frame of data received from the the device.
+   */
   class Frame
   {
   public:
     using Ptr = std::shared_ptr<Frame>;
 
-    Frame(const std::map<ImageId, Image>& images,
+    Frame(const std::map<image_id, Image>& images,
           const std::vector<TimePointT> timestamps);
     ~Frame();
 
@@ -35,25 +68,37 @@ namespace ifm3d
     Frame(Frame&& t);
     Frame& operator=(Frame&& t);
 
+    /**
+     * @brief Get the timestamps of the frame
+     *
+     * @return the timestamps
+     */
     std::vector<TimePointT> TimeStamps();
 
-    bool HasImage(ImageId id);
+    /**
+     * @brief Check if a image with the given id is available in this frame
+     *
+     * @param id the id of the image
+     * @return true if a image with the give id is available
+     * @return false if no image with the given id is availale
+     */
+    bool HasImage(image_id id);
 
-    Image& GetImage(ImageId key);
+    /**
+     * @brief Get the image with the given id
+     *
+     * @param id the id of the image to get
+     * @return Image& Reference to the requrest image
+     * @throw std::out_of_range if no image with the give id exists
+     */
+    Image& GetImage(image_id id);
 
-    template <typename T>
-    typename std::enable_if_t<std::is_enum_v<T>, Image&>
-    GetImage(T key)
-    {
-      return this->GetImage(static_cast<ImageId>(key));
-    }
-
-    decltype(std::declval<std::map<ImageId, Image>>().begin())
+    decltype(std::declval<std::map<image_id, Image>>().begin())
     begin() noexcept;
-    decltype(std::declval<const std::map<ImageId, Image>>().begin()) begin()
+    decltype(std::declval<const std::map<image_id, Image>>().begin()) begin()
       const noexcept;
-    decltype(std::declval<std::map<ImageId, Image>>().end()) end() noexcept;
-    decltype(std::declval<const std::map<ImageId, Image>>().end()) end()
+    decltype(std::declval<std::map<image_id, Image>>().end()) end() noexcept;
+    decltype(std::declval<const std::map<image_id, Image>>().end()) end()
       const noexcept;
 
   private:

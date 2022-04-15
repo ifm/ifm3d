@@ -28,7 +28,6 @@ RUN apt-get update \
         python3-pytest \
         python3-setuptools \
         python3-sphinx \
-        python3-sphinx-automodapi \
         python3-sphinx-rtd-theme \
     && rm -rf /var/lib/apt/lists/*
 

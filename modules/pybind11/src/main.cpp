@@ -91,18 +91,21 @@ PYBIND11_MODULE(ifm3dpy, m)
             execution state and output string.
       )");
 
-  m.doc() = "Bindings for the ifm3d Camera Library\n\n"
-            "Variables\n"
-            "______\n\n"
-            ".. csv-table::\n"
-            "\n";
+  m.doc() = R"(
+    Bindings for the ifm3d Camera Library
+
+    **Variables**
+
+    .. csv-table::
+
+  )";
 
   auto add_attr = [&m](const std::string& name,
                        const auto& value,
                        const std::string& doc = "") {
     m.attr(name.c_str()) = value;
     m.doc() =
-      m.doc().cast<std::string>() + "   \"" + name + "\", \"" + doc + "\"\n";
+      m.doc().cast<std::string>() + "     \"" + name + "\", \"" + doc + "\"\n";
   };
 
   // Module metadata
