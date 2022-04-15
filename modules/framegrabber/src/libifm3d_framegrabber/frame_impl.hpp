@@ -18,35 +18,35 @@ namespace ifm3d
   class Frame::Impl
   {
   public:
-    Impl(const std::map<ImageId, Image>& images,
+    Impl(const std::map<image_id, Image>& images,
          const std::vector<TimePointT> timestamps);
 
     std::vector<ifm3d::TimePointT> TimeStamps();
 
-    bool HasImage(ImageId id);
+    bool HasImage(image_id id);
 
-    Image& GetImage(ImageId id);
+    Image& GetImage(image_id id);
 
-    decltype(std::declval<std::map<ImageId, Image>>().begin())
+    decltype(std::declval<std::map<image_id, Image>>().begin())
     begin() noexcept;
-    decltype(std::declval<const std::map<ImageId, Image>>().begin()) begin()
+    decltype(std::declval<const std::map<image_id, Image>>().begin()) begin()
       const noexcept;
-    decltype(std::declval<std::map<ImageId, Image>>().end()) end() noexcept;
-    decltype(std::declval<const std::map<ImageId, Image>>().end()) end()
+    decltype(std::declval<std::map<image_id, Image>>().end()) end() noexcept;
+    decltype(std::declval<const std::map<image_id, Image>>().end()) end()
       const noexcept;
 
   protected:
     //---------------------
     // State
     //---------------------
-    std::map<ImageId, Image> images_;
+    std::map<image_id, Image> images_;
     std::vector<TimePointT> timestamps_;
 
   }; // end: class FrameGrabber::Impl
 
 } // end: namespace ifm3d
 
-ifm3d::Frame::Impl::Impl(const std::map<ImageId, Image>& images,
+ifm3d::Frame::Impl::Impl(const std::map<image_id, Image>& images,
                          const std::vector<TimePointT> timestamps)
   : images_(images),
     timestamps_(timestamps)
@@ -59,36 +59,36 @@ ifm3d::Frame::Impl::TimeStamps()
 }
 
 bool
-ifm3d::Frame::Impl::HasImage(ImageId id)
+ifm3d::Frame::Impl::HasImage(image_id id)
 {
   return images_.find(id) != images_.end();
 }
 
 ifm3d::Image&
-ifm3d::Frame::Impl::GetImage(ImageId id)
+ifm3d::Frame::Impl::GetImage(image_id id)
 {
-  return images_[id];
+  return images_.at(id);
 }
 
-decltype(std::declval<std::map<ifm3d::ImageId, ifm3d::Image>>().begin())
+decltype(std::declval<std::map<ifm3d::image_id, ifm3d::Image>>().begin())
 ifm3d::Frame::Impl::begin() noexcept
 {
   return images_.begin();
 }
 
-decltype(std::declval<const std::map<ifm3d::ImageId, ifm3d::Image>>().begin())
+decltype(std::declval<const std::map<ifm3d::image_id, ifm3d::Image>>().begin())
 ifm3d::Frame::Impl::begin() const noexcept
 {
   return images_.begin();
 }
 
-decltype(std::declval<std::map<ifm3d::ImageId, ifm3d::Image>>().end())
+decltype(std::declval<std::map<ifm3d::image_id, ifm3d::Image>>().end())
 ifm3d::Frame::Impl::end() noexcept
 {
   return images_.end();
 }
 
-decltype(std::declval<const std::map<ifm3d::ImageId, ifm3d::Image>>().end())
+decltype(std::declval<const std::map<ifm3d::image_id, ifm3d::Image>>().end())
 ifm3d::Frame::Impl::end() const noexcept
 {
   return images_.end();

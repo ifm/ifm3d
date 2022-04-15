@@ -16,7 +16,7 @@ bind_framegrabber(pybind11::module_& m)
 {
   // clang-format off
 
-  bind_future<ifm3d::Frame::Ptr>(m, "FutureAwaitable__FramePtr");
+  bind_future<ifm3d::Frame::Ptr>(m, "_FutureAwaitable__FramePtr");
 
   py::class_<ifm3d::FrameGrabber, ifm3d::FrameGrabber::Ptr> framegrabber(
     m,
@@ -45,17 +45,17 @@ bind_framegrabber(pybind11::module_& m)
 
   framegrabber.def(
     "start",
-    [](const ifm3d::FrameGrabber::Ptr& fg, const std::set<ifm3d::ImageId>& images) {
+    [](const ifm3d::FrameGrabber::Ptr& fg, const std::set<ifm3d::image_id>& images) {
       return fg->Start(images);
     },
-    py::arg("images") = std::set<ifm3d::ImageId>{},
+    py::arg("images") = std::set<ifm3d::image_id>{},
     R"(
       Starts the worker thread for streaming in pixel data from the device
 
       Parameters
       ----------
       images : List[uint64]
-          A List of ImageId which to receive
+          A List of image_id which to receive
     )"
   );
 

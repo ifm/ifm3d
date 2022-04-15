@@ -28,10 +28,14 @@ author = 'ifm electronic'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx_automodapi.automodapi',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.napoleon',
     'myst_parser',
     'sphinx_tabs.tabs',
 ]
+
+autosummary_generate = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -79,3 +83,12 @@ myst_enable_extensions = [
 ]
 
 sphinx_tabs_disable_tab_closing = True
+
+
+def filter_bases(app, name, obj, options, bases):
+    bases[:] = [None.__class__ if x.__name__ ==
+                "pybind11_object" else x for x in bases]
+
+
+def setup(app):
+    app.connect('autodoc-process-bases', filter_bases)
