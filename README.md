@@ -39,6 +39,7 @@ tagged [release version](https://github.com/ifm/ifm3d/releases) for production.
   </tr>
 </table>
 
+> Note that a full compatibility matrix is available [here](ifm3d/doc/sphinx/content/swcompat:ifm3d%20Software%20Compatibility%20Matrix) for older versions.
 ## Organization of the Software
 
 The ifm3d software is organized into modules, they are:
