@@ -76,43 +76,43 @@ namespace ifm3d
     /**
      * Starts the worker thread for streaming in pixel data from the device
      *
-     * @param[in] images set of ImageIds for receiving, passing in an empty set
-     * will received all available images.
-     * The ImageIds are specific to the current Organizer. See image_id for a
-     * list of ImageIds available with the default Organizer
+     * @param[in] images set of image_ids for receiving, passing in an empty
+     * set will received all available images. The image_ids are specific to
+     * the current Organizer. See image_id for a list of image_ids available
+     * with the default Organizer
      */
-    bool Start(const std::set<ImageId>& images = {});
+    bool Start(const std::set<image_id>& images = {});
 
     /**
      * Starts the worker thread for streaming in pixel data from the device
      *
-     * @param[in] images set of ImageIds for receiving, passing in an empty set
-     * will received all available images.
-     * The ImageIds are specific to the current Organizer. See image_id for a
-     * list of ImageIds available with the default Organizer
+     * @param[in] images set of image_ids for receiving, passing in an empty
+     * set will received all available images. The image_ids are specific to
+     * the current Organizer. See image_id for a list of image_ids available
+     * with the default Organizer
      */
     template <typename T, typename... Args>
-    typename std::enable_if_t<std::is_enum_v<T>, bool>
-    Start(std::set<ImageId>& images, T id, Args... args)
+    bool
+    Start(std::set<image_id>& images, T id, Args... args)
     {
-      images.insert(static_cast<ImageId>(id));
+      images.insert(id);
       return Start(images, args...);
     }
 
     /**
      * Starts the worker thread for streaming in pixel data from the device
      *
-     * @param[in] images set of ImageIds for receiving, passing in an empty set
-     * will received all available images.
-     * The ImageIds are specific to the current Organizer. See image_id for a
-     * list of ImageIds available with the default Organizer
+     * @param[in] images set of image_ids for receiving, passing in an empty
+     * set will received all available images. The image_ids are specific to
+     * the current Organizer. See image_id for a list of image_ids available
+     * with the default Organizer
      */
     template <typename T, typename... Args>
-    typename std::enable_if_t<std::is_enum_v<T>, bool>
+    bool
     Start(T id, Args... args)
     {
-      std::set<ImageId> images;
-      images.insert(static_cast<ImageId>(id));
+      std::set<image_id> images;
+      images.insert(id);
       return Start(images, args...);
     }
 

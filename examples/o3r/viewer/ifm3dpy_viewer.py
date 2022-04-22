@@ -6,7 +6,7 @@
 # THE PROGRAM IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND.
 #
 
-from ifm3dpy import O3RCamera, FrameGrabber, Frame
+from ifm3dpy import O3RCamera, FrameGrabber, image_id
 import cv2
 import argparse
 import asyncio
@@ -19,22 +19,22 @@ except ModuleNotFoundError:
 
 
 def get_jpeg(frame):
-    return cv2.imdecode(frame.get_image(260), cv2.IMREAD_UNCHANGED)
+    return cv2.imdecode(frame.get_image(image_id.JPEG), cv2.IMREAD_UNCHANGED)
 
 
 def get_distance(frame):
-    img = cv2.normalize(frame.get_image(100), None, 0,
+    img = cv2.normalize(frame.get_image(image_id.RADIAL_DISTANCE), None, 0,
                         255, cv2.NORM_MINMAX, cv2.CV_8U)
     img = cv2.applyColorMap(img, cv2.COLORMAP_JET)
     return img
 
 
 def get_amplitude(frame):
-    return frame.get_image(101)
+    return frame.get_image(image_id.AMPLITUDE)
 
 
 def get_xyz(frame):
-    return frame.get_image(4294967296)
+    return frame.get_image(image_id.XYZ)
 
 
 async def display_2d(fg, getter, title):

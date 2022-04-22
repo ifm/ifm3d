@@ -2,6 +2,11 @@ Python API Reference
 ====================
 
 ```{eval-rst}
-.. automodapi:: ifm3dpy
-    :no-inheritance-diagram:
+.. autosummary::
+    :toctree: _autosummary
+    :template: module.rst
+    :recursive:
+
+    ifm3dpy
+
 ```
