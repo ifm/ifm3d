@@ -59,7 +59,7 @@ namespace ifm3d
 
     void OnNewFrame(NewFrameCallback callback);
 
-    bool Start(const std::set<ImageId>& images);
+    bool Start(const std::set<image_id>& images);
     bool Stop();
     bool IsRunning();
 
@@ -104,7 +104,7 @@ namespace ifm3d
     asio::ip::tcp::endpoint endpoint_;
     std::unique_ptr<std::thread> thread_;
     std::unique_ptr<Organizer> organizer_;
-    std::set<ImageId> requested_images_;
+    std::set<image_id> requested_images_;
 
     //
     // Holds the raw 'Ticket' bytes received from the sensor:
@@ -224,7 +224,7 @@ ifm3d::FrameGrabber::Impl::WaitForFrame()
 }
 
 bool
-ifm3d::FrameGrabber::Impl::Start(const std::set<ImageId>& images)
+ifm3d::FrameGrabber::Impl::Start(const std::set<image_id>& images)
 {
   if (!this->thread_)
     {
@@ -335,7 +335,7 @@ ifm3d::FrameGrabber::Impl::ConnectHandler(const asio::error_code& ec)
       throw ifm3d::error_t(ec.value());
     }
 
-  if (requested_images_.find(static_cast<ImageId>(image_chunk::ALGO_DEBUG)) !=
+  if (requested_images_.find(static_cast<image_id>(image_chunk::ALGO_DEBUG)) !=
       requested_images_.end())
     {
       SendCommand(TICKET_COMMAND_p, "p8");

@@ -43,9 +43,9 @@ ifm3d::DefaultOrganizer::CreatePixelMask(Image& confidence)
 
 ifm3d::Organizer::Result
 ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
-                                  const std::set<ImageId>& requested_images)
+                                  const std::set<image_id>& requested_images)
 {
-  std::map<ImageId, Image> images;
+  std::map<image_id, Image> images;
 
   auto chunks = get_image_chunks(data, IMG_BUFF_START);
 
@@ -112,7 +112,7 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
                                1,
                                pixel_format::FORMAT_8U);
 
-      images[static_cast<ImageId>(image_chunk::JPEG)] = jpeg;
+      images[static_cast<image_id>(image_chunk::JPEG)] = jpeg;
 
       chunks.erase(image_chunk::JPEG);
     }
@@ -120,22 +120,22 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
   for (const auto& chunk : chunks)
     {
       if (requested_images.empty() ||
-          requested_images.find(static_cast<ImageId>(chunk.first)) !=
+          requested_images.find(static_cast<image_id>(chunk.first)) !=
             requested_images.end())
         {
           auto image = create_image(data, chunk.second, width, height);
 
           if (mask.has_value() &&
-              ShouldMask(static_cast<ImageId>(chunk.first)))
+              ShouldMask(static_cast<image_id>(chunk.first)))
             {
               mask_image(image, mask.value());
             }
 
-          images[static_cast<ImageId>(chunk.first)] = image;
+          images[static_cast<image_id>(chunk.first)] = image;
         }
     }
 
-  if (requested_images.empty() || requested_images.find(static_cast<ImageId>(
+  if (requested_images.empty() || requested_images.find(static_cast<image_id>(
                                     image_id::XYZ)) != requested_images.end())
     {
       if (distance_image_info != nullptr)
@@ -161,7 +161,7 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
                                           fmt,
                                           mask);
 
-              images[static_cast<ImageId>(image_id::XYZ)] = xyz;
+              images[static_cast<image_id>(image_id::XYZ)] = xyz;
             }
         }
     }
@@ -170,7 +170,7 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
 }
 
 std::set<ifm3d::image_chunk>
-ifm3d::DefaultOrganizer::GetImageChunks(ImageId id)
+ifm3d::DefaultOrganizer::GetImageChunks(image_id id)
 {
   switch (static_cast<image_id>(id))
     {
@@ -186,7 +186,7 @@ ifm3d::DefaultOrganizer::GetImageChunks(ImageId id)
   return {};
 }
 
-std::map<ifm3d::ImageId, ifm3d::Image>
+std::map<ifm3d::image_id, ifm3d::Image>
 ifm3d::DefaultOrganizer::ExtractDistanceImageInfo(
   std::shared_ptr<DistanceImageInfo> distance_image_info,
   const std::optional<Image>& mask)
@@ -225,20 +225,20 @@ ifm3d::DefaultOrganizer::ExtractDistanceImageInfo(
                               mask);
 
   return {
-    {static_cast<ImageId>(image_chunk::AMPLITUDE), amplitude},
-    {static_cast<ImageId>(image_chunk::RADIAL_DISTANCE), distance},
-    {static_cast<ImageId>(image_id::XYZ), xyz},
+    {static_cast<image_id>(image_chunk::AMPLITUDE), amplitude},
+    {static_cast<image_id>(image_chunk::RADIAL_DISTANCE), distance},
+    {static_cast<image_id>(image_id::XYZ), xyz},
   };
 }
 
 bool
-ifm3d::DefaultOrganizer::ShouldMask(ImageId id)
+ifm3d::DefaultOrganizer::ShouldMask(image_id id)
 {
   switch (id)
     {
-    case static_cast<ImageId>(image_chunk::UNIT_VECTOR_ALL):
-    case static_cast<ImageId>(image_chunk::CONFIDENCE):
-    case static_cast<ImageId>(image_chunk::JPEG):
+    case static_cast<image_id>(image_chunk::UNIT_VECTOR_ALL):
+    case static_cast<image_id>(image_chunk::CONFIDENCE):
+    case static_cast<image_id>(image_chunk::JPEG):
       return false;
 
     default:
