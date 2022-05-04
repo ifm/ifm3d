@@ -10,6 +10,10 @@
 #include <cstddef>
 #include <cstdint>
 
+#ifndef M_PI
+#  define M_PI (3.141592653589793f)
+#endif
+
 /** @brief c code example for evalIntrinsic function
 
     @param vx the x component of the unit vectors, array must have width*height
