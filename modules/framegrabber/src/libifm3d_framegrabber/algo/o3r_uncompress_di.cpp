@@ -10,6 +10,10 @@
 #include <cstddef>
 #include <cstdint>
 
+#ifndef M_PI
+#  define M_PI (3.141592653589793f)
+#endif
+
 /** @brief c code example for evalIntrinsic function
 
     @param vx the x component of the unit vectors, array must have width*height
@@ -70,6 +74,47 @@ namespace ifm3d
                   vx[idx] = fnorm * dx;
                   vy[idx] = fnorm * dy;
                   vz[idx] = fnorm;
+                  ++idx;
+                }
+            }
+        }
+        return 0;
+        case 2: {
+          float fx = modelParameters[0];
+          float fy = modelParameters[1];
+          float mx = modelParameters[2];
+          float my = modelParameters[3];
+          float alpha = modelParameters[4];
+          float k1 = modelParameters[5];
+          float k2 = modelParameters[6];
+          float k3 = modelParameters[7];
+          float k4 = modelParameters[8];
+          float theta_max = modelParameters[9];
+          uint16_t ix, iy;
+          uint32_t idx = 0;
+          for (iy = 0; iy < height; iy++)
+            {
+              for (ix = 0; ix < width; ix++)
+                {
+                  float theta, theta_s, sin_theta, phi_s, p_radial;
+                  float cx = ((float)ix + 0.5f - mx) / fx;
+                  float cy = ((float)iy + 0.5f - my) / fy;
+                  cx -= alpha * cy;
+                  theta_s = sqrtf(cx * cx + cy * cy);
+                  phi_s = (theta_s < theta_max) ? theta_s : theta_max;
+                  phi_s = phi_s * phi_s;
+                  p_radial =
+                    1.f +
+                    phi_s * (k1 + phi_s * (k2 + phi_s * (k3 + phi_s * k4)));
+                  theta = theta_s * p_radial;
+                  theta =
+                    (theta < 0.0f) ? 0.0f : ((theta > M_PI) ? M_PI : theta);
+                  sin_theta = sinf(theta);
+                  vx[idx] =
+                    (theta_s > 0.0f) ? ((cx / theta_s) * sin_theta) : 0.0f;
+                  vy[idx] =
+                    (theta_s > 0.0f) ? ((cy / theta_s) * sin_theta) : 0.0f;
+                  vz[idx] = cosf(theta);
                   ++idx;
                 }
             }
