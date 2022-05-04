@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Multiple timestamp support for python
+- O3R support for model type 2
+
 ### Fixed
 - Error code from 7 digit to 6 digit for Lib error codes
 - Discover app for O3R devices
