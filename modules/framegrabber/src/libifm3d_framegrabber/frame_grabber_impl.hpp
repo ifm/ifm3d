@@ -69,7 +69,6 @@ namespace ifm3d
 
   protected:
     void Run();
-    void SetTriggerBuffer();
 
     void SendCommand(const std::string& ticket_id, const std::string& command);
     void SendCommand(const std::string& ticket_id,
@@ -203,11 +202,19 @@ ifm3d::FrameGrabber::Impl::SWTrigger()
 
       return;
     }
-
   //
   // For O3D and other bi-directional PCIC implementations
   //
-  this->io_service_.post([this]() { SendCommand(TICKET_COMMAND_t, "t"); });
+
+  try
+    {
+      this->io_service_.post([this]() { SendCommand(TICKET_COMMAND_t, "t"); });
+    }
+  catch(std::exception &e)
+    {
+      std::cout << e.what() << std::endl;
+    }
+
 }
 
 void
@@ -219,7 +226,6 @@ ifm3d::FrameGrabber::Impl::OnNewFrame(NewFrameCallback callback)
 std::shared_future<ifm3d::Frame::Ptr>
 ifm3d::FrameGrabber::Impl::WaitForFrame()
 {
-  Start({});
   return this->wait_for_frame_future;
 }
 
@@ -231,6 +237,8 @@ ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::image_id>& images)
       this->requested_images_ = images;
       this->thread_ = std::make_unique<std::thread>(
         std::bind(&ifm3d::FrameGrabber::Impl::Run, this));
+
+    //  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
       return true;
     }
@@ -437,6 +445,13 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
       if (this->payload_buffer_.at(4) != '*')
         {
           LOG(ERROR) << "Error Setting Schema on device";
+        }
+    }
+  else if (ticket_id == ifm3d::TICKET_COMMAND_t)
+    {
+      if (this->payload_buffer_.at(4) != '*')
+        {
+          LOG(ERROR) << "Error Sending trigger on device";
         }
     }
 
