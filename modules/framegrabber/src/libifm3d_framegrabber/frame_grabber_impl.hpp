@@ -78,7 +78,7 @@ namespace ifm3d
     //
     // ASIO event handlers
     //
-    void ConnectHandler(const asio::error_code& ec);
+    void ConnectHandler();
 
     void TicketHandler(const asio::error_code& ec,
                        std::size_t bytes_xferd,
@@ -238,8 +238,6 @@ ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::image_id>& images)
       this->thread_ = std::make_unique<std::thread>(
         std::bind(&ifm3d::FrameGrabber::Impl::Run, this));
 
-    //  std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
       return true;
     }
 
@@ -288,9 +286,9 @@ ifm3d::FrameGrabber::Impl::Run()
 
   try
     {
-      this->sock_.async_connect(
-        this->endpoint_,
-        std::bind(&Impl::ConnectHandler, this, std::placeholders::_1));
+      this->sock_.connect(this->endpoint_);
+
+      this->ConnectHandler();
 
       this->io_service_.run();
     }
@@ -300,6 +298,10 @@ ifm3d::FrameGrabber::Impl::Run()
         {
           LOG(WARNING) << ex.what();
         }
+    }
+  catch (const asio::error_code& err)
+    {
+      LOG(WARNING) << "Network error " << err.value() << ": " << err.message();
     }
   catch (const std::exception& ex)
     {
@@ -335,7 +337,7 @@ ifm3d::FrameGrabber::Impl::SendCommand(
 }
 
 void
-ifm3d::FrameGrabber::Impl::ConnectHandler(const asio::error_code& ec)
+ifm3d::FrameGrabber::Impl::ConnectHandler()
 {
   if (ec)
     {
