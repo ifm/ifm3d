@@ -66,6 +66,7 @@ namespace ifm3d
     std::shared_future<Frame::Ptr> WaitForFrame();
 
     void SetOrganizer(std::unique_ptr<Organizer> organizer);
+    void OnAsyncError(AsynErrorCallback callback);
 
   protected:
     void Run();
@@ -125,6 +126,7 @@ namespace ifm3d
     std::vector<std::uint8_t> payload_buffer_;
 
     FrameGrabber::NewFrameCallback new_frame_callback_;
+    FrameGrabber::AsynErrorCallback async_error_callback_;
     std::promise<Frame::Ptr> wait_for_frame_promise;
     std::shared_future<Frame::Ptr> wait_for_frame_future;
 
@@ -511,6 +513,7 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
     }
 }
 
+#include<iostream>
 void
 ifm3d::FrameGrabber::Impl::ErrorHandler()
 {
@@ -520,12 +523,21 @@ ifm3d::FrameGrabber::Impl::ErrorHandler()
 
   if (buffer_valid)
     {
-      auto error_code = std::stoi(std::string(this->payload_buffer_.end() - 9,
-                                              this->payload_buffer_.end()));
-      auto error_message = std::string(this->payload_buffer_.begin() + 4,
-                                       this->payload_buffer_.end() - 9);
+      auto error_code =
+        std::stol(std::string(this->payload_buffer_.end() - 9 - 2,
+                              this->payload_buffer_.end() - 2));
 
-      // TODO
+      std::string error_message = {};
+      // 4-star 9-error_code 2-\r\n 1-:
+      if (buffer_size > 4 + 9 + 2 + 1)
+        {
+          error_message = std::string(this->payload_buffer_.begin() + 4,
+                                      this->payload_buffer_.end() - 9 - 2 - 1);
+        }
+      if (async_error_callback_)
+        {
+          async_error_callback_(error_code, error_message);
+        }
     }
   else
     {
@@ -646,4 +658,11 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(image_id id)
   return {};
 }
 
+void
+ifm3d::FrameGrabber::Impl::OnAsyncError(AsynErrorCallback callback)
+{
+  this->async_error_callback_ = callback;
+  // enable async error outputs
+  this->io_service_.post([this]() { SendCommand(TICKET_COMMAND_p, "p3"); });
+}
 #endif // IFM3D_FG_FRAMEGRABBER_IMPL_H

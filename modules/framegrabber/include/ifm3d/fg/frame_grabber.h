@@ -28,6 +28,8 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<FrameGrabber>;
     using NewFrameCallback = std::function<void(Frame::Ptr)>;
+    using AsynErrorCallback =
+      std::function<void(const int, const std::string&)>;
 
     /**
      * Stores a reference to the passed in camera shared pointer
@@ -140,6 +142,14 @@ namespace ifm3d
      * @param organizer The new organizer to be used
      */
     void SetOrganizer(std::unique_ptr<Organizer> organizer);
+
+    /**
+     * This function will enable the async error messages on device.
+     * The callback will be executed whenever a async error
+     * are avaliable. It receives a  error code and error string
+     * to the received async error as an argument.
+     */
+    void OnAsyncError(AsynErrorCallback callback = nullptr);
 
   private:
     class Impl;
