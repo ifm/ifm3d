@@ -169,23 +169,6 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
   return {images, timestamps};
 }
 
-std::set<ifm3d::image_chunk>
-ifm3d::DefaultOrganizer::GetImageChunks(image_id id)
-{
-  switch (static_cast<image_id>(id))
-    {
-    case image_id::XYZ:
-      return {
-        image_chunk::CARTESIAN_X,
-        image_chunk::CARTESIAN_Y,
-        image_chunk::CARTESIAN_Z,
-        image_chunk::O3R_DISTANCE_IMAGE_INFORMATION,
-      };
-    }
-
-  return {};
-}
-
 std::map<ifm3d::image_id, ifm3d::Image>
 ifm3d::DefaultOrganizer::ExtractDistanceImageInfo(
   std::shared_ptr<DistanceImageInfo> distance_image_info,
