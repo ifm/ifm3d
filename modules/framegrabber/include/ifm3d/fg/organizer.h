@@ -31,8 +31,6 @@ namespace ifm3d
 
     virtual Result Organize(const std::vector<uint8_t>& data,
                             const std::set<image_id>& requestedImages) = 0;
-
-    virtual std::set<image_chunk> GetImageChunks(image_id id) = 0;
   }; // end: class Organizer
 
 } // end: namespace ifm3d

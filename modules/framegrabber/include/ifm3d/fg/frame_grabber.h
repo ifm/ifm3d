@@ -81,7 +81,9 @@ namespace ifm3d
      * the current Organizer. See image_id for a list of image_ids available
      * with the default Organizer
      */
-    bool Start(const std::set<image_id>& images = {});
+    bool Start(const std::set<ifm3d::image_id>& images = {
+                 ifm3d::image_id::AMPLITUDE,
+                 ifm3d::image_id::XYZ});
 
     /**
      * Starts the worker thread for streaming in pixel data from the device
