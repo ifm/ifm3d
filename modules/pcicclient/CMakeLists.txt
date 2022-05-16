@@ -19,8 +19,8 @@ endif()
 ## Manage installation process
 ################################################
 if(BUILD_SDK_PKG)
-  install(DIRECTORY ${IFM3D_PCICCLIENT_SOURCE_DIR}/include
-    DESTINATION .
+  install(DIRECTORY ${IFM3D_PCICCLIENT_SOURCE_DIR}/include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     COMPONENT pcicclient
     PATTERN "*.in" EXCLUDE
     PATTERN ".git" EXCLUDE

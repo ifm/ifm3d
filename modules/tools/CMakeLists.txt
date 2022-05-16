@@ -19,8 +19,8 @@ if(BUILD_SDK_PKG)
     list(APPEND PKG_EXCLUDES PATTERN "include/ifm3d/tools/swupdater" EXCLUDE)
   endif()
 
-  install(DIRECTORY ${IFM3D_TOOLS_SOURCE_DIR}/include
-    DESTINATION .
+  install(DIRECTORY ${IFM3D_TOOLS_SOURCE_DIR}/include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     COMPONENT tools
     PATTERN "*.in" EXCLUDE
     PATTERN ".git" EXCLUDE

@@ -25,8 +25,8 @@ endif()
 ## Manage installation process
 ################################################
 if(BUILD_SDK_PKG)
-  install(DIRECTORY ${IFM3D_CAMERA_SOURCE_DIR}/include ${IFM3D_CAMERA_BINARY_DIR}/include
-    DESTINATION .
+  install(DIRECTORY ${IFM3D_CAMERA_SOURCE_DIR}/include/ ${IFM3D_CAMERA_BINARY_DIR}/include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     COMPONENT camera
     PATTERN "*.in" EXCLUDE
     PATTERN ".git" EXCLUDE
