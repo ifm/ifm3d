@@ -55,7 +55,7 @@ namespace ifm3d
          std::optional<std::uint16_t> nat_pcic_port);
     ~Impl();
 
-    void SWTrigger();
+    std::shared_future<void> SWTrigger();
 
     void OnNewFrame(NewFrameCallback callback);
 
@@ -69,7 +69,6 @@ namespace ifm3d
 
   protected:
     void Run();
-    void SetTriggerBuffer();
 
     void SendCommand(const std::string& ticket_id, const std::string& command);
     void SendCommand(const std::string& ticket_id,
@@ -79,7 +78,7 @@ namespace ifm3d
     //
     // ASIO event handlers
     //
-    void ConnectHandler(const asio::error_code& ec);
+    void ConnectHandler();
 
     void TicketHandler(const asio::error_code& ec,
                        std::size_t bytes_xferd,
@@ -92,6 +91,7 @@ namespace ifm3d
 
     void ImageHandler();
     void ErrorHandler();
+    void TriggerHandler();
 
     //---------------------
     // State
@@ -128,6 +128,9 @@ namespace ifm3d
     std::promise<Frame::Ptr> wait_for_frame_promise;
     std::shared_future<Frame::Ptr> wait_for_frame_future;
 
+    std::promise<void> trigger_feedback_promise_;
+    std::shared_future<void> trigger_feedback_future_;
+
   }; // end: class FrameGrabber::Impl
 
 } // end: namespace ifm3d
@@ -147,7 +150,8 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::CameraBase::Ptr cam,
     io_service_(),
     sock_(io_service_),
     organizer_(std::make_unique<DefaultOrganizer>()),
-    wait_for_frame_future(wait_for_frame_promise.get_future())
+    wait_for_frame_future(wait_for_frame_promise.get_future()),
+    trigger_feedback_future_(trigger_feedback_promise_.get_future())
 {
   if (!pcic_port.has_value() && this->cam_->AmI(Camera::device_family::O3D))
     {
@@ -186,28 +190,44 @@ ifm3d::FrameGrabber::Impl::~Impl()
 // "Public" interface
 //-------------------------------------
 
-void
+std::shared_future<void>
 ifm3d::FrameGrabber::Impl::SWTrigger()
 {
-  if (this->cam_->AmI(ifm3d::CameraBase::device_family::O3X))
-    {
-      try
-        {
-          this->cam_->ForceTrigger();
-        }
-      catch (const ifm3d::error_t& ex)
-        {
-          LOG(ERROR) << "While trying to software trigger the camera: "
-                     << ex.code() << " - " << ex.what();
-        }
+  this->io_service_.post([this]() {
+    auto reinitialize_promise = [this]() {
+      this->trigger_feedback_promise_ = std::promise<void>();
+      this->trigger_feedback_future_ = trigger_feedback_promise_.get_future();
+    };
+    try
+      {
+        if (this->cam_->AmI(ifm3d::CameraBase::device_family::O3X))
+          {
+            this->cam_->ForceTrigger();
+            this->trigger_feedback_promise_.set_value();
+            reinitialize_promise();
+          }
+        else
+          {
+            SendCommand(TICKET_COMMAND_t, "t");
+          }
+      }
+    catch (const ifm3d::error_t& ex)
+      {
+        LOG(ERROR) << "While trying to software trigger the camera: "
+                   << ex.code() << " - " << ex.what();
+        this->trigger_feedback_promise_.set_exception(
+          std::current_exception());
+        reinitialize_promise();
+      }
+    catch (std::exception& e)
+      {
+        this->trigger_feedback_promise_.set_exception(
+          std::current_exception());
+        reinitialize_promise();
+      }
+  });
 
-      return;
-    }
-
-  //
-  // For O3D and other bi-directional PCIC implementations
-  //
-  this->io_service_.post([this]() { SendCommand(TICKET_COMMAND_t, "t"); });
+  return this->trigger_feedback_future_;
 }
 
 void
@@ -219,7 +239,6 @@ ifm3d::FrameGrabber::Impl::OnNewFrame(NewFrameCallback callback)
 std::shared_future<ifm3d::Frame::Ptr>
 ifm3d::FrameGrabber::Impl::WaitForFrame()
 {
-  Start({});
   return this->wait_for_frame_future;
 }
 
@@ -280,9 +299,9 @@ ifm3d::FrameGrabber::Impl::Run()
 
   try
     {
-      this->sock_.async_connect(
-        this->endpoint_,
-        std::bind(&Impl::ConnectHandler, this, std::placeholders::_1));
+      this->sock_.connect(this->endpoint_);
+
+      this->ConnectHandler();
 
       this->io_service_.run();
     }
@@ -292,10 +311,17 @@ ifm3d::FrameGrabber::Impl::Run()
         {
           LOG(WARNING) << ex.what();
         }
+      this->wait_for_frame_promise.set_exception(std::current_exception());
+    }
+  catch (const asio::error_code& err)
+    {
+      LOG(WARNING) << "Network error " << err.value() << ": " << err.message();
+      this->wait_for_frame_promise.set_exception(std::current_exception());
     }
   catch (const std::exception& ex)
     {
       LOG(WARNING) << "Exception: " << ex.what();
+      this->wait_for_frame_promise.set_exception(std::current_exception());
     }
 
   LOG(INFO) << "FrameGrabber thread done.";
@@ -327,13 +353,8 @@ ifm3d::FrameGrabber::Impl::SendCommand(
 }
 
 void
-ifm3d::FrameGrabber::Impl::ConnectHandler(const asio::error_code& ec)
+ifm3d::FrameGrabber::Impl::ConnectHandler()
 {
-  if (ec)
-    {
-      throw ifm3d::error_t(ec.value());
-    }
-
   // Set the schema
   SetSchema();
 
@@ -439,6 +460,10 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
           LOG(ERROR) << "Error Setting Schema on device";
         }
     }
+  else if (ticket_id == ifm3d::TICKET_COMMAND_t)
+    {
+      this->TriggerHandler();
+    }
 
   this->payload_buffer_.clear();
 
@@ -506,6 +531,26 @@ ifm3d::FrameGrabber::Impl::ErrorHandler()
     {
       LOG(WARNING) << "Bad error message!";
     }
+}
+
+void
+ifm3d::FrameGrabber::Impl::TriggerHandler()
+{
+  if (this->payload_buffer_.at(4) != '*')
+    {
+      LOG(ERROR) << "Error Sending trigger on device";
+      this->trigger_feedback_promise_.set_exception(
+        std::make_exception_ptr(error_t(IFM3D_CANNOT_SW_TRIGGER)));
+    }
+  else
+    {
+      this->trigger_feedback_promise_.set_value();
+    }
+
+  // re-intialize promise
+  this->trigger_feedback_promise_ = std::promise<void>();
+  this->trigger_feedback_future_ = trigger_feedback_promise_.get_future();
+  return;
 }
 
 void

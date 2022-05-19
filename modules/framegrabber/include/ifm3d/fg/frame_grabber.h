@@ -65,7 +65,7 @@ namespace ifm3d
      * know it is not needed. The "cost" of the NOOP is undefined and incurring
      * it is not recommended.
      */
-    void SWTrigger();
+    std::shared_future<void> SWTrigger();
 
     /**
      * The callback will be executed whenever a new frame is available.
