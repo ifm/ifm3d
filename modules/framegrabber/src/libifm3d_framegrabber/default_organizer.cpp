@@ -119,6 +119,13 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
 
   for (const auto& chunk : chunks)
     {
+      // for O3D only as this chunk donot need to create image
+      if (chunk.first == ifm3d::image_chunk::DIAGNOSTIC_DATA ||
+          chunk.first == ifm3d::image_chunk::EXTRINSIC_CALIBRATION)
+        {
+          continue;
+        }
+
       if (requested_images.empty() ||
           requested_images.find(static_cast<image_id>(chunk.first)) !=
             requested_images.end())

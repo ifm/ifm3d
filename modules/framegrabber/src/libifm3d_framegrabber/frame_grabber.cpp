@@ -18,10 +18,10 @@ ifm3d::FrameGrabber::FrameGrabber(ifm3d::CameraBase::Ptr cam,
 
 ifm3d::FrameGrabber::~FrameGrabber() = default;
 
-void
+std::shared_future<void>
 ifm3d::FrameGrabber::SWTrigger()
 {
-  this->pImpl->SWTrigger();
+  return this->pImpl->SWTrigger();
 }
 
 void
