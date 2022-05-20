@@ -93,6 +93,7 @@ namespace ifm3d
     void ImageHandler();
     void ErrorHandler();
     void TriggerHandler();
+    std::string CalculateAsycCommand();
 
     //---------------------
     // State
@@ -363,7 +364,7 @@ ifm3d::FrameGrabber::Impl::ConnectHandler()
   if (requested_images_.find(static_cast<image_id>(image_chunk::ALGO_DEBUG)) !=
       requested_images_.end())
     {
-      SendCommand(TICKET_COMMAND_p, "p8");
+      SendCommand(TICKET_COMMAND_p, CalculateAsycCommand());
     }
 
   this->sock_.async_read_some(
@@ -528,7 +529,7 @@ ifm3d::FrameGrabber::Impl::ErrorHandler()
                               this->payload_buffer_.end() - 2));
 
       std::string error_message = {};
-      // 4-star 9-error_code 2-\r\n 1-:
+      // 4-ticket 9-error_code 2-\r\n 1-:
       if (buffer_size > 4 + 9 + 2 + 1)
         {
           error_message = std::string(this->payload_buffer_.begin() + 4,
@@ -638,7 +639,7 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(image_id id)
     case image_id::EXPOSURE_TIME:
     case image_id::EXTRINSIC_CALIBRATION:
     case image_id::INTRINSIC_CALIBRATION:
-      case image_id::INVERSE_INTRINSIC_CALIBRATION: {
+    case image_id::INVERSE_INTRINSIC_CALIBRATION: {
         if (device_type == ifm3d::CameraBase::device_family::O3R)
           {
             return {id,
@@ -651,7 +652,8 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(image_id id)
             return {id};
           }
       }
-
+    case image_id::ALGO_DEBUG:
+      return {};
     default:
       return {id};
     }
@@ -663,6 +665,50 @@ ifm3d::FrameGrabber::Impl::OnAsyncError(AsynErrorCallback callback)
 {
   this->async_error_callback_ = callback;
   // enable async error outputs
-  this->io_service_.post([this]() { SendCommand(TICKET_COMMAND_p, "p3"); });
+  this->io_service_.post(
+    [this]() { SendCommand(TICKET_COMMAND_p, CalculateAsycCommand()); });
+}
+
+std::string
+ifm3d::FrameGrabber::Impl::CalculateAsycCommand()
+{
+  // schema is empty then disable all  async async outputs
+  if (this->requested_images_.empty() &&
+      this->async_error_callback_ == nullptr)
+    {
+      return "p0";
+    }
+  // only async error is needed
+  if (this->requested_images_.empty() && this->async_error_callback_)
+    {
+      return "p2";
+    }
+  // only async data is needed
+  if (this->requested_images_.count(ifm3d::image_id::ALGO_DEBUG) == 0 &&
+      this->async_error_callback_ == nullptr)
+    {
+      return "p1";
+    }
+  // schema only contains ifm3d::Image_id::ALGO_DEBUG
+  if (this->requested_images_.size() == 1 &&
+      this->requested_images_.count(ifm3d::image_id::ALGO_DEBUG) &&
+      this->async_error_callback_ == nullptr)
+    {
+      return "p8";
+    }
+  // schema contains ifm3d::image_id::ALGO_DEBUG and other data
+  // enable everything
+  if (this->requested_images_.size() > 1 &&
+      this->requested_images_.count(ifm3d::image_id::ALGO_DEBUG))
+    {
+      return "pF";
+    }
+  // ALGO DEBUG not needed but async error is needed along with other data
+  if (this->requested_images_.size() > 1 &&
+      this->requested_images_.count(ifm3d::image_id::ALGO_DEBUG) == 0 &&
+      this->async_error_callback_)
+    {
+      return "p3";
+    }
 }
 #endif // IFM3D_FG_FRAMEGRABBER_IMPL_H
