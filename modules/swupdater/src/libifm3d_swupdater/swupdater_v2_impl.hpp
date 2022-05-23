@@ -21,7 +21,7 @@
 #include <websocketpp/client.hpp>
 #include <websocketpp/common/thread.hpp>
 #include <websocketpp/common/memory.hpp>
-#include <ifm3d/camera/camera.h>
+#include <ifm3d/camera/legacy_device.h>
 #include <ifm3d/camera/err.h>
 #include <ifm3d/camera/logging.h>
 #include <ifm3d/contrib/nlohmann/json.hpp>
