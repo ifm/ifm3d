@@ -134,7 +134,7 @@ ifm3d::O3R::Impl::Port(const std::string& port)
 
   if (port_data.is_null())
     {
-      throw ifm3d::error_t(IFM3D_INVALID_PORT);
+      throw ifm3d::Error(IFM3D_INVALID_PORT);
     }
 
   return {port,

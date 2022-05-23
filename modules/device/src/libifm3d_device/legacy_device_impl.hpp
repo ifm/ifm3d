@@ -157,7 +157,7 @@ namespace ifm3d
           this->SetOperatingMode(ifm3d::LegacyDevice::operating_mode::EDIT);
           retval = f();
         }
-      catch (const ifm3d::error_t& ex)
+      catch (const ifm3d::Error& ex)
         {
           LOG(ERROR) << ex.what();
           this->CancelSession();
@@ -176,7 +176,7 @@ namespace ifm3d
           this->SetOperatingMode(ifm3d::LegacyDevice::operating_mode::EDIT);
           f();
         }
-      catch (const ifm3d::error_t& ex)
+      catch (const ifm3d::Error& ex)
         {
           LOG(ERROR) << ex.what();
           this->CancelSession();
@@ -472,7 +472,7 @@ ifm3d::LegacyDevice::Impl::CancelSession()
       this->_XCallSession("cancelSession");
       this->SetSessionID("");
     }
-  catch (const ifm3d::error_t& ex)
+  catch (const ifm3d::Error& ex)
     {
       LOG(WARNING) << "Failed to cancel session: " << this->SessionID()
                    << " -> " << ex.what();
@@ -528,7 +528,7 @@ ifm3d::LegacyDevice::Impl::SetTemporaryApplicationParameters(
         }
       else
         {
-          throw(ifm3d::error_t(IFM3D_INVALID_PARAM));
+          throw(ifm3d::Error(IFM3D_INVALID_PARAM));
         }
     }
 

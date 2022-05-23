@@ -88,20 +88,20 @@ namespace ifm3d
 
           if (std::strstr(ex.what(), "HTTP response code is 407, not 200"))
             {
-              throw ifm3d::error_t(IFM3D_PROXY_AUTH_REQUIRED);
+              throw ifm3d::Error(IFM3D_PROXY_AUTH_REQUIRED);
             }
           if (!rpc->isFinished())
             {
-              throw ifm3d::error_t(IFM3D_XMLRPC_TIMEOUT);
+              throw ifm3d::Error(IFM3D_XMLRPC_TIMEOUT);
             }
           else if (!rpc->isSuccessful())
             {
               xmlrpc_c::fault f = rpc->getFault();
-              throw ifm3d::error_t(f.getCode(), f.getDescription());
+              throw ifm3d::Error(f.getCode(), f.getDescription());
             }
           else
             {
-              throw ifm3d::error_t(IFM3D_XMLRPC_FAILURE, ex.what());
+              throw ifm3d::Error(IFM3D_XMLRPC_FAILURE, ex.what());
             }
         }
     }

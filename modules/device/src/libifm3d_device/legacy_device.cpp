@@ -99,7 +99,7 @@ ifm3d::LegacyDevice::MakeShared(const std::string& ip,
   if (base == nullptr)
     {
       LOG(ERROR) << "Incompatible device";
-      throw ifm3d::error_t(IFM3D_UNSUPPORTED_DEVICE);
+      throw ifm3d::Error(IFM3D_UNSUPPORTED_DEVICE);
     }
 
   return base;
@@ -192,7 +192,7 @@ ifm3d::LegacyDevice::UnitVectors()
     }
 
   LOG(ERROR) << "The device does not support the XMLRPC UnitVectors accessor";
-  throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+  throw ifm3d::Error(IFM3D_UNSUPPORTED_OP);
 }
 
 int
@@ -256,7 +256,7 @@ ifm3d::LegacyDevice::CreateApplication(const std::string& type)
   if (this->AmI(device_family::O3X))
     {
       LOG(ERROR) << "O3X only supports a single app, create not supported";
-      throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+      throw ifm3d::Error(IFM3D_UNSUPPORTED_OP);
     }
 
   return this->pImpl->WrapInEditSession<int>(
@@ -269,7 +269,7 @@ ifm3d::LegacyDevice::CopyApplication(int idx)
   if (this->AmI(device_family::O3X))
     {
       LOG(ERROR) << "O3X only supports a single app, copy not supported";
-      throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+      throw ifm3d::Error(IFM3D_UNSUPPORTED_OP);
     }
 
   return this->pImpl->WrapInEditSession<int>(
@@ -282,7 +282,7 @@ ifm3d::LegacyDevice::DeleteApplication(int idx)
   if (this->AmI(device_family::O3X))
     {
       LOG(ERROR) << "O3X only supports a single app, delete not supported";
-      throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+      throw ifm3d::Error(IFM3D_UNSUPPORTED_OP);
     }
 
   this->pImpl->WrapInEditSession(
@@ -461,7 +461,7 @@ ifm3d::LegacyDevice::FromJSON_(
       LOG(ERROR) << "The passed in " << name << " json should be an object!";
       VLOG(IFM3D_TRACE) << "Invalid JSON was: " << j_new.dump();
 
-      throw ifm3d::error_t(IFM3D_JSON_ERROR);
+      throw ifm3d::Error(IFM3D_JSON_ERROR);
     }
 
   if (idx > 0)
@@ -516,7 +516,7 @@ ifm3d::LegacyDevice::FromJSON_(
               SetFunc(key, val);
               do_save = true;
             }
-          catch (const ifm3d::error_t& ex)
+          catch (const ifm3d::Error& ex)
             {
               if (ex.code() == IFM3D_READONLY_PARAM)
                 {
@@ -580,7 +580,7 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
       LOG(ERROR) << "The passed in json should be an object!";
       VLOG(IFM3D_TRACE) << "Invalid JSON was: " << j.dump();
 
-      throw ifm3d::error_t(IFM3D_JSON_ERROR);
+      throw ifm3d::Error(IFM3D_JSON_ERROR);
     }
 
   // we use this to lessen the number of overall network calls
@@ -616,7 +616,7 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
             LOG(ERROR) << "The `Apps` element should be an array!";
             VLOG(IFM3D_TRACE) << "Invalid JSON was: " << j_apps.dump();
 
-            throw ifm3d::error_t(IFM3D_JSON_ERROR);
+            throw ifm3d::Error(IFM3D_JSON_ERROR);
           }
 
         VLOG(IFM3D_TRACE) << "Looping over applications";
@@ -626,7 +626,7 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
               {
                 LOG(ERROR) << "All 'Apps' must be a JSON object!";
                 VLOG(IFM3D_TRACE) << "Invalid JSON was: " << j_app.dump();
-                throw ifm3d::error_t(IFM3D_JSON_ERROR);
+                throw ifm3d::Error(IFM3D_JSON_ERROR);
               }
 
             // First we determine if we are editing an existing application or
@@ -669,7 +669,7 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
             if (!app_found)
               {
                 LOG(ERROR) << "Could not find an application at index=" << idx;
-                throw ifm3d::error_t(IFM3D_JSON_ERROR);
+                throw ifm3d::Error(IFM3D_JSON_ERROR);
               }
 
             // at this point both the new and current
@@ -808,7 +808,7 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
               {
                 this->pImpl->SaveNet();
               }
-            catch (const ifm3d::error_t& ex)
+            catch (const ifm3d::Error& ex)
               {
                 if (ex.code() == IFM3D_XMLRPC_TIMEOUT)
                   {
