@@ -98,7 +98,7 @@ namespace ifm3d
    * Exception wrapper for library and system errors encountered by the
    * library.
    */
-  class error_t : public std::exception
+  class Error : public std::exception
   {
   public:
     /**
@@ -106,7 +106,7 @@ namespace ifm3d
      * instance variables that may be retrieved with a call to @ref code() and
      * @ref message().
      */
-    error_t(int errnum, const std::string& msg = "");
+    Error(int errnum, const std::string& msg = "");
 
     /**
      * Exception message

@@ -206,7 +206,7 @@ ifm3d::strerror(int errnum)
     }
 }
 
-ifm3d::error_t::error_t(int errnum, const std::string& msg)
+ifm3d::Error::Error(int errnum, const std::string& msg)
   : errnum_(errnum),
     errmsg_(msg),
     what_(msg.empty() ? ifm3d::strerror(errnum) :
@@ -214,19 +214,19 @@ ifm3d::error_t::error_t(int errnum, const std::string& msg)
 {}
 
 int
-ifm3d::error_t::code() const noexcept
+ifm3d::Error::code() const noexcept
 {
   return this->errnum_;
 }
 
 const char*
-ifm3d::error_t::what() const noexcept
+ifm3d::Error::what() const noexcept
 {
   return this->what_.c_str();
 }
 
 const char*
-ifm3d::error_t::message() const noexcept
+ifm3d::Error::message() const noexcept
 {
   return this->errmsg_.c_str();
 }

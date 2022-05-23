@@ -147,7 +147,7 @@ ifm3d::Device::MakeShared(const std::string& ip,
                             O3R_MINIMUM_FIRWARE_SUPPORTED);
 
               VLOG(IFM3D_TRACE) << error_msg;
-              throw error_t(IFM3D_INVALID_FIRMWARE_VERSION, error_msg);
+              throw Error(IFM3D_INVALID_FIRMWARE_VERSION, error_msg);
             }
         }
       if (base->AmI(device_family::O3X))
@@ -166,7 +166,7 @@ ifm3d::Device::MakeShared(const std::string& ip,
                        << base->DeviceType();
         }
     }
-  catch (const ifm3d::error_t& ex)
+  catch (const ifm3d::Error& ex)
     {
       if (ex.code() == IFM3D_XMLRPC_TIMEOUT)
         {
@@ -328,13 +328,13 @@ ifm3d::Device::ForceTrigger()
 json
 ifm3d::Device::ToJSON()
 {
-  throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+  throw ifm3d::Error(IFM3D_UNSUPPORTED_OP);
 }
 
 void
 ifm3d::Device::FromJSON(const json& j)
 {
-  throw ifm3d::error_t(IFM3D_UNSUPPORTED_OP);
+  throw ifm3d::Error(IFM3D_UNSUPPORTED_OP);
 }
 
 std::string
@@ -356,7 +356,7 @@ ifm3d::Device::FromJSONStr(const std::string& jstr)
   catch (const std::exception& ex)
     {
       LOG(ERROR) << "JSON: " << ex.what();
-      throw ifm3d::error_t(IFM3D_JSON_ERROR);
+      throw ifm3d::Error(IFM3D_JSON_ERROR);
     }
 
   this->FromJSON(j);
