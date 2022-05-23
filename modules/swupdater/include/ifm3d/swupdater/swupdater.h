@@ -8,7 +8,7 @@
 
 #include <memory>
 #include <vector>
-#include <ifm3d/camera/camera.h>
+#include <ifm3d/camera/legacy_device.h>
 #include <ifm3d/swupdater/swupdater_export.h>
 
 namespace ifm3d

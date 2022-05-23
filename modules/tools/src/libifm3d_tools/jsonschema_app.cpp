@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/camera/camera_o3r.h>
+#include <ifm3d/device/o3r.h>
 
 ifm3d::JsonSchemaApp::JsonSchemaApp(int argc,
                                     const char** argv,
