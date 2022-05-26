@@ -23,14 +23,14 @@ namespace ifm3d
   public:
     struct Result
     {
-      std::map<image_id, Image> images;
+      std::map<buffer_id, Image> images;
       std::vector<ifm3d::TimePointT> timestamps;
     };
 
     virtual ~Organizer() {}
 
     virtual Result Organize(const std::vector<uint8_t>& data,
-                            const std::set<image_id>& requestedImages) = 0;
+                            const std::set<buffer_id>& requestedImages) = 0;
   }; // end: class Organizer
 
 } // end: namespace ifm3d
