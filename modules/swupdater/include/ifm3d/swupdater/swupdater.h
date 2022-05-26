@@ -8,7 +8,7 @@
 
 #include <memory>
 #include <vector>
-#include <ifm3d/camera/legacy_device.h>
+#include <ifm3d/device/legacy_device.h>
 #include <ifm3d/swupdater/swupdater_export.h>
 
 namespace ifm3d
@@ -41,7 +41,7 @@ namespace ifm3d
      *
      * @param swupdate_recovery_port swupate recovery port for the device
      */
-    SWUpdater(ifm3d::CameraBase::Ptr cam,
+    SWUpdater(ifm3d::Device::Ptr cam,
               const ifm3d::SWUpdater::FlashStatusCb& cb = {},
               const std::uint16_t swupdate_recovery_port =
                 ifm3d::SWUPDATER_RECOVERY_PORT);
