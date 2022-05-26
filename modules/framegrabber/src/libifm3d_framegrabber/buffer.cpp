@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <ifm3d/fg/image.h>
+#include <ifm3d/fg/buffer.h>
 #include <ifm3d/device/err.h>
 #include <cstdint>
 #include <vector>
@@ -28,7 +28,7 @@ namespace ifm3d
   // ImageAllocator class
   //--------------------------------
 
-  class ifm3d::Image::ImageAllocator
+  class ifm3d::Buffer::BufferAllocator
   {
     /* @ brief raw pointer to the data*/
     std::uint8_t* data_;
@@ -38,9 +38,9 @@ namespace ifm3d
     size_t size_;
 
   public:
-    ImageAllocator() : data_(nullptr), size_(0) {}
+    BufferAllocator() : data_(nullptr), size_(0) {}
 
-    ~ImageAllocator()
+    ~BufferAllocator()
     {
       if (data_ != nullptr)
         {
@@ -82,7 +82,7 @@ namespace ifm3d
 // Image class
 //--------------------------------
 
-ifm3d::Image::Image()
+ifm3d::Buffer::Buffer()
   : data_(nullptr),
     rows_(0),
     cols_(0),
@@ -93,7 +93,7 @@ ifm3d::Image::Image()
     bytes_per_row(0)
 {}
 
-ifm3d::Image::Image(const std::uint32_t cols,
+ifm3d::Buffer::Buffer(const std::uint32_t cols,
                     const std::uint32_t rows,
                     const std::uint32_t nchannel,
                     ifm3d::pixel_format format)
@@ -102,7 +102,7 @@ ifm3d::Image::Image(const std::uint32_t cols,
 }
 
 void
-ifm3d::Image::create(const std::uint32_t cols,
+ifm3d::Buffer::create(const std::uint32_t cols,
                      const std::uint32_t rows,
                      const std::uint32_t nchannel,
                      ifm3d::pixel_format format)
@@ -122,39 +122,39 @@ ifm3d::Image::create(const std::uint32_t cols,
   bytes_per_pixel = data_size_in_bytes_ * nchannel;
   bytes_per_row = bytes_per_pixel * cols_;
   size_ = cols * rows * nchannel_ * data_size_in_bytes_;
-  image_allocator_ = std::make_shared<ifm3d::Image::ImageAllocator>();
-  data_ = image_allocator_->allocate(size_);
+  buffer_allocator_ = std::make_shared<ifm3d::Buffer::BufferAllocator>();
+  data_ = buffer_allocator_->allocate(size_);
 }
 
-ifm3d::Image
-ifm3d::Image::clone() const
+ifm3d::Buffer
+ifm3d::Buffer::clone() const
 {
-  Image copy;
+  Buffer copy;
   copy.create(cols_, rows_, nchannel_, data_format_);
   std::memcpy(copy.ptr(0), data_, size_);
   return copy;
 }
 
 std::uint32_t
-ifm3d::Image::height() const
+ifm3d::Buffer::height() const
 {
   return rows_;
 }
 
 std::uint32_t
-ifm3d::Image::width() const
+ifm3d::Buffer::width() const
 {
   return cols_;
 }
 
 std::uint32_t
-ifm3d::Image::nchannels() const
+ifm3d::Buffer::nchannels() const
 {
   return nchannel_;
 }
 
 ifm3d::pixel_format
-ifm3d::Image::dataFormat() const
+ifm3d::Buffer::dataFormat() const
 {
   return data_format_;
 }

@@ -10,7 +10,7 @@
 #include <memory>
 #include <vector>
 #include <set>
-#include <ifm3d/fg/image.h>
+#include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/frame.h>
 
 namespace ifm3d
@@ -23,7 +23,7 @@ namespace ifm3d
   public:
     struct Result
     {
-      std::map<buffer_id, Image> images;
+      std::map<buffer_id, Buffer> images;
       std::vector<ifm3d::TimePointT> timestamps;
     };
 

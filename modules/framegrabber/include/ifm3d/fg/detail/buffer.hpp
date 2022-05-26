@@ -7,7 +7,7 @@
 #ifndef IFM3D_CAMERA_IMAGE_INL_HPP
 #define IFM3D_CAMERA_IMAGE_INL_HPP
 
-#include <ifm3d/fg/image.h>
+#include <ifm3d/fg/buffer.h>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -16,14 +16,14 @@
 
 template <typename T>
 T*
-ifm3d::Image::ptr(const std::uint32_t row)
+ifm3d::Buffer::ptr(const std::uint32_t row)
 {
   return reinterpret_cast<T*>(data_ + row * bytes_per_row);
 }
 
 template <typename T>
 T*
-ifm3d::Image::ptr(const std::uint32_t row, const std::uint32_t col)
+ifm3d::Buffer::ptr(const std::uint32_t row, const std::uint32_t col)
 {
   return reinterpret_cast<T*>(
     (data_ + row * bytes_per_row + col * bytes_per_pixel));
@@ -31,14 +31,14 @@ ifm3d::Image::ptr(const std::uint32_t row, const std::uint32_t col)
 
 template <typename T>
 T const*
-ifm3d::Image::ptr(const std::uint32_t row) const
+ifm3d::Buffer::ptr(const std::uint32_t row) const
 {
   return reinterpret_cast<T*>(data_ + row * bytes_per_row);
 }
 
 template <typename T>
 T const*
-ifm3d::Image::ptr(const std::uint32_t row, const std::uint32_t col) const
+ifm3d::Buffer::ptr(const std::uint32_t row, const std::uint32_t col) const
 {
   return reinterpret_cast<T*>(
     (data_ + row * bytes_per_row + col * bytes_per_pixel));
@@ -46,7 +46,7 @@ ifm3d::Image::ptr(const std::uint32_t row, const std::uint32_t col) const
 
 template <typename T>
 T&
-ifm3d::Image::at(const std::size_t index)
+ifm3d::Buffer::at(const std::size_t index)
 {
   auto idx = index * bytes_per_pixel;
   return *(reinterpret_cast<T*>((data_ + idx)));
@@ -54,7 +54,7 @@ ifm3d::Image::at(const std::size_t index)
 
 template <typename T>
 T&
-ifm3d::Image::at(const std::uint32_t row, const std::uint32_t col)
+ifm3d::Buffer::at(const std::uint32_t row, const std::uint32_t col)
 {
   auto idx = row * cols_ + col;
   return at<T>(idx);
@@ -62,7 +62,7 @@ ifm3d::Image::at(const std::uint32_t row, const std::uint32_t col)
 
 template <typename T>
 T const&
-ifm3d::Image::at(const std::size_t index) const
+ifm3d::Buffer::at(const std::size_t index) const
 {
   auto idx = index * bytes_per_pixel;
   return *(reinterpret_cast<T*>((data_ + idx)));
@@ -70,7 +70,7 @@ ifm3d::Image::at(const std::size_t index) const
 
 template <typename T>
 T const&
-ifm3d::Image::at(const std::uint32_t row, const std::uint32_t col) const
+ifm3d::Buffer::at(const std::uint32_t row, const std::uint32_t col) const
 {
   auto idx = row * cols_ + col;
   return at<T>(idx);
@@ -78,7 +78,7 @@ ifm3d::Image::at(const std::uint32_t row, const std::uint32_t col) const
 
 template <typename T>
 void
-ifm3d::Image::setTo(const T val, const ifm3d::Image& mask)
+ifm3d::Buffer::setTo(const T val, const ifm3d::Buffer& mask)
 {
   for (std::uint32_t i = 0; i < rows_; i++)
     {
@@ -100,22 +100,22 @@ ifm3d::Image::setTo(const T val, const ifm3d::Image& mask)
 // Iterator function
 
 template <typename T>
-ifm3d::Image::Iterator<T>
-ifm3d::Image::begin()
+ifm3d::Buffer::Iterator<T>
+ifm3d::Buffer::begin()
 {
   return Iterator<T>(data_);
 }
 
 template <typename T>
-ifm3d::Image::Iterator<T>
-ifm3d::Image::end()
+ifm3d::Buffer::Iterator<T>
+ifm3d::Buffer::end()
 {
   return Iterator<T>(data_ + size_);
 }
 
 // Iterator Adapter
 template <typename T>
-ifm3d::IteratorAdapter<T>::IteratorAdapter(ifm3d::Image& it) : it(it)
+ifm3d::IteratorAdapter<T>::IteratorAdapter(ifm3d::Buffer& it) : it(it)
 {}
 
 template <typename T>
@@ -134,36 +134,36 @@ ifm3d::IteratorAdapter<T>::end()
 
 //*** Iterators ***//
 template <typename T>
-ifm3d::Image::Iterator<T>::Iterator(std::uint8_t* ptr)
+ifm3d::Buffer::Iterator<T>::Iterator(std::uint8_t* ptr)
 {
   m_ptr = (T*)ptr;
 }
 
 template <typename T>
-typename ifm3d::Image::Iterator<T>::reference
-ifm3d::Image::Iterator<T>::operator*() const
+typename ifm3d::Buffer::Iterator<T>::reference
+ifm3d::Buffer::Iterator<T>::operator*() const
 {
   return *m_ptr;
 }
 
 template <typename T>
-typename ifm3d::Image::Iterator<T>::pointer
-ifm3d::Image::Iterator<T>::operator->()
+typename ifm3d::Buffer::Iterator<T>::pointer
+ifm3d::Buffer::Iterator<T>::operator->()
 {
   return m_ptr;
 }
 
 template <typename T>
-ifm3d::Image::Iterator<T>&
-ifm3d::Image::Iterator<T>::operator++()
+ifm3d::Buffer::Iterator<T>&
+ifm3d::Buffer::Iterator<T>::operator++()
 {
   m_ptr++;
   return *this;
 }
 
 template <typename T>
-ifm3d::Image::Iterator<T>
-ifm3d::Image::Iterator<T>::operator++(int)
+ifm3d::Buffer::Iterator<T>
+ifm3d::Buffer::Iterator<T>::operator++(int)
 {
   Iterator tmp = *this;
   ++(*this);
@@ -308,14 +308,14 @@ namespace ifm3d
   };
 
 }
-////////////////////////////Image_<Tp>//////////////
+////////////////////////////Buffer_<Tp>//////////////
 
 template <typename Tp>
-ifm3d::Image_<Tp>::Image_() : ifm3d::Image(){};
+ifm3d::Buffer_<Tp>::Buffer_() : ifm3d::Buffer(){};
 
 template <typename Tp>
-ifm3d::Image_<Tp>::Image_(const std::uint32_t cols, const std::uint32_t rows)
-  : ifm3d::Image(
+ifm3d::Buffer_<Tp>::Buffer_(const std::uint32_t cols, const std::uint32_t rows)
+  : ifm3d::Buffer(
       cols,
       rows,
       static_cast<std::uint32_t>(ifm3d::FormatType<Tp>::nchannel),
@@ -323,21 +323,21 @@ ifm3d::Image_<Tp>::Image_(const std::uint32_t cols, const std::uint32_t rows)
 {}
 
 template <typename Tp>
-ifm3d::Image_<Tp>::Image_(const Image& img) : Image()
+ifm3d::Buffer_<Tp>::Buffer_(const Buffer& img) : Buffer()
 {
   *this = img;
 }
 
 template <typename Tp>
-ifm3d::Image_<Tp>&
-ifm3d::Image_<Tp>::operator=(const Image& img)
+ifm3d::Buffer_<Tp>&
+ifm3d::Buffer_<Tp>::operator=(const Buffer& img)
 {
   if (static_cast<ifm3d::pixel_format>(ifm3d::FormatType<Tp>::format) ==
         img.dataFormat() &&
       static_cast<uint32_t>(ifm3d::FormatType<Tp>::nchannel) ==
         img.nchannels())
     {
-      Image::operator=(img);
+      Buffer::operator=(img);
       return *this;
     }
   else
@@ -348,9 +348,9 @@ ifm3d::Image_<Tp>::operator=(const Image& img)
 }
 template <typename Tp>
 void
-ifm3d::Image_<Tp>::create(const std::uint32_t cols, const std::uint32_t rows)
+ifm3d::Buffer_<Tp>::create(const std::uint32_t cols, const std::uint32_t rows)
 {
-  ifm3d::Image::create(
+  ifm3d::Buffer::create(
     cols,
     rows,
     static_cast<uint32_t>(ifm3d::FormatType<Tp>::nchannel),
@@ -358,85 +358,85 @@ ifm3d::Image_<Tp>::create(const std::uint32_t cols, const std::uint32_t rows)
 }
 
 template <typename Tp>
-ifm3d::Image_<Tp>
-ifm3d::Image_<Tp>::clone() const
+ifm3d::Buffer_<Tp>
+ifm3d::Buffer_<Tp>::clone() const
 {
-  return Image_<Tp>(Image::clone());
+  return Buffer_<Tp>(Buffer::clone());
 }
 
 /* getters*/
 template <typename Tp>
 std::uint32_t
-ifm3d::Image_<Tp>::height() const
+ifm3d::Buffer_<Tp>::height() const
 {
-  return Image::height();
+  return Buffer::height();
 }
 template <typename Tp>
 std::uint32_t
-ifm3d::Image_<Tp>::width() const
+ifm3d::Buffer_<Tp>::width() const
 {
-  return Image::width();
+  return Buffer::width();
 }
 template <typename Tp>
 std::uint32_t
-ifm3d::Image_<Tp>::nchannels() const
+ifm3d::Buffer_<Tp>::nchannels() const
 {
-  return Image::nchannels();
+  return Buffer::nchannels();
 }
 template <typename Tp>
 ifm3d::pixel_format
-ifm3d::Image_<Tp>::dataFormat() const
+ifm3d::Buffer_<Tp>::dataFormat() const
 {
-  return Image::dataFormat();
+  return Buffer::dataFormat();
 }
 
 template <typename Tp>
 Tp*
-ifm3d::Image_<Tp>::ptr(const std::uint32_t row)
+ifm3d::Buffer_<Tp>::ptr(const std::uint32_t row)
 {
-  return Image::ptr<Tp>(row);
+  return Buffer::ptr<Tp>(row);
 }
 
 template <typename Tp>
 Tp*
-ifm3d::Image_<Tp>::ptr(const std::uint32_t row, const std::uint32_t col)
+ifm3d::Buffer_<Tp>::ptr(const std::uint32_t row, const std::uint32_t col)
 {
-  return Image::ptr<Tp>(row, col);
+  return Buffer::ptr<Tp>(row, col);
 }
 
 template <typename Tp>
 Tp&
-ifm3d::Image_<Tp>::at(const std::size_t index)
+ifm3d::Buffer_<Tp>::at(const std::size_t index)
 {
-  return Image::at<Tp>(index);
+  return Buffer::at<Tp>(index);
 }
 
 template <typename Tp>
 Tp&
-ifm3d::Image_<Tp>::at(const std::uint32_t row, const std::uint32_t col)
+ifm3d::Buffer_<Tp>::at(const std::uint32_t row, const std::uint32_t col)
 {
-  return Image::at<Tp>(row, col);
+  return Buffer::at<Tp>(row, col);
 }
 
 template <typename Tp>
 void
-ifm3d::Image_<Tp>::setTo(const Tp val, ifm3d::Image& mask)
+ifm3d::Buffer_<Tp>::setTo(const Tp val, ifm3d::Buffer& mask)
 {
-  return Image::setTo<Tp>(val, mask);
+  return Buffer::setTo<Tp>(val, mask);
 }
 
 template <typename Tp>
-ifm3d::Image::Iterator<Tp>
-ifm3d::Image_<Tp>::begin()
+ifm3d::Buffer::Iterator<Tp>
+ifm3d::Buffer_<Tp>::begin()
 {
-  return Image::begin<Tp>();
+  return Buffer::begin<Tp>();
 }
 
 template <typename Tp>
-ifm3d::Image::Iterator<Tp>
-ifm3d::Image_<Tp>::end()
+ifm3d::Buffer::Iterator<Tp>
+ifm3d::Buffer_<Tp>::end()
 {
-  return Image::end<Tp>();
+  return Buffer::end<Tp>();
 }
 
 ////////conversion helper //////
@@ -472,19 +472,19 @@ namespace ifm3d
   };
 
   template <typename FROM, typename TO>
-  ifm3d::Image_<TO>
-  convert_to(ifm3d::Image_<FROM>& img)
+  ifm3d::Buffer_<TO>
+  convert_to(ifm3d::Buffer_<FROM>& img)
   {
     if (static_cast<uint32_t>(ifm3d::FormatType<TO>::nchannel ==
                               img.nchannels()))
       {
-        Image_<TO> out = ifm3d::Image(
+        Buffer_<TO> out = ifm3d::Buffer(
           img.width(),
           img.height(),
           img.nchannels(),
           (static_cast<ifm3d::pixel_format>(ifm3d::FormatType<TO>::format)));
 
-        ifm3d::Image_<FROM> image_from = img;
+        ifm3d::Buffer_<FROM> image_from = img;
 
         if (std::is_convertible<
               typename ifm3d::FormatType<FROM>::data_type,

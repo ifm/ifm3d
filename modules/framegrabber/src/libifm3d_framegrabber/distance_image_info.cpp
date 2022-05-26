@@ -8,8 +8,8 @@
 #include <iostream>
 #include <glog/logging.h>
 #include <o3r_uncompress_di.h>
-#include <ifm3d/camera/logging.h>
-#include <ifm3d/camera/camera.h>
+#include <ifm3d/device/logging.h>
+#include <ifm3d/device/device.h>
 #include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/fg/distance_image_info.h>
 #include <tuple>

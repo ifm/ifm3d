@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IFM3D_FG_IMAGE_H
-#define IFM3D_FG_IMAGE_H
+#ifndef IFM3D_FG_Buffer_H
+#define IFM3D_FG_Buffer_H
 
 #include <cstdint>
 #include <memory>
@@ -92,7 +92,7 @@ namespace ifm3d
   One can aslo use range based for loops with adapter explained
   in ifm3d::IteratorAdapter section
   */
-  class Image
+  class Buffer
   {
   private:
     /* @ brief raw pointer to the data*/
@@ -114,8 +114,8 @@ namespace ifm3d
     /* @brief bytes per row */
     size_t bytes_per_row;
 
-    class ImageAllocator;
-    std::shared_ptr<ImageAllocator> image_allocator_;
+    class BufferAllocator;
+    std::shared_ptr<BufferAllocator> buffer_allocator_;
 
   public:
     /**
@@ -124,7 +124,7 @@ namespace ifm3d
       needs to call create Method to actually allocates the
       Memory
     */
-    Image();
+    Buffer();
     /*@overload
       @param cols Number of columns in a Image.
       @param rows Number of rows in a Image.
@@ -134,20 +134,20 @@ namespace ifm3d
 
       @note This internally calls Create Method to allocates Memory
     */
-    Image(const std::uint32_t cols,
+    Buffer(const std::uint32_t cols,
           const std::uint32_t rows,
           const std::uint32_t nchannel,
           ifm3d::pixel_format format);
 
-    virtual ~Image() = default;
+    virtual ~Buffer() = default;
 
     // move semantics
-    Image(Image&&) = default;
-    Image& operator=(Image&&) = default;
+    Buffer(Buffer&&) = default;
+    Buffer& operator=(Buffer&&) = default;
 
     // copy ctor/assignment operator
-    Image(const Image&) = default;
-    Image& operator=(const Image&) = default;
+    Buffer(const Buffer&) = default;
+    Buffer& operator=(const Buffer&) = default;
 
     /*@brief allocates the memory required for storing the image data
     @param cols Number of columns in a Image.
@@ -164,7 +164,7 @@ namespace ifm3d
 
     /** @brief Creates a full copy of the array and the underlying data.
      */
-    Image clone() const;
+    Buffer clone() const;
 
     /* getters*/
     std::uint32_t height() const;
@@ -233,7 +233,7 @@ namespace ifm3d
       @Note mask size must be same as this
     */
     template <typename T>
-    void setTo(const T val, const ifm3d::Image& mask);
+    void setTo(const T val, const ifm3d::Buffer& mask);
 
     /*===========================*/
     /*  Iterators */
@@ -297,39 +297,39 @@ namespace ifm3d
   class IteratorAdapter
   {
   private:
-    Image& it;
+    Buffer& it;
 
   public:
-    IteratorAdapter(Image& it);
+    IteratorAdapter(Buffer& it);
     auto begin();
     auto end();
   };
 
-  ////////////////////////////// Image_<Tp>//////////////
+  ////////////////////////////// Buffer_<Tp>//////////////
 
   template <typename Tp>
-  class Image_ : public Image
+  class Buffer_ : public Buffer
   {
   public:
     /*@brief fefault constructor*/
-    Image_();
+    Buffer_();
 
     /* Similar to Image(cols,rows,ifm3d::formatType<Tp>::nchannel,
      * ifm3d::formatType<Tp>::format ) */
-    Image_(const std::uint32_t cols, const std::uint32_t rows);
+    Buffer_(const std::uint32_t cols, const std::uint32_t rows);
 
-    ~Image_() = default;
+    ~Buffer_() = default;
 
     // move semantics
-    Image_(Image_<Tp>&&) = default;
-    Image_& operator=(Image_<Tp>&&) = default;
+    Buffer_(Buffer_<Tp>&&) = default;
+    Buffer_& operator=(Buffer_<Tp>&&) = default;
 
     // copy ctor/assignment operator
-    Image_(const Image_<Tp>&) = default;
-    Image_& operator=(const Image_<Tp>&) = default;
+    Buffer_(const Buffer_<Tp>&) = default;
+    Buffer_& operator=(const Buffer_<Tp>&) = default;
 
-    Image_(const Image&);
-    Image_& operator=(const Image&);
+    Buffer_(const Buffer&);
+    Buffer_& operator=(const Buffer&);
 
     /* Similar to Image::create(cols,rows,ifm3d::formatType<Tp>::nchannel,
      * ifm3d::formatType<Tp>::format ) */
@@ -337,7 +337,7 @@ namespace ifm3d
 
     /** @brief Creates a full copy of the array and the underlying data.
      */
-    Image_ clone() const;
+    Buffer_ clone() const;
 
     /* getters*/
     std::uint32_t height() const;
@@ -373,14 +373,14 @@ namespace ifm3d
 
       @Note mask size must be same as this
     */
-    void setTo(const Tp val, ifm3d::Image& mask);
+    void setTo(const Tp val, ifm3d::Buffer& mask);
 
     /*@brief Return the Iterator pointing to start of data*/
     Iterator<Tp> begin();
     /*@brief Return the Iterator pointing to end of data*/
     Iterator<Tp> end();
 
-  }; // end Image_<Tp>
+  }; // end Buffer_<Tp>
 
   /**
    * @brief Struct for 3D space point
@@ -411,5 +411,5 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
-#include <ifm3d/fg/detail/image.hpp>
-#endif // IFM3D_FG_IMAGE_H
+#include <ifm3d/fg/detail/buffer.hpp>
+#endif // IFM3D_FG_Buffer_H
