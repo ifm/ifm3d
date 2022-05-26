@@ -1,6 +1,6 @@
 #include <ifm3d/fg/organizer_utils.h>
 #include <glog/logging.h>
-#include <ifm3d/camera/err.h>
+#include <ifm3d/device/err.h>
 
 constexpr auto CHUNK_OFFSET_CHUNK_SIZE = 0x0004;
 constexpr auto CHUNK_OFFSET_HEADER_SIZE = 0x0008;
@@ -38,7 +38,7 @@ ifm3d::get_format_size(ifm3d::pixel_format fmt)
 
     default:
       LOG(ERROR) << "Invalid pixel format => " << static_cast<uint32_t>(fmt);
-      throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
+      throw ifm3d::Error(IFM3D_PIXEL_FORMAT_ERROR);
     }
 }
 
@@ -66,7 +66,7 @@ ifm3d::get_format_channels(ifm3d::pixel_format fmt)
 
     default:
       LOG(ERROR) << "Invalid pixel format => " << static_cast<uint32_t>(fmt);
-      throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
+      throw ifm3d::Error(IFM3D_PIXEL_FORMAT_ERROR);
     }
 }
 
@@ -266,7 +266,7 @@ ifm3d::create_xyz_image(const std::vector<std::uint8_t>& data,
 
     default:
       LOG(ERROR) << "Invalid pixel format => " << static_cast<uint32_t>(fmt);
-      throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_ERROR);
+      throw ifm3d::Error(IFM3D_PIXEL_FORMAT_ERROR);
     }
 }
 

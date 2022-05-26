@@ -25,7 +25,7 @@
 #include <asio/use_future.hpp>
 #include <asio.hpp>
 #include <glog/logging.h>
-#include <ifm3d/camera.h>
+#include <ifm3d/device.h>
 #include <ifm3d/fg/schema.h>
 #include <default_organizer.hpp>
 #include <fmt/core.h>
@@ -51,7 +51,7 @@ namespace ifm3d
   class FrameGrabber::Impl
   {
   public:
-    Impl(ifm3d::CameraBase::Ptr cam,
+    Impl(ifm3d::Device::Ptr cam,
          std::optional<std::uint16_t> nat_pcic_port);
     ~Impl();
 
@@ -98,7 +98,7 @@ namespace ifm3d
     //---------------------
     // State
     //---------------------
-    ifm3d::CameraBase::Ptr cam_;
+    ifm3d::Device::Ptr cam_;
 
     std::string cam_ip_;
     uint16_t pcic_port_;
@@ -145,7 +145,7 @@ namespace ifm3d
 //-------------------------------------
 // ctor/dtor
 //-------------------------------------
-ifm3d::FrameGrabber::Impl::Impl(ifm3d::CameraBase::Ptr cam,
+ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
                                 std::optional<std::uint16_t> pcic_port)
   : cam_(cam),
     cam_ip_(this->cam_->IP()),
@@ -156,14 +156,14 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::CameraBase::Ptr cam,
     wait_for_frame_future(wait_for_frame_promise.get_future()),
     trigger_feedback_future_(trigger_feedback_promise_.get_future())
 {
-  if (!pcic_port.has_value() && this->cam_->AmI(Camera::device_family::O3D))
+  if (!pcic_port.has_value() && this->cam_->AmI(Device::device_family::O3D))
     {
       try
         {
           this->pcic_port_ =
             std::stoi(this->cam_->DeviceParameter("PcicTcpPort"));
         }
-      catch (const ifm3d::error_t& ex)
+      catch (const ifm3d::Error& ex)
         {
           LOG(ERROR) << "Could not get PCIC Port of the camera: " << ex.what();
           LOG(WARNING) << "Assuming default PCIC port: "
@@ -203,7 +203,7 @@ ifm3d::FrameGrabber::Impl::SWTrigger()
     };
     try
       {
-        if (this->cam_->AmI(ifm3d::CameraBase::device_family::O3X))
+        if (this->cam_->AmI(ifm3d::Device::device_family::O3X))
           {
             this->cam_->ForceTrigger();
             this->trigger_feedback_promise_.set_value();
@@ -214,7 +214,7 @@ ifm3d::FrameGrabber::Impl::SWTrigger()
             SendCommand(TICKET_COMMAND_t, "t");
           }
       }
-    catch (const ifm3d::error_t& ex)
+    catch (const ifm3d::Error& ex)
       {
         LOG(ERROR) << "While trying to software trigger the camera: "
                    << ex.code() << " - " << ex.what();
@@ -266,7 +266,7 @@ ifm3d::FrameGrabber::Impl::Stop()
   if (this->thread_ && this->thread_->joinable())
     {
       this->io_service_.post(
-        []() { throw ifm3d::error_t(IFM3D_THREAD_INTERRUPTED); });
+        []() { throw ifm3d::Error(IFM3D_THREAD_INTERRUPTED); });
       this->thread_->join();
       this->thread_ = nullptr;
       return true;
@@ -308,7 +308,7 @@ ifm3d::FrameGrabber::Impl::Run()
 
       this->io_service_.run();
     }
-  catch (const ifm3d::error_t& ex)
+  catch (const ifm3d::Error& ex)
     {
       if (ex.code() != IFM3D_THREAD_INTERRUPTED)
         {
@@ -383,7 +383,7 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const asio::error_code& ec,
 {
   if (ec)
     {
-      throw ifm3d::error_t(ec.value());
+      throw ifm3d::Error(ec.value());
     }
 
   bytes_read += bytes_xferd;
@@ -430,7 +430,7 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
 {
   if (ec)
     {
-      throw ifm3d::error_t(ec.value());
+      throw ifm3d::Error(ec.value());
     }
 
   bytes_read += bytes_xferd;
@@ -553,7 +553,7 @@ ifm3d::FrameGrabber::Impl::TriggerHandler()
     {
       LOG(ERROR) << "Error Sending trigger on device";
       this->trigger_feedback_promise_.set_exception(
-        std::make_exception_ptr(error_t(IFM3D_CANNOT_SW_TRIGGER)));
+        std::make_exception_ptr(Error(IFM3D_CANNOT_SW_TRIGGER)));
     }
   else
     {
@@ -579,14 +579,14 @@ ifm3d::FrameGrabber::Impl::SetSchema()
   // Add confidence image
   image_chunk_ids.insert(ifm3d::image_id::CONFIDENCE);
   // Add O3D specific invariants
-  if (this->cam_->AmI(ifm3d::CameraBase::device_family::O3D))
+  if (this->cam_->AmI(ifm3d::Device::device_family::O3D))
     {
       image_chunk_ids.insert(ifm3d::image_id::EXTRINSIC_CALIBRATION);
     }
 
   std::string schema = ifm3d::make_schema(image_chunk_ids, cam_->WhoAmI());
 
-  if (this->cam_->AmI(ifm3d::CameraBase::device_family::O3X))
+  if (this->cam_->AmI(ifm3d::Device::device_family::O3X))
     {
       // O3X does not set the schema via PCIC, rather we set it via
       // XMLRPC using the camera interface.
@@ -618,14 +618,14 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(image_id id)
   switch (static_cast<image_id>(id))
     {
       case image_id::XYZ: {
-        if (device_type == ifm3d::CameraBase::device_family::O3R)
+        if (device_type == ifm3d::Device::device_family::O3R)
           return {
             image_id::XYZ,
             image_id::O3R_DISTANCE_IMAGE_INFORMATION,
             image_id::RADIAL_DISTANCE,
             image_id::AMPLITUDE,
           };
-        else if (device_type == ifm3d::CameraBase::device_family::O3D)
+        else if (device_type == ifm3d::Device::device_family::O3D)
           return {
             image_id::CARTESIAN_X,
             image_id::CARTESIAN_Y,
@@ -640,7 +640,7 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(image_id id)
     case image_id::EXTRINSIC_CALIBRATION:
     case image_id::INTRINSIC_CALIBRATION:
     case image_id::INVERSE_INTRINSIC_CALIBRATION: {
-        if (device_type == ifm3d::CameraBase::device_family::O3R)
+        if (device_type == ifm3d::Device::device_family::O3R)
           {
             return {id,
                     image_id::O3R_DISTANCE_IMAGE_INFORMATION,

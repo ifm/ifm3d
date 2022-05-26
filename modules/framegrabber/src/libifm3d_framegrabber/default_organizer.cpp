@@ -5,7 +5,7 @@
 
 #include <default_organizer.hpp>
 #include <glog/logging.h>
-#include <ifm3d/camera/err.h>
+#include <ifm3d/device/err.h>
 #include <ifm3d/fg/image.h>
 #include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/fg/distance_image_info.h>
@@ -35,7 +35,7 @@ ifm3d::DefaultOrganizer::CreatePixelMask(Image& confidence)
     {
       LOG(ERROR) << "confidence image format is not supported : "
                  << (int)confidence.dataFormat();
-      throw error_t(IFM3D_CONFIDENCE_IMAGE_FORMAT_NOT_SUPPORTED);
+      throw Error(IFM3D_CONFIDENCE_IMAGE_FORMAT_NOT_SUPPORTED);
     }
 
   return mask;
@@ -55,7 +55,7 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
   if (metachunk == chunks.end())
     {
       LOG(ERROR) << "No meta chunk found!";
-      throw error_t(IFM3D_IMG_CHUNK_NOT_FOUND);
+      throw Error(IFM3D_IMG_CHUNK_NOT_FOUND);
     }
 
   // get the image dimensions

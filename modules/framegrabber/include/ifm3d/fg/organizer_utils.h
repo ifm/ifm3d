@@ -10,7 +10,7 @@
 #include <optional>
 #include <vector>
 #include <tuple>
-#include <ifm3d/camera/camera.h>
+#include <ifm3d/device/device.h>
 #include <ifm3d/fg/image.h>
 #include <ifm3d/fg/frame.h>
 

@@ -7,11 +7,11 @@
 #include <cstdint>
 #include <functional>
 #include <vector>
-#include <ifm3d/camera/camera.h>
-#include <ifm3d/camera/err.h>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/err.h>
 #include <frame_grabber_impl.hpp>
 
-ifm3d::FrameGrabber::FrameGrabber(ifm3d::CameraBase::Ptr cam,
+ifm3d::FrameGrabber::FrameGrabber(ifm3d::Device::Ptr cam,
                                   std::optional<std::uint16_t> pcic_port)
   : pImpl(new ifm3d::FrameGrabber::Impl(cam, pcic_port))
 {}
