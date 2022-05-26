@@ -12,7 +12,7 @@
 #include <string>
 #include <set>
 #include <ifm3d/fg/frame_grabber_export.h>
-#include <ifm3d/camera/device.h>
+#include <ifm3d/device/device.h>
 #include <ifm3d/fg/frame.h>
 
 namespace ifm3d

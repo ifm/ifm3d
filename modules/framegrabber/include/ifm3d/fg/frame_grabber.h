@@ -13,7 +13,7 @@
 #include <optional>
 #include <vector>
 #include <type_traits>
-#include <ifm3d/camera/camera.h>
+#include <ifm3d/device/device.h>
 #include <ifm3d/fg/image.h>
 #include <ifm3d/fg/organizer.h>
 #include <ifm3d/fg/frame.h>
@@ -37,7 +37,7 @@ namespace ifm3d
      * @param[in] cam The camera instance to grab frames from
      * @param[in] pcic_port TCP port for the pcic connection
      */
-    FrameGrabber(ifm3d::CameraBase::Ptr cam,
+    FrameGrabber(ifm3d::Device::Ptr cam,
                  std::optional<std::uint16_t> pcic_port = std::nullopt);
 
     /**

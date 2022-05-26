@@ -11,7 +11,7 @@
 #include <memory>
 #include <vector>
 #include <limits.h>
-#include <ifm3d/camera/camera.h>
+#include <ifm3d/device/device.h>
 
 namespace ifm3d
 {

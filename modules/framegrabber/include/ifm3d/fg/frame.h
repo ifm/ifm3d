@@ -11,7 +11,7 @@
 #include <memory>
 #include <type_traits>
 #include <vector>
-#include <ifm3d/camera/camera.h>
+#include <ifm3d/device/device.h>
 #include <ifm3d/fg/image.h>
 
 namespace ifm3d

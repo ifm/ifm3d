@@ -11,8 +11,8 @@
 #include <string>
 #include <vector>
 #include <set>
-#include <ifm3d/camera/util.h>
-#include <ifm3d/camera/err.h>
+#include <ifm3d/device/util.h>
+#include <ifm3d/device/err.h>
 #include <ifm3d/contrib/nlohmann/json.hpp>
 
 const std::map<ifm3d::image_id, const nlohmann::json> o3d_schema_map{
@@ -115,9 +115,9 @@ ifm3d::make_o3x_json_from_mask(const std::set<ifm3d::image_id>& image_ids)
 
 std::string
 ifm3d::make_schema(const std::set<ifm3d::image_id>& image_ids,
-                   ifm3d::CameraBase::device_family device_type)
+                   ifm3d::Device::device_family device_type)
 {
-  if (device_type == ifm3d::CameraBase::device_family::O3X)
+  if (device_type == ifm3d::Device::device_family::O3X)
     {
       return make_o3x_json_from_mask(image_ids);
     }
@@ -169,11 +169,11 @@ ifm3d::make_schema(const std::set<ifm3d::image_id>& image_ids,
         }
     };
 
-  if (device_type == ifm3d::CameraBase::device_family::O3D)
+  if (device_type == ifm3d::Device::device_family::O3D)
     {
       schema_generator(o3d_schema_map);
     }
-  else if (device_type == ifm3d::CameraBase::device_family::O3R)
+  else if (device_type == ifm3d::Device::device_family::O3R)
     {
       schema_generator(o3r_schema_map);
       // TODO how to enable exposure time for O3R ?

@@ -4,7 +4,7 @@
  */
 
 #include <ifm3d/fg/image.h>
-#include <ifm3d/camera/err.h>
+#include <ifm3d/device/err.h>
 #include <cstdint>
 #include <vector>
 #include <unordered_map>
@@ -117,7 +117,7 @@ ifm3d::Image::create(const std::uint32_t cols,
     }
   else
     {
-      throw ifm3d::error_t(IFM3D_PIXEL_FORMAT_NOT_SUPPORTED);
+      throw ifm3d::Error(IFM3D_PIXEL_FORMAT_NOT_SUPPORTED);
     }
   bytes_per_pixel = data_size_in_bytes_ * nchannel;
   bytes_per_row = bytes_per_pixel * cols_;
