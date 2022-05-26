@@ -19,7 +19,7 @@ namespace ifm3d
   /**
    * image_ids available for use with the default Organizer.
    */
-  enum class image_id : uint64_t
+  enum class buffer_id : uint64_t
   {
     // clang-format off
 
@@ -59,7 +59,7 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<Frame>;
 
-    Frame(const std::map<image_id, Image>& images,
+    Frame(const std::map<buffer_id, Image>& images,
           const std::vector<TimePointT> timestamps);
     ~Frame();
 
@@ -83,7 +83,7 @@ namespace ifm3d
      * @return true if a image with the give id is available
      * @return false if no image with the given id is availale
      */
-    bool HasImage(image_id id);
+    bool HasImage(buffer_id id);
 
     /**
      * @brief Get the image with the given id
@@ -92,14 +92,14 @@ namespace ifm3d
      * @return Image& Reference to the requrest image
      * @throw std::out_of_range if no image with the give id exists
      */
-    Image& GetImage(image_id id);
+    Image& GetImage(buffer_id id);
 
-    decltype(std::declval<std::map<image_id, Image>>().begin())
+    decltype(std::declval<std::map<buffer_id, Image>>().begin())
     begin() noexcept;
-    decltype(std::declval<const std::map<image_id, Image>>().begin()) begin()
+    decltype(std::declval<const std::map<buffer_id, Image>>().begin()) begin()
       const noexcept;
-    decltype(std::declval<std::map<image_id, Image>>().end()) end() noexcept;
-    decltype(std::declval<const std::map<image_id, Image>>().end()) end()
+    decltype(std::declval<std::map<buffer_id, Image>>().end()) end() noexcept;
+    decltype(std::declval<const std::map<buffer_id, Image>>().end()) end()
       const noexcept;
 
   private:

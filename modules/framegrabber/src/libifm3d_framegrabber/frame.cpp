@@ -6,7 +6,7 @@
 #include <ifm3d/fg/frame.h>
 #include <frame_impl.hpp>
 
-ifm3d::Frame::Frame(const std::map<image_id, Image>& images,
+ifm3d::Frame::Frame(const std::map<buffer_id, Image>& images,
                     const std::vector<TimePointT> timestamps)
   : pImpl(std::make_unique<Impl>(images, timestamps))
 {}
@@ -34,36 +34,36 @@ ifm3d::Frame::TimeStamps()
 }
 
 bool
-ifm3d::Frame::HasImage(image_id id)
+ifm3d::Frame::HasImage(buffer_id id)
 {
   return pImpl->HasImage(id);
 }
 
 ifm3d::Image&
-ifm3d::Frame::GetImage(image_id key)
+ifm3d::Frame::GetImage(buffer_id key)
 {
   return pImpl->GetImage(key);
 }
 
-decltype(std::declval<std::map<ifm3d::image_id, ifm3d::Image>>().begin())
+decltype(std::declval<std::map<ifm3d::buffer_id, ifm3d::Image>>().begin())
 ifm3d::Frame::begin() noexcept
 {
   return pImpl->begin();
 }
 
-decltype(std::declval<const std::map<ifm3d::image_id, ifm3d::Image>>().begin())
+decltype(std::declval<const std::map<ifm3d::buffer_id, ifm3d::Image>>().begin())
 ifm3d::Frame::begin() const noexcept
 {
   return pImpl->begin();
 }
 
-decltype(std::declval<std::map<ifm3d::image_id, ifm3d::Image>>().end())
+decltype(std::declval<std::map<ifm3d::buffer_id, ifm3d::Image>>().end())
 ifm3d::Frame::end() noexcept
 {
   return pImpl->end();
 }
 
-decltype(std::declval<const std::map<ifm3d::image_id, ifm3d::Image>>().end())
+decltype(std::declval<const std::map<ifm3d::buffer_id, ifm3d::Image>>().end())
 ifm3d::Frame::end() const noexcept
 {
   return pImpl->end();

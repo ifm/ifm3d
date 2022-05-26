@@ -78,14 +78,14 @@ namespace ifm3d
     /**
      * Starts the worker thread for streaming in pixel data from the device
      *
-     * @param[in] images set of image_ids for receiving, passing in an empty
+     * @param[in] buffer set of buffer_ids for receiving, passing in an empty
      * set will received all available images. The image_ids are specific to
      * the current Organizer. See image_id for a list of image_ids available
      * with the default Organizer
      */
-    bool Start(const std::set<ifm3d::image_id>& images = {
-                 ifm3d::image_id::AMPLITUDE,
-                 ifm3d::image_id::XYZ});
+    bool Start(const std::set<ifm3d::buffer_id>& images = {
+                 ifm3d::buffer_id::AMPLITUDE,
+                 ifm3d::buffer_id::XYZ});
 
     /**
      * Starts the worker thread for streaming in pixel data from the device
@@ -97,7 +97,7 @@ namespace ifm3d
      */
     template <typename T, typename... Args>
     bool
-    Start(std::set<image_id>& images, T id, Args... args)
+    Start(std::set<buffer_id>& images, T id, Args... args)
     {
       images.insert(id);
       return Start(images, args...);
@@ -115,7 +115,7 @@ namespace ifm3d
     bool
     Start(T id, Args... args)
     {
-      std::set<image_id> images;
+      std::set<buffer_id> images;
       images.insert(id);
       return Start(images, args...);
     }
