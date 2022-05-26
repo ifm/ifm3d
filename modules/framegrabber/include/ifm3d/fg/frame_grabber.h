@@ -14,7 +14,7 @@
 #include <vector>
 #include <type_traits>
 #include <ifm3d/device/device.h>
-#include <ifm3d/fg/image.h>
+#include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/organizer.h>
 #include <ifm3d/fg/frame.h>
 

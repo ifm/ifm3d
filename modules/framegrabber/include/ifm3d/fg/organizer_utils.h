@@ -11,7 +11,7 @@
 #include <vector>
 #include <tuple>
 #include <ifm3d/device/device.h>
-#include <ifm3d/fg/image.h>
+#include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/frame.h>
 
 namespace ifm3d
@@ -25,25 +25,25 @@ namespace ifm3d
   std::size_t get_format_size(pixel_format fmt);
   std::size_t get_format_channels(pixel_format fmt);
 
-  Image create_image(const std::vector<std::uint8_t>& data,
+  Buffer create_buffer(const std::vector<std::uint8_t>& data,
                      std::size_t idx,
                      std::size_t width,
                      std::size_t height);
 
-  Image create_image(const std::vector<std::uint8_t>& data,
+  Buffer create_buffer(const std::vector<std::uint8_t>& data,
                      std::size_t idx,
                      std::size_t width,
                      std::size_t height,
                      pixel_format fmt);
 
-  Image create_xyz_image(const std::vector<std::uint8_t>& data,
+  Buffer create_xyz_buffer(const std::vector<std::uint8_t>& data,
                          std::size_t xidx,
                          std::size_t yidx,
                          std::size_t zidx,
                          std::size_t width,
                          std::size_t height,
                          pixel_format fmt,
-                         const std::optional<Image>& mask);
+                         const std::optional<Buffer>& mask);
 
   auto find_metadata_chunk(std::map<image_chunk, std::size_t> chunks)
     -> decltype(chunks.end());
@@ -65,7 +65,7 @@ namespace ifm3d
   std::size_t get_chunk_pixeldata_size(const std::vector<std::uint8_t>& data,
                                        std::size_t idx);
 
-  void mask_image(Image& image, const Image& mask);
+  void mask_buffer(Buffer& image, const Buffer& mask);
 
   /**
    * Create a value of type T from sizeof(T) bytes of the passed in byte

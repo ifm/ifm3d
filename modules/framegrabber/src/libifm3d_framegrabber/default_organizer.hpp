@@ -25,10 +25,10 @@ namespace ifm3d
                     const std::set<buffer_id>& requestedImages) override;
 
   private:
-    Image CreatePixelMask(Image& confidence);
-    std::map<buffer_id, Image> ExtractDistanceImageInfo(
+    Buffer CreatePixelMask(Buffer& confidence);
+    std::map<buffer_id, Buffer> ExtractDistanceImageInfo(
       std::shared_ptr<DistanceImageInfo> distance_image_info,
-      const std::optional<Image>& mask);
+      const std::optional<Buffer>& mask);
     bool ShouldMask(buffer_id id);
 
   }; // end: class DefaultOrganizer
