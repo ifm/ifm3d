@@ -386,17 +386,17 @@ namespace ifm3d
    * @brief Struct for 3D space point
    */
   template <typename T, int n>
-  struct point
+  struct Point
   {
     T val[n];
     using value_type = T;
   };
 
   template <typename T>
-  using Point3D = struct point<T, 3>;
+  using Point3D = struct Point<T, 3>;
 
   template <typename T>
-  using Point4D = struct point<T, 4>;
+  using Point4D = struct Point<T, 4>;
 
   // user helper types
   using Point3D_16U = Point3D<std::uint16_t>;
