@@ -14,7 +14,7 @@
 #include <vector>
 #include <glog/logging.h>
 #include <ifm3d/tools.h>
-#include <ifm3d/camera.h>
+#include <ifm3d/device.h>
 
 std::unordered_map<
   std::string,
@@ -190,6 +190,6 @@ ifm3d::make_app(int argc, const char** argv)
         }
       std::cerr << std::endl;
 
-      throw ifm3d::error_t(IFM3D_SUBCOMMAND_ERROR);
+      throw ifm3d::Error(IFM3D_SUBCOMMAND_ERROR);
     }
 }

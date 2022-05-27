@@ -296,9 +296,9 @@ namespace ifm3d
   };
 
   template <typename T, int n>
-  struct FormatType<ifm3d::point<T, n>>
+  struct FormatType<ifm3d::Point<T, n>>
   {
-    using value_type = ifm3d::point<T, n>;
+    using value_type = ifm3d::Point<T, n>;
     using data_type = T;
     enum
     {
@@ -456,13 +456,13 @@ namespace ifm3d
   };
 
   template <typename FROM_T, typename TO_T, int n>
-  class conversion<ifm3d::point<FROM_T, n>, ifm3d::point<TO_T, n>>
+  class conversion<ifm3d::Point<FROM_T, n>, ifm3d::Point<TO_T, n>>
   {
   public:
-    ifm3d::point<TO_T, n>
-    operator()(ifm3d::point<FROM_T, n>& in)
+    ifm3d::Point<TO_T, n>
+    operator()(ifm3d::Point<FROM_T, n>& in)
     {
-      ifm3d::point<TO_T, n> out;
+      ifm3d::Point<TO_T, n> out;
       for (int i = 0; i < n; i++)
         {
           out.val[i] = static_cast<TO_T>(in.val[i]);

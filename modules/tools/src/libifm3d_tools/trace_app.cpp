@@ -6,7 +6,7 @@
 #include <iostream>
 #include <ifm3d/tools/trace_app.h>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/camera/camera.h>
+#include <ifm3d/device/device.h>
 #include <string>
 
 namespace
