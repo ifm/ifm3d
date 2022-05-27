@@ -20,26 +20,26 @@ bind_frame(pybind11::module_& m)
     )"
   );
 
-  py::enum_<ifm3d::image_id>(m, "image_id", "Enum: image_ids available for use with the default Organizer.")
-    .value("RADIAL_DISTANCE", ifm3d::image_id::RADIAL_DISTANCE)
-    .value("AMPLITUDE", ifm3d::image_id::AMPLITUDE)
-    .value("RAW_AMPLITUDE", ifm3d::image_id::RAW_AMPLITUDE)
-    .value("GRAY", ifm3d::image_id::GRAY)
-    .value("CARTESIAN_X", ifm3d::image_id::CARTESIAN_X)
-    .value("CARTESIAN_Y", ifm3d::image_id::CARTESIAN_Y)
-    .value("CARTESIAN_Z", ifm3d::image_id::CARTESIAN_Z)
-    .value("CARTESIAN_ALL", ifm3d::image_id::CARTESIAN_ALL)
-    .value("UNIT_VECTOR_ALL", ifm3d::image_id::UNIT_VECTOR_ALL)
-    .value("JPEG", ifm3d::image_id::JPEG)
-    .value("CONFIDENCE", ifm3d::image_id::CONFIDENCE)
-    .value("DIAGNOSTIC_DATA", ifm3d::image_id::DIAGNOSTIC_DATA)
-    .value("EXTRINSIC_CALIBRATION", ifm3d::image_id::EXTRINSIC_CALIBRATION)
-    .value("INTRINSIC_CALIBRATION", ifm3d::image_id::INTRINSIC_CALIBRATION)
-    .value("INVERSE_INTRINSIC_CALIBRATION", ifm3d::image_id::INVERSE_INTRINSIC_CALIBRATION)
-    .value("O3R_DISTANCE_IMAGE_INFORMATION", ifm3d::image_id::O3R_DISTANCE_IMAGE_INFORMATION)
-    .value("JSON_MODEL", ifm3d::image_id::JSON_MODEL)
-    .value("ALGO_DEBUG", ifm3d::image_id::ALGO_DEBUG)
-    .value("XYZ", ifm3d::image_id::XYZ);
+  py::enum_<ifm3d::buffer_id>(m, "image_id", "Enum: image_ids available for use with the default Organizer.")
+    .value("RADIAL_DISTANCE", ifm3d::buffer_id::RADIAL_DISTANCE)
+    .value("AMPLITUDE", ifm3d::buffer_id::AMPLITUDE)
+    .value("RAW_AMPLITUDE", ifm3d::buffer_id::RAW_AMPLITUDE)
+    .value("GRAY", ifm3d::buffer_id::GRAY)
+    .value("CARTESIAN_X", ifm3d::buffer_id::CARTESIAN_X)
+    .value("CARTESIAN_Y", ifm3d::buffer_id::CARTESIAN_Y)
+    .value("CARTESIAN_Z", ifm3d::buffer_id::CARTESIAN_Z)
+    .value("CARTESIAN_ALL", ifm3d::buffer_id::CARTESIAN_ALL)
+    .value("UNIT_VECTOR_ALL", ifm3d::buffer_id::UNIT_VECTOR_ALL)
+    .value("JPEG", ifm3d::buffer_id::JPEG)
+    .value("CONFIDENCE", ifm3d::buffer_id::CONFIDENCE)
+    .value("DIAGNOSTIC_DATA", ifm3d::buffer_id::DIAGNOSTIC_DATA)
+    .value("EXTRINSIC_CALIBRATION", ifm3d::buffer_id::EXTRINSIC_CALIBRATION)
+    .value("INTRINSIC_CALIBRATION", ifm3d::buffer_id::INTRINSIC_CALIBRATION)
+    .value("INVERSE_INTRINSIC_CALIBRATION", ifm3d::buffer_id::INVERSE_INTRINSIC_CALIBRATION)
+    .value("O3R_DISTANCE_IMAGE_INFORMATION", ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFORMATION)
+    .value("JSON_MODEL", ifm3d::buffer_id::JSON_MODEL)
+    .value("ALGO_DEBUG", ifm3d::buffer_id::ALGO_DEBUG)
+    .value("XYZ", ifm3d::buffer_id::XYZ);
     
 
   frame.def(
@@ -51,7 +51,7 @@ bind_frame(pybind11::module_& m)
 
   frame.def(
     "has_image",
-    &ifm3d::Frame::HasImage,
+    &ifm3d::Frame::HasBuffer,
     py::arg("id"),
     R"(
       Check if a image with the given id is available in this frame
@@ -59,8 +59,8 @@ bind_frame(pybind11::module_& m)
 
   frame.def(
     "get_image",
-    [](const ifm3d::Frame::Ptr& frame, ifm3d::image_id id){
-        return ifm3d::image_to_array(frame->GetImage(id));
+    [](const ifm3d::Frame::Ptr& frame, ifm3d::buffer_id id){
+        return ifm3d::image_to_array(frame->GetBuffer(id));
     },
     py::arg("id"),
     R"(

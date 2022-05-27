@@ -10,18 +10,18 @@
 #include <pybind11/stl.h>
 
 void
-bind_camera_o3r(pybind11::module_& m)
+bind_o3r(pybind11::module_& m)
 {
   // clang-format off
-  py::class_<ifm3d::O3RCamera, ifm3d::O3RCamera::Ptr, ifm3d::CameraBase> camera_o3r(
-    m, "O3RCamera",
+  py::class_<ifm3d::O3R, ifm3d::O3R::Ptr, ifm3d::Device> o3r(
+    m, "O3R",
     R"(
       Class for managing an instance of an O3R Camera
     )");
 
-  camera_o3r.def(
+  o3r.def(
     py::init([](std::string ip, std::uint16_t xmlrpc_port) {
-      return std::make_shared<ifm3d::O3RCamera>(ip, xmlrpc_port);
+      return std::make_shared<ifm3d::O3R>(ip, xmlrpc_port);
     }),
     R"(
       Constructor
@@ -43,9 +43,9 @@ bind_camera_o3r(pybind11::module_& m)
     py::arg("ip") = ifm3d::DEFAULT_IP,
     py::arg("xmlrpc_port") = ifm3d::DEFAULT_XMLRPC_PORT);
 
-  camera_o3r.def(
+  o3r.def(
     "factory_reset",
-    &ifm3d::O3RCamera::FactoryReset,
+    &ifm3d::O3R::FactoryReset,
     py::arg("keep_network_settings"),
     R"(
       Sets the camera configuration back to the state in which it shipped from
@@ -57,9 +57,9 @@ bind_camera_o3r(pybind11::module_& m)
           A bool indicating wether to keep the current network settings
     )");
 
-  camera_o3r.def(
+  o3r.def(
     "get",
-    [](const ifm3d::O3RCamera::Ptr& c, const std::vector<std::string>& path)
+    [](const ifm3d::O3R::Ptr& c, const std::vector<std::string>& path)
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
@@ -76,9 +76,9 @@ bind_camera_o3r(pybind11::module_& m)
           The JSON configuration for the list of object path fragments
     )");
 
-  camera_o3r.def(
+  o3r.def(
     "set",
-    [](const ifm3d::O3RCamera::Ptr& c, const py::dict& json)
+    [](const ifm3d::O3R::Ptr& c, const py::dict& json)
     {
       // Convert the input JSON to string and load it
       py::object json_dumps = py::module::import("json").attr("dumps");
@@ -95,9 +95,9 @@ bind_camera_o3r(pybind11::module_& m)
           The new temporay JSON configuration of the device.
     )");
 
-  camera_o3r.def(
+  o3r.def(
     "get_init",
-    [](const ifm3d::O3RCamera::Ptr& c)
+    [](const ifm3d::O3R::Ptr& c)
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
@@ -112,17 +112,17 @@ bind_camera_o3r(pybind11::module_& m)
           The initial JSON configuration
     )");
 
-  camera_o3r.def(
+  o3r.def(
     "save_init",
-    &ifm3d::O3RCamera::SaveInit,
+    &ifm3d::O3R::SaveInit,
     R"(
       Save to current temporary JSON configuration as initial JSON
       configuration
     )");
 
-  camera_o3r.def(
+  o3r.def(
     "get_init_status",
-    &ifm3d::O3RCamera::GetInitStatus,
+    &ifm3d::O3R::GetInitStatus,
     R"(
       Returns the init status of the device
 
@@ -132,9 +132,9 @@ bind_camera_o3r(pybind11::module_& m)
           The init status of the device
     )");
 
-  camera_o3r.def(
+  o3r.def(
     "lock",
-    &ifm3d::O3RCamera::Lock,
+    &ifm3d::O3R::Lock,
     py::arg("password"),
     R"(
       Release the lock from the Device
@@ -145,9 +145,9 @@ bind_camera_o3r(pybind11::module_& m)
           The password used to unlock the device
     )");
 
-  camera_o3r.def(
+  o3r.def(
     "unlock",
-    &ifm3d::O3RCamera::Unlock,
+    &ifm3d::O3R::Unlock,
     py::arg("password"),
     R"(
       Locks the device until it is unlocked.
@@ -160,9 +160,9 @@ bind_camera_o3r(pybind11::module_& m)
           The password used to lock the device
     )");
 
-  camera_o3r.def(
+  o3r.def(
     "get_schema",
-    [](const ifm3d::O3RCamera::Ptr& c)
+    [](const ifm3d::O3R::Ptr& c)
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");

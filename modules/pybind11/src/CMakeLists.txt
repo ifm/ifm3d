@@ -45,8 +45,8 @@ add_library(ifm3dpy MODULE main.cpp)
 #------------------
 target_include_directories(ifm3dpy
   PRIVATE
-    $<BUILD_INTERFACE:${IFM3D_CAMERA_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${IFM3D_CAMERA_BINARY_DIR}/include>
+    $<BUILD_INTERFACE:${IFM3D_DEVICE_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${IFM3D_DEVICE_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_FG_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_TOOLS_SOURCE_DIR}/include>
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -59,7 +59,7 @@ target_link_libraries(
   ifm3dpy
   PRIVATE
     ifm3d_framegrabber
-    ifm3d_camera
+    ifm3d_device
     pybind11::module
     ifm3d_tools_shared
     ifm3d_swupdater
