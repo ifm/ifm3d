@@ -9,59 +9,59 @@
 #include <pybind11/pybind11.h>
 
 void
-bind_camera_base(pybind11::module_& m)
+bind_device(pybind11::module_& m)
 {
   // clang-format off
-  py::class_<ifm3d::CameraBase, ifm3d::CameraBase::Ptr> camera_base(
-    m, "CameraBase",
+  py::class_<ifm3d::Device, ifm3d::Device::Ptr> device(
+    m, "Device",
     R"(
       Base class for managing an instance of an all cameras
     )");
 
   // Types
 
-  py::enum_<ifm3d::CameraBase::boot_mode>(camera_base, "boot_mode", "Enum: Camera boot up modes.")
-    .value("PRODUCTIVE", ifm3d::CameraBase::boot_mode::PRODUCTIVE, "the normal runtime firmware comes up")
-    .value("RECOVERY", ifm3d::CameraBase::boot_mode::RECOVERY, "allows you to flash new firmware");
+  py::enum_<ifm3d::Device::boot_mode>(device, "boot_mode", "Enum: Camera boot up modes.")
+    .value("PRODUCTIVE", ifm3d::Device::boot_mode::PRODUCTIVE, "the normal runtime firmware comes up")
+    .value("RECOVERY", ifm3d::Device::boot_mode::RECOVERY, "allows you to flash new firmware");
 
-  py::enum_<ifm3d::CameraBase::operating_mode>(camera_base, "operating_mode", "Enum: Camera operating modes")
-    .value("RUN", ifm3d::CameraBase::operating_mode::RUN, "streaming pixel data")
-    .value("EDIT", ifm3d::CameraBase::operating_mode::EDIT, "configuring the device/applications");
+  py::enum_<ifm3d::Device::operating_mode>(device, "operating_mode", "Enum: Camera operating modes")
+    .value("RUN", ifm3d::Device::operating_mode::RUN, "streaming pixel data")
+    .value("EDIT", ifm3d::Device::operating_mode::EDIT, "configuring the device/applications");
 
-  py::enum_<ifm3d::CameraBase::trigger_mode>(camera_base, "trigger_mode", "Enum: Image acquisition trigger modes")
-    .value("FREE_RUN", ifm3d::CameraBase::trigger_mode::FREE_RUN)
-    .value("SW", ifm3d::CameraBase::trigger_mode::SW);
+  py::enum_<ifm3d::Device::trigger_mode>(device, "trigger_mode", "Enum: Image acquisition trigger modes")
+    .value("FREE_RUN", ifm3d::Device::trigger_mode::FREE_RUN)
+    .value("SW", ifm3d::Device::trigger_mode::SW);
 
-  py::enum_<ifm3d::CameraBase::import_flags>(camera_base, "import_flags", "Enum: Import flags used when importing a Vision Assistant configuration")
-    .value("GLOBAL", ifm3d::CameraBase::import_flags::GLOBAL)
-    .value("NET", ifm3d::CameraBase::import_flags::NET)
-    .value("APPS", ifm3d::CameraBase::import_flags::APPS);
+  py::enum_<ifm3d::Device::import_flags>(device, "import_flags", "Enum: Import flags used when importing a Vision Assistant configuration")
+    .value("GLOBAL", ifm3d::Device::import_flags::GLOBAL)
+    .value("NET", ifm3d::Device::import_flags::NET)
+    .value("APPS", ifm3d::Device::import_flags::APPS);
 
-  py::enum_<ifm3d::CameraBase::spatial_filter>(camera_base, "spatial_filter", "Enum: Convenience constants for spatial filter types")
-    .value("OFF", ifm3d::CameraBase::spatial_filter::OFF)
-    .value("MEDIAN", ifm3d::CameraBase::spatial_filter::MEDIAN)
-    .value("MEAN", ifm3d::CameraBase::spatial_filter::MEAN)
-    .value("BILATERAL", ifm3d::CameraBase::spatial_filter::BILATERAL);
+  py::enum_<ifm3d::Device::spatial_filter>(device, "spatial_filter", "Enum: Convenience constants for spatial filter types")
+    .value("OFF", ifm3d::Device::spatial_filter::OFF)
+    .value("MEDIAN", ifm3d::Device::spatial_filter::MEDIAN)
+    .value("MEAN", ifm3d::Device::spatial_filter::MEAN)
+    .value("BILATERAL", ifm3d::Device::spatial_filter::BILATERAL);
 
-  py::enum_<ifm3d::CameraBase::temporal_filter>(camera_base, "temporal_filter", "Enum: Convenience constants for temporal filter types")
-    .value("OFF", ifm3d::CameraBase::temporal_filter::OFF)
-    .value("MEAN", ifm3d::CameraBase::temporal_filter::MEAN)
-    .value("ADAPTIVE_EXP", ifm3d::CameraBase::temporal_filter::ADAPTIVE_EXP);
+  py::enum_<ifm3d::Device::temporal_filter>(device, "temporal_filter", "Enum: Convenience constants for temporal filter types")
+    .value("OFF", ifm3d::Device::temporal_filter::OFF)
+    .value("MEAN", ifm3d::Device::temporal_filter::MEAN)
+    .value("ADAPTIVE_EXP", ifm3d::Device::temporal_filter::ADAPTIVE_EXP);
 
-  py::enum_<ifm3d::CameraBase::mfilt_mask_size>(camera_base, "mfilt_mask_size", "Enum: Convenient constants for median filter mask sizes")
-    .value("_3x3", ifm3d::CameraBase::mfilt_mask_size::_3x3)
-    .value("_5x5", ifm3d::CameraBase::mfilt_mask_size::_5x5);
+  py::enum_<ifm3d::Device::mfilt_mask_size>(device, "mfilt_mask_size", "Enum: Convenient constants for median filter mask sizes")
+    .value("_3x3", ifm3d::Device::mfilt_mask_size::_3x3)
+    .value("_5x5", ifm3d::Device::mfilt_mask_size::_5x5);
 
-  py::enum_<ifm3d::CameraBase::device_family>(camera_base, "device_family", "Enum: The family of the device")
-    .value("UNKNOWN", ifm3d::CameraBase::device_family::UNKNOWN)
-    .value("O3D", ifm3d::CameraBase::device_family::O3D)
-    .value("O3X", ifm3d::CameraBase::device_family::O3X)
-    .value("O3R", ifm3d::CameraBase::device_family::O3R);
+  py::enum_<ifm3d::Device::device_family>(device, "device_family", "Enum: The family of the device")
+    .value("UNKNOWN", ifm3d::Device::device_family::UNKNOWN)
+    .value("O3D", ifm3d::Device::device_family::O3D)
+    .value("O3X", ifm3d::Device::device_family::O3X)
+    .value("O3R", ifm3d::Device::device_family::O3R);
 
   // Ctor
 
-  camera_base.def(
-    py::init(&ifm3d::CameraBase::MakeShared),
+  device.def(
+    py::init(&ifm3d::Device::MakeShared),
     R"(
       Constructor
 
@@ -85,19 +85,19 @@ bind_camera_base(pybind11::module_& m)
 
   // Accessors/Mutators
 
-  camera_base.def_property_readonly(
+  device.def_property_readonly(
     "ip",
-    &ifm3d::CameraBase::IP,
+    &ifm3d::Device::IP,
     R"(The IP address associated with this Camera instance)");
 
-  camera_base.def_property_readonly(
+  device.def_property_readonly(
     "xmlrpc_port",
-    &ifm3d::CameraBase::XMLRPCPort,
+    &ifm3d::Device::XMLRPCPort,
     R"(The XMLRPC port associated with this Camera instance)");
 
-  camera_base.def(
+  device.def(
     "force_trigger",
-    &ifm3d::CameraBase::ForceTrigger,
+    &ifm3d::Device::ForceTrigger,
     R"(
       Sends a S/W trigger to the camera over XMLRPC.
 
@@ -105,10 +105,10 @@ bind_camera_base(pybind11::module_& m)
       has been developed specficially for it. For the O3D, this is a NOOP.
     )");
 
-  camera_base.def(
+  device.def(
     "reboot",
-    &ifm3d::CameraBase::Reboot,
-    py::arg("mode") = ifm3d::CameraBase::boot_mode::PRODUCTIVE,
+    &ifm3d::Device::Reboot,
+    py::arg("mode") = ifm3d::Device::boot_mode::PRODUCTIVE,
     R"(
       Reboot the sensor
 
@@ -122,9 +122,9 @@ bind_camera_base(pybind11::module_& m)
       RuntimeError
     )");
 
-  camera_base.def(
+  device.def(
     "device_type",
-    &ifm3d::CameraBase::DeviceType,
+    &ifm3d::Device::DeviceType,
     py::arg("use_cached") = true,
     R"(
       Obtains the device type of the connected camera.
@@ -155,9 +155,9 @@ bind_camera_base(pybind11::module_& m)
           Type of device connected
     )");
 
-  camera_base.def(
+  device.def(
     "who_am_i",
-    &ifm3d::CameraBase::WhoAmI,
+    &ifm3d::Device::WhoAmI,
     R"(
       Retrieve the device family of the connected device
 
@@ -167,9 +167,9 @@ bind_camera_base(pybind11::module_& m)
           The device family
     )");
 
-  camera_base.def(
+  device.def(
     "am_i",
-    &ifm3d::CameraBase::AmI,
+    &ifm3d::Device::AmI,
     py::arg("family"),
     R"(
       Checking whether a device is one of the specified device family
@@ -185,9 +185,9 @@ bind_camera_base(pybind11::module_& m)
           True if the device is of the specified family
     )");
 
-  camera_base.def(
+  device.def(
     "device_parameter",
-    &ifm3d::CameraBase::DeviceParameter,
+    &ifm3d::Device::DeviceParameter,
     py::arg("key"),
     R"(
       Convenience accessor for extracting a device parameter
@@ -209,9 +209,9 @@ bind_camera_base(pybind11::module_& m)
       RuntimeError
     )");
 
-  camera_base.def(
+  device.def(
     "trace_logs",
-    &ifm3d::CameraBase::TraceLogs,
+    &ifm3d::Device::TraceLogs,
     py::arg("count"),
     R"(
       Delivers the trace log from the camera
@@ -229,9 +229,9 @@ bind_camera_base(pybind11::module_& m)
           List of strings for each entry in the tracelog
     )");
 
-  camera_base.def(
+  device.def(
     "check_minimum_firmware_version",
-    &ifm3d::CameraBase::CheckMinimumFirmwareVersion,
+    &ifm3d::Device::CheckMinimumFirmwareVersion,
     py::arg("major"),
     py::arg("minor"),
     py::arg("patch"),
@@ -256,9 +256,9 @@ bind_camera_base(pybind11::module_& m)
           or equal to the value passed
     )");
 
-  camera_base.def(
+  device.def(
     "to_json",
-    [](const ifm3d::CameraBase::Ptr& c)
+    [](const ifm3d::Device::Ptr& c)
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
@@ -277,9 +277,9 @@ bind_camera_base(pybind11::module_& m)
       RuntimeError
     )");
 
-  camera_base.def(
+  device.def(
     "from_json",
-    [](const ifm3d::CameraBase::Ptr& c, const py::dict& json)
+    [](const ifm3d::Device::Ptr& c, const py::dict& json)
     {
       // Convert the input JSON to string and load it
       py::object json_dumps = py::module::import("json").attr("dumps");
