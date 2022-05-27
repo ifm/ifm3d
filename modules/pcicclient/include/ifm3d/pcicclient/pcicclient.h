@@ -12,7 +12,7 @@
 #include <mutex>
 #include <string>
 #include <thread>
-#include <ifm3d/camera.h>
+#include <ifm3d/device.h>
 
 namespace ifm3d
 {
@@ -34,7 +34,7 @@ namespace ifm3d
      * @param[in] cam The camera instance to grab frames from
      * @param[in] nat_pcic_port pcic port for NAT configuartion
      */
-    PCICClient(ifm3d::Camera::Ptr cam,
+    PCICClient(ifm3d::LegacyDevice::Ptr cam,
                const std::uint16_t pcic_port = ifm3d::PCIC_PORT);
 
     /**
