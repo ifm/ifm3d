@@ -39,7 +39,9 @@ bind_frame(pybind11::module_& m)
     .value("O3R_DISTANCE_IMAGE_INFORMATION", ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFORMATION)
     .value("JSON_MODEL", ifm3d::buffer_id::JSON_MODEL)
     .value("ALGO_DEBUG", ifm3d::buffer_id::ALGO_DEBUG)
-    .value("XYZ", ifm3d::buffer_id::XYZ);
+    .value("XYZ", ifm3d::buffer_id::XYZ)
+    .value("EXPOSURE_TIME", ifm3d::buffer_id::EXPOSURE_TIME)
+    .value("ILLUMINATION_TEMP", ifm3d::buffer_id::ILLUMINATION_TEMP);
     
 
   frame.def(
