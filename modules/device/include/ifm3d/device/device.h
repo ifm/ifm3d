@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IFM3D_CAMERA_CAMERA_BASE_H
-#define IFM3D_CAMERA_CAMERA_BASE_H
+#ifndef IFM3D_DEVICE_DEVICE_H
+#define IFM3D_DEVICE_DEVICE_H
 
 #include <cstdint>
 #include <string>
@@ -107,11 +107,11 @@ namespace ifm3d
   class XMLRPCWrapper;
 
   /**
-   * Software interface to an ifm 3D camera
+   * Software interface to an ifm 3D device
    *
-   * The `Camera` class implements the underlying network protocol for
+   * The `Device` class implements the underlying network protocol for
    * communicating with the ifm hardware. Via this communication layer, this
-   * class exposes objects that can be used to mutate and tune the camera
+   * class exposes objects that can be used to mutate and tune the device
    * parameters including those of the underlying pmd imager.
    */
   class Device
@@ -120,7 +120,7 @@ namespace ifm3d
     using Ptr = std::shared_ptr<Device>;
 
     /**
-     * Camera boot up modes:
+     * Device boot up modes:
      *
      * Productive: the normal runtime firmware comes up
      * Recovery: allows you to flash new firmware
@@ -132,7 +132,7 @@ namespace ifm3d
     };
 
     /**
-     * Camera operating modes: run (streaming pixel data), edit (configuring
+     * Device operating modes: run (streaming pixel data), edit (configuring
      * the device/applications).
      */
     enum class operating_mode : int
@@ -226,12 +226,12 @@ namespace ifm3d
      * 2) errors will come back from the sensor rather than the library -- some
      * of which may be hard to debug.
      *
-     * @param[in] ip The ip address of the camera
+     * @param[in] ip The ip address of the device
      * @param[in] xmlrpc_port The tcp port the sensor's XMLRPC server is
      *                        listening on
      * @param[in] password Password required for establishing an "edit session"
      *                     with the sensor. Edit sessions allow for mutating
-     *                     camera parameters and persisting those changes.
+     *                     device parameters and persisting those changes.
      */
     static Ptr MakeShared(
       const std::string& ip = ifm3d::DEFAULT_IP,
@@ -239,26 +239,26 @@ namespace ifm3d
       const std::string& password = ifm3d::DEFAULT_PASSWORD);
 
     /**
-     * Initializes the camera interface utilizing library defaults
+     * Initializes the device interface utilizing library defaults
      * for password, ip, and xmlrpc port unless explicitly passed in.
      *
-     * @param[in] ip The ip address of the camera
+     * @param[in] ip The ip address of the device
      * @param[in] xmlrpc_port The tcp port the sensor's XMLRPC server is
      *                        listening on
      * @param[in] password Password required for establishing an "edit session"
      *                     with the sensor. Edit sessions allow for mutating
-     *                     camera parameters and persisting those changes.
+     *                     device parameters and persisting those changes.
      */
     Device(const std::string& ip = ifm3d::DEFAULT_IP,
                const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT);
 
     /**
-     * The dtor will cancel any open edit sessions with the camera.
+     * The dtor will cancel any open edit sessions with the device.
      */
     virtual ~Device();
 
     // Based on our mileage with `libo3d3xx`, disabling copy and move semantics
-    // on the camera class has not been an issue, so, we do that here too.
+    // on the device class has not been an issue, so, we do that here too.
     Device(Device&&) = delete;
     Device& operator=(Device&&) = delete;
     Device(Device&) = delete;
@@ -266,23 +266,23 @@ namespace ifm3d
 
     // Accessors/Mutators
 
-    /** The IP address associated with this Camera instance */
+    /** The IP address associated with this Device instance */
     virtual std::string IP();
 
-    /** The XMLRPC Port associated with this Camera instance */
+    /** The XMLRPC Port associated with this Device instance */
     virtual std::uint16_t XMLRPCPort();
 
     /**
-     * Reboot the sensor
+     * Reboot the device
      *
-     * @param[in] mode The system mode to boot into upon restart of the sensor
-     * @throw ifm3d::error_t upon error
+     * @param[in] mode The system mode to boot into upon restart of the device
+     * @throw ifm3d::Error upon error
      */
     virtual void Reboot(
       const boot_mode& mode = ifm3d::Device::boot_mode::PRODUCTIVE);
 
     /**
-     * Sends a S/W trigger to the camera over XMLRPC.
+     * Sends a S/W trigger to the device over XMLRPC.
      *
      * The O3X does not S/W trigger over PCIC, so, this function
      * has been developed specficially for it. For other sensors, this is a
@@ -292,7 +292,7 @@ namespace ifm3d
 
     /**
      * This is a convenience function for extracting out the device type of the
-     * connected camera. The primary intention of this function is for internal
+     * connected device. The primary intention of this function is for internal
      * usage (i.e., to trigger conditional logic based on the model hardware
      * we are talking to) however, it will likely be useful in
      * application-level logic as well, so, it is available in the public
@@ -300,7 +300,7 @@ namespace ifm3d
      *
      * @param[in] use_cached If set to true, a cached lookup of the device
      *                       type will be used as the return value. If false,
-     *                       it will make a network call to the camera to get
+     *                       it will make a network call to the device to get
      *                       the "real" device type. The only reason for
      *                       setting this to `false` would be if you expect
      *                       over the lifetime of your camera instance that you
@@ -332,36 +332,36 @@ namespace ifm3d
 
     /**
      * Convenience accessor for extracting a device parameters
-     * (i.e., no edit session created on the camera)
+     * (i.e., no edit session created on the device)
      */
     virtual std::string DeviceParameter(const std::string& key);
 
     /**
-     * Delivers the trace log from the camera
+     * Delivers the trace log from the device
      * A session is not required to call this function.
      *
      * @return A `vector' of `std::string' for each entry in the tracelog
      *
-     * @throw ifm3d::error_t upon error
+     * @throw ifm3d::Error upon error
      */
     virtual std::vector<std::string> TraceLogs(int count);
 
     /**
-     * Serializes the state of the camera to JSON.
+     * Serializes the state of the device to JSON.
      *
      * The JSON interface returned here is the excellent
      * <a href="https://github.com/nlohmann/json">JSON for Modern C++</a>.
      *
      * This function (along with its `std::string` equivalent `ToJSONStr()`)
      * provides the primary gateway into obtaining the current parameter
-     * settings for the camera and PMD imager. Data returned from this function
+     * settings for the device and PMD imager. Data returned from this function
      * can be manipulated as a `json` object, then fed into `FromJSON(...)` to
-     * mutate parameter settings on the camera.
+     * mutate parameter settings on the device.
      *
      * @return A JSON object representation of the current state of the
      *         hardware.
      *
-     * @throw ifm3d::error_t upon error
+     * @throw ifm3d::Error upon error
      */
     virtual json ToJSON();
 
@@ -375,9 +375,9 @@ namespace ifm3d
     virtual std::string ToJSONStr();
 
     /**
-     * Configures the camera based on the parameter values of the passed in
+     * Configures the device based on the parameter values of the passed in
      * JSON. This function is _the_ way to tune the
-     * camera/application/imager/etc. parameters.
+     * device/application/imager/etc. parameters.
      *
      * @param[in] json A json object encoding a camera configuration to apply
      *                 to the hardware.
@@ -387,7 +387,7 @@ namespace ifm3d
      *
      * - Device parameters are processed and saved persistently
      *
-     * @throw ifm3d::error_t upon error - if this throws an exception, you are
+     * @throw ifm3d::Error upon error - if this throws an exception, you are
      *        encouraged to check the log file as a best effort is made to be
      *        as descriptive as possible as to the specific error that has
      *        occured.
@@ -403,7 +403,7 @@ namespace ifm3d
     virtual void FromJSONStr(const std::string& jstr);
 
     /**
-     * Checks for a minimum ifm camera software version
+     * Checks for a minimum ifm device software version
      *  @param[in] major  Major version of software
      *  @param[in] minor  Minor Version of software
      *  @param[in] patch  Patch Number of software
@@ -432,18 +432,18 @@ namespace ifm3d
     std::string device_type_;
 
     /**
-     *  Implements the serialization of the camera state to JSON.
+     *  Implements the serialization of the device state to JSON.
      *  @param[in] open_session if false function will work
                    on already opened session
-     *  @return A JSON object representation of the current camera state.
+     *  @return A JSON object representation of the current device state.
      */
     int DeviceID();
     bool checkDeviceID(int deviceID, int minID, int maxID);
 
     std::shared_ptr<XMLRPCWrapper> XWrapper();
 
-  }; // end: class Camera
+  }; // end: class Device
 
 } // end: namespace ifm3d
 
-#endif // IFM3D_CAMERA_CAMERA_BASE_H
+#endif // IFM3D_DEVICE_DEVICE_H

@@ -31,7 +31,7 @@ namespace ifm3d
      * Stores reference to the passed in camera and starts connect/receive
      * thread
      *
-     * @param[in] cam The camera instance to grab frames from
+     * @param[in] cam The Device instance to grab frames from
      * @param[in] nat_pcic_port pcic port for NAT configuartion
      */
     PCICClient(ifm3d::LegacyDevice::Ptr cam,

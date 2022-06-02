@@ -18,7 +18,7 @@ namespace ifm3d
   };
 
   /**
-   * Camera specialization for O3R
+   * Device specialization for O3R
    */
   class O3R : public Device
   {
@@ -34,7 +34,7 @@ namespace ifm3d
     O3R& operator=(O3R&) = delete;
 
     /**
-     * Sets the camera configuration back to the state in which it shipped from
+     * Sets the device configuration back to the state in which it shipped from
      * the ifm factory.
      *
      * @param[in] keepNetworkSettings a bool indicating wether to keep the
@@ -137,12 +137,12 @@ namespace ifm3d
     ifm3d::Device::swu_version SwUpdateVersion() override;
 
     /**
-     * @copydoc CameraBase::ToJSON()
+     * @copydoc Device::ToJSON()
      * Equivalent to the @ref Get() method
      */
     json ToJSON() override;
     /**
-     * @copydoc CameraBase::FromJSON()
+     * @copydoc Device::FromJSON()
      * Equivalent to @ref Set() followed by @ref SaveInit()
      */
     void FromJSON(const json& j) override;

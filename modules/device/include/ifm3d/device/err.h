@@ -141,7 +141,7 @@ namespace ifm3d
      */
     std::string what_;
 
-  }; // end: class error_t
+  }; // end: class Error
 
 } // end: namespace ifm3d
 

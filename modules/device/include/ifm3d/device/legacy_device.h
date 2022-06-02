@@ -37,12 +37,12 @@ namespace ifm3d
      * 2) errors will come back from the sensor rather than the library -- some
      * of which may be hard to debug.
      *
-     * @param[in] ip The ip address of the camera
+     * @param[in] ip The ip address of the device
      * @param[in] xmlrpc_port The tcp port the sensor's XMLRPC server is
      *                        listening on
      * @param[in] password Password required for establishing an "edit session"
      *                     with the sensor. Edit sessions allow for mutating
-     *                     camera parameters and persisting those changes.
+     *                     device parameters and persisting those changes.
      */
     static Ptr MakeShared(
       const std::string& ip = ifm3d::DEFAULT_IP,
@@ -50,15 +50,15 @@ namespace ifm3d
       const std::string& password = ifm3d::DEFAULT_PASSWORD);
 
     /**
-     * Initializes the camera interface utilizing library defaults
+     * Initializes the device interface utilizing library defaults
      * for password, ip, and xmlrpc port unless explicitly passed in.
      *
-     * @param[in] ip The ip address of the camera
+     * @param[in] ip The ip address of the device
      * @param[in] xmlrpc_port The tcp port the sensor's XMLRPC server is
      *                        listening on
      * @param[in] password Password required for establishing an "edit session"
      *                     with the sensor. Edit sessions allow for mutating
-     *                     camera parameters and persisting those changes.
+     *                     device parameters and persisting those changes.
      */
     LegacyDevice(const std::string& ip = ifm3d::DEFAULT_IP,
            const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
@@ -66,43 +66,43 @@ namespace ifm3d
 
     virtual ~LegacyDevice();
 
-    /** The password associated with this Camera instance */
+    /** The password associated with this Device instance */
     virtual std::string Password();
 
     /** Retrieves the active session id */
     virtual std::string SessionID();
 
     /**
-     * Sets the camera configuration back to the state in which it shipped from
+     * Sets the device configuration back to the state in which it shipped from
      * the ifm factory.
      */
     virtual void FactoryReset();
 
     /**
-     * Requests an edit-mode session with the camera.
+     * Requests an edit-mode session with the device.
      *
-     * In order to (permanently) mutate parameters on the camera, an edit
+     * In order to (permanently) mutate parameters on the device, an edit
      * session needs to be established. Only a single edit sesson may be
-     * established at any one time with the camera (think of it as a global
-     * mutex on the camera state -- except if you ask for the mutex and it is
+     * established at any one time with the device (think of it as a global
+     * mutex on the device state -- except if you ask for the mutex and it is
      * already taken, an exception will be thrown).
      *
      * Most typical use-cases for end-users will not involve establishing an
-     * edit-session with the camera. To mutate camera parameters, the
+     * edit-session with the device. To mutate device parameters, the
      * `FromJSON` family of functions should be used, which, under-the-hood, on
      * the user's behalf, will establish the edit session and gracefully close
      * it. There is an exception. For users who plan to modulate imager
      * parameters (temporary parameters) on the fly while running the
      * framegrabber, managing the session manually is necessary. For this
-     * reason, we expose this method in the public `Camera` interface.
+     * reason, we expose this method in the public `Device` interface.
      *
      * NOTE: The session timeout is implicitly set to `ifm3d::MAX_HEARTBEAT`
      * after the session has been successfully established.
      *
-     * @return The session id issued or accepted by the camera (see
+     * @return The session id issued or accepted by the device (see
      *         IFM3D_SESSION_ID environment variable)
      *
-     * @throws ifm3d::error_t if an error is encountered.
+     * @throws ifm3d::Error if an error is encountered.
      */
     virtual std::string RequestSession();
 
@@ -112,7 +112,7 @@ namespace ifm3d
      * NOTE: This function returns a boolean indicating the success/failure of
      * cancelling the session. The reason we return a bool and explicitly
      * supress exceptions is because we want to cancel any open sessions in the
-     * camera dtor and we do not want to throw in the dtor.
+     * device dtor and we do not want to throw in the dtor.
      *
      * @return true if the session was cancelled properly, false if an
      * exception was caught trying to close the session. Details will be
@@ -139,7 +139,7 @@ namespace ifm3d
      *
      * @return The current timeout interval in seconds for heartbeat messages.
      *
-     * @throw ifm3d::error_t upon error
+     * @throw ifm3d::Error upon error
      */
     virtual int Heartbeat(int hb);
 
@@ -159,9 +159,9 @@ namespace ifm3d
      * "ExposureTime" and "ExposureTimeRatio" for double exposure
      * modes. Otherwise, behavior is undefined.
      *
-     * @param[in] params The parameters to set on the camera.
+     * @param[in] params The parameters to set on the device.
      *
-     * @throw ifm3d::error_t upon error
+     * @throw ifm3d::Error upon error
      */
     virtual void SetTemporaryApplicationParameters(
       const std::unordered_map<std::string, std::string>& params);
@@ -175,14 +175,14 @@ namespace ifm3d
     /**
      * Delivers basic information about all applications stored on the device.
      * A call to this function does not require establishing a session with the
-     * camera.
+     * device.
      *
      * The returned information is encoded as an array of JSON objects.
      * Each object in the array is basically a dictionary with the following
      * keys: 'index', 'id', 'name', 'description', 'active'
      *
      * @return A JSON encoding of the application information
-     * @throw ifm3d::error_t upon error
+     * @throw ifm3d::Error upon error
      */
     virtual json ApplicationList();
 
@@ -193,7 +193,7 @@ namespace ifm3d
      *        supported by the sensor. Each element of the vector is a string
      *        suitable to passing to `CreateApplication`.
      *
-     * @throw ifm3d::error_t upon error
+     * @throw ifm3d::Error upon error
      */
     virtual std::vector<std::string> ApplicationTypes();
 
@@ -203,7 +203,7 @@ namespace ifm3d
      * @return A vector of strings listing the available types of imagers
      *         supported by the sensor.
      *
-     * @throw ifm3d::error_t upon error
+     * @throw ifm3d::Error upon error
      */
     virtual std::vector<std::string> ImagerTypes();
 
@@ -216,12 +216,12 @@ namespace ifm3d
      *
      * @return Index of the new application
      *
-     * @throw ifm3d::error_t upon error
+     * @throw ifm3d::Error upon error
      */
     virtual int CopyApplication(int idx);
 
     /**
-     * Creates a new application on the camera of the given type.
+     * Creates a new application on the device of the given type.
      *
      * To figure out valid `type`s, you should call the
      *`AvailableApplicationTypes()` method.
@@ -233,7 +233,7 @@ namespace ifm3d
      * active.
      *
      * @param[in] type The (optional) application type to create. By default,
-     *                 it will create a new "Camera" application.
+     *                 it will create a new "Device" application.
      *
      * @return The index of the new application.
      */
@@ -244,12 +244,12 @@ namespace ifm3d
      * Deletes the application at the specified index from the sensor.
      *
      * @param[in] idx The index of the application to delete
-     * throw ifm3d::error_t upon error
+     * throw ifm3d::Error upon error
      */
     virtual void DeleteApplication(int idx);
 
     /**
-     * Explicitly sets the current time on the camera.
+     * Explicitly sets the current time on the device.
      *
      * @param[in] epoch_secs Time since the Unix epoch in seconds.
      *            A value less than 0 will implicitly set the time
@@ -258,13 +258,13 @@ namespace ifm3d
     virtual void SetCurrentTime(int epoch_secs = -1);
 
     /**
-     * For cameras that support fetching the Unit Vectors over XML-RPC,
+     * For devices that support fetching the Unit Vectors over XML-RPC,
      * this function will return those data as a binary blob.
      */
     virtual std::vector<std::uint8_t> UnitVectors();
 
     /**
-     * Exports the entire camera configuration in a format compatible with
+     * Exports the entire device configuration in a format compatible with
      * Vision Assistant.
      */
     virtual std::vector<std::uint8_t> ExportIFMConfig();
@@ -282,12 +282,12 @@ namespace ifm3d
      * @return A vector of bytes representing the IFM serialization of the
      *         exported application.
      *
-     * @throw ifm3d::error_t upon error
+     * @throw ifm3d::Error upon error
      */
     virtual std::vector<std::uint8_t> ExportIFMApp(int idx);
 
     /**
-     * Imports an entire camera configuration from a format compatible with
+     * Imports an entire device configuration from a format compatible with
      * Vision Assistant.
      */
     virtual void ImportIFMConfig(const std::vector<std::uint8_t>& bytes,
@@ -309,12 +309,12 @@ namespace ifm3d
     virtual int ImportIFMApp(const std::vector<std::uint8_t>& bytes);
 
     /**
-     * Sets or disable the password on the camera.
+     * Sets or disable the password on the device.
      *
      * @param[in] password is the password string. If the password is blank,
      *                     password is disabled
      *
-     * @throw ifm3d::error_t upon error
+     * @throw ifm3d::Error upon error
      */
     virtual void SetPassword(std::string password = "");
 
@@ -328,7 +328,7 @@ namespace ifm3d
 
     /**
      * Handles parsing a selected sub-tree of a potential input JSON file,
-     * setting the parameters as appropriate on the camera, and saving them
+     * setting the parameters as appropriate on the device, and saving them
      * persistently.
      *
      * @param[in] j_curr The current configuration
@@ -349,7 +349,7 @@ namespace ifm3d
       int idx = -1);
 
     /**
-     * Return json of an app with given index from camera configuration json.
+     * Return json of an app with given index from device configuration json.
      *
      * @param[in] index Index of application to return
      * @param[in] j     The current configuration
