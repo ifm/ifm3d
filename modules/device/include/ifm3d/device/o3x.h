@@ -11,7 +11,7 @@
 namespace ifm3d
 {
   /**
-   * Camera specialization for O3X
+   * Device specialization for O3X
    */
   class O3X : public LegacyDevice
   {

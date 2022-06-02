@@ -16,19 +16,19 @@
 namespace ifm3d
 {
   /**
-  @brief The class Image represent a STL conatiner to stored image data  from
-  the ifm devices in 2 dimension and supports multiple channel. data is stores
+  @brief The class Buffer represent a STL conatiner to store data  from
+  the ifm devices in 2 dimension and supports multiple channel. data stores
   in sequnetial memory layout and class provides function template to access
-  the pixel. Creating an Image object :
+  the pixel. Creating an Buffer object :
 
   - Use the Create(cols, rows, nchannel, ifm3d::pixel_format ) method or the
-  similar Image(cols,rows, nchannel, type) constructor.
+  similar Buffer(cols,rows, nchannel, type) constructor.
 
   For example, FORMAT_8U means a 8-bit array, FORMAT_32F floating-point array,
   and so on.
   @code
-      //a 100 x 100 Image of type 8U
-      ifm3d::Image image(100,100,1,ifm3d::FORMAT_8U);
+      //a 100 x 100 Buffer of type 8U
+      ifm3d::Buffer image(100,100,1,ifm3d::FORMAT_8U);
       // and now turn image to a 10 x10 3-channel 8-bit matrix.
       // The old content will be deallocated
       image.create(10,10,3,ifm3d::FORMAT_8U);
@@ -40,7 +40,7 @@ namespace ifm3d
   to the pixel. A pixel is defined as structure of n-channel values at a given
   index or pixel position in 2D array
 
-  to access a pixel in Image I ( 100,100,1,ifm3d::FORMAT_8U) at  50,50
+  to access a pixel in Buffer I ( 100,100,1,ifm3d::FORMAT_8U) at  50,50
   position
 
    @code
@@ -61,8 +61,8 @@ namespace ifm3d
      I<uint8_t>(index) = 100;
    @endcode
 
-   to access a pixel in n-channel Image I ( 100,100,3,ifm3d::FORMAT_8U) at
-  50,50 position This will be the case accessing the values for 3 channel Image
+   to access a pixel in n-channel Buffer I ( 100,100,3,ifm3d::FORMAT_8U) at
+  50,50 position This will be the case accessing the values for 3 channel Buffer
 
    as pixel is structure of the values of n-chanel at given position.
 
@@ -75,10 +75,10 @@ namespace ifm3d
    @endcode
 
    -Processing the whole array
-  If you need to process a whole Image, the most efficient way is to
+  If you need to process a whole image, the most efficient way is to
   get the pointer to the row first, and then just use the plain C operator [] :
   @code
-     Image I(100,100,1,FORMAT_8U);
+     Buffer I(100,100,1,FORMAT_8U);
       for(int i = 0; i < I.height(); i++)
       {
           const uint8_t* rowi = M.ptr<uint8_t>(i);
@@ -97,11 +97,11 @@ namespace ifm3d
   private:
     /* @ brief raw pointer to the data*/
     uint8_t* data_;
-    /*@brief number of columns in Image (width)*/
+    /*@brief number of columns in Buffer (width)*/
     std::uint32_t cols_;
-    /*@brief number of rows in Image (height)*/
+    /*@brief number of rows in Buffer (height)*/
     std::uint32_t rows_;
-    /*@brief number of channel in Image*/
+    /*@brief number of channel in Buffer*/
     std::uint32_t nchannel_;
     /* @brief data format or type*/
     ifm3d::pixel_format data_format_;
@@ -119,16 +119,16 @@ namespace ifm3d
 
   public:
     /**
-      These are various constructors that form a Image.
-      default constructor for forming a Image user furher
+      These are various constructors that form a Buffer.
+      default constructor for forming a Buffer. User further
       needs to call create Method to actually allocates the
-      Memory
+      memory
     */
     Buffer();
     /*@overload
-      @param cols Number of columns in a Image.
-      @param rows Number of rows in a Image.
-      @param nchannel Number of channels in Image
+      @param cols Number of columns in a Buffer.
+      @param rows Number of rows in a Buffer.
+      @param nchannel Number of channels in Buffer
       @param format value from ifm3d::pixel_format releates to data type
       need to store one value.
 
@@ -150,9 +150,9 @@ namespace ifm3d
     Buffer& operator=(const Buffer&) = default;
 
     /*@brief allocates the memory required for storing the image data
-    @param cols Number of columns in a Image.
-    @param rows Number of rows in a Image.
-    @param nchannel Number of channels in Image
+    @param cols Number of columns in a Buffer.
+    @param rows Number of rows in a Buffer.
+    @param nchannel Number of channels in Buffer
     @param format value from ifm3d::pixel_format releates to data type
 
     @Note On repeated calling it will deference the old Memory
@@ -172,13 +172,13 @@ namespace ifm3d
     std::uint32_t nchannels() const;
     ifm3d::pixel_format dataFormat() const;
 
-    /** @brief returns a pointer to the specified Image row.
+    /** @brief returns a pointer to the specified Buffer row.
         @param row number
      */
     template <typename T = std::uint8_t>
     T* ptr(const std::uint32_t row);
 
-    /** @brief returns a pointer to the specified Image row.
+    /** @brief returns a pointer to the specified Buffer row.
         @param row number
      */
     template <typename T = std::uint8_t>
@@ -283,7 +283,7 @@ namespace ifm3d
     template <typename T>
     Iterator<T> end();
 
-  }; // end Image
+  }; // end Buffer
 
   /*@brief IteratorAdapter is adapter and can be used in range based loops
 
@@ -314,7 +314,7 @@ namespace ifm3d
     /*@brief fefault constructor*/
     Buffer_();
 
-    /* Similar to Image(cols,rows,ifm3d::formatType<Tp>::nchannel,
+    /* Similar to Buffer(cols,rows,ifm3d::formatType<Tp>::nchannel,
      * ifm3d::formatType<Tp>::format ) */
     Buffer_(const std::uint32_t cols, const std::uint32_t rows);
 
@@ -331,7 +331,7 @@ namespace ifm3d
     Buffer_(const Buffer&);
     Buffer_& operator=(const Buffer&);
 
-    /* Similar to Image::create(cols,rows,ifm3d::formatType<Tp>::nchannel,
+    /* Similar to Buffer::create(cols,rows,ifm3d::formatType<Tp>::nchannel,
      * ifm3d::formatType<Tp>::format ) */
     void create(const std::uint32_t cols, const std::uint32_t rows);
 
@@ -345,7 +345,7 @@ namespace ifm3d
     std::uint32_t nchannels() const;
     ifm3d::pixel_format dataFormat() const;
 
-    /** @brief returns a pointer to the specified Image row.
+    /** @brief returns a pointer to the specified Buffer row.
         @param row number
      */
     Tp* ptr(const std::uint32_t row);

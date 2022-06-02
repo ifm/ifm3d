@@ -21,7 +21,7 @@
 namespace ifm3d
 {
   /**
-   * Implements a TCP FrameGrabber connected to the camera passed to its ctor
+   * Implements a TCP FrameGrabber connected to the device passed to its ctor
    */
   class FrameGrabber
   {
@@ -32,9 +32,9 @@ namespace ifm3d
       std::function<void(const int, const std::string&)>;
 
     /**
-     * Stores a reference to the passed in camera shared pointer
+     * Stores a reference to the passed in Device shared pointer
      *
-     * @param[in] cam The camera instance to grab frames from
+     * @param[in] cam The Device instance to grab frames from
      * @param[in] pcic_port TCP port for the pcic connection
      */
     FrameGrabber(ifm3d::Device::Ptr cam,
@@ -53,14 +53,14 @@ namespace ifm3d
     FrameGrabber& operator=(const FrameGrabber&) = delete;
 
     /**
-     * Triggers the camera for image acquisition
+     * Triggers the device for image acquisition
      *
      * You should be sure to set the `TriggerMode` for your application to
      * `SW` in order for this to be effective. This function
      * simply does the triggering, data are still received asynchronously via
      * `WaitForFrame()`.
      *
-     * Calling this function when the camera is not in `SW` trigger mode or on
+     * Calling this function when the device is not in `SW` trigger mode or on
      * a device that does not support software-trigger should result in a NOOP
      * and no error will be returned (no exceptions thrown). However, we do not
      * recommend calling this function in a tight framegrabbing loop when you
