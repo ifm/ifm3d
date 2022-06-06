@@ -8,6 +8,7 @@ Basic library usage <content/examples/index>
 Command Line tool <cli_link>
 Python API <python_api>
 C++ API <cpp_api/annotated>
+Examples <content/examples/examples_list>
 ::: 
 
 
