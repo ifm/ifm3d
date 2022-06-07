@@ -12,7 +12,7 @@
 #include <string>
 #include <set>
 #include <ifm3d/fg/frame_grabber_export.h>
-#include <ifm3d/camera/camera_base.h>
+#include <ifm3d/device/device.h>
 #include <ifm3d/fg/frame.h>
 
 namespace ifm3d
@@ -24,8 +24,8 @@ namespace ifm3d
    * @param[in] image_ids to use to build the schema
    * @return A json-string encoding the schema
    */
-  std::string make_schema(const std::set<ifm3d::image_id>& image_ids,
-                          ifm3d::CameraBase::device_family device_type);
+  std::string make_schema(const std::set<ifm3d::buffer_id>& image_ids,
+                          ifm3d::Device::device_family device_type);
 
   /**
    * Utility function to build a json string, compatible with O3X,
@@ -35,7 +35,7 @@ namespace ifm3d
    * @return A json-string comaptible with o3x xmlrpc
    */
   std::string make_o3x_json_from_mask(
-    const std::set<ifm3d::image_id>& chunk_ids);
+    const std::set<ifm3d::buffer_id>& chunk_ids);
 
   /**
    * Utility function to create a schema mask from a string.

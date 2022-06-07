@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/camera.h>
+#include <ifm3d/device.h>
 
 ifm3d::RmApp::RmApp(int argc, const char** argv, const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
@@ -33,7 +33,7 @@ ifm3d::RmApp::Run()
     }
 
   int idx = (*this->vm_)["index"].as<int>();
-  std::static_pointer_cast<ifm3d::Camera>(this->cam_)->DeleteApplication(idx);
+  std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)->DeleteApplication(idx);
 
   return 0;
 }
@@ -41,6 +41,6 @@ ifm3d::RmApp::Run()
 bool
 ifm3d::RmApp::CheckCompatibility()
 {
-  return this->cam_->AmI(CameraBase::device_family::O3D) ||
-         this->cam_->AmI(CameraBase::device_family::O3X);
+  return this->cam_->AmI(Device::device_family::O3D) ||
+         this->cam_->AmI(Device::device_family::O3X);
 }

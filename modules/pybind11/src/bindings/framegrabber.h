@@ -27,7 +27,7 @@ bind_framegrabber(pybind11::module_& m)
   );
 
   framegrabber.def(
-    py::init<ifm3d::CameraBase::Ptr, std::optional<std::uint16_t>>(),
+    py::init<ifm3d::Device::Ptr, std::optional<std::uint16_t>>(),
     py::arg("cam"),
     py::arg("pcic_port") = std::nullopt,
     R"(
@@ -45,10 +45,10 @@ bind_framegrabber(pybind11::module_& m)
 
   framegrabber.def(
     "start",
-    [](const ifm3d::FrameGrabber::Ptr& fg, const std::set<ifm3d::image_id>& images) {
+    [](const ifm3d::FrameGrabber::Ptr& fg, const std::set<ifm3d::buffer_id>& images) {
       return fg->Start(images);
     },
-    py::arg("images") = std::set<ifm3d::image_id>{},
+    py::arg("images") = std::set<ifm3d::buffer_id>{},
     R"(
       Starts the worker thread for streaming in pixel data from the device
 

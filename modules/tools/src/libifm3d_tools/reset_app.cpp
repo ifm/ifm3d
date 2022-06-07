@@ -9,7 +9,7 @@
 #include <memory>
 #include <string>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/camera.h>
+#include <ifm3d/device.h>
 
 ifm3d::ResetApp::ResetApp(int argc, const char** argv, const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
@@ -31,7 +31,7 @@ ifm3d::ResetApp::Run()
       return 0;
     }
 
-  std::static_pointer_cast<ifm3d::Camera>(this->cam_)->FactoryReset();
+  std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)->FactoryReset();
   if (this->vm_->count("reboot"))
     {
       this->cam_->Reboot();
@@ -43,6 +43,6 @@ ifm3d::ResetApp::Run()
 bool
 ifm3d::ResetApp::CheckCompatibility()
 {
-  return this->cam_->AmI(CameraBase::device_family::O3D) ||
-         this->cam_->AmI(CameraBase::device_family::O3X);
+  return this->cam_->AmI(Device::device_family::O3D) ||
+         this->cam_->AmI(Device::device_family::O3X);
 }

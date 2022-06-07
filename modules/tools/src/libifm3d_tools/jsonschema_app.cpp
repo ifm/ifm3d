@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/camera/camera_o3r.h>
+#include <ifm3d/device/o3r.h>
 
 ifm3d::JsonSchemaApp::JsonSchemaApp(int argc,
                                     const char** argv,
@@ -28,7 +28,7 @@ ifm3d::JsonSchemaApp::Run()
     }
 
   json schema =
-    std::static_pointer_cast<ifm3d::O3RCamera>(this->cam_)->GetSchema();
+    std::static_pointer_cast<ifm3d::O3R>(this->cam_)->GetSchema();
   std::cout << schema.dump(2) << std::endl;
 
   return 0;
@@ -37,5 +37,5 @@ ifm3d::JsonSchemaApp::Run()
 bool
 ifm3d::JsonSchemaApp::CheckCompatibility()
 {
-  return this->cam_->AmI(CameraBase::device_family::O3R);
+  return this->cam_->AmI(Device::device_family::O3R);
 }

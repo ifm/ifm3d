@@ -53,7 +53,7 @@ target_link_libraries(
   PUBLIC
     ${LIB_glog}
   PRIVATE
-    ifm3d_camera
+    ifm3d_device
     Threads::Threads
     $<BUILD_INTERFACE:asio>
     $<BUILD_INTERFACE:fmt::fmt-header-only>
