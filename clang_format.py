@@ -19,7 +19,7 @@ minimum_required_clang_format_version = "10.0.0"
 
 # Extension and folders to be excludes from formatting
 apply_extensions = (".cxx",".cpp",".c", ".hxx", ".hh", ".cc", ".hpp", ".h")
-exclude_folders = ("third-party",".github","build","cmake","docker","snap",".git","cxxopts", "contrib", "build_2019", "build_2017", "build_debug" , "build_release" , "examples")
+exclude_folders = ("third-party",".github","build","cmake","docker","snap",".git","cxxopts", "contrib")
 
 """
     Function runs the clang formatter on the files

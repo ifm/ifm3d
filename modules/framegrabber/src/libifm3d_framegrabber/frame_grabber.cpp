@@ -59,3 +59,9 @@ ifm3d::FrameGrabber::SetOrganizer(std::unique_ptr<Organizer> organizer)
 {
   this->pImpl->SetOrganizer(std::move(organizer));
 }
+
+void
+ifm3d::FrameGrabber::OnAsyncError(AsynErrorCallback callback)
+{
+  this->pImpl->OnAsyncError(callback);
+}
