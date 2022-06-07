@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/camera.h>
+#include <ifm3d/device.h>
 
 ifm3d::PasswdApp::PasswdApp(int argc,
                             const char** argv,
@@ -46,12 +46,12 @@ ifm3d::PasswdApp::Run()
   else if (new_password)
     {
       password = (*this->vm_)["new"].as<std::string>();
-      std::static_pointer_cast<ifm3d::Camera>(this->cam_)
+      std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)
         ->SetPassword(password);
     }
   else if (disable)
     {
-      std::static_pointer_cast<ifm3d::Camera>(this->cam_)
+      std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)
         ->SetPassword(password);
     }
   return 0;
@@ -60,6 +60,6 @@ ifm3d::PasswdApp::Run()
 bool
 ifm3d::PasswdApp::CheckCompatibility()
 {
-  return this->cam_->AmI(CameraBase::device_family::O3D) ||
-         this->cam_->AmI(CameraBase::device_family::O3X);
+  return this->cam_->AmI(Device::device_family::O3D) ||
+         this->cam_->AmI(Device::device_family::O3X);
 }

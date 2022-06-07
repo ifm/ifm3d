@@ -51,7 +51,7 @@ bind_error(pybind11::module_& m)
             std::rethrow_exception(p);
           }
       }
-    catch (const ifm3d::error_t& e)
+    catch (const ifm3d::Error& e)
       {
         auto error = error_class(e.code(), e.message(), e.what());
         PyErr_SetObject(error_class.ptr(), error.ptr());

@@ -67,7 +67,7 @@ endif(WIN32)
 #------------------
 target_link_libraries(
   ifm3d_tools_shared
-  ifm3d_camera
+  ifm3d_device
   ${LIB_glog}
   ${CURL_LIBRARIES}
   cxxopts

@@ -21,9 +21,9 @@
 #include <websocketpp/client.hpp>
 #include <websocketpp/common/thread.hpp>
 #include <websocketpp/common/memory.hpp>
-#include <ifm3d/camera/camera.h>
-#include <ifm3d/camera/err.h>
-#include <ifm3d/camera/logging.h>
+#include <ifm3d/device/legacy_device.h>
+#include <ifm3d/device/err.h>
+#include <ifm3d/device/logging.h>
 #include <ifm3d/contrib/nlohmann/json.hpp>
 #include <swupdater_impl.hpp>
 
@@ -63,7 +63,7 @@ namespace ifm3d
   class ImplV2 : public SWUpdater::Impl
   {
   public:
-    ImplV2(ifm3d::CameraBase::Ptr cam,
+    ImplV2(ifm3d::Device::Ptr cam,
            const ifm3d::SWUpdater::FlashStatusCb& cb,
            const std::string& swupdate_recovery_port);
     ~ImplV2() = default;
@@ -251,7 +251,7 @@ namespace ifm3d
 //-------------------------------------
 // ctor
 //-------------------------------------
-ifm3d::ImplV2::ImplV2(ifm3d::CameraBase::Ptr cam,
+ifm3d::ImplV2::ImplV2(ifm3d::Device::Ptr cam,
                       const ifm3d::SWUpdater::FlashStatusCb& cb,
                       const std::string& swupdate_recovery_port)
   : ifm3d::SWUpdater::Impl(cam, cb, swupdate_recovery_port),
@@ -346,7 +346,7 @@ ifm3d::ImplV2::CheckProductive()
       c->Call(curl_easy_perform);
       c->Call(curl_easy_getinfo, CURLINFO_RESPONSE_CODE, &status_code);
     }
-  catch (const ifm3d::error_t& e)
+  catch (const ifm3d::Error& e)
     {
       if (e.code() == IFM3D_RECOVERY_CONNECTION_ERROR ||
           e.code() == IFM3D_CURL_TIMEOUT)
@@ -401,7 +401,7 @@ ifm3d::ImplV2::UploadFirmware(const std::string& swu_file, long timeout_millis)
       c->Call(curl_easy_perform);
       curl_formfree(httppost);
     }
-  catch (const ifm3d::error_t& e)
+  catch (const ifm3d::Error& e)
     {
       if (e.code() != IFM3D_CURL_ABORTED)
         {

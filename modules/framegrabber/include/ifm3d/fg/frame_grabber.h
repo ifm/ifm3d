@@ -13,15 +13,15 @@
 #include <optional>
 #include <vector>
 #include <type_traits>
-#include <ifm3d/camera/camera.h>
-#include <ifm3d/fg/image.h>
+#include <ifm3d/device/device.h>
+#include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/organizer.h>
 #include <ifm3d/fg/frame.h>
 
 namespace ifm3d
 {
   /**
-   * Implements a TCP FrameGrabber connected to the camera passed to its ctor
+   * Implements a TCP FrameGrabber connected to the device passed to its ctor
    */
   class FrameGrabber
   {
@@ -32,12 +32,12 @@ namespace ifm3d
       std::function<void(const int, const std::string&)>;
 
     /**
-     * Stores a reference to the passed in camera shared pointer
+     * Stores a reference to the passed in Device shared pointer
      *
-     * @param[in] cam The camera instance to grab frames from
+     * @param[in] cam The Device instance to grab frames from
      * @param[in] pcic_port TCP port for the pcic connection
      */
-    FrameGrabber(ifm3d::CameraBase::Ptr cam,
+    FrameGrabber(ifm3d::Device::Ptr cam,
                  std::optional<std::uint16_t> pcic_port = std::nullopt);
 
     /**
@@ -53,14 +53,14 @@ namespace ifm3d
     FrameGrabber& operator=(const FrameGrabber&) = delete;
 
     /**
-     * Triggers the camera for image acquisition
+     * Triggers the device for image acquisition
      *
      * You should be sure to set the `TriggerMode` for your application to
      * `SW` in order for this to be effective. This function
      * simply does the triggering, data are still received asynchronously via
      * `WaitForFrame()`.
      *
-     * Calling this function when the camera is not in `SW` trigger mode or on
+     * Calling this function when the device is not in `SW` trigger mode or on
      * a device that does not support software-trigger should result in a NOOP
      * and no error will be returned (no exceptions thrown). However, we do not
      * recommend calling this function in a tight framegrabbing loop when you
@@ -78,14 +78,14 @@ namespace ifm3d
     /**
      * Starts the worker thread for streaming in pixel data from the device
      *
-     * @param[in] images set of image_ids for receiving, passing in an empty
+     * @param[in] buffer set of buffer_ids for receiving, passing in an empty
      * set will received all available images. The image_ids are specific to
      * the current Organizer. See image_id for a list of image_ids available
      * with the default Organizer
      */
-    bool Start(const std::set<ifm3d::image_id>& images = {
-                 ifm3d::image_id::AMPLITUDE,
-                 ifm3d::image_id::XYZ});
+    bool Start(const std::set<ifm3d::buffer_id>& images = {
+                 ifm3d::buffer_id::AMPLITUDE,
+                 ifm3d::buffer_id::XYZ});
 
     /**
      * Starts the worker thread for streaming in pixel data from the device
@@ -97,7 +97,7 @@ namespace ifm3d
      */
     template <typename T, typename... Args>
     bool
-    Start(std::set<image_id>& images, T id, Args... args)
+    Start(std::set<buffer_id>& images, T id, Args... args)
     {
       images.insert(id);
       return Start(images, args...);
@@ -115,7 +115,7 @@ namespace ifm3d
     bool
     Start(T id, Args... args)
     {
-      std::set<image_id> images;
+      std::set<buffer_id> images;
       images.insert(id);
       return Start(images, args...);
     }

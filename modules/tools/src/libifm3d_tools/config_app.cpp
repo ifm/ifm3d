@@ -10,8 +10,8 @@
 #include <sstream>
 #include <string>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/camera/camera.h>
-#include <ifm3d/camera/err.h>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/err.h>
 
 ifm3d::ConfigApp::ConfigApp(int argc,
                             const char** argv,
@@ -56,7 +56,7 @@ ifm3d::ConfigApp::Run()
       if (!ifs)
         {
           std::cerr << "Could not parse file: " << infile << std::endl;
-          throw ifm3d::error_t(IFM3D_IO_ERROR);
+          throw ifm3d::Error(IFM3D_IO_ERROR);
         }
 
       jstr.assign((std::istreambuf_iterator<char>(ifs)),
