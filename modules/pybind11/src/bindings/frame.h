@@ -52,21 +52,21 @@ bind_frame(pybind11::module_& m)
     )");
 
   frame.def(
-    "has_image",
+    "has_buffer",
     &ifm3d::Frame::HasBuffer,
     py::arg("id"),
     R"(
-      Check if a image with the given id is available in this frame
+      Check if a buffer with the given id is available in this frame
     )");
 
   frame.def(
-    "get_image",
+    "get_buffer",
     [](const ifm3d::Frame::Ptr& frame, ifm3d::buffer_id id){
         return ifm3d::image_to_array(frame->GetBuffer(id));
     },
     py::arg("id"),
     R"(
-      Get the image with the given id
+      Get the buffer with the given id
     )");
 
   // clang-format on
