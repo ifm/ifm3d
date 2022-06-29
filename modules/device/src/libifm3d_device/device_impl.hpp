@@ -19,7 +19,7 @@ namespace ifm3d
   //============================================================
   // Impl interface
   //============================================================
-  class Device::Impl
+  class IFM3D_DEVICE_LOCAL Device::Impl
   {
   public:
     explicit Impl(std::shared_ptr<XMLRPCWrapper> xwrapper);
