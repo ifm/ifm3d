@@ -11,10 +11,11 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <ifm3d/device/device_export.h>
 
 namespace ifm3d
 {
-  struct SemVer
+  struct IFM3D_DEVICE_EXPORT SemVer
   {
     SemVer(size_t major,
            size_t minor,

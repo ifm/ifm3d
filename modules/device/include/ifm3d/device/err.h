@@ -92,13 +92,13 @@ namespace ifm3d
    * @param[in] errnum The error number to translate to a string
    * @return A stringified version of the error
    */
-  const char* strerror(int errnum);
+  IFM3D_DEVICE_EXPORT const char* strerror(int errnum);
 
   /**
    * Exception wrapper for library and system errors encountered by the
    * library.
    */
-  class Error : public std::exception
+  class IFM3D_DEVICE_EXPORT Error : public std::exception
   {
   public:
     /**
