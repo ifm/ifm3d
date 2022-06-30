@@ -11,6 +11,7 @@
 #include <memory>
 #include <vector>
 #include <limits.h>
+#include <ifm3d/fg/frame_grabber_export.h>
 #include <ifm3d/device/device.h>
 
 namespace ifm3d
@@ -93,7 +94,7 @@ namespace ifm3d
   One can aslo use range based for loops with adapter explained
   in ifm3d::IteratorAdapter section
   */
-  class Buffer
+  class IFM3D_FRAME_GRABBER_EXPORT Buffer
   {
   private:
     /* @ brief raw pointer to the data*/
