@@ -67,6 +67,10 @@ set_target_properties(
   LINKER_LANGUAGE CXX
   )
 
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" )
+  set_target_properties(ifm3d_framegrabber PROPERTIES CXX_VISIBILITY_PRESET hidden)
+endif()
 #------------------
 # Installation
 #------------------
