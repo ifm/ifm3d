@@ -131,7 +131,7 @@ namespace ifm3d
      */
     bool FlashFirmware(const std::string& swu_file, long timeout_millis = 0);
 
-   class IFM3D_SWUPDATER_LOCAL Impl;
+    class IFM3D_SWUPDATER_LOCAL Impl;
 
   private:
     std::unique_ptr<Impl> pImpl;
