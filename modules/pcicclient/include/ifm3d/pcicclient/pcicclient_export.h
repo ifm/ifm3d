@@ -30,4 +30,3 @@
 #endif
 
 #endif /* IFM3D_PCICCLIENT_EXPORT_HPP */
-

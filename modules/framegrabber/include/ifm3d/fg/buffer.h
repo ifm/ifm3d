@@ -65,7 +65,6 @@ namespace ifm3d
    to access a pixel in n-channel Buffer I ( 100,100,3,ifm3d::FORMAT_8U) at
    50,50 position This will be the case accessing the values for 3 channel
    Buffer
-
    as pixel is structure of the values of n-chanel at given position.
 
    @code
