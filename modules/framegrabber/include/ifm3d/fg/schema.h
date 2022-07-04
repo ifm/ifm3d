@@ -24,8 +24,8 @@ namespace ifm3d
    * @param[in] image_ids to use to build the schema
    * @return A json-string encoding the schema
    */
-  std::string make_schema(const std::set<ifm3d::buffer_id>& image_ids,
-                          ifm3d::Device::device_family device_type);
+  json make_schema(const std::set<ifm3d::buffer_id>& image_ids,
+                   ifm3d::Device::device_family device_type);
 
   /**
    * Utility function to build a json string, compatible with O3X,
@@ -34,8 +34,7 @@ namespace ifm3d
    * @param[in] image_ids to use to build the schema
    * @return A json-string comaptible with o3x xmlrpc
    */
-  std::string make_o3x_json_from_mask(
-    const std::set<ifm3d::buffer_id>& chunk_ids);
+  json make_o3x_json_from_mask(const std::set<ifm3d::buffer_id>& chunk_ids);
 
   /**
    * Utility function to create a schema mask from a string.

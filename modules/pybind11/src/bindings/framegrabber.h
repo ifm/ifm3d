@@ -44,17 +44,41 @@ bind_framegrabber(pybind11::module_& m)
   );
 
   framegrabber.def(
-    "start",
-    [](const ifm3d::FrameGrabber::Ptr& fg, const std::set<ifm3d::buffer_id>& images) {
-      return fg->Start(images);
+    "set_schema",
+    [](const ifm3d::FrameGrabber::Ptr& c, const py::dict& json)
+    {
+      py::object json_dumps = py::module::import("json").attr("dumps");
+      c->SetSchema(nlohmann::json::parse(json_dumps(json).cast<std::string>()));
     },
-    py::arg("images") = std::set<ifm3d::buffer_id>{},
+    py::arg("schema"),
+      R"(
+      Set the PCIC Schema. Allows to manually set a PCIC schema for
+      asynchronous results. See ifm3d::make_schema for generation logic of the
+      default schema. Manually setting the schema should rarely be needed and
+      most usecases should be covered by the default generated schema.
+      
+      Note: The FrameGrabber is relying on some specific formatting rules, if
+      they are missing from the schema FrameGrabber will not be able to
+      extract the image data.
+
+      Parameters
+      ----------
+      schema : dict
+          The PCIC schema to apply
+    )"
+  );
+
+  framegrabber.def(
+    "start",
+    &ifm3d::FrameGrabber::Start,
+    py::arg("buffers") = ifm3d::FrameGrabber::BufferList{},
+    py::arg("set_default_schema") = true,
     R"(
       Starts the worker thread for streaming in pixel data from the device
 
       Parameters
       ----------
-      images : List[uint64]
+      buffers : List[uint64]
           A List of image_id which to receive
     )"
   );
