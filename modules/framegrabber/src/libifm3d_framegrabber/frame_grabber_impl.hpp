@@ -51,15 +51,16 @@ namespace ifm3d
   class FrameGrabber::Impl
   {
   public:
-    Impl(ifm3d::Device::Ptr cam,
-         std::optional<std::uint16_t> nat_pcic_port);
+    Impl(ifm3d::Device::Ptr cam, std::optional<std::uint16_t> nat_pcic_port);
     ~Impl();
 
     std::shared_future<void> SWTrigger();
 
     void OnNewFrame(NewFrameCallback callback);
 
-    bool Start(const std::set<ifm3d::buffer_id>& images);
+    bool Start(const std::set<ifm3d::buffer_id>& images,
+               bool setDefaultSchema);
+    void SetSchema(const json& schema);
     bool Stop();
     bool IsRunning();
 
@@ -69,17 +70,17 @@ namespace ifm3d
     void OnAsyncError(AsynErrorCallback callback);
 
   protected:
-    void Run();
+    void Run(bool setDefaultSchema);
 
     void SendCommand(const std::string& ticket_id, const std::string& command);
     void SendCommand(const std::string& ticket_id,
                      const std::vector<std::uint8_t>& command);
-    void SetSchema();
+    void SetDefaultSchema();
     std::set<ifm3d::buffer_id> GetImageChunks(ifm3d::buffer_id id);
     //
     // ASIO event handlers
     //
-    void ConnectHandler();
+    void ConnectHandler(bool setDefaultSchema);
 
     void TicketHandler(const asio::error_code& ec,
                        std::size_t bytes_xferd,
@@ -246,13 +247,14 @@ ifm3d::FrameGrabber::Impl::WaitForFrame()
 }
 
 bool
-ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::buffer_id>& images)
+ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::buffer_id>& images,
+                                 bool setDefaultSchema)
 {
   if (!this->thread_)
     {
       this->requested_images_ = images;
       this->thread_ = std::make_unique<std::thread>(
-        std::bind(&ifm3d::FrameGrabber::Impl::Run, this));
+        std::bind(&ifm3d::FrameGrabber::Impl::Run, this, setDefaultSchema));
 
       return true;
     }
@@ -292,7 +294,7 @@ ifm3d::FrameGrabber::Impl::SetOrganizer(std::unique_ptr<Organizer> organizer)
 //-------------------------------------
 
 void
-ifm3d::FrameGrabber::Impl::Run()
+ifm3d::FrameGrabber::Impl::Run(bool setDefaultSchema)
 {
   VLOG(IFM3D_TRACE) << "Framegrabber thread running...";
   asio::io_service::work work(this->io_service_);
@@ -304,7 +306,7 @@ ifm3d::FrameGrabber::Impl::Run()
     {
       this->sock_.connect(this->endpoint_);
 
-      this->ConnectHandler();
+      this->ConnectHandler(setDefaultSchema);
 
       this->io_service_.run();
     }
@@ -356,13 +358,16 @@ ifm3d::FrameGrabber::Impl::SendCommand(
 }
 
 void
-ifm3d::FrameGrabber::Impl::ConnectHandler()
+ifm3d::FrameGrabber::Impl::ConnectHandler(bool setDefaultSchema)
 {
   // Set the schema
-  SetSchema();
+  if (setDefaultSchema)
+    {
+      SetDefaultSchema();
+    }
 
-  if (requested_images_.find(static_cast<buffer_id>(image_chunk::ALGO_DEBUG)) !=
-      requested_images_.end())
+  if (requested_images_.find(static_cast<buffer_id>(
+        image_chunk::ALGO_DEBUG)) != requested_images_.end())
     {
       SendCommand(TICKET_COMMAND_p, CalculateAsycCommand());
     }
@@ -514,7 +519,6 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
     }
 }
 
-#include<iostream>
 void
 ifm3d::FrameGrabber::Impl::ErrorHandler()
 {
@@ -567,7 +571,34 @@ ifm3d::FrameGrabber::Impl::TriggerHandler()
 }
 
 void
-ifm3d::FrameGrabber::Impl::SetSchema()
+ifm3d::FrameGrabber::Impl::SetSchema(const json& schema)
+{
+  auto json = schema.dump();
+  if (this->cam_->AmI(ifm3d::Device::device_family::O3X))
+    {
+      // O3X does not set the schema via PCIC, rather we set it via
+      // XMLRPC using the camera interface.
+      VLOG(IFM3D_PROTO_DEBUG) << "o3x schema: " << std::endl << json;
+      try
+        {
+          this->cam_->FromJSONStr(json);
+        }
+      catch (const std::exception& ex)
+        {
+          LOG(ERROR) << "Failed to set schema on O3X: " << ex.what();
+          LOG(WARNING) << "Running with currently applied schema";
+        }
+      return;
+    }
+
+  // Setting schema for O3D O3R devices
+  const std::string c_length = fmt::format("{0}{1:09}", "c", json.size());
+  SendCommand(TICKET_COMMAND_c, c_length + json);
+  VLOG(IFM3D_PROTO_DEBUG) << "schema: " << json;
+}
+
+void
+ifm3d::FrameGrabber::Impl::SetDefaultSchema()
 {
   std::set<ifm3d::buffer_id> image_chunk_ids;
   for (auto buffer_id : this->requested_images_)
@@ -584,30 +615,8 @@ ifm3d::FrameGrabber::Impl::SetSchema()
       image_chunk_ids.insert(ifm3d::buffer_id::EXTRINSIC_CALIBRATION);
     }
 
-  std::string schema = ifm3d::make_schema(image_chunk_ids, cam_->WhoAmI());
-
-  if (this->cam_->AmI(ifm3d::Device::device_family::O3X))
-    {
-      // O3X does not set the schema via PCIC, rather we set it via
-      // XMLRPC using the camera interface.
-      VLOG(IFM3D_PROTO_DEBUG) << "o3x schema: " << std::endl << schema;
-      try
-        {
-          this->cam_->FromJSONStr(schema);
-        }
-      catch (const std::exception& ex)
-        {
-          LOG(ERROR) << "Failed to set schema on O3X: " << ex.what();
-          LOG(WARNING) << "Running with currently applied schema";
-        }
-      return;
-    }
-
-  // Setting schema for O3D O3R devices
-  const std::string c_length = fmt::format("{0}{1:09}", "c", schema.size());
-  SendCommand(TICKET_COMMAND_c, c_length + schema);
-  VLOG(IFM3D_PROTO_DEBUG) << "schema: " << schema;
-  return;
+  auto schema = ifm3d::make_schema(image_chunk_ids, cam_->WhoAmI());
+  SetSchema(schema);
 }
 
 std::set<ifm3d::buffer_id>
@@ -617,41 +626,39 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(buffer_id id)
 
   switch (static_cast<buffer_id>(id))
     {
-      case buffer_id::XYZ: {
-        if (device_type == ifm3d::Device::device_family::O3R)
-          return {
-            buffer_id::XYZ,
-            buffer_id::O3R_DISTANCE_IMAGE_INFORMATION,
-            buffer_id::RADIAL_DISTANCE,
-            buffer_id::AMPLITUDE,
-          };
-        else if (device_type == ifm3d::Device::device_family::O3D)
-          return {
-            buffer_id::CARTESIAN_X,
-            buffer_id::CARTESIAN_Y,
-            buffer_id::CARTESIAN_Z,
-          };
-        else
-          return {id};
-      }
+    case buffer_id::XYZ:
+      if (device_type == ifm3d::Device::device_family::O3R)
+        return {
+          buffer_id::XYZ,
+          buffer_id::O3R_DISTANCE_IMAGE_INFORMATION,
+          buffer_id::RADIAL_DISTANCE,
+          buffer_id::AMPLITUDE,
+        };
+      else if (device_type == ifm3d::Device::device_family::O3D)
+        return {
+          buffer_id::CARTESIAN_X,
+          buffer_id::CARTESIAN_Y,
+          buffer_id::CARTESIAN_Z,
+        };
+      else
+        return {id};
     case buffer_id::RADIAL_DISTANCE:
     case buffer_id::AMPLITUDE:
     case buffer_id::EXPOSURE_TIME:
     case buffer_id::EXTRINSIC_CALIBRATION:
     case buffer_id::INTRINSIC_CALIBRATION:
-    case buffer_id::INVERSE_INTRINSIC_CALIBRATION: {
-        if (device_type == ifm3d::Device::device_family::O3R)
-          {
-            return {id,
-                    buffer_id::O3R_DISTANCE_IMAGE_INFORMATION,
-                    buffer_id::RADIAL_DISTANCE,
-                    buffer_id::AMPLITUDE};
-          }
-        else
-          {
-            return {id};
-          }
-      }
+    case buffer_id::INVERSE_INTRINSIC_CALIBRATION:
+      if (device_type == ifm3d::Device::device_family::O3R)
+        {
+          return {id,
+                  buffer_id::O3R_DISTANCE_IMAGE_INFORMATION,
+                  buffer_id::RADIAL_DISTANCE,
+                  buffer_id::AMPLITUDE};
+        }
+      else
+        {
+          return {id};
+        }
     case buffer_id::ALGO_DEBUG:
       return {};
     default:
@@ -672,12 +679,6 @@ ifm3d::FrameGrabber::Impl::OnAsyncError(AsynErrorCallback callback)
 std::string
 ifm3d::FrameGrabber::Impl::CalculateAsycCommand()
 {
-  // schema is empty then disable all  async async outputs
-  if (this->requested_images_.empty() &&
-      this->async_error_callback_ == nullptr)
-    {
-      return "p0";
-    }
   // only async error is needed
   if (this->requested_images_.empty() && this->async_error_callback_)
     {
@@ -710,5 +711,8 @@ ifm3d::FrameGrabber::Impl::CalculateAsycCommand()
     {
       return "p3";
     }
+
+  // schema is empty then disable all  async async outputs
+  return "p0";
 }
 #endif // IFM3D_FG_FRAMEGRABBER_IMPL_H

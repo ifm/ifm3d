@@ -83,7 +83,7 @@ const std::map<ifm3d::buffer_id, const nlohmann::json> o3r_schema_map
 #endif
 };
 
-std::string
+json
 ifm3d::make_o3x_json_from_mask(const std::set<ifm3d::buffer_id>& image_ids)
 {
   std::map<size_t, std::string> bool_to_string{{0, "false"}, {1, "true"}};
@@ -110,10 +110,10 @@ ifm3d::make_o3x_json_from_mask(const std::set<ifm3d::buffer_id>& image_ids)
   app_json_pointer["OutputConfidenceImage"] =
     bool_to_string[image_ids.count(ifm3d::buffer_id::CONFIDENCE)];
 
-  return schema.dump();
+  return schema;
 }
 
-std::string
+json
 ifm3d::make_schema(const std::set<ifm3d::buffer_id>& image_ids,
                    ifm3d::Device::device_family device_type)
 {
@@ -182,5 +182,5 @@ ifm3d::make_schema(const std::set<ifm3d::buffer_id>& image_ids,
   // Add stop to the schema
   elements.push_back(
     {{"type", "string"}, {"value", "stop"}, {"id", "end_string"}});
-  return schema.dump();
+  return schema;
 }
