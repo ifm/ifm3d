@@ -4,7 +4,7 @@
 Configuring the parameters of an ifm 3D camera is accomplished in ifm3d in one
 of two ways: 1) via the `ifm3d` command line tool; 2) via the `ifm3d`
 library's `camera` module API. We show below how to do so with the command line tool. 
-Please refer to the {doc}`../examples/o3r/index` for instructions on configuring the camera through `ifm3d` library.
+Please refer to [this doc](ifm3d/doc/sphinx/content/examples/o3r/configuration/configuration:How%20to%3A%20configure%20the%20camera) for instructions on configuring the camera through `ifm3d` library.
 
 The primary mechanism for using the `ifm3d` command line tool to configure an
 ifm 3D camera is to utilize the `dump` and `config` subcommands to `ifm3d`. The
@@ -362,11 +362,20 @@ simply answer a question we may have. For example, if we wanted to see which
 version of the firmware the camera is running we could issue the following
 command.
 
-```
+:::::{tabs}
+::::{group-tab} O3D
+:::bash
 $ ifm3d dump | jq .ifm3d._.SWVersion.IFM_Software
 "1.20.1138"
-```
-
+:::
+::::
+::::{group-tab} O3R
+:::bash
+$ ifm3d dump | jq .device.swVersion.firmware
+"0.14.23-493"
+:::
+::::
+:::::
 It follows that the entire JSON serialized configuration may be further
 processed either programmatically or manually via a text editor.
 
@@ -383,31 +392,74 @@ we could do the following.
 (NOTE: This step is not necessary. We do this to illustrate the state of the
 camera prior to mutating the parameter).
 
-```
+:::::{tabs}
+::::{group-tab} O3D
+:::bash
 $ ifm3d dump | jq .ifm3d.Apps[0].Imager.FrameRate
 "5"
-```
+:::
+::::
+::::{group-tab} O3R
+:::bash
+$ ifm3d dump | jq .ports.port2.acquisition.framerate
+5
+:::
+::::
+:::::
+
 
 We see the current framerate is 5 fps.
 
 2. Let's set it to 10 fps:
 
-```
+:::::{tabs}
+::::{group-tab} O3D
+:::bash
 $ ifm3d dump | jq '.ifm3d.Apps[0].Imager.FrameRate="10"' | ifm3d config
-```
+:::
+::::
+::::{group-tab} O3R
+:::bash
+$ echo {} | jq '.ports.port2.acquisition.framerate=10' | ifm3d config
+OR
+$ ifm3d dump | jq '.ports.port2.acquisition.framerate=10' | ifm3d config
+:::
+::::
+:::::
+
+> Note: for the O3R, some combinations of parameters are incompatible. In this case, flashing the full configuration with `ifm3d dump` might cause conflicts. We recommend setting only the relevant snippet of configuration (see below) for the desired parameter. For instance, use:
+> `echo {} | jq '.ports.port2.mode="standard_range2m"' | ifm3d config`
 
 3. Let's check to make sure that our configuration has persisted.
-
-```
+:::::{tabs}
+::::{group-tab} O3D
+:::bash
 $ ifm3d dump | jq .ifm3d.Apps[0].Imager.FrameRate
 "10"
-```
+:::
+::::
+::::{group-tab} O3R
+:::bash
+$ ifm3d dump | jq .ports.port2.acquisition.framerate
+10
+:::
+::::
+:::::
 
 Let's now break down what we did in this single Linux pipeline.
 
-```
+:::::{tabs}
+::::{group-tab} O3D
+:::bash
 $ ifm3d dump | jq '.ifm3d.Apps[0].Imager.FrameRate="10"' | ifm3d config
-```
+:::
+::::
+::::{group-tab} O3R
+:::bash
+$ echo {} | jq '.ports.port2.acquisition.framerate=10' | ifm3d config
+:::
+::::
+:::::
 
 First we dump the entire state of the camera to JSON, process the JSON in-line
 via `jq` to set the FrameRate to 10 fps, then pipe the resulting output to
@@ -424,16 +476,35 @@ need the entire ifm3d JSON *object* to operate correctly. *Snippets* are
 valid. For example, if we wanted to set the framerate back to `5`, we could do
 this:
 
-```
+:::::{tabs}
+::::{group-tab} O3D
+:::bash
 $ echo '{"Apps":[{"Index":"1","Imager":{"FrameRate":"5"}}]}' | ifm3d config
-```
+:::
+::::
+::::{group-tab} O3R
+:::bash
+$ echo {} | jq '.ports.port2.acquisition.framerate=5' | ifm3d config
+:::
+::::
+:::::
 
 Let's validate that it worked:
 
-```
+:::::{tabs}
+::::{group-tab} O3D
+:::bash
 $ ifm3d dump | jq .ifm3d.Apps[0].Imager.FrameRate
 "5"
-```
+:::
+::::
+::::{group-tab} O3R
+:::bash
+$ ifm3d dump | jq .ports.port2.acquisition.framerate
+5
+:::
+::::
+:::::
 
 In summary, the primary concept in configuring your camera via `ifm3d` is that
 the `dump` subcommand can be used to access the current camera state while the
