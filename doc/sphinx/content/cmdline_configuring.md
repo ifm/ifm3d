@@ -408,7 +408,7 @@ $ ifm3d dump | jq .ports.port2.acquisition.framerate
 ::::
 :::::
 
->Note: The example above shows how to change the framerate of the *first* application instantiated on the O3D camera, and of the camera head connected on *port 2* for the O3R platform. 
+>Note: This example shows how to view and change the framerate for the *first* application instantiated on the O3D camera, and for the camera head connected on *port 2* for the O3R platform. 
 
 
 We see the current framerate is 5 fps.
