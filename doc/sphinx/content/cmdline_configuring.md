@@ -382,15 +382,16 @@ processed either programmatically or manually via a text editor.
 
 ### Config
 
+#### Setting single parameters with `ifm3d config`
 Mutating parameters on the camera is done by creating a *desired* camera state
-encoded in JSON compliant to the output produced by `ifm3d dump`. For example,
-if we wanted to change the framerate of the *first* application on the camera
+encoded in JSON compliant to the output produced by `ifm3d dump`. 
+For example, if we wanted to change the framerate on the camera
 we could do the following.
 
 1. Before changing the framerate, let's see what it is currently set to:
 
-(NOTE: This step is not necessary. We do this to illustrate the state of the
-camera prior to mutating the parameter).
+>NOTE: This step is not necessary. We do this to illustrate the state of the
+> camera prior to mutating the parameter.
 
 :::::{tabs}
 ::::{group-tab} O3D
@@ -407,6 +408,8 @@ $ ifm3d dump | jq .ports.port2.acquisition.framerate
 ::::
 :::::
 
+>Note: The example above shows how to change the framerate of the *first* application instantiated on the O3D camera, and of the camera head connected on *port 2* for the O3R platform. 
+
 
 We see the current framerate is 5 fps.
 
@@ -415,20 +418,15 @@ We see the current framerate is 5 fps.
 :::::{tabs}
 ::::{group-tab} O3D
 :::bash
-$ ifm3d dump | jq '.ifm3d.Apps[0].Imager.FrameRate="10"' | ifm3d config
+$ echo {} | jq '.ifm3d.Apps[0].Imager.FrameRate="10"' | ifm3d config
 :::
 ::::
 ::::{group-tab} O3R
 :::bash
 $ echo {} | jq '.ports.port2.acquisition.framerate=10' | ifm3d config
-OR
-$ ifm3d dump | jq '.ports.port2.acquisition.framerate=10' | ifm3d config
 :::
 ::::
 :::::
-
-> Note: for the O3R, some combinations of parameters are incompatible. In this case, flashing the full configuration with `ifm3d dump` might cause conflicts. We recommend setting only the relevant snippet of configuration (see below) for the desired parameter. For instance, use:
-> `echo {} | jq '.ports.port2.mode="standard_range2m"' | ifm3d config`
 
 3. Let's check to make sure that our configuration has persisted.
 :::::{tabs}
@@ -451,7 +449,7 @@ Let's now break down what we did in this single Linux pipeline.
 :::::{tabs}
 ::::{group-tab} O3D
 :::bash
-$ ifm3d dump | jq '.ifm3d.Apps[0].Imager.FrameRate="10"' | ifm3d config
+$ echo {} | jq '.ifm3d.Apps[0].Imager.FrameRate="10"' | ifm3d config
 :::
 ::::
 ::::{group-tab} O3R
@@ -461,50 +459,35 @@ $ echo {} | jq '.ports.port2.acquisition.framerate=10' | ifm3d config
 ::::
 :::::
 
-First we dump the entire state of the camera to JSON, process the JSON in-line
-via `jq` to set the FrameRate to 10 fps, then pipe the resulting output to
-`ifm3d config` which accepts the new (mutated) JSON stream on `stdin` and
+First, we start with an empty string which we fill with the JSON string processed
+via `jq` to set the FrameRate to 10 fps. We then pipe the resulting output to
+`ifm3d config` which accepts the new JSON stream on `stdin` and
 carries out the necessary network calls to mutate the camera settings and
 persist them.
 
 This is the basic paradigm that can be followed to tune just about any
-parameter on the camera. To carry out more complex configuration tasks (e.g.,
+parameter on the camera. 
+#### Setting multiple parameters 
+To carry out more complex configuration tasks (e.g.,
 changing several parameters at once), the dump can be saved to a file, edited
 via a text editor, then fed into `ifm3d config` to perform the
-configuration. It is also important to point out that `ifm3d config` does not
-need the entire ifm3d JSON *object* to operate correctly. *Snippets* are
-valid. For example, if we wanted to set the framerate back to `5`, we could do
-this:
+configuration. 
+```bash
+$ ifm3d dump > settings.json
+# Edit the settings.json file
+# Save the new settings in new_settings.json
+$ ifm3d config < new_settings.json
+```
 
-:::::{tabs}
-::::{group-tab} O3D
-:::bash
-$ echo '{"Apps":[{"Index":"1","Imager":{"FrameRate":"5"}}]}' | ifm3d config
-:::
-::::
-::::{group-tab} O3R
-:::bash
-$ echo {} | jq '.ports.port2.acquisition.framerate=5' | ifm3d config
-:::
-::::
-:::::
+One can also take advantage of `jq`'s powerful features to mutate multiple parameters at once. For instance, to copy the configuration from one port to another for the O3R platform, use:
+```bash
+$ ifm3d dump | jq '.ports.port1=.ports.port0' | ifm3d config
+```
+Another example for the O3R platforms: set all the 2D ports to `RUN` mode:
+```bash
+$ ifm3d dump | jq '(.ports[] | select(.info.features.type == "2D") | .state ) = "RUN"' | ifm3d config
+```
 
-Let's validate that it worked:
-
-:::::{tabs}
-::::{group-tab} O3D
-:::bash
-$ ifm3d dump | jq .ifm3d.Apps[0].Imager.FrameRate
-"5"
-:::
-::::
-::::{group-tab} O3R
-:::bash
-$ ifm3d dump | jq .ports.port2.acquisition.framerate
-5
-:::
-::::
-:::::
 
 In summary, the primary concept in configuring your camera via `ifm3d` is that
 the `dump` subcommand can be used to access the current camera state while the
