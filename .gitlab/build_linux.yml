@@ -91,15 +91,21 @@ build:linux:deb:
 
 # Python wheels
 build:linux:amd64:python_wheel:
-  image: quay.io/pypa/manylinux2014_x86_64:latest
+  image: ${IMAGE}
   stage: build
+  parallel:
+    matrix:
+      - RUNNER: shared_docker
+        IMAGE: quay.io/pypa/manylinux2014_x86_64:latest
+        PYTHON_VERSION: ["cp38-cp38", "cp39-cp39", "cp310-cp310"]
+      - RUNNER: shared_docker_aarch64
+        IMAGE: quay.io/pypa/manylinux2014_aarch64:latest
+        PYTHON_VERSION: ["cp38-cp38", "cp39-cp39", "cp310-cp310"]
   tags:
-    - shared_docker
+    - ${RUNNER}
   script:
     - |
-      for PYBIN in /opt/python/*/bin; do
-        "${PYBIN}/pip" wheel ${CI_PROJECT_DIR} --no-deps -w /tmp/wheelhouse/
-      done
+      "/opt/python/${PYTHON_VERSION}/bin/pip" wheel ${CI_PROJECT_DIR} --no-deps -w /tmp/wheelhouse/
       for whl in /tmp/wheelhouse/*.whl; do
         auditwheel repair "$whl" -w /${CI_PROJECT_DIR}/wheelhouse/
       done
