@@ -109,6 +109,7 @@ build:linux:amd64:python_wheel:
     expire_in: 1 week
   rules:
     - !reference [.tagged, rules]
+    - !reference [.nightly, rules]
 
 # Docs
 build:linux:docs:
