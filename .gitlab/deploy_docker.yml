@@ -1,4 +1,4 @@
-deploy:linux:docker:
+.docker_manifest:
   stage: deploy
   tags:
     - shared_docker
@@ -6,11 +6,14 @@ deploy:linux:docker:
   needs:
     - job: build:linux:docker
       artifacts: true
-  script:
+  before_script:
     - !reference [.docker-config, script]
     - mkdir -p $HOME/.docker
     - echo "${DOCKER_CFG}" > $HOME/.docker/config.json
 
+deploy:linux:docker:
+  extends: .docker_manifest
+  script:
     - |
       for REGISTRY in $REGISTRIES; do
 
@@ -30,7 +33,19 @@ deploy:linux:docker:
         --target "${TARGET}:${DOCKER_TAG}-l4t" \
         --template "${TARGET}:${DOCKER_TAG}-l4t-ARCH" \
         --platforms "linux/arm64"
-        
+
+      done
+  rules:
+    - !reference [.tagged, rules]
+    - !reference [.nightly, rules]
+
+deploy:linux:docker_stable:
+  extends: .docker_manifest
+  script:
+    - |
+      for REGISTRY in $REGISTRIES; do
+
+        TARGET=$(eval echo "\${${REGISTRY}_REPO}")
 
         manifest-tool push from-args \
         --target "${TARGET}:stable-ubuntu" \
@@ -50,4 +65,3 @@ deploy:linux:docker:
       done
   rules:
     - !reference [.tagged, rules]
-    - !reference [.nightly, rules]
