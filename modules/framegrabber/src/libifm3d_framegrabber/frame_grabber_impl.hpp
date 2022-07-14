@@ -59,7 +59,7 @@ namespace ifm3d
     void OnNewFrame(NewFrameCallback callback);
 
     bool Start(const std::set<ifm3d::buffer_id>& images,
-               bool setDefaultSchema);
+               const std::optional<json>& schema);
     void SetSchema(const json& schema);
     bool Stop();
     bool IsRunning();
@@ -70,17 +70,17 @@ namespace ifm3d
     void OnAsyncError(AsynErrorCallback callback);
 
   protected:
-    void Run(bool setDefaultSchema);
+    void Run(const std::optional<json>& schema);
 
     void SendCommand(const std::string& ticket_id, const std::string& command);
     void SendCommand(const std::string& ticket_id,
                      const std::vector<std::uint8_t>& command);
-    void SetDefaultSchema();
+    json GenerateDefaultSchema();
     std::set<ifm3d::buffer_id> GetImageChunks(ifm3d::buffer_id id);
     //
     // ASIO event handlers
     //
-    void ConnectHandler(bool setDefaultSchema);
+    void ConnectHandler(const std::optional<json>& schema);
 
     void TicketHandler(const asio::error_code& ec,
                        std::size_t bytes_xferd,
@@ -248,13 +248,13 @@ ifm3d::FrameGrabber::Impl::WaitForFrame()
 
 bool
 ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::buffer_id>& images,
-                                 bool setDefaultSchema)
+                                 const std::optional<json>& schema)
 {
   if (!this->thread_)
     {
       this->requested_images_ = images;
       this->thread_ = std::make_unique<std::thread>(
-        std::bind(&ifm3d::FrameGrabber::Impl::Run, this, setDefaultSchema));
+        std::bind(&ifm3d::FrameGrabber::Impl::Run, this, schema));
 
       return true;
     }
@@ -294,7 +294,7 @@ ifm3d::FrameGrabber::Impl::SetOrganizer(std::unique_ptr<Organizer> organizer)
 //-------------------------------------
 
 void
-ifm3d::FrameGrabber::Impl::Run(bool setDefaultSchema)
+ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
 {
   VLOG(IFM3D_TRACE) << "Framegrabber thread running...";
   asio::io_service::work work(this->io_service_);
@@ -306,7 +306,7 @@ ifm3d::FrameGrabber::Impl::Run(bool setDefaultSchema)
     {
       this->sock_.connect(this->endpoint_);
 
-      this->ConnectHandler(setDefaultSchema);
+      this->ConnectHandler(schema);
 
       this->io_service_.run();
     }
@@ -358,12 +358,16 @@ ifm3d::FrameGrabber::Impl::SendCommand(
 }
 
 void
-ifm3d::FrameGrabber::Impl::ConnectHandler(bool setDefaultSchema)
+ifm3d::FrameGrabber::Impl::ConnectHandler(const std::optional<json>& schema)
 {
   // Set the schema
-  if (setDefaultSchema)
+  if (schema.has_value())
     {
-      SetDefaultSchema();
+      SetSchema(schema.value());
+    }
+  else
+    {
+      SetSchema(GenerateDefaultSchema());
     }
 
   if (requested_images_.find(static_cast<buffer_id>(
@@ -597,14 +601,14 @@ ifm3d::FrameGrabber::Impl::SetSchema(const json& schema)
   VLOG(IFM3D_PROTO_DEBUG) << "schema: " << json;
 }
 
-void
-ifm3d::FrameGrabber::Impl::SetDefaultSchema()
+json
+ifm3d::FrameGrabber::Impl::GenerateDefaultSchema()
 {
   std::set<ifm3d::buffer_id> image_chunk_ids;
   for (auto buffer_id : this->requested_images_)
     {
-      auto image_ids = GetImageChunks(buffer_id);
-      image_chunk_ids.insert(image_ids.begin(), image_ids.end());
+      auto buffer_ids = GetImageChunks(buffer_id);
+      image_chunk_ids.insert(buffer_ids.begin(), buffer_ids.end());
     }
 
   // Add confidence image
@@ -615,8 +619,7 @@ ifm3d::FrameGrabber::Impl::SetDefaultSchema()
       image_chunk_ids.insert(ifm3d::buffer_id::EXTRINSIC_CALIBRATION);
     }
 
-  auto schema = ifm3d::make_schema(image_chunk_ids, cam_->WhoAmI());
-  SetSchema(schema);
+  return ifm3d::make_schema(image_chunk_ids, cam_->WhoAmI());
 }
 
 std::set<ifm3d::buffer_id>
@@ -690,14 +693,14 @@ ifm3d::FrameGrabber::Impl::CalculateAsycCommand()
     {
       return "p1";
     }
-  // schema only contains ifm3d::Image_id::ALGO_DEBUG
+  // schema only contains ifm3d::buffer_id::ALGO_DEBUG
   if (this->requested_images_.size() == 1 &&
       this->requested_images_.count(ifm3d::buffer_id::ALGO_DEBUG) &&
       this->async_error_callback_ == nullptr)
     {
       return "p8";
     }
-  // schema contains ifm3d::image_id::ALGO_DEBUG and other data
+  // schema contains ifm3d::buffer_id::ALGO_DEBUG and other data
   // enable everything
   if (this->requested_images_.size() > 1 &&
       this->requested_images_.count(ifm3d::buffer_id::ALGO_DEBUG))

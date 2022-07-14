@@ -34,7 +34,7 @@ bool
 ifm3d::FrameGrabber::Start(
   const std::vector<std::variant<std::uint64_t, int, ifm3d::buffer_id>>&
     buffers,
-  bool setDefaultSchema)
+  const std::optional<json>& schema)
 {
   std::vector<buffer_id> buffer_ids;
   std::transform(
@@ -53,7 +53,7 @@ ifm3d::FrameGrabber::Start(
 
   return this->pImpl->Start(
     std::set<ifm3d::buffer_id>(buffer_ids.begin(), buffer_ids.end()),
-    setDefaultSchema);
+    schema);
 }
 
 bool
@@ -84,10 +84,4 @@ void
 ifm3d::FrameGrabber::OnAsyncError(AsynErrorCallback callback)
 {
   this->pImpl->OnAsyncError(callback);
-}
-
-void
-ifm3d::FrameGrabber::SetSchema(const json& schema)
-{
-  this->pImpl->SetSchema(schema);
 }

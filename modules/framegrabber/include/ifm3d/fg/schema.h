@@ -21,17 +21,17 @@ namespace ifm3d
   /**
    * Utility function to build an image acquisition result schema from a mask.
    *
-   * @param[in] image_ids to use to build the schema
+   * @param[in] buffer_ids to use to build the schema
    * @return A json-string encoding the schema
    */
-  json make_schema(const std::set<ifm3d::buffer_id>& image_ids,
+  json make_schema(const std::set<ifm3d::buffer_id>& buffer_ids,
                    ifm3d::Device::device_family device_type);
 
   /**
    * Utility function to build a json string, compatible with O3X,
    * for turning on/off image type based on a schema mask
    *
-   * @param[in] image_ids to use to build the schema
+   * @param[in] buffer_ids to use to build the schema
    * @return A json-string comaptible with o3x xmlrpc
    */
   json make_o3x_json_from_mask(const std::set<ifm3d::buffer_id>& chunk_ids);

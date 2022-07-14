@@ -17,7 +17,7 @@
 namespace ifm3d
 {
   /**
-   * image_ids available for use with the default Organizer.
+   * buffer_ids available for use with the default Organizer.
    */
   enum class buffer_id : uint64_t
   {
