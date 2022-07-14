@@ -45,10 +45,8 @@ def get_version_from_git():
         ["git", "rev-list", version + "..HEAD", "--count"]).decode("utf-8").strip())
 
     if version_ahead > 0:
-        version_commit = subprocess.check_output(
-            ["git", "rev-parse", "--short", "HEAD"]).decode("utf-8").strip()
-
-        version = "{}+{}.{}".format(version, version_ahead, version_commit)
+        # PyPI does not allow uploading versions with metadata so we can't include the commit hash...
+        version = "{}-{}".format(version, version_ahead)
 
     version = version.lstrip("v")
 
@@ -143,6 +141,6 @@ setup(
     ext_modules=[CMakeExtension('IFM3D_PYBIND11')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
-    packages = find_packages(),
-    entry_points ={'console_scripts': ['ifm3dpy = ifm3dpy:_run_cmdtool']}
+    packages=find_packages(),
+    entry_points={'console_scripts': ['ifm3dpy = ifm3dpy:_run_cmdtool']}
 )
