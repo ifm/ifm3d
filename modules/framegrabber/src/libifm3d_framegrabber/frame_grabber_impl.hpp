@@ -715,7 +715,7 @@ ifm3d::FrameGrabber::Impl::CalculateAsycCommand()
       return "p3";
     }
 
-  // schema is empty then disable all  async async outputs
+  // schema is empty then disable all async outputs
   return "p0";
 }
 #endif // IFM3D_FG_FRAMEGRABBER_IMPL_H
