@@ -5,7 +5,7 @@
   image: toolhippie/manifest-tool:20210830
   needs:
     - job: build:linux:docker
-      artifacts: true
+      artifacts: false
   before_script:
     - !reference [.docker-config, script]
     - mkdir -p $HOME/.docker
