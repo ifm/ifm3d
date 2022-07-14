@@ -20,7 +20,7 @@ bind_frame(pybind11::module_& m)
     )"
   );
 
-  py::enum_<ifm3d::buffer_id>(m, "image_id", "Enum: image_ids available for use with the default Organizer.")
+  py::enum_<ifm3d::buffer_id>(m, "buffer_id", "Enum: buffer_id available for use with the default Organizer.")
     .value("RADIAL_DISTANCE", ifm3d::buffer_id::RADIAL_DISTANCE)
     .value("AMPLITUDE", ifm3d::buffer_id::AMPLITUDE)
     .value("RAW_AMPLITUDE", ifm3d::buffer_id::RAW_AMPLITUDE)

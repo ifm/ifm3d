@@ -44,42 +44,30 @@ bind_framegrabber(pybind11::module_& m)
   );
 
   framegrabber.def(
-    "set_schema",
-    [](const ifm3d::FrameGrabber::Ptr& c, const py::dict& json)
-    {
-      py::object json_dumps = py::module::import("json").attr("dumps");
-      c->SetSchema(nlohmann::json::parse(json_dumps(json).cast<std::string>()));
-    },
-    py::arg("schema"),
-      R"(
-      Set the PCIC Schema. Allows to manually set a PCIC schema for
-      asynchronous results. See ifm3d::make_schema for generation logic of the
-      default schema. Manually setting the schema should rarely be needed and
-      most usecases should be covered by the default generated schema.
-      
-      Note: The FrameGrabber is relying on some specific formatting rules, if
-      they are missing from the schema FrameGrabber will not be able to
-      extract the image data.
-
-      Parameters
-      ----------
-      schema : dict
-          The PCIC schema to apply
-    )"
-  );
-
-  framegrabber.def(
     "start",
     &ifm3d::FrameGrabber::Start,
     py::arg("buffers") = ifm3d::FrameGrabber::BufferList{},
-    py::arg("set_default_schema") = true,
+    py::arg("schema") = std::nullopt,
     R"(
       Starts the worker thread for streaming in pixel data from the device
 
       Parameters
       ----------
       buffers : List[uint64]
-          A List of image_id which to receive
+          A List of buffer_ids for receiving, passing in an List
+          set will received all available images. The buffer_ids are specific to
+          the current Organizer. See buffer_id for a list of buffer_ids available
+          with the default Organizer
+      
+      schema : Dict
+          allows to manually set a PCIC schema for
+          asynchronous results. See ifm3d::make_schema for generation logic of the
+          default schema. Manually setting the schema should rarely be needed and
+          most usecases should be covered by the default generated schema.
+      
+          Note: The FrameGrabber is relying on some specific formatting rules, if
+          they are missing from the schema the FrameGrabber will not be able to
+          extract the image data.
     )"
   );
 
