@@ -12,6 +12,7 @@
 #include <memory>
 #include <optional>
 #include <vector>
+#include <variant>
 #include <type_traits>
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/buffer.h>
@@ -30,6 +31,8 @@ namespace ifm3d
     using NewFrameCallback = std::function<void(Frame::Ptr)>;
     using AsynErrorCallback =
       std::function<void(const int, const std::string&)>;
+    using BufferList =
+      std::vector<std::variant<std::uint64_t, int, ifm3d::buffer_id>>;
 
     /**
      * Stores a reference to the passed in Device shared pointer
@@ -78,47 +81,23 @@ namespace ifm3d
     /**
      * Starts the worker thread for streaming in pixel data from the device
      *
-     * @param[in] buffer set of buffer_ids for receiving, passing in an empty
-     * set will received all available images. The image_ids are specific to
-     * the current Organizer. See image_id for a list of image_ids available
+     * @param[in] buffers set of buffer_ids for receiving, passing in an empty
+     * set will received all available images. The buffer_ids are specific to
+     * the current Organizer. See buffer_id for a list of buffer_ids available
      * with the default Organizer
-     */
-    bool Start(const std::set<ifm3d::buffer_id>& images = {
-                 ifm3d::buffer_id::AMPLITUDE,
-                 ifm3d::buffer_id::XYZ});
-
-    /**
-     * Starts the worker thread for streaming in pixel data from the device
      *
-     * @param[in] images set of image_ids for receiving, passing in an empty
-     * set will received all available images. The image_ids are specific to
-     * the current Organizer. See image_id for a list of image_ids available
-     * with the default Organizer
-     */
-    template <typename T, typename... Args>
-    bool
-    Start(std::set<buffer_id>& images, T id, Args... args)
-    {
-      images.insert(id);
-      return Start(images, args...);
-    }
-
-    /**
-     * Starts the worker thread for streaming in pixel data from the device
+     * @param[in] pcicFormat allows to manually set a PCIC schema for
+     * asynchronous results. See ifm3d::make_schema for generation logic of the
+     * default pcicFormat. Manually setting the pcicFormat should rarely be
+     * needed and most usecases should be covered by the default generated
+     * pcicFormat.
      *
-     * @param[in] images set of image_ids for receiving, passing in an empty
-     * set will received all available images. The image_ids are specific to
-     * the current Organizer. See image_id for a list of image_ids available
-     * with the default Organizer
+     * Note: The FrameGrabber is relying on some specific formatting rules, if
+     * they are missing from the schema the FrameGrabber will not be able to
+     * extract the image data.
      */
-    template <typename T, typename... Args>
-    bool
-    Start(T id, Args... args)
-    {
-      std::set<buffer_id> images;
-      images.insert(id);
-      return Start(images, args...);
-    }
+    bool Start(const BufferList& buffers,
+               const std::optional<json>& pcicFormat = std::nullopt);
 
     /**
      * Stops the worker thread for streaming in pixel data from the device

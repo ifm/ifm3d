@@ -314,9 +314,10 @@ ifm3d::find_metadata_chunk(std::map<ifm3d::image_chunk, std::size_t> chunks)
       metachunk = chunks.find(ifm3d::image_chunk::JPEG);
     }
 
-  if (metachunk == chunks.end())
+  // Otherwise fall back to the first available chunk
+  if (!chunks.empty())
     {
-      metachunk = chunks.find(ifm3d::image_chunk::ALGO_DEBUG);
+      metachunk = chunks.begin();
     }
 
   return metachunk;
