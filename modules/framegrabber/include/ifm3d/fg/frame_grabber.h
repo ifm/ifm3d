@@ -86,17 +86,18 @@ namespace ifm3d
      * the current Organizer. See buffer_id for a list of buffer_ids available
      * with the default Organizer
      *
-     * @param[in] schema allows to manually set a PCIC schema for
+     * @param[in] pcicFormat allows to manually set a PCIC schema for
      * asynchronous results. See ifm3d::make_schema for generation logic of the
-     * default schema. Manually setting the schema should rarely be needed and
-     * most usecases should be covered by the default generated schema.
+     * default pcicFormat. Manually setting the pcicFormat should rarely be
+     * needed and most usecases should be covered by the default generated
+     * pcicFormat.
      *
      * Note: The FrameGrabber is relying on some specific formatting rules, if
      * they are missing from the schema the FrameGrabber will not be able to
      * extract the image data.
      */
     bool Start(const BufferList& buffers,
-               const std::optional<json>& schema = std::nullopt);
+               const std::optional<json>& pcicFormat = std::nullopt);
 
     /**
      * Stops the worker thread for streaming in pixel data from the device
