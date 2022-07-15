@@ -59,14 +59,14 @@ bind_framegrabber(pybind11::module_& m)
           the current Organizer. See buffer_id for a list of buffer_ids available
           with the default Organizer
       
-      schema : Dict
-          allows to manually set a PCIC schema for
+      pcicFormat : Dict
+          allows to manually set a PCIC pcicFormat for
           asynchronous results. See ifm3d::make_schema for generation logic of the
-          default schema. Manually setting the schema should rarely be needed and
-          most usecases should be covered by the default generated schema.
+          default pcicFormat. Manually setting the pcicFormat should rarely be needed and
+          most usecases should be covered by the default generated pcicFormat.
       
           Note: The FrameGrabber is relying on some specific formatting rules, if
-          they are missing from the schema the FrameGrabber will not be able to
+          they are missing from the pcicFormat the FrameGrabber will not be able to
           extract the image data.
     )"
   );
