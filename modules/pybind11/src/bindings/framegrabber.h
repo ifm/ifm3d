@@ -45,17 +45,29 @@ bind_framegrabber(pybind11::module_& m)
 
   framegrabber.def(
     "start",
-    [](const ifm3d::FrameGrabber::Ptr& fg, const std::set<ifm3d::buffer_id>& images) {
-      return fg->Start(images);
-    },
-    py::arg("images") = std::set<ifm3d::buffer_id>{},
+    &ifm3d::FrameGrabber::Start,
+    py::arg("buffers") = ifm3d::FrameGrabber::BufferList{},
+    py::arg("schema") = std::nullopt,
     R"(
       Starts the worker thread for streaming in pixel data from the device
 
       Parameters
       ----------
-      images : List[uint64]
-          A List of image_id which to receive
+      buffers : List[uint64]
+          A List of buffer_ids for receiving, passing in an List
+          set will received all available images. The buffer_ids are specific to
+          the current Organizer. See buffer_id for a list of buffer_ids available
+          with the default Organizer
+      
+      pcicFormat : Dict
+          allows to manually set a PCIC pcicFormat for
+          asynchronous results. See ifm3d::make_schema for generation logic of the
+          default pcicFormat. Manually setting the pcicFormat should rarely be needed and
+          most usecases should be covered by the default generated pcicFormat.
+      
+          Note: The FrameGrabber is relying on some specific formatting rules, if
+          they are missing from the pcicFormat the FrameGrabber will not be able to
+          extract the image data.
     )"
   );
 

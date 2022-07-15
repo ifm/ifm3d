@@ -31,9 +31,29 @@ ifm3d::FrameGrabber::OnNewFrame(NewFrameCallback callback)
 }
 
 bool
-ifm3d::FrameGrabber::Start(const std::set<ifm3d::buffer_id>& images)
+ifm3d::FrameGrabber::Start(
+  const std::vector<std::variant<std::uint64_t, int, ifm3d::buffer_id>>&
+    buffers,
+  const std::optional<json>& schema)
 {
-  return this->pImpl->Start(images);
+  std::vector<buffer_id> buffer_ids;
+  std::transform(
+    buffers.begin(),
+    buffers.end(),
+    std::back_inserter(buffer_ids),
+    [](const std::variant<std::uint64_t, int, ifm3d::buffer_id>& id) {
+      if (std::holds_alternative<std::uint64_t>(id))
+        return static_cast<ifm3d::buffer_id>(std::get<std::uint64_t>(id));
+      if (std::holds_alternative<int>(id))
+        return static_cast<ifm3d::buffer_id>(std::get<int>(id));
+      if (std::holds_alternative<ifm3d::buffer_id>(id))
+        return std::get<ifm3d::buffer_id>(id);
+      return static_cast<ifm3d::buffer_id>(0);
+    });
+
+  return this->pImpl->Start(
+    std::set<ifm3d::buffer_id>(buffer_ids.begin(), buffer_ids.end()),
+    schema);
 }
 
 bool

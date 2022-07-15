@@ -66,7 +66,7 @@ const std::map<ifm3d::buffer_id, const nlohmann::json> o3r_schema_map
      {{"type", "blob"}, {"id", "AMPLITUDE_COMPRESSED"}}},
     {ifm3d::buffer_id::ALGO_DEBUG, {{"type", "blob"}, {"id", "ALGO_DEBUG"}}},
 #if 0
-  {ifm3d::image_id::REFlECTIVITY, {{"type", "blob"}, {"id", "REFLECTIVITY"}}},
+  {ifm3d::buffer_id::REFlECTIVITY, {{"type", "blob"}, {"id", "REFLECTIVITY"}}},
 #endif
     {ifm3d::buffer_id::INTRINSIC_CALIBRATION,
      {{"type", "blob"}, {"id", "intrinsic_calibration"}}},
@@ -79,12 +79,12 @@ const std::map<ifm3d::buffer_id, const nlohmann::json> o3r_schema_map
     {ifm3d::buffer_id::JPEG, {{"type", "blob"}, {"id", "JPEG_IMAGE"}}},
     {ifm3d::buffer_id::CONFIDENCE, {{"type", "blob"}, {"id", "CONFIDENCE"}}},
 #if 0
-    {ifm3d::image_id::O3R_RGB_IMAGE_INFO,  {{"type", "blob"}, {"id", "O3R_RGB_IMAGE_INFO"}}},
+    {ifm3d::buffer_id::O3R_RGB_IMAGE_INFO,  {{"type", "blob"}, {"id", "O3R_RGB_IMAGE_INFO"}}},
 #endif
 };
 
-std::string
-ifm3d::make_o3x_json_from_mask(const std::set<ifm3d::buffer_id>& image_ids)
+json
+ifm3d::make_o3x_json_from_mask(const std::set<ifm3d::buffer_id>& buffer_ids)
 {
   std::map<size_t, std::string> bool_to_string{{0, "false"}, {1, "true"}};
 
@@ -94,32 +94,32 @@ ifm3d::make_o3x_json_from_mask(const std::set<ifm3d::buffer_id>& image_ids)
   auto& app_json_pointer = schema["/Apps/0"_json_pointer];
 
   app_json_pointer["OutputDistanceImage"] =
-    bool_to_string[image_ids.count(ifm3d::buffer_id::RADIAL_DISTANCE)];
+    bool_to_string[buffer_ids.count(ifm3d::buffer_id::RADIAL_DISTANCE)];
   app_json_pointer["OutputAmplitudeImage"] =
-    bool_to_string[image_ids.count(ifm3d::buffer_id::AMPLITUDE)];
+    bool_to_string[buffer_ids.count(ifm3d::buffer_id::AMPLITUDE)];
   app_json_pointer["OutputGrayscaleImage"] =
-    bool_to_string[image_ids.count(ifm3d::buffer_id::GRAY)];
+    bool_to_string[buffer_ids.count(ifm3d::buffer_id::GRAY)];
   app_json_pointer["OutputXYZImage"] =
-    bool_to_string[image_ids.count(ifm3d::buffer_id::XYZ) ||
-                   image_ids.count(ifm3d::buffer_id::CARTESIAN_ALL) ||
-                   image_ids.count(ifm3d::buffer_id::CARTESIAN_X) ||
-                   image_ids.count(ifm3d::buffer_id::CARTESIAN_Y) ||
-                   image_ids.count(ifm3d::buffer_id::CARTESIAN_Z)];
+    bool_to_string[buffer_ids.count(ifm3d::buffer_id::XYZ) ||
+                   buffer_ids.count(ifm3d::buffer_id::CARTESIAN_ALL) ||
+                   buffer_ids.count(ifm3d::buffer_id::CARTESIAN_X) ||
+                   buffer_ids.count(ifm3d::buffer_id::CARTESIAN_Y) ||
+                   buffer_ids.count(ifm3d::buffer_id::CARTESIAN_Z)];
   app_json_pointer["OutputDistanceNoiseImage"] =
-    bool_to_string[image_ids.count(ifm3d::buffer_id::DISTANCE_NOISE)];
+    bool_to_string[buffer_ids.count(ifm3d::buffer_id::DISTANCE_NOISE)];
   app_json_pointer["OutputConfidenceImage"] =
-    bool_to_string[image_ids.count(ifm3d::buffer_id::CONFIDENCE)];
+    bool_to_string[buffer_ids.count(ifm3d::buffer_id::CONFIDENCE)];
 
-  return schema.dump();
+  return schema;
 }
 
-std::string
-ifm3d::make_schema(const std::set<ifm3d::buffer_id>& image_ids,
+json
+ifm3d::make_schema(const std::set<ifm3d::buffer_id>& buffer_ids,
                    ifm3d::Device::device_family device_type)
 {
   if (device_type == ifm3d::Device::device_family::O3X)
     {
-      return make_o3x_json_from_mask(image_ids);
+      return make_o3x_json_from_mask(buffer_ids);
     }
 
   auto check_for_device_support =
@@ -150,7 +150,7 @@ ifm3d::make_schema(const std::set<ifm3d::buffer_id>& image_ids,
 
   auto schema_generator =
     [&](const std::map<ifm3d::buffer_id, const nlohmann::json>& schema_map) {
-      for (const auto chunk_id : image_ids)
+      for (const auto chunk_id : buffer_ids)
         {
           auto json_schema_for_id =
             check_for_device_support(chunk_id, schema_map);
@@ -182,5 +182,5 @@ ifm3d::make_schema(const std::set<ifm3d::buffer_id>& image_ids,
   // Add stop to the schema
   elements.push_back(
     {{"type", "string"}, {"value", "stop"}, {"id", "end_string"}});
-  return schema.dump();
+  return schema;
 }
