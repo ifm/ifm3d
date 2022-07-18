@@ -370,11 +370,7 @@ ifm3d::FrameGrabber::Impl::ConnectHandler(const std::optional<json>& schema)
       SetSchema(GenerateDefaultSchema());
     }
 
-  if (requested_images_.find(static_cast<buffer_id>(
-        image_chunk::ALGO_DEBUG)) != requested_images_.end())
-    {
-      SendCommand(TICKET_COMMAND_p, CalculateAsycCommand());
-    }
+  SendCommand(TICKET_COMMAND_p, CalculateAsycCommand());
 
   this->sock_.async_read_some(
     asio::buffer(this->ticket_buffer_.data(), ifm3d::TICKET_SIZE),
@@ -612,11 +608,11 @@ ifm3d::FrameGrabber::Impl::GenerateDefaultSchema()
     }
 
   // Add confidence image
-  image_chunk_ids.insert(ifm3d::buffer_id::CONFIDENCE);
+  image_chunk_ids.insert(ifm3d::buffer_id::CONFIDENCE_IMAGE);
   // Add O3D specific invariants
   if (this->cam_->AmI(ifm3d::Device::device_family::O3D))
     {
-      image_chunk_ids.insert(ifm3d::buffer_id::EXTRINSIC_CALIBRATION);
+      image_chunk_ids.insert(ifm3d::buffer_id::EXTRINSIC_CALIB);
     }
 
   return ifm3d::make_schema(image_chunk_ids, cam_->WhoAmI());
@@ -633,30 +629,30 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(buffer_id id)
       if (device_type == ifm3d::Device::device_family::O3R)
         return {
           buffer_id::XYZ,
-          buffer_id::O3R_DISTANCE_IMAGE_INFORMATION,
-          buffer_id::RADIAL_DISTANCE,
-          buffer_id::AMPLITUDE,
+          buffer_id::O3R_DISTANCE_IMAGE_INFO,
+          buffer_id::RADIAL_DISTANCE_IMAGE,
+          buffer_id::NORM_AMPLITUDE_IMAGE,
         };
       else if (device_type == ifm3d::Device::device_family::O3D)
         return {
-          buffer_id::CARTESIAN_X,
-          buffer_id::CARTESIAN_Y,
-          buffer_id::CARTESIAN_Z,
+          buffer_id::CARTESIAN_X_COMPONENT,
+          buffer_id::CARTESIAN_Y_COMPONENT,
+          buffer_id::CARTESIAN_Z_COMPONENT,
         };
       else
         return {id};
-    case buffer_id::RADIAL_DISTANCE:
-    case buffer_id::AMPLITUDE:
+    case buffer_id::RADIAL_DISTANCE_IMAGE:
+    case buffer_id::NORM_AMPLITUDE_IMAGE:
     case buffer_id::EXPOSURE_TIME:
-    case buffer_id::EXTRINSIC_CALIBRATION:
-    case buffer_id::INTRINSIC_CALIBRATION:
+    case buffer_id::EXTRINSIC_CALIB:
+    case buffer_id::INTRINSIC_CALIB:
     case buffer_id::INVERSE_INTRINSIC_CALIBRATION:
       if (device_type == ifm3d::Device::device_family::O3R)
         {
           return {id,
-                  buffer_id::O3R_DISTANCE_IMAGE_INFORMATION,
-                  buffer_id::RADIAL_DISTANCE,
-                  buffer_id::AMPLITUDE};
+                  buffer_id::O3R_DISTANCE_IMAGE_INFO,
+                  buffer_id::RADIAL_DISTANCE_IMAGE,
+                  buffer_id::NORM_AMPLITUDE_IMAGE};
         }
       else
         {

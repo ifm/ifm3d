@@ -16,26 +16,30 @@
 #include <ifm3d/contrib/nlohmann/json.hpp>
 
 const std::map<ifm3d::buffer_id, const nlohmann::json> o3d_schema_map{
-  {ifm3d::buffer_id::RADIAL_DISTANCE,
+  {ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
    {{"type", "blob"}, {"id", "distance_image"}}},
-  {ifm3d::buffer_id::AMPLITUDE,
+  {ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE,
    {{"type", "blob"}, {"id", "normalized_amplitude_image"}}},
-  {ifm3d::buffer_id::RAW_AMPLITUDE,
+  {ifm3d::buffer_id::AMPLITUDE_IMAGE,
    {{"type", "blob"}, {"id", "amplitude_image"}}},
-  {ifm3d::buffer_id::GRAY, {{"type", "blob"}, {"id", "grayscale_image"}}},
-  {ifm3d::buffer_id::CARTESIAN_X, {{"type", "blob"}, {"id", "x_image"}}},
-  {ifm3d::buffer_id::CARTESIAN_Y, {{"type", "blob"}, {"id", "y_image"}}},
-  {ifm3d::buffer_id::CARTESIAN_Z, {{"type", "blob"}, {"id", "z_image"}}},
+  {ifm3d::buffer_id::GRAYSCALE_IMAGE,
+   {{"type", "blob"}, {"id", "grayscale_image"}}},
+  {ifm3d::buffer_id::CARTESIAN_X_COMPONENT,
+   {{"type", "blob"}, {"id", "x_image"}}},
+  {ifm3d::buffer_id::CARTESIAN_Y_COMPONENT,
+   {{"type", "blob"}, {"id", "y_image"}}},
+  {ifm3d::buffer_id::CARTESIAN_Z_COMPONENT,
+   {{"type", "blob"}, {"id", "z_image"}}},
   {ifm3d::buffer_id::UNIT_VECTOR_ALL,
    {{"type", "blob"}, {"id", "all_unit_vector_matrices"}}},
-  {ifm3d::buffer_id::INTRINSIC_CALIBRATION,
+  {ifm3d::buffer_id::INTRINSIC_CALIB,
    {{"type", "blob"}, {"id", "intrinsic_calibration"}}},
   {ifm3d::buffer_id::INVERSE_INTRINSIC_CALIBRATION,
    {{"type", "blob"}, {"id", "inverse_intrinsic_calibration"}}},
   {ifm3d::buffer_id::JSON_MODEL, {{"type", "blob"}, {"id", "json_model"}}},
-  {ifm3d::buffer_id::CONFIDENCE,
+  {ifm3d::buffer_id::CONFIDENCE_IMAGE,
    {{"type", "blob"}, {"id", "confidence_image"}}},
-  {ifm3d::buffer_id::EXTRINSIC_CALIBRATION,
+  {ifm3d::buffer_id::EXTRINSIC_CALIB,
    {{"type", "blob"}, {"id", "extrinsic_calibration"}}},
   {ifm3d::buffer_id::EXPOSURE_TIME,
    nlohmann::json::array(
@@ -60,24 +64,25 @@ const std::map<ifm3d::buffer_id, const nlohmann::json> o3d_schema_map{
 // TODO : update this for O3R specific Data.
 const std::map<ifm3d::buffer_id, const nlohmann::json> o3r_schema_map
 {
-  {ifm3d::buffer_id::RADIAL_DISTANCE,
+  {ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
    {{"type", "blob"}, {"id", "RADIAL_DISTANCE_COMPRESSED"}}},
-    {ifm3d::buffer_id::AMPLITUDE,
+    {ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE,
      {{"type", "blob"}, {"id", "AMPLITUDE_COMPRESSED"}}},
     {ifm3d::buffer_id::ALGO_DEBUG, {{"type", "blob"}, {"id", "ALGO_DEBUG"}}},
 #if 0
   {ifm3d::buffer_id::REFlECTIVITY, {{"type", "blob"}, {"id", "REFLECTIVITY"}}},
 #endif
-    {ifm3d::buffer_id::INTRINSIC_CALIBRATION,
+    {ifm3d::buffer_id::INTRINSIC_CALIB,
      {{"type", "blob"}, {"id", "intrinsic_calibration"}}},
     {ifm3d::buffer_id::INVERSE_INTRINSIC_CALIBRATION,
      {{"type", "blob"}, {"id", "inverse_intrinsic_calibration"}}},
-    {ifm3d::buffer_id::DISTANCE_NOISE,
+    {ifm3d::buffer_id::RADIAL_DISTANCE_NOISE,
      {{"type", "blob"}, {"id", "RADIAL_DISTANCE_NOISE"}}},
-    {ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFORMATION,
+    {ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFO,
      {{"type", "blob"}, {"id", "TOF_INFO"}}},
-    {ifm3d::buffer_id::JPEG, {{"type", "blob"}, {"id", "JPEG_IMAGE"}}},
-    {ifm3d::buffer_id::CONFIDENCE, {{"type", "blob"}, {"id", "CONFIDENCE"}}},
+    {ifm3d::buffer_id::JPEG_IMAGE, {{"type", "blob"}, {"id", "JPEG_IMAGE"}}},
+    {ifm3d::buffer_id::CONFIDENCE_IMAGE,
+     {{"type", "blob"}, {"id", "CONFIDENCE"}}},
 #if 0
     {ifm3d::buffer_id::O3R_RGB_IMAGE_INFO,  {{"type", "blob"}, {"id", "O3R_RGB_IMAGE_INFO"}}},
 #endif
@@ -94,21 +99,21 @@ ifm3d::make_o3x_json_from_mask(const std::set<ifm3d::buffer_id>& buffer_ids)
   auto& app_json_pointer = schema["/Apps/0"_json_pointer];
 
   app_json_pointer["OutputDistanceImage"] =
-    bool_to_string[buffer_ids.count(ifm3d::buffer_id::RADIAL_DISTANCE)];
+    bool_to_string[buffer_ids.count(ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE)];
   app_json_pointer["OutputAmplitudeImage"] =
-    bool_to_string[buffer_ids.count(ifm3d::buffer_id::AMPLITUDE)];
+    bool_to_string[buffer_ids.count(ifm3d::buffer_id::AMPLITUDE_IMAGE)];
   app_json_pointer["OutputGrayscaleImage"] =
-    bool_to_string[buffer_ids.count(ifm3d::buffer_id::GRAY)];
+    bool_to_string[buffer_ids.count(ifm3d::buffer_id::GRAYSCALE_IMAGE)];
   app_json_pointer["OutputXYZImage"] =
     bool_to_string[buffer_ids.count(ifm3d::buffer_id::XYZ) ||
                    buffer_ids.count(ifm3d::buffer_id::CARTESIAN_ALL) ||
-                   buffer_ids.count(ifm3d::buffer_id::CARTESIAN_X) ||
-                   buffer_ids.count(ifm3d::buffer_id::CARTESIAN_Y) ||
-                   buffer_ids.count(ifm3d::buffer_id::CARTESIAN_Z)];
+                   buffer_ids.count(ifm3d::buffer_id::CARTESIAN_X_COMPONENT) ||
+                   buffer_ids.count(ifm3d::buffer_id::CARTESIAN_Y_COMPONENT) ||
+                   buffer_ids.count(ifm3d::buffer_id::CARTESIAN_Z_COMPONENT)];
   app_json_pointer["OutputDistanceNoiseImage"] =
-    bool_to_string[buffer_ids.count(ifm3d::buffer_id::DISTANCE_NOISE)];
+    bool_to_string[buffer_ids.count(ifm3d::buffer_id::RADIAL_DISTANCE_NOISE)];
   app_json_pointer["OutputConfidenceImage"] =
-    bool_to_string[buffer_ids.count(ifm3d::buffer_id::CONFIDENCE)];
+    bool_to_string[buffer_ids.count(ifm3d::buffer_id::CONFIDENCE_IMAGE)];
 
   return schema;
 }
