@@ -27,6 +27,8 @@ namespace ifm3d
 
     Buffer& GetBuffer(buffer_id id);
 
+    std::vector<ifm3d::buffer_id> GetBuffers();
+
     decltype(std::declval<std::map<buffer_id, Buffer>>().begin())
     begin() noexcept;
     decltype(std::declval<const std::map<buffer_id, Buffer>>().begin()) begin()
@@ -70,13 +72,27 @@ ifm3d::Frame::Impl::GetBuffer(buffer_id id)
   return images_.at(id);
 }
 
+std::vector<ifm3d::buffer_id>
+ifm3d::Frame::Impl::GetBuffers()
+{
+  std::vector<buffer_id> keys;
+
+  std::transform(images_.begin(),
+                 images_.end(),
+                 std::back_inserter(keys),
+                 [](const auto& pair) { return pair.first; });
+
+  return keys;
+}
+
 decltype(std::declval<std::map<ifm3d::buffer_id, ifm3d::Buffer>>().begin())
 ifm3d::Frame::Impl::begin() noexcept
 {
   return images_.begin();
 }
 
-decltype(std::declval<const std::map<ifm3d::buffer_id, ifm3d::Buffer>>().begin())
+decltype(
+  std::declval<const std::map<ifm3d::buffer_id, ifm3d::Buffer>>().begin())
 ifm3d::Frame::Impl::begin() const noexcept
 {
   return images_.begin();

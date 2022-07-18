@@ -72,21 +72,25 @@ ifm3d::get_format_channels(ifm3d::pixel_format fmt)
 
 ifm3d::Buffer
 ifm3d::create_buffer(const std::vector<std::uint8_t>& data,
-                    std::size_t idx,
-                    std::size_t width,
-                    std::size_t height)
+                     std::size_t idx,
+                     std::size_t width,
+                     std::size_t height)
 {
   auto fmt = get_chunk_format(data, idx);
   std::size_t pixeldata_offset = get_chunk_pixeldata_offset(data, idx);
-  return ifm3d::create_buffer(data, idx + pixeldata_offset, width, height, fmt);
+  return ifm3d::create_buffer(data,
+                              idx + pixeldata_offset,
+                              width,
+                              height,
+                              fmt);
 }
 
 ifm3d::Buffer
 ifm3d::create_buffer(const std::vector<std::uint8_t>& data,
-                    std::size_t idx,
-                    std::size_t width,
-                    std::size_t height,
-                    pixel_format fmt)
+                     std::size_t idx,
+                     std::size_t width,
+                     std::size_t height,
+                     pixel_format fmt)
 {
   uint32_t nchan = get_format_channels(fmt);
   std::size_t fsize = get_format_size(fmt);
@@ -114,13 +118,13 @@ ifm3d::create_buffer(const std::vector<std::uint8_t>& data,
 template <typename T>
 static ifm3d::Buffer
 create_xyz_buffer(const std::vector<std::uint8_t>& data,
-                 std::size_t xidx,
-                 std::size_t yidx,
-                 std::size_t zidx,
-                 std::size_t width,
-                 std::size_t height,
-                 ifm3d::pixel_format fmt,
-                 const std::optional<ifm3d::Buffer>& mask)
+                  std::size_t xidx,
+                  std::size_t yidx,
+                  std::size_t zidx,
+                  std::size_t width,
+                  std::size_t height,
+                  ifm3d::pixel_format fmt,
+                  const std::optional<ifm3d::Buffer>& mask)
 {
   std::size_t incr = sizeof(T);
   std::size_t npts = width * height;
@@ -170,18 +174,27 @@ create_xyz_buffer(const std::vector<std::uint8_t>& data,
 
 ifm3d::Buffer
 ifm3d::create_xyz_buffer(const std::vector<std::uint8_t>& data,
-                        std::size_t xidx,
-                        std::size_t yidx,
-                        std::size_t zidx,
-                        std::size_t width,
-                        std::size_t height,
-                        ifm3d::pixel_format fmt,
-                        const std::optional<Buffer>& mask)
+                         std::size_t xidx,
+                         std::size_t yidx,
+                         std::size_t zidx,
+                         std::size_t width,
+                         std::size_t height,
+                         ifm3d::pixel_format fmt,
+                         const std::optional<Buffer>& mask)
 {
   switch (fmt)
     {
     case ifm3d::pixel_format::FORMAT_8U:
       return ::create_xyz_buffer<std::uint8_t>(data,
+                                               xidx,
+                                               yidx,
+                                               zidx,
+                                               width,
+                                               height,
+                                               fmt,
+                                               mask);
+    case pixel_format::FORMAT_8S:
+      return ::create_xyz_buffer<std::int8_t>(data,
                                               xidx,
                                               yidx,
                                               zidx,
@@ -189,36 +202,18 @@ ifm3d::create_xyz_buffer(const std::vector<std::uint8_t>& data,
                                               height,
                                               fmt,
                                               mask);
-    case pixel_format::FORMAT_8S:
-      return ::create_xyz_buffer<std::int8_t>(data,
-                                             xidx,
-                                             yidx,
-                                             zidx,
-                                             width,
-                                             height,
-                                             fmt,
-                                             mask);
     case pixel_format::FORMAT_16U:
     case pixel_format::FORMAT_16U2:
       return ::create_xyz_buffer<std::uint16_t>(data,
-                                               xidx,
-                                               yidx,
-                                               zidx,
-                                               width,
-                                               height,
-                                               fmt,
-                                               mask);
+                                                xidx,
+                                                yidx,
+                                                zidx,
+                                                width,
+                                                height,
+                                                fmt,
+                                                mask);
     case pixel_format::FORMAT_16S:
       return ::create_xyz_buffer<std::int16_t>(data,
-                                              xidx,
-                                              yidx,
-                                              zidx,
-                                              width,
-                                              height,
-                                              fmt,
-                                              mask);
-    case pixel_format::FORMAT_32U:
-      return ::create_xyz_buffer<std::uint32_t>(data,
                                                xidx,
                                                yidx,
                                                zidx,
@@ -226,36 +221,36 @@ ifm3d::create_xyz_buffer(const std::vector<std::uint8_t>& data,
                                                height,
                                                fmt,
                                                mask);
+    case pixel_format::FORMAT_32U:
+      return ::create_xyz_buffer<std::uint32_t>(data,
+                                                xidx,
+                                                yidx,
+                                                zidx,
+                                                width,
+                                                height,
+                                                fmt,
+                                                mask);
     case pixel_format::FORMAT_32S:
       return ::create_xyz_buffer<std::int32_t>(data,
-                                              xidx,
-                                              yidx,
-                                              zidx,
-                                              width,
-                                              height,
-                                              fmt,
-                                              mask);
+                                               xidx,
+                                               yidx,
+                                               zidx,
+                                               width,
+                                               height,
+                                               fmt,
+                                               mask);
     case pixel_format::FORMAT_64U:
       return ::create_xyz_buffer<uint64_t>(data,
-                                          xidx,
-                                          yidx,
-                                          zidx,
-                                          width,
-                                          height,
-                                          fmt,
-                                          mask);
+                                           xidx,
+                                           yidx,
+                                           zidx,
+                                           width,
+                                           height,
+                                           fmt,
+                                           mask);
     case pixel_format::FORMAT_32F:
     case pixel_format::FORMAT_32F3:
       return ::create_xyz_buffer<float>(data,
-                                       xidx,
-                                       yidx,
-                                       zidx,
-                                       width,
-                                       height,
-                                       fmt,
-                                       mask);
-    case pixel_format::FORMAT_64F:
-      return ::create_xyz_buffer<double>(data,
                                         xidx,
                                         yidx,
                                         zidx,
@@ -263,6 +258,15 @@ ifm3d::create_xyz_buffer(const std::vector<std::uint8_t>& data,
                                         height,
                                         fmt,
                                         mask);
+    case pixel_format::FORMAT_64F:
+      return ::create_xyz_buffer<double>(data,
+                                         xidx,
+                                         yidx,
+                                         zidx,
+                                         width,
+                                         height,
+                                         fmt,
+                                         mask);
 
     default:
       LOG(ERROR) << "Invalid pixel format => " << static_cast<uint32_t>(fmt);
@@ -307,11 +311,11 @@ ifm3d::find_metadata_chunk(std::map<ifm3d::image_chunk, std::size_t> chunks)
   // to get the metadata we use the confidence image for 3d and
   // the jpeg image for 2d
 
-  auto metachunk = chunks.find(ifm3d::image_chunk::CONFIDENCE);
+  auto metachunk = chunks.find(ifm3d::image_chunk::CONFIDENCE_IMAGE);
 
   if (metachunk == chunks.end())
     {
-      metachunk = chunks.find(ifm3d::image_chunk::JPEG);
+      metachunk = chunks.find(ifm3d::image_chunk::JPEG_IMAGE);
     }
 
   // Otherwise fall back to the first available chunk
