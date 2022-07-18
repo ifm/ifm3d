@@ -83,25 +83,32 @@ namespace ifm3d
 
   enum class image_chunk : std::uint32_t
   {
-    RADIAL_DISTANCE = 100,
-    AMPLITUDE = 101, // normalized amplitude
-    RAW_AMPLITUDE = 103,
-    GRAY = 104, // ambient light
-    DISTANCE_NOISE = 105,
-    CARTESIAN_X = 200,
-    CARTESIAN_Y = 201,
-    CARTESIAN_Z = 202,
+    RADIAL_DISTANCE_IMAGE = 100,
+    NORM_AMPLITUDE_IMAGE = 101, // normalized amplitude
+    AMPLITUDE_IMAGE = 103,
+    GRAYSCALE_IMAGE = 104, // ambient light
+    RADIAL_DISTANCE_NOISE = 105,
+    REFLECTIVITY = 107,
+    CARTESIAN_X_COMPONENT = 200,
+    CARTESIAN_Y_COMPONENT = 201,
+    CARTESIAN_Z_COMPONENT = 202,
     CARTESIAN_ALL = 203,
     UNIT_VECTOR_ALL = 223,
-    JPEG = 260,
-    CONFIDENCE = 300,
-    DIAGNOSTIC_DATA = 302,
-    EXTRINSIC_CALIBRATION = 400,
-    INTRINSIC_CALIBRATION = 401,
+    MONOCHROM_2D_12BIT = 250,
+    MONOCHROM_2D = 251,
+    JPEG_IMAGE = 260,
+    CONFIDENCE_IMAGE = 300,
+    DIAGNOSTIC = 302,
+    JSON_DIAGNOSTIC = 305,
+    EXTRINSIC_CALIB = 400,
+    INTRINSIC_CALIB = 401,
     INVERSE_INTRINSIC_CALIBRATION = 402,
-    O3R_DISTANCE_IMAGE_INFORMATION = 420,
+    O3R_DISTANCE_IMAGE_INFO = 420,
+    O3R_RGB_IMAGE_INFO = 420,
     JSON_MODEL = 500,
     ALGO_DEBUG = 900,
+    O3R_ODS_OCCUPANCY_GRID = 1000,
+    O3R_ODS_INFO = 1001,
   };
 
   class XMLRPCWrapper;
@@ -250,7 +257,7 @@ namespace ifm3d
      *                     device parameters and persisting those changes.
      */
     Device(const std::string& ip = ifm3d::DEFAULT_IP,
-               const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT);
+           const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT);
 
     /**
      * The dtor will cancel any open edit sessions with the device.

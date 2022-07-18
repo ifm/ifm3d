@@ -45,13 +45,20 @@ ifm3d::Frame::GetBuffer(buffer_id key)
   return pImpl->GetBuffer(key);
 }
 
+std::vector<ifm3d::buffer_id>
+ifm3d::Frame::GetBuffers()
+{
+  return pImpl->GetBuffers();
+};
+
 decltype(std::declval<std::map<ifm3d::buffer_id, ifm3d::Buffer>>().begin())
 ifm3d::Frame::begin() noexcept
 {
   return pImpl->begin();
 }
 
-decltype(std::declval<const std::map<ifm3d::buffer_id, ifm3d::Buffer>>().begin())
+decltype(
+  std::declval<const std::map<ifm3d::buffer_id, ifm3d::Buffer>>().begin())
 ifm3d::Frame::begin() const noexcept
 {
   return pImpl->begin();
