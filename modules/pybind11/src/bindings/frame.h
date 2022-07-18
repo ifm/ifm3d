@@ -7,6 +7,7 @@
 #define IFM3D_PYBIND_BINDING_FRAME
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 void
 bind_frame(pybind11::module_& m)
@@ -21,26 +22,34 @@ bind_frame(pybind11::module_& m)
   );
 
   py::enum_<ifm3d::buffer_id>(m, "buffer_id", "Enum: buffer_id available for use with the default Organizer.")
-    .value("RADIAL_DISTANCE", ifm3d::buffer_id::RADIAL_DISTANCE)
-    .value("AMPLITUDE", ifm3d::buffer_id::AMPLITUDE)
-    .value("RAW_AMPLITUDE", ifm3d::buffer_id::RAW_AMPLITUDE)
-    .value("GRAY", ifm3d::buffer_id::GRAY)
-    .value("CARTESIAN_X", ifm3d::buffer_id::CARTESIAN_X)
-    .value("CARTESIAN_Y", ifm3d::buffer_id::CARTESIAN_Y)
-    .value("CARTESIAN_Z", ifm3d::buffer_id::CARTESIAN_Z)
-    .value("CARTESIAN_ALL", ifm3d::buffer_id::CARTESIAN_ALL)
-    .value("UNIT_VECTOR_ALL", ifm3d::buffer_id::UNIT_VECTOR_ALL)
-    .value("JPEG", ifm3d::buffer_id::JPEG)
-    .value("CONFIDENCE", ifm3d::buffer_id::CONFIDENCE)
-    .value("DIAGNOSTIC_DATA", ifm3d::buffer_id::DIAGNOSTIC_DATA)
-    .value("EXTRINSIC_CALIBRATION", ifm3d::buffer_id::EXTRINSIC_CALIBRATION)
-    .value("INTRINSIC_CALIBRATION", ifm3d::buffer_id::INTRINSIC_CALIBRATION)
-    .value("INVERSE_INTRINSIC_CALIBRATION", ifm3d::buffer_id::INVERSE_INTRINSIC_CALIBRATION)
-    .value("O3R_DISTANCE_IMAGE_INFORMATION", ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFORMATION)
-    .value("JSON_MODEL", ifm3d::buffer_id::JSON_MODEL)
-    .value("ALGO_DEBUG", ifm3d::buffer_id::ALGO_DEBUG)
-    .value("XYZ", ifm3d::buffer_id::XYZ)
-    .value("EXPOSURE_TIME", ifm3d::buffer_id::EXPOSURE_TIME)
+    .value("RADIAL_DISTANCE_IMAGE", ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE)    
+    .value("NORM_AMPLITUDE_IMAGE", ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE)      
+    .value("AMPLITUDE_IMAGE", ifm3d::buffer_id::AMPLITUDE_IMAGE)      
+    .value("GRAYSCALE_IMAGE", ifm3d::buffer_id::GRAYSCALE_IMAGE)      
+    .value("RADIAL_DISTANCE_NOISE", ifm3d::buffer_id::RADIAL_DISTANCE_NOISE)      
+    .value("REFLECTIVITY", ifm3d::buffer_id::REFLECTIVITY)      
+    .value("CARTESIAN_X_COMPONENT", ifm3d::buffer_id::CARTESIAN_X_COMPONENT)      
+    .value("CARTESIAN_Y_COMPONENT", ifm3d::buffer_id::CARTESIAN_Y_COMPONENT)      
+    .value("CARTESIAN_Z_COMPONENT", ifm3d::buffer_id::CARTESIAN_Z_COMPONENT)      
+    .value("CARTESIAN_ALL", ifm3d::buffer_id::CARTESIAN_ALL)      
+    .value("UNIT_VECTOR_ALL", ifm3d::buffer_id::UNIT_VECTOR_ALL)      
+    .value("MONOCHROM_2D_12BIT", ifm3d::buffer_id::MONOCHROM_2D_12BIT)      
+    .value("MONOCHROM_2D", ifm3d::buffer_id::MONOCHROM_2D)      
+    .value("JPEG_IMAGE", ifm3d::buffer_id::JPEG_IMAGE)      
+    .value("CONFIDENCE_IMAGE", ifm3d::buffer_id::CONFIDENCE_IMAGE)      
+    .value("DIAGNOSTIC", ifm3d::buffer_id::DIAGNOSTIC)      
+    .value("JSON_DIAGNOSTIC", ifm3d::buffer_id::JSON_DIAGNOSTIC)      
+    .value("EXTRINSIC_CALIB", ifm3d::buffer_id::EXTRINSIC_CALIB)      
+    .value("INTRINSIC_CALIB", ifm3d::buffer_id::INTRINSIC_CALIB)      
+    .value("INVERSE_INTRINSIC_CALIBRATION", ifm3d::buffer_id::INVERSE_INTRINSIC_CALIBRATION)      
+    .value("O3R_DISTANCE_IMAGE_INFO", ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFO)      
+    .value("O3R_RGB_IMAGE_INFO", ifm3d::buffer_id::O3R_RGB_IMAGE_INFO)      
+    .value("JSON_MODEL", ifm3d::buffer_id::JSON_MODEL)      
+    .value("ALGO_DEBUG", ifm3d::buffer_id::ALGO_DEBUG)      
+    .value("O3R_ODS_OCCUPANCY_GRID", ifm3d::buffer_id::O3R_ODS_OCCUPANCY_GRID)      
+    .value("O3R_ODS_INFO", ifm3d::buffer_id::O3R_ODS_INFO)      
+    .value("XYZ", ifm3d::buffer_id::XYZ)      
+    .value("EXPOSURE_TIME", ifm3d::buffer_id::EXPOSURE_TIME)      
     .value("ILLUMINATION_TEMP", ifm3d::buffer_id::ILLUMINATION_TEMP);
     
 
@@ -67,6 +76,13 @@ bind_frame(pybind11::module_& m)
     py::arg("id"),
     R"(
       Get the buffer with the given id
+    )");
+
+  frame.def(
+    "get_buffers",
+    &ifm3d::Frame::GetBuffers,
+    R"(
+      Get the list of available buffers
     )");
 
   // clang-format on

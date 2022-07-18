@@ -45,9 +45,14 @@ bind_framegrabber(pybind11::module_& m)
 
   framegrabber.def(
     "start",
-    &ifm3d::FrameGrabber::Start,
+    [](const ifm3d::FrameGrabber::Ptr& self, const ifm3d::FrameGrabber::BufferList& buffers, const std::optional<py::dict>& pcicFormat) {
+      py::object json_dumps = py::module::import("json").attr("dumps");
+      pcicFormat.has_value() 
+        ? self->Start(buffers, json::parse(json_dumps(pcicFormat.value()).cast<std::string>())) 
+        : self->Start(buffers);
+    },
     py::arg("buffers") = ifm3d::FrameGrabber::BufferList{},
-    py::arg("schema") = std::nullopt,
+    py::arg("pcic_format") = std::nullopt,
     R"(
       Starts the worker thread for streaming in pixel data from the device
 
@@ -104,7 +109,14 @@ bind_framegrabber(pybind11::module_& m)
         {
           fg->OnNewFrame([callback](const ifm3d::Frame::Ptr& frame){
             py::gil_scoped_acquire acquire;
-            callback(frame);
+            try 
+              {
+                callback(frame);
+              }
+            catch(py::error_already_set ex)
+              {
+                py::print(ex.value());
+              }
           });
         }
       else 

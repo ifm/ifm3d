@@ -23,25 +23,32 @@ namespace ifm3d
   {
     // clang-format off
 
-    RADIAL_DISTANCE = static_cast<uint64_t>(ifm3d::image_chunk::RADIAL_DISTANCE),
-    AMPLITUDE = static_cast<uint64_t>(ifm3d::image_chunk::AMPLITUDE),
-    RAW_AMPLITUDE = static_cast<uint64_t>(ifm3d::image_chunk::RAW_AMPLITUDE),
-    GRAY = static_cast<uint64_t>(ifm3d::image_chunk::GRAY),
-    DISTANCE_NOISE = static_cast<uint64_t>(ifm3d::image_chunk::DISTANCE_NOISE),
-    CARTESIAN_X = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_X),
-    CARTESIAN_Y = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_Y),
-    CARTESIAN_Z = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_Z),
+    RADIAL_DISTANCE_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::RADIAL_DISTANCE_IMAGE),
+    NORM_AMPLITUDE_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::NORM_AMPLITUDE_IMAGE),
+    AMPLITUDE_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::AMPLITUDE_IMAGE),
+    GRAYSCALE_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::GRAYSCALE_IMAGE),
+    RADIAL_DISTANCE_NOISE = static_cast<uint64_t>(ifm3d::image_chunk::RADIAL_DISTANCE_NOISE),
+    REFLECTIVITY = static_cast<uint64_t>(ifm3d::image_chunk::REFLECTIVITY),
+    CARTESIAN_X_COMPONENT = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_X_COMPONENT),
+    CARTESIAN_Y_COMPONENT = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_Y_COMPONENT),
+    CARTESIAN_Z_COMPONENT = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_Z_COMPONENT),
     CARTESIAN_ALL = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_ALL),
     UNIT_VECTOR_ALL = static_cast<uint64_t>(ifm3d::image_chunk::UNIT_VECTOR_ALL),
-    JPEG = static_cast<uint64_t>(ifm3d::image_chunk::JPEG),
-    CONFIDENCE = static_cast<uint64_t>(ifm3d::image_chunk::CONFIDENCE),
-    DIAGNOSTIC_DATA = static_cast<uint64_t>(ifm3d::image_chunk::DIAGNOSTIC_DATA),
-    EXTRINSIC_CALIBRATION = static_cast<uint64_t>(ifm3d::image_chunk::EXTRINSIC_CALIBRATION),
-    INTRINSIC_CALIBRATION = static_cast<uint64_t>(ifm3d::image_chunk::INTRINSIC_CALIBRATION),
+    MONOCHROM_2D_12BIT = static_cast<uint64_t>(ifm3d::image_chunk::MONOCHROM_2D_12BIT),
+    MONOCHROM_2D = static_cast<uint64_t>(ifm3d::image_chunk::MONOCHROM_2D),
+    JPEG_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::JPEG_IMAGE),
+    CONFIDENCE_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::CONFIDENCE_IMAGE),
+    DIAGNOSTIC = static_cast<uint64_t>(ifm3d::image_chunk::DIAGNOSTIC),
+    JSON_DIAGNOSTIC = static_cast<uint64_t>(ifm3d::image_chunk::JSON_DIAGNOSTIC),
+    EXTRINSIC_CALIB = static_cast<uint64_t>(ifm3d::image_chunk::EXTRINSIC_CALIB),
+    INTRINSIC_CALIB = static_cast<uint64_t>(ifm3d::image_chunk::INTRINSIC_CALIB),
     INVERSE_INTRINSIC_CALIBRATION = static_cast<uint64_t>(ifm3d::image_chunk::INVERSE_INTRINSIC_CALIBRATION),
-    O3R_DISTANCE_IMAGE_INFORMATION = static_cast<uint64_t>(ifm3d::image_chunk::O3R_DISTANCE_IMAGE_INFORMATION),
+    O3R_DISTANCE_IMAGE_INFO = static_cast<uint64_t>(ifm3d::image_chunk::O3R_DISTANCE_IMAGE_INFO),
+    O3R_RGB_IMAGE_INFO = static_cast<uint64_t>(ifm3d::image_chunk::O3R_RGB_IMAGE_INFO),
     JSON_MODEL = static_cast<uint64_t>(ifm3d::image_chunk::JSON_MODEL),
     ALGO_DEBUG = static_cast<uint64_t>(ifm3d::image_chunk::ALGO_DEBUG),
+    O3R_ODS_OCCUPANCY_GRID = static_cast<uint64_t>(ifm3d::image_chunk::O3R_ODS_OCCUPANCY_GRID),
+    O3R_ODS_INFO = static_cast<uint64_t>(ifm3d::image_chunk::O3R_ODS_INFO),
     XYZ = std::numeric_limits<std::uint32_t>::max(), // The point cloud encoded as a 3 channel XYZ image
     EXPOSURE_TIME,
     ILLUMINATION_TEMP,
@@ -88,10 +95,18 @@ namespace ifm3d
      * @brief Get the image with the given id
      *
      * @param id the id of the image to get
-     * @return Image& Reference to the requrest image
+     * @return Image& Reference to the requested buffer
      * @throw std::out_of_range if no image with the give id exists
      */
     Buffer& GetBuffer(buffer_id id);
+
+    /**
+     * @brief Get the list of available buffers
+     *
+     * @param id the id of the image to get
+     * @return the list of available buffer_ids
+     */
+    std::vector<buffer_id> GetBuffers();
 
     decltype(std::declval<std::map<buffer_id, Buffer>>().begin())
     begin() noexcept;
