@@ -1,0 +1,172 @@
+# Migrating guide
+
+This guide is intended to walk you through the changed brought by ifm3d 1.0.x and details how to update your code.
+
+## Main changes
+The main change in version 1.0.x of ifm3d is in the definition of the objects, the `Camera`, the `FrameGrabber` and the `STLImage` buffer and the way to receive data.
+
+### `Camera` (now `Device`)
+The `Camera` object (and children `O3RCamera`, `O3DCamera` and `O3XCamera`), which handles the connection to the device and the configuration, remains unchanged in its concept and use. 
+The names are changed to the following: 
+| Name in ifm3d 0.93.0 and below | Name in ifm3d 1.0.x and above | 
+|---|---|
+| `CameraBase` | `Device`  | 
+| `CameraO3X` | `O3X` |
+| `CameraO3D` | `O3D` |
+| `CameraO3R` | `O3R` |
+
+Find the full inheritance diagram between these classes [here](https://ifm3d.com/sphinx-doc/build/html/ifm3d/doc/sphinx/cpp_api/inherits.html).
+
+### `FrameGrabber` and `STLImage` buffer
+
+The instantiation of the `FrameGrabber` object is changed to remove the schema, which let you select which image to receive, from the constructor. The schema functionality is now part of the `Start` function (see below).
+The way the frames are retrieved from the device is also different.
+The image buffers (`STLImage` or the deprecated `Image` and `OpenCV` modules) are removed in order to simplify the access to the data.
+
+We detail below the new functions available for receiving and processing data.
+For each of these, we assume you have defined a `Device` (here the `O3R`) and a `FrameGrabber` object:
+
+:::::{tabs}
+::::{group-tab} C++
+:::cpp
+auto o3r = std::make_shared<ifm3d::O3R>();
+auto fg = std::make_shared<ifm3d::FrameGrabber>(o3r, DEFAULT_PCIC_PORT);
+:::
+::::
+::::{group-tab} Python
+:::python
+o3r = O3R()
+fg = FrameGrabber(cam, DEFAULT_PCIC_PORT)
+:::
+::::
+:::::
+#### Start streaming data with `Start`
+The `Start` function starts the streaming process. The framegrabber will receive every frame, and a callback function, if defined, is called upon reception of the frame (see below).
+
+:::::{tabs}
+::::{group-tab} C++
+:::cpp
+fg->Start();
+:::
+::::
+::::{group-tab} Python
+:::python
+fg.start()
+:::
+::::
+:::::
+
+To limit the bandwidth, one can choose to only receive a specific subset of images. This is specified in the call to the `Start` function. For instance, to receive only the distance and the amplitude image, use:
+
+:::::{tabs}
+::::{group-tab} C++
+:::cpp
+fg->Start(
+    ifm3d::buffer_id::RADIAL_DISTANCE, 
+    ifm3d::buffer_id::AMPLITUDE
+    );
+:::
+::::
+::::{group-tab} Python
+:::python
+fg.start([
+  ifm3dpy.buffer_id.RADIAL_DISTANCE, 
+  ifm3dpy.buffer_id.AMPLITUDE,
+])
+:::
+::::
+::::: 
+
+The list of available images and internal parameters (intrinsic calibration, temperature, etc) is available in through the `buffer_id` object. Find more details in the [API documentation](https://ifm3d.com/sphinx-doc/build/html/ifm3d/doc/sphinx/index.html), for c++ or python.
+
+#### Register a callback with `OnNewFrame`
+The new function `OnNewFrame` allows you to register an action that will be performed every time a frame is received.
+
+:::::{tabs}
+::::{group-tab} C++
+:::cpp
+void Callback(ifm3d::Frame::Ptr frame){
+  //Do something with the data
+}
+...
+fg->OnNewFrame(&Callback);
+:::
+::::
+::::{group-tab} Python
+:::python
+def callback(frame):
+    # Do something with frame
+    pass
+
+fg.on_new_frame(callback)
+:::
+::::
+:::::
+
+>Note that the callback function is executed **for every frame** received from the device after the `Start()` function and until the `Stop()` function is called.
+#### Receive a frame - polling with `WaitForFrame`
+The `WaitForFrame` function is similar to the previous function of the same name. 
+It is intended to be called punctually to receive the first frame available, especially when using the software trigger (coming soon for the O3R platform). 
+> Note: For performance reasons, we do not recommend using this function in an endless loop. Use the `OnNewFrame` function to register a callback that will be performed on every frame.
+
+:::::{tabs}
+::::{group-tab} C++
+:::cpp
+auto frame = fg->WaitForFrame().get();
+:::
+::::
+::::{group-tab} Python
+:::python
+frame = await fg.wait_for_frame()
+:::
+::::
+:::::
+
+> Note that to use coroutines in python, you need to use the `asyncio` library (see [here](https://docs.python.org/3/library/asyncio-task.html)). For instance, use:
+> ``` python
+> import asyncio
+> async def main():
+>    frame = await fg.wait_for_frame()
+>    # do something with frame
+> asyncio.run(main())
+>```
+
+The `WaitForFrame` function implicitly calls the `Start` function (see above). If nothing is specified, the default set of images is sent from the VPU. 
+To specify which images to receive when using the `WaitForFrame` method, one has to call the `Start` function first, inputting the list of images to stream.
+
+### Access the data
+The way to access data, previously handled by the image buffers, has changed with ifm3d 1.0.x.
+Instead of providing specific functions for each type of data, we use `frames` and the `GetImage` function, along with the `ifm3d::buffer_id` corresponding to the desired image. 
+For instance, to get the distance and the point cloud, use:
+
+:::::{tabs}
+::::{group-tab} C++
+:::cpp
+auto distance = frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE);
+auto xyz = frame->GetBuffer(ifm3d::buffer_id::XYZ);
+:::
+::::
+::::{group-tab} Python
+:::python
+distance = frame.get_image(ifm3d.buffer_id.RADIAL_DISTANCE)
+xyz = frame.get_image(ifm3d.buffer_id.XYZ)
+:::
+::::
+:::::
+
+For the 2D RGB image in compressed JPEG format, you can use:
+
+:::::{tabs}
+::::{group-tab} C++
+:::cpp
+auto jpeg = frame->GetImage(ifm3d::buffer_id::JPEG);
+:::
+::::
+::::{group-tab} Python
+:::python
+jpeg = frame.get_image(ifm3d.buffer_id.JPEG)
+:::
+::::
+:::::
+
+For a more detailed description on how to manipulate images in c++, refer to this document [(coming soon)](ADDLINK).
