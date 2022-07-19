@@ -4,6 +4,7 @@
 :titlesonly:
 Overview <content/README>
 Installation instructions <content/installation_instructions/index>
+**Migrating to v1.x** <content/migrating_guide>
 Basic library usage <content/examples/index>
 Command Line tool <cli_link>
 Python API <python_api>
