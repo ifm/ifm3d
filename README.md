@@ -20,8 +20,10 @@ tagged [release version](https://github.com/ifm/ifm3d/releases) for production.
 
 ### Current Revision
 
+The table below show the compatibility between the current ifm3d version and the firmware versions for the O3X, O3D and O3R devices. Other combinations than the ones listed below might work but have not been thoroughly tested.
+
 | ifm3d version | Supported O3D Firmware Version | Supported O3X Firmware Version | Supported O3R Firmware Version | Supported Ubuntu Linux Version | Notes| 
-| 1.0.x | 1.6.2114, 1.23.1522, 1.23.1522, 1.23.2848, 1.30.4123, 1.30.5309 | 1.0.122, 1.0.126, 1.0.156, 1.1.190 | 0.13.11, 0.14.23 | 16.04,18.04,20.04 | Major re-architecture of the library, please see the changelog and the migrating guide. |
+| 1.0.x | Not supported, please use ifm3d 0.20.x | Not tested, please use ifm3d 0.20.x | 0.13.11, 0.14.23 | 20.04 | Major re-architecture of the library, please see the changelog and the migrating guide. |
 
 > Note that a full compatibility matrix is available [here](ifm3d/doc/sphinx/content/swcompat:ifm3d%20Software%20Compatibility%20Matrix) for older versions.
 ## Organization of the Software

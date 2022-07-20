@@ -271,10 +271,18 @@ ifm3d Software Compatibility Matrix
   </tr>
   <tr>
     <td>0.92.0 </td>
-    <td>1.6.2114, 1.23.1522, 1.23.1522, 1.23.2848, 1.30.4123, 1.30.5309</td>
-    <td>1.0.122, 1.0.126, 1.0.156, 1.1.190</td>
-    <td>0.13.11</td>
+    <td>Not tested</td>
+    <td>Not tested</td>
+    <td>0.13.11, 0.14.23</td>
     <td>16.04,18.04,20.04</td>
     <td>early adopter release for O3R</td>
   </tr>
+  <tr>
+    <td>0.93.0 </td>
+    <td>Not tested</td>
+    <td>Not tested</td>
+    <td>13.11, 0.14.23</td>
+    <td>20.04</td>
+    <td>early adopter release for O3R</td>
+  </tr>  
 </table>
