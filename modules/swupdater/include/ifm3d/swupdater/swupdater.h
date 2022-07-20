@@ -8,7 +8,7 @@
 
 #include <memory>
 #include <vector>
-#include <ifm3d/camera/camera.h>
+#include <ifm3d/device/legacy_device.h>
 #include <ifm3d/swupdater/swupdater_export.h>
 
 namespace ifm3d
@@ -28,20 +28,20 @@ namespace ifm3d
      * The first parameter is a percentage (0.0-1.0) indicating the status of
      * uploading the file to the device.
      *
-     * The second parameter is a status message from the camera during install.
+     * The second parameter is a status message from the device during install.
      */
     using FlashStatusCb = std::function<void(float, const std::string&)>;
 
     /**
      * Ctor
      *
-     * @param cam Camera object to manipulate
+     * @param cam Device object to manipulate
      *
      * @param cb Optional user-defined callback to handle status updates
      *
      * @param swupdate_recovery_port swupate recovery port for the device
      */
-    SWUpdater(ifm3d::CameraBase::Ptr cam,
+    SWUpdater(ifm3d::Device::Ptr cam,
               const ifm3d::SWUpdater::FlashStatusCb& cb = {},
               const std::uint16_t swupdate_recovery_port =
                 ifm3d::SWUPDATER_RECOVERY_PORT);
@@ -55,7 +55,7 @@ namespace ifm3d
     SWUpdater& operator=(const SWUpdater&) = delete;
 
     /**
-     * Reboots the camera from productive to recovery. The function returns
+     * Reboots the device from productive to recovery. The function returns
      * immediately, but the reboot process takes some time. The function
      * `WaitForRecovery` may be used to poll for completion.
      *
@@ -64,7 +64,7 @@ namespace ifm3d
     void RebootToRecovery();
 
     /**
-     * Polls on status of the camera, waiting for it to present
+     * Polls on status of the device, waiting for it to present
      * in recovery mode. Should be used following a call to
      * RebootToRecovery().
      *
@@ -83,7 +83,7 @@ namespace ifm3d
     bool WaitForRecovery(long timeout_millis = 0);
 
     /**
-     * Reboots the camera from recovery to productive. The function returns
+     * Reboots the device from recovery to productive. The function returns
      * immediately, but the reboot process takes some time. The function
      * `WaitForProductive` may be used to poll for completion.
      *
@@ -92,7 +92,7 @@ namespace ifm3d
     void RebootToProductive();
 
     /**
-     * Polls on status of the camera, waiting for it to present
+     * Polls on status of the device, waiting for it to present
      * in productive mode. Should be used following a call to
      * RebootToProductive().
      *
@@ -111,10 +111,10 @@ namespace ifm3d
     bool WaitForProductive(long timeout_millis = 0);
 
     /**
-     * Uploads a firmware image to the camera's recovery system.
+     * Uploads a firmware image to the device's recovery system.
      * Assumes device has already been rebooted to recovery mode.
      *
-     * @param[in] swu_file The firmware image file to flash to the camera.
+     * @param[in] swu_file The firmware image file to flash to the device.
      *
      * @param[in] timeout_millis Timeout in millis to wait for the firmware
      *                           upload to complete. If `timeout_millis` is set

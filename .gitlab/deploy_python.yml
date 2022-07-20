@@ -1,4 +1,4 @@
-deploy:python_wheels:
+.python_wheels:
   image: python:3
   stage: deploy
   tags:
@@ -8,12 +8,24 @@ deploy:python_wheels:
       artifacts: true
     - job: build:linux:amd64:python_wheel
       artifacts: true
-  variables:
-    TWINE_USERNAME: __token__
-    TWINE_PASSWORD: ${PYPI_TOKEN}
   script:
     - |
       pip install --no-cache-dir twine
-      twine upload wheelhouse/*
+      twine upload --skip-existing --non-interactive wheelhouse/*
+
+deploy:python_wheels_tagged:
+  extends: .python_wheels
+  variables:
+    TWINE_USERNAME: __token__
+    TWINE_PASSWORD: ${PYPI_TOKEN}
   rules:
     - !reference [.tagged, rules]
+
+deploy:python_wheels_nightly:
+  extends: .python_wheels
+  variables:
+    TWINE_USERNAME: __token__
+    TWINE_PASSWORD: ${TEST_PYPI_TOKEN}
+    TWINE_REPOSITORY: testpypi
+  rules:
+    - !reference [.nightly, rules]

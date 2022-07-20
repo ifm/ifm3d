@@ -25,9 +25,9 @@
 #include <vector>
 #include <asio.hpp>
 #include <glog/logging.h>
-#include <ifm3d/camera/camera.h>
-#include <ifm3d/camera/err.h>
-#include <ifm3d/camera/logging.h>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/err.h>
+#include <ifm3d/device/logging.h>
 
 namespace ifm3d
 {
@@ -43,7 +43,7 @@ namespace ifm3d
   class PCICClient::Impl
   {
   public:
-    Impl(ifm3d::Camera::Ptr cam, const std::uint16_t& pcic_port);
+    Impl(ifm3d::LegacyDevice::Ptr cam, const std::uint16_t& pcic_port);
     ~Impl();
 
     /**
@@ -258,7 +258,7 @@ namespace ifm3d
     /**
      * Shared pointer to the camera this PCIC client will communicate with.
      */
-    ifm3d::Camera::Ptr cam_;
+    ifm3d::LegacyDevice::Ptr cam_;
 
     /**
      * Cached copy of the camera IP address
@@ -404,7 +404,7 @@ const std::string ifm3d::PCICClient::Impl::init_command =
 //-------------------------------------
 // ctor/dtor
 //-------------------------------------
-ifm3d::PCICClient::Impl::Impl(ifm3d::Camera::Ptr cam,
+ifm3d::PCICClient::Impl::Impl(ifm3d::LegacyDevice::Ptr cam,
                               const std::uint16_t& pcic_port)
   : cam_(cam),
     cam_port_(pcic_port == ifm3d::PCIC_PORT ? ifm3d::DEFAULT_PCIC_PORT :
@@ -428,7 +428,7 @@ ifm3d::PCICClient::Impl::Impl(ifm3d::Camera::Ptr cam,
             std::stoi(this->cam_->DeviceParameter("PcicTcpPort"));
         }
     }
-  catch (const ifm3d::error_t& ex)
+  catch (const ifm3d::Error& ex)
     {
       LOG(ERROR) << "Could not get IP/Port of the camera: " << ex.what();
       // NOTE: GetIP() won't throw, so, the problem must be getting the PCIC
@@ -440,9 +440,9 @@ ifm3d::PCICClient::Impl::Impl(ifm3d::Camera::Ptr cam,
   LOG(INFO) << "Camera connection info: ip=" << this->cam_ip_
             << ", port=" << this->cam_port_;
 
-  if (this->cam_->AmI(CameraBase::device_family::O3X))
+  if (this->cam_->AmI(Device::device_family::O3X))
     {
-      throw ifm3d::error_t(IFM3D_PCICCLIENT_UNSUPPORTED_DEVICE);
+      throw ifm3d::Error(IFM3D_PCICCLIENT_UNSUPPORTED_DEVICE);
     }
 
   this->endpoint_ =
@@ -470,7 +470,7 @@ void
 ifm3d::PCICClient::Impl::Stop()
 {
   this->io_service_.post(
-    []() { throw ifm3d::error_t(IFM3D_THREAD_INTERRUPTED); });
+    []() { throw ifm3d::Error(IFM3D_THREAD_INTERRUPTED); });
 }
 
 long
@@ -671,7 +671,7 @@ ifm3d::PCICClient::Impl::ConnectHandler(const asio::error_code& ec)
 {
   if (ec)
     {
-      throw ifm3d::error_t(ec.value());
+      throw ifm3d::Error(ec.value());
     }
   this->DoRead(State::PRE_CONTENT);
 
@@ -682,7 +682,7 @@ ifm3d::PCICClient::Impl::ConnectHandler(const asio::error_code& ec)
     [&, this](const asio::error_code& ec, std::size_t bytes_transferred) {
       if (ec)
         {
-          throw ifm3d::error_t(ec.value());
+          throw ifm3d::Error(ec.value());
         }
       this->connected_.store(true);
     });
@@ -715,7 +715,7 @@ ifm3d::PCICClient::Impl::ReadHandler(State state,
 {
   if (ec)
     {
-      throw ifm3d::error_t(ec.value());
+      throw ifm3d::Error(ec.value());
     }
 
   if (bytes_remaining - bytes_transferred > 0)
@@ -828,7 +828,7 @@ ifm3d::PCICClient::Impl::WriteHandler(State state,
 {
   if (ec)
     {
-      throw ifm3d::error_t(ec.value());
+      throw ifm3d::Error(ec.value());
     }
 
   if (bytes_remaining - bytes_transferred > 0)

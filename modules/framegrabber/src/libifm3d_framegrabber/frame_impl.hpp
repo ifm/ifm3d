@@ -18,35 +18,37 @@ namespace ifm3d
   class Frame::Impl
   {
   public:
-    Impl(const std::map<ImageId, Image>& images,
+    Impl(const std::map<buffer_id, Buffer>& images,
          const std::vector<TimePointT> timestamps);
 
     std::vector<ifm3d::TimePointT> TimeStamps();
 
-    bool HasImage(ImageId id);
+    bool HasBuffer(buffer_id id);
 
-    Image& GetImage(ImageId id);
+    Buffer& GetBuffer(buffer_id id);
 
-    decltype(std::declval<std::map<ImageId, Image>>().begin())
+    std::vector<ifm3d::buffer_id> GetBuffers();
+
+    decltype(std::declval<std::map<buffer_id, Buffer>>().begin())
     begin() noexcept;
-    decltype(std::declval<const std::map<ImageId, Image>>().begin()) begin()
+    decltype(std::declval<const std::map<buffer_id, Buffer>>().begin()) begin()
       const noexcept;
-    decltype(std::declval<std::map<ImageId, Image>>().end()) end() noexcept;
-    decltype(std::declval<const std::map<ImageId, Image>>().end()) end()
+    decltype(std::declval<std::map<buffer_id, Buffer>>().end()) end() noexcept;
+    decltype(std::declval<const std::map<buffer_id, Buffer>>().end()) end()
       const noexcept;
 
   protected:
     //---------------------
     // State
     //---------------------
-    std::map<ImageId, Image> images_;
+    std::map<buffer_id, Buffer> images_;
     std::vector<TimePointT> timestamps_;
 
   }; // end: class FrameGrabber::Impl
 
 } // end: namespace ifm3d
 
-ifm3d::Frame::Impl::Impl(const std::map<ImageId, Image>& images,
+ifm3d::Frame::Impl::Impl(const std::map<buffer_id, Buffer>& images,
                          const std::vector<TimePointT> timestamps)
   : images_(images),
     timestamps_(timestamps)
@@ -59,36 +61,50 @@ ifm3d::Frame::Impl::TimeStamps()
 }
 
 bool
-ifm3d::Frame::Impl::HasImage(ImageId id)
+ifm3d::Frame::Impl::HasBuffer(buffer_id id)
 {
   return images_.find(id) != images_.end();
 }
 
-ifm3d::Image&
-ifm3d::Frame::Impl::GetImage(ImageId id)
+ifm3d::Buffer&
+ifm3d::Frame::Impl::GetBuffer(buffer_id id)
 {
-  return images_[id];
+  return images_.at(id);
 }
 
-decltype(std::declval<std::map<ifm3d::ImageId, ifm3d::Image>>().begin())
+std::vector<ifm3d::buffer_id>
+ifm3d::Frame::Impl::GetBuffers()
+{
+  std::vector<buffer_id> keys;
+
+  std::transform(images_.begin(),
+                 images_.end(),
+                 std::back_inserter(keys),
+                 [](const auto& pair) { return pair.first; });
+
+  return keys;
+}
+
+decltype(std::declval<std::map<ifm3d::buffer_id, ifm3d::Buffer>>().begin())
 ifm3d::Frame::Impl::begin() noexcept
 {
   return images_.begin();
 }
 
-decltype(std::declval<const std::map<ifm3d::ImageId, ifm3d::Image>>().begin())
+decltype(
+  std::declval<const std::map<ifm3d::buffer_id, ifm3d::Buffer>>().begin())
 ifm3d::Frame::Impl::begin() const noexcept
 {
   return images_.begin();
 }
 
-decltype(std::declval<std::map<ifm3d::ImageId, ifm3d::Image>>().end())
+decltype(std::declval<std::map<ifm3d::buffer_id, ifm3d::Buffer>>().end())
 ifm3d::Frame::Impl::end() noexcept
 {
   return images_.end();
 }
 
-decltype(std::declval<const std::map<ifm3d::ImageId, ifm3d::Image>>().end())
+decltype(std::declval<const std::map<ifm3d::buffer_id, ifm3d::Buffer>>().end())
 ifm3d::Frame::Impl::end() const noexcept
 {
   return images_.end();

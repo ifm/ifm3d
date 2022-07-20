@@ -1,16 +1,19 @@
-deploy:linux:docker:
+.docker_manifest:
   stage: deploy
   tags:
     - shared_docker
   image: toolhippie/manifest-tool:20210830
   needs:
     - job: build:linux:docker
-      artifacts: true
-  script:
+      artifacts: false
+  before_script:
     - !reference [.docker-config, script]
     - mkdir -p $HOME/.docker
     - echo "${DOCKER_CFG}" > $HOME/.docker/config.json
 
+deploy:linux:docker:
+  extends: .docker_manifest
+  script:
     - |
       for REGISTRY in $REGISTRIES; do
 
@@ -35,3 +38,30 @@ deploy:linux:docker:
   rules:
     - !reference [.tagged, rules]
     - !reference [.nightly, rules]
+
+deploy:linux:docker_stable:
+  extends: .docker_manifest
+  script:
+    - |
+      for REGISTRY in $REGISTRIES; do
+
+        TARGET=$(eval echo "\${${REGISTRY}_REPO}")
+
+        manifest-tool push from-args \
+        --target "${TARGET}:stable-ubuntu" \
+        --template "${TARGET}:${DOCKER_TAG}-ubuntu-ARCH" \
+        --platforms "linux/arm64,linux/amd64"
+
+        manifest-tool push from-args \
+        --target "${TARGET}:stable" \
+        --template "${TARGET}:${DOCKER_TAG}-ubuntu-ARCH" \
+        --platforms "linux/arm64,linux/amd64"
+
+        manifest-tool push from-args \
+        --target "${TARGET}:stable-l4t" \
+        --template "${TARGET}:${DOCKER_TAG}-l4t-ARCH" \
+        --platforms "linux/arm64"
+
+      done
+  rules:
+    - !reference [.tagged, rules]

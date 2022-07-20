@@ -13,7 +13,7 @@
 #include <vector>
 #include <chrono>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/camera.h>
+#include <ifm3d/device.h>
 #include <ifm3d/swupdater.h>
 
 #ifdef _WIN32

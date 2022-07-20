@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 #include <ifm3d/tools/fg/fg_app.h>
-#include <ifm3d/camera.h>
+#include <ifm3d/device.h>
 #include <ifm3d/fg.h>
 
 // Dummy/minimal image container -- used for calculating hz
@@ -25,13 +25,13 @@ public:
 
   virtual Result
   Organize(const std::vector<uint8_t>& data,
-           const std::set<ifm3d::ImageId>& requestedImages)
+           const std::set<ifm3d::buffer_id>& requestedImages)
   {
     return {};
   };
 
   virtual std::set<ifm3d::image_chunk>
-  GetImageChunks(ifm3d::ImageId id)
+  GetImageChunks(ifm3d::buffer_id id)
   {
     return {};
   };

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <ifm3d/camera.h>
+#include <ifm3d/device.h>
 #include <ifm3d/fg.h>
 #include <ifm3d/tools/cmdline_app.h>
 
@@ -16,9 +16,9 @@
 
 #include "util.hpp"
 
-#include "bindings/camera_base.h"
-#include "bindings/camera.h"
-#include "bindings/camera_o3r.h"
+#include "bindings/device.h"
+#include "bindings/legacy_device.h"
+#include "bindings/o3r.h"
 #include "bindings/error.h"
 #include "bindings/frame.h"
 #include "bindings/framegrabber.h"
@@ -91,18 +91,21 @@ PYBIND11_MODULE(ifm3dpy, m)
             execution state and output string.
       )");
 
-  m.doc() = "Bindings for the ifm3d Camera Library\n\n"
-            "Variables\n"
-            "______\n\n"
-            ".. csv-table::\n"
-            "\n";
+  m.doc() = R"(
+    Bindings for the ifm3d Camera Library
+
+    **Variables**
+
+    .. csv-table::
+
+  )";
 
   auto add_attr = [&m](const std::string& name,
                        const auto& value,
                        const std::string& doc = "") {
     m.attr(name.c_str()) = value;
     m.doc() =
-      m.doc().cast<std::string>() + "   \"" + name + "\", \"" + doc + "\"\n";
+      m.doc().cast<std::string>() + "     \"" + name + "\", \"" + doc + "\"\n";
   };
 
   // Module metadata
@@ -168,9 +171,9 @@ PYBIND11_MODULE(ifm3dpy, m)
     "Constant for querying for O3D inverse intrinsic parameter support.");
 
   bind_error(m);
-  bind_camera_base(m);
-  bind_camera(m);
-  bind_camera_o3r(m);
+  bind_device(m);
+  bind_legacy_device(m);
+  bind_o3r(m);
   bind_frame(m);
   bind_framegrabber(m);
   bind_swupdater(m);

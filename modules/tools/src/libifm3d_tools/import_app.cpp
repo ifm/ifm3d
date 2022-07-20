@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/camera.h>
+#include <ifm3d/device.h>
 #include <glog/logging.h>
 
 ifm3d::ImportApp::ImportApp(int argc,
@@ -66,7 +66,7 @@ ifm3d::ImportApp::Run()
       if (!*ifs)
         {
           std::cerr << "Could not open file: " << infile << std::endl;
-          throw ifm3d::error_t(IFM3D_IO_ERROR);
+          throw ifm3d::Error(IFM3D_IO_ERROR);
         }
 
       ifs->unsetf(std::ios::skipws);
@@ -84,28 +84,28 @@ ifm3d::ImportApp::Run()
   std::uint16_t mask = 0x0;
   if (!this->vm_->count("config"))
     {
-      std::static_pointer_cast<ifm3d::Camera>(this->cam_)->ImportIFMApp(bytes);
+      std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)->ImportIFMApp(bytes);
     }
   else
     {
       if (this->vm_->count("global"))
         {
           mask |=
-            static_cast<std::uint16_t>(ifm3d::Camera::import_flags::GLOBAL);
+            static_cast<std::uint16_t>(ifm3d::LegacyDevice::import_flags::GLOBAL);
         }
 
       if (this->vm_->count("net"))
         {
-          mask |= static_cast<std::uint16_t>(ifm3d::Camera::import_flags::NET);
+          mask |= static_cast<std::uint16_t>(ifm3d::LegacyDevice::import_flags::NET);
         }
 
       if (this->vm_->count("app"))
         {
           mask |=
-            static_cast<std::uint16_t>(ifm3d::Camera::import_flags::APPS);
+            static_cast<std::uint16_t>(ifm3d::LegacyDevice::import_flags::APPS);
         }
 
-      std::static_pointer_cast<ifm3d::Camera>(this->cam_)
+      std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)
         ->ImportIFMConfig(bytes, mask);
     }
 
@@ -115,6 +115,6 @@ ifm3d::ImportApp::Run()
 bool
 ifm3d::ImportApp::CheckCompatibility()
 {
-  return this->cam_->AmI(CameraBase::device_family::O3D) ||
-         this->cam_->AmI(CameraBase::device_family::O3X);
+  return this->cam_->AmI(Device::device_family::O3D) ||
+         this->cam_->AmI(Device::device_family::O3X);
 }

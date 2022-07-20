@@ -15,3 +15,4 @@ include:
   - local: .gitlab/deploy_docs.yml
   - local: .gitlab/deploy_python.yml
   - local: .gitlab/deploy_docker.yml
+  - local: .gitlab/oss_compilance.yml

@@ -9,9 +9,11 @@
 
     DOCKER_CFG="${DOCKER_CFG}}"
 
-    DOCKER_TAG=latest
+    DOCKER_TAG=dev
     if [ "x${CI_COMMIT_TAG}" != "x" ]; then
       DOCKER_TAG=${CI_COMMIT_TAG}
+    elif [ "${CI_COMMIT_BRANCH}" == "master" ] || [ "${CI_COMMIT_BRANCH}" == "main" ] || [ "${CI_COMMIT_BRANCH}" == "o3r/main-next" ]; then
+      DOCKER_TAG=latest
     fi
     DOCKER_CFG="${DOCKER_CFG} }"
 

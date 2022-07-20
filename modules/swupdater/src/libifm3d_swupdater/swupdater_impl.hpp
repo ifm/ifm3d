@@ -13,9 +13,9 @@
 #include <vector>
 #include <curl/curl.h>
 #include <glog/logging.h>
-#include <ifm3d/camera/camera.h>
-#include <ifm3d/camera/err.h>
-#include <ifm3d/camera/logging.h>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/err.h>
+#include <ifm3d/device/logging.h>
 #include <ifm3d/contrib/nlohmann/json.hpp>
 #include <iostream>
 
@@ -45,7 +45,7 @@ namespace ifm3d
   class SWUpdater::Impl
   {
   public:
-    Impl(ifm3d::CameraBase::Ptr cam,
+    Impl(ifm3d::Device::Ptr cam,
          const ifm3d::SWUpdater::FlashStatusCb& cb,
          const std::string& swupdate_recovery_port);
     virtual ~Impl() = default;
@@ -58,7 +58,7 @@ namespace ifm3d
                                long timeout_millis);
 
   protected:
-    ifm3d::CameraBase::Ptr cam_;
+    ifm3d::Device::Ptr cam_;
     ifm3d::SWUpdater::FlashStatusCb cb_;
 
     std::string upload_url_;
@@ -146,7 +146,7 @@ namespace ifm3d
         this->curl_ = curl_easy_init();
         if (!this->curl_)
           {
-            throw ifm3d::error_t(IFM3D_CURL_ERROR);
+            throw ifm3d::Error(IFM3D_CURL_ERROR);
           }
       }
 
@@ -176,13 +176,13 @@ namespace ifm3d
             switch (retcode)
               {
               case CURLE_COULDNT_CONNECT:
-                throw ifm3d::error_t(IFM3D_RECOVERY_CONNECTION_ERROR);
+                throw ifm3d::Error(IFM3D_RECOVERY_CONNECTION_ERROR);
               case CURLE_OPERATION_TIMEDOUT:
-                throw ifm3d::error_t(IFM3D_CURL_TIMEOUT);
+                throw ifm3d::Error(IFM3D_CURL_TIMEOUT);
               case CURLE_ABORTED_BY_CALLBACK:
-                throw ifm3d::error_t(IFM3D_CURL_ABORTED);
+                throw ifm3d::Error(IFM3D_CURL_ABORTED);
               default:
-                throw ifm3d::error_t(IFM3D_CURL_ERROR);
+                throw ifm3d::Error(IFM3D_CURL_ERROR);
               }
           }
       }
@@ -193,7 +193,7 @@ namespace ifm3d
         this->header_list_ = curl_slist_append(this->header_list_, str);
         if (!this->header_list_)
           {
-            throw ifm3d::error_t(IFM3D_CURL_ERROR);
+            throw ifm3d::Error(IFM3D_CURL_ERROR);
           }
       }
 
@@ -219,7 +219,7 @@ namespace ifm3d
 //-------------------------------------
 // ctor
 //-------------------------------------
-ifm3d::SWUpdater::Impl::Impl(ifm3d::CameraBase::Ptr cam,
+ifm3d::SWUpdater::Impl::Impl(ifm3d::Device::Ptr cam,
                              const ifm3d::SWUpdater::FlashStatusCb& cb,
                              const std::string& swupdate_recovery_port)
   : cam_(cam),
@@ -240,7 +240,7 @@ ifm3d::SWUpdater::Impl::Impl(ifm3d::CameraBase::Ptr cam,
 void
 ifm3d::SWUpdater::Impl::RebootToRecovery()
 {
-  this->cam_->Reboot(ifm3d::CameraBase::boot_mode::RECOVERY);
+  this->cam_->Reboot(ifm3d::Device::boot_mode::RECOVERY);
 }
 
 bool
@@ -338,7 +338,7 @@ ifm3d::SWUpdater::Impl::FlashFirmware(const std::string& swu_file,
     {
       if (++retries >= 10)
         {
-          throw ifm3d::error_t(IFM3D_SWUPDATE_BAD_STATE);
+          throw ifm3d::Error(IFM3D_SWUPDATE_BAD_STATE);
         }
     }
 
@@ -381,7 +381,7 @@ ifm3d::SWUpdater::Impl::CheckRecovery()
       c->Call(curl_easy_perform);
       c->Call(curl_easy_getinfo, CURLINFO_RESPONSE_CODE, &status_code);
     }
-  catch (const ifm3d::error_t& e)
+  catch (const ifm3d::Error& e)
     {
       if (e.code() == IFM3D_RECOVERY_CONNECTION_ERROR ||
           e.code() == IFM3D_CURL_TIMEOUT)
@@ -404,7 +404,7 @@ ifm3d::SWUpdater::Impl::CheckProductive()
           return true;
         }
     }
-  catch (const ifm3d::error_t& e)
+  catch (const ifm3d::Error& e)
     {
       // Rethrow unless the code is one that indicates the camera is not
       // currently reachable by XML-RPC (occurs during the reboot process)
@@ -466,7 +466,7 @@ ifm3d::SWUpdater::Impl::UploadFirmware(const std::string& swu_file,
       c->Call(curl_easy_perform);
       curl_formfree(httppost);
     }
-  catch (const ifm3d::error_t& e)
+  catch (const ifm3d::Error& e)
     {
       if (e.code() != IFM3D_CURL_ABORTED)
         {
@@ -525,12 +525,13 @@ ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
           if (status_message != "ERROR parser/parse_config.c : parse_cfg")
             {
               LOG(ERROR) << "SWUpdate failed with status: " << status_message;
-              throw ifm3d::error_t(IFM3D_UPDATE_ERROR);
+              throw ifm3d::Error(IFM3D_UPDATE_ERROR);
             }
         }
 
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
-  } while (status_id != desired_status);
+    }
+  while (status_id != desired_status);
 
   return true;
 }

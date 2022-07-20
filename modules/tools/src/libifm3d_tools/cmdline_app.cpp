@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
-#include <ifm3d/camera.h>
+#include <ifm3d/device.h>
 
 ifm3d::CmdLineApp::CmdLineApp(int argc,
                               const char** argv,
@@ -42,7 +42,7 @@ ifm3d::CmdLineApp::CmdLineApp(int argc,
   // no need to ping the h/w ... which is slow when no device is present.
   if ((!(this->vm_->count("help"))) && (name != "version"))
     {
-      this->cam_ = ifm3d::CameraBase::MakeShared(this->ip_,
+      this->cam_ = ifm3d::Device::MakeShared(this->ip_,
                                                  this->xmlrpc_port_,
                                                  this->password_);
     }
@@ -195,12 +195,12 @@ ifm3d::CmdLineApp::Execute(size_t argc, const char** argv)
 
       if (!app->CheckAppCompatibility())
         {
-          throw ifm3d::error_t(IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE);
+          throw ifm3d::Error(IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE);
         }
 
       err = app->Run();
     }
-  catch (const ifm3d::error_t& ex)
+  catch (const ifm3d::Error& ex)
     {
       if (ex.code() == IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE)
         {

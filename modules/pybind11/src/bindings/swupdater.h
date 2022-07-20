@@ -24,7 +24,7 @@ bind_swupdater(pybind11::module_& m)
   );
 
   swupdater.def(
-    py::init<ifm3d::CameraBase::Ptr, const ifm3d::SWUpdater::FlashStatusCb&, const std::uint16_t>(),
+    py::init<ifm3d::Device::Ptr, const ifm3d::SWUpdater::FlashStatusCb&, const std::uint16_t>(),
     py::arg("cam"),
     py::arg("cb") =  py::cpp_function([](float progress,const std::string& message)->void {}),
     py::arg("swupdate_recovery_port") = ifm3d::SWUPDATER_RECOVERY_PORT,

@@ -15,7 +15,7 @@
  */
 
 #include <ifm3d/tools.h>
-#include <ifm3d/camera/err.h>
+#include <ifm3d/device/err.h>
 #include <exception>
 #include <iostream>
 

@@ -46,7 +46,7 @@ endif(WIN32)
 target_link_libraries(
   ifm3d_swupdater
   PRIVATE
-    ifm3d_camera
+    ifm3d_device
     ${LIB_glog}
     ${CURL_LIBRARIES}
     $<BUILD_INTERFACE:asio>

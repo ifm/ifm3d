@@ -5,16 +5,18 @@
 
 #include <default_organizer.hpp>
 #include <glog/logging.h>
-#include <ifm3d/camera/err.h>
-#include <ifm3d/fg/image.h>
+#include <ifm3d/device/err.h>
+#include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/fg/distance_image_info.h>
 
-ifm3d::Image
-ifm3d::DefaultOrganizer::CreatePixelMask(Image& confidence)
+ifm3d::Buffer
+ifm3d::DefaultOrganizer::CreatePixelMask(Buffer& confidence)
 {
-  Image mask =
-    Image(confidence.width(), confidence.height(), 1, pixel_format::FORMAT_8U);
+  Buffer mask = Buffer(confidence.width(),
+                       confidence.height(),
+                       1,
+                       pixel_format::FORMAT_8U);
 
   int index = 0;
   if (confidence.dataFormat() == pixel_format::FORMAT_16U)
@@ -35,7 +37,7 @@ ifm3d::DefaultOrganizer::CreatePixelMask(Image& confidence)
     {
       LOG(ERROR) << "confidence image format is not supported : "
                  << (int)confidence.dataFormat();
-      throw error_t(IFM3D_CONFIDENCE_IMAGE_FORMAT_NOT_SUPPORTED);
+      throw Error(IFM3D_CONFIDENCE_IMAGE_FORMAT_NOT_SUPPORTED);
     }
 
   return mask;
@@ -43,9 +45,9 @@ ifm3d::DefaultOrganizer::CreatePixelMask(Image& confidence)
 
 ifm3d::Organizer::Result
 ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
-                                  const std::set<ImageId>& requested_images)
+                                  const std::set<buffer_id>& requested_images)
 {
-  std::map<ImageId, Image> images;
+  std::map<buffer_id, Buffer> images;
 
   auto chunks = get_image_chunks(data, IMG_BUFF_START);
 
@@ -55,7 +57,7 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
   if (metachunk == chunks.end())
     {
       LOG(ERROR) << "No meta chunk found!";
-      throw error_t(IFM3D_IMG_CHUNK_NOT_FOUND);
+      throw Error(IFM3D_IMG_CHUNK_NOT_FOUND);
     }
 
   // get the image dimensions
@@ -67,129 +69,118 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
   // for an O3R device, a distance_image_info object will be created
   // for others a nullptr is returned
   std::shared_ptr<DistanceImageInfo> distance_image_info;
-  if (chunks.find(image_chunk::O3R_DISTANCE_IMAGE_INFORMATION) !=
-        chunks.end() &&
-      chunks.find(image_chunk::RADIAL_DISTANCE) != chunks.end() &&
-      chunks.find(image_chunk::AMPLITUDE) != chunks.end())
+  if (chunks.find(image_chunk::O3R_DISTANCE_IMAGE_INFO) != chunks.end() &&
+      chunks.find(image_chunk::RADIAL_DISTANCE_IMAGE) != chunks.end() &&
+      chunks.find(image_chunk::NORM_AMPLITUDE_IMAGE) != chunks.end())
     {
       distance_image_info = CreateDistanceImageInfo(
         data,
-        chunks.at(image_chunk::O3R_DISTANCE_IMAGE_INFORMATION),
-        chunks.at(image_chunk::RADIAL_DISTANCE),
-        chunks.at(image_chunk::AMPLITUDE),
+        chunks.at(image_chunk::O3R_DISTANCE_IMAGE_INFO),
+        chunks.at(image_chunk::RADIAL_DISTANCE_IMAGE),
+        chunks.at(image_chunk::NORM_AMPLITUDE_IMAGE),
         width,
         height);
 
-      chunks.erase(image_chunk::AMPLITUDE);
-      chunks.erase(image_chunk::RADIAL_DISTANCE);
-      chunks.erase(image_chunk::O3R_DISTANCE_IMAGE_INFORMATION);
+      chunks.erase(image_chunk::NORM_AMPLITUDE_IMAGE);
+      chunks.erase(image_chunk::RADIAL_DISTANCE_IMAGE);
+      chunks.erase(image_chunk::O3R_DISTANCE_IMAGE_INFO);
     }
 
-  std::optional<Image> mask;
+  std::optional<Buffer> mask;
 
-  if (chunks.find(image_chunk::CONFIDENCE) != chunks.end())
+  if (chunks.find(image_chunk::CONFIDENCE_IMAGE) != chunks.end())
     {
-      auto confidence =
-        create_image(data, chunks[image_chunk::CONFIDENCE], width, height);
+      auto confidence = create_buffer(data,
+                                      chunks[image_chunk::CONFIDENCE_IMAGE],
+                                      width,
+                                      height);
 
       mask = CreatePixelMask(confidence);
 
-      chunks.erase(image_chunk::CONFIDENCE);
+      chunks.erase(image_chunk::CONFIDENCE_IMAGE);
     }
 
   // JPEG chunk has format set as 32U, but is actually 8U, so we need to
   // manually extract here
-  if (chunks.find(image_chunk::JPEG) != chunks.end())
+  if (chunks.find(image_chunk::JPEG_IMAGE) != chunks.end())
     {
-      const auto idx = chunks[image_chunk::JPEG];
+      const auto idx = chunks[image_chunk::JPEG_IMAGE];
 
       std::size_t pixeldata_offset = get_chunk_pixeldata_offset(data, idx);
       auto size = ifm3d::get_chunk_pixeldata_size(data, idx);
 
-      auto jpeg = create_image(data,
-                               idx + pixeldata_offset,
-                               size,
-                               1,
-                               pixel_format::FORMAT_8U);
+      auto jpeg = create_buffer(data,
+                                idx + pixeldata_offset,
+                                size,
+                                1,
+                                pixel_format::FORMAT_8U);
 
-      images[static_cast<ImageId>(image_chunk::JPEG)] = jpeg;
+      images[static_cast<buffer_id>(image_chunk::JPEG_IMAGE)] = jpeg;
 
-      chunks.erase(image_chunk::JPEG);
+      chunks.erase(image_chunk::JPEG_IMAGE);
     }
 
   for (const auto& chunk : chunks)
     {
+      // for O3D only as this chunk donot need to create image
+      if (chunk.first == ifm3d::image_chunk::DIAGNOSTIC ||
+          chunk.first == ifm3d::image_chunk::EXTRINSIC_CALIB)
+        {
+          continue;
+        }
+
       if (requested_images.empty() ||
-          requested_images.find(static_cast<ImageId>(chunk.first)) !=
+          requested_images.find(static_cast<buffer_id>(chunk.first)) !=
             requested_images.end())
         {
-          auto image = create_image(data, chunk.second, width, height);
+          auto image = create_buffer(data, chunk.second, width, height);
 
           if (mask.has_value() &&
-              ShouldMask(static_cast<ImageId>(chunk.first)))
+              ShouldMask(static_cast<buffer_id>(chunk.first)))
             {
-              mask_image(image, mask.value());
+              mask_buffer(image, mask.value());
             }
 
-          images[static_cast<ImageId>(chunk.first)] = image;
+          images[static_cast<buffer_id>(chunk.first)] = image;
         }
     }
 
-  if (requested_images.empty() || requested_images.find(static_cast<ImageId>(
-                                    image_id::XYZ)) != requested_images.end())
+  if (distance_image_info != nullptr)
     {
-      if (distance_image_info != nullptr)
-        {
-          auto extracted = ExtractDistanceImageInfo(distance_image_info, mask);
-          images.insert(extracted.begin(), extracted.end());
-        }
-      else
-        {
-          auto x = chunks.find(image_chunk::CARTESIAN_X);
-          auto y = chunks.find(image_chunk::CARTESIAN_Y);
-          auto z = chunks.find(image_chunk::CARTESIAN_Z);
+      auto extracted = ExtractDistanceImageInfo(distance_image_info, mask);
+      images.insert(extracted.begin(), extracted.end());
+    }
+  else if (requested_images.empty() ||
+           requested_images.find(static_cast<buffer_id>(buffer_id::XYZ)) !=
+             requested_images.end())
+    {
+      auto x = chunks.find(image_chunk::CARTESIAN_X_COMPONENT);
+      auto y = chunks.find(image_chunk::CARTESIAN_Y_COMPONENT);
+      auto z = chunks.find(image_chunk::CARTESIAN_Z_COMPONENT);
 
-          if (x != chunks.end() && y != chunks.end() && z != chunks.end())
-            {
-              auto fmt = get_chunk_format(data, x->second);
-              auto xyz = create_xyz_image(data,
-                                          x->second,
-                                          y->second,
-                                          z->second,
-                                          width,
-                                          height,
-                                          fmt,
-                                          mask);
+      if (x != chunks.end() && y != chunks.end() && z != chunks.end())
+        {
+          auto fmt = get_chunk_format(data, x->second);
+          auto xyz = create_xyz_buffer(data,
+                                       x->second,
+                                       y->second,
+                                       z->second,
+                                       width,
+                                       height,
+                                       fmt,
+                                       mask);
 
-              images[static_cast<ImageId>(image_id::XYZ)] = xyz;
-            }
+          images[static_cast<buffer_id>(buffer_id::XYZ)] = xyz;
         }
     }
 
   return {images, timestamps};
 }
 
-std::set<ifm3d::image_chunk>
-ifm3d::DefaultOrganizer::GetImageChunks(ImageId id)
-{
-  switch (static_cast<image_id>(id))
-    {
-    case image_id::XYZ:
-      return {
-        image_chunk::CARTESIAN_X,
-        image_chunk::CARTESIAN_Y,
-        image_chunk::CARTESIAN_Z,
-        image_chunk::O3R_DISTANCE_IMAGE_INFORMATION,
-      };
-    }
-
-  return {};
-}
-
-std::map<ifm3d::ImageId, ifm3d::Image>
+std::map<ifm3d::buffer_id, ifm3d::Buffer>
 ifm3d::DefaultOrganizer::ExtractDistanceImageInfo(
   std::shared_ptr<DistanceImageInfo> distance_image_info,
-  const std::optional<Image>& mask)
+  const std::optional<Buffer>& mask)
 {
   auto width = distance_image_info->getWidth();
   auto height = distance_image_info->getHeight();
@@ -200,45 +191,45 @@ ifm3d::DefaultOrganizer::ExtractDistanceImageInfo(
   std::vector<std::uint8_t> ampl_bytes =
     distance_image_info->getAmplitudeVector();
 
-  auto distance = create_image(xyzd_bytes,
-                               npts * 3 * sizeof(float),
-                               width,
-                               height,
-                               pixel_format::FORMAT_32F);
+  auto distance = create_buffer(xyzd_bytes,
+                                npts * 3 * sizeof(float),
+                                width,
+                                height,
+                                pixel_format::FORMAT_32F);
 
   auto amplitude =
-    create_image(ampl_bytes, 0, width, height, pixel_format::FORMAT_32F);
+    create_buffer(ampl_bytes, 0, width, height, pixel_format::FORMAT_32F);
 
   if (mask.has_value())
     {
-      mask_image(distance, mask.value());
-      mask_image(amplitude, mask.value());
+      mask_buffer(distance, mask.value());
+      mask_buffer(amplitude, mask.value());
     }
 
-  auto xyz = create_xyz_image(xyzd_bytes,
-                              0,
-                              npts * sizeof(float),
-                              npts * 2 * sizeof(float),
-                              width,
-                              height,
-                              pixel_format::FORMAT_32F,
-                              mask);
+  auto xyz = create_xyz_buffer(xyzd_bytes,
+                               0,
+                               npts * sizeof(float),
+                               npts * 2 * sizeof(float),
+                               width,
+                               height,
+                               pixel_format::FORMAT_32F,
+                               mask);
 
   return {
-    {static_cast<ImageId>(image_chunk::AMPLITUDE), amplitude},
-    {static_cast<ImageId>(image_chunk::RADIAL_DISTANCE), distance},
-    {static_cast<ImageId>(image_id::XYZ), xyz},
+    {static_cast<buffer_id>(image_chunk::NORM_AMPLITUDE_IMAGE), amplitude},
+    {static_cast<buffer_id>(image_chunk::RADIAL_DISTANCE_IMAGE), distance},
+    {static_cast<buffer_id>(buffer_id::XYZ), xyz},
   };
 }
 
 bool
-ifm3d::DefaultOrganizer::ShouldMask(ImageId id)
+ifm3d::DefaultOrganizer::ShouldMask(buffer_id id)
 {
   switch (id)
     {
-    case static_cast<ImageId>(image_chunk::UNIT_VECTOR_ALL):
-    case static_cast<ImageId>(image_chunk::CONFIDENCE):
-    case static_cast<ImageId>(image_chunk::JPEG):
+    case static_cast<buffer_id>(image_chunk::UNIT_VECTOR_ALL):
+    case static_cast<buffer_id>(image_chunk::CONFIDENCE_IMAGE):
+    case static_cast<buffer_id>(image_chunk::JPEG_IMAGE):
       return false;
 
     default:
