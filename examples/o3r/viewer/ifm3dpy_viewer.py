@@ -6,7 +6,7 @@
 # THE PROGRAM IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND.
 #
 
-from ifm3dpy import O3RCamera, FrameGrabber, image_id
+from ifm3dpy import O3R, FrameGrabber, buffer_id
 import cv2
 import argparse
 import asyncio
@@ -19,22 +19,22 @@ except ModuleNotFoundError:
 
 
 def get_jpeg(frame):
-    return cv2.imdecode(frame.get_image(image_id.JPEG), cv2.IMREAD_UNCHANGED)
+    return cv2.imdecode(frame.get_buffer(buffer_id.JPEG), cv2.IMREAD_UNCHANGED)
 
 
 def get_distance(frame):
-    img = cv2.normalize(frame.get_image(image_id.RADIAL_DISTANCE), None, 0,
+    img = cv2.normalize(frame.get_buffer(buffer_id.RADIAL_DISTANCE_IMAGE), None, 0,
                         255, cv2.NORM_MINMAX, cv2.CV_8U)
     img = cv2.applyColorMap(img, cv2.COLORMAP_JET)
     return img
 
 
 def get_amplitude(frame):
-    return frame.get_image(image_id.AMPLITUDE)
+    return frame.get_buffer(buffer_id.NORM_AMPLITUDE_IMAGE)
 
 
 def get_xyz(frame):
-    return frame.get_image(image_id.XYZ)
+    return frame.get_buffer(buffer_id.XYZ)
 
 
 async def display_2d(fg, getter, title):
@@ -100,8 +100,9 @@ async def main():
 
     getter = globals()["get_" + args.image]
 
-    cam = O3RCamera(args.ip, args.xmlrpc_port)
+    cam = O3R(args.ip, args.xmlrpc_port)
     fg = FrameGrabber(cam, pcic_port=args.pcic_port)
+    fg.start()
     title = "O3R Port {}".format(str(args.pcic_port))
 
     if args.image == "xyz":

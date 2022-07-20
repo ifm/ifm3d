@@ -96,6 +96,38 @@ bind_o3r(pybind11::module_& m)
     )");
 
   o3r.def(
+    "remove",
+    &ifm3d::O3R::Remove,
+    py::arg("json_pointer"),
+    R"(
+      Removes an object from the JSON. The scope of this method is limited to
+      the following regular expressions
+
+       * ^\/applications\/instances\/app\d+$
+       * ^\/device\/log\/components\/[a-zA-Z0-9\-_]+$
+
+      Parameters
+      ----------
+      json_pointer : string
+          A JSON Pointer to the object to be removed.
+    )");
+
+  o3r.def(
+    "reset",
+    &ifm3d::O3R::Reset,
+    py::arg("json_pointer"),
+    R"(
+      Sets the default value of an object inside the JSON. The object is
+      addressed by a JSON Pointer. The object is resetted to the values
+      defined in the JSON schema.
+
+      Parameters
+      ----------
+      json_pointer : string
+          A JSON Pointer to the object to be set to default.
+    )");
+
+  o3r.def(
     "get_init",
     [](const ifm3d::O3R::Ptr& c)
     {

@@ -84,25 +84,27 @@ ifm3d::ImportApp::Run()
   std::uint16_t mask = 0x0;
   if (!this->vm_->count("config"))
     {
-      std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)->ImportIFMApp(bytes);
+      std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)
+        ->ImportIFMApp(bytes);
     }
   else
     {
       if (this->vm_->count("global"))
         {
-          mask |=
-            static_cast<std::uint16_t>(ifm3d::LegacyDevice::import_flags::GLOBAL);
+          mask |= static_cast<std::uint16_t>(
+            ifm3d::LegacyDevice::import_flags::GLOBAL);
         }
 
       if (this->vm_->count("net"))
         {
-          mask |= static_cast<std::uint16_t>(ifm3d::LegacyDevice::import_flags::NET);
+          mask |=
+            static_cast<std::uint16_t>(ifm3d::LegacyDevice::import_flags::NET);
         }
 
       if (this->vm_->count("app"))
         {
-          mask |=
-            static_cast<std::uint16_t>(ifm3d::LegacyDevice::import_flags::APPS);
+          mask |= static_cast<std::uint16_t>(
+            ifm3d::LegacyDevice::import_flags::APPS);
         }
 
       std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)

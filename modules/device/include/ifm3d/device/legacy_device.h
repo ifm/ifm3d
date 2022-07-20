@@ -61,8 +61,8 @@ namespace ifm3d
      *                     device parameters and persisting those changes.
      */
     LegacyDevice(const std::string& ip = ifm3d::DEFAULT_IP,
-           const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
-           const std::string& password = ifm3d::DEFAULT_PASSWORD);
+                 const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
+                 const std::string& password = ifm3d::DEFAULT_PASSWORD);
 
     virtual ~LegacyDevice();
 

@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_SWUPDATER_SWUPDATER_H__
-#define __IFM3D_SWUPDATER_SWUPDATER_H__
+#ifndef IFM3D_SWUPDATER_SWUPDATER_H
+#define IFM3D_SWUPDATER_SWUPDATER_H
 
 #include <memory>
 #include <vector>
@@ -140,4 +140,4 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
-#endif //__IFM3D_SWUPDATER_SWUPDATER_H__
+#endif // IFM3D_SWUPDATER_SWUPDATER_H
