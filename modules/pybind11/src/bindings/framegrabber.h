@@ -16,7 +16,7 @@ bind_framegrabber(pybind11::module_& m)
 {
   // clang-format off
 
-  bind_future<ifm3d::Frame::Ptr>(m, "FutureAwaitable__FramePtr");
+  bind_future<ifm3d::Frame::Ptr>(m, "_FutureAwaitable__FramePtr");
 
   py::class_<ifm3d::FrameGrabber, ifm3d::FrameGrabber::Ptr> framegrabber(
     m,
@@ -27,7 +27,7 @@ bind_framegrabber(pybind11::module_& m)
   );
 
   framegrabber.def(
-    py::init<ifm3d::CameraBase::Ptr, std::optional<std::uint16_t>>(),
+    py::init<ifm3d::Device::Ptr, std::optional<std::uint16_t>>(),
     py::arg("cam"),
     py::arg("pcic_port") = std::nullopt,
     R"(
@@ -45,17 +45,34 @@ bind_framegrabber(pybind11::module_& m)
 
   framegrabber.def(
     "start",
-    [](const ifm3d::FrameGrabber::Ptr& fg, const std::set<ifm3d::ImageId>& images) {
-      return fg->Start(images);
+    [](const ifm3d::FrameGrabber::Ptr& self, const ifm3d::FrameGrabber::BufferList& buffers, const std::optional<py::dict>& pcicFormat) {
+      py::object json_dumps = py::module::import("json").attr("dumps");
+      pcicFormat.has_value() 
+        ? self->Start(buffers, json::parse(json_dumps(pcicFormat.value()).cast<std::string>())) 
+        : self->Start(buffers);
     },
-    py::arg("images") = std::set<ifm3d::ImageId>{},
+    py::arg("buffers") = ifm3d::FrameGrabber::BufferList{},
+    py::arg("pcic_format") = std::nullopt,
     R"(
       Starts the worker thread for streaming in pixel data from the device
 
       Parameters
       ----------
-      images : List[uint64]
-          A List of ImageId which to receive
+      buffers : List[uint64]
+          A List of buffer_ids for receiving, passing in an List
+          set will received all available images. The buffer_ids are specific to
+          the current Organizer. See buffer_id for a list of buffer_ids available
+          with the default Organizer
+      
+      pcicFormat : Dict
+          allows to manually set a PCIC pcicFormat for
+          asynchronous results. See ifm3d::make_schema for generation logic of the
+          default pcicFormat. Manually setting the pcicFormat should rarely be needed and
+          most usecases should be covered by the default generated pcicFormat.
+      
+          Note: The FrameGrabber is relying on some specific formatting rules, if
+          they are missing from the pcicFormat the FrameGrabber will not be able to
+          extract the image data.
     )"
   );
 
@@ -92,7 +109,14 @@ bind_framegrabber(pybind11::module_& m)
         {
           fg->OnNewFrame([callback](const ifm3d::Frame::Ptr& frame){
             py::gil_scoped_acquire acquire;
-            callback(frame);
+            try 
+              {
+                callback(frame);
+              }
+            catch(py::error_already_set ex)
+              {
+                py::print(ex.value());
+              }
           });
         }
       else 

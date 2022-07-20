@@ -41,6 +41,8 @@ im = ImageBuffer()
 
 if fg.wait_for_frame(im, 1000):
     plt.imshow(im.distance_image())
+
+plt.show()
 ```
 
 ![distance image](./resources/picture.png "Distance image")

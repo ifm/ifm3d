@@ -6,7 +6,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Multiple timestamp support for python
+- Python API renamed as per C++ changes
+- CameraO3D, CameraO3R, CameraO3X renamed as O3D,O3R,O3X respectively
+- Camera is renamed as LegacyDevice
+- CameraBase is renamed as Device
+- image_id is renamed as buffer_id
+- Image is renamed as Buffer
+- Camera module name changed to Device
+- Example list update
+- Windows installer support for ifm3d
+- ifm3dpy documentation update
+- Software trigger support for the FrameGrabber module
+- Software trigger Error Reporting on execution failure
+- Async Error support for FrameGrabber module
+- Schema support for FrameGrabber module
+- OSS compliance added
+- Windows build instruction update
+- Major architecture changes in the FrameGrabber module
+- Swupdater support for ifm3dpy
+- File(.swu) streaming for updating firmware through swupdater
+- Multiple timestamp support in ifm3dpy
+- O3R support for intrinsic calibration model type 2 (Fisheye Distortion Model)
+
 ### Fixed
 - Error code from 7 digit to 6 digit for Lib error codes
 - Discover app for O3R devices

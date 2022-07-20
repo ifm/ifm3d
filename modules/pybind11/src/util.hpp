@@ -7,7 +7,7 @@
 #define IFM3D_PY_UTIL_HPP
 
 #include <stdexcept>
-#include <ifm3d/fg/image.h>
+#include <ifm3d/fg/buffer.h>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -18,14 +18,14 @@ namespace ifm3d
 {
   template <typename T>
   py::array_t<T>
-  image_to_array_2d(const ifm3d::Image& img)
+  image_to_array_2d(const ifm3d::Buffer& img)
   {
-    // Alloc a new ifm3d::Image_<T> and tie its lifecycle to the Python object
+    // Alloc a new ifm3d::Buffer_<T> and tie its lifecycle to the Python object
     // via a capsule. The resulting numpy.ndarray will not own the memory, but
     // the memory will remain valid for the lifecycle of the object.
-    auto mat = new ifm3d::Image_<T>(img);
+    auto mat = new ifm3d::Buffer_<T>(img);
     auto capsule = py::capsule(mat, [](void* m) {
-      delete reinterpret_cast<ifm3d::Image_<T>*>(m);
+      delete reinterpret_cast<ifm3d::Buffer_<T>*>(m);
     });
 
     return py::array_t<T>({mat->height(), mat->width()},
@@ -36,14 +36,14 @@ namespace ifm3d
 
   template <typename T>
   py::array_t<T>
-  image_to_array_nd(const ifm3d::Image& cld)
+  image_to_array_nd(const ifm3d::Buffer& cld)
   {
-    // Alloc a new ifm3d::Image_<T> and tie its lifecycle to the Python object
+    // Alloc a new ifm3d::Buffer_<T> and tie its lifecycle to the Python object
     // via a capsule. The resulting numpy.ndarray will not own the memory, but
     // the memory will remain valid for the lifecycle of the object.
-    auto mat = new ifm3d::Image_<ifm3d::Point3D<T>>(cld);
+    auto mat = new ifm3d::Buffer_<ifm3d::Point3D<T>>(cld);
     auto capsule = py::capsule(mat, [](void* m) {
-      delete reinterpret_cast<ifm3d::Image_<ifm3d::Point3D<T>>*>(m);
+      delete reinterpret_cast<ifm3d::Buffer_<ifm3d::Point3D<T>>*>(m);
     });
 
     return py::array_t<T>({mat->height(), mat->width(), mat->nchannels()},
@@ -56,7 +56,7 @@ namespace ifm3d
 
   template <typename T>
   py::array_t<T>
-  image_to_array_(const ifm3d::Image& img)
+  image_to_array_(const ifm3d::Buffer& img)
   {
     if (img.nchannels() > 1)
       {
@@ -69,7 +69,7 @@ namespace ifm3d
   }
 
   py::array
-  image_to_array(const ifm3d::Image& img)
+  image_to_array(const ifm3d::Buffer& img)
   {
     switch (img.dataFormat())
       {

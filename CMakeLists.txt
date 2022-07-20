@@ -120,8 +120,8 @@ else()
 endif(CREATE_WIN_INSTALLER)
 
 # Build sub-modules
-add_subdirectory(modules/camera)
-list(APPEND DOXYGEN_MODULES "camera")
+add_subdirectory(modules/device)
+list(APPEND DOXYGEN_MODULES "device")
 
 if(BUILD_MODULE_FRAMEGRABBER)
   add_definitions(-DBUILD_MODULE_FRAMEGRABBER=ON)

@@ -7,7 +7,7 @@
 #include <ifm3d/tools/ls_app.h>
 #include <iostream>
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/camera.h>
+#include <ifm3d/device.h>
 
 ifm3d::LsApp::LsApp(int argc, const char** argv, const std::string& name)
   : ifm3d::CmdLineApp(argc, argv, name)
@@ -23,7 +23,7 @@ ifm3d::LsApp::Run()
     }
 
   json apps =
-    std::static_pointer_cast<ifm3d::Camera>(this->cam_)->ApplicationList();
+    std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)->ApplicationList();
   std::cout << apps.dump(2) << std::endl;
 
   return 0;
@@ -32,6 +32,6 @@ ifm3d::LsApp::Run()
 bool
 ifm3d::LsApp::CheckCompatibility()
 {
-  return this->cam_->AmI(CameraBase::device_family::O3D) ||
-         this->cam_->AmI(CameraBase::device_family::O3X);
+  return this->cam_->AmI(Device::device_family::O3D) ||
+         this->cam_->AmI(Device::device_family::O3X);
 }

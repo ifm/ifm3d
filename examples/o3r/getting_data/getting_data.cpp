@@ -39,7 +39,7 @@ main()
   //////////////////////////
   // Example for 3D data:
   //////////////////////////
-  auto dist = frame->GetImage(ifm3d::image_chunk::RADIAL_DISTANCE);
+  auto dist = frame->GetImage(ifm3d::image_id::RADIAL_DISTANCE);
 
   std::cout << dist.height() << " " << dist.width() << std::endl;
 

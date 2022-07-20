@@ -12,30 +12,35 @@
 #include <memory>
 #include <optional>
 #include <vector>
+#include <variant>
 #include <type_traits>
-#include <ifm3d/camera/camera.h>
-#include <ifm3d/fg/image.h>
+#include <ifm3d/device/device.h>
+#include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/organizer.h>
 #include <ifm3d/fg/frame.h>
 
 namespace ifm3d
 {
   /**
-   * Implements a TCP FrameGrabber connected to the camera passed to its ctor
+   * Implements a TCP FrameGrabber connected to the device passed to its ctor
    */
   class FrameGrabber
   {
   public:
     using Ptr = std::shared_ptr<FrameGrabber>;
     using NewFrameCallback = std::function<void(Frame::Ptr)>;
+    using AsynErrorCallback =
+      std::function<void(const int, const std::string&)>;
+    using BufferList =
+      std::vector<std::variant<std::uint64_t, int, ifm3d::buffer_id>>;
 
     /**
-     * Stores a reference to the passed in camera shared pointer
+     * Stores a reference to the passed in Device shared pointer
      *
-     * @param[in] cam The camera instance to grab frames from
+     * @param[in] cam The Device instance to grab frames from
      * @param[in] pcic_port TCP port for the pcic connection
      */
-    FrameGrabber(ifm3d::CameraBase::Ptr cam,
+    FrameGrabber(ifm3d::Device::Ptr cam,
                  std::optional<std::uint16_t> pcic_port = std::nullopt);
 
     /**
@@ -51,21 +56,21 @@ namespace ifm3d
     FrameGrabber& operator=(const FrameGrabber&) = delete;
 
     /**
-     * Triggers the camera for image acquisition
+     * Triggers the device for image acquisition
      *
      * You should be sure to set the `TriggerMode` for your application to
      * `SW` in order for this to be effective. This function
      * simply does the triggering, data are still received asynchronously via
      * `WaitForFrame()`.
      *
-     * Calling this function when the camera is not in `SW` trigger mode or on
+     * Calling this function when the device is not in `SW` trigger mode or on
      * a device that does not support software-trigger should result in a NOOP
      * and no error will be returned (no exceptions thrown). However, we do not
      * recommend calling this function in a tight framegrabbing loop when you
      * know it is not needed. The "cost" of the NOOP is undefined and incurring
      * it is not recommended.
      */
-    void SWTrigger();
+    std::shared_future<void> SWTrigger();
 
     /**
      * The callback will be executed whenever a new frame is available.
@@ -76,45 +81,23 @@ namespace ifm3d
     /**
      * Starts the worker thread for streaming in pixel data from the device
      *
-     * @param[in] images set of ImageIds for receiving, passing in an empty set
-     * will received all available images.
-     * The ImageIds are specific to the current Organizer. See image_id for a
-     * list of ImageIds available with the default Organizer
-     */
-    bool Start(const std::set<ImageId>& images = {});
-
-    /**
-     * Starts the worker thread for streaming in pixel data from the device
+     * @param[in] buffers set of buffer_ids for receiving, passing in an empty
+     * set will received all available images. The buffer_ids are specific to
+     * the current Organizer. See buffer_id for a list of buffer_ids available
+     * with the default Organizer
      *
-     * @param[in] images set of ImageIds for receiving, passing in an empty set
-     * will received all available images.
-     * The ImageIds are specific to the current Organizer. See image_id for a
-     * list of ImageIds available with the default Organizer
-     */
-    template <typename T, typename... Args>
-    typename std::enable_if_t<std::is_enum_v<T>, bool>
-    Start(std::set<ImageId>& images, T id, Args... args)
-    {
-      images.insert(static_cast<ImageId>(id));
-      return Start(images, args...);
-    }
-
-    /**
-     * Starts the worker thread for streaming in pixel data from the device
+     * @param[in] pcicFormat allows to manually set a PCIC schema for
+     * asynchronous results. See ifm3d::make_schema for generation logic of the
+     * default pcicFormat. Manually setting the pcicFormat should rarely be
+     * needed and most usecases should be covered by the default generated
+     * pcicFormat.
      *
-     * @param[in] images set of ImageIds for receiving, passing in an empty set
-     * will received all available images.
-     * The ImageIds are specific to the current Organizer. See image_id for a
-     * list of ImageIds available with the default Organizer
+     * Note: The FrameGrabber is relying on some specific formatting rules, if
+     * they are missing from the schema the FrameGrabber will not be able to
+     * extract the image data.
      */
-    template <typename T, typename... Args>
-    typename std::enable_if_t<std::is_enum_v<T>, bool>
-    Start(T id, Args... args)
-    {
-      std::set<ImageId> images;
-      images.insert(static_cast<ImageId>(id));
-      return Start(images, args...);
-    }
+    bool Start(const BufferList& buffers,
+               const std::optional<json>& pcicFormat = std::nullopt);
 
     /**
      * Stops the worker thread for streaming in pixel data from the device
@@ -138,6 +121,14 @@ namespace ifm3d
      * @param organizer The new organizer to be used
      */
     void SetOrganizer(std::unique_ptr<Organizer> organizer);
+
+    /**
+     * This function will enable the async error messages on device.
+     * The callback will be executed whenever a async error
+     * are avaliable. It receives a  error code and error string
+     * to the received async error as an argument.
+     */
+    void OnAsyncError(AsynErrorCallback callback = nullptr);
 
   private:
     class Impl;

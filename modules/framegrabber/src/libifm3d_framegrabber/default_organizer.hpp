@@ -22,16 +22,14 @@ namespace ifm3d
     ~DefaultOrganizer() = default;
 
     Result Organize(const std::vector<uint8_t>& data,
-                    const std::set<ImageId>& requestedImages) override;
-
-    std::set<image_chunk> GetImageChunks(ImageId id) override;
+                    const std::set<buffer_id>& requestedImages) override;
 
   private:
-    Image CreatePixelMask(Image& confidence);
-    std::map<ImageId, Image> ExtractDistanceImageInfo(
+    Buffer CreatePixelMask(Buffer& confidence);
+    std::map<buffer_id, Buffer> ExtractDistanceImageInfo(
       std::shared_ptr<DistanceImageInfo> distance_image_info,
-      const std::optional<Image>& mask);
-    bool ShouldMask(ImageId id);
+      const std::optional<Buffer>& mask);
+    bool ShouldMask(buffer_id id);
 
   }; // end: class DefaultOrganizer
 

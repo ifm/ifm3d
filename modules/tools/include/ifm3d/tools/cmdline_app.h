@@ -11,7 +11,7 @@
 #include <memory>
 #include <string>
 #include <cxxopts.hpp>
-#include <ifm3d/camera/camera.h>
+#include <ifm3d/device/device.h>
 
 namespace ifm3d
 {
@@ -63,7 +63,7 @@ namespace ifm3d
     std::string ip_;
     std::uint16_t xmlrpc_port_;
     std::string password_;
-    ifm3d::CameraBase::Ptr cam_;
+    ifm3d::Device::Ptr cam_;
 
     virtual void _LocalHelp();
 
