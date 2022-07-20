@@ -43,6 +43,5 @@ ifm3d::ResetApp::Run()
 bool
 ifm3d::ResetApp::CheckCompatibility()
 {
-  return this->cam_->AmI(Device::device_family::O3D) ||
-         this->cam_->AmI(Device::device_family::O3X);
+  return true;
 }

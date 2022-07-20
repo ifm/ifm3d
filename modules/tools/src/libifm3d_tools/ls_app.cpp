@@ -22,8 +22,8 @@ ifm3d::LsApp::Run()
       return 0;
     }
 
-  json apps =
-    std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)->ApplicationList();
+  json apps = std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)
+                ->ApplicationList();
   std::cout << apps.dump(2) << std::endl;
 
   return 0;

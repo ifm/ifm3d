@@ -43,8 +43,8 @@ ifm3d::CmdLineApp::CmdLineApp(int argc,
   if ((!(this->vm_->count("help"))) && (name != "version"))
     {
       this->cam_ = ifm3d::Device::MakeShared(this->ip_,
-                                                 this->xmlrpc_port_,
-                                                 this->password_);
+                                             this->xmlrpc_port_,
+                                             this->password_);
     }
 }
 

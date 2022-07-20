@@ -43,13 +43,13 @@ ifm3d::ExportApp::Run()
 
   if (idx <= 0)
     {
-      bytes =
-        std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)->ExportIFMConfig();
+      bytes = std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)
+                ->ExportIFMConfig();
     }
   else
     {
-      bytes =
-        std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)->ExportIFMApp(idx);
+      bytes = std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)
+                ->ExportIFMApp(idx);
     }
 
   std::string outfile = (*this->vm_)["file"].as<std::string>();

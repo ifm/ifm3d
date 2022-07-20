@@ -59,6 +59,28 @@ public:
       }
   };
 
+  ResultType
+  wait()
+  {
+    py::gil_scoped_release release;
+    this->future_.wait();
+    return this->future_.get();
+  }
+
+  std::tuple<bool, std::optional<ResultType>>
+  wait_for(uint64_t timeout_ms)
+  {
+    py::gil_scoped_release release;
+
+    if (this->future_.wait_for(std::chrono::milliseconds(timeout_ms)) !=
+        std::future_status::ready)
+      {
+        return {false, {}};
+      }
+
+    return {true, this->future_.get()};
+  }
+
 private:
   std::shared_future<ResultType> future_;
 };
@@ -71,7 +93,9 @@ bind_future(py::module_& m, const char* name)
     .def(py::init<>())
     .def("__iter__", &FutureAwaitable<T>::iter)
     .def("__await__", &FutureAwaitable<T>::await)
-    .def("__next__", &FutureAwaitable<T>::next);
+    .def("__next__", &FutureAwaitable<T>::next)
+    .def("wait", &FutureAwaitable<T>::wait)
+    .def("wait_for", &FutureAwaitable<T>::wait_for, py::arg("timeout_ms"));
 }
 
 #endif // IFM3D_PYBIND_BINDING_FUTURE

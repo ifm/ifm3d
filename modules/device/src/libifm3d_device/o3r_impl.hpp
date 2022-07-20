@@ -42,6 +42,8 @@ namespace ifm3d
     json Get(const std::vector<std::string>& path);
     json ResolveConfig(const json::json_pointer& ptr);
     void Set(const std::string& config);
+    void Remove(const std::string& jsonPointer);
+    void Reset(const std::string& jsonPointer);
     json GetInit();
     void SaveInit();
     std::string GetInitStatus();
@@ -83,6 +85,18 @@ void
 ifm3d::O3R::Impl::Set(const std::string& config)
 {
   this->xwrapper_->XCallMain("set", config);
+}
+
+void
+ifm3d::O3R::Impl::Remove(const std::string& jsonPointer)
+{
+  this->xwrapper_->XCallMain("remove", jsonPointer);
+}
+
+void
+ifm3d::O3R::Impl::Reset(const std::string& jsonPointer)
+{
+  this->xwrapper_->XCallMain("reset", jsonPointer);
 }
 
 json

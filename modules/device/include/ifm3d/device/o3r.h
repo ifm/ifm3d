@@ -25,7 +25,7 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<O3R>;
     O3R(const std::string& ip = ifm3d::DEFAULT_IP,
-              const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT);
+        const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT);
 
     virtual ~O3R();
     O3R(O3R&&) = delete;
@@ -80,6 +80,27 @@ namespace ifm3d
     void Set(const json& j);
 
     /**
+     *  Removes an object from the JSON. The scope of this method is limited to
+     *  the following regular expressions
+     *
+     *   * ^\/applications\/instances\/app\d+$
+     *   * ^\/device\/log\/components\/[a-zA-Z0-9\-_]+$
+     *
+     * @param[in] jsonPointer A JSON Pointer to the object to be removed.
+     */
+    void Remove(const std::string& jsonPointer);
+
+    /**
+     * Sets the default value of an object inside the JSON. The object is
+     * addressed by a JSON Pointer. The object is resetted to the values
+     * defined in the JSON schema.
+     *
+     * @param[in] jsonPointer A JSON Pointer to the object to be set to
+     * default.
+     */
+    void Reset(const std::string& jsonPointer);
+
+    /**
      * Return the initial JSON configuration.
      *
      * @return The initial JSON configuration
@@ -131,8 +152,8 @@ namespace ifm3d
      */
     PortInfo Port(const std::string& port);
 
-    void Reboot(const boot_mode& mode =
-                  ifm3d::Device::boot_mode::PRODUCTIVE) override;
+    void Reboot(
+      const boot_mode& mode = ifm3d::Device::boot_mode::PRODUCTIVE) override;
     device_family WhoAmI() override;
     ifm3d::Device::swu_version SwUpdateVersion() override;
 

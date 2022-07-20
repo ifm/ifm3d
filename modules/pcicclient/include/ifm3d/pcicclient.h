@@ -5,9 +5,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_PCICCLIENT_H__
-#define __IFM3D_PCICCLIENT_H__
+#ifndef IFM3D_PCICCLIENT_H
+#define IFM3D_PCICCLIENT_H
 
 #include <ifm3d/pcicclient/pcicclient.h>
 
-#endif // __IFM3D_CAMERA_H__
+#endif // IFM3D_PCICCLIENT_H

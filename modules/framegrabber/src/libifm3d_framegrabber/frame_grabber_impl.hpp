@@ -365,7 +365,7 @@ ifm3d::FrameGrabber::Impl::ConnectHandler(const std::optional<json>& schema)
     {
       SetSchema(schema.value());
     }
-  else
+  else if (!this->requested_images_.empty())
     {
       SetSchema(GenerateDefaultSchema());
     }
