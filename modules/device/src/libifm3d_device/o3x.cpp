@@ -10,8 +10,8 @@
 //================================================
 
 ifm3d::O3X::O3X(const std::string& ip,
-                            const std::uint16_t xmlrpc_port,
-                            const std::string& password)
+                const std::uint16_t xmlrpc_port,
+                const std::string& password)
   : ifm3d::LegacyDevice::LegacyDevice(ip, xmlrpc_port, password)
 {}
 

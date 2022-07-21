@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_FG_SCHEMA_H__
-#define __IFM3D_FG_SCHEMA_H__
+#ifndef IFM3D_FG_SCHEMA_H
+#define IFM3D_FG_SCHEMA_H
 
 #include <cstdint>
 #include <string>
@@ -49,4 +49,4 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
-#endif // __IFM3D_FG_SCHEMA_H__
+#endif // IFM3D_FG_SCHEMA_H

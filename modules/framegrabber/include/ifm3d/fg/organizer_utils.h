@@ -26,24 +26,24 @@ namespace ifm3d
   std::size_t get_format_channels(pixel_format fmt);
 
   Buffer create_buffer(const std::vector<std::uint8_t>& data,
-                     std::size_t idx,
-                     std::size_t width,
-                     std::size_t height);
+                       std::size_t idx,
+                       std::size_t width,
+                       std::size_t height);
 
   Buffer create_buffer(const std::vector<std::uint8_t>& data,
-                     std::size_t idx,
-                     std::size_t width,
-                     std::size_t height,
-                     pixel_format fmt);
+                       std::size_t idx,
+                       std::size_t width,
+                       std::size_t height,
+                       pixel_format fmt);
 
   Buffer create_xyz_buffer(const std::vector<std::uint8_t>& data,
-                         std::size_t xidx,
-                         std::size_t yidx,
-                         std::size_t zidx,
-                         std::size_t width,
-                         std::size_t height,
-                         pixel_format fmt,
-                         const std::optional<Buffer>& mask);
+                           std::size_t xidx,
+                           std::size_t yidx,
+                           std::size_t zidx,
+                           std::size_t width,
+                           std::size_t height,
+                           pixel_format fmt,
+                           const std::optional<Buffer>& mask);
 
   auto find_metadata_chunk(std::map<image_chunk, std::size_t> chunks)
     -> decltype(chunks.end());

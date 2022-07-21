@@ -33,7 +33,8 @@ ifm3d::RmApp::Run()
     }
 
   int idx = (*this->vm_)["index"].as<int>();
-  std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)->DeleteApplication(idx);
+  std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)
+    ->DeleteApplication(idx);
 
   return 0;
 }

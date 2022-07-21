@@ -30,9 +30,10 @@ ifm3d::CpApp::Run()
       this->_LocalHelp();
       return 0;
     }
- 
+
   int idx = (*this->vm_)["index"].as<int>();
-  std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)->CopyApplication(idx);
+  std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)
+    ->CopyApplication(idx);
   return 0;
 }
 

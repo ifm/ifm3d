@@ -18,8 +18,8 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<O3D>;
     O3D(const std::string& ip = ifm3d::DEFAULT_IP,
-              const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
-              const std::string& password = ifm3d::DEFAULT_PASSWORD);
+        const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
+        const std::string& password = ifm3d::DEFAULT_PASSWORD);
 
     virtual ~O3D();
     O3D(O3D&&) = delete;

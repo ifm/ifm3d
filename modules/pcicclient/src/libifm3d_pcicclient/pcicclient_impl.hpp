@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef __IFM3D_PCICCLIENT_PCICCLIENT_IMPL_H__
-#define __IFM3D_PCICCLIENT_PCICCLIENT_IMPL_H__
+#ifndef IFM3D_PCICCLIENT_PCICCLIENT_IMPL_H
+#define IFM3D_PCICCLIENT_PCICCLIENT_IMPL_H
 
 #include <algorithm>
 #include <chrono>
@@ -911,4 +911,4 @@ ifm3d::PCICClient::Impl::NextCallbackId()
                                              (++this->current_callback_id_);
 }
 
-#endif // __IFM3D_PCICCLIENT_PCICCLIENT_IMPL_H__
+#endif // IFM3D_PCICCLIENT_PCICCLIENT_IMPL_H
