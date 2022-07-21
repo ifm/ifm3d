@@ -33,7 +33,7 @@ const int ifm3d::MAX_HEARTBEAT = 300; // secs
 const std::size_t ifm3d::SESSION_ID_SZ = 32;
 const std::string ifm3d::DEFAULT_APPLICATION_TYPE = "Camera";
 
-auto __ifm3d_session_id__ = []() -> std::string {
+auto ifm3d_session_id__ = []() -> std::string {
   std::string sid;
 
   try
@@ -68,7 +68,7 @@ auto __ifm3d_session_id__ = []() -> std::string {
   return sid;
 };
 
-const std::string ifm3d::DEFAULT_SESSION_ID = __ifm3d_session_id__();
+const std::string ifm3d::DEFAULT_SESSION_ID = ifm3d_session_id__();
 
 const int ifm3d::DEV_O3D_MIN = 1;
 const int ifm3d::DEV_O3D_MAX = 255;
@@ -120,8 +120,8 @@ ifm3d::Device::DeviceDiscovery()
 //================================================
 ifm3d::Device::Ptr
 ifm3d::Device::MakeShared(const std::string& ip,
-                              const std::uint16_t xmlrpc_port,
-                              const std::string& password)
+                          const std::uint16_t xmlrpc_port,
+                          const std::string& password)
 {
   auto base = std::make_shared<ifm3d::Device>(ip, xmlrpc_port);
   try
@@ -197,8 +197,7 @@ ifm3d::Device::MakeShared(const std::string& ip,
 // Camera class - the public interface
 //================================================
 
-ifm3d::Device::Device(const std::string& ip,
-                              const std::uint16_t xmlrpc_port)
+ifm3d::Device::Device(const std::string& ip, const std::uint16_t xmlrpc_port)
   : pImpl(std::make_unique<Device::Impl>(
       std::make_shared<XMLRPCWrapper>(ip, xmlrpc_port))),
     device_type_("")
@@ -314,8 +313,8 @@ ifm3d::Device::AmI(device_family family)
 
 bool
 ifm3d::Device::CheckMinimumFirmwareVersion(unsigned int major,
-                                               unsigned int minor,
-                                               unsigned int patch)
+                                           unsigned int minor,
+                                           unsigned int patch)
 {
   return this->pImpl->CheckMinimumFirmwareVersion(
     ifm3d::SemVer(major, minor, patch));

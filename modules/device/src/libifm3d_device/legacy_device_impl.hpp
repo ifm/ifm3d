@@ -301,7 +301,7 @@ namespace ifm3d
 //-------------------------------------
 
 ifm3d::LegacyDevice::Impl::Impl(std::shared_ptr<XMLRPCWrapper> xwrapper,
-                          const std::string& password)
+                                const std::string& password)
   : xwrapper_(std::move(xwrapper)),
     password_(password),
     session_("")
@@ -555,8 +555,9 @@ ifm3d::LegacyDevice::Impl::ExportIFMApp(int idx)
 }
 
 void
-ifm3d::LegacyDevice::Impl::ImportIFMConfig(const std::vector<std::uint8_t>& bytes,
-                                     std::uint16_t flags)
+ifm3d::LegacyDevice::Impl::ImportIFMConfig(
+  const std::vector<std::uint8_t>& bytes,
+  std::uint16_t flags)
 {
   this->_XCallSession("importConfig", bytes, flags);
 }
@@ -632,7 +633,7 @@ ifm3d::LegacyDevice::Impl::StopEditingApplication()
 
 void
 ifm3d::LegacyDevice::Impl::SetDeviceParameter(const std::string& param,
-                                        const std::string& val)
+                                              const std::string& val)
 {
   this->_XCallDevice("setParameter", param.c_str(), val.c_str());
 }
@@ -675,7 +676,7 @@ ifm3d::LegacyDevice::Impl::NetParameter(const std::string& param)
 
 void
 ifm3d::LegacyDevice::Impl::SetNetParameter(const std::string& param,
-                                     const std::string& val)
+                                           const std::string& val)
 {
   this->_XCallNet("setParameter", param.c_str(), val.c_str());
 }
@@ -707,7 +708,7 @@ ifm3d::LegacyDevice::Impl::TimeParameter(const std::string& param)
 
 void
 ifm3d::LegacyDevice::Impl::SetTimeParameter(const std::string& param,
-                                      const std::string& val)
+                                            const std::string& val)
 {
   this->_XCallTime("setParameter", param.c_str(), val.c_str());
 }
@@ -750,7 +751,7 @@ ifm3d::LegacyDevice::Impl::AppParameter(const std::string& param)
 
 void
 ifm3d::LegacyDevice::Impl::SetAppParameter(const std::string& param,
-                                     const std::string& val)
+                                           const std::string& val)
 {
   this->_XCallApp("setParameter", param.c_str(), val.c_str());
 }
@@ -782,7 +783,7 @@ ifm3d::LegacyDevice::Impl::ImagerParameter(const std::string& param)
 
 void
 ifm3d::LegacyDevice::Impl::SetImagerParameter(const std::string& param,
-                                        const std::string& val)
+                                              const std::string& val)
 {
   this->_XCallImager("setParameter", param.c_str(), val.c_str());
 }
@@ -829,7 +830,7 @@ ifm3d::LegacyDevice::Impl::SpatialFilterParameter(const std::string& param)
 
 void
 ifm3d::LegacyDevice::Impl::SetSpatialFilterParameter(const std::string& param,
-                                               const std::string& val)
+                                                     const std::string& val)
 {
   this->_XCallSpatialFilter("setParameter", param.c_str(), val.c_str());
 }
@@ -855,7 +856,7 @@ ifm3d::LegacyDevice::Impl::TemporalFilterParameter(const std::string& param)
 
 void
 ifm3d::LegacyDevice::Impl::SetTemporalFilterParameter(const std::string& param,
-                                                const std::string& val)
+                                                      const std::string& val)
 {
   this->_XCallTemporalFilter("setParameter", param.c_str(), val.c_str());
 }

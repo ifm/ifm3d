@@ -94,18 +94,18 @@ ifm3d::Buffer::Buffer()
 {}
 
 ifm3d::Buffer::Buffer(const std::uint32_t cols,
-                    const std::uint32_t rows,
-                    const std::uint32_t nchannel,
-                    ifm3d::pixel_format format)
+                      const std::uint32_t rows,
+                      const std::uint32_t nchannel,
+                      ifm3d::pixel_format format)
 {
   create(cols, rows, nchannel, format);
 }
 
 void
 ifm3d::Buffer::create(const std::uint32_t cols,
-                     const std::uint32_t rows,
-                     const std::uint32_t nchannel,
-                     ifm3d::pixel_format format)
+                      const std::uint32_t rows,
+                      const std::uint32_t nchannel,
+                      ifm3d::pixel_format format)
 {
   cols_ = cols;
   rows_ = rows;

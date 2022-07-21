@@ -62,7 +62,8 @@ namespace ifm3d
    @endcode
 
    to access a pixel in n-channel Buffer I ( 100,100,3,ifm3d::FORMAT_8U) at
-  50,50 position This will be the case accessing the values for 3 channel Buffer
+   50,50 position This will be the case accessing the values for 3 channel
+   Buffer
 
    as pixel is structure of the values of n-chanel at given position.
 
@@ -135,9 +136,9 @@ namespace ifm3d
       @note This internally calls Create Method to allocates Memory
     */
     Buffer(const std::uint32_t cols,
-          const std::uint32_t rows,
-          const std::uint32_t nchannel,
-          ifm3d::pixel_format format);
+           const std::uint32_t rows,
+           const std::uint32_t nchannel,
+           ifm3d::pixel_format format);
 
     virtual ~Buffer() = default;
 

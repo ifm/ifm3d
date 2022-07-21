@@ -10,8 +10,7 @@
 // O3R class - the public interface
 //================================================
 
-ifm3d::O3R::O3R(const std::string& ip,
-                            const std::uint16_t xmlrpc_port)
+ifm3d::O3R::O3R(const std::string& ip, const std::uint16_t xmlrpc_port)
   : ifm3d::Device::Device(ip, xmlrpc_port),
     pImpl(new ifm3d::O3R::Impl(XWrapper()))
 {}
@@ -40,6 +39,18 @@ void
 ifm3d::O3R::Set(const json& j)
 {
   return this->pImpl->Set(j.dump());
+}
+
+void
+ifm3d::O3R::Remove(const std::string& jsonPointer)
+{
+  this->pImpl->Remove(jsonPointer);
+}
+
+void
+ifm3d::O3R::Reset(const std::string& jsonPointer)
+{
+  this->pImpl->Reset(jsonPointer);
 }
 
 json

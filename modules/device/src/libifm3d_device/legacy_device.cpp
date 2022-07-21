@@ -90,8 +90,8 @@ RO_LUT=
 //================================================
 ifm3d::LegacyDevice::Ptr
 ifm3d::LegacyDevice::MakeShared(const std::string& ip,
-                          const std::uint16_t xmlrpc_port,
-                          const std::string& password)
+                                const std::uint16_t xmlrpc_port,
+                                const std::string& password)
 {
   auto base = std::dynamic_pointer_cast<ifm3d::LegacyDevice>(
     ifm3d::Device::MakeShared(ip, xmlrpc_port, password));
@@ -106,8 +106,8 @@ ifm3d::LegacyDevice::MakeShared(const std::string& ip,
 }
 
 ifm3d::LegacyDevice::LegacyDevice(const std::string& ip,
-                      const std::uint16_t xmlrpc_port,
-                      const std::string& password)
+                                  const std::uint16_t xmlrpc_port,
+                                  const std::string& password)
   : ifm3d::Device::Device(ip, xmlrpc_port),
     pImpl(std::make_unique<LegacyDevice::Impl>(XWrapper(), password))
 {}
@@ -322,7 +322,7 @@ ifm3d::LegacyDevice::ExportIFMApp(int idx)
 
 void
 ifm3d::LegacyDevice::ImportIFMConfig(const std::vector<std::uint8_t>& bytes,
-                               std::uint16_t flags)
+                                     std::uint16_t flags)
 {
   return this->pImpl->WrapInEditSession(
     [this, &bytes, flags]() { this->pImpl->ImportIFMConfig(bytes, flags); });

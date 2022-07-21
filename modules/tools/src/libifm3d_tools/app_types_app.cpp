@@ -25,8 +25,8 @@ ifm3d::AppTypesApp::Run()
       return 0;
     }
 
-  json app_types(
-    std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)->ApplicationTypes());
+  json app_types(std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)
+                   ->ApplicationTypes());
   std::cout << app_types.dump(2) << std::endl;
 
   return 0;
