@@ -38,9 +38,9 @@ def get_xyz(frame):
 
 
 async def display_2d(fg, getter, title):
+    fg.start([buffer_id.NORM_AMPLITUDE_IMAGE,buffer_id.RADIAL_DISTANCE_IMAGE,buffer_id.XYZ])
     cv2.startWindowThread()
     cv2.namedWindow(title, cv2.WINDOW_NORMAL)
-
     while True:
         frame = await fg.wait_for_frame()
 
@@ -56,11 +56,11 @@ async def display_2d(fg, getter, title):
 
 
 async def display_3d(fg, getter, title):
+    fg.start([buffer_id.NORM_AMPLITUDE_IMAGE,buffer_id.RADIAL_DISTANCE_IMAGE,buffer_id.XYZ])
     vis = o3d.visualization.Visualizer()
     vis.create_window(title)
-
+    
     first = True
-
     while True:
         frame = await fg.wait_for_frame()
 
