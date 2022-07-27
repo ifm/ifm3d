@@ -88,7 +88,7 @@ namespace ifm3d
          ++i, offset += FLOAT_DATA_SIZE)
       {
         intrinsicCalibration.model_parameters[i] =
-          ifm3d::mkval<float>(data_buffer + data_offset);
+          ifm3d::mkval<float>(data_buffer + offset);
       }
     return intrinsicCalibration;
   }
