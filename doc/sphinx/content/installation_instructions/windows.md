@@ -44,7 +44,7 @@ mkdir %IFM3D_BUILD_DIR%
 
 # Clone the repository
 cd %IFM3D_BUILD_DIR%
-git clone https://github.com/ifm/ifm3d.git --branch o3r/main-next
+git clone https://github.com/ifm/ifm3d.git --branch v1.0.0
 cd %IFM3D_BUILD_DIR%\ifm3d
 
 # Configure
@@ -81,8 +81,7 @@ cmake --build . --config %CONFIG% --target check
 ### Running the ifm3d command line tool
 After Building `ifm3d`, the binary files will be installed at
 ``%IFM3D_BUILD_DIR%\install\bin``. To run the ifm3d tool you need to add this
-directory to your path. You will also need to add the opencv directory to
-your path.
+directory to your path.
 
 If built targeting Visual Studio 2017/2019:
 ```
@@ -94,8 +93,8 @@ After that you should be able to run the ifm3d tool
 ifm3d
 ```
 
-### How to install and use ifm3d binaries
-1. Installation
+##### How to install using the ifm3d installer
+### Installation
 
     Download the ifm3d installer ifm3d_windows_x.x.x.exe.
 
@@ -105,8 +104,6 @@ ifm3d
     ```
     IFM3D_BINARY_DIR = C:/ProgramFiles/ifm3d x.x.x/bin      # Please put the correct install path in case installation is done on other than default path
     ```
-2. Usage
+### Usage
 
-    Clone ifm3d-example.
-
-    Add install path (IFM3D_BINARY_DIR) to CMAKE_PREFIX_PATH and build ifm3d-example.
+    provide path (IFM3D_BINARY_DIR) to CMAKE_PREFIX_PATH while ccmake configure stage.
