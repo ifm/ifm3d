@@ -8,21 +8,21 @@ For this process, we have to initialize the camera object (please have a look at
 :::::{tabs}
 ::::{group-tab} Python
 :::python
-o3r = O3RCamera()
+o3r = O3R()
 :::
 ::::
 ::::{group-tab} C++
 :::cpp
-auto cam = std::make_shared<ifm3d::O3RCamera>();
+auto cam = std::make_shared<ifm3d::O3R>();
 :::
 ::::
 :::::
 
-Note: if you are using multiple ifm devices (O3D, O3X, O3R), you can use the `CameraBase` class. 
+Note: if you are using multiple ifm devices (O3D, O3X, O3R), you can use the `Device` class.
 :::::{tabs}
 ::::{group-tab} Python
 :::python
-cam = CameraBase()
+cam = Device()
 :::
 ::::
 ::::{group-tab} C++
@@ -30,8 +30,8 @@ cam = CameraBase()
 If you need to use Device specific functions at a later point you can cast the pointer to the relevant class:
 
 :::cpp
-auto cam = ifm3d::CameraBase::MakeShared(); 
-auto cam_O3R = std::static_pointer_cast<ifm3d::O3RCamera>(cam);
+auto cam = ifm3d::Device::MakeShared();
+auto cam_O3R = std::static_pointer_cast<ifm3d::O3R>(cam);
 :::
 ::::
 :::::

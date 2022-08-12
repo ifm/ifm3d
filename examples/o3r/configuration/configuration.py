@@ -1,8 +1,8 @@
 import json
 
 # Define the ifm3d objects for the communication
-from ifm3dpy import O3RCamera
-o3r = O3RCamera()
+from ifm3dpy import O3R
+o3r = O3R()
 
 # Get the current configuration
 config = o3r.get()
