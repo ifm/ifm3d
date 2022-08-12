@@ -33,3 +33,10 @@ target_link_libraries(time_sync
                       ifm3d_framegrabber
                       fmt::fmt
                       )
+                                            
+## ifm3d-example playground 
+add_executable(ifm3d_playground ifm3d_playground/ifm3d_playground.cpp)
+target_link_libraries(ifm3d_playground
+                      ifm3d_device
+                      ifm3d_framegrabber
+                      )
