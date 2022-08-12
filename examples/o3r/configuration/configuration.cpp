@@ -7,14 +7,14 @@
 #include <iomanip>
 #include <memory>
 #include <fstream>
-#include <ifm3d/camera/camera_o3r.h>
+#include <ifm3d/device/o3r.h>
 using json = nlohmann::json;
 
 
 int main(){
 
     // Create the camera object
-    auto cam = std::make_shared<ifm3d::O3RCamera>();
+    auto cam = std::make_shared<ifm3d::O3R>();
 
     // Get the current configuration of the camera in JSON format
     json conf = cam->Get();

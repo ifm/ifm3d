@@ -9,16 +9,14 @@
  * between the reception of the frames from the two heads.
  */
 #include <iostream>
-#include <unistd.h>
 #include <cstdlib>
 #include <iomanip>
 #include <thread>
 #include <mutex>
 #include <fmt/core.h>
 
-#include <ifm3d/camera/camera_o3r.h>
+#include <ifm3d/device/o3r.h>
 #include <ifm3d/fg.h>
-#include <ifm3d/fg/distance_image_info.h>
 
 std::mutex mutex;  
 
@@ -77,12 +75,16 @@ int main(){
   // Declare the objects:
   //////////////////////////
   // Declare the device object (one object only, corresponding to the VPU)
-  auto o3r = std::make_shared<ifm3d::O3RCamera>();
+  auto o3r = std::make_shared<ifm3d::O3R>();
   json conf = o3r->Get();
   // Declare the FrameGrabber and ImageBuffer objects. 
   // One FrameGrabber per camera head (define the port number).
   auto fg0 = std::make_shared<ifm3d::FrameGrabber>(o3r, 50012);
   auto fg1 = std::make_shared<ifm3d::FrameGrabber>(o3r, 50013);
+
+  //Start the framegrabbber with empty schema
+  fg0->Start({});
+  fg1->Start({});
 
   std::thread thread0;
   std::thread thread1;
@@ -99,10 +101,10 @@ int main(){
   /////////////////////////
   o3r->Set(json::parse(R"({"ports":{"port2":{"state": "CONF"}, 
                                     "port3":{"state": "CONF"}}})"));
-  sleep(1);
+  std::this_thread::sleep_for(std::chrono::seconds(1));
   o3r->Set(json::parse(R"({"ports":{"port2":{"state": "RUN"}, 
                                     "port3":{"state": "RUN"}}})"));
-  sleep(0.5);
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
   // Check which frame comes first:
   std::vector<ifm3d::TimePointT> timestamps;

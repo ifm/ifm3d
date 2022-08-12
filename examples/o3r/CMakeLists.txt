@@ -7,13 +7,13 @@
 ## Configuration example
 add_executable(configuration configuration/configuration.cpp)
 target_link_libraries(configuration
-                      ifm3d_camera
+                      ifm3d_device
                       )
 
 ## Getting data example
 add_executable(getting_data getting_data/getting_data.cpp)
 target_link_libraries(getting_data
-                      ifm3d_camera
+                      ifm3d_device
                       ifm3d_framegrabber
                       )
 
@@ -21,7 +21,7 @@ target_link_libraries(getting_data
 ## Multi head example
 add_executable(multi_head multi_head/multi_head.cpp)
 target_link_libraries(multi_head
-                      ifm3d_camera
+                      ifm3d_device
                       ifm3d_framegrabber
                       )
 
@@ -29,7 +29,7 @@ target_link_libraries(multi_head
 find_package(fmt)
 add_executable(time_sync time_sync/time_sync.cpp)
 target_link_libraries(time_sync
-                      ifm3d_camera
+                      ifm3d_device
                       ifm3d_framegrabber
                       fmt::fmt
                       )
