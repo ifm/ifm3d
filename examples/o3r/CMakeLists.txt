@@ -17,6 +17,12 @@ target_link_libraries(getting_data
                       ifm3d_framegrabber
                       )
 
+## Getting data example
+add_executable(getting_data_callback getting_data/getting_data_callback.cpp)
+target_link_libraries(getting_data_callback
+                      ifm3d_device
+                      ifm3d_framegrabber
+                      )
 
 ## Multi head example
 add_executable(multi_head multi_head/multi_head.cpp)
