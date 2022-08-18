@@ -6,7 +6,7 @@ A typical `ifm3d` client program will follow the structure of a control loop whe
 
 At the end of this 'how to', you should be able to receive images and know the basic usage of the `O3R`, `FrameGrabber` and `Frame` classes.
 
->Note: for O3D or O3X devices, simply use the `LEgacyDevice` class in place of the `O3R` in the following code.
+>Note: for O3D or O3X devices, simply use the `O3D`/`O3X` class in place of the `O3R` in the following code.
 
 ## O3RCamera, FrameGrabber and StlImageBuffer
 
@@ -46,7 +46,7 @@ Its inputs:
 
 Note that `ifm3d` encourages the use of `std::shared_ptr` as a means to manage the ownership and lifetimes of the core actors in an `ifm3d` program. 
 Indeed, you will notice that there is no need to explicitly allocate and deallocate memory. 
-To instantiate the `ifm3d::O3R` object (or `ifm3d::LegacyDevice`), a call to `ifm3d::O3R::MakeShared()` is made (or `ifm3d::LegacyDevice::MakeShared()`), rather than calling `std::make_shared` directly. 
+To instantiate the `ifm3d::O3R` object (or `ifm3d::O3D`/`ifm3d::O3X`), a call to `ifm3d::Device::MakeShared()` is made, rather than calling `std::make_shared` directly.
 This wrapper function is used to handle direct hardware probing to determine the type of camera that is connected.
 For example, this may be an O3R, O3D303, O3X, or something else. Regardless, a `std::shared_ptr` is returned from this call.
 
@@ -69,7 +69,46 @@ device provides many types of the buffer, all the buffers might not be required 
 also reduce the bandwidth required to get the data from device to `ifm3d`
 
 ## Receive an image
-You just need to call the `WaitForFrame` function. This `Framegrabber` method will return `std::Future<ifm3d::Frame>`. The `Frame` class stores all the   Make sure the camera head is in "RUN" mode.
+
+### Register a callback
+The recommended way to reveive a frame is to use the callback function. You can register a callback function that will be executed for every received frame, until the program exits.
+
+:::::{tabs}
+::::{group-tab} Python
+:::python
+def callback(frame):
+    # Read the distance image and display a pixel in the center
+    dist = frame.get_buffer(buffer_id.RADIAL_DISTANCE_IMAGE)
+    (width, height) = dist.shape
+    print(dist[width//2,height//2])
+    pass
+
+...
+fg.start([buffer_id.RADIAL_DISTANCE_IMAGE])
+fg.on_new_frame(callback)
+:::
+::::
+::::{group-tab} c++
+:::cpp
+void Callback(ifm3d::Frame::Ptr frame){
+  auto dist = frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE);
+  std::cout << dist.height() << " " << dist.width() << std::endl;
+}
+
+int
+main()
+{
+  ...
+  fg->Start({ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE});
+  fg->OnNewFrame(&Callback);
+  ...
+}
+:::
+::::
+:::::
+
+### Alternatively: wait for a frame
+You just need to call the `WaitForFrame` function. This `Framegrabber` method will return `std::Future<ifm3d::Frame>`. The `Frame` class stores all the reveiced data. Make sure the camera head is in "RUN" mode.
 :::::{tabs}
 ::::{group-tab} Python
 :::python
