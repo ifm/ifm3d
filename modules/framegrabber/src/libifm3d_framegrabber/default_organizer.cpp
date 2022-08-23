@@ -119,6 +119,25 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
 
       chunks.erase(image_chunk::JPEG_IMAGE);
     }
+  // Special case for O3R_DISTANCE_IMAGE_INFO_CHUNK as its blob and not image
+  if (chunks.find(image_chunk::O3R_DISTANCE_IMAGE_INFO) != chunks.end())
+    {
+      const auto idx = chunks[image_chunk::O3R_DISTANCE_IMAGE_INFO];
+
+      std::size_t pixeldata_offset = get_chunk_pixeldata_offset(data, idx);
+      auto size = ifm3d::get_chunk_pixeldata_size(data, idx);
+
+      auto o3r_image_info = create_buffer(data,
+                                          idx + pixeldata_offset,
+                                          size,
+                                          1,
+                                          pixel_format::FORMAT_8U);
+
+      images[static_cast<buffer_id>(image_chunk::O3R_DISTANCE_IMAGE_INFO)] =
+        o3r_image_info;
+
+      chunks.erase(image_chunk::O3R_DISTANCE_IMAGE_INFO);
+    }
 
   for (const auto& chunk : chunks)
     {
