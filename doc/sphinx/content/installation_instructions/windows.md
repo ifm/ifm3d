@@ -6,31 +6,10 @@ Download the ifm3d installer ifm3d_windows_x.x.x.exe From [ifm3d Release](https:
 This installer provides binaries for Windows OS for Visual Studio 2019 and above.
 For any other compiler we recommend to build ifm3d from sources. Follow the instructions on the installer.
 It will install binaries at default location as ```C:/ProgramFiles/ifm3d x.x.x.```
-
-### Usage
-
-Make a environment variable with this path.
-```
-set IFM3D_BINARY_DIR = C:/ProgramFiles/ifm3d x.x.x/bin      # Please put the correct install path in case installation is done on other than default path
-```
-#### Building the Examples
-
-provide path (IFM3D_BINARY_DIR) to CMAKE_PREFIX_PATH while ccmake configure stage.
-[Examples](https://ifm3d.com/sphinx-doc/build/html/ifm3d/doc/sphinx/content/examples/index.html)
-
-#### Running ifm3d tools
-```
-set PATH=%IFM3D_BINARY_DIR%;%PATH%
-```
-
-After that you should be able to run the ifm3d tool
-```
-ifm3d
-```
 ## Building ifm3d from source on Windows
 
 This tutorial details how to compile the ifm3d library and its dependencies on
-a Windows platform using Visual Studio.
+a Windows platform using Visual Studio and cmake.
 
 ### Dependencies
 
@@ -53,7 +32,7 @@ gtest) which are not available as binary packages on Windows.
 
 ifm3d from version 0.90.4 onwards provides ```BUILD_IN_DEPS``` option to cmake configure command,
 which fetches the required dependencies and builds them with ifm3d. After a successful first installation, the
-user can disable BUILD_IN_DEPS option and can use the installed dependencies for future builds of the ifm3d.
+user can disable `BUILD_IN_DEPS` option and can use the installed dependencies for future builds of the ifm3d.
 
 Following instructions detail how to build ifm3d along with its dependencies.
 
@@ -87,20 +66,32 @@ cmake --build . --config %CONFIG% --target ALL_BUILD
 # install
 cmake --build . --config %CONFIG% --target install
 ```
-On successful execution of install step, user can disable the BUILD_IN_DEPS flag by appending
+On successful execution of install step, user can disable the `BUILD_IN_DEPS` flag by appending
 ``` -DBUILD_IN_DEPS=OFF``` to cmake configure step, this will avoid building dependencies on every clean build.
 
-##### Running the ifm3d command line tool
+## Usage
+
+To use the ifm3d library in your own projects, make an environment variable with this path.
+```bash
+$ set IFM3D_BINARY_DIR = C:/ProgramFiles/ifm3d x.x.x/bin      # Please put the correct install path in case installation is done on other than default path
+```
+### Building the Examples
+
+To build the [examples](https://ifm3d.com/sphinx-doc/build/html/ifm3d/doc/sphinx/content/examples/index.html), provide the path `IFM3D_BINARY_DIR` to `CMAKE_PREFIX_PATH` when running cmake configure stage. 
+To build the examples from source alongside the ifm3d library, enable the build with the `-DBUILD_EXAMPLES=ON`.
+
+
+## Running ifm3d command line tools
 After Building `ifm3d`, the binary files will be installed at
 ``%IFM3D_BUILD_DIR%\install\bin``. To run the ifm3d tool you need to add this
 directory to your path.
 
 If built targeting Visual Studio 2017/2019:
-```
-set PATH=%IFM3D_BUILD_DIR%\install\bin;%PATH%
+```bash
+$ set PATH=%IFM3D_BINARY_DIR%;%PATH%
 ```
 
 After that you should be able to run the ifm3d tool
-```
-ifm3d
+```bash 
+$ ifm3d
 ```
