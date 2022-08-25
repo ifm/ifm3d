@@ -1,4 +1,5 @@
 ## Install using the ifm3d installer
+The instructions below show how to install the ifm3d library for c++ development and usage of the command line interface. We also provide a python package `ifm3dpy`, see details [here](ifm3d/doc/sphinx/content/installation_instructions/install_py:Python%20installation).
 
 ### Installation
 
