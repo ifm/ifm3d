@@ -121,7 +121,7 @@ namespace ifm3d
    * class exposes objects that can be used to mutate and tune the device
    * parameters including those of the underlying pmd imager.
    */
-  class Device
+  class IFM3D_DEVICE_EXPORT Device
   {
   public:
     using Ptr = std::shared_ptr<Device>;

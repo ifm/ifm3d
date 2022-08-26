@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <vector>
 #include <memory>
+#include <ifm3d/fg/frame_grabber_export.h>
 
 namespace ifm3d
 {
@@ -40,7 +41,7 @@ namespace ifm3d
     float model_parameters[NR_MODEL_PARAMS];
   };
 
-  class DistanceImageInfo
+  class IFM3D_FRAME_GRABBER_LOCAL DistanceImageInfo
   {
     const float dist_resolution;
     const float ampl_resolution;

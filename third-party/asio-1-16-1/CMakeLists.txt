@@ -1,5 +1,5 @@
 add_library(asio INTERFACE)
-target_compile_definitions(asio INTERFACE -DASIO_STANDALONE)
+target_compile_definitions(asio INTERFACE -DASIO_STANDALONE -DASIO_DISABLE_VISIBILITY)
 #used for tracing the asio async calls
 #target_compile_definitions(asio INTERFACE -DASIO_ENABLE_HANDLER_TRACKING)
 target_include_directories(asio SYSTEM INTERFACE

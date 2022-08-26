@@ -91,6 +91,11 @@ set_target_properties(
   OUTPUT_NAME ifm3d_device
   LINKER_LANGUAGE CXX
   )
+  
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" )
+  set_target_properties(ifm3d_device PROPERTIES CXX_VISIBILITY_PRESET hidden)
+endif()
+
 
 #------------------
 # Installation
