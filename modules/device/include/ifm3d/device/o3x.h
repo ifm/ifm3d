@@ -13,7 +13,7 @@ namespace ifm3d
   /**
    * Device specialization for O3X
    */
-  class O3X : public LegacyDevice
+  class IFM3D_DEVICE_EXPORT O3X : public LegacyDevice
   {
   public:
     using Ptr = std::shared_ptr<O3X>;

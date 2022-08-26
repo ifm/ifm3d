@@ -60,6 +60,10 @@ set_target_properties(ifm3d_pcicclient PROPERTIES
   LINKER_LANGUAGE CXX
   )
 
+if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+  set_target_properties(ifm3d_pcicclient PROPERTIES CXX_VISIBILITY_PRESET hidden)
+endif()
+
 #------------------
 # Installation
 #------------------

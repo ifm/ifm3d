@@ -7,6 +7,7 @@
 
 #ifndef IFM3D_DEVICE_VERSION_H
 #define IFM3D_DEVICE_VERSION_H
+#include <ifm3d/device/device_export.h>
 
 #define IFM3D_LIBRARY_NAME "@GIT_PROJECT_NAME@"
 
@@ -34,7 +35,7 @@ namespace ifm3d
    * @param[out] minor Minor version number
    * @param[out] patch Version patch level
    */
-  void version(int *major, int *minor, int *patch);
+  IFM3D_DEVICE_EXPORT void version(int *major, int *minor, int *patch);
 
 } // end: namespace ifm3d
 

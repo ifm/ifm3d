@@ -10,7 +10,7 @@
 
 namespace ifm3d
 {
-  struct PortInfo
+  struct IFM3D_DEVICE_EXPORT PortInfo
   {
     std::string port;
     uint16_t pcic_port;
@@ -20,7 +20,7 @@ namespace ifm3d
   /**
    * Device specialization for O3R
    */
-  class O3R : public Device
+  class IFM3D_DEVICE_EXPORT O3R : public Device
   {
   public:
     using Ptr = std::shared_ptr<O3R>;

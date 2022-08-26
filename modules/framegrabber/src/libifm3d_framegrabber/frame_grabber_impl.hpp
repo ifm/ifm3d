@@ -25,6 +25,7 @@
 #include <asio/use_future.hpp>
 #include <asio.hpp>
 #include <glog/logging.h>
+#include <ifm3d/fg/frame_grabber_export.h>
 #include <ifm3d/device.h>
 #include <ifm3d/fg/schema.h>
 #include <default_organizer.hpp>
@@ -48,7 +49,7 @@ namespace ifm3d
   //============================================================
   // Impl interface
   //============================================================
-  class FrameGrabber::Impl
+  class IFM3D_FRAME_GRABBER_LOCAL FrameGrabber::Impl
   {
   public:
     Impl(ifm3d::Device::Ptr cam, std::optional<std::uint16_t> nat_pcic_port);

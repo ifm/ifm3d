@@ -48,7 +48,7 @@ namespace ifm3d
   //============================================================
   // Impl interface
   //============================================================
-  class LegacyDevice::Impl
+  class IFM3D_DEVICE_LOCAL LegacyDevice::Impl
   {
   public:
     Impl(std::shared_ptr<XMLRPCWrapper> xwrapper, const std::string& password);

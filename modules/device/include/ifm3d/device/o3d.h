@@ -13,7 +13,7 @@ namespace ifm3d
   /**
    * Deicev specialization for O3D
    */
-  class O3D : public LegacyDevice
+  class IFM3D_DEVICE_EXPORT O3D : public LegacyDevice
   {
   public:
     using Ptr = std::shared_ptr<O3D>;

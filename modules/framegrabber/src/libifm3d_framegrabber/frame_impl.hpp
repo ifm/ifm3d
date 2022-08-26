@@ -8,6 +8,7 @@
 #define IFM3D_FG_FRAME_IMPL_H
 
 #include <map>
+#include <ifm3d/fg/frame_grabber_export.h>
 #include <ifm3d/fg/frame.h>
 
 namespace ifm3d
@@ -15,7 +16,7 @@ namespace ifm3d
   //============================================================
   // Impl interface
   //============================================================
-  class Frame::Impl
+  class IFM3D_FRAME_GRABBER_LOCAL Frame::Impl
   {
   public:
     Impl(const std::map<buffer_id, Buffer>& images,

@@ -6,6 +6,7 @@
 #ifndef IFM3D_PCICCLIENT_PCICCLIENT_H
 #define IFM3D_PCICCLIENT_PCICCLIENT_H
 
+#include <ifm3d/pcicclient/pcicclient_export.h>
 #include <atomic>
 #include <condition_variable>
 #include <map>
@@ -22,7 +23,7 @@ namespace ifm3d
    * the PCIC interface.
    */
 
-  class PCICClient
+  class IFM3D_PCICCLIENT_EXPORT PCICClient
   {
   public:
     using Ptr = std::shared_ptr<PCICClient>;
@@ -172,7 +173,7 @@ namespace ifm3d
     void CancelCallback(long callback_id);
 
   private:
-    class Impl;
+    class IFM3D_PCICCLIENT_LOCAL Impl;
     std::unique_ptr<Impl> pImpl;
 
   }; // end: class PCICClient

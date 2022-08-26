@@ -1,14 +1,32 @@
-#ifndef IFM3D_FG_EXPORT_HPP
-#define IFM3D_FG_EXPORT_HPP
+#ifndef IFM3D_FRAME_GRABBER_EXPORT_HPP
+#define IFM3D_FRAME_GRABBER_EXPORT_HPP
 
-#if defined(IFM3D_CAMERA_STATIC_LIB) || !defined(_MSC_VER)
-#  define IFM3D_FG_EXPORT
+#if defined(IFM3D_FRAME_GRABBER_STATIC_LIB)
+#  define IFM3D_FRAME_GRABBER_EXPORT
 #else
-#  ifdef IFM3D_FG_DLL_BUILD
-#    define IFM3D_FG_EXPORT __declspec(dllexport)
+#  if defined(_MSC_VER)
+#    ifdef IFM3D_FRAME_GRABBER_DLL_BUILD
+#      define IFM3D_FRAME_GRABBER_EXPORT __declspec(dllexport)
+#    else
+#      define IFM3D_FRAME_GRABBER_EXPORT __declspec(dllimport)
+#    endif
 #  else
-#    define IFM3D_FG_EXPORT __declspec(dllimport)
+#    define IFM3D_FRAME_GRABBER_EXPORT __attribute__((visibility("default")))
 #  endif
 #endif
 
-#endif /* IFM3D_FG_EXPORT_HPP */
+#if defined(__GNUC__) || defined(__clang__)
+#  define IFM3D_FRAME_GRABBER_DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#  define IFM3D_FRAME_GRABBER_DEPRECATED __declspec(deprecated)
+#else
+#  define IFM3D_FRAME_GRABEER_DEPRECATED
+#endif
+
+#if defined(__GNUC__) || defined(__clang__)
+#  define IFM3D_FRAME_GRABBER_LOCAL __attribute__((visibility("hidden")))
+#else
+#  define IFM3D_FRAME_GRABBER_LOCAL
+#endif
+
+#endif /* IFM3D_FRAME_GRABBER_EXPORT_HPP */
