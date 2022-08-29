@@ -62,11 +62,19 @@ target_include_directories(ifm3d_device
     )
 
 if(WIN32)
-  target_compile_definitions(
-    ifm3d_device PRIVATE
-    ASIO_STANDALONE
-    IFM3D_DEVICE_DLL_BUILD=1
-    )
+   if(${BUILD_SHARED_LIBS})
+    target_compile_definitions(
+      ifm3d_device PRIVATE
+      ASIO_STANDALONE
+      IFM3D_DEVICE_DLL_BUILD=1
+      )
+   else()
+    target_compile_definitions(
+      ifm3d_device PUBLIC
+      ASIO_STANDALONE
+      IFM3D_DEVICE_STATIC_LIB=1
+      )
+   endif()
 endif(WIN32)
   
 #------------------
