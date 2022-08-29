@@ -4,7 +4,6 @@
  */
 #include <iostream>
 #include <chrono>
-#include <unistd.h>
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/fg.h>
 
@@ -38,7 +37,7 @@ main()
 
   // This sleep is to prevent the program from before the
   // callback has time to execute.
-  sleep(1);
+  std::this_thread::sleep_for(1s);
 
   return 0;
 }
