@@ -37,9 +37,15 @@ target_include_directories(ifm3d_framegrabber
   )
 
 if(WIN32)
+   if(${BUILD_SHARED_LIBS})
     target_compile_definitions(ifm3d_framegrabber
       PRIVATE
         IFM3D_FRAME_GRABBER_DLL_BUILD=1)
+   else()
+    target_compile_definitions(ifm3d_framegrabber
+      PUBLIC
+        IFM3D_FRAME_GRABBER_STATIC_LIB=1)
+   endif()
 endif(WIN32) 
 
 #------------------
