@@ -69,7 +69,7 @@ main()
       auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, pcic);
 
       // Start the framegrabber
-      fg->Start({});
+      fg->Start({ifm3d::buffer_id::XYZ, ifm3d::buffer_id::JPEG_IMAGE});
       fgs.push_back(fg);
     }
 
