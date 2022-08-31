@@ -70,21 +70,23 @@ if(BUILD_IN_DEPS)
   if(WIN32)
     target_compile_definitions(logging_unittest PUBLIC _HAS_AUTO_PTR_ETC=1)
   endif()
+  if(BUILD_MODULE_PYBIND11)
+    FetchContent_Declare(
+     pybind11
+      GIT_REPOSITORY "https://github.com/pybind/pybind11"
+      GIT_TAG "tags/v2.8.0"
+      GIT_SHALLOW TRUE
+      GIT_PROGRESS TRUE
+    )
 
-  FetchContent_Declare(
-   pybind11
-    GIT_REPOSITORY "https://github.com/pybind/pybind11"
-    GIT_TAG "tags/v2.8.0"
-    GIT_SHALLOW TRUE
-    GIT_PROGRESS TRUE
-  )
+    FetchContent_MakeAvailable(pybind11)
+    FetchContent_GetProperties(pybind11 SOURCE_DIR pybind_src_dir)
+    FetchContent_GetProperties(pybind11 BINARY_DIR pybind_bin_dir)
 
-  FetchContent_MakeAvailable(pybind11)
-  FetchContent_GetProperties(pybind11 SOURCE_DIR pybind_src_dir)
-  FetchContent_GetProperties(pybind11 BINARY_DIR pybind_bin_dir)
+    list(APPEND CMAKE_MODULE_PATH "${pybind_bin_dir}")
+    list(APPEND BUILTIN_INCLUDES ${pybind_src_dir}/include ${pybind_bin_dir}/include  ${pybind_bin_dir})
+  endif(BUILD_MODULE_PYBIND11)
 
-  list(APPEND CMAKE_MODULE_PATH "${pybind_bin_dir}")
-  list(APPEND BUILTIN_INCLUDES ${pybind_src_dir}/include ${pybind_bin_dir}/include  ${pybind_bin_dir})
   set( BUILTIN_INCLUDES ${BUILTIN_INCLUDES} PARENT_SCOPE)
 endif(BUILD_IN_DEPS)
 
