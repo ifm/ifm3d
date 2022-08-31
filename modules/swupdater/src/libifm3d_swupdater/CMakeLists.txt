@@ -36,8 +36,15 @@ target_include_directories(ifm3d_swupdater
   )
 
 if(WIN32)
-    target_compile_definitions(ifm3d_swupdater PRIVATE
+   if(${BUILD_SHARED_LIBS})
+    target_compile_definitions(ifm3d_swupdater
+      PRIVATE
         IFM3D_SWUPDATER_DLL_BUILD=1)
+   else()
+    target_compile_definitions(ifm3d_swupdater
+      PUBLIC
+        IFM3D_SWUPDATER_STATIC_LIB=1)
+   endif()
 endif(WIN32)
 
 #------------------
