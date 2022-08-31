@@ -9,6 +9,11 @@
 
 using namespace std::chrono_literals;
 
+void Callback(ifm3d::Frame::Ptr frame){
+  auto dist = frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE);
+  std::cout << dist.height() << " " << dist.width() << std::endl;
+}
+
 int
 main()
 {
@@ -27,23 +32,12 @@ main()
   //Set Schema and start the grabber
   fg->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE, ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,ifm3d::buffer_id::XYZ});
 
-  //////////////////////////
-  // Get a frame:
-  //////////////////////////
-  auto future = fg->WaitForFrame();
-  if (future.wait_for(3s) != std::future_status::ready)
-    {
-      std::cerr << "Timeout waiting for camera!" << std::endl;
-      return -1;
-    }
-  auto frame = future.get();
+  //Register callback function
+  fg->OnNewFrame(&Callback);
 
-  //////////////////////////
-  // Example for 3D data:
-  //////////////////////////
-  auto dist = frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE);
-
-  std::cout << dist.height() << " " << dist.width() << std::endl;
+  // This sleep is to prevent the program from before the
+  // callback has time to execute.
+  std::this_thread::sleep_for(1s);
 
   return 0;
 }

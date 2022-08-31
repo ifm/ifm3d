@@ -10,7 +10,7 @@
  along with its type and create `FrameGrabber` and `ImageBuffer` objects for
  each.
 */
-#include <ifm3d/camera/camera_o3r.h>
+#include <ifm3d/device/o3r.h>
 #include <chrono>
 #include <iostream>
 #include <iomanip>
@@ -44,7 +44,7 @@ main()
 {
 
   // Declare the camera object
-  auto cam = std::make_shared<ifm3d::O3RCamera>();
+  auto cam = std::make_shared<ifm3d::O3R>();
   // Retreive ports configuration
   json conf = cam->Get();
   // Initialize the structures
@@ -67,6 +67,9 @@ main()
       // Create list of FrameGrabber and ImageBuffer objects for connected
       // ports
       auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, pcic);
+
+      // Start the framegrabber
+      fg->Start({ifm3d::buffer_id::XYZ, ifm3d::buffer_id::JPEG_IMAGE});
       fgs.push_back(fg);
     }
 

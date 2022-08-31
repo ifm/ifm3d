@@ -1,16 +1,21 @@
-from ifm3dpy import O3RCamera, ImageBuffer, FrameGrabber
+from ifm3dpy import O3R, FrameGrabber, buffer_id
+import asyncio
 
-# Initialize the objects
-o3r = O3RCamera('192.168.0.69')
-port='port2'
-fg = FrameGrabber(o3r, pcic_port=50012)
-im = ImageBuffer()
+async def main():
+  # Initialize the objects
+  o3r = O3R()
+  fg = FrameGrabber(o3r, pcic_port=50012)
 
-# Get a frame
-if fg.wait_for_frame(im, 500)==False:
-    raise ValueError #Exception('fg-timeout on ' + port + ' reached')
+  # Set schema and start Grabber
+  fg.start([buffer_id.NORM_AMPLITUDE_IMAGE,buffer_id.RADIAL_DISTANCE_IMAGE,buffer_id.XYZ])
 
-# Read the distance image and display a pixel in the center
-dist = im.distance_image()
-(width, height) = dist.shape
-print(dist[width//2,height//2])
+  # Get a frame
+  frame = await fg.wait_for_frame()
+
+  # Read the distance image and display a pixel in the center
+  dist = frame.get_buffer(buffer_id.RADIAL_DISTANCE_IMAGE)
+  (width, height) = dist.shape
+  print(dist[width//2,height//2])
+
+if __name__ == "__main__":
+    asyncio.run(main())
