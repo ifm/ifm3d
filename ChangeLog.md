@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Example update showing usage of fg API
+- Visibility attribute added for ifm3d API
+- Playground example for cmake users
 - Python API renamed as per C++ changes
 - CameraO3D, CameraO3R, CameraO3X renamed as O3D,O3R,O3X respectively
 - Camera is renamed as LegacyDevice
@@ -32,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Error code from 7 digit to 6 digit for Lib error codes
 - Discover app for O3R devices
 - ifm3d::tools compatibility for O3R devices
+
 
 ## 0.93.0 - 2022-02-17
 ### Added
