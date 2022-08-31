@@ -57,9 +57,17 @@ if (BUILD_MODULE_SWUPDATER)
     )
 endif()
 
+
 if(WIN32)
-    target_compile_definitions(ifm3d_tools_shared PRIVATE
+   if(${BUILD_SHARED_LIBS})
+    target_compile_definitions(ifm3d_tools_shared
+      PRIVATE
         IFM3D_TOOLS_DLL_BUILD=1)
+   else()
+    target_compile_definitions(ifm3d_tools_shared
+      PUBLIC
+        IFM3D_TOOLS_STATIC_LIB=1)
+   endif()
 endif(WIN32)
 
 #------------------
