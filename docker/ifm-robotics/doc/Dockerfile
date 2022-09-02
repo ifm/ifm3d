@@ -69,5 +69,6 @@ RUN mkdir -p /ifm3d/build \
     && cmake --build . --target docs
 
 FROM scratch AS output
-COPY --from=build /ifm3d/build/doc/sphinx/html /out
+COPY --from=build /ifm3d/build/doc/sphinx/html /out/html
+COPY --from=build /ifm3d/build/doc/doxygen/latex/cpp_api /out/latex
 

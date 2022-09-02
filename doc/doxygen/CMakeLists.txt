@@ -17,6 +17,7 @@ if (DOXYGEN_FOUND)
 
     add_custom_target(ifm3d_doxygen
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/html/doxygen
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/latex/cpp_api
         COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Generating API documentation with Doxygen"
