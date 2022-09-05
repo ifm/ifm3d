@@ -163,13 +163,13 @@ if(BUILD_SDK_PKG)
     INSTALL_DESTINATION ${CONFIG_PACKAGE_LOCATION}
     )
 
-  # NOTE: we use 'COMPONENT camera' here as it is the one
+  # NOTE: we use 'COMPONENT device' here as it is the one
   # "required" module in our stack
   install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config-version.cmake
           ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config.cmake
     DESTINATION ${CONFIG_PACKAGE_LOCATION}
-    COMPONENT camera
+    COMPONENT device
     )
 endif()
 
@@ -203,6 +203,8 @@ if(NOT WIN32)
   # Turn on component-based installation
   set(CPACK_DEB_COMPONENT_INSTALL ON)
   set(CPACK_GENERATOR "DEB")
+  get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
+  list(REMOVE_ITEM CPACK_COMPONENTS_ALL "Unspecified")
 
   # Package architecture
   find_program(DPKG_CMD dpkg)
