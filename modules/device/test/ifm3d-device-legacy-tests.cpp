@@ -4,64 +4,58 @@
 #include <string>
 #include <thread>
 #include <vector>
-#include <ifm3d/camera.h>
+#include <ifm3d/device.h>
 #include <gtest/gtest.h>
 
-class CameraTest : public ::testing::Test
+class LegacyDeviceTest : public ::testing::Test
 {
 protected:
   virtual void
   SetUp()
   {
-    this->cam_ = ifm3d::Camera::MakeShared();
+    this->dev_ = ifm3d::LegacyDevice::MakeShared();
   }
 
   virtual void
   TearDown()
   {}
 
-  ifm3d::Camera::Ptr cam_;
+  ifm3d::LegacyDevice::Ptr dev_;
 };
 
-TEST_F(CameraTest, FactoryDefaults)
+TEST_F(LegacyDeviceTest, FactoryDefaults)
 {
-  if (this->cam_->AmI(ifm3d::Camera::device_family::O3R))
-    {
-      return;
-    }
-  EXPECT_NO_THROW(this->cam_->FactoryReset());
+  EXPECT_NO_THROW(this->dev_->FactoryReset());
   std::this_thread::sleep_for(std::chrono::seconds(6));
-  EXPECT_NO_THROW(this->cam_->DeviceType());
+  EXPECT_NO_THROW(this->dev_->DeviceType());
 }
 
-TEST_F(CameraTest, DefaultCredentials)
+TEST_F(LegacyDeviceTest, DefaultPassword)
 {
-  EXPECT_STREQ(this->cam_->IP().c_str(), ifm3d::DEFAULT_IP.c_str());
-  EXPECT_EQ(this->cam_->XMLRPCPort(), ifm3d::DEFAULT_XMLRPC_PORT);
-  EXPECT_EQ(this->cam_->Password(), ifm3d::DEFAULT_PASSWORD);
+  EXPECT_EQ(this->dev_->Password(), ifm3d::DEFAULT_PASSWORD);
 }
 
-TEST_F(CameraTest, ApplicationList)
+TEST_F(LegacyDeviceTest, ApplicationList)
 {
-  json app_list = this->cam_->ApplicationList();
+  json app_list = this->dev_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1); // factory defaults, we can assume this.
-  EXPECT_TRUE(app_list[0]["Active"].get<bool>());
+  EXPECT_TRUE(bool(app_list[0]["Active"].get<int>()));
 }
 
-TEST_F(CameraTest, SessionManagement)
+TEST_F(LegacyDeviceTest, SessionManagement)
 {
   // explicitly request/cancel a session
-  std::string sid = this->cam_->RequestSession();
-  EXPECT_STREQ(sid.c_str(), this->cam_->SessionID().c_str());
-  bool retval = this->cam_->CancelSession();
+  std::string sid = this->dev_->RequestSession();
+  EXPECT_STREQ(sid.c_str(), this->dev_->SessionID().c_str());
+  bool retval = this->dev_->CancelSession();
   EXPECT_TRUE(retval);
-  EXPECT_STREQ("", this->cam_->SessionID().c_str());
+  EXPECT_STREQ("", this->dev_->SessionID().c_str());
 
   // explicitly create but implicitly cancel (via dtor) session
-  sid = this->cam_->RequestSession();
-  EXPECT_STREQ(sid.c_str(), this->cam_->SessionID().c_str());
-  this->cam_.reset(new ifm3d::Camera());
-  EXPECT_STREQ("", this->cam_->SessionID().c_str());
+  sid = this->dev_->RequestSession();
+  EXPECT_STREQ(sid.c_str(), this->dev_->SessionID().c_str());
+  this->dev_.reset(new ifm3d::LegacyDevice());
+  EXPECT_STREQ("", this->dev_->SessionID().c_str());
 
   // tests which only get enabled when the IFM3D_SESSION_ID
   // environment variable is properly set
@@ -70,29 +64,29 @@ TEST_F(CameraTest, SessionManagement)
       // default session id should be our 32 char hex string
       EXPECT_EQ(ifm3d::DEFAULT_SESSION_ID.size(), ifm3d::SESSION_ID_SZ);
 
-      sid = this->cam_->RequestSession();
+      sid = this->dev_->RequestSession();
       EXPECT_STREQ(sid.c_str(), ifm3d::DEFAULT_SESSION_ID.c_str());
-      EXPECT_TRUE(this->cam_->CancelSession());
+      EXPECT_TRUE(this->dev_->CancelSession());
 
       // no session open, but env var set
-      EXPECT_TRUE(this->cam_->CancelSession());
+      EXPECT_TRUE(this->dev_->CancelSession());
 
       // New scope, so the `cam2` dtor runs
       {
-        auto cam2 = ifm3d::Camera::MakeShared();
+        auto cam2 = ifm3d::LegacyDevice::MakeShared();
         sid = cam2->RequestSession();
         EXPECT_STREQ(sid.c_str(), ifm3d::DEFAULT_SESSION_ID.c_str());
         // OK, pretend `cam2` crashed ... we want to create a new session
         // but we will get an exception
-        EXPECT_THROW(this->cam_->RequestSession(), ifm3d::error_t);
+        EXPECT_THROW(this->dev_->RequestSession(), ifm3d::Error);
         // Let's now use `this->cam_` to cancel the sid from the other
         // camera
-        EXPECT_TRUE(this->cam_->CancelSession(sid));
+        EXPECT_TRUE(this->dev_->CancelSession(sid));
         // Now make a new session
-        sid = this->cam_->RequestSession();
+        sid = this->dev_->RequestSession();
         EXPECT_STREQ(sid.c_str(), ifm3d::DEFAULT_SESSION_ID.c_str());
         // Now cancel the "current session on `this->cam_`
-        EXPECT_TRUE(this->cam_->CancelSession());
+        EXPECT_TRUE(this->dev_->CancelSession());
 
         // once we fall off the edge of this scope, the `cam2` dtor
         // will run ... you may see a warning message in the log
@@ -103,7 +97,7 @@ TEST_F(CameraTest, SessionManagement)
   else
     {
       // No session open and env var not set
-      EXPECT_TRUE(this->cam_->CancelSession());
+      EXPECT_TRUE(this->dev_->CancelSession());
 
       //
       // same test as above, but w/o the comparision to some known session id
@@ -111,22 +105,22 @@ TEST_F(CameraTest, SessionManagement)
       //
       // New scope, so the `cam2` dtor runs
       {
-        auto cam2 = ifm3d::Camera::MakeShared();
+        auto cam2 = ifm3d::LegacyDevice::MakeShared();
         sid = cam2->RequestSession();
 
         // OK, pretend `cam2` crashed ... we want to create a new session
         // but we will get an exception
-        EXPECT_THROW(this->cam_->RequestSession(), ifm3d::error_t);
+        EXPECT_THROW(this->dev_->RequestSession(), ifm3d::Error);
 
         // Let's now use `this->cam_` to cancel the sid from the other
         // camera
-        EXPECT_TRUE(this->cam_->CancelSession(sid));
+        EXPECT_TRUE(this->dev_->CancelSession(sid));
 
         // Now make a new session
-        sid = this->cam_->RequestSession();
+        sid = this->dev_->RequestSession();
 
         // Now cancel the "current session on `this->cam_`
-        EXPECT_TRUE(this->cam_->CancelSession());
+        EXPECT_TRUE(this->dev_->CancelSession());
 
         // once we fall off the edge of this scope, the `cam2` dtor
         // will run ... you may see a warning message in the log
@@ -137,67 +131,67 @@ TEST_F(CameraTest, SessionManagement)
 
   // explicitly request session ... the unit test lifecycle should
   // implicitly cancel the session for us (i.e., the cam dtor will run)
-  sid = this->cam_->RequestSession();
-  EXPECT_STREQ(sid.c_str(), this->cam_->SessionID().c_str());
+  sid = this->dev_->RequestSession();
+  EXPECT_STREQ(sid.c_str(), this->dev_->SessionID().c_str());
 }
 
-TEST_F(CameraTest, CopyDeleteApplication)
+TEST_F(LegacyDeviceTest, CopyDeleteApplication)
 {
-  if (this->cam_->AmI(ifm3d::Camera::device_family::O3X))
+  if (this->dev_->AmI(ifm3d::LegacyDevice::device_family::O3X))
     {
       return;
     }
 
-  json app_list = this->cam_->ApplicationList();
+  json app_list = this->dev_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1);
 
-  int idx = this->cam_->CopyApplication(1);
-  app_list = this->cam_->ApplicationList();
+  int idx = this->dev_->CopyApplication(1);
+  app_list = this->dev_->ApplicationList();
   EXPECT_EQ(app_list.size(), 2);
 
-  this->cam_->DeleteApplication(idx);
-  app_list = this->cam_->ApplicationList();
+  this->dev_->DeleteApplication(idx);
+  app_list = this->dev_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1);
 }
 
-TEST_F(CameraTest, CopyDeleteExceptions)
+TEST_F(LegacyDeviceTest, CopyDeleteExceptions)
 {
-  EXPECT_THROW(this->cam_->CopyApplication(-1), ifm3d::error_t);
-  EXPECT_THROW(this->cam_->DeleteApplication(-1), ifm3d::error_t);
+  EXPECT_THROW(this->dev_->CopyApplication(-1), ifm3d::Error);
+  EXPECT_THROW(this->dev_->DeleteApplication(-1), ifm3d::Error);
 }
 
-TEST_F(CameraTest, CreateDeleteApplication)
+TEST_F(LegacyDeviceTest, CreateDeleteApplication)
 {
-  if (this->cam_->AmI(ifm3d::Camera::device_family::O3X))
+  if (this->dev_->AmI(ifm3d::LegacyDevice::device_family::O3X))
     {
       return;
     }
 
-  json app_list = this->cam_->ApplicationList();
+  json app_list = this->dev_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1);
 
   int idx = -1;
-  std::vector<std::string> app_types = this->cam_->ApplicationTypes();
+  std::vector<std::string> app_types = this->dev_->ApplicationTypes();
   for (auto& s : app_types)
     {
-      idx = this->cam_->CreateApplication(s);
-      app_list = this->cam_->ApplicationList();
+      idx = this->dev_->CreateApplication(s);
+      app_list = this->dev_->ApplicationList();
       EXPECT_EQ(app_list.size(), 2);
 
-      this->cam_->DeleteApplication(idx);
-      app_list = this->cam_->ApplicationList();
+      this->dev_->DeleteApplication(idx);
+      app_list = this->dev_->ApplicationList();
       EXPECT_EQ(app_list.size(), 1);
     }
 }
 
-TEST_F(CameraTest, CreateApplicationException)
+TEST_F(LegacyDeviceTest, CreateApplicationException)
 {
-  EXPECT_THROW(this->cam_->CreateApplication("Foo"), ifm3d::error_t);
+  EXPECT_THROW(this->dev_->CreateApplication("Foo"), ifm3d::Error);
 }
 
-TEST_F(CameraTest, ImportExportApplication)
+TEST_F(LegacyDeviceTest, ImportExportApplication)
 {
-  json app_list = this->cam_->ApplicationList();
+  json app_list = this->dev_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1);
 
   int idx = app_list[0]["Index"].get<int>();
@@ -205,62 +199,62 @@ TEST_F(CameraTest, ImportExportApplication)
   std::vector<std::uint8_t> bytes;
   int new_idx = -1;
 
-  if (this->cam_->AmI(ifm3d::Camera::device_family::O3X))
+  if (this->dev_->AmI(ifm3d::LegacyDevice::device_family::O3X))
     {
-      EXPECT_NO_THROW(bytes = this->cam_->ExportIFMApp(idx));
-      EXPECT_NO_THROW(new_idx = this->cam_->ImportIFMApp(bytes));
+      EXPECT_NO_THROW(bytes = this->dev_->ExportIFMApp(idx));
+      EXPECT_NO_THROW(new_idx = this->dev_->ImportIFMApp(bytes));
       EXPECT_EQ(new_idx, idx); // single app on O3X
     }
   else
     {
-      EXPECT_NO_THROW(bytes = this->cam_->ExportIFMApp(idx));
-      EXPECT_NO_THROW(new_idx = this->cam_->ImportIFMApp(bytes));
+      EXPECT_NO_THROW(bytes = this->dev_->ExportIFMApp(idx));
+      EXPECT_NO_THROW(new_idx = this->dev_->ImportIFMApp(bytes));
 
-      app_list = this->cam_->ApplicationList();
+      app_list = this->dev_->ApplicationList();
       EXPECT_EQ(app_list.size(), 2);
 
-      this->cam_->DeleteApplication(new_idx);
-      app_list = this->cam_->ApplicationList();
+      this->dev_->DeleteApplication(new_idx);
+      app_list = this->dev_->ApplicationList();
       EXPECT_EQ(app_list.size(), 1);
     }
 }
 
-TEST_F(CameraTest, ImportExportConfig)
+TEST_F(LegacyDeviceTest, ImportExportConfig)
 {
   std::vector<std::uint8_t> bytes;
 
-  EXPECT_NO_THROW(bytes = this->cam_->ExportIFMConfig());
-  EXPECT_NO_THROW(this->cam_->ImportIFMConfig(
+  EXPECT_NO_THROW(bytes = this->dev_->ExportIFMConfig());
+  EXPECT_NO_THROW(this->dev_->ImportIFMConfig(
     bytes,
-    static_cast<std::uint16_t>(ifm3d::Camera::import_flags::GLOBAL)));
+    static_cast<std::uint16_t>(ifm3d::LegacyDevice::import_flags::GLOBAL)));
 }
 
-TEST_F(CameraTest, ActiveApplication)
+TEST_F(LegacyDeviceTest, ActiveApplication)
 {
   // factory defaults, should only be 1 application
-  json app_list = this->cam_->ApplicationList();
+  json app_list = this->dev_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1);
 
   //
   // The rest of the test is invalid for O3X and 03R
   //
-  if (this->cam_->AmI(ifm3d::Camera::device_family::O3X) ||
-      this->cam_->AmI(ifm3d::Camera::device_family::O3R))
+  if (this->dev_->AmI(ifm3d::LegacyDevice::device_family::O3X) ||
+      this->dev_->AmI(ifm3d::LegacyDevice::device_family::O3R))
     {
       return;
     }
 
   // create a new application using JSON syntax
-  EXPECT_NO_THROW(this->cam_->FromJSONStr(R"({"Apps":[{}]})"));
+  EXPECT_NO_THROW(this->dev_->FromJSONStr(R"({"Apps":[{}]})"));
 
-  app_list = this->cam_->ApplicationList();
+  app_list = this->dev_->ApplicationList();
   EXPECT_EQ(app_list.size(), 2);
 
   // We expect the new application to be at index 2
   int idx = -1;
   for (auto& a : app_list)
     {
-      if (!a["Active"].get<bool>())
+      if (!a["Active"].get<int>())
         {
           idx = a["Index"].get<int>();
           break;
@@ -270,11 +264,11 @@ TEST_F(CameraTest, ActiveApplication)
 
   // Mark the application at index 2 as active
   EXPECT_NO_THROW(
-    this->cam_->FromJSONStr(R"({"Device":{"ActiveApplication":"2"}})"));
-  app_list = this->cam_->ApplicationList();
+    this->dev_->FromJSONStr(R"({"Device":{"ActiveApplication":"2"}})"));
+  app_list = this->dev_->ApplicationList();
   for (auto& a : app_list)
     {
-      if (a["Active"].get<bool>())
+      if (a["Active"].get<int>())
         {
           idx = a["Index"].get<int>();
           break;
@@ -283,17 +277,17 @@ TEST_F(CameraTest, ActiveApplication)
   EXPECT_EQ(idx, 2);
 
   // Delete the application at index 2
-  EXPECT_NO_THROW(this->cam_->DeleteApplication(idx));
+  EXPECT_NO_THROW(this->dev_->DeleteApplication(idx));
 
   // should only have one application now
-  app_list = this->cam_->ApplicationList();
+  app_list = this->dev_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1);
 
   // the only application on the camera will not be active
   idx = -1;
   for (auto& a : app_list)
     {
-      if (a["Active"].get<bool>())
+      if (a["Active"].get<int>())
         {
           idx = a["Index"].get<int>();
           break;
@@ -303,11 +297,11 @@ TEST_F(CameraTest, ActiveApplication)
 
   // Mark application 1 as active
   EXPECT_NO_THROW(
-    this->cam_->FromJSONStr(R"({"Device":{"ActiveApplication":"1"}})"));
-  app_list = this->cam_->ApplicationList();
+    this->dev_->FromJSONStr(R"({"Device":{"ActiveApplication":"1"}})"));
+  app_list = this->dev_->ApplicationList();
   for (auto& a : app_list)
     {
-      if (a["Active"].get<bool>())
+      if (a["Active"].get<int>())
         {
           idx = a["Index"].get<int>();
           break;
@@ -316,23 +310,23 @@ TEST_F(CameraTest, ActiveApplication)
   EXPECT_EQ(idx, 1);
 }
 
-TEST_F(CameraTest, ImagerTypes)
+TEST_F(LegacyDeviceTest, ImagerTypes)
 {
-  if (this->cam_->AmI(ifm3d::Camera::device_family::O3R))
+  if (this->dev_->AmI(ifm3d::LegacyDevice::device_family::O3R))
     {
       return;
     }
-  json dump = this->cam_->ToJSON();
+  json dump = this->dev_->ToJSON();
   std::string curr_im_type = dump["ifm3d"]["Apps"][0]["Imager"]["Type"];
 
-  std::vector<std::string> im_types = this->cam_->ImagerTypes();
+  std::vector<std::string> im_types = this->dev_->ImagerTypes();
   json j = R"({"Apps":[]})"_json;
   for (auto& it : im_types)
     {
       dump["ifm3d"]["Apps"][0]["Imager"]["Type"] = it;
       j["Apps"] = dump["ifm3d"]["Apps"];
-      this->cam_->FromJSON(j);
-      dump = this->cam_->ToJSON();
+      this->dev_->FromJSON(j);
+      dump = this->dev_->ToJSON();
       EXPECT_STREQ(
         dump["ifm3d"]["Apps"][0]["Imager"]["Type"].get<std::string>().c_str(),
         it.c_str());
@@ -340,13 +334,13 @@ TEST_F(CameraTest, ImagerTypes)
 
   dump["ifm3d"]["Apps"][0]["Imager"]["Type"] = curr_im_type;
   j["Apps"] = dump["ifm3d"]["Apps"];
-  EXPECT_NO_THROW(this->cam_->FromJSON(j));
+  EXPECT_NO_THROW(this->dev_->FromJSON(j));
 }
 
-TEST_F(CameraTest, Filters)
+TEST_F(LegacyDeviceTest, Filters)
 {
   // factory defaults, should only be 1 application
-  json app_list = this->cam_->ApplicationList();
+  json app_list = this->dev_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1);
 
   // Create a median spatial filter
@@ -354,42 +348,43 @@ TEST_F(CameraTest, Filters)
     R"(
         {"Apps":[{"Index":"1", "Imager": {"SpatialFilterType":"1"}}]}
       )";
-  EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
+  EXPECT_NO_THROW(this->dev_->FromJSONStr(j));
 
   // a-priori we know the median filter has a MaskSize param,
   // by default it is 3x3
-  json dump = this->cam_->ToJSON();
+  json dump = this->dev_->ToJSON();
 
-  int mask_size = static_cast<int>(ifm3d::Camera::mfilt_mask_size::_3x3);
+  int mask_size = static_cast<int>(ifm3d::LegacyDevice::mfilt_mask_size::_3x3);
 
-  if (!this->cam_->AmI(ifm3d::Camera::device_family::O3X))
+  if (!this->dev_->AmI(ifm3d::LegacyDevice::device_family::O3X))
     {
       mask_size = std::stoi(
         dump["ifm3d"]["Apps"][0]["Imager"]["SpatialFilter"]["MaskSize"]
           .get<std::string>());
     }
 
-  EXPECT_EQ(mask_size, static_cast<int>(ifm3d::Camera::mfilt_mask_size::_3x3));
+  EXPECT_EQ(mask_size,
+            static_cast<int>(ifm3d::LegacyDevice::mfilt_mask_size::_3x3));
 
   // get rid of the spatial filter
   j =
     R"(
         {"Apps":[{"Index":"1", "Imager": {"SpatialFilterType":"0"}}]}
       )";
-  EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
+  EXPECT_NO_THROW(this->dev_->FromJSONStr(j));
 
   // Create a mean temporal filter
   j =
     R"(
         {"Apps":[{"Index":"1", "Imager": {"TemporalFilterType":"1"}}]}
       )";
-  EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
+  EXPECT_NO_THROW(this->dev_->FromJSONStr(j));
 
   // a-priori we know the mean filter averages 2 images by default
-  dump = this->cam_->ToJSON();
+  dump = this->dev_->ToJSON();
   int n_imgs = 2; // default images number
 
-  if (!this->cam_->AmI(ifm3d::Camera::device_family::O3X))
+  if (!this->dev_->AmI(ifm3d::LegacyDevice::device_family::O3X))
     {
       n_imgs = std::stoi(
         dump["ifm3d"]["Apps"][0]["Imager"]["TemporalFilter"]["NumberOfImages"]
@@ -403,21 +398,21 @@ TEST_F(CameraTest, Filters)
     R"(
         {"Apps":[{"Index":"1", "Imager": {"TemporalFilterType":"0"}}]}
       )";
-  EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
+  EXPECT_NO_THROW(this->dev_->FromJSONStr(j));
 }
 
-TEST_F(CameraTest, JSON)
+TEST_F(LegacyDeviceTest, JSON)
 {
-  EXPECT_NO_THROW(this->cam_->FromJSON(this->cam_->ToJSON()));
-  EXPECT_NO_THROW(this->cam_->FromJSONStr(this->cam_->ToJSONStr()));
+  EXPECT_NO_THROW(this->dev_->FromJSON(this->dev_->ToJSON()));
+  EXPECT_NO_THROW(this->dev_->FromJSONStr(this->dev_->ToJSONStr()));
 
   std::string j = R"({"Device":{"Name":"ifm3d unit test"}})";
-  EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
+  EXPECT_NO_THROW(this->dev_->FromJSONStr(j));
 }
 
-TEST_F(CameraTest, Time)
+TEST_F(LegacyDeviceTest, Time)
 {
-  json dump = this->cam_->ToJSON();
+  json dump = this->dev_->ToJSON();
   if (dump["/ifm3d/Time"_json_pointer].empty())
     {
       return;
@@ -431,8 +426,8 @@ TEST_F(CameraTest, Time)
   int n_tries_new = n_tries == 1 ? 2 : 1;
   dump["ifm3d"]["Time"]["WaitSyncTries"] = std::to_string(n_tries_new);
 
-  EXPECT_NO_THROW(this->cam_->FromJSON(dump));
-  dump = this->cam_->ToJSON();
+  EXPECT_NO_THROW(this->dev_->FromJSON(dump));
+  dump = this->dev_->ToJSON();
   n_tries =
     std::stoi(dump["ifm3d"]["Time"]["WaitSyncTries"].get<std::string>());
   EXPECT_EQ(n_tries_new, n_tries);
@@ -443,10 +438,10 @@ TEST_F(CameraTest, Time)
   int curr_time =
     std::stoi(dump["ifm3d"]["Time"]["CurrentTime"].get<std::string>());
   dump["ifm3d"]["Time"]["CurrentTime"] = std::to_string(0);
-  EXPECT_NO_THROW(this->cam_->FromJSON(dump));
+  EXPECT_NO_THROW(this->dev_->FromJSON(dump));
   // make sure at least one full second passes
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  dump = this->cam_->ToJSON();
+  dump = this->dev_->ToJSON();
   int curr_time_new =
     std::stoi(dump["ifm3d"]["Time"]["CurrentTime"].get<std::string>());
   EXPECT_GT(curr_time_new, curr_time);
@@ -463,8 +458,8 @@ TEST_F(CameraTest, Time)
                            }
                        }
                    )";
-  EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
-  dump = this->cam_->ToJSON();
+  EXPECT_NO_THROW(this->dev_->FromJSONStr(j));
+  dump = this->dev_->ToJSON();
   std::string ip = dump["ifm3d"]["Time"]["NTPServers"].get<std::string>();
   std::string active =
     dump["ifm3d"]["Time"]["SynchronizationActivated"].get<std::string>();
@@ -483,8 +478,8 @@ TEST_F(CameraTest, Time)
              }
           }
          )";
-  EXPECT_NO_THROW(this->cam_->FromJSONStr(j));
-  dump = this->cam_->ToJSON();
+  EXPECT_NO_THROW(this->dev_->FromJSONStr(j));
+  dump = this->dev_->ToJSON();
   ip = dump["ifm3d"]["Time"]["NTPServers"].get<std::string>();
   active =
     dump["ifm3d"]["Time"]["SynchronizationActivated"].get<std::string>();
@@ -494,19 +489,19 @@ TEST_F(CameraTest, Time)
   //
   // 5. Set the time to "now"
   //
-  EXPECT_NO_THROW(this->cam_->SetCurrentTime());
+  EXPECT_NO_THROW(this->dev_->SetCurrentTime());
 }
 
-TEST_F(CameraTest, TemporaryParameters)
+TEST_F(LegacyDeviceTest, TemporaryParameters)
 {
   std::unordered_map<std::string, std::string> params = {
     {"imager_001/ExposureTime", "6000"}};
-  cam_->RequestSession();
+  dev_->RequestSession();
 
-  EXPECT_NO_THROW(cam_->SetTemporaryApplicationParameters(params));
+  EXPECT_NO_THROW(dev_->SetTemporaryApplicationParameters(params));
 
   params["imager_001/ExposureTime"] = "5000";
   params["imager_001/ExposureTimeRatio"] = "40";
 
-  EXPECT_NO_THROW(cam_->SetTemporaryApplicationParameters(params));
+  EXPECT_NO_THROW(dev_->SetTemporaryApplicationParameters(params));
 }

@@ -1,14 +1,21 @@
-#include <ifm3d/swupdater.h>
+#include <ifm3d/fg.h>
 #include <gtest/gtest.h>
 
 int
 main(int argc, char** argv)
 {
+
   std::map<std::string, std::string> device_to_filter(
-    {{"O3D", "SWUpdater.*"},
-     {"O3X", "SWUpdater.*"},
-     {"O3R", "SWUpdater.*:-SWUpdater.FactoryDefaults"},
-     {"device_independent", ""}});
+    {{"O3D",
+      "DeviceReset.*:FrameGrabberTest.*:-FrameGrabberTest.ByteBufferBasics"},
+     {"O3X",
+      "DeviceReset.*:FrameGrabberTest.*:-FrameGrabberTest.ByteBufferBasics::-"
+      "FrameGrabberTest.SWTriggerMultipleClients"},
+     {"O3R",
+      "FrameGrabberTest.*:-FrameGrabberTest.ByteBufferBasics:-"
+      "FrameGrabberTest.SoftwareTrigger:-FrameGrabberTest."
+      "SWTriggerMultipleClients:-FrameGrabber.JSON_model"},
+     {"device_independent", "DistanceImageInfo.*:Buffer.*"}});
 
   std::map<ifm3d::Device::device_family, std::string> device_family_to_device(
     {{ifm3d::Device::device_family::O3D, "O3D"},

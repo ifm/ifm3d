@@ -16,7 +16,9 @@ if(NOT CMAKE_CROSSCOMPILING)
     ${IFM3D_FG_BINARY_DIR}/test/${TEST_WRAPPER}
     @ONLY
     )
-
+    
+file(COPY ${IFM3D_FG_SOURCE_DIR}/test/O3RBuffer.data
+    DESTINATION ${IFM3D_FG_BINARY_DIR}/test)
 endif()
 
 if(NOT BUILD_IN_DEPS)
@@ -31,17 +33,17 @@ else(NOT BUILD_IN_DEPS)
 endif(NOT BUILD_IN_DEPS)
 
 file(GLOB TEST_SOURCES CONFIGURE_DEPENDS *.cpp)
-add_executable(ifm3d-fg2-tests ${TEST_SOURCES})
-target_link_libraries(ifm3d-fg2-tests
+add_executable(ifm3d-fg-tests ${TEST_SOURCES})
+target_link_libraries(ifm3d-fg-tests
                       gtest_main
                       ifm3d_framegrabber
-                      ifm3d_camera
+                      ifm3d_device
                       ${LIB_glog}
                       )
 
 if(NOT CMAKE_CROSSCOMPILING)
-  add_custom_target(check_fg2
-    COMMAND ${IFM3D_FG_BINARY_DIR}/test/${TEST_WRAPPER} DEPENDS ifm3d-fg2-tests
+  add_custom_target(check_fg
+    COMMAND ${IFM3D_FG_BINARY_DIR}/test/${TEST_WRAPPER} DEPENDS ifm3d-fg-tests
     )
-  add_dependencies(check check_fg2)
+  add_dependencies(check check_fg)
 endif()

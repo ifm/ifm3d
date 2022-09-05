@@ -2,4 +2,4 @@
 
 # Set any environment variables necessary for testing here
 
-exec ./ifm3d-fg2-tests ${1+"$@"}
+exec ./ifm3d-fg-tests ${1+"$@"}
