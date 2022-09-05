@@ -95,6 +95,7 @@ endif()
 # Bootstrap gtest
 if(BUILD_TESTS)
   add_subdirectory(${GTEST_CMAKE_DIR} gtest_bin EXCLUDE_FROM_ALL)
+  add_definitions(-DGTEST_LINKED_AS_SHARED_LIBRARY=1)
   add_custom_target(check)
   #var
   if(WIN32)

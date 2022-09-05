@@ -1,4 +1,4 @@
-#include <ifm3d/camera.h>
+#include <ifm3d/device.h>
 #include <gtest/gtest.h>
 #include <fmt/core.h>
 #include <optional>

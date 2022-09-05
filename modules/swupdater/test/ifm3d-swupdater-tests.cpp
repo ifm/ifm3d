@@ -3,8 +3,8 @@
 #include <memory>
 #include <thread>
 #include <ifm3d/swupdater.h>
-#include <ifm3d/camera/camera.h>
-#include <ifm3d/camera/err.h>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/err.h>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
 #include <fstream>
@@ -29,7 +29,7 @@ protected:
 TEST_F(SWUpdater, FactoryDefaults)
 {
   LOG(INFO) << "FactoryDefaults test";
-  auto cam = ifm3d::Camera::MakeShared();
+  auto cam = ifm3d::LegacyDevice::MakeShared();
 
   EXPECT_NO_THROW(cam->FactoryReset());
   std::this_thread::sleep_for(std::chrono::seconds(6));
@@ -38,8 +38,16 @@ TEST_F(SWUpdater, FactoryDefaults)
 
 TEST_F(SWUpdater, DetectBootMode)
 {
-  auto cam = ifm3d::Camera::MakeShared();
+  auto cam = ifm3d::Device::MakeShared();
   auto swu = std::make_shared<ifm3d::SWUpdater>(cam);
+
+  if (cam->AmI(ifm3d::Device::device_family::O3R))
+    {
+      /* both mode are active at the same time */
+      EXPECT_TRUE(swu->WaitForProductive(-1));
+      EXPECT_TRUE(swu->WaitForRecovery(-1));
+      return;
+    }
 
   EXPECT_TRUE(swu->WaitForProductive(-1));
   EXPECT_FALSE(swu->WaitForRecovery(-1));
@@ -61,11 +69,14 @@ TEST_F(SWUpdater, DetectBootMode)
 
 TEST_F(SWUpdater, FlashEmptyFile)
 {
-  auto cam = ifm3d::Camera::MakeShared();
+  auto cam = ifm3d::Device::MakeShared();
   auto swu = std::make_shared<ifm3d::SWUpdater>(cam);
 
-  EXPECT_TRUE(swu->WaitForProductive(-1));
-  EXPECT_FALSE(swu->WaitForRecovery(-1));
+  if (!cam->AmI(ifm3d::Device::device_family::O3R))
+    {
+      EXPECT_TRUE(swu->WaitForProductive(-1));
+      EXPECT_FALSE(swu->WaitForRecovery(-1));
+    }
 
   swu->RebootToRecovery();
   EXPECT_TRUE(swu->WaitForRecovery(80000));
@@ -75,7 +86,7 @@ TEST_F(SWUpdater, FlashEmptyFile)
   infile.open(swu_file, std::ios::out);
   infile.close();
 
-  EXPECT_THROW(swu->FlashFirmware(swu_file, 120000), ifm3d::error_t);
+  EXPECT_THROW(swu->FlashFirmware(swu_file, 120000), ifm3d::Error);
 
   swu->RebootToProductive();
   EXPECT_TRUE(swu->WaitForProductive(80000));
