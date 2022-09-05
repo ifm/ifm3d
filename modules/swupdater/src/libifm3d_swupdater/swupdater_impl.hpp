@@ -19,6 +19,8 @@
 #include <ifm3d/contrib/nlohmann/json.hpp>
 #include <iostream>
 
+#include <iostream>
+
 namespace ifm3d
 {
   const std::string SWUPDATER_UPLOAD_URL_SUFFIX = "/handle_post_request";
