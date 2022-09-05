@@ -1,4 +1,4 @@
-#include <ifm3d/camera.h>
+#include <ifm3d/device.h>
 #include <errno.h>
 #include <gtest/gtest.h>
 
@@ -8,9 +8,9 @@ TEST(Err, LibraryError)
 
   try
     {
-      throw ifm3d::error_t(IFM3D_NO_ERRORS);
+      throw ifm3d::Error(IFM3D_NO_ERRORS);
     }
-  catch (const ifm3d::error_t& ex)
+  catch (const ifm3d::Error& ex)
     {
       ex_caught = true;
       EXPECT_EQ(IFM3D_NO_ERRORS, ex.code());
@@ -25,9 +25,9 @@ TEST(Err, SystemError)
 
   try
     {
-      throw ifm3d::error_t(EAGAIN);
+      throw ifm3d::Error(EAGAIN);
     }
-  catch (const ifm3d::error_t& ex)
+  catch (const ifm3d::Error& ex)
     {
       ex_caught = true;
       EXPECT_EQ(EAGAIN, ex.code());

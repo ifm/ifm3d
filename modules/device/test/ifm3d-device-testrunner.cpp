@@ -1,14 +1,16 @@
-#include <ifm3d/swupdater.h>
+#include <map>
+#include <string>
+#include <ifm3d/device/device.h>
 #include <gtest/gtest.h>
 
 int
 main(int argc, char** argv)
 {
   std::map<std::string, std::string> device_to_filter(
-    {{"O3D", "SWUpdater.*"},
-     {"O3X", "SWUpdater.*"},
-     {"O3R", "SWUpdater.*:-SWUpdater.FactoryDefaults"},
-     {"device_independent", ""}});
+    {{"O3D", "DeviceTest.*:LegacyDeviceTest.*:O3DTest"},
+     {"O3X", "DeviceTest.*:LegacyDeviceTest.*:O3XTest"},
+     {"O3R", "DeviceTest.*:O3RTest"},
+     {"device_independent", "Err.*:Version.*"}});
 
   std::map<ifm3d::Device::device_family, std::string> device_family_to_device(
     {{ifm3d::Device::device_family::O3D, "O3D"},

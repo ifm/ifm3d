@@ -34,7 +34,7 @@ file(GLOB TEST_SOURCES *.cpp)
 add_executable(ifm3d-swupdater-tests ${TEST_SOURCES})
 target_link_libraries(ifm3d-swupdater-tests
                       gtest_main
-                      ifm3d_camera
+                      ifm3d_device
                       ifm3d_swupdater
                       ${LIB_glog}
                       )
