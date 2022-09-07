@@ -97,6 +97,38 @@ namespace ifm3d
 
     return value.v;
   }
+  /**
+  * @brief Helper function to convert std::vector to 1XN buffer
+  */
+  template <typename T>
+  ifm3d::Buffer
+  create_buffer_from_vector(std::vector<T>& vec)
+  {
+    ifm3d::Buffer buf = Buffer(vec.size(),
+                               1,
+                               ifm3d::FormatType<T>::nchannel,
+                               std::static_pointer_cast<ifm3d::pixel_format>(
+                                 ifm3d::FormatType<T>::format));
+    auto ptr = buf.ptr<uint8_t>(0);
+    std::copy(vec.data(), vec.data() + vec.size() * sizeof(T), ptr);
+  }
+
+
+  template <typename T>
+  ifm3d::Buffer
+  create_buffer_from_struct(T& struct_object)
+  {
+    ifm3d::Buffer buf = Buffer(sizeof(T),
+                               1,
+                               1,
+                               ifm3d::pixel_format::FORMAT_8U);
+    uint8_t* start = &struct_object
+    auto ptr = buf.ptr<uint8_t>(0);
+    std::copy(start, start + sizeof(T), ptr);
+  }
+
+
+
 } // end: namespace ifm3d
 
 #endif // IFM3D_FG_ORGANIZER_UTILS_H
