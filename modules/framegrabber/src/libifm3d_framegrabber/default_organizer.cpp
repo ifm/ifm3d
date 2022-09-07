@@ -236,10 +236,10 @@ ifm3d::DefaultOrganizer::ExtractDistanceImageInfo(
   auto extrinsic_param = create_buffer_from_vector<float>(
     distance_image_info->getExtrinsicOpticToUser());
 
-  auto intrinsic_param = create_buffer_from_struct<IntrinsicCalibration>(
+  auto intrinsic_param = create_buffer_from_struct< IntrinsicCalibration>(
     distance_image_info->getIntrinsicCalibration());
 
-  auto inv_intrinsic_param = create_buffer_from_struct<IntrinsicCalibration>(
+  auto inv_intrinsic_param = create_buffer_from_struct< IntrinsicCalibration>(
     distance_image_info->getInverseIntrinsicCalibration());
 
 
