@@ -64,6 +64,7 @@ RUN mkdir -p /ifm3d/build \
         -DBUILD_MODULE_PCICCLIENT=ON \
         -DBUILD_MODULE_PYBIND11=ON \
         -DPYTHON_EXECUTABLE=/usr/bin/python3 \
+        -DCMAKE_INSTALL_PREFIX=/usr \
         .. \
     && cmake --build . \
     && if [ "x$RUN_TESTS" = "x" ]; then echo "Skipping tests..."; else ninja check; fi \
