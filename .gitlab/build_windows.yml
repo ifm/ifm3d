@@ -7,7 +7,7 @@ build:windows_2019:
     HTTPS_PROXY: ${CI_HTTPS_PROXY}
     NO_PROXY: ${CI_NO_PROXY}
   script:
-    - mkdir build
+    - mkdir build -Force
     - cd build
     - 'cmake.exe -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON  -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=D:/ifm3d_deps/install_VS2019 -DBUILD_MODULE_PCICCLIENT=ON -DBUILD_MODULE_OPENCV=OFF -DBUILD_TESTS=OFF -DCMAKE_PREFIX_PATH="D:/ifm3d_deps/install_VS2019;D:/ifm3d_deps/install_VS2019/PCL 1.12.0" -DGTEST_CMAKE_DIR=D:/ifm3d_deps/googletest/googletest -Dgtest_force_shared_crt=TRUE -DCREATE_WIN_INSTALLER=ON ..'
     - "cmake.exe --build . --config Debug --target ALL_BUILD"
