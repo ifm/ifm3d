@@ -13,6 +13,7 @@
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/frame.h>
+#include <ifm3d/fg/distance_image_info.h>
 
 namespace ifm3d
 {
@@ -97,6 +98,51 @@ namespace ifm3d
 
     return value.v;
   }
+  /**
+   * @brief Helper function to convert std::vector<T> to 1XN buffer
+   */
+  template <typename T>
+  ifm3d::Buffer
+  create_buffer_from_vector(std::vector<T>& vec)
+  {
+    ifm3d::Buffer buf =
+      Buffer(vec.size(),
+             1,
+             ifm3d::FormatType<T>::nchannel,
+             static_cast<ifm3d::pixel_format>(ifm3d::FormatType<T>::format));
+    auto ptr = buf.ptr<uint8_t>(0);
+    std::copy(vec.data(), vec.data() + vec.size(), ptr);
+    return buf;
+  }
+  /**
+   * @brief Helper function to convert struct T to 1XN buffer
+   */
+  template <typename T>
+  ifm3d::Buffer
+  create_buffer_from_struct(T& struct_object)
+  {
+    ifm3d::Buffer buf =
+      Buffer(sizeof(T), 1, 1, ifm3d::pixel_format::FORMAT_8U);
+    uint8_t* start = reinterpret_cast<uint8_t*>(&struct_object);
+    auto ptr = buf.ptr<uint8_t>(0);
+    std::copy(start, start + sizeof(T), ptr);
+    return buf;
+  }
+  /**
+   * @brief Helper function to convertifm3d buffer to struct T
+   */
+  template <typename T>
+  T
+  convert_buffer_to_struct(ifm3d::Buffer& buf)
+  {
+    T struct_object;
+    auto ptr = buf.ptr<uint8_t>(0);
+    std::copy(ptr,
+              ptr + sizeof(T),
+              reinterpret_cast<uint8_t*>(&struct_object));
+    return struct_object;
+  }
+
 } // end: namespace ifm3d
 
 #endif // IFM3D_FG_ORGANIZER_UTILS_H
