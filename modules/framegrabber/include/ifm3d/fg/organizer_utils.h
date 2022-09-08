@@ -103,7 +103,7 @@ namespace ifm3d
    */
   template <typename T>
   ifm3d::Buffer
-  create_buffer_from_vector(std::vector<T>& vec)
+  create_buffer_from_vector(const std::vector<T>& vec)
   {
     ifm3d::Buffer buf =
       Buffer(vec.size(),
@@ -119,11 +119,11 @@ namespace ifm3d
    */
   template <typename T>
   ifm3d::Buffer
-  create_buffer_from_struct(T& struct_object)
+  create_buffer_from_struct(const T& struct_object)
   {
     ifm3d::Buffer buf =
       Buffer(sizeof(T), 1, 1, ifm3d::pixel_format::FORMAT_8U);
-    uint8_t* start = reinterpret_cast<uint8_t*>(&struct_object);
+    const uint8_t* start = reinterpret_cast<const uint8_t*>(&struct_object);
     auto ptr = buf.ptr<uint8_t>(0);
     std::copy(start, start + sizeof(T), ptr);
     return buf;
@@ -133,7 +133,7 @@ namespace ifm3d
    */
   template <typename T>
   T
-  convert_buffer_to_struct(ifm3d::Buffer& buf)
+  convert_buffer_to_struct(const ifm3d::Buffer& buf)
   {
     T struct_object;
     auto ptr = buf.ptr<uint8_t>(0);
