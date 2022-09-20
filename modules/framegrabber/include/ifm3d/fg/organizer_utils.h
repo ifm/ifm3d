@@ -26,6 +26,9 @@ namespace ifm3d
   std::size_t get_format_size(pixel_format fmt);
   std::size_t get_format_channels(pixel_format fmt);
 
+  Buffer create_1d_buffer(const std::vector<std::uint8_t>& data,
+                          std::size_t idx);
+
   Buffer create_buffer(const std::vector<std::uint8_t>& data,
                        std::size_t idx,
                        std::size_t width,

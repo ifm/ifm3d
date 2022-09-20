@@ -83,9 +83,8 @@ const std::map<ifm3d::buffer_id, const nlohmann::json> o3r_schema_map
     {ifm3d::buffer_id::JPEG_IMAGE, {{"type", "blob"}, {"id", "JPEG_IMAGE"}}},
     {ifm3d::buffer_id::CONFIDENCE_IMAGE,
      {{"type", "blob"}, {"id", "CONFIDENCE"}}},
-#if 0
-    {ifm3d::buffer_id::O3R_RGB_IMAGE_INFO,  {{"type", "blob"}, {"id", "O3R_RGB_IMAGE_INFO"}}},
-#endif
+    {ifm3d::buffer_id::O3R_RGB_IMAGE_INFO,
+     {{"type", "blob"}, {"id", "O3R_RGB_IMAGE_INFO"}}},
 };
 
 json
