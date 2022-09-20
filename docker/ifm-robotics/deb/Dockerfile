@@ -43,7 +43,7 @@ RUN git clone --branch v2.8.0 https://github.com/pybind/pybind11.git /pybind  \
     && cmake -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DPYBIND11_TEST=OFF \
-        -DCMAKE_INSTALL_PREFIX=/app \
+        -DCMAKE_INSTALL_PREFIX=/usr \
         -DPYTHON_EXECUTABLE=/usr/bin/python3 \
         .. \
     && cmake --build . \
