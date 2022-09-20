@@ -7,9 +7,13 @@ main(int argc, char** argv)
 
   std::map<std::string, std::string> device_to_filter(
     {{"O3D",
-      "DeviceReset.*:FrameGrabberTest.*:-FrameGrabberTest.ByteBufferBasics"},
+      "DeviceReset.*:FrameGrabberTest.*:-FrameGrabberTest.BlankSchema2D:-"
+      "FrameGrabberTest.schema_o3r_rgb_image_info:-FrameGrabberTest.schema_"
+      "o3r_dist_image_info"},
      {"O3X",
-      "DeviceReset.*:FrameGrabberTest.*:-FrameGrabberTest.ByteBufferBasics::-"
+      "DeviceReset.*:FrameGrabberTest.*:-FrameGrabberTest.BlankSchema2D:-"
+      "FrameGrabberTest.schema_o3r_rgb_image_info:-FrameGrabberTest.schema_"
+      "o3r_dist_image_info:-"
       "FrameGrabberTest.SWTriggerMultipleClients"},
      {"O3R",
       "FrameGrabberTest.*:-FrameGrabberTest.ByteBufferBasics:-"
