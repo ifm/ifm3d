@@ -307,4 +307,26 @@ namespace ifm3d
     std::memcpy(ampl_bytes.data(), amplitude, npts * FLOAT_DATA_SIZE);
     return ampl_bytes;
   }
+
+  ifm3d::Buffer
+  DistanceImageInfo::applyDistanceResolution(
+    const ifm3d::Buffer& ui16_distance_buffer)
+  {
+    auto dist_noise_image =
+      Buffer(width, height, 1, ifm3d::pixel_format::FORMAT_32F);
+
+    if (convertDistanceNoise(dist_noise_image.ptr<float>(0),
+                             ui16_distance_buffer.ptr<uint16_t>(0),
+                             dist_resolution,
+                             width,
+                             height) != 0)
+
+      {
+        LOG(ERROR) << "distance noise calculation interrupted";
+        return {};
+      }
+
+    return dist_noise_image;
+  }
+
 } // end: namespace ifm3d
