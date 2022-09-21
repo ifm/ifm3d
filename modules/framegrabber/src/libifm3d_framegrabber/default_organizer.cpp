@@ -99,50 +99,6 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
       chunks.erase(image_chunk::CONFIDENCE_IMAGE);
     }
 
-  // JPEG chunk has format set as 32U, but is actually 8U, so we need to
-  // manually extract here
-  if (chunks.find(image_chunk::JPEG_IMAGE) != chunks.end())
-    {
-      const auto idx = chunks[image_chunk::JPEG_IMAGE];
-
-      std::size_t pixeldata_offset = get_chunk_pixeldata_offset(data, idx);
-      auto size = ifm3d::get_chunk_pixeldata_size(data, idx);
-
-      auto jpeg = create_buffer(data,
-                                idx + pixeldata_offset,
-                                size,
-                                1,
-                                pixel_format::FORMAT_8U);
-
-      images[static_cast<buffer_id>(image_chunk::JPEG_IMAGE)] = jpeg;
-
-      chunks.erase(image_chunk::JPEG_IMAGE);
-    }
-  // Special case for O3R_DISTANCE_IMAGE_INFO_CHUNK as its blob and not image
-  if (chunks.find(image_chunk::O3R_DISTANCE_IMAGE_INFO) != chunks.end())
-    {
-      const auto idx = chunks[image_chunk::O3R_DISTANCE_IMAGE_INFO];
-
-      auto o3r_dist_image_info = ifm3d::create_1d_buffer(data, idx);
-
-      images[static_cast<buffer_id>(image_chunk::O3R_DISTANCE_IMAGE_INFO)] =
-        o3r_dist_image_info;
-
-      chunks.erase(image_chunk::O3R_DISTANCE_IMAGE_INFO);
-    }
-  // Special case for O3R_RGB_IMAGE_INFO_CHUNK as its blob and not image
-  if (chunks.find(image_chunk::O3R_RGB_IMAGE_INFO) != chunks.end())
-    {
-      const auto idx = chunks[image_chunk::O3R_RGB_IMAGE_INFO];
-
-      auto o3r_rgb_image_info = ifm3d::create_1d_buffer(data, idx);
-
-      images[static_cast<buffer_id>(image_chunk::O3R_RGB_IMAGE_INFO)] =
-        o3r_rgb_image_info;
-
-      chunks.erase(image_chunk::O3R_RGB_IMAGE_INFO);
-    }
-
   for (const auto& chunk : chunks)
     {
       // for O3D only as this chunk donot need to create image
@@ -151,23 +107,27 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
         {
           continue;
         }
-
       if (requested_images.empty() ||
           requested_images.find(static_cast<buffer_id>(chunk.first)) !=
             requested_images.end())
         {
-          auto image = create_buffer(data, chunk.second, width, height);
-
-          if (mask.has_value() &&
-              ShouldMask(static_cast<buffer_id>(chunk.first)))
+          if (is_blob(data, chunk.second, width, height))
             {
-              mask_buffer(image, mask.value());
+              auto buffer = create_1d_buffer(data, chunk.second);
+              images[static_cast<buffer_id>(chunk.first)] = buffer;
             }
-
-          images[static_cast<buffer_id>(chunk.first)] = image;
+          else
+            {
+              auto image = create_buffer(data, chunk.second, width, height);
+              if (mask.has_value() &&
+                  ShouldMask(static_cast<buffer_id>(chunk.first)))
+                {
+                  mask_buffer(image, mask.value());
+                }
+              images[static_cast<buffer_id>(chunk.first)] = image;
+            }
         }
     }
-
   if (distance_image_info != nullptr)
     {
       auto extracted = ExtractDistanceImageInfo(distance_image_info, mask);
@@ -265,6 +225,8 @@ ifm3d::DefaultOrganizer::ShouldMask(buffer_id id)
     case static_cast<buffer_id>(image_chunk::UNIT_VECTOR_ALL):
     case static_cast<buffer_id>(image_chunk::CONFIDENCE_IMAGE):
     case static_cast<buffer_id>(image_chunk::JPEG_IMAGE):
+    case static_cast<buffer_id>(image_chunk::O3R_DISTANCE_IMAGE_INFO):
+    case static_cast<buffer_id>(image_chunk::O3R_RGB_IMAGE_INFO):
       return false;
 
     default:

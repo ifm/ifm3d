@@ -464,3 +464,15 @@ ifm3d::mask_buffer(ifm3d::Buffer& image, const ifm3d::Buffer& mask)
       break;
     }
 }
+
+bool ifm3d::is_blob(const std::vector<std::uint8_t>& data, std::size_t idx,
+  std::size_t width,
+  std::size_t height)
+{
+  auto size = ifm3d::get_chunk_pixeldata_size(data, idx);
+  auto fmt = ifm3d::get_chunk_format(data, idx);
+  auto pixel_size = ifm3d::get_format_size(fmt);
+  auto channel = ifm3d::get_format_channels(fmt);
+
+  return size != (width * height * pixel_size * channel);
+}

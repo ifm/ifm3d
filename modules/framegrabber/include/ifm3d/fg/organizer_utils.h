@@ -71,6 +71,11 @@ namespace ifm3d
 
   void mask_buffer(Buffer& image, const Buffer& mask);
 
+  bool is_blob(const std::vector<std::uint8_t>& data,
+               std::size_t idx,
+               std::size_t width,
+               std::size_t height);
+
   /**
    * Create a value of type T from sizeof(T) bytes of the passed in byte
    * buffer. Given that the ifm sensors transmit data in little endian
