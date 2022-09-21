@@ -43,7 +43,7 @@ RUN git clone --branch v2.8.0 https://github.com/pybind/pybind11.git /pybind  \
     && cmake -GNinja \
         -DCMAKE_BUILD_TYPE=Release \
         -DPYBIND11_TEST=OFF \
-        -DCMAKE_INSTALL_PREFIX=/app \
+        -DCMAKE_INSTALL_PREFIX=/usr \
         -DPYTHON_EXECUTABLE=/usr/bin/python3 \
         .. \
     && cmake --build . \
@@ -59,12 +59,12 @@ RUN mkdir -p /ifm3d/build \
     && cd /ifm3d/build \
     && cmake -GNinja \ 
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX=/app \
+        -DCMAKE_INSTALL_PREFIX=/usr \
         -DBUILD_MODULE_OPENCV=ON \
         -DBUILD_MODULE_PCICCLIENT=ON \
         -DBUILD_MODULE_PYBIND11=ON \
         -DPYTHON_EXECUTABLE=/usr/bin/python3 \
-        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DBUILD_IN_DEPS=OFF \
         .. \
     && cmake --build . \
     && if [ "x$RUN_TESTS" = "x" ]; then echo "Skipping tests..."; else ninja check; fi \
