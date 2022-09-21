@@ -81,7 +81,13 @@ ifm3d::FrameGrabber::SetOrganizer(std::unique_ptr<Organizer> organizer)
 }
 
 void
-ifm3d::FrameGrabber::OnAsyncError(AsynErrorCallback callback)
+ifm3d::FrameGrabber::OnAsyncError(AsyncErrorCallback callback)
 {
   this->pImpl->OnAsyncError(callback);
+}
+
+void
+ifm3d::FrameGrabber::OnAsyncNotification(AsyncNotificationCallback callback)
+{
+  this->pImpl->OnAsyncNotification(callback);
 }
