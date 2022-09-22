@@ -9,6 +9,7 @@
 #include <vector>
 #include <ifm3d/fg.h>
 #include <ifm3d/device/device.h>
+#include <ifm3d/device/err.h>
 #include <ifm3d/device/o3r.h>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
@@ -146,4 +147,19 @@ TEST_F(FrameGrabberTest, schema_o3r_dist_image_info)
 
   EXPECT_NO_THROW(auto o3r_dist_image_info = frame->GetBuffer(
                     ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFO));
+}
+
+TEST_F(FrameGrabberTest, BufferIDException)
+{
+  LOG(INFO) << "BufferIDException test";
+
+  fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
+              ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
+              ifm3d::buffer_id::XYZ});
+
+  auto frame = fg_->WaitForFrame().get();
+
+  EXPECT_NO_THROW( frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE));
+  EXPECT_THROW(frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_NOISE),
+               ifm3d::Error);
 }
