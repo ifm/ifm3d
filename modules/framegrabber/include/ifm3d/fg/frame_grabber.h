@@ -29,8 +29,9 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<FrameGrabber>;
     using NewFrameCallback = std::function<void(Frame::Ptr)>;
-    using AsynErrorCallback =
-      std::function<void(const int, const std::string&)>;
+    using AsyncErrorCallback = std::function<void(int, const std::string&)>;
+    using AsyncNotificationCallback =
+      std::function<void(const std::string&, const std::string&)>;
     using BufferList =
       std::vector<std::variant<std::uint64_t, int, ifm3d::buffer_id>>;
 
@@ -125,10 +126,17 @@ namespace ifm3d
     /**
      * This function will enable the async error messages on device.
      * The callback will be executed whenever a async error
-     * are avaliable. It receives a  error code and error string
+     * are avaliable. It receives a error code and error string
      * to the received async error as an argument.
      */
-    void OnAsyncError(AsynErrorCallback callback = nullptr);
+    void OnAsyncError(AsyncErrorCallback callback = nullptr);
+
+    /**
+     * This function will enable the async notifications on device.
+     * The callback will be executed whenever a async notification
+     * is avaliable. It receives a message id and payload string
+     */
+    void OnAsyncNotification(AsyncNotificationCallback callback = nullptr);
 
   private:
     class Impl;

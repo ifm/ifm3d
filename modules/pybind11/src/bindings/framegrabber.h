@@ -131,6 +131,67 @@ bind_framegrabber(pybind11::module_& m)
     )"
   );
 
+  framegrabber.def(
+    "on_async_error",
+    [](const ifm3d::FrameGrabber::Ptr& fg, const ifm3d::FrameGrabber::AsyncErrorCallback& callback) {
+      if(callback) 
+        {
+          fg->OnAsyncError([callback](int code, const std::string& message){
+            py::gil_scoped_acquire acquire;
+            try 
+              {
+                callback(code, message);
+              }
+            catch(py::error_already_set ex)
+              {
+                py::print(ex.value());
+              }
+          });
+        }
+      else 
+        {
+          fg->OnAsyncError();
+        }
+    },
+    py::arg("callback") = ifm3d::FrameGrabber::AsyncErrorCallback(),
+    R"(
+      This function will enable the async error messages on device.
+      The callback will be executed whenever a async error
+      are avaliable. It receives a error code and error string
+      to the received async error as an argument. 
+    )"
+  );
+
+  framegrabber.def(
+    "on_async_notification",
+    [](const ifm3d::FrameGrabber::Ptr& fg, const ifm3d::FrameGrabber::AsyncNotificationCallback& callback) {
+      if(callback) 
+        {
+          fg->OnAsyncNotification([callback](const std::string& message_id, const std::string& payload){
+            py::gil_scoped_acquire acquire;
+            try 
+              {
+                callback(message_id, payload);
+              }
+            catch(py::error_already_set ex)
+              {
+                py::print(ex.value());
+              }
+          });
+        }
+      else 
+        {
+          fg->OnAsyncNotification();
+        }
+    },
+    py::arg("callback") = ifm3d::FrameGrabber::AsyncNotificationCallback(),
+    R"(
+      This function will enable the async notifications on device.
+      The callback will be executed whenever a async notification
+      is avaliable. It receives a message id and payload string
+    )"
+  );
+
   // clang-format on
 }
 
