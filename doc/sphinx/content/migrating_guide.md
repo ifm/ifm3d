@@ -117,7 +117,11 @@ auto frame = fg->WaitForFrame().get();
 ::::
 ::::{group-tab} Python
 :::python
-frame = await fg.wait_for_frame()
+frame = fg.wait_for_frame().wait() # wait without timeout
+#OR
+[ok, frame] = fg.wait_for_frame().wait_for(500) # wait with 500ms timeout
+#OR
+frame = await fg.wait_for_frame() # using asyncio
 :::
 ::::
 :::::
