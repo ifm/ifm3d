@@ -4,9 +4,11 @@
   tags:
     - shared_docker
   needs:
+    - job: deploy:start
+      artifacts: false
     - job: build:windows_2019:python_wheel
       artifacts: true
-    - job: build:linux:amd64:python_wheel
+    - job: build:linux:python_wheel
       artifacts: true
   script:
     - |

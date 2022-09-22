@@ -4,6 +4,8 @@
     - shared_docker
   image: toolhippie/manifest-tool:20210830
   needs:
+    - job: deploy:start
+      artifacts: false
     - job: build:linux:docker
       artifacts: false
   before_script:
