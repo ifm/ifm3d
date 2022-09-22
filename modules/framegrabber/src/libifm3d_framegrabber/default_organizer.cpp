@@ -83,7 +83,6 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
 
       chunks.erase(image_chunk::NORM_AMPLITUDE_IMAGE);
       chunks.erase(image_chunk::RADIAL_DISTANCE_IMAGE);
-      chunks.erase(image_chunk::O3R_DISTANCE_IMAGE_INFO);
     }
 
   std::optional<Buffer> mask;
@@ -100,45 +99,6 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
       chunks.erase(image_chunk::CONFIDENCE_IMAGE);
     }
 
-  // JPEG chunk has format set as 32U, but is actually 8U, so we need to
-  // manually extract here
-  if (chunks.find(image_chunk::JPEG_IMAGE) != chunks.end())
-    {
-      const auto idx = chunks[image_chunk::JPEG_IMAGE];
-
-      std::size_t pixeldata_offset = get_chunk_pixeldata_offset(data, idx);
-      auto size = ifm3d::get_chunk_pixeldata_size(data, idx);
-
-      auto jpeg = create_buffer(data,
-                                idx + pixeldata_offset,
-                                size,
-                                1,
-                                pixel_format::FORMAT_8U);
-
-      images[static_cast<buffer_id>(image_chunk::JPEG_IMAGE)] = jpeg;
-
-      chunks.erase(image_chunk::JPEG_IMAGE);
-    }
-  // Special case for O3R_DISTANCE_IMAGE_INFO_CHUNK as its blob and not image
-  if (chunks.find(image_chunk::O3R_DISTANCE_IMAGE_INFO) != chunks.end())
-    {
-      const auto idx = chunks[image_chunk::O3R_DISTANCE_IMAGE_INFO];
-
-      std::size_t pixeldata_offset = get_chunk_pixeldata_offset(data, idx);
-      auto size = ifm3d::get_chunk_pixeldata_size(data, idx);
-
-      auto o3r_image_info = create_buffer(data,
-                                          idx + pixeldata_offset,
-                                          size,
-                                          1,
-                                          pixel_format::FORMAT_8U);
-
-      images[static_cast<buffer_id>(image_chunk::O3R_DISTANCE_IMAGE_INFO)] =
-        o3r_image_info;
-
-      chunks.erase(image_chunk::O3R_DISTANCE_IMAGE_INFO);
-    }
-
   for (const auto& chunk : chunks)
     {
       // for O3D only as this chunk donot need to create image
@@ -147,23 +107,27 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
         {
           continue;
         }
-
       if (requested_images.empty() ||
           requested_images.find(static_cast<buffer_id>(chunk.first)) !=
             requested_images.end())
         {
-          auto image = create_buffer(data, chunk.second, width, height);
-
-          if (mask.has_value() &&
-              ShouldMask(static_cast<buffer_id>(chunk.first)))
+          if (is_probably_blob(data, chunk.second, width, height))
             {
-              mask_buffer(image, mask.value());
+              auto buffer = create_1d_buffer(data, chunk.second);
+              images[static_cast<buffer_id>(chunk.first)] = buffer;
             }
-
-          images[static_cast<buffer_id>(chunk.first)] = image;
+          else
+            {
+              auto image = create_buffer(data, chunk.second, width, height);
+              if (mask.has_value() &&
+                  ShouldMask(static_cast<buffer_id>(chunk.first)))
+                {
+                  mask_buffer(image, mask.value());
+                }
+              images[static_cast<buffer_id>(chunk.first)] = image;
+            }
         }
     }
-
   if (distance_image_info != nullptr)
     {
       auto extracted = ExtractDistanceImageInfo(distance_image_info, mask);
@@ -236,12 +200,11 @@ ifm3d::DefaultOrganizer::ExtractDistanceImageInfo(
   auto extrinsic_param = create_buffer_from_vector<float>(
     distance_image_info->getExtrinsicOpticToUser());
 
-  auto intrinsic_param = create_buffer_from_struct< IntrinsicCalibration>(
+  auto intrinsic_param = create_buffer_from_struct<IntrinsicCalibration>(
     distance_image_info->getIntrinsicCalibration());
 
-  auto inv_intrinsic_param = create_buffer_from_struct< IntrinsicCalibration>(
+  auto inv_intrinsic_param = create_buffer_from_struct<IntrinsicCalibration>(
     distance_image_info->getInverseIntrinsicCalibration());
-
 
   return {
     {static_cast<buffer_id>(image_chunk::NORM_AMPLITUDE_IMAGE), amplitude},
@@ -249,7 +212,8 @@ ifm3d::DefaultOrganizer::ExtractDistanceImageInfo(
     {static_cast<buffer_id>(buffer_id::XYZ), xyz},
     {static_cast<buffer_id>(buffer_id::EXTRINSIC_CALIB), extrinsic_param},
     {static_cast<buffer_id>(buffer_id::INTRINSIC_CALIB), intrinsic_param},
-    {static_cast<buffer_id>(buffer_id::INVERSE_INTRINSIC_CALIBRATION), inv_intrinsic_param},
+    {static_cast<buffer_id>(buffer_id::INVERSE_INTRINSIC_CALIBRATION),
+     inv_intrinsic_param},
   };
 }
 
@@ -261,6 +225,8 @@ ifm3d::DefaultOrganizer::ShouldMask(buffer_id id)
     case static_cast<buffer_id>(image_chunk::UNIT_VECTOR_ALL):
     case static_cast<buffer_id>(image_chunk::CONFIDENCE_IMAGE):
     case static_cast<buffer_id>(image_chunk::JPEG_IMAGE):
+    case static_cast<buffer_id>(image_chunk::O3R_DISTANCE_IMAGE_INFO):
+    case static_cast<buffer_id>(image_chunk::O3R_RGB_IMAGE_INFO):
       return false;
 
     default:
