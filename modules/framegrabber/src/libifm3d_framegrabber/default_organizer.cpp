@@ -111,7 +111,7 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
           requested_images.find(static_cast<buffer_id>(chunk.first)) !=
             requested_images.end())
         {
-          if (is_blob(data, chunk.second, width, height))
+          if (is_probably_blob(data, chunk.second, width, height))
             {
               auto buffer = create_1d_buffer(data, chunk.second);
               images[static_cast<buffer_id>(chunk.first)] = buffer;
