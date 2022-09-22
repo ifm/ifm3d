@@ -67,17 +67,83 @@ TEST_F(FrameGrabberTest, CustomSchema)
 {
   LOG(INFO) << "CustomSchema test";
 
-  fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
+  fg_->Start({ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE,
               ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
               ifm3d::buffer_id::XYZ});
 
   auto frame = fg_->WaitForFrame().get();
 
-  auto amplitude = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
+  auto amplitude = frame->GetBuffer(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE);
   auto distance = frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE);
   auto xyz = frame->GetBuffer(ifm3d::buffer_id::XYZ);
 
   EXPECT_TRUE(amplitude.width() != 0);
   EXPECT_TRUE(distance.width() != 0);
   EXPECT_TRUE(xyz.nchannels() == 3);
+}
+
+TEST_F(FrameGrabberTest, BlankSchema3D)
+{
+  LOG(INFO) << "BlankSchema3D test";
+
+  fg_->Start({});
+
+  auto frame = fg_->WaitForFrame().get();
+
+  auto amplitude = frame->GetBuffer(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE);
+  auto distance = frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE);
+  auto xyz = frame->GetBuffer(ifm3d::buffer_id::XYZ);
+
+  EXPECT_TRUE(amplitude.width() != 0);
+  EXPECT_TRUE(distance.width() != 0);
+  EXPECT_TRUE(xyz.nchannels() == 3);
+}
+
+TEST_F(FrameGrabberTest, BlankSchema2D)
+{
+  LOG(INFO) << "BlankSchema2D test";
+
+  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
+
+  auto config = o3r->Get();
+  config["ports"]["port0"]["state"] = "RUN";
+  o3r->Set(config);
+  fg_ = std::make_shared<ifm3d::FrameGrabber>(dev_, 50010);
+
+  fg_->Start({});
+
+  auto frame = fg_->WaitForFrame().get();
+
+  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::JPEG_IMAGE));
+  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::O3R_RGB_IMAGE_INFO));
+}
+
+TEST_F(FrameGrabberTest, schema_o3r_rgb_image_info)
+{
+  LOG(INFO) << "schema_o3r_rgb_image_info test";
+
+  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
+
+  auto config = o3r->Get();
+  config["ports"]["port0"]["state"] = "RUN";
+  o3r->Set(config);
+  fg_ = std::make_shared<ifm3d::FrameGrabber>(dev_, 50010);
+
+  fg_->Start({ifm3d::buffer_id::O3R_RGB_IMAGE_INFO});
+
+  auto frame = fg_->WaitForFrame().get();
+
+  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::O3R_RGB_IMAGE_INFO));
+}
+
+TEST_F(FrameGrabberTest, schema_o3r_dist_image_info)
+{
+  LOG(INFO) << "schema_o3r_dist_image_info test";
+
+  fg_->Start({ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFO});
+
+  auto frame = fg_->WaitForFrame().get();
+
+  EXPECT_NO_THROW(auto o3r_dist_image_info = frame->GetBuffer(
+                    ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFO));
 }

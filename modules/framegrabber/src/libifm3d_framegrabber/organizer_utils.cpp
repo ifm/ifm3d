@@ -71,6 +71,19 @@ ifm3d::get_format_channels(ifm3d::pixel_format fmt)
 }
 
 ifm3d::Buffer
+ifm3d::create_1d_buffer(const std::vector<std::uint8_t>& data, std::size_t idx)
+{
+  std::size_t pixeldata_offset = ifm3d::get_chunk_pixeldata_offset(data, idx);
+  auto size = ifm3d::get_chunk_pixeldata_size(data, idx);
+
+  return create_buffer(data,
+                       idx + pixeldata_offset,
+                       size,
+                       1,
+                       pixel_format::FORMAT_8U);
+}
+
+ifm3d::Buffer
 ifm3d::create_buffer(const std::vector<std::uint8_t>& data,
                      std::size_t idx,
                      std::size_t width,
@@ -450,4 +463,16 @@ ifm3d::mask_buffer(ifm3d::Buffer& image, const ifm3d::Buffer& mask)
     default:
       break;
     }
+}
+
+bool ifm3d::is_probably_blob(const std::vector<std::uint8_t>& data, std::size_t idx,
+  std::size_t width,
+  std::size_t height)
+{
+  auto size = ifm3d::get_chunk_pixeldata_size(data, idx);
+  auto fmt = ifm3d::get_chunk_format(data, idx);
+  auto pixel_size = ifm3d::get_format_size(fmt);
+  auto channel = ifm3d::get_format_channels(fmt);
+
+  return size != (width * height * pixel_size * channel);
 }
