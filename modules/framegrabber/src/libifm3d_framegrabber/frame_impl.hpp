@@ -11,6 +11,7 @@
 #include <ifm3d/fg/frame_grabber_export.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/fg/frame.h>
+#include <fmt/format.h>
 
 namespace ifm3d
 {
@@ -75,7 +76,9 @@ ifm3d::Frame::Impl::GetBuffer(buffer_id id)
     {
       return images_.at(id);
     }
-  throw ifm3d::Error(IFM3D_BUFFER_ID_NOT_AVALIABLE,"buffer_id " +std::to_string(static_cast<int>(id)));
+  throw ifm3d::Error(
+    IFM3D_BUFFER_ID_NOT_AVAILABLE,
+    fmt::format("buffer_id: {}", std::to_string(static_cast<int>(id))));
 }
 
 std::vector<ifm3d::buffer_id>

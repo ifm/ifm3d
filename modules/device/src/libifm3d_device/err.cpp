@@ -42,7 +42,7 @@ const int IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_FIRMWARE = -100028;
 const int IFM3D_INVALID_PORT = -100029;
 const int IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE = -100030;
 const int IFM3D_UNSUPPORTED_SCHEMA_ON_DEVICE = -100031;
-const int IFM3D_BUFFER_ID_NOT_AVALIABLE = -100032;
+const int IFM3D_BUFFER_ID_NOT_AVAILABLE = -100032;
 
 // sensor errors
 const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
@@ -144,9 +144,8 @@ ifm3d::strerror(int errnum)
       return "Lib: This command is not supported by connected the device";
     case IFM3D_UNSUPPORTED_SCHEMA_ON_DEVICE:
       return "Lib: One or multiple schema values are not supported by device";
-    case IFM3D_BUFFER_ID_NOT_AVALIABLE:
-      return "Lib: buffer_id is not part of the data, Please try setting same "
-             "in Start function.";
+    case IFM3D_BUFFER_ID_NOT_AVAILABLE:
+      return "Lib: A buffer with the requested buffer_id is not available.";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
       return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:
