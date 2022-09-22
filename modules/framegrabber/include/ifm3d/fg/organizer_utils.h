@@ -110,8 +110,7 @@ namespace ifm3d
              1,
              ifm3d::FormatType<T>::nchannel,
              static_cast<ifm3d::pixel_format>(ifm3d::FormatType<T>::format));
-    auto ptr = buf.ptr<uint8_t>(0);
-    std::copy(vec.data(), vec.data() + vec.size(), ptr);
+    std::copy(vec.begin(), vec.end(), buf.begin<T>());
     return buf;
   }
   /**
