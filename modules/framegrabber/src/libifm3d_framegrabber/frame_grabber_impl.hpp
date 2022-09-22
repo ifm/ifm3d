@@ -40,7 +40,8 @@ namespace ifm3d
   constexpr std::size_t PAYLOAD_SIZE_START = 5;
   constexpr std::size_t PAYLOAD_SIZE_END = 14;
   static const std::string TICKET_IMAGE = "0000";
-  static const std::string TICKET_ERROR = "0001";
+  static const std::string TICKET_ASYNC_ERROR = "0001";
+  static const std::string TICKET_ASYNC_NOTIFICATION = "0010";
   static const std::string TICKET_ALGO_DGB = "0020";
   static const std::string TICKET_COMMAND_c = "1000";
   static const std::string TICKET_COMMAND_t = "1001";
@@ -68,7 +69,8 @@ namespace ifm3d
     std::shared_future<Frame::Ptr> WaitForFrame();
 
     void SetOrganizer(std::unique_ptr<Organizer> organizer);
-    void OnAsyncError(AsynErrorCallback callback);
+    void OnAsyncError(AsyncErrorCallback callback);
+    void OnAsyncNotification(AsyncNotificationCallback callback);
 
   protected:
     void Run(const std::optional<json>& schema);
@@ -93,7 +95,8 @@ namespace ifm3d
                         const std::string& ticket_id);
 
     void ImageHandler();
-    void ErrorHandler();
+    void AsyncErrorHandler();
+    void AsyncNotificationHandler();
     void TriggerHandler();
     std::string CalculateAsycCommand();
 
@@ -129,7 +132,8 @@ namespace ifm3d
     std::vector<std::uint8_t> payload_buffer_;
 
     FrameGrabber::NewFrameCallback new_frame_callback_;
-    FrameGrabber::AsynErrorCallback async_error_callback_;
+    FrameGrabber::AsyncErrorCallback async_error_callback_;
+    FrameGrabber::AsyncNotificationCallback async_notification_callback_;
     std::promise<Frame::Ptr> wait_for_frame_promise;
     std::shared_future<Frame::Ptr> wait_for_frame_future;
 
@@ -458,9 +462,13 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
     {
       this->ImageHandler();
     }
-  else if (ticket_id == ifm3d::TICKET_ERROR)
+  else if (ticket_id == ifm3d::TICKET_ASYNC_ERROR)
     {
-      this->ErrorHandler();
+      this->AsyncErrorHandler();
+    }
+  else if (ticket_id == ifm3d::TICKET_ASYNC_NOTIFICATION)
+    {
+      this->AsyncNotificationHandler();
     }
   else if (ticket_id == ifm3d::TICKET_COMMAND_c)
     {
@@ -521,7 +529,7 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
 }
 
 void
-ifm3d::FrameGrabber::Impl::ErrorHandler()
+ifm3d::FrameGrabber::Impl::AsyncErrorHandler()
 {
   std::size_t buffer_size = this->payload_buffer_.size();
 
@@ -530,19 +538,50 @@ ifm3d::FrameGrabber::Impl::ErrorHandler()
   if (buffer_valid)
     {
       auto error_code =
-        std::stol(std::string(this->payload_buffer_.end() - 9 - 2,
-                              this->payload_buffer_.end() - 2));
+        std::stol(std::string(this->payload_buffer_.begin() + 4,
+                              this->payload_buffer_.begin() + 4 + 9));
 
       std::string error_message = {};
       // 4-ticket 9-error_code 2-\r\n 1-:
       if (buffer_size > 4 + 9 + 2 + 1)
         {
-          error_message = std::string(this->payload_buffer_.begin() + 4,
-                                      this->payload_buffer_.end() - 9 - 2 - 1);
+          error_message =
+            std::string(this->payload_buffer_.begin() + 4 + 9 + 1,
+                        this->payload_buffer_.end() - 2);
         }
       if (async_error_callback_)
         {
           async_error_callback_(error_code, error_message);
+        }
+    }
+  else
+    {
+      LOG(WARNING) << "Bad error message!";
+    }
+}
+
+void
+ifm3d::FrameGrabber::Impl::AsyncNotificationHandler()
+{
+  std::size_t buffer_size = this->payload_buffer_.size();
+
+  bool buffer_valid = buffer_size >= 4 + 9;
+
+  if (buffer_valid)
+    {
+      auto message_id = std::string(this->payload_buffer_.begin() + 4,
+                                    this->payload_buffer_.begin() + 4 + 9);
+
+      std::string payload = {};
+      // 4-ticket 9-message_id 2-\r\n 1-:
+      if (buffer_size > 4 + 9 + 2 + 1)
+        {
+          payload = std::string(this->payload_buffer_.begin() + 4 + 9 + 1,
+                                this->payload_buffer_.end() - 2);
+        }
+      if (async_notification_callback_)
+        {
+          async_notification_callback_(message_id, payload);
         }
     }
   else
@@ -668,9 +707,19 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(buffer_id id)
 }
 
 void
-ifm3d::FrameGrabber::Impl::OnAsyncError(AsynErrorCallback callback)
+ifm3d::FrameGrabber::Impl::OnAsyncError(AsyncErrorCallback callback)
 {
   this->async_error_callback_ = callback;
+  // enable async error outputs
+  this->io_service_.post(
+    [this]() { SendCommand(TICKET_COMMAND_p, CalculateAsycCommand()); });
+}
+
+void
+ifm3d::FrameGrabber::Impl::OnAsyncNotification(
+  AsyncNotificationCallback callback)
+{
+  this->async_notification_callback_ = callback;
   // enable async error outputs
   this->io_service_.post(
     [this]() { SendCommand(TICKET_COMMAND_p, CalculateAsycCommand()); });
@@ -679,40 +728,28 @@ ifm3d::FrameGrabber::Impl::OnAsyncError(AsynErrorCallback callback)
 std::string
 ifm3d::FrameGrabber::Impl::CalculateAsycCommand()
 {
-  // only async error is needed
-  if (this->requested_images_.empty() && this->async_error_callback_)
+  uint8_t p = 0;
+
+  if (!this->requested_images_.empty())
     {
-      return "p2";
-    }
-  // only async data is needed
-  if (this->requested_images_.count(ifm3d::buffer_id::ALGO_DEBUG) == 0 &&
-      this->async_error_callback_ == nullptr)
-    {
-      return "p1";
-    }
-  // schema only contains ifm3d::buffer_id::ALGO_DEBUG
-  if (this->requested_images_.size() == 1 &&
-      this->requested_images_.count(ifm3d::buffer_id::ALGO_DEBUG) &&
-      this->async_error_callback_ == nullptr)
-    {
-      return "p8";
-    }
-  // schema contains ifm3d::buffer_id::ALGO_DEBUG and other data
-  // enable everything
-  if (this->requested_images_.size() > 1 &&
-      this->requested_images_.count(ifm3d::buffer_id::ALGO_DEBUG))
-    {
-      return "pF";
-    }
-  // ALGO DEBUG not needed but async error is needed along with other data
-  if (this->requested_images_.size() > 1 &&
-      this->requested_images_.count(ifm3d::buffer_id::ALGO_DEBUG) == 0 &&
-      this->async_error_callback_)
-    {
-      return "p3";
+      p |= (1 << 0);
     }
 
-  // schema is empty then disable all async outputs
-  return "p0";
+  if (this->async_error_callback_ != nullptr)
+    {
+      p |= (1 << 1);
+    }
+
+  if (this->async_notification_callback_ != nullptr)
+    {
+      p |= (1 << 2);
+    }
+
+  if (this->requested_images_.count(ifm3d::buffer_id::ALGO_DEBUG) > 0)
+    {
+      p |= (1 << 3);
+    }
+
+  return fmt::format("p{0:X}", p);
 }
 #endif // IFM3D_FG_FRAMEGRABBER_IMPL_H
