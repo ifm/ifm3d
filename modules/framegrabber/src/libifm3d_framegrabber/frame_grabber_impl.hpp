@@ -705,14 +705,8 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(buffer_id id)
                   buffer_id::O3R_DISTANCE_IMAGE_INFO,
                   buffer_id::RADIAL_DISTANCE_NOISE};
         }
-      if (device_type == ifm3d::Device::device_family::O3D)
-        {
-          return {};
-        }
-      else
-        {
-          return {id};
-        }
+      return {id};
+
     case buffer_id::ALGO_DEBUG:
       return {};
     default:
