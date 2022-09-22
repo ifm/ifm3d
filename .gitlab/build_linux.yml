@@ -5,7 +5,7 @@ build:linux:
   variables:
     BASE_IMAGE: ubuntu:18.04
   image:
-    name: nexus.ifm.com:20443/ifm-robotics/ifm3d/kaniko:debug
+    name: gcr.io/kaniko-project/executor:v1.9.0-debug
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]
@@ -35,7 +35,7 @@ build:linux:docker:
   tags:
     - ${RUNNER}
   image:
-    name: nexus.ifm.com:20443/ifm-robotics/ifm3d/kaniko:debug
+    name: gcr.io/kaniko-project/executor:v1.9.0-debug
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]
@@ -69,7 +69,7 @@ build:linux:deb:
   tags:
     - ${RUNNER}
   image:
-    name: nexus.ifm.com:20443/ifm-robotics/ifm3d/kaniko:debug
+    name: gcr.io/kaniko-project/executor:v1.9.0-debug
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]
@@ -88,9 +88,10 @@ build:linux:deb:
   rules:
     - !reference [.tagged, rules]
     - !reference [.nightly, rules]
+    - !reference [.manual, rules]
 
 # Python wheels
-build:linux:amd64:python_wheel:
+build:linux:python_wheel:
   image: ${IMAGE}
   stage: build
   parallel:
@@ -116,6 +117,7 @@ build:linux:amd64:python_wheel:
   rules:
     - !reference [.tagged, rules]
     - !reference [.nightly, rules]
+    - !reference [.manual, rules]
 
 # Docs
 build:linux:docs:
@@ -123,7 +125,7 @@ build:linux:docs:
   tags:
     - shared_docker
   image:
-    name: nexus.ifm.com:20443/ifm-robotics/ifm3d/kaniko:debug
+    name: gcr.io/kaniko-project/executor:v1.9.0-debug
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]

@@ -15,10 +15,8 @@ build:windows_2019:
     - "cmake.exe --build . --config Release --target ALL_BUILD"
     - 'cpack --config CPackConfig.cmake -C "Debug;Release"'
     - "compress-archive -path './_CPack_Packages/win64/NSIS/ifm3d_windows_*/*' -destinationpath '../ifm3d_installer/ifm3d_windows_binaries.zip' -update -compressionlevel optimal"
-  rules:
-    - when: on_success
   artifacts:
-    name: "ifm3d_ windows_installer"
+    name: "ifm3d_windows_installer"
     paths:
       - ifm3d_installer/*.exe
       - ifm3d_installer/*.zip
@@ -52,3 +50,4 @@ build:windows_2019:python_wheel:
   rules:
     - !reference [.tagged, rules]
     - !reference [.nightly, rules]
+    - !reference [.manual, rules]
