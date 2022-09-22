@@ -69,9 +69,7 @@ const std::map<ifm3d::buffer_id, const nlohmann::json> o3r_schema_map
     {ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE,
      {{"type", "blob"}, {"id", "AMPLITUDE_COMPRESSED"}}},
     {ifm3d::buffer_id::ALGO_DEBUG, {{"type", "blob"}, {"id", "ALGO_DEBUG"}}},
-#if 0
-  {ifm3d::buffer_id::REFlECTIVITY, {{"type", "blob"}, {"id", "REFLECTIVITY"}}},
-#endif
+  {ifm3d::buffer_id::REFLECTIVITY, {{"type", "blob"}, {"id", "REFLECTIVITY"}}},
     {ifm3d::buffer_id::INTRINSIC_CALIB,
      {{"type", "blob"}, {"id", "intrinsic_calibration"}}},
     {ifm3d::buffer_id::INVERSE_INTRINSIC_CALIBRATION,
