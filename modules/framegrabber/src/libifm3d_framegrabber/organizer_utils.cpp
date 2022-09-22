@@ -465,7 +465,7 @@ ifm3d::mask_buffer(ifm3d::Buffer& image, const ifm3d::Buffer& mask)
     }
 }
 
-bool ifm3d::is_blob(const std::vector<std::uint8_t>& data, std::size_t idx,
+bool ifm3d::is_probably_blob(const std::vector<std::uint8_t>& data, std::size_t idx,
   std::size_t width,
   std::size_t height)
 {
