@@ -318,7 +318,8 @@ ifm3d::get_image_chunks(const std::vector<std::uint8_t>& data,
 }
 
 auto
-ifm3d::find_metadata_chunk(std::map<ifm3d::image_chunk, std::size_t> chunks)
+ifm3d::find_metadata_chunk(
+  const std::map<ifm3d::image_chunk, std::size_t>& chunks)
   -> decltype(chunks.end())
 {
   // to get the metadata we use the confidence image for 3d and
