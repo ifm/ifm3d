@@ -16,7 +16,7 @@ bind_framegrabber(pybind11::module_& m)
 {
   // clang-format off
 
-  bind_future<ifm3d::Frame::Ptr>(m, "_FutureAwaitable__FramePtr");
+  bind_future<ifm3d::Frame::Ptr>(m, "FrameAwaitable");
 
   py::class_<ifm3d::FrameGrabber, ifm3d::FrameGrabber::Ptr> framegrabber(
     m,
