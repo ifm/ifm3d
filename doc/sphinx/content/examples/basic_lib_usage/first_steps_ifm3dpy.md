@@ -36,7 +36,7 @@ from ifm3dpy import O3R, FrameGrabber, buffer_id
 import matplotlib.pyplot as plt
 
 o3r = O3R()
-fg = FrameGrabber(o3r, pcic_port=50012) #Expecting a head on Port 0 (Port 0 == 50010)
+fg = FrameGrabber(o3r, pcic_port=50010) #Expecting a head on Port 0 (Port 0 == 50010)
 
 # Set schema and start Grabber
 fg.start([buffer_id.NORM_AMPLITUDE_IMAGE,buffer_id.RADIAL_DISTANCE_IMAGE,buffer_id.XYZ])
