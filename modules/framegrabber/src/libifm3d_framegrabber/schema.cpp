@@ -85,6 +85,10 @@ const std::map<ifm3d::buffer_id, const nlohmann::json> o3r_schema_map
      {{"type", "blob"}, {"id", "CONFIDENCE"}}},
     {ifm3d::buffer_id::O3R_RGB_IMAGE_INFO,
      {{"type", "blob"}, {"id", "O3R_RGB_IMAGE_INFO"}}},
+    {ifm3d::buffer_id::O3R_ODS_INFO,
+     {{"type", "blob"}, {"id", "O3R_ODS_INFO"}}},
+    {ifm3d::buffer_id::O3R_ODS_OCCUPANCY_GRID,
+     {{"type", "blob"}, {"id", "O3R_ODS_OCCUPANCY_GRID"}}},
 };
 
 json
