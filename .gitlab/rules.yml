@@ -5,6 +5,8 @@
 
 .nightly-manual:
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: manual
       allow_failure: true
@@ -16,11 +18,15 @@
 
 .tagged-manual:
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
     - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
       when: manual
       allow_failure: true
 
 .manual:
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
     - when: manual
       allow_failure: true
