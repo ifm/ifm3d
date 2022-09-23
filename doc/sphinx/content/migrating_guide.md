@@ -173,4 +173,4 @@ jpeg = frame.get_buffer(ifm3d.buffer_id.JPEG)
 ::::
 :::::
 
-For a more detailed description on how to manipulate images in c++, refer to this document [(coming soon)](ADDLINK).
+For a more detailed description on how to manipulate images in c++, refer to [this document](stilimage:ifm3d%3A%3ABuffer-%20Basic%20C%2B%2B%20STL%20container%20for%20ifm3d).
