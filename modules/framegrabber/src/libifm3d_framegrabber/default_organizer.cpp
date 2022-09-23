@@ -236,12 +236,11 @@ ifm3d::DefaultOrganizer::ExtractDistanceImageInfo(
   auto extrinsic_param = create_buffer_from_vector<float>(
     distance_image_info->getExtrinsicOpticToUser());
 
-  auto intrinsic_param = create_buffer_from_struct< IntrinsicCalibration>(
+  auto intrinsic_param = create_buffer_from_struct<IntrinsicCalibration>(
     distance_image_info->getIntrinsicCalibration());
 
-  auto inv_intrinsic_param = create_buffer_from_struct< IntrinsicCalibration>(
+  auto inv_intrinsic_param = create_buffer_from_struct<IntrinsicCalibration>(
     distance_image_info->getInverseIntrinsicCalibration());
-
 
   return {
     {static_cast<buffer_id>(image_chunk::NORM_AMPLITUDE_IMAGE), amplitude},
@@ -249,7 +248,8 @@ ifm3d::DefaultOrganizer::ExtractDistanceImageInfo(
     {static_cast<buffer_id>(buffer_id::XYZ), xyz},
     {static_cast<buffer_id>(buffer_id::EXTRINSIC_CALIB), extrinsic_param},
     {static_cast<buffer_id>(buffer_id::INTRINSIC_CALIB), intrinsic_param},
-    {static_cast<buffer_id>(buffer_id::INVERSE_INTRINSIC_CALIBRATION), inv_intrinsic_param},
+    {static_cast<buffer_id>(buffer_id::INVERSE_INTRINSIC_CALIBRATION),
+     inv_intrinsic_param},
   };
 }
 
