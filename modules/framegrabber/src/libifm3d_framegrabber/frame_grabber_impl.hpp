@@ -98,7 +98,7 @@ namespace ifm3d
     void AsyncErrorHandler();
     void AsyncNotificationHandler();
     void TriggerHandler();
-    std::string CalculateAsycCommand();
+    std::string CalculateAsyncCommand();
 
     //---------------------
     // State
@@ -375,7 +375,7 @@ ifm3d::FrameGrabber::Impl::ConnectHandler(const std::optional<json>& schema)
       SetSchema(GenerateDefaultSchema());
     }
 
-  SendCommand(TICKET_COMMAND_p, CalculateAsycCommand());
+  SendCommand(TICKET_COMMAND_p, CalculateAsyncCommand());
 
   this->sock_.async_read_some(
     asio::buffer(this->ticket_buffer_.data(), ifm3d::TICKET_SIZE),
@@ -712,7 +712,7 @@ ifm3d::FrameGrabber::Impl::OnAsyncError(AsyncErrorCallback callback)
   this->async_error_callback_ = callback;
   // enable async error outputs
   this->io_service_.post(
-    [this]() { SendCommand(TICKET_COMMAND_p, CalculateAsycCommand()); });
+    [this]() { SendCommand(TICKET_COMMAND_p, CalculateAsyncCommand()); });
 }
 
 void
@@ -722,29 +722,30 @@ ifm3d::FrameGrabber::Impl::OnAsyncNotification(
   this->async_notification_callback_ = callback;
   // enable async error outputs
   this->io_service_.post(
-    [this]() { SendCommand(TICKET_COMMAND_p, CalculateAsycCommand()); });
+    [this]() { SendCommand(TICKET_COMMAND_p, CalculateAsyncCommand()); });
 }
 
 std::string
-ifm3d::FrameGrabber::Impl::CalculateAsycCommand()
+ifm3d::FrameGrabber::Impl::CalculateAsyncCommand()
 {
   uint8_t p = 0;
 
-  if (!this->requested_images_.empty())
-    {
-      p |= (1 << 0);
-    }
+  // always enable async data
+  p |= (1 << 0);
 
+  // enable async errors if a callback is set
   if (this->async_error_callback_ != nullptr)
     {
       p |= (1 << 1);
     }
 
+  // enable async notifications if a callback is set
   if (this->async_notification_callback_ != nullptr)
     {
       p |= (1 << 2);
     }
 
+  // enable algodebug if it's requested
   if (this->requested_images_.count(ifm3d::buffer_id::ALGO_DEBUG) > 0)
     {
       p |= (1 << 3);
