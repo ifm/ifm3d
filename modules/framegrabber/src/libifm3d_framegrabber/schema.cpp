@@ -62,31 +62,26 @@ const std::map<ifm3d::buffer_id, const nlohmann::json> o3d_schema_map{
 };
 
 // TODO : update this for O3R specific Data.
-const std::map<ifm3d::buffer_id, const nlohmann::json> o3r_schema_map
-{
+const std::map<ifm3d::buffer_id, const nlohmann::json> o3r_schema_map{
   {ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
    {{"type", "blob"}, {"id", "RADIAL_DISTANCE_COMPRESSED"}}},
-    {ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE,
-     {{"type", "blob"}, {"id", "AMPLITUDE_COMPRESSED"}}},
-    {ifm3d::buffer_id::ALGO_DEBUG, {{"type", "blob"}, {"id", "ALGO_DEBUG"}}},
+  {ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE,
+   {{"type", "blob"}, {"id", "AMPLITUDE_COMPRESSED"}}},
+  {ifm3d::buffer_id::ALGO_DEBUG, {{"type", "blob"}, {"id", "ALGO_DEBUG"}}},
   {ifm3d::buffer_id::REFLECTIVITY, {{"type", "blob"}, {"id", "REFLECTIVITY"}}},
-    {ifm3d::buffer_id::INTRINSIC_CALIB,
-     {{"type", "blob"}, {"id", "intrinsic_calibration"}}},
-    {ifm3d::buffer_id::INVERSE_INTRINSIC_CALIBRATION,
-     {{"type", "blob"}, {"id", "inverse_intrinsic_calibration"}}},
-    {ifm3d::buffer_id::RADIAL_DISTANCE_NOISE,
-     {{"type", "blob"}, {"id", "RADIAL_DISTANCE_NOISE"}}},
-    {ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFO,
-     {{"type", "blob"}, {"id", "TOF_INFO"}}},
-    {ifm3d::buffer_id::JPEG_IMAGE, {{"type", "blob"}, {"id", "JPEG_IMAGE"}}},
-    {ifm3d::buffer_id::CONFIDENCE_IMAGE,
-     {{"type", "blob"}, {"id", "CONFIDENCE"}}},
-    {ifm3d::buffer_id::O3R_RGB_IMAGE_INFO,
-     {{"type", "blob"}, {"id", "O3R_RGB_IMAGE_INFO"}}},
-    {ifm3d::buffer_id::O3R_ODS_INFO,
-     {{"type", "blob"}, {"id", "O3R_ODS_INFO"}}},
-    {ifm3d::buffer_id::O3R_ODS_OCCUPANCY_GRID,
-     {{"type", "blob"}, {"id", "O3R_ODS_OCCUPANCY_GRID"}}},
+  {ifm3d::buffer_id::INTRINSIC_CALIB,
+   {{"type", "blob"}, {"id", "intrinsic_calibration"}}},
+  {ifm3d::buffer_id::INVERSE_INTRINSIC_CALIBRATION,
+   {{"type", "blob"}, {"id", "inverse_intrinsic_calibration"}}},
+  {ifm3d::buffer_id::RADIAL_DISTANCE_NOISE,
+   {{"type", "blob"}, {"id", "RADIAL_DISTANCE_NOISE"}}},
+  {ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFO,
+   {{"type", "blob"}, {"id", "TOF_INFO"}}},
+  {ifm3d::buffer_id::JPEG_IMAGE, {{"type", "blob"}, {"id", "JPEG_IMAGE"}}},
+  {ifm3d::buffer_id::CONFIDENCE_IMAGE,
+   {{"type", "blob"}, {"id", "CONFIDENCE"}}},
+  {ifm3d::buffer_id::O3R_RGB_IMAGE_INFO,
+   {{"type", "blob"}, {"id", "O3R_RGB_IMAGE_INFO"}}},
 };
 
 json
