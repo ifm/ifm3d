@@ -19,7 +19,7 @@ except ModuleNotFoundError:
 
 
 def get_jpeg(frame):
-    return cv2.imdecode(frame.get_buffer(buffer_id.JPEG), cv2.IMREAD_UNCHANGED)
+    return cv2.imdecode(frame.get_buffer(buffer_id.JPEG_IMAGE), cv2.IMREAD_UNCHANGED)
 
 
 def get_distance(frame):
