@@ -5,6 +5,7 @@ deploy:docs:
   image: bitnami/git
   needs:
     - job: deploy:start
+      optional: true
       artifacts: false
     - job: build:linux:docs
       artifacts: true
