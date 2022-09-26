@@ -149,11 +149,10 @@ TEST_F(FrameGrabberTest, schema_o3r_dist_image_info)
                     ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFO));
 }
 
-
 TEST_F(FrameGrabberTest, BufferIDException)
 {
   LOG(INFO) << "BufferIDException test";
-  
+
   fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
               ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
               ifm3d::buffer_id::XYZ});
@@ -164,7 +163,7 @@ TEST_F(FrameGrabberTest, BufferIDException)
   EXPECT_THROW(frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_NOISE),
                ifm3d::Error);
 }
-  
+
 TEST_F(FrameGrabberTest, DistanceNoiseImage)
 {
   LOG(INFO) << " distance noise image schema test";
@@ -172,9 +171,9 @@ TEST_F(FrameGrabberTest, DistanceNoiseImage)
   fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
               ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
               ifm3d::buffer_id::XYZ});
-              
+
   auto frame = fg_->WaitForFrame().get();
-              
+
   // as not part of schema
   EXPECT_ANY_THROW(frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_NOISE));
 }
