@@ -159,7 +159,7 @@ TEST_F(FrameGrabberTest, BufferIDException)
 
   auto frame = fg_->WaitForFrame().get();
 
-  EXPECT_NO_THROW( frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE));
+  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE));
   EXPECT_THROW(frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_NOISE),
                ifm3d::Error);
 }
