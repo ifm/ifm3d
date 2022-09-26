@@ -90,16 +90,19 @@ void
 bind_future(py::module_& m, const char* name, const char* message)
 {
   py::class_<FutureAwaitable<T>>(m, name, message)
-    .def(py::init<>(),message)
+    .def(py::init<>(), message)
     .def("__iter__", &FutureAwaitable<T>::iter)
     .def("__await__", &FutureAwaitable<T>::await)
     .def("__next__", &FutureAwaitable<T>::next)
-    .def("wait", &FutureAwaitable<T>::wait,
-    R"(
+    .def("wait",
+         &FutureAwaitable<T>::wait,
+         R"(
       Blocks until the frame becomes available.
     )")
-    .def("wait_for", &FutureAwaitable<T>::wait_for, py::arg("timeout_ms"),
-    R"(
+    .def("wait_for",
+         &FutureAwaitable<T>::wait_for,
+         py::arg("timeout_ms"),
+         R"(
       Waits for the frame to become available. Blocks until specified timeout
       has elapsed or the result becomes available, whichever comes first.
     )");
