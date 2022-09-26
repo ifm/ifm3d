@@ -94,8 +94,15 @@ bind_future(py::module_& m, const char* name)
     .def("__iter__", &FutureAwaitable<T>::iter)
     .def("__await__", &FutureAwaitable<T>::await)
     .def("__next__", &FutureAwaitable<T>::next)
-    .def("wait", &FutureAwaitable<T>::wait)
-    .def("wait_for", &FutureAwaitable<T>::wait_for, py::arg("timeout_ms"));
+    .def("wait", &FutureAwaitable<T>::wait,
+    R"(
+      Blocks until the frame becomes available.
+    )")
+    .def("wait_for", &FutureAwaitable<T>::wait_for, py::arg("timeout_ms"),
+    R"(
+      Waits for the frame to become available. Blocks until specified timeout
+      has elapsed or the result becomes available, whichever comes first.
+    )");
 }
 
 #endif // IFM3D_PYBIND_BINDING_FUTURE
