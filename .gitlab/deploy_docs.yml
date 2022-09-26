@@ -4,6 +4,8 @@ deploy:docs:
     - shared_docker
   image: bitnami/git
   needs:
+    - job: deploy:start
+      artifacts: false
     - job: build:linux:docs
       artifacts: true
   script:
@@ -18,5 +20,10 @@ deploy:docs:
     - git add -A
     - git commit -m "update docs" --allow-empty
     - git push
+    - if [ "x${CI_COMMIT_TAG}" != "x" ]; then
+    - git tag "${CI_COMMIT_TAG}"
+    - git tag -f stable
+    - git push --tags --force
+    - fi
   rules:
-    - if: '$CI_COMMIT_BRANCH =~ /^o3r\/main-next/'
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
