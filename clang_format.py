@@ -26,6 +26,8 @@ apply_extensions = (".cxx", ".cpp", ".c", ".hxx", ".hh", ".cc", ".hpp", ".h")
 include_folders = ["modules", "examples"]
 exclude_folders = ["modules/device/include/ifm3d/contrib"]
 
+#making path accorinding to OS
+exclude_folders = list(map(lambda rel_path : os.path.normcase(os.path.join("", os.path.relpath(rel_path))), exclude_folders))
 
 def format_file(clangf_exe, file, dry_run=False):
     args = [clangf_exe, "-i", "-style=file"]
