@@ -1,0 +1,16 @@
+check:clang-format:
+  stage: check
+  tags:
+    - shared_docker
+  image:
+    name: gcr.io/kaniko-project/executor:v1.9.0-debug
+    entrypoint: [""]
+  script:
+    - !reference [.docker-config, script]
+    - echo "${KANIKO_PUSH_ARGS}"
+    - mkdir -p /kaniko/.docker
+    - echo "${DOCKER_CFG}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context ${CI_PROJECT_DIR}
+      --dockerfile docker/ifm-robotics/check/Dockerfile
+      ${KANIKO_BUILD_ARGS}
+      --no-push

@@ -1,0 +1,8 @@
+deploy:start:
+  stage: deploy
+  image: alpine
+  tags: [shared_docker]
+  script: ["true"]
+  rules:
+    - !reference [.nightly-manual, rules]
+    - !reference [.tagged-manual, rules]
