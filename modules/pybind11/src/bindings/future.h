@@ -87,10 +87,10 @@ private:
 
 template <typename T>
 void
-bind_future(py::module_& m, const char* name)
+bind_future(py::module_& m, const char* name, const char* message)
 {
-  py::class_<FutureAwaitable<T>>(m, name)
-    .def(py::init<>())
+  py::class_<FutureAwaitable<T>>(m, name, message)
+    .def(py::init<>(),message)
     .def("__iter__", &FutureAwaitable<T>::iter)
     .def("__await__", &FutureAwaitable<T>::await)
     .def("__next__", &FutureAwaitable<T>::next)
