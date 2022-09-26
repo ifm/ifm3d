@@ -8,7 +8,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <vector>
+#include <ifm3d/fg/buffer.h>
 #include <memory>
+
 #include <ifm3d/fg/frame_grabber_export.h>
 
 namespace ifm3d
@@ -123,6 +125,13 @@ namespace ifm3d
     {
       return exposure_times_sec;
     }
+
+    /**
+     * @brief multiply distance noise image with distance resolution
+     * return Buffer with float values
+     */
+    ifm3d::Buffer applyDistanceResolution(
+      const ifm3d::Buffer& ui16_distance_buffer);
   };
   using DistanceImageInfoPtr = std::unique_ptr<DistanceImageInfo>;
   DistanceImageInfoPtr CreateDistanceImageInfo(
