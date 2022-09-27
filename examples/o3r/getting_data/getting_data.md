@@ -86,6 +86,8 @@ def callback(frame):
 ...
 fg.start([buffer_id.RADIAL_DISTANCE_IMAGE])
 fg.on_new_frame(callback)
+...
+fg.stop()
 :::
 ::::
 ::::{group-tab} c++
@@ -102,6 +104,7 @@ main()
   fg->Start({ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE});
   fg->OnNewFrame(&Callback);
   ...
+  fg->Stop();
 }
 :::
 ::::
