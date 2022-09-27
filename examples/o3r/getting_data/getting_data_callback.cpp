@@ -38,6 +38,7 @@ main()
   // This sleep is to prevent the program from before the
   // callback has time to execute.
   std::this_thread::sleep_for(1s);
+  fg->Stop();
 
   return 0;
 }
