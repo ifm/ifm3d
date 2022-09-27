@@ -146,6 +146,23 @@ auto rgb = frame->get_buffer(ifm3d::buffer_id::JPEG_IMAGE);
 :::::
 
 ## The full example
+
+### Using a callback
+:::::{tabs}
+::::{group-tab} Python
+:::{literalinclude} getting_data_callback.py
+:language: python
+:::
+::::
+
+::::{group-tab} C++
+:::{literalinclude} getting_data_callback.cpp
+:language: cpp
+:::
+::::
+:::::
+
+### Using the polling mode
 :::::{tabs}
 ::::{group-tab} Python
 :::{literalinclude} getting_data.py
@@ -159,4 +176,3 @@ auto rgb = frame->get_buffer(ifm3d::buffer_id::JPEG_IMAGE);
 :::
 ::::
 :::::
-```
