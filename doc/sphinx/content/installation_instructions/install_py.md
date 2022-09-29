@@ -37,8 +37,8 @@ print(ifm3dpy.__version__)
 You can test the connection from VPU to camera head with following lines:
 
 ```python
-from ifm3dpy import O3RCamera
-o3r = O3RCamera()
+from ifm3dpy import O3R
+o3r = O3R()
 config = o3r.get() #get the configuration saved on the VPU
 ```
 

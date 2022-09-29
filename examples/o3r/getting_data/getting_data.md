@@ -8,7 +8,7 @@ At the end of this 'how to', you should be able to receive images and know the b
 
 >Note: for O3D or O3X devices, simply use the `O3D`/`O3X` class in place of the `O3R` in the following code.
 
-## O3RCamera, FrameGrabber and StlImageBuffer
+## O3R, FrameGrabber and Frame
 
 ifm3d provides three main classes:
 - `O3R` holds the configuration of the camera heads, handles the connection, etc;
