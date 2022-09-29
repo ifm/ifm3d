@@ -1,4 +1,8 @@
 ## Install using the ifm3d installer
+
+**Note** :if you are using O3D/O3X device plese use ifm3d-v0.20.3, There is no binary package support for ifm3d-v0.20.3, we request you to follow 
+follow these [instructions](https://github.com/ifm/ifm3d/blob/legacy/doc/windows.md) to build from source.
+
 The instructions below show how to install the ifm3d library for c++ development and usage of the command line interface. We also provide a python package `ifm3dpy`, see details [here](ifm3d/doc/sphinx/content/installation_instructions/install_py:Python%20installation).
 
 ### Installation
@@ -7,7 +11,13 @@ Download the ifm3d installer ifm3d_windows_x.x.x.exe From [ifm3d Release](https:
 This installer provides binaries for Windows OS for Visual Studio 2019 and above.
 For any other compiler we recommend to build ifm3d from sources. Follow the instructions on the installer.
 It will install binaries at default location as ```C:/ProgramFiles/ifm3d x.x.x.```
+
+
 ## Building ifm3d from source on Windows
+
+Following Instruction are for ifm3d-v1.0.0 and above which provide full support for O3R devices. if you are using O3D/O3X device plese use ifm3d-v0.20.3
+and follow these [instructions](https://github.com/ifm/ifm3d/blob/legacy/doc/windows.md)
+
 
 This tutorial details how to compile the ifm3d library and its dependencies on
 a Windows platform using Visual Studio and cmake.
