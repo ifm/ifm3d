@@ -1,17 +1,3 @@
-## Install using the ifm3d installer
-
-**Note** :if you are using O3D/O3X device plese use ifm3d-v0.20.3, There is no binary package support for ifm3d-v0.20.3, we request you to follow 
-follow these [instructions](https://github.com/ifm/ifm3d/blob/legacy/doc/windows.md) to build from source.
-
-The instructions below show how to install the ifm3d library for c++ development and usage of the command line interface. We also provide a python package `ifm3dpy`, see details [here](ifm3d/doc/sphinx/content/installation_instructions/install_py:Python%20installation).
-
-### Installation
-
-Download the ifm3d installer ifm3d_windows_x.x.x.exe From [ifm3d Release](https://github.com/ifm/ifm3d/releases). 
-This installer provides binaries for Windows OS for Visual Studio 2019 and above.
-For any other compiler we recommend to build ifm3d from sources. Follow the instructions on the installer.
-It will install binaries at default location as ```C:/ProgramFiles/ifm3d x.x.x.```
-
 
 ## Building ifm3d from source on Windows
 
@@ -80,17 +66,10 @@ cmake --build . --config %CONFIG% --target install
 On successful execution of install step, user can disable the `BUILD_IN_DEPS` flag by appending
 ``` -DBUILD_IN_DEPS=OFF``` to cmake configure step, this will avoid building dependencies on every clean build.
 
-## Usage
-
-To use the ifm3d library in your own projects, make an environment variable with this path.
-```bash
-$ set IFM3D_BINARY_DIR = C:/ProgramFiles/ifm3d x.x.x/bin      # Please put the correct install path in case installation is done on other than default path
-```
 ### Building the Examples
 
 To build the [examples](https://ifm3d.com/sphinx-doc/build/html/ifm3d/doc/sphinx/content/examples/index.html), provide the path `IFM3D_BINARY_DIR` to `CMAKE_PREFIX_PATH` when running cmake configure stage. 
 To build the examples from source alongside the ifm3d library, enable the build with the `-DBUILD_EXAMPLES=ON`.
-
 
 ## Running ifm3d command line tools
 After Building `ifm3d`, the binary files will be installed at
@@ -99,10 +78,15 @@ directory to your path.
 
 If built targeting Visual Studio 2017/2019:
 ```bash
-$ set PATH=%IFM3D_BINARY_DIR%;%PATH%
+$ set PATH=%IFM3D_BUILD_DIR%\install\bin;%PATH%
 ```
 
 After that you should be able to run the ifm3d tool
 ```bash 
 $ ifm3d
 ```
+
+# Using ifm3d-playground projects
+
+After installing the ifm3d, one can use ifm3d-playground project which shows basic cmake configuration required for using 
+installed ifm3d libraries [ifm3d playground project](../../examples/o3r/ifm3d_playground/README.html)
