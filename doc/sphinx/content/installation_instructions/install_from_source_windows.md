@@ -1,7 +1,7 @@
 
 ## Building ifm3d from source on Windows
 
-Following Instruction are for ifm3d-v1.0.0 and above which provide full support for O3R devices. if you are using O3D/O3X device plese use ifm3d-v0.20.3
+Following Instruction are for ifm3d-v1.0.0 and above which provide full support for O3R devices. if you are using O3D/O3X device please use ifm3d-v0.20.3
 and follow these [instructions](https://github.com/ifm/ifm3d/blob/legacy/doc/windows.md)
 
 This tutorial details how to compile the ifm3d library and its dependencies on

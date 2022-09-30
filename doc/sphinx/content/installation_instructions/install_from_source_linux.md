@@ -93,9 +93,13 @@ $ cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_EXAMPLES=ON ..
 $ make
 ```
 
-### Install dependencies for ifm3d debian packages
+### Build debian packages from source
 
-Additionally, if you plan to build the debian packages and have the
+This additional sections provide instruction to buils debian packages from ifm3d source.
+
+#### Install dependencies for ifm3d debian packages
+
+If you plan to build the debian packages and have the
 dependencies computed for you dynamically (see the note below on the
 `repackage` target), you will also need:
 

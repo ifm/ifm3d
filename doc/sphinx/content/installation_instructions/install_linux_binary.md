@@ -1,13 +1,13 @@
-## Installing ifm3d from deb file 
+## Installing ifm3d from .deb file
 
 **Note**: If you are using O3D/O3X device please use ifm3d-v0.20.3 release and use these [instructions](https://github.com/ifm/ifm3d/blob/legacy/doc/source_build.md)
 
-### Download the .deb files
+### Download ifm3d .deb files
 
 Download the ifm3d .deb files for your OS ifm3d-ubuntu-<ubuntu_version>_<arch>_debs.xz.tar from [ifm3d Release page](https://github.com/ifm/ifm3d/releases).
 This .deb files are of ifm3d modules without their dependencies.
 
-### Install the ifm3d third-party dependencies
+### Install ifm3d third-party dependencies
 
 Use the following steps to install all the library dependencies on Debian based systems
   
