@@ -1,6 +1,6 @@
 ## Install using the ifm3d installer
 
-**Note** :if you are using O3D/O3X device plese use ifm3d-v0.20.3, There is no binary package support for ifm3d-v0.20.3, we request you to follow 
+**Note** :if you are using O3D/O3X device please use ifm3d-v0.20.3, there is no binary package support for ifm3d-v0.20.3, we request you to follow 
 follow these [instructions](https://github.com/ifm/ifm3d/blob/legacy/doc/windows.md) to build from source.
 
 The instructions below show how to install the ifm3d library for c++ development and usage of the command line interface. We also provide a python package `ifm3dpy`, see details [here](ifm3d/doc/sphinx/content/installation_instructions/install_py:Python%20installation).
@@ -35,7 +35,7 @@ After that you should be able to run the ifm3d tool
 $ ifm3d
 ```
 
-# Using ifm3d-playground projects
+### Using ifm3d-playground projects
 
-After installing the ifm3d, one can use ifm3d-playground project which shows basic cmake configuration required for using 
-installed ifm3d libraries [ifm3d playground project](../../examples/o3r/ifm3d_playground/README.html)
+After installing the ifm3d, one can use ifm3d-playground example, which shows basic cmake configuration required for using 
+installed ifm3d libraries [ifm3d playground example](https://github.com/ifm/ifm3d/tree/main/examples/o3r/ifm3d_playground)

@@ -1,6 +1,6 @@
 ## Installing ifm3d from source
 
-**Note**: Following Instruction are for ifm3d-v1.0.0 and above which provide full support for O3R devices. if you are using O3D/O3X device plese use ifm3d-v0.20.3
+**Note**: Following Instruction are for ifm3d-v1.0.0 and above which provide full support for O3R devices. if you are using O3D/O3X device please use ifm3d-v0.20.3
 and follow these [instructions](https://github.com/ifm/ifm3d/blob/legacy/doc/source_build.md)
 
 ### Overview of the available build flags
@@ -61,8 +61,7 @@ and follow these [instructions](https://github.com/ifm/ifm3d/blob/legacy/doc/sou
   </tr>
 </table>
 
-ifm3d v0.93.0 and above provides a build flag ```-DBUILD_IN_DEPS=ON``` which downloads required
-dependencies and build and install with ifm3d.
+ifm3d v0.93.0 and above provides a build flag ```-DBUILD_IN_DEPS=ON``` which download, build and install required dependencies with ifm3d.
 
 ### Building From Source
 Start with cloning the code from the ifm3d github repository {{ '[here]({})'.format(ifm3d_gh_url) }}.
@@ -94,7 +93,7 @@ $ cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_EXAMPLES=ON ..
 $ make
 ```
 
-### Building debian packages
+### Install dependencies for ifm3d debian packages
 
 Additionally, if you plan to build the debian packages and have the
 dependencies computed for you dynamically (see the note below on the
