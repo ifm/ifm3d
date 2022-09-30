@@ -2,6 +2,6 @@
 
 :::{toctree}
 :titlesonly:
-Linux <source_build.md>
-Windows <Windows: Building-ifm3d-from-source-on-Windows>
+Linux <install_from_source_linux>
+Windows <install_from_source_windows>
 :::
