@@ -104,7 +104,8 @@ bind_future(py::module_& m, const char* name, const char* message)
          py::arg("timeout_ms"),
          R"(
       Waits for the frame to become available. Blocks until specified timeout
-      has elapsed or the result becomes available, whichever comes first.
+
+      :return: a tuple (True, Frame) if a frame was received within the timeout, (False, None) otherwise.
     )");
 }
 
