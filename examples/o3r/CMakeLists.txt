@@ -46,3 +46,14 @@ target_link_libraries(ifm3d_playground
                       ifm3d_device
                       ifm3d_framegrabber
                       )
+
+## 2d-jpeg-data example with opencv
+find_package(OpenCV COMPONENTS core highgui QUIET)
+if(OpenCV_FOUND)
+add_executable(2d_data 2d_data/2d_data.cpp)
+    target_link_libraries(2d_data
+                        ${OpenCV_LIBS}
+                        ifm3d_device
+                        ifm3d_framegrabber
+                        )
+endif()
