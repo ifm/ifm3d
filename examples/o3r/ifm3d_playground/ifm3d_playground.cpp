@@ -20,13 +20,14 @@ main()
   auto fg = std::make_shared<ifm3d::FrameGrabber>(dev, FG_PCIC_PORT);
 
   //Set Schema and start the grabber
-  fg->Start({ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE, ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,ifm3d::buffer_id::XYZ});
+  fg->Start({ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE, ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,ifm3d::buffer_id::XYZ,ifm3d::buffer_id::CONFIDENCE_IMAGE});
   //////////////////////////
   // use framegrabber in streaming mode 
   //////////////////////////
   fg->OnNewFrame([&](ifm3d::Frame::Ptr frame)
     {
-      auto distance_image = frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE);
+      auto distance_image = frame->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE);
+      std::cout << distance_image.width();
       // This is playground area for user to play with ifm3d Buffers
     });
 

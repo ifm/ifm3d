@@ -194,3 +194,41 @@ TEST_F(FrameGrabberTest, DistanceNoiseImage_type)
   EXPECT_EQ(distance_noise_image.dataFormat(),
             ifm3d::pixel_format::FORMAT_32F);
 }
+
+TEST_F(FrameGrabberTest, confidence_image_3D)
+{
+  LOG(INFO) << " confidence image test on 3D  ";
+
+  fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
+              ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
+              ifm3d::buffer_id::XYZ,
+              ifm3d::buffer_id::CONFIDENCE_IMAGE});
+
+  auto frame = fg_->WaitForFrame().get();
+
+  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE));
+
+  auto confidence_image = frame->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE);
+
+  EXPECT_EQ(confidence_image.dataFormat(), ifm3d::pixel_format::FORMAT_16U);
+}
+
+TEST_F(FrameGrabberTest, confidence_image_2D)
+{
+  LOG(INFO) << " confidence image test on 2D  ";
+
+  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
+
+  auto config = o3r->Get();
+  config["ports"]["port0"]["state"] = "RUN";
+  o3r->Set(config);
+  fg_ = std::make_shared<ifm3d::FrameGrabber>(dev_, 50010);
+
+  fg_->Start(
+    {ifm3d::buffer_id::JPEG_IMAGE, ifm3d::buffer_id::CONFIDENCE_IMAGE});
+
+  auto frame = fg_->WaitForFrame().get();
+
+  EXPECT_THROW(frame->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE),
+               ifm3d::Error);
+}
