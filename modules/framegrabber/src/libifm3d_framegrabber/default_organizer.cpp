@@ -96,6 +96,7 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
 
       mask = CreatePixelMask(confidence);
 
+      images[ifm3d::buffer_id::CONFIDENCE_IMAGE] = confidence;
       chunks.erase(image_chunk::CONFIDENCE_IMAGE);
     }
 
