@@ -2,8 +2,11 @@
 # ifm3d Overview
 
 Library and utilities for working with ifm pmd-based 3D ToF Perception devices. Compatible with the O3R, O3D and O3X platforms. 
-This library is available in python, c++, and has wrappers for ROS and ROS2.
+This library is available in python, c++, and has wrappers for ROS and ROS2.  
+[C++ API Reference](https://ifm.github.io/ifm3d-docs/html/cpp_api/annotated.html)  
+[Python API Reference](https://ifm.github.io/ifm3d-docs/html/_autosummary/ifm3dpy.html#module-ifm3dpy)  
 Comprehensive documentation is available on [ifm3d.com](https://ifm3d.com/).
+
 
 ![Build (Ubuntu)](https://github.com/ifm/ifm3d/workflows/Build%20(Ubuntu)/badge.svg?branch=master)
 ![Build (Windows)](https://github.com/ifm/ifm3d/workflows/Build%20(Windows)/badge.svg?branch=master)
