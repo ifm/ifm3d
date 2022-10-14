@@ -1,4 +1,6 @@
 # ifm3d library
+```{include} content/news/news_release.md
+```
 
 :::{toctree}
 :titlesonly:

@@ -117,7 +117,11 @@ auto frame = fg->WaitForFrame().get();
 ::::
 ::::{group-tab} Python
 :::python
-frame = await fg.wait_for_frame()
+frame = fg.wait_for_frame().wait() # wait without timeout
+#OR
+[ok, frame] = fg.wait_for_frame().wait_for(500) # wait with 500ms timeout
+#OR
+frame = await fg.wait_for_frame() # using asyncio
 :::
 ::::
 :::::
@@ -136,7 +140,7 @@ To specify which images to receive when using the `WaitForFrame` method, one has
 
 ### Access the data
 The way to access data, previously handled by the image buffers, has changed with ifm3d 1.0.x.
-Instead of providing specific functions for each type of data, we use `frames` and the `GetImage` function, along with the `ifm3d::buffer_id` corresponding to the desired image. 
+Instead of providing specific functions for each type of data, we use `frames` and the `GetBuffer` function, along with the `ifm3d::buffer_id` corresponding to the desired image. 
 For instance, to get the distance and the point cloud, use:
 
 :::::{tabs}
@@ -148,8 +152,8 @@ auto xyz = frame->GetBuffer(ifm3d::buffer_id::XYZ);
 ::::
 ::::{group-tab} Python
 :::python
-distance = frame.get_image(ifm3d.buffer_id.RADIAL_DISTANCE)
-xyz = frame.get_image(ifm3d.buffer_id.XYZ)
+distance = frame.get_buffer(ifm3d.buffer_id.RADIAL_DISTANCE)
+xyz = frame.get_buffer(ifm3d.buffer_id.XYZ)
 :::
 ::::
 :::::
@@ -159,14 +163,14 @@ For the 2D RGB image in compressed JPEG format, you can use:
 :::::{tabs}
 ::::{group-tab} C++
 :::cpp
-auto jpeg = frame->GetImage(ifm3d::buffer_id::JPEG);
+auto jpeg = frame->GetBuffer(ifm3d::buffer_id::JPEG);
 :::
 ::::
 ::::{group-tab} Python
 :::python
-jpeg = frame.get_image(ifm3d.buffer_id.JPEG)
+jpeg = frame.get_buffer(ifm3d.buffer_id.JPEG)
 :::
 ::::
 :::::
 
-For a more detailed description on how to manipulate images in c++, refer to this document [(coming soon)](ADDLINK).
+For a more detailed description on how to manipulate images in c++, refer to [this document](stilimage:ifm3d%3A%3ABuffer-%20Basic%20C%2B%2B%20STL%20container%20for%20ifm3d).

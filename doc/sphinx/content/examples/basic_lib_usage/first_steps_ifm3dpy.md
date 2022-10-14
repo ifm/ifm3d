@@ -13,9 +13,9 @@ Please refer to the [this section](ifm3d/doc/sphinx/content/examples/o3r/configu
 Following steps describe the change of the state of a single head.
 
 ```python
-from ifm3dpy import O3RCamera
+from ifm3dpy import O3R
 
-o3r = O3RCamera()
+o3r = O3R()
 config = o3r.get()
 config['ports']['port0']['state'] = "RUN" #Expecting a head on Port 0
 o3r.set(config)
@@ -32,15 +32,18 @@ Please refer to [this section](ifm3d/doc/sphinx/content/examples/o3r/getting_dat
 To display the image directly, we use `matplotlib`.
 
 ```python
-from ifm3dpy import O3RCamera, FrameGrabber, ImageBuffer
+from ifm3dpy import O3R, FrameGrabber, buffer_id
 import matplotlib.pyplot as plt
 
-o3r = O3RCamera()
+o3r = O3R()
 fg = FrameGrabber(o3r, pcic_port=50010) #Expecting a head on Port 0 (Port 0 == 50010)
-im = ImageBuffer()
 
-if fg.wait_for_frame(im, 1000):
-    plt.imshow(im.distance_image())
+# Set schema and start Grabber
+fg.start([buffer_id.NORM_AMPLITUDE_IMAGE,buffer_id.RADIAL_DISTANCE_IMAGE,buffer_id.XYZ])
+
+# Get a frame
+[ok, frame] = fg.wait_for_frame().wait_for(500)
+plt.imshow(frame.get_buffer(buffer_id.RADIAL_DISTANCE_IMAGE))
 
 plt.show()
 ```

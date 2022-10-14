@@ -45,5 +45,6 @@ main()
 
   std::cout << dist.height() << " " << dist.width() << std::endl;
 
+  fg->Stop();
   return 0;
 }

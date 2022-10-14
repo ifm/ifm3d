@@ -8,7 +8,7 @@ At the end of this 'how to', you should be able to receive images and know the b
 
 >Note: for O3D or O3X devices, simply use the `O3D`/`O3X` class in place of the `O3R` in the following code.
 
-## O3RCamera, FrameGrabber and StlImageBuffer
+## O3R, FrameGrabber and Frame
 
 ifm3d provides three main classes:
 - `O3R` holds the configuration of the camera heads, handles the connection, etc;
@@ -86,6 +86,8 @@ def callback(frame):
 ...
 fg.start([buffer_id.RADIAL_DISTANCE_IMAGE])
 fg.on_new_frame(callback)
+...
+fg.stop()
 :::
 ::::
 ::::{group-tab} c++
@@ -102,6 +104,7 @@ main()
   fg->Start({ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE});
   fg->OnNewFrame(&Callback);
   ...
+  fg->Stop();
 }
 :::
 ::::
@@ -146,6 +149,23 @@ auto rgb = frame->get_buffer(ifm3d::buffer_id::JPEG_IMAGE);
 :::::
 
 ## The full example
+
+### Using a callback
+:::::{tabs}
+::::{group-tab} Python
+:::{literalinclude} getting_data_callback.py
+:language: python
+:::
+::::
+
+::::{group-tab} C++
+:::{literalinclude} getting_data_callback.cpp
+:language: cpp
+:::
+::::
+:::::
+
+### Using the polling mode
 :::::{tabs}
 ::::{group-tab} Python
 :::{literalinclude} getting_data.py
@@ -159,4 +179,3 @@ auto rgb = frame->get_buffer(ifm3d::buffer_id::JPEG_IMAGE);
 :::
 ::::
 :::::
-```

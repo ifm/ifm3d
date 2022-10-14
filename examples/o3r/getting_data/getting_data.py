@@ -16,6 +16,7 @@ async def main():
   dist = frame.get_buffer(buffer_id.RADIAL_DISTANCE_IMAGE)
   (width, height) = dist.shape
   print(dist[width//2,height//2])
+  fg.stop()
 
 if __name__ == "__main__":
     asyncio.run(main())
