@@ -1,5 +1,6 @@
 # Basic Library Usage
-
+```{include} ../news/news_release.md
+``` 
 :::{toctree}
 First steps with ifm3dpy <basic_lib_usage/first_steps_ifm3dpy>
 How to: configure the camera <o3r/configuration/configuration>

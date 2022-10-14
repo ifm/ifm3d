@@ -22,3 +22,4 @@ fg.on_new_frame(callback)
 # Sleep to avoid exiting the program too soon
 time.sleep(1)
 
+fg.stop()

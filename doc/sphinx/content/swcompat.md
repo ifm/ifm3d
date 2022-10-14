@@ -53,8 +53,8 @@ ifm3d Software Compatibility Matrix
     <td>0.3.3</td>
     <td>1.6.2114</td>
     <td>0.1.20</td>
-    <td>14.04, 16.04</td>
     <td></td>
+    <td>14.04, 16.04</td>
     <td>Windows build support</td>
   </tr>
   <tr>
@@ -285,4 +285,12 @@ ifm3d Software Compatibility Matrix
     <td>20.04</td>
     <td>early adopter release for O3R</td>
   </tr>  
+  <tr>
+    <td>1.0.0 </td>
+    <td>Not tested</td>
+    <td>Not tested</td>
+    <td>13.11, 0.14.23</td>
+    <td>20.04</td>
+    <td>Official release for O3R</td>
+  </tr>    
 </table>
