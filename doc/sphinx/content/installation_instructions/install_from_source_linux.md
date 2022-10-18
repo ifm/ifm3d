@@ -13,8 +13,6 @@ and follow these [instructions](https://github.com/ifm/ifm3d/blob/v0.20.3/doc/so
 | USE_LEGACY_COORDINATES | Use the legacy coordinates (ifm3d <= 0.92.x) with swapped axis | OFF | 
 | BUILD_MODULE_SWUPDATER | Build the swupdater module | ON | 
 | BUILD_SDK_PKG | Build install packages for development purposes | ON | 
-| FORCE_OPENCV3 | Force the build to require OpenCV 3 | OFF | 
-| FORCE_OPENCV2 | Force the build to require OpenCV 2.4 | OFF | 
 | BUILD_SHARED_LIBS | Build modules as shared libraries | ON | 
 | BUILD_EXAMPLES | Build the examples | OFF | 
 | BUILD_DOC | Build documentation | OFF |
