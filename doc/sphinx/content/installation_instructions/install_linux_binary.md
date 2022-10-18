@@ -1,6 +1,6 @@
 ## Installing ifm3d from .deb file
 
-**Note**: If you are using O3D/O3X device please use ifm3d-v0.20.3 release and use these [instructions](https://github.com/ifm/ifm3d/blob/legacy/doc/source_build.md)
+**Note**: If you are using O3D/O3X device please use ifm3d-v0.20.3 release and use these [instructions](https://github.com/ifm/ifm3d/blob/v0.20.3/doc/source_build.md)
 
 ### Download ifm3d .deb files
 
