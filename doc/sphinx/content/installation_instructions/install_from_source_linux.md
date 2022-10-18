@@ -1,7 +1,7 @@
 ## Installing ifm3d from source
 
 **Note**: Following Instruction are for ifm3d-v1.0.0 and above which provide full support for O3R devices. if you are using O3D/O3X device please use ifm3d-v0.20.3
-and follow these [instructions](https://github.com/ifm/ifm3d/blob/legacy/doc/source_build.md)
+and follow these [instructions](https://github.com/ifm/ifm3d/blob/v0.20.3/doc/source_build.md)
 
 ### Overview of the available build flags
 | Flag name | Description | Default value |
@@ -19,7 +19,7 @@ and follow these [instructions](https://github.com/ifm/ifm3d/blob/legacy/doc/sou
 | BUILD_EXAMPLES | Build the examples | OFF | 
 | BUILD_DOC | Build documentation | OFF |
 | BUILD_MODULE_PCICCLIENT | Build the pcicclient module | OFF |
-
+| BUILD_IN_DEPS | Download, build and install required dependencies with ifm3d (for ifm3d v0.93.0 and above) | ON |
 ### Build Dependencies
 
 <table>
@@ -61,12 +61,11 @@ and follow these [instructions](https://github.com/ifm/ifm3d/blob/legacy/doc/sou
   </tr>
 </table>
 
-ifm3d v0.93.0 and above provides a build flag ```-DBUILD_IN_DEPS=ON``` which download, build and install required dependencies with ifm3d.
 
 ### Building From Source
 Start with cloning the code from the ifm3d github repository {{ '[here]({})'.format(ifm3d_gh_url) }}.
 
-⚠ The code on the branch {{ ifm3d_main_branch }} is updated nightly and contains the latest changes to the library. It is typically a work in progress.
+⚠ The code on the branch {{ ifm3d_main_branch }} is updated nightly and contains the latest changes to the library. It is typically a work in progress.  
 ⚠ We recommend using tagged versions for your builds, to ensure consistency between builds. The latest tagged version can be found {{ '[here]({})'.format(ifm3d_latest_tag_url) }}.
 
 #### The default build
@@ -95,7 +94,8 @@ $ make
 
 ### Build debian packages from source
 
-This additional sections provide instruction to buils debian packages from ifm3d source.
+This additional section provides instructions to build Debian packages from ifm3d source.  
+To install the existing ifm3d Debian packages please refer to [this](ifm3d/doc/sphinx/content/installation_instructions/install_linux_binary:Installing%20ifm3d%20from%20.deb%20file) section.
 
 #### Install dependencies for ifm3d debian packages
 
