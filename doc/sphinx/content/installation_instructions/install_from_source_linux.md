@@ -87,7 +87,7 @@ The examples can be built along with the rest of the library by switching the DB
 
 ```
 $ cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_EXAMPLES=ON ..
-$ make
+$ cmake --build . --target ALL_BUILD
 ```
 
 ### Build debian packages from source
