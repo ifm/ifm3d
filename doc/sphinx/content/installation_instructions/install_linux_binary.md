@@ -32,10 +32,16 @@ Above apt-get commands are specific to Debian based systems
 unzip the .tar file and use following command to install ifm3d from deps
 
 ```
-$ sudo dpkg -i ifm3d_X.X.X_amd64-device.deb
-$ sudo dpkg -i ifm3d_1.18.0_amd64-swupdater.deb
-$ sudo dpkg -i ifm3d_1.18.0_amd64-framegrabber.deb
-$ sudo dpkg -i ifm3d_1.18.0_amd64-tools.deb
+$ sudo dpkg -i ifm3d_1.0.1_amd64-device.deb
+$ sudo dpkg -i ifm3d_1.0.1_amd64-swupdater.deb
+$ sudo dpkg -i ifm3d_1.0.1_amd64-framegrabber.deb
+$ sudo dpkg -i ifm3d_1.0.1_amd64-tools.deb
+```
+
+one can install all the debs will following command
+```
+$ cd <folder containing all the debs>
+$ sudo dpkg -R -i .
 ```
 
 This will install the required binaries and headers to /usr folder.
