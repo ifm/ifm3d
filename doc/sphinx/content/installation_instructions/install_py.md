@@ -31,7 +31,7 @@ Then try importing the package:
 ```python
 import ifm3dpy
 print(ifm3dpy.__version__)
->>>0.91.0
+>>>1.0.1
 ```
 
 You can test the connection from VPU to camera head with following lines:

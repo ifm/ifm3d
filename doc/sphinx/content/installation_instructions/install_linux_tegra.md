@@ -31,13 +31,10 @@ Install the software:
 
 ```
 $ sudo apt-get update
-$ sudo apt-get install ifm3d-camera \
+$ sudo apt-get install ifm3d-device \
                        ifm3d-framegrabber \
                        ifm3d-swupdater \
-                       ifm3d-image \
-                       ifm3d-opencv \
                        ifm3d-pcicclient \
                        ifm3d-tools \
                        ifm3d-python3 \
-                       ifm3d-pcl-viewer \
 ```

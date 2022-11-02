@@ -25,4 +25,4 @@ docker pull --platform=linux/arm64 ghcr.io/ifm/ifm3d:stable
 ```
 Suffixes are also available to define the platform. For instance, one can use the tag `stable-ubuntu-arm64`.
 
-For more detailed documentation on using docker containers with the O3R platform, you can refer to [this section](documentation/docker/README:Docker%20on%20O3R).
+For more detailed documentation on using docker containers with the O3R platform, you can refer to [this section](documentation/O3R/Docker/README:Docker%20on%20O3R).
