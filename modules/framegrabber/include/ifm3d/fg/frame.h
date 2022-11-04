@@ -15,12 +15,12 @@
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/frame_grabber_export.h>
 
-/// @brief  
+/// @brief
 namespace ifm3d
 {
   /**
    * buffer_ids available for use with the default Organizer.
-   * Note that not all image types are available for all devices. 
+   * Note that not all image types are available for all devices.
    */
   enum class buffer_id : uint64_t
   {

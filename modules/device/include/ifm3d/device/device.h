@@ -16,7 +16,7 @@
 #include <ifm3d/device/ifm_network_device.h>
 
 using json = nlohmann::json;
-/// @brief 
+/// @brief
 namespace ifm3d
 {
   extern IFM3D_DEVICE_EXPORT const std::string DEFAULT_IP;
@@ -81,7 +81,8 @@ namespace ifm3d
     FORMAT_16U2 = 9,
     FORMAT_32F3 = 10
   };
-  #ifndef DOXYGEN_SHOULD_SKIP_THIS  
+
+  #ifndef DOXYGEN_SHOULD_SKIP_THIS
   enum class image_chunk : std::uint32_t
   {
     RADIAL_DISTANCE_IMAGE = 100,
@@ -111,7 +112,7 @@ namespace ifm3d
     O3R_ODS_OCCUPANCY_GRID = 1000,
     O3R_ODS_INFO = 1001,
   };
-  #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+  #endif // DOXYGEN_SHOULD_SKIP_THIS
 
   class XMLRPCWrapper;
 
