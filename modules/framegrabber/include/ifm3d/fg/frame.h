@@ -55,7 +55,7 @@ namespace ifm3d
     XYZ = std::numeric_limits<std::uint32_t>::max(), ///< The point cloud encoded as a 3 channel XYZ image
     EXPOSURE_TIME,///< Exposure time
     ILLUMINATION_TEMP,///< Temperature of the illumination
-    // clang-format on
+                       // clang-format on
   };
   using TimePointT = std::chrono::time_point<std::chrono::system_clock,
                                              std::chrono::nanoseconds>;

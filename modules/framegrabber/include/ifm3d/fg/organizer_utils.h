@@ -4,17 +4,17 @@
  */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-#ifndef IFM3D_FG_ORGANIZER_UTILS_H
-#define IFM3D_FG_ORGANIZER_UTILS_H
+#  ifndef IFM3D_FG_ORGANIZER_UTILS_H
+#    define IFM3D_FG_ORGANIZER_UTILS_H
 
-#include <map>
-#include <optional>
-#include <vector>
-#include <tuple>
-#include <ifm3d/device/device.h>
-#include <ifm3d/fg/buffer.h>
-#include <ifm3d/fg/frame.h>
-#include <ifm3d/fg/distance_image_info.h>
+#    include <map>
+#    include <optional>
+#    include <vector>
+#    include <tuple>
+#    include <ifm3d/device/device.h>
+#    include <ifm3d/fg/buffer.h>
+#    include <ifm3d/fg/frame.h>
+#    include <ifm3d/fg/distance_image_info.h>
 
 namespace ifm3d
 {
@@ -99,11 +99,11 @@ namespace ifm3d
       unsigned char bytes[sizeof(T)];
     } value;
 
-#if !defined(_WIN32) && __BYTE_ORDER == __BIG_ENDIAN
+#    if !defined(_WIN32) && __BYTE_ORDER == __BIG_ENDIAN
     std::reverse_copy(buff, buff + sizeof(T), value.bytes);
-#else
+#    else
     std::copy(buff, buff + sizeof(T), value.bytes);
-#endif
+#    endif
 
     return value.v;
   }
@@ -153,5 +153,5 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
-#endif // IFM3D_FG_ORGANIZER_UTILS_H
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#  endif // IFM3D_FG_ORGANIZER_UTILS_H
+#endif   // DOXYGEN_SHOULD_SKIP_THIS
