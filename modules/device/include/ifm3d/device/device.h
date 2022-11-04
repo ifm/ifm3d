@@ -4,7 +4,7 @@
  * Copyright 2017 Love Park Robotics, LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-
+/// @file
 #ifndef IFM3D_DEVICE_DEVICE_H
 #define IFM3D_DEVICE_DEVICE_H
 
@@ -16,7 +16,7 @@
 #include <ifm3d/device/ifm_network_device.h>
 
 using json = nlohmann::json;
-
+/// @brief 
 namespace ifm3d
 {
   extern IFM3D_DEVICE_EXPORT const std::string DEFAULT_IP;
@@ -66,6 +66,7 @@ namespace ifm3d
   extern IFM3D_DEVICE_EXPORT const unsigned int
     O3X_DISTANCE_NOISE_IMAGE_SUPPORT_PATCH;
 
+  /// @brief Pixel format correspondence
   enum class pixel_format : std::uint32_t
   {
     FORMAT_8U = 0,
@@ -80,7 +81,7 @@ namespace ifm3d
     FORMAT_16U2 = 9,
     FORMAT_32F3 = 10
   };
-
+  #ifndef DOXYGEN_SHOULD_SKIP_THIS  
   enum class image_chunk : std::uint32_t
   {
     RADIAL_DISTANCE_IMAGE = 100,
@@ -110,6 +111,7 @@ namespace ifm3d
     O3R_ODS_OCCUPANCY_GRID = 1000,
     O3R_ODS_INFO = 1001,
   };
+  #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
   class XMLRPCWrapper;
 

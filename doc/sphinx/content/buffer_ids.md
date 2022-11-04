@@ -1,28 +1,28 @@
 ## Device, Schema and data types for ifm3d::Buffer
 
-```ifm3d``` supports multiple devices. These devices support multiple buffers/data types which can have different data formats on different devices.
-The following table summarizes the buffers formats, along with their [ifm3d::buffer_id](../../../modules/framegrabber/include/ifm3d/fg#L22), so a ```std::set<ifm3d::buffer_id>``` needs to be pass in ```FrameGrabber::Start``` method to enable the corresponding buffer for grabbing.
- 
+```ifm3d``` supports multiple devices. 
+To see the list of available buffer types, refer to [this](https://ifm3d.com/sphinx-doc/build/html/ifm3d/doc/sphinx/cpp_api/frame_8h.html#a363ee802dc7953150dc23ba56d7e9c50) section of the API documentation.
 
-| Data/Image                              | ifm3d schema                                    | O3D3XX             | O3X           | O3R                |
-|-----------------------------------------|-------------------------------------------------|--------------------|---------------|--------------------|
-| Radial distance image                   | ifm3d::buffer_id::RADIAL_DISTANCE               | std::uint16_t      | float         | float              |
-| Amplitude image                         | ifm3d::buffer_id::AMPLITUDE                     | std::uint16_t      | float         | float              |
-| Raw amplitude image                     | ifm3d::buffer_id::RAW_AMPLITUDE                 | std::uint16_t      | float         | NA                 |
-| Cartesian coordinate                    | ifm3d::buffer_id::XYZ                           | std::int16_t       | float         | float              |
-| Unit vector                             | ifm3d::buffer_id::UNIT_VECTOR_ALL               | float              | float         | NA                 |
-| Image grayscale                         | ifm3d::buffer_id::GRAY                          | std::uint16_t      | float         | NA                 |
-| Distance Noise Image                    | ifm3d::buffer_id::DISTANCE_NOISE                | NA                 | std::uint16_t | std::uint16_t      |
-| Confidence Image                        | ifm3d::buffer_id::CONFIDENCE                    | std::uint8_t       | std::uint8_t  | std::unit16_t      |
-| JPEG                                    | ifm3d::buffer_id::IMG_JPEG                      | NA                 | NA            | std::unit8_t       |
+These devices provide multiple buffers/data types which can have different data formats.
 
-Along with above data ifm3d also supports [ifm3d::buffer_id](../../../modules/framegrabber/include/ifm3d/fg#L22) values, which is used to obtain data that are obtained in standard STL containers or C++ default types.
+To retrieve the data type for a specific buffer, one can use the code below (adapt to the specific `buffer_id`):
+:::::{tabs}
+::::{group-tab}
+:::cpp
+ifm3d::Buffer xyz = frame->GetBuffer(ifm3d::buffer_id::XYZ);
 
-| Data/Image                              | ifm3d schema                                    | O3D3XX                           | O3X                              | O3R                              |
-|-----------------------------------------|-------------------------------------------------|----------------------------------|----------------------------------|----------------------------------|
-| JSON Model Data                         | ifm3d::buffer_id::JSON_MODEL                    | std::string        | NA            | NA                 |
-| JSON Model Data                         | ifm3d::buffer_id::JSON_MODEL                    | std::string                      | NA                               | NA                               |
-| Intrinsic calibration parameter         | ifm3d::buffer_id::INTRINSIC_CALIBRATION         | std::vector<float>               | NA                               | std::vector<float>               |
-| inverse Intrinsic calibration parameter | ifm3d::buffer_id::INVERSE_INTRINSIC_CALIBRATION | std::vector<float>               | NA                               | std::vector<float>               |
-| Illumination temperature                | ifm3d::buffer_id::ILLUMINATION_TEMP             | float                            | NA                               | NA                               |
-| Exposure time                           | ifm3d::buffer_id::EXPOSURE_TIME                 | std::vector\<ifm3d::TimePointT\> | std::vector\<ifm3d::TimePointT\> | std::vector\<ifm3d::TimePointT\> |
+// Query the data format and channel.
+std::cout << xyz.nchannels() << std::endl;
+std::cout << static_cast<int>(xyz.dataFormat()) << std::endl;
+:::
+::::
+::::{group-tab}
+:::python
+print(type(frame.get_buffer(buffer_id.XYZ)))
+print(np.shape(frame.get_buffer(buffer_id.XYZ)))
+print(frame.get_buffer(buffer_id.RADIAL_DISTANCE_NOISE).dtype)
+:::
+:::: 
+:::::
+
+In C++, one has to refer to the pixel format correspondence defined in the API [here](ADDLINK). For instance, the format returned for `ifm3d::buffer_id::XYZ` is `2`, which corresponds to `FORMAT_32F` (32 bit float).

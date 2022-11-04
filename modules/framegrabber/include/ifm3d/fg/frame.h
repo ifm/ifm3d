@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/// @file
 #ifndef IFM3D_FG_FRAME_H
 #define IFM3D_FG_FRAME_H
 
@@ -16,7 +15,7 @@
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/frame_grabber_export.h>
 
-
+/// @brief  
 namespace ifm3d
 {
   /**
