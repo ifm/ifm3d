@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/// @file
 #ifndef IFM3D_FG_FRAME_H
 #define IFM3D_FG_FRAME_H
 
@@ -15,44 +16,46 @@
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/frame_grabber_export.h>
 
+
 namespace ifm3d
 {
   /**
    * buffer_ids available for use with the default Organizer.
+   * Note that not all image types are available for all devices. 
    */
   enum class buffer_id : uint64_t
   {
     // clang-format off
 
-    RADIAL_DISTANCE_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::RADIAL_DISTANCE_IMAGE),
-    NORM_AMPLITUDE_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::NORM_AMPLITUDE_IMAGE),
-    AMPLITUDE_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::AMPLITUDE_IMAGE),
-    GRAYSCALE_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::GRAYSCALE_IMAGE),
-    RADIAL_DISTANCE_NOISE = static_cast<uint64_t>(ifm3d::image_chunk::RADIAL_DISTANCE_NOISE),
-    REFLECTIVITY = static_cast<uint64_t>(ifm3d::image_chunk::REFLECTIVITY),
-    CARTESIAN_X_COMPONENT = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_X_COMPONENT),
-    CARTESIAN_Y_COMPONENT = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_Y_COMPONENT),
-    CARTESIAN_Z_COMPONENT = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_Z_COMPONENT),
-    CARTESIAN_ALL = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_ALL),
-    UNIT_VECTOR_ALL = static_cast<uint64_t>(ifm3d::image_chunk::UNIT_VECTOR_ALL),
-    MONOCHROM_2D_12BIT = static_cast<uint64_t>(ifm3d::image_chunk::MONOCHROM_2D_12BIT),
-    MONOCHROM_2D = static_cast<uint64_t>(ifm3d::image_chunk::MONOCHROM_2D),
-    JPEG_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::JPEG_IMAGE),
-    CONFIDENCE_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::CONFIDENCE_IMAGE),
-    DIAGNOSTIC = static_cast<uint64_t>(ifm3d::image_chunk::DIAGNOSTIC),
-    JSON_DIAGNOSTIC = static_cast<uint64_t>(ifm3d::image_chunk::JSON_DIAGNOSTIC),
-    EXTRINSIC_CALIB = static_cast<uint64_t>(ifm3d::image_chunk::EXTRINSIC_CALIB),
-    INTRINSIC_CALIB = static_cast<uint64_t>(ifm3d::image_chunk::INTRINSIC_CALIB),
-    INVERSE_INTRINSIC_CALIBRATION = static_cast<uint64_t>(ifm3d::image_chunk::INVERSE_INTRINSIC_CALIBRATION),
-    O3R_DISTANCE_IMAGE_INFO = static_cast<uint64_t>(ifm3d::image_chunk::O3R_DISTANCE_IMAGE_INFO),
-    O3R_RGB_IMAGE_INFO = static_cast<uint64_t>(ifm3d::image_chunk::O3R_RGB_IMAGE_INFO),
-    JSON_MODEL = static_cast<uint64_t>(ifm3d::image_chunk::JSON_MODEL),
-    ALGO_DEBUG = static_cast<uint64_t>(ifm3d::image_chunk::ALGO_DEBUG),
-    O3R_ODS_OCCUPANCY_GRID = static_cast<uint64_t>(ifm3d::image_chunk::O3R_ODS_OCCUPANCY_GRID),
-    O3R_ODS_INFO = static_cast<uint64_t>(ifm3d::image_chunk::O3R_ODS_INFO),
-    XYZ = std::numeric_limits<std::uint32_t>::max(), // The point cloud encoded as a 3 channel XYZ image
-    EXPOSURE_TIME,
-    ILLUMINATION_TEMP,
+    RADIAL_DISTANCE_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::RADIAL_DISTANCE_IMAGE), ///< Radial distance
+    NORM_AMPLITUDE_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::NORM_AMPLITUDE_IMAGE),///< Normalized amplitude
+    AMPLITUDE_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::AMPLITUDE_IMAGE),///< Raw amplitude (non normalized)
+    GRAYSCALE_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::GRAYSCALE_IMAGE),///< Grayscale image
+    RADIAL_DISTANCE_NOISE = static_cast<uint64_t>(ifm3d::image_chunk::RADIAL_DISTANCE_NOISE),///< Radial distance noise
+    REFLECTIVITY = static_cast<uint64_t>(ifm3d::image_chunk::REFLECTIVITY), ///< Reflectivity
+    CARTESIAN_X_COMPONENT = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_X_COMPONENT),///< X 
+    CARTESIAN_Y_COMPONENT = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_Y_COMPONENT),///< Y
+    CARTESIAN_Z_COMPONENT = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_Z_COMPONENT),///< Z
+    CARTESIAN_ALL = static_cast<uint64_t>(ifm3d::image_chunk::CARTESIAN_ALL),///< The three cartesian components of the point cloud
+    UNIT_VECTOR_ALL = static_cast<uint64_t>(ifm3d::image_chunk::UNIT_VECTOR_ALL),///< Unit vectors
+    MONOCHROM_2D_12BIT = static_cast<uint64_t>(ifm3d::image_chunk::MONOCHROM_2D_12BIT),///< 
+    MONOCHROM_2D = static_cast<uint64_t>(ifm3d::image_chunk::MONOCHROM_2D),///< 
+    JPEG_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::JPEG_IMAGE),///< Jpeg 
+    CONFIDENCE_IMAGE = static_cast<uint64_t>(ifm3d::image_chunk::CONFIDENCE_IMAGE),///< Confidence image 
+    DIAGNOSTIC = static_cast<uint64_t>(ifm3d::image_chunk::DIAGNOSTIC),///< Diagnostic data
+    JSON_DIAGNOSTIC = static_cast<uint64_t>(ifm3d::image_chunk::JSON_DIAGNOSTIC),///< Diagnostic data in json format
+    EXTRINSIC_CALIB = static_cast<uint64_t>(ifm3d::image_chunk::EXTRINSIC_CALIB),///< Extrinsic calibration values
+    INTRINSIC_CALIB = static_cast<uint64_t>(ifm3d::image_chunk::INTRINSIC_CALIB),///< Intrinsic calibration values
+    INVERSE_INTRINSIC_CALIBRATION = static_cast<uint64_t>(ifm3d::image_chunk::INVERSE_INTRINSIC_CALIBRATION),///< Inverse intrinsic calibration values
+    O3R_DISTANCE_IMAGE_INFO = static_cast<uint64_t>(ifm3d::image_chunk::O3R_DISTANCE_IMAGE_INFO),///< Distance image info for the O3R
+    O3R_RGB_IMAGE_INFO = static_cast<uint64_t>(ifm3d::image_chunk::O3R_RGB_IMAGE_INFO),///< RGB image info for the O3R
+    JSON_MODEL = static_cast<uint64_t>(ifm3d::image_chunk::JSON_MODEL),///< Json model
+    ALGO_DEBUG = static_cast<uint64_t>(ifm3d::image_chunk::ALGO_DEBUG),///< Internal data type for development purposes
+    O3R_ODS_OCCUPANCY_GRID = static_cast<uint64_t>(ifm3d::image_chunk::O3R_ODS_OCCUPANCY_GRID),///< ODS occupancy grid
+    O3R_ODS_INFO = static_cast<uint64_t>(ifm3d::image_chunk::O3R_ODS_INFO),///< ODS info
+    XYZ = std::numeric_limits<std::uint32_t>::max(), ///< The point cloud encoded as a 3 channel XYZ image
+    EXPOSURE_TIME,///< Exposure time
+    ILLUMINATION_TEMP,///< Temperature of the illumination
     // clang-format on
   };
   using TimePointT = std::chrono::time_point<std::chrono::system_clock,
