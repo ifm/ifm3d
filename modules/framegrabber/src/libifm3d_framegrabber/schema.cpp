@@ -160,6 +160,11 @@ ifm3d::make_schema(const std::set<ifm3d::buffer_id>& buffer_ids,
           auto json_schema_for_id =
             check_for_device_support(chunk_id, schema_map);
 
+          if (json_schema_for_id.is_null())
+            {
+              continue;
+            }
+
           if (json_schema_for_id.is_array())
             {
               for (const auto& val : json_schema_for_id)
