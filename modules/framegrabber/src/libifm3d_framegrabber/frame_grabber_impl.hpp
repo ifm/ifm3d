@@ -655,7 +655,16 @@ ifm3d::FrameGrabber::Impl::GenerateDefaultSchema()
       image_chunk_ids.insert(ifm3d::buffer_id::EXTRINSIC_CALIB);
     }
 
-  return ifm3d::make_schema(image_chunk_ids, cam_->WhoAmI());
+  auto schema = ifm3d::make_schema(image_chunk_ids, cam_->WhoAmI());
+
+  if (this->cam_->AmI(ifm3d::Device::device_family::O3R))
+    {
+      schema = ifm3d::make_o3r_schema_compatiable_with_firmware(
+        schema,
+        cam_->FirmwareVersion());
+    }
+
+  return schema;
 }
 
 std::set<ifm3d::buffer_id>
@@ -669,7 +678,7 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(buffer_id id)
       if (device_type == ifm3d::Device::device_family::O3R)
         return {
           buffer_id::XYZ,
-          buffer_id::O3R_DISTANCE_IMAGE_INFO,
+          buffer_id::TOF_INFO,
           buffer_id::RADIAL_DISTANCE_IMAGE,
           buffer_id::NORM_AMPLITUDE_IMAGE,
         };
@@ -690,7 +699,7 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(buffer_id id)
       if (device_type == ifm3d::Device::device_family::O3R)
         {
           return {id,
-                  buffer_id::O3R_DISTANCE_IMAGE_INFO,
+                  buffer_id::TOF_INFO,
                   buffer_id::RADIAL_DISTANCE_IMAGE,
                   buffer_id::NORM_AMPLITUDE_IMAGE};
         }
@@ -702,7 +711,7 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(buffer_id id)
       if (device_type == ifm3d::Device::device_family::O3R)
         {
           return {id,
-                  buffer_id::O3R_DISTANCE_IMAGE_INFO,
+                  buffer_id::TOF_INFO,
                   buffer_id::RADIAL_DISTANCE_NOISE};
         }
       return {id};

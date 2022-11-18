@@ -14,6 +14,7 @@
 #include <ifm3d/fg/frame_grabber_export.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/frame.h>
+#include <ifm3d/device/semver.h>
 
 namespace ifm3d
 {
@@ -35,6 +36,15 @@ namespace ifm3d
    * @return A json-string comaptible with o3x xmlrpc
    */
   json make_o3x_json_from_mask(const std::set<ifm3d::buffer_id>& chunk_ids);
+
+
+   /**
+   * Utility function makes the schema compatiable with O3R firmware version,
+   *
+   * @param[in] schema in json
+   * @return A json-string comaptible with o3r
+   */
+  json make_o3r_schema_compatiable_with_firmware(json& schema, ifm3d::SemVer& ver);
 
   /**
    * Utility function to create a schema mask from a string.
