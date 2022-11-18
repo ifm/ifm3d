@@ -326,7 +326,6 @@ ifm3d::Device::FirmwareVersion()
   return this->pImpl->FirmwareVersion();
 }
 
-
 void
 ifm3d::Device::ForceTrigger()
 {}

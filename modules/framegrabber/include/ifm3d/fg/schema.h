@@ -37,8 +37,7 @@ namespace ifm3d
    */
   json make_o3x_json_from_mask(const std::set<ifm3d::buffer_id>& chunk_ids);
 
-
-   /**
+  /**
    * Utility function makes the schema compatiable with O3R firmware version,
    *
    * @param[in] schema in json

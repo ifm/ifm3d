@@ -15,18 +15,19 @@
 
 namespace ifm3d
 {
-  bool check_for_id(const json& elements, std::string id)
+  bool
+  check_for_id(const json& elements, std::string id)
   {
-    for (auto& element : elements) {
-      if (element["id"] == id) 
+    for (auto& element : elements)
       {
-          return true;
-       }
-    }
+        if (element["id"] == id)
+          {
+            return true;
+          }
+      }
     return false;
   }
 };
-
 
 TEST(Schema, MakeSchema_O3R)
 {
@@ -41,16 +42,12 @@ TEST(Schema, MakeSchema_O3R)
     ifm3d::make_schema(buffer_ids, ifm3d::Device::device_family::O3R);
 
   EXPECT_TRUE(schema["elements"].is_array());
-  //2 for buffer_ids and 2 for start and stop
-  EXPECT_TRUE(schema["elements"].size() == 2+2);
-
+  // 2 for buffer_ids and 2 for start and stop
+  EXPECT_TRUE(schema["elements"].size() == 2 + 2);
 }
-
 
 TEST(Schema, o3r_firmware_compatibility_rgb_info)
 {
-
-  
 
   auto check_buffer_id_and_id = [&](ifm3d::buffer_id buffer_id) {
     std::set<ifm3d::buffer_id> buffer_ids = {buffer_id};
@@ -58,7 +55,7 @@ TEST(Schema, o3r_firmware_compatibility_rgb_info)
     auto schema =
       ifm3d::make_schema(buffer_ids, ifm3d::Device::device_family::O3R);
 
-    EXPECT_TRUE(ifm3d::check_for_id(schema["elements"],"RGB_INFO"));
+    EXPECT_TRUE(ifm3d::check_for_id(schema["elements"], "RGB_INFO"));
 
     auto schema_firware_101 =
       ifm3d::make_o3r_schema_compatiable_with_firmware(schema,
@@ -79,14 +76,13 @@ TEST(Schema, o3r_firmware_compatibility_rgb_info)
         schema,
         ifm3d::SemVer(0, 16, 0));
 
-    EXPECT_TRUE(ifm3d::check_for_id(schema_firware_below_101["elements"]
-                ,"O3R_RGB_IMAGE_INFO"));
+    EXPECT_TRUE(ifm3d::check_for_id(schema_firware_below_101["elements"],
+                                    "O3R_RGB_IMAGE_INFO"));
   };
 
   check_buffer_id_and_id(ifm3d::buffer_id::RGB_INFO);
   check_buffer_id_and_id(ifm3d::buffer_id::O3R_RGB_IMAGE_INFO);
 }
-
 
 TEST(Schema, o3r_firmware_compatibility_tof_info)
 {
@@ -117,11 +113,10 @@ TEST(Schema, o3r_firmware_compatibility_tof_info)
         schema,
         ifm3d::SemVer(0, 16, 0));
 
-    EXPECT_TRUE(ifm3d::check_for_id(schema_firware_below_101["elements"],
-                                    "TOF_INFO"));
+    EXPECT_TRUE(
+      ifm3d::check_for_id(schema_firware_below_101["elements"], "TOF_INFO"));
   };
 
   check_buffer_id_and_id(ifm3d::buffer_id::TOF_INFO);
   check_buffer_id_and_id(ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFO);
-
 }
