@@ -196,10 +196,10 @@ ifm3d::make_schema(const std::set<ifm3d::buffer_id>& buffer_ids,
 }
 
 json
-ifm3d::make_o3r_schema_compatiable_with_firmware(json& schema,
+ifm3d::make_o3r_schema_compatiable_with_firmware(const json& o3r_schema,
                                                  ifm3d::SemVer& ver)
 {
-
+  auto schema = o3r_schema;
   std::cout << "input schema " << schema  <<std::endl;
   if (ver < O3R_SCHEMA_FIRMWARE_COMPATIBILITY_CHECK_VERSION)
     {

@@ -44,7 +44,8 @@ namespace ifm3d
    * @param[in] schema in json
    * @return A json-string comaptible with o3r
    */
-  json make_o3r_schema_compatiable_with_firmware(json& schema, ifm3d::SemVer& ver);
+  json make_o3r_schema_compatiable_with_firmware(const json& o3r_schema,
+                                                 ifm3d::SemVer& ver);
 
   /**
    * Utility function to create a schema mask from a string.
