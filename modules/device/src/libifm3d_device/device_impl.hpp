@@ -121,7 +121,7 @@ ifm3d::Device::Impl::FirmwareVersion()
 {
   auto data = this->xwrapper_->value_struct_to_map(
     this->xwrapper_->XCallMain("getSWVersion"));
-  const auto swversion = ifm3d::SemVer::Parse(data["IFM_Software"]);
+  auto swversion = ifm3d::SemVer::Parse(data["IFM_Software"]);
   return swversion.value_or(ifm3d::SemVer(0, 0, 0));
 }
 
