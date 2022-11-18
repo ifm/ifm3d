@@ -14,6 +14,7 @@
 #include <ifm3d/contrib/nlohmann/json.hpp>
 #include <ifm3d/device/device_export.h>
 #include <ifm3d/device/ifm_network_device.h>
+#include <ifm3d/device/semver.h>
 
 using json = nlohmann::json;
 
@@ -103,8 +104,12 @@ namespace ifm3d
     EXTRINSIC_CALIB = 400,
     INTRINSIC_CALIB = 401,
     INVERSE_INTRINSIC_CALIBRATION = 402,
-    O3R_DISTANCE_IMAGE_INFO = 420,
-    O3R_RGB_IMAGE_INFO = 421,
+    TOF_INFO = 420,
+    O3R_DISTANCE_IMAGE_INFO [[deprecated]] =
+      static_cast<uint32_t>(ifm3d::image_chunk::TOF_INFO),
+    RGB_INFO = 421,
+    O3R_RGB_IMAGE_INFO [[deprecated]] =
+      static_cast<uint32_t>(ifm3d::image_chunk::RGB_INFO),
     JSON_MODEL = 500,
     ALGO_DEBUG = 900,
     O3R_ODS_OCCUPANCY_GRID = 1000,
@@ -421,6 +426,11 @@ namespace ifm3d
     bool CheckMinimumFirmwareVersion(unsigned int major,
                                      unsigned int minor,
                                      unsigned int patch);
+
+    /**
+     * get the firmware version of the device
+     */
+    ifm3d::SemVer FirmwareVersion();
 
     /**
      * Checks the swupdater version supported by device
