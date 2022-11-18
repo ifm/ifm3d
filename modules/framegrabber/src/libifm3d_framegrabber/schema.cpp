@@ -201,7 +201,7 @@ ifm3d::make_o3r_schema_compatiable_with_firmware(json& schema,
 {
 
   std::cout << "input schema " << schema  <<std::endl;
-  if (ver <= O3R_SCHEMA_FIRMWARE_COMPATIBILITY_CHECK_VERSION)
+  if (ver < O3R_SCHEMA_FIRMWARE_COMPATIBILITY_CHECK_VERSION)
     {
       // find and change id RGB_INFO to O3R_RGB_IMAGE_INFO
       auto& elements = schema["elements"];
