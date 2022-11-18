@@ -709,9 +709,7 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(buffer_id id)
     case buffer_id::RADIAL_DISTANCE_NOISE:
       if (device_type == ifm3d::Device::device_family::O3R)
         {
-          return {id,
-                  buffer_id::TOF_INFO,
-                  buffer_id::RADIAL_DISTANCE_NOISE};
+          return {id, buffer_id::TOF_INFO, buffer_id::RADIAL_DISTANCE_NOISE};
         }
       return {id};
 

@@ -73,13 +73,13 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
       chunks.find(image_chunk::RADIAL_DISTANCE_IMAGE) != chunks.end() &&
       chunks.find(image_chunk::NORM_AMPLITUDE_IMAGE) != chunks.end())
     {
-      distance_image_info = CreateDistanceImageInfo(
-        data,
-        chunks.at(image_chunk::TOF_INFO),
-        chunks.at(image_chunk::RADIAL_DISTANCE_IMAGE),
-        chunks.at(image_chunk::NORM_AMPLITUDE_IMAGE),
-        width,
-        height);
+      distance_image_info =
+        CreateDistanceImageInfo(data,
+                                chunks.at(image_chunk::TOF_INFO),
+                                chunks.at(image_chunk::RADIAL_DISTANCE_IMAGE),
+                                chunks.at(image_chunk::NORM_AMPLITUDE_IMAGE),
+                                width,
+                                height);
 
       chunks.erase(image_chunk::NORM_AMPLITUDE_IMAGE);
       chunks.erase(image_chunk::RADIAL_DISTANCE_IMAGE);
