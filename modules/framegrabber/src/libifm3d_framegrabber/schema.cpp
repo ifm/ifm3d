@@ -15,6 +15,10 @@
 #include <ifm3d/device/err.h>
 #include <ifm3d/contrib/nlohmann/json.hpp>
 
+
+const ifm3d::SemVer O3R_SCHEMA_FIRMWARE_COMPATIBILITY_CHECK_VERSION =
+  ifm3d::SemVer(1, 0, 1); 
+
 const std::map<ifm3d::buffer_id, const nlohmann::json> o3d_schema_map{
   {ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
    {{"type", "blob"}, {"id", "distance_image"}}},
@@ -75,13 +79,13 @@ const std::map<ifm3d::buffer_id, const nlohmann::json> o3r_schema_map{
    {{"type", "blob"}, {"id", "inverse_intrinsic_calibration"}}},
   {ifm3d::buffer_id::RADIAL_DISTANCE_NOISE,
    {{"type", "blob"}, {"id", "RADIAL_DISTANCE_NOISE"}}},
-  {ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFO,
+  {ifm3d::buffer_id::TOF_INFO,
    {{"type", "blob"}, {"id", "TOF_INFO"}}},
   {ifm3d::buffer_id::JPEG_IMAGE, {{"type", "blob"}, {"id", "JPEG_IMAGE"}}},
   {ifm3d::buffer_id::CONFIDENCE_IMAGE,
    {{"type", "blob"}, {"id", "CONFIDENCE"}}},
-  {ifm3d::buffer_id::O3R_RGB_IMAGE_INFO,
-   {{"type", "blob"}, {"id", "O3R_RGB_IMAGE_INFO"}}},
+  {ifm3d::buffer_id::RGB_INFO,
+   {{"type", "blob"}, {"id", "RGB_INFO"}}},
 };
 
 json
@@ -183,5 +187,28 @@ ifm3d::make_schema(const std::set<ifm3d::buffer_id>& buffer_ids,
   // Add stop to the schema
   elements.push_back(
     {{"type", "string"}, {"value", "stop"}, {"id", "end_string"}});
+  return schema;
+}
+
+json
+ifm3d::make_o3r_schema_compatiable_with_firmware(json& schema,
+                                                 ifm3d::SemVer& ver)
+{
+
+  std::cout << "input schema " << schema  <<std::endl;
+  if (ver <= O3R_SCHEMA_FIRMWARE_COMPATIBILITY_CHECK_VERSION)
+    {
+      // find and change id RGB_INFO to O3R_RGB_IMAGE_INFO
+      auto& elements = schema["elements"];
+
+      for (auto& item : elements)
+        {
+          if (item["id"] == "RGB_INFO")
+            {
+              item["id"] = "O3R_RGB_IMAGE_INFO";
+            }
+        }
+    }
+  std::cout << schema << std::endl;
   return schema;
 }
