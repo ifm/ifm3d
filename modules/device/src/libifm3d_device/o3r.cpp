@@ -120,6 +120,24 @@ ifm3d::O3R::ToJSON()
   return this->Get();
 }
 
+json
+ifm3d::O3R::GetDiagnostic()
+{
+  return this->pImpl->GetDiagnostic();
+}
+
+json
+ifm3d::O3R::GetDiagnosticFilterSchema()
+{
+  return this->pImpl->GetDiagnosticFilterSchema();
+}
+
+json
+ifm3d::O3R::GetDiagnosticFiltered(json filter)
+{
+  return this->pImpl->GetDiagnosticFiltered(filter);
+}
+
 void
 ifm3d::O3R::Reboot(const boot_mode& mode)
 {
