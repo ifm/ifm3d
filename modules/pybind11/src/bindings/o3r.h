@@ -251,6 +251,7 @@ bind_o3r(pybind11::module_& m)
       py::object json_loads = py::module::import("json").attr("loads");
       return json_loads(c->GetDiagnosticFiltered(json::parse(json_dumps(filter).cast<std::string>())).dump());
     },
+    py::arg("filter"),
     R"(
       Returns the content of the diagnostic memory formatted in JSON
       and filtered according to the JSON filter expression
