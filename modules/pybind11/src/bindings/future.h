@@ -85,6 +85,66 @@ private:
   std::shared_future<ResultType> future_;
 };
 
+template <>
+class FutureAwaitable<void>
+{
+public:
+  FutureAwaitable() : future_() {}
+
+  FutureAwaitable(const std::shared_future<void>& future)
+    : future_(std::move(future))
+  {}
+
+  FutureAwaitable<void>*
+  iter()
+  {
+    return this;
+  }
+
+  FutureAwaitable<void>*
+  await()
+  {
+    return this;
+  }
+
+  void
+  next()
+  {
+    // check if the future is resolved (with zero timeout)
+    auto status = this->future_.wait_for(std::chrono::milliseconds(0));
+
+    if (status == std::future_status::ready)
+      {
+        throw StopIteration(py::none());
+      }
+  };
+
+  void
+  wait()
+  {
+    py::gil_scoped_release release;
+    this->future_.wait();
+    return this->future_.get();
+  }
+
+  std::tuple<bool, std::nullopt_t>
+  wait_for(uint64_t timeout_ms)
+  {
+    py::gil_scoped_release release;
+
+    if (this->future_.wait_for(std::chrono::milliseconds(timeout_ms)) !=
+        std::future_status::ready)
+      {
+        return {false, std::nullopt};
+      }
+
+    return {true, std::nullopt};
+  }
+
+private:
+  std::shared_future<void> future_;
+};
+
 template <typename T>
 void
 bind_future(py::module_& m, const char* name, const char* message)
@@ -97,15 +157,15 @@ bind_future(py::module_& m, const char* name, const char* message)
     .def("wait",
          &FutureAwaitable<T>::wait,
          R"(
-      Blocks until the frame becomes available.
+          Blocks until the result becomes available.
     )")
     .def("wait_for",
          &FutureAwaitable<T>::wait_for,
          py::arg("timeout_ms"),
          R"(
-      Waits for the frame to become available. Blocks until specified timeout
+          Blocks until specified timeout runs out or the result to becomes available. 
 
-      :return: a tuple (True, Frame) if a frame was received within the timeout, (False, None) otherwise.
+          :return: a tuple (True, Result) if a result was received within the timeout, (False, None) otherwise.
     )");
 }
 

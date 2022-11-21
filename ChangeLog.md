@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Support for retrieving O3R Diagnostics over XMLRPC
+- Python binding: FrameGrabber.sw_trigger()
 
 ## 1.0.1 - 2022-10-14
 ### Added
