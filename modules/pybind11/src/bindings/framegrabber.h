@@ -17,6 +17,7 @@ bind_framegrabber(pybind11::module_& m)
   // clang-format off
 
   bind_future<ifm3d::Frame::Ptr>(m, "FrameAwaitable", "Provides a mechanism to access the frame object");
+  bind_future<void>(m, "Awaitable", "Provides a mechanism to wait for completion of a task");
 
   py::class_<ifm3d::FrameGrabber, ifm3d::FrameGrabber::Ptr> framegrabber(
     m,
@@ -189,6 +190,28 @@ bind_framegrabber(pybind11::module_& m)
       This function will enable the async notifications on device.
       The callback will be executed whenever a async notification
       is avaliable. It receives a message id and payload string
+    )"
+  );
+
+  framegrabber.def(
+    "sw_trigger",
+    [](const ifm3d::FrameGrabber::Ptr& fg) {
+      return FutureAwaitable<void>(fg->SWTrigger());
+    },
+    R"(
+      Triggers the device for image acquisition
+
+      You should be sure to set the `TriggerMode` for your application to
+      `SW` in order for this to be effective. This function
+      simply does the triggering, data are still received asynchronously via
+      `wait_for_frame()`.
+
+      Calling this function when the device is not in `SW` trigger mode or on
+      a device that does not support software-trigger should result in a NOOP
+      and no error will be returned (no exceptions thrown). However, we do not
+      recommend calling this function in a tight framegrabbing loop when you
+      know it is not needed. The "cost" of the NOOP is undefined and incurring
+      it is not recommended.
     )"
   );
 
