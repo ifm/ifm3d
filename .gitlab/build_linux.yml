@@ -59,11 +59,13 @@ build:linux:deb:
         PLATFORM: linux/aarch64
         BASE_IMAGE:
           - nvcr.io/nvidia/l4t-base:r32.4.3
+          - ubuntu:22.04
           - ubuntu:20.04
           - ubuntu:18.04
       - RUNNER: shared_docker
         PLATFORM: linux/amd64
         BASE_IMAGE:
+          - ubuntu:22.04
           - ubuntu:20.04
           - ubuntu:18.04
   tags:
@@ -98,10 +100,10 @@ build:linux:python_wheel:
     matrix:
       - RUNNER: shared_docker
         IMAGE: quay.io/pypa/manylinux2014_x86_64:latest
-        PYTHON_VERSION: ["cp38-cp38", "cp39-cp39", "cp310-cp310"]
+        PYTHON_VERSION: ["cp38-cp38", "cp39-cp39", "cp310-cp310", "cp311-cp311"]
       - RUNNER: shared_docker_aarch64
         IMAGE: quay.io/pypa/manylinux2014_aarch64:latest
-        PYTHON_VERSION: ["cp38-cp38", "cp39-cp39", "cp310-cp310"]
+        PYTHON_VERSION: ["cp38-cp38", "cp39-cp39", "cp310-cp310", "cp311-cp311"]
   tags:
     - ${RUNNER}
   script:
