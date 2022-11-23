@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Support for retrieving O3R Diagnostics over XMLRPC
+- Support for Python 3.11
+- Support for Ubuntu 22.04
 - Python binding: FrameGrabber.sw_trigger()
+
+### Fixes
+- XYZ_IMAGE coordinates were actually ZXY instead of XYZ, this has been corrected.
 
 ## 1.0.1 - 2022-10-14
 ### Added
