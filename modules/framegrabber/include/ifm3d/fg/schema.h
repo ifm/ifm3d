@@ -47,7 +47,7 @@ namespace ifm3d
    */
   IFM3D_FRAME_GRABBER_EXPORT json
   make_o3r_schema_compatiable_with_firmware(const json& o3r_schema,
-                                            ifm3d::SemVer& ver);
+                                            const ifm3d::SemVer& ver);
 
   /**
    * Utility function to create a schema mask from a string.
