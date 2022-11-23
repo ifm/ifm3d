@@ -4,7 +4,7 @@ deploy:oss_compilance:
   needs:
     - job: deploy:start
       artifacts: false
-    - job: deploy:linux:docker
+    - job: deploy:linux:docker_tagged
       artifacts: false
   image:
     name: nexus.ifm.com:20443/ifm-robotics/docker-oss-compliance
