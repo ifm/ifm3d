@@ -58,23 +58,22 @@ TEST(Schema, o3r_firmware_compatibility_rgb_info)
     EXPECT_TRUE(ifm3d::check_for_id(schema["elements"], "RGB_INFO"));
 
     auto schema_firware_101 =
-      ifm3d::make_o3r_schema_compatiable_with_firmware(schema,
-                                                       ifm3d::SemVer(1, 0, 1));
+      ifm3d::make_o3r_schema_compatible_with_firmware(schema,
+                                                      ifm3d::SemVer(1, 0, 1));
 
     EXPECT_TRUE(
       ifm3d::check_for_id(schema_firware_101["elements"], "RGB_INFO"));
 
     auto schema_firware_above_101 =
-      ifm3d::make_o3r_schema_compatiable_with_firmware(schema,
-                                                       ifm3d::SemVer(1, 1, 0));
+      ifm3d::make_o3r_schema_compatible_with_firmware(schema,
+                                                      ifm3d::SemVer(1, 1, 0));
 
     EXPECT_TRUE(
       ifm3d::check_for_id(schema_firware_above_101["elements"], "RGB_INFO"));
 
     auto schema_firware_below_101 =
-      ifm3d::make_o3r_schema_compatiable_with_firmware(
-        schema,
-        ifm3d::SemVer(0, 16, 0));
+      ifm3d::make_o3r_schema_compatible_with_firmware(schema,
+                                                      ifm3d::SemVer(0, 16, 0));
 
     EXPECT_TRUE(ifm3d::check_for_id(schema_firware_below_101["elements"],
                                     "O3R_RGB_IMAGE_INFO"));
@@ -95,23 +94,22 @@ TEST(Schema, o3r_firmware_compatibility_tof_info)
     EXPECT_TRUE(ifm3d::check_for_id(schema["elements"], "TOF_INFO"));
 
     auto schema_firware_101 =
-      ifm3d::make_o3r_schema_compatiable_with_firmware(schema,
-                                                       ifm3d::SemVer(1, 0, 1));
+      ifm3d::make_o3r_schema_compatible_with_firmware(schema,
+                                                      ifm3d::SemVer(1, 0, 1));
 
     EXPECT_TRUE(
       ifm3d::check_for_id(schema_firware_101["elements"], "TOF_INFO"));
 
     auto schema_firware_above_101 =
-      ifm3d::make_o3r_schema_compatiable_with_firmware(schema,
-                                                       ifm3d::SemVer(1, 1, 0));
+      ifm3d::make_o3r_schema_compatible_with_firmware(schema,
+                                                      ifm3d::SemVer(1, 1, 0));
 
     EXPECT_TRUE(
       ifm3d::check_for_id(schema_firware_above_101["elements"], "TOF_INFO"));
 
     auto schema_firware_below_101 =
-      ifm3d::make_o3r_schema_compatiable_with_firmware(
-        schema,
-        ifm3d::SemVer(0, 16, 0));
+      ifm3d::make_o3r_schema_compatible_with_firmware(schema,
+                                                      ifm3d::SemVer(0, 16, 0));
 
     EXPECT_TRUE(
       ifm3d::check_for_id(schema_firware_below_101["elements"], "TOF_INFO"));
