@@ -16,8 +16,9 @@ void
 bind_semver(pybind11::module_& m)
 {
 
-  py::class_<ifm3d::SemVer> semver(m, "SemVer",
-    R"(
+  py::class_<ifm3d::SemVer> semver(m,
+                                   "SemVer",
+                                   R"(
      struct for holding the version information
     )");
 
