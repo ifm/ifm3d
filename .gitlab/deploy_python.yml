@@ -3,13 +3,6 @@
   stage: deploy
   tags:
     - shared_docker
-  needs:
-    - job: deploy:start
-      artifacts: false
-    - job: build:windows_2019:python_wheel
-      artifacts: true
-    - job: build:linux:python_wheel
-      artifacts: true
   script:
     - |
       pip install --no-cache-dir twine
@@ -20,6 +13,13 @@ deploy:python_wheels_tagged:
   variables:
     TWINE_USERNAME: __token__
     TWINE_PASSWORD: ${PYPI_TOKEN}
+  needs:
+    - job: deploy:start
+      artifacts: false
+    - job: build:windows_2019:python_wheel
+      artifacts: true
+    - job: build:linux:python_wheel
+      artifacts: true
   rules:
     - !reference [.tagged, rules]
 
@@ -29,5 +29,10 @@ deploy:python_wheels_nightly:
     TWINE_USERNAME: __token__
     TWINE_PASSWORD: ${TEST_PYPI_TOKEN}
     TWINE_REPOSITORY: testpypi
+  needs:
+    - job: build:windows_2019:python_wheel
+      artifacts: true
+    - job: build:linux:python_wheel
+      artifacts: true
   rules:
     - !reference [.nightly, rules]
