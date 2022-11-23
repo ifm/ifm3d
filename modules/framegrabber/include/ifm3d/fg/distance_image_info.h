@@ -134,13 +134,13 @@ namespace ifm3d
       const ifm3d::Buffer& ui16_distance_buffer);
   };
   using DistanceImageInfoPtr = std::unique_ptr<DistanceImageInfo>;
-  IFM3D_FRAME_GRABBER_EXPORT DistanceImageInfoPtr CreateDistanceImageInfo(
-    const std::vector<std::uint8_t>& data_buffer,
-    const std::size_t distimageinfo_idx,
-    const std::size_t dist_idx,
-    const std::size_t amp_idx,
-    const std::uint32_t width,
-    const std::uint32_t height);
+  IFM3D_FRAME_GRABBER_EXPORT DistanceImageInfoPtr
+  CreateDistanceImageInfo(const std::vector<std::uint8_t>& data_buffer,
+                          const std::size_t distimageinfo_idx,
+                          const std::size_t dist_idx,
+                          const std::size_t amp_idx,
+                          const std::uint32_t width,
+                          const std::uint32_t height);
 } // end: namespace ifm3d
 
 #endif // IFM3D_DISTANCE_IMAGE_INFO_H
