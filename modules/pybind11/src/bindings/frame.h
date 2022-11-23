@@ -42,8 +42,10 @@ bind_frame(pybind11::module_& m)
     .value("JSON_DIAGNOSTIC", ifm3d::buffer_id::JSON_DIAGNOSTIC)      
     .value("EXTRINSIC_CALIB", ifm3d::buffer_id::EXTRINSIC_CALIB)      
     .value("INTRINSIC_CALIB", ifm3d::buffer_id::INTRINSIC_CALIB)      
-    .value("INVERSE_INTRINSIC_CALIBRATION", ifm3d::buffer_id::INVERSE_INTRINSIC_CALIBRATION)      
+    .value("INVERSE_INTRINSIC_CALIBRATION", ifm3d::buffer_id::INVERSE_INTRINSIC_CALIBRATION)
+    .value("TOF_INFO", ifm3d::buffer_id::TOF_INFO)
     .value("O3R_DISTANCE_IMAGE_INFO", ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFO)      
+    .value("RGB_INFO", ifm3d::buffer_id::RGB_INFO)
     .value("O3R_RGB_IMAGE_INFO", ifm3d::buffer_id::O3R_RGB_IMAGE_INFO)      
     .value("JSON_MODEL", ifm3d::buffer_id::JSON_MODEL)      
     .value("ALGO_DEBUG", ifm3d::buffer_id::ALGO_DEBUG)      
@@ -52,7 +54,6 @@ bind_frame(pybind11::module_& m)
     .value("XYZ", ifm3d::buffer_id::XYZ)      
     .value("EXPOSURE_TIME", ifm3d::buffer_id::EXPOSURE_TIME)      
     .value("ILLUMINATION_TEMP", ifm3d::buffer_id::ILLUMINATION_TEMP);
-    
 
   frame.def(
     "timestamps",
