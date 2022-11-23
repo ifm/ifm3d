@@ -43,7 +43,7 @@ namespace ifm3d
     float model_parameters[NR_MODEL_PARAMS];
   };
 
-  class IFM3D_FRAME_GRABBER_LOCAL DistanceImageInfo
+  class IFM3D_FRAME_GRABBER_EXPORT DistanceImageInfo
   {
     const float dist_resolution;
     const float ampl_resolution;
