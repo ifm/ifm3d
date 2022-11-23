@@ -659,7 +659,7 @@ ifm3d::FrameGrabber::Impl::GenerateDefaultSchema()
 
   if (this->cam_->AmI(ifm3d::Device::device_family::O3R))
     {
-      schema = ifm3d::make_o3r_schema_compatiable_with_firmware(
+      schema = ifm3d::make_o3r_schema_compatible_with_firmware(
         schema,
         cam_->FirmwareVersion());
     }
