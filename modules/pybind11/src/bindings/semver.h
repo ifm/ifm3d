@@ -21,11 +21,17 @@ bind_semver(pybind11::module_& m)
      struct for holding the version information
     )");
 
-  semver.def(py::init<size_t,
+  semver
+    .def(py::init<size_t,
                   size_t,
                   size_t,
                   const std::optional<std::string>,
-                  const std::optional<std::string>>())
+                  const std::optional<std::string>>(),
+         "major"_a,
+         "minor"_a,
+         "build"_a,
+         "prerelease"_a = std::nullopt,
+         "build_meta"_a = std::nullopt)
     .def(py::self < py::self)
     .def(py::self == py::self)
     .def(py::self != py::self)
@@ -36,7 +42,7 @@ bind_semver(pybind11::module_& m)
          [](ifm3d::SemVer& self) -> std::string {
            std::ostringstream stream;
            stream << self;
-           return stream.str()
+           return stream.str();
          })
     .def_static("Parse", [](const std::string& version_string) {
       return ifm3d::SemVer::Parse(version_string).value();
