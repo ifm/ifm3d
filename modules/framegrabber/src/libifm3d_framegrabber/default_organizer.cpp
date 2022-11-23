@@ -134,8 +134,8 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
       auto extracted = ExtractDistanceImageInfo(distance_image_info, mask);
       images.insert(extracted.begin(), extracted.end());
 
-      if (chunks.find(ifm3d::image_chunk::RADIAL_DISTANCE_NOISE) !=
-          chunks.end())
+      if (images.find(ifm3d::buffer_id::RADIAL_DISTANCE_NOISE) !=
+          images.end())
         {
           auto dist_noise_buffer =
             distance_image_info->applyDistanceResolution(
