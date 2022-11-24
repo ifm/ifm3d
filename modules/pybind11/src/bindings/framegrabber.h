@@ -194,6 +194,37 @@ bind_framegrabber(pybind11::module_& m)
   );
 
   framegrabber.def(
+    "on_error",
+    [](const ifm3d::FrameGrabber::Ptr& fg, const std::function<void(const py::object&)>& callback) {
+      if(callback) 
+        {
+            fg->OnError([callback](const ifm3d::Error& error){
+            py::gil_scoped_acquire acquire;
+            try
+              {
+                auto error_class = py::module::import("ifm3dpy").attr("Error");
+                auto error_ = error_class(error.code(), error.message(),error.what());
+                callback(error_);
+              }
+            catch(py::error_already_set ex)
+              {
+                py::print(ex.value());
+              }
+          });
+        }
+      else 
+        {
+          fg->OnError();
+        }
+    },
+    py::arg("callback") =  std::function<void(const py::object&)>(),
+    R"(
+      The callback will be executed whenever an error condition
+      occur while grabbing the data from device.
+    )"
+  );
+
+  framegrabber.def(
     "sw_trigger",
     [](const ifm3d::FrameGrabber::Ptr& fg) {
       return FutureAwaitable<void>(fg->SWTrigger());
