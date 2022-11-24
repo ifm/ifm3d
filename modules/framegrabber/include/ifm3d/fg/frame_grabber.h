@@ -141,8 +141,7 @@ namespace ifm3d
     void OnAsyncNotification(AsyncNotificationCallback callback = nullptr);
 
     /**
-     *
-     * The callback will be executed whenever a Error condition
+     * The callback will be executed whenever an error condition
      * occur while grabbing the data from device.
      */
     void OnError(ErrorCallback callback = nullptr);
