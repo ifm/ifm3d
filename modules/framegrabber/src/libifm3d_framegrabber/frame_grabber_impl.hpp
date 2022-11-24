@@ -71,6 +71,7 @@ namespace ifm3d
     void SetOrganizer(std::unique_ptr<Organizer> organizer);
     void OnAsyncError(AsyncErrorCallback callback);
     void OnAsyncNotification(AsyncNotificationCallback callback);
+    void OnError(ErrorCallback callback);
 
   protected:
     void Run(const std::optional<json>& schema);
@@ -98,6 +99,7 @@ namespace ifm3d
     void AsyncErrorHandler();
     void AsyncNotificationHandler();
     void TriggerHandler();
+    void ReportError(const ifm3d::Error& error);
     std::string CalculateAsyncCommand();
 
     //---------------------
@@ -134,6 +136,7 @@ namespace ifm3d
     FrameGrabber::NewFrameCallback new_frame_callback_;
     FrameGrabber::AsyncErrorCallback async_error_callback_;
     FrameGrabber::AsyncNotificationCallback async_notification_callback_;
+    FrameGrabber::ErrorCallback error_callback_;
     std::promise<Frame::Ptr> wait_for_frame_promise;
     std::shared_future<Frame::Ptr> wait_for_frame_future;
 
@@ -321,11 +324,20 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
         {
           LOG(WARNING) << ex.what();
         }
+      this->ReportError(ex);
       this->wait_for_frame_promise.set_exception(std::current_exception());
     }
   catch (const asio::error_code& err)
     {
+      this->ReportError(ifm3d::Error(err.value(), err.message()));
       LOG(WARNING) << "Network error " << err.value() << ": " << err.message();
+      this->wait_for_frame_promise.set_exception(std::current_exception());
+    }
+  catch (const std::system_error& err)
+    {
+      this->ReportError(
+        ifm3d::Error(static_cast<int>(err.code().value()), err.what()));
+      LOG(WARNING) << "System error " << err.code() << ": " << err.what();
       this->wait_for_frame_promise.set_exception(std::current_exception());
     }
   catch (const std::exception& ex)
@@ -333,7 +345,6 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
       LOG(WARNING) << "Exception: " << ex.what();
       this->wait_for_frame_promise.set_exception(std::current_exception());
     }
-
   LOG(INFO) << "FrameGrabber thread done.";
 }
 
@@ -393,7 +404,7 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const asio::error_code& ec,
 {
   if (ec)
     {
-      throw ifm3d::Error(ec.value());
+      throw ifm3d::Error(ec.value(), ec.message());
     }
 
   bytes_read += bytes_xferd;
@@ -440,7 +451,7 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
 {
   if (ec)
     {
-      throw ifm3d::Error(ec.value());
+      throw ifm3d::Error(ec.value(), ec.message());
     }
 
   bytes_read += bytes_xferd;
@@ -738,6 +749,21 @@ ifm3d::FrameGrabber::Impl::OnAsyncNotification(
   // enable async error outputs
   this->io_service_.post(
     [this]() { SendCommand(TICKET_COMMAND_p, CalculateAsyncCommand()); });
+}
+
+void
+ifm3d::FrameGrabber::Impl::OnError(ErrorCallback callback)
+{
+  this->error_callback_ = callback;
+}
+
+void
+ifm3d::FrameGrabber::Impl::ReportError(const ifm3d::Error& err)
+{
+  if (this->error_callback_)
+    {
+      this->error_callback_(err);
+    }
 }
 
 std::string
