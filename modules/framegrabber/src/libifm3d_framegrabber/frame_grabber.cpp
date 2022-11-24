@@ -91,3 +91,9 @@ ifm3d::FrameGrabber::OnAsyncNotification(AsyncNotificationCallback callback)
 {
   this->pImpl->OnAsyncNotification(callback);
 }
+
+void
+ifm3d::FrameGrabber::OnError(ErrorCallback callback)
+{
+  this->pImpl->OnError(callback);
+}
