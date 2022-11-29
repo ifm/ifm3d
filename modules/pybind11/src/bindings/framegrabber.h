@@ -79,7 +79,9 @@ bind_framegrabber(pybind11::module_& m)
 
   framegrabber.def(
     "stop",
-    &ifm3d::FrameGrabber::Stop,
+    [](const ifm3d::FrameGrabber::Ptr& fg) {
+      return FutureAwaitable<void>(fg->Stop());
+      },
     R"(
       Stops the worker thread for streaming in pixel data from the device
     )"

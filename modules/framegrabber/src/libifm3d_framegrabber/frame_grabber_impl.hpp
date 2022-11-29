@@ -63,7 +63,7 @@ namespace ifm3d
     bool Start(const std::set<ifm3d::buffer_id>& images,
                const std::optional<json>& schema);
     void SetSchema(const json& schema);
-    bool Stop();
+    std::shared_future<void> Stop();
     bool IsRunning();
 
     std::shared_future<Frame::Ptr> WaitForFrame();
@@ -112,7 +112,8 @@ namespace ifm3d
     asio::io_service io_service_;
     asio::ip::tcp::socket sock_;
     asio::ip::tcp::endpoint endpoint_;
-    std::unique_ptr<std::thread> thread_;
+    std::shared_future<void> worker_;
+    std::atomic<bool> is_running;
     std::unique_ptr<Organizer> organizer_;
     std::set<buffer_id> requested_images_;
     //
@@ -163,7 +164,8 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
     sock_(io_service_),
     organizer_(std::make_unique<DefaultOrganizer>()),
     wait_for_frame_future(wait_for_frame_promise.get_future()),
-    trigger_feedback_future_(trigger_feedback_promise_.get_future())
+    trigger_feedback_future_(trigger_feedback_promise_.get_future()),
+    is_running(false)
 {
   if (!pcic_port.has_value() && this->cam_->AmI(Device::device_family::O3D))
     {
@@ -258,37 +260,39 @@ bool
 ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::buffer_id>& images,
                                  const std::optional<json>& schema)
 {
-  if (!this->thread_)
+  if (!this->is_running.load())
     {
       this->requested_images_ = images;
-      this->thread_ = std::make_unique<std::thread>(
-        std::bind(&ifm3d::FrameGrabber::Impl::Run, this, schema));
-
+      this->worker_ = std::async(std::launch::async,
+                                 &ifm3d::FrameGrabber::Impl::Run,
+                                 this,
+                                 schema);
+      this->is_running.store(true);
+      ;
       return true;
     }
 
   return false;
 }
 
-bool
+std::shared_future<void>
 ifm3d::FrameGrabber::Impl::Stop()
 {
-  if (this->thread_ && this->thread_->joinable())
+  if (this->is_running.load())
     {
       this->io_service_.post(
         []() { throw ifm3d::Error(IFM3D_THREAD_INTERRUPTED); });
-      this->thread_->join();
-      this->thread_ = nullptr;
-      return true;
+
+      this->is_running.store(false);
     }
 
-  return false;
+  return this->worker_;
 }
 
 bool
 ifm3d::FrameGrabber::Impl::IsRunning()
 {
-  return this->thread_ != nullptr;
+  return this->is_running.load();
 }
 
 void

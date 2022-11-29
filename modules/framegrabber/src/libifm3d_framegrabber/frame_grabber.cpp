@@ -56,7 +56,7 @@ ifm3d::FrameGrabber::Start(
     schema);
 }
 
-bool
+std::shared_future<void>
 ifm3d::FrameGrabber::Stop()
 {
   return this->pImpl->Stop();
