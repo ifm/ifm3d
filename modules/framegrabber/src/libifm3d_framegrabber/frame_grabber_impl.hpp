@@ -323,8 +323,8 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
       if (ex.code() != IFM3D_THREAD_INTERRUPTED)
         {
           LOG(WARNING) << ex.what();
+          this->ReportError(ex);
         }
-      this->ReportError(ex);
       this->wait_for_frame_promise.set_exception(std::current_exception());
     }
   catch (const asio::error_code& err)
