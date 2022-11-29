@@ -105,7 +105,7 @@ namespace ifm3d
     /**
      * Stops the worker thread for streaming in pixel data from the device
      */
-    bool Stop();
+    std::shared_future<void> Stop();
 
     /**
      * Returns true if the worker thread is currently running
