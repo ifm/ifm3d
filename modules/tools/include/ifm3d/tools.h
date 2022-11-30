@@ -12,6 +12,7 @@
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/tools/config_app.h>
 #include <ifm3d/tools/cp_app.h>
+#include <ifm3d/tools/diagnostic_app.h>
 #include <ifm3d/tools/discover_app.h>
 #include <ifm3d/tools/dump_app.h>
 #include <ifm3d/tools/export_app.h>
