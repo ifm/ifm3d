@@ -328,26 +328,35 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
         {
           LOG(WARNING) << ex.what();
           this->ReportError(ex);
+          this->is_running.store(false);
         }
       this->wait_for_frame_promise.set_exception(std::current_exception());
     }
   catch (const asio::error_code& err)
     {
-      this->ReportError(ifm3d::Error(err.value(), err.message()));
-      LOG(WARNING) << "Network error " << err.value() << ": " << err.message();
+      this->ReportError(
+        ifm3d::Error(IFM3D_ASIO_ERROR,
+                     fmt::format("{0}: {1}", err.value(), err.message())));
+      LOG(WARNING) << "ASIO error " << err.value() << ": " << err.message();
+      this->is_running.store(false);
       this->wait_for_frame_promise.set_exception(std::current_exception());
     }
   catch (const std::system_error& err)
     {
       this->ReportError(
-        ifm3d::Error(static_cast<int>(err.code().value()), err.what()));
+        ifm3d::Error(IFM3D_SYSTEM_ERROR,
+                     fmt::format("{0}: {1}",
+                                 static_cast<int>(err.code().value()),
+                                 err.what())));
       LOG(WARNING) << "System error " << err.code() << ": " << err.what();
+      this->is_running.store(false);
       this->wait_for_frame_promise.set_exception(std::current_exception());
     }
   catch (const std::exception& ex)
     {
       LOG(WARNING) << "Exception: " << ex.what();
       this->wait_for_frame_promise.set_exception(std::current_exception());
+      this->is_running.store(false);
     }
   LOG(INFO) << "FrameGrabber thread done.";
 }
@@ -408,7 +417,8 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const asio::error_code& ec,
 {
   if (ec)
     {
-      throw ifm3d::Error(ec.value(), ec.message());
+      throw ifm3d::Error(IFM3D_ASIO_ERROR,
+                         fmt::format("{0}: {1}", ec.value(), ec.message()));
     }
 
   bytes_read += bytes_xferd;
@@ -455,7 +465,8 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
 {
   if (ec)
     {
-      throw ifm3d::Error(ec.value(), ec.message());
+      throw ifm3d::Error(IFM3D_ASIO_ERROR,
+                         fmt::format("{0}: {1}", ec.value(), ec.message()));
     }
 
   bytes_read += bytes_xferd;
