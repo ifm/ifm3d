@@ -112,7 +112,7 @@ namespace ifm3d
     asio::io_service io_service_;
     asio::ip::tcp::socket sock_;
     asio::ip::tcp::endpoint endpoint_;
-    std::shared_future<void> worker_;
+    std::shared_future<void> finish_future_;
     std::atomic<bool> is_running;
     std::unique_ptr<Organizer> organizer_;
     std::set<buffer_id> requested_images_;
@@ -165,7 +165,8 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
     organizer_(std::make_unique<DefaultOrganizer>()),
     wait_for_frame_future(wait_for_frame_promise.get_future()),
     trigger_feedback_future_(trigger_feedback_promise_.get_future()),
-    is_running(false)
+    is_running(false),
+    finish_future_(std::async(std::launch::async, []() {}))
 {
   if (!pcic_port.has_value() && this->cam_->AmI(Device::device_family::O3D))
     {
@@ -195,7 +196,7 @@ ifm3d::FrameGrabber::Impl::~Impl()
 {
   VLOG(IFM3D_TRACE) << "FrameGrabber dtor running...";
 
-  Stop();
+  Stop().wait();
 
   VLOG(IFM3D_TRACE) << "FrameGrabber destroyed.";
 }
@@ -263,12 +264,11 @@ ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::buffer_id>& images,
   if (!this->is_running.load())
     {
       this->requested_images_ = images;
-      this->worker_ = std::async(std::launch::async,
-                                 &ifm3d::FrameGrabber::Impl::Run,
-                                 this,
-                                 schema);
-      this->is_running.store(true);
-      ;
+      this->finish_future_ = std::async(std::launch::async, [this, &schema] {
+        this->is_running.store(true);
+        this->Run(schema);
+        this->is_running.store(false);
+      });
       return true;
     }
 
@@ -282,11 +282,9 @@ ifm3d::FrameGrabber::Impl::Stop()
     {
       this->io_service_.post(
         []() { throw ifm3d::Error(IFM3D_THREAD_INTERRUPTED); });
-
-      this->is_running.store(false);
     }
 
-  return this->worker_;
+  return this->finish_future_;
 }
 
 bool
@@ -328,17 +326,15 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
         {
           LOG(WARNING) << ex.what();
           this->ReportError(ex);
-          this->is_running.store(false);
         }
       this->wait_for_frame_promise.set_exception(std::current_exception());
     }
   catch (const asio::error_code& err)
     {
       this->ReportError(
-        ifm3d::Error(IFM3D_ASIO_ERROR,
+        ifm3d::Error(IFM3D_NETWORK_ERROR,
                      fmt::format("{0}: {1}", err.value(), err.message())));
-      LOG(WARNING) << "ASIO error " << err.value() << ": " << err.message();
-      this->is_running.store(false);
+      LOG(WARNING) << "Network error " << err.value() << ": " << err.message();
       this->wait_for_frame_promise.set_exception(std::current_exception());
     }
   catch (const std::system_error& err)
@@ -349,14 +345,12 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
                                  static_cast<int>(err.code().value()),
                                  err.what())));
       LOG(WARNING) << "System error " << err.code() << ": " << err.what();
-      this->is_running.store(false);
       this->wait_for_frame_promise.set_exception(std::current_exception());
     }
   catch (const std::exception& ex)
     {
       LOG(WARNING) << "Exception: " << ex.what();
       this->wait_for_frame_promise.set_exception(std::current_exception());
-      this->is_running.store(false);
     }
   LOG(INFO) << "FrameGrabber thread done.";
 }
@@ -417,7 +411,7 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const asio::error_code& ec,
 {
   if (ec)
     {
-      throw ifm3d::Error(IFM3D_ASIO_ERROR,
+      throw ifm3d::Error(IFM3D_NETWORK_ERROR,
                          fmt::format("{0}: {1}", ec.value(), ec.message()));
     }
 
@@ -465,7 +459,7 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
 {
   if (ec)
     {
-      throw ifm3d::Error(IFM3D_ASIO_ERROR,
+      throw ifm3d::Error(IFM3D_NETWORK_ERROR,
                          fmt::format("{0}: {1}", ec.value(), ec.message()));
     }
 
