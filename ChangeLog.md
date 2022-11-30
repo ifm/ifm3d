@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Change ```FrameGrabber::Stop``` to Non blocking call and now returns ```std::future<void>```
+- Add onError callback for error reporting in streaming mode of Framegrabber
 - Support for retrieving O3R Diagnostics over XMLRPC
 - Support for Python 3.11
 - Support for Ubuntu 22.04
