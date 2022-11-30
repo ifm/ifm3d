@@ -208,6 +208,63 @@ bind_o3r(pybind11::module_& m)
       dict
           The current json schema configuration
     )");
+
+  o3r.def(
+    "get_diagnostic",
+    [](const ifm3d::O3R::Ptr& c)
+    {
+      // Convert the JSON to a python JSON object using the json module
+      py::object json_loads = py::module::import("json").attr("loads");
+      return json_loads(c->GetDiagnostic().dump());
+    },
+    R"(
+      Returns the content of the diagnostic memory formatted in JSON
+
+      Returns
+      -------
+      dict
+    )");
+
+  o3r.def(
+    "get_diagnostic_filter_schema",
+    [](const ifm3d::O3R::Ptr& c)
+    {
+      // Convert the JSON to a python JSON object using the json module
+      py::object json_loads = py::module::import("json").attr("loads");
+      return json_loads(c->GetDiagnosticFilterSchema().dump());
+    },
+    R"(
+      Returns the JSON schema for the filter expression provided to the 
+      getFiltered() method
+
+      Returns
+      -------
+      dict
+          The JSON schema
+    )");
+
+  o3r.def(
+    "get_diagnostic_filtered",
+    [](const ifm3d::O3R::Ptr& c, const py::dict& filter)
+    {
+      py::object json_dumps = py::module::import("json").attr("dumps");
+      py::object json_loads = py::module::import("json").attr("loads");
+      return json_loads(c->GetDiagnosticFiltered(json::parse(json_dumps(filter).cast<std::string>())).dump());
+    },
+    py::arg("filter"),
+    R"(
+      Returns the content of the diagnostic memory formatted in JSON
+      and filtered according to the JSON filter expression
+
+      Parameters
+      ----------
+      filter : dict
+          A filter expression in JSON format
+
+      Returns
+      -------
+      dict 
+    )");
   // clang-format on
 }
 

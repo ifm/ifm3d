@@ -50,6 +50,12 @@ std::unordered_map<
        return std::make_shared<ifm3d::DumpApp>(argc, argv, cmd);
      }},
 
+    {"diagnostic",
+     [](int argc, const char** argv, const std::string& cmd)
+       -> ifm3d::CmdLineApp::Ptr {
+       return std::make_shared<ifm3d::DiagnosticApp>(argc, argv, cmd);
+     }},
+
     {"export",
      [](int argc, const char** argv, const std::string& cmd)
        -> ifm3d::CmdLineApp::Ptr {

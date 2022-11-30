@@ -82,6 +82,8 @@ These are common commands used in various situations:
     cp            Create a new application on the sensor,
                   bootstrapped from a copy of an existing one.
 
+    diagnostic    Access the device diagnostic information
+
     discover      Discover ifm devices on the network.
 
     dump          Serialize the sensor state to JSON.
