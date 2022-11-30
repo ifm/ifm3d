@@ -84,6 +84,12 @@ bind_framegrabber(pybind11::module_& m)
       },
     R"(
       Stops the worker thread for streaming in pixel data from the device
+
+      Returns
+      -------
+      FutureAwaitable
+
+          Resolves when framgrabber stops.
     )"
   );
 

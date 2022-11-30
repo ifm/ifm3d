@@ -104,6 +104,8 @@ namespace ifm3d
 
     /**
      * Stops the worker thread for streaming in pixel data from the device
+     *
+     * Returns a future which will resolve when framegrabber stops.
      */
     std::shared_future<void> Stop();
 
