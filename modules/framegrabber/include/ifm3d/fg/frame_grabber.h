@@ -15,6 +15,7 @@
 #include <variant>
 #include <type_traits>
 #include <ifm3d/device/device.h>
+#include <ifm3d/device/err.h>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/organizer.h>
 #include <ifm3d/fg/frame.h>
@@ -34,6 +35,7 @@ namespace ifm3d
       std::function<void(const std::string&, const std::string&)>;
     using BufferList =
       std::vector<std::variant<std::uint64_t, int, ifm3d::buffer_id>>;
+    using ErrorCallback = std::function<void(const ifm3d::Error&)>;
 
     /**
      * Stores a reference to the passed in Device shared pointer
@@ -102,8 +104,10 @@ namespace ifm3d
 
     /**
      * Stops the worker thread for streaming in pixel data from the device
+     *
+     * Returns a future which will resolve when framegrabber stops.
      */
-    bool Stop();
+    std::shared_future<void> Stop();
 
     /**
      * Returns true if the worker thread is currently running
@@ -137,6 +141,12 @@ namespace ifm3d
      * is avaliable. It receives a message id and payload string
      */
     void OnAsyncNotification(AsyncNotificationCallback callback = nullptr);
+
+    /**
+     * The callback will be executed whenever an error condition
+     * occur while grabbing the data from device.
+     */
+    void OnError(ErrorCallback callback = nullptr);
 
   private:
     class Impl;

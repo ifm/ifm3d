@@ -56,7 +56,7 @@ ifm3d::FrameGrabber::Start(
     schema);
 }
 
-bool
+std::shared_future<void>
 ifm3d::FrameGrabber::Stop()
 {
   return this->pImpl->Stop();
@@ -90,4 +90,10 @@ void
 ifm3d::FrameGrabber::OnAsyncNotification(AsyncNotificationCallback callback)
 {
   this->pImpl->OnAsyncNotification(callback);
+}
+
+void
+ifm3d::FrameGrabber::OnError(ErrorCallback callback)
+{
+  this->pImpl->OnError(callback);
 }
