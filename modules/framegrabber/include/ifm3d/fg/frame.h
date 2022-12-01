@@ -44,8 +44,11 @@ namespace ifm3d
     EXTRINSIC_CALIB = static_cast<uint64_t>(ifm3d::image_chunk::EXTRINSIC_CALIB),
     INTRINSIC_CALIB = static_cast<uint64_t>(ifm3d::image_chunk::INTRINSIC_CALIB),
     INVERSE_INTRINSIC_CALIBRATION = static_cast<uint64_t>(ifm3d::image_chunk::INVERSE_INTRINSIC_CALIBRATION),
-    O3R_DISTANCE_IMAGE_INFO = static_cast<uint64_t>(ifm3d::image_chunk::O3R_DISTANCE_IMAGE_INFO),
-    O3R_RGB_IMAGE_INFO = static_cast<uint64_t>(ifm3d::image_chunk::O3R_RGB_IMAGE_INFO),
+
+    O3R_DISTANCE_IMAGE_INFO [[deprecated]] = static_cast<uint64_t>(ifm3d::image_chunk::TOF_INFO),
+    O3R_RGB_IMAGE_INFO [[deprecated]] = static_cast<uint64_t>(ifm3d::image_chunk::RGB_INFO),
+    TOF_INFO = static_cast<uint64_t>(ifm3d::image_chunk::TOF_INFO),
+    RGB_INFO = static_cast<uint64_t>(ifm3d::image_chunk::RGB_INFO),
     JSON_MODEL = static_cast<uint64_t>(ifm3d::image_chunk::JSON_MODEL),
     ALGO_DEBUG = static_cast<uint64_t>(ifm3d::image_chunk::ALGO_DEBUG),
     O3R_ODS_OCCUPANCY_GRID = static_cast<uint64_t>(ifm3d::image_chunk::O3R_ODS_OCCUPANCY_GRID),

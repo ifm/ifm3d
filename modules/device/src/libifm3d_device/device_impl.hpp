@@ -32,7 +32,7 @@ namespace ifm3d
     std::uint16_t XMLRPCPort();
 
     bool CheckMinimumFirmwareVersion(const SemVer& minimum_version);
-
+    SemVer FirmwareVersion();
     //
     // public xmlrpc interface methods
     //
@@ -113,12 +113,16 @@ bool
 ifm3d::Device::Impl::CheckMinimumFirmwareVersion(
   const ifm3d::SemVer& minimum_version)
 {
+  return FirmwareVersion() >= minimum_version;
+}
 
+ifm3d::SemVer
+ifm3d::Device::Impl::FirmwareVersion()
+{
   auto data = this->xwrapper_->value_struct_to_map(
     this->xwrapper_->XCallMain("getSWVersion"));
-  const auto swversion = ifm3d::SemVer::Parse(data["IFM_Software"]);
-
-  return swversion.value_or(ifm3d::SemVer(0, 0, 0)) >= minimum_version;
+  auto swversion = ifm3d::SemVer::Parse(data["IFM_Software"]);
+  return swversion.value_or(ifm3d::SemVer(0, 0, 0));
 }
 
 std::vector<std::string>
