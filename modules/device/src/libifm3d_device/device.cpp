@@ -320,6 +320,12 @@ ifm3d::Device::CheckMinimumFirmwareVersion(unsigned int major,
     ifm3d::SemVer(major, minor, patch));
 }
 
+ifm3d::SemVer
+ifm3d::Device::FirmwareVersion()
+{
+  return this->pImpl->FirmwareVersion();
+}
+
 void
 ifm3d::Device::ForceTrigger()
 {}

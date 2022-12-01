@@ -257,6 +257,18 @@ bind_device(pybind11::module_& m)
     )");
 
   device.def(
+    "firmware_version",
+    &ifm3d::Device::FirmwareVersion,
+    R"(
+      Version of firmware installed on device
+
+      Returns
+      -------
+      SemVer
+          Firmware version 
+    )");
+
+  device.def(
     "to_json",
     [](const ifm3d::Device::Ptr& c)
     {

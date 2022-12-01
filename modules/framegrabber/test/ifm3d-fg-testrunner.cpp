@@ -19,7 +19,7 @@ main(int argc, char** argv)
       "FrameGrabberTest.*:-FrameGrabberTest.ByteBufferBasics:-"
       "FrameGrabberTest.SoftwareTrigger:-FrameGrabberTest."
       "SWTriggerMultipleClients:-FrameGrabber.JSON_model"},
-     {"device_independent", "DistanceImageInfo.*:Buffer.*"}});
+     {"device_independent", "DistanceImageInfo.*:Buffer.*:Schema.*"}});
 
   std::map<ifm3d::Device::device_family, std::string> device_family_to_device(
     {{ifm3d::Device::device_family::O3D, "O3D"},
