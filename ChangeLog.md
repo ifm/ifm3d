@@ -5,8 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## 1.1.0 - 2022-12-2
 ### Added
-- Change ```FrameGrabber::Stop``` to Non blocking call and now returns ```std::future<void>```
+- Change ```FrameGrabber::Stop``` to non blocking call and now returns ```std::future<void>```
 - Add onError callback for error reporting in streaming mode of Framegrabber
 - Support for retrieving O3R Diagnostics over XMLRPC
 - Support for Python 3.11
