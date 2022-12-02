@@ -204,7 +204,7 @@ TEST_F(FrameGrabberTest, onError)
 
   fg_->OnError([&](const ifm3d::Error& err) { result++; });
 
-  fg_->OnNewFrame([&](ifm3d::Frame::Ptr& frame) { frame_count++; });
+  fg_->OnNewFrame([&](const ifm3d::Frame::Ptr& frame) { frame_count++; });
 
   fg_->Start({ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE,
               ifm3d::buffer_id::CONFIDENCE_IMAGE});
