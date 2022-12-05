@@ -7,12 +7,12 @@
 Overview <content/README>
 Installation instructions <content/installation_instructions/index>
 Migration Guide <content/migration_guide/index>
-Basic library usage <content/examples/index>
+Basic library usage <examples/index>
 Command Line tool <cli_link>
 Manipulating images <content/stlimage.md>
 Python API <python_api>
 C++ API <cpp_api/annotated>
-Examples <content/examples/examples_list>
+Examples <examples/examples_list>
 ::: 
 
 
