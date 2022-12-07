@@ -264,11 +264,14 @@ ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::buffer_id>& images,
   if (!this->is_running.load())
     {
       this->requested_images_ = images;
-      this->finish_future_ = std::async(std::launch::async, [this, &schema] {
-        this->is_running.store(true);
-        this->Run(schema);
-        this->is_running.store(false);
-      });
+      this->finish_future_ = std::async(
+        std::launch::async,
+        [this](const std::optional<json>& schema) {
+          this->is_running.store(true);
+          this->Run(schema);
+          this->is_running.store(false);
+        },
+        schema);
       return true;
     }
 
