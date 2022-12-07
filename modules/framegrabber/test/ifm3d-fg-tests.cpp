@@ -286,7 +286,7 @@ TEST_F(FrameGrabberTest, only_algo_debug)
 }
 
 // disabled due to firmware issue with pF pcic command
-TEST_F(FrameGrabberTest,DISABLED_algo_with_other_data)
+TEST_F(FrameGrabberTest, DISABLED_algo_with_other_data)
 {
   LOG(INFO) << " obtain  algo debug with other data";
   auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
