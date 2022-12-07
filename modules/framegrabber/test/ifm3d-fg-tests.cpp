@@ -261,3 +261,48 @@ TEST_F(FrameGrabberTest, confidence_image_2D)
   EXPECT_THROW(frame->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE),
                ifm3d::Error);
 }
+
+TEST_F(FrameGrabberTest, only_algo_debug)
+{
+  LOG(INFO) << " obtain only algo debug data";
+  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
+
+  // enable algo debug flag through xmlrpc set interface
+  o3r->Reset("/ports/port2/data/algoDebugFlag");
+  o3r->Set({{"ports", {{"port2", {{"data", {{"algoDebugFlag", true}}}}}}}});
+
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+
+  fg_->Start({ifm3d::buffer_id::ALGO_DEBUG});
+
+  auto future_ = fg_->WaitForFrame();
+  auto status = future_.wait_for(std::chrono::seconds(1));
+  EXPECT_TRUE(status == std::future_status::ready);
+
+  auto frame = future_.get();
+  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::ALGO_DEBUG));
+  EXPECT_THROW(frame->GetBuffer(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE),
+               ifm3d::Error);
+}
+
+// disabled due to firmware issue with pF pcic command
+TEST_F(FrameGrabberTest,DISABLED_algo_with_other_data)
+{
+  LOG(INFO) << " obtain  algo debug with other data";
+  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
+
+  // enable algo debug flag through xmlrpc set interface
+  o3r->Reset("/ports/port2/data/algoDebugFlag");
+  o3r->Set({{"ports", {{"port2", {{"data", {{"algoDebugFlag", true}}}}}}}});
+
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+
+  fg_->Start(
+    {ifm3d::buffer_id::ALGO_DEBUG, ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE});
+
+  auto frame = fg_->WaitForFrame().get();
+
+  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::ALGO_DEBUG));
+  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE),
+                  ifm3d::Error);
+}
