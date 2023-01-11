@@ -1,7 +1,6 @@
 from ifm3dpy import O3R, FrameGrabber, buffer_id
-import asyncio
 
-async def main():
+def main():
   # Initialize the objects
   o3r = O3R()
   fg = FrameGrabber(o3r, pcic_port=50012)
@@ -10,7 +9,7 @@ async def main():
   fg.start([buffer_id.NORM_AMPLITUDE_IMAGE,buffer_id.RADIAL_DISTANCE_IMAGE,buffer_id.XYZ])
 
   # Get a frame
-  frame = await fg.wait_for_frame()
+  [ok, frame] = fg.wait_for_frame().wait_for(1500) # wait with 1500ms timeout
 
   # Read the distance image and display a pixel in the center
   dist = frame.get_buffer(buffer_id.RADIAL_DISTANCE_IMAGE)
@@ -19,4 +18,4 @@ async def main():
   fg.stop()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
