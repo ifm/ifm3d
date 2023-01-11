@@ -142,7 +142,7 @@ ifm3d::strerror(int errnum)
       return "The given port is invalid or not connected. Please make sure "
              "the port is connected and try again.";
     case IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE:
-      return "Lib: This command is not supported by connected the device";
+      return "Lib: This command is not supported by the connected device";
     case IFM3D_UNSUPPORTED_SCHEMA_ON_DEVICE:
       return "Lib: One or multiple schema values are not supported by device";
     case IFM3D_BUFFER_ID_NOT_AVAILABLE:
