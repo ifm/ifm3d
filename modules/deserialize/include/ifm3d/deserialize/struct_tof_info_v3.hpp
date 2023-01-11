@@ -35,8 +35,10 @@ namespace ifm3d
   {
 
   public:
+    using Ptr = std::shared_ptr<TofInfoV3>;
     struct ExtrinsicOpticToUser
     {
+      using Ptr = std::shared_ptr<struct ExtrinsicOpticToUser>;
       float transX; // value in meter
       float transY; // value in meter
       float transZ; // value in meter
@@ -59,6 +61,7 @@ namespace ifm3d
 
     struct Calibration
     {
+      using Ptr = std::shared_ptr<struct Calibration>;
       uint32_t modelID;
       std::array<float, 32> modelParameters;
       void
