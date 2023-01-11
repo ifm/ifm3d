@@ -139,7 +139,7 @@ TEST(DeserializeTestWithFile, struct_size_exception)
 {
   auto buffer = ifm3d::Buffer(1, 200, 1, ifm3d::pixel_format::FORMAT_8U);
 
-  EXPECT_THROW(ifm3d::TofInfoV3::Deserialize(buffer),ifm3d::Error);
+  EXPECT_THROW(ifm3d::TofInfoV3::Deserialize(buffer), ifm3d::Error);
 }
 TEST(DeserializeTestWithFile, struct_tof_info_v3)
 {

@@ -159,7 +159,7 @@ ifm3d::Buffer::dataFormat() const
   return data_format_;
 }
 
-size_t 
+size_t
 ifm3d::Buffer::size() const
 {
   return size_;
