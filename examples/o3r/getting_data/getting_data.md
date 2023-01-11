@@ -1,8 +1,8 @@
 # How to: receive an image
 
-A primary objective of `ifm3d` is to make it as simple and performant as possible to acquire pixel data from an ifm 3D camera. 
-Additionally, those data should be encoded in a useful format for performing computer vision and/or robotics perception tasks. 
-A typical `ifm3d` client program will follow the structure of a control loop whereby images are continuously acquired from the camera and acted upon in some application-specific way. 
+A primary objective of `ifm3d` is to make it as simple and performant as possible to acquire pixel data from an ifm 3D camera.
+Additionally, those data should be encoded in a useful format for performing computer vision and/or robotics perception tasks.
+A typical `ifm3d` client program will follow the structure of a control loop whereby images are continuously acquired from the camera and acted upon in some application-specific way.
 
 At the end of this 'how to', you should be able to receive images and know the basic usage of the `O3R`, `FrameGrabber` and `Frame` classes.
 
@@ -31,6 +31,8 @@ auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, 50012);
 ::::
 :::::
 
+>Note: The example above assumes that a camera head (i.e. O3R camera) is connected to the VPU at the physical port 2, e.g. corresponding PCIC TCP port 50012. If you're unsure about the connectivity, please see the section hardware unboxing under O3R/Getting Started.
+
 The `O3R` class, counter-intuitively, refers to the computing unit (the VPU). It inherits its name from previous ifm 3D devices that only used one camera, with no distinction between sensing and computing units.
 You can input:
 - `ip`: the IP address of the device;
@@ -44,14 +46,14 @@ Its inputs:
 
 > Note: instantiating the objects is done the same way for any imager type (2D, 3D, different resolutions, etc).
 
-Note that `ifm3d` encourages the use of `std::shared_ptr` as a means to manage the ownership and lifetimes of the core actors in an `ifm3d` program. 
-Indeed, you will notice that there is no need to explicitly allocate and deallocate memory. 
+Note that `ifm3d` encourages the use of `std::shared_ptr` as a means to manage the ownership and lifetimes of the core actors in an `ifm3d` program.
+Indeed, you will notice that there is no need to explicitly allocate and deallocate memory.
 To instantiate the `ifm3d::O3R` object (or `ifm3d::O3D`/`ifm3d::O3X`), a call to `ifm3d::Device::MakeShared()` is made, rather than calling `std::make_shared` directly.
 This wrapper function is used to handle direct hardware probing to determine the type of camera that is connected.
 For example, this may be an O3R, O3D303, O3X, or something else. Regardless, a `std::shared_ptr` is returned from this call.
 
 ## Set the schema and start framegrabber
-Call `Start` function. This `Start` needs schema which is a `std::set<ifm3d::buffer_id>` contains the `buffer_id` of the data needed for the application
+Call `Start` function. This `Start` needs a schema information which is a `std::set<ifm3d::buffer_id>` contains the `buffer_id` of the data needed for the application
 :::::{tabs}
 ::::{group-tab} Python
 :::python
@@ -115,7 +117,11 @@ You just need to call the `WaitForFrame` function. This `Framegrabber` method wi
 :::::{tabs}
 ::::{group-tab} Python
 :::python
-frame = fg.wait_for_frame();
+frame = fg.wait_for_frame().wait() # wait without timeout
+<!-- # OR -->
+[ok, frame] = fg.wait_for_frame().wait_for(500) # wait with 500ms timeout
+<!-- # OR -->
+frame = await fg.wait_for_frame() # using asyncio
 :::
 ::::
 ::::{group-tab} C++
