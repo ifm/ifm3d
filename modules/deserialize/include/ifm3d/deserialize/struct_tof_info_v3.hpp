@@ -10,6 +10,8 @@
 #include <ifm3d/deserialize/deserialize.h>
 #include <array>
 #include <chrono>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/err.h>
 #include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/fg/buffer.h>
 
@@ -33,7 +35,7 @@ namespace ifm3d
 
   class TofInfoV3
   {
-
+  
   public:
     using Ptr = std::shared_ptr<TofInfoV3>;
     struct ExtrinsicOpticToUser
@@ -76,8 +78,12 @@ namespace ifm3d
     using InverseIntrinsicCalibration = struct Calibration;
 
     void
-    Read(const uint8_t* data)
+    Read(const uint8_t* data, size_t size)
     {
+      if (size < tof_info_v3_size)
+      {
+          throw ifm3d::Error(IFM3D_BUFFER_NOT_COMPATIABLE);
+      }
       const uint8_t* start_ptr = data;
       version = mkval<std::uint32_t>(start_ptr + VERSION_INDEX);
       distance_resolution =
@@ -110,12 +116,14 @@ namespace ifm3d
     float illu_temperature;
     std::array<char, 32> mode;
     std::array<char, 32> imager;
+    const size_t tof_info_v3_size = 428;
 
     static TofInfoV3
     Deserialize(const Buffer& tof_info_buffer)
     {
       TofInfoV3 tof_info_v3;
-      tof_info_v3.Read(tof_info_buffer.ptr<uint8_t>(0));
+     
+      tof_info_v3.Read(tof_info_buffer.ptr<uint8_t>(0), tof_info_buffer.size());
       return tof_info_v3;
     }
   };

@@ -6,6 +6,7 @@
 #include <ifm3d/deserialize.h>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/device/o3r.h>
+#include <ifm3d/device/err.h>
 #include <ifm3d/fg.h>
 #include <ifm3d/deserialize/struct_tof_info_v3.hpp>
 #include <algorithm>
@@ -134,6 +135,12 @@ protected:
   {}
 };
 
+TEST(DeserializeTestWithFile, struct_size_exception)
+{
+  auto buffer = ifm3d::Buffer(1, 200, 1, ifm3d::pixel_format::FORMAT_8U);
+
+  EXPECT_THROW(ifm3d::TofInfoV3::Deserialize(buffer),ifm3d::Error);
+}
 TEST(DeserializeTestWithFile, struct_tof_info_v3)
 {
 
