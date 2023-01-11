@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `O3R::RebootToRecovery` to reboot supported O3R devices into recovery mode
 - Support for O3R recovery based updates
+- Add size() interface in ifm3d::Buffer
 
 ## 1.1.1 - 2022-12-9
 ### Fixes 
