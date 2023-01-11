@@ -24,7 +24,7 @@
 #include "bindings/framegrabber.h"
 #include "bindings/swupdater.h"
 #include "bindings/semver.h"
-#include "bindings/deserialize.h"
+#include "bindings/deserialize/deserialize.h"
 
 namespace py = pybind11;
 

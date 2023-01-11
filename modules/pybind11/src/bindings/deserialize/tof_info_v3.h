@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IFM3D_PYBIND_BINDING_DESERIALIZE
-#define IFM3D_PYBIND_BINDING_DESERIALIZE
+#ifndef IFM3D_PYBIND_BINDING_DESERIALIZE_TOF_INFO_V3_H
+#define IFM3D_PYBIND_BINDING_DESERIALIZE_TOF_INFO_V3_H
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -180,18 +180,12 @@ bind_struct_tofinfov3(pybind11::module_& m)
     "Deserialize",
     [](py::array_t<uint8_t, py::array::c_style | py::array::forcecast> in) -> ifm3d::TofInfoV3 {
     ifm3d::TofInfoV3 val;
-    val.Read(reinterpret_cast<const uint8_t*>(in.data(0)));
+    val.Read(reinterpret_cast<const uint8_t*>(in.data(0)),in.nbytes());
     return val;
   },
     R"(
         Deserialize ToFInfoV3 Buffer
       )");
 }
-  
-void
-bind_deserialize_struct(pybind11::module_& m)
-{
-  bind_struct_tofinfov3(m);
-}
 // clang-format on
-#endif // IFM3D_PYBIND_BINDING_DESERIALIZE
+#endif // IFM3D_PYBIND_BINDING_DESERIALIZE_TOF_INFO_V3_H
