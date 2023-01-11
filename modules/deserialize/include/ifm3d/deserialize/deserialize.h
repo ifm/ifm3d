@@ -8,7 +8,6 @@
 
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/organizer_utils.h>
-#include <ifm3d/deserialize/struct_tof_info_v3.hpp>
 
 namespace ifm3d
 {
