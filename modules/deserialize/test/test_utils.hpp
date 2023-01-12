@@ -15,7 +15,7 @@ namespace ifm3d
   {
     return a == b;
   }
-
+#if 1
   template <>
   bool
   compare<float>(const float& a, const float& b)
@@ -24,7 +24,7 @@ namespace ifm3d
       std::cout << a << " " << b << " " << std::fabs(a - b) << std::endl;
     return std::fabs(a - b) < epsilon;
   }
-
+#endif
   // this is copied from buffer.hpp
   // remove this after addition of size function in buffer
 
@@ -52,17 +52,6 @@ namespace ifm3d
     std::cout << "};";
   }
 
-  std::unordered_map<uint32_t, std::size_t> PIX_SZ{
-    {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8U), 1},
-    {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8S), 1},
-    {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16U), 2},
-    {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16S), 2},
-    {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32S), 4},
-    {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F), 4},
-    {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_64F), 8},
-    {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16U2), 2},
-    {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F3), 4}};
-
   void
   write_buffer_to_file(const ifm3d::Buffer& buffer, std::string file_name)
   {
@@ -82,35 +71,33 @@ namespace ifm3d
                       sizeof(pixel_format));
 
     buffer_file.write(reinterpret_cast<const char*>(buffer.ptr<uint8_t>(0)),
-                      (width * height * nchannel *
-                       PIX_SZ[static_cast<std::uint32_t>(pix_format)]));
+                      buffer.size());
+    buffer_file.close();
   }
 
   ifm3d::Buffer
   read_buffer_from_file(std::string file_name)
   {
-    auto buffer_file = std::fstream(file_name, std::ios::in);
+    auto buffer_file = std::ifstream(file_name);
     uint32_t width;
     uint32_t height;
     uint32_t nchannel;
     ifm3d::pixel_format pix_format;
 
-    buffer_file.read(reinterpret_cast<char*>(&width), sizeof(width));
-    buffer_file.read(reinterpret_cast<char*>(&height), sizeof(height));
+    std::vector<std::uint8_t> fileBuffer;
+    std::istreambuf_iterator<char> iter(buffer_file);
+    std::copy(iter,
+              std::istreambuf_iterator<char>(),
+              std::back_inserter(fileBuffer));
+    buffer_file.close();
+    width = ifm3d::mkval<uint32_t>(fileBuffer.data());
+    height = ifm3d::mkval<uint32_t>(fileBuffer.data() + 4);
+    nchannel = ifm3d::mkval<uint32_t>(fileBuffer.data() + 8);
+    pix_format = static_cast<ifm3d::pixel_format>(ifm3d::mkval<uint32_t>(fileBuffer.data() + 12));
 
-    buffer_file.read(reinterpret_cast<char*>(&nchannel), sizeof(nchannel));
-    buffer_file.read(reinterpret_cast<char*>(&pix_format),
-                     sizeof(pixel_format));
-
-    auto buffer = ifm3d::Buffer(width,
-                                height,
-                                nchannel,
-                                static_cast<ifm3d::pixel_format>(pix_format));
-
-    buffer_file.read(reinterpret_cast<char*>(buffer.ptr<uint8_t>(0)),
-                     (width * height * nchannel *
-                      PIX_SZ[static_cast<std::uint32_t>(pix_format)]));
-
+    auto buffer = ifm3d::Buffer(width, height, nchannel, pix_format);
+    std::copy(fileBuffer.begin() + 16, fileBuffer.end(), buffer.begin<char>());
+    
     return buffer;
   }
 };

@@ -20,9 +20,9 @@ namespace ifm3d
 {
   namespace
   {
-    constexpr auto MEASUREMENT_BLOCK_INDEX = 0x01A0;
-    constexpr auto MEASUREMENT_RANGE_MIN_INDEX = 0x01A4;
-    constexpr auto MEASUREMENT_RANGE_MAX_INDEX = 0x01A8;
+    constexpr auto TOF_INFO_MEASUREMENT_BLOCK_INDEX = 0x01A0;
+    constexpr auto TOF_INFO_MEASUREMENT_RANGE_MIN_INDEX = 0x01A4;
+    constexpr auto TOF_INFO_MEASUREMENT_RANGE_MAX_INDEX = 0x01A8;
   };
 
   class TofInfoV4 : public TofInfoV3
@@ -41,11 +41,11 @@ namespace ifm3d
       TofInfoV3::Read(data, size);
       const uint8_t* start_ptr = data;
       measurement_block_index =
-        mkval<std::uint32_t>(start_ptr + MEASUREMENT_BLOCK_INDEX);
+        mkval<std::uint32_t>(start_ptr + TOF_INFO_MEASUREMENT_BLOCK_INDEX);
       measurement_range_min =
-        mkval<float>(start_ptr + MEASUREMENT_RANGE_MIN_INDEX);
+        mkval<float>(start_ptr + TOF_INFO_MEASUREMENT_RANGE_MIN_INDEX);
       measurement_range_max =
-        mkval<float>(start_ptr + MEASUREMENT_RANGE_MAX_INDEX);
+        mkval<float>(start_ptr + TOF_INFO_MEASUREMENT_RANGE_MAX_INDEX);
     };
 
     uint32_t measurement_block_index;
