@@ -2,9 +2,9 @@
 
 namespace ifm3d
 {
-  namespace tof_info_v3
+  namespace tof_info
   {
-    constexpr uint32_t version = 3;
+    constexpr uint32_t version = 4;
     constexpr float distance_resolution = 0.00015259;
     constexpr float amplitude_resolution = 2.32989e-08;
     constexpr std::array<float, 3> amp_normalization_factors = {
@@ -108,5 +108,8 @@ namespace ifm3d
       '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
     };
 
+    constexpr std::uint32_t measurement_block_index = 0;
+    constexpr float measurement_range_min = 0;
+    constexpr float measurement_range_max = 4.143615246;
   }
 }

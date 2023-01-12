@@ -7,7 +7,6 @@
 #ifndef IFM3D_DESERIALIZE_STRUCT_TOF_INFO_V3_HPP
 #define IFM3D_DESERIALIZE_STRUCT_TOF_INFO_V3_HPP
 
-#include <ifm3d/deserialize/deserialize.h>
 #include <array>
 #include <chrono>
 #include <ifm3d/device/device.h>
