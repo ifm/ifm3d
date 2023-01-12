@@ -14,7 +14,6 @@
 #include <ifm3d/device/err.h>
 #include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/fg/buffer.h>
-#include <ifm3d/deserialize/deserialize_utils.hpp>
 
 namespace ifm3d
 {
@@ -117,7 +116,7 @@ namespace ifm3d
     float illu_temperature;
     std::array<char, 32> mode;
     std::array<char, 32> imager;
-    const size_t tof_info_v3_size = 416;
+    const size_t tof_info_v3_size = 428;
 
     static TofInfoV3
     Deserialize(const Buffer& tof_info_buffer)
