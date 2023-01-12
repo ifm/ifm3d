@@ -10,9 +10,11 @@
 #include <ifm3d/fg.h>
 #include <ifm3d/deserialize/struct_tof_info_v3.hpp>
 #include <ifm3d/deserialize/struct_tof_info_v4.hpp>
+#include <ifm3d/deserialize/struct_rgb_info_v1.hpp>
 #include <algorithm>
 #include <fstream>
 #include "tof_info_test_data.hpp"
+#include "rgb_info_test_data.hpp"
 #include "test_utils.hpp"
 #include <limits>
 
@@ -153,4 +155,49 @@ TEST(DeserializeTestWithFile, struct_tof_info_v4)
   EXPECT_NEAR(tof_info_v4.measurement_range_max,
               ifm3d::tof_info::measurement_range_max,
               ifm3d::epsilon);
+}
+
+TEST(DeserializeTestWithFile, struct_rgb_info_v1_size_exception)
+{
+  auto buffer = ifm3d::Buffer(1, 200, 1, ifm3d::pixel_format::FORMAT_8U);
+
+  EXPECT_THROW(ifm3d::RGBInfoV1::Deserialize(buffer), ifm3d::Error);
+}
+TEST(DeserializeTestWithFile, struct_rgb_info_v1)
+{
+  auto buffer = ifm3d::read_buffer_from_file("rgb_info.data");
+  auto rgb_info_v1 = ifm3d::RGBInfoV1::Deserialize(buffer);
+
+  constexpr auto minimum_required_version = 1;
+  EXPECT_GE(rgb_info_v1.version, minimum_required_version);
+  EXPECT_EQ(rgb_info_v1.frame_counter, ifm3d::rgb_info::frame_counter);
+  EXPECT_EQ(rgb_info_v1.timestamp_ns, ifm3d::rgb_info::timestamp_ns);
+  EXPECT_NEAR(rgb_info_v1.exposure_time,
+              ifm3d::rgb_info::exposure_time,
+              ifm3d::epsilon);
+
+  std::array<float, 6> extrinc_opt_to_user = {
+    rgb_info_v1.extrisic_optic_to_user.transX,
+    rgb_info_v1.extrisic_optic_to_user.transY,
+    rgb_info_v1.extrisic_optic_to_user.transZ,
+    rgb_info_v1.extrisic_optic_to_user.rotX,
+    rgb_info_v1.extrisic_optic_to_user.rotY,
+    rgb_info_v1.extrisic_optic_to_user.rotZ};
+
+  EXPECT_TRUE(ifm3d::compare_array(extrinc_opt_to_user,
+                                   ifm3d::rgb_info::extrincsic_optic_to_user));
+
+  EXPECT_EQ(rgb_info_v1.intrinsic_calibration.modelID,
+            ifm3d::rgb_info::intrinsic_calib_model_id);
+
+  EXPECT_TRUE(
+    ifm3d::compare_array(rgb_info_v1.intrinsic_calibration.modelParameters,
+                         ifm3d::rgb_info::intrinsic_calib_model_param));
+
+  EXPECT_EQ(rgb_info_v1.inverse_intrinsic_calibration.modelID,
+            ifm3d::rgb_info::inverse_intrinsic_calib_model_id);
+
+  EXPECT_TRUE(ifm3d::compare_array(
+    rgb_info_v1.inverse_intrinsic_calibration.modelParameters,
+    ifm3d::rgb_info::inverse_intrinsic_calib_model_param));
 }
