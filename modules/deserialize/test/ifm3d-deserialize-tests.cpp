@@ -15,20 +15,7 @@
 #include "test_utils.hpp"
 #include <limits>
 
-
-class DeserializeTest : public ::testing::Test
-{
-protected:
-  virtual void
-  SetUp()
-  {}
-
-  virtual void
-  TearDown()
-  {}
-};
-
-TEST(DeserializeTestWithFile, struct_size_exception)
+TEST(DeserializeTestWithFile, structv3_size_exception)
 {
   auto buffer = ifm3d::Buffer(1, 200, 1, ifm3d::pixel_format::FORMAT_8U);
 
