@@ -14,6 +14,7 @@
 #include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/deserialize/deserialize_utils.hpp>
+#include <ifm3d/deserialize/struct_calibration.hpp>
 
 namespace ifm3d
 {
@@ -38,44 +39,6 @@ namespace ifm3d
 
   public:
     using Ptr = std::shared_ptr<TofInfoV3>;
-    struct ExtrinsicOpticToUser
-    {
-      using Ptr = std::shared_ptr<struct ExtrinsicOpticToUser>;
-      float transX; // value in meter
-      float transY; // value in meter
-      float transZ; // value in meter
-      float rotX;   // value in radians
-      float rotY;   // value in radians
-      float rotZ;   // value in radians
-
-      void
-      Read(const uint8_t* data)
-      {
-        transX = mkval<float>(data + sizeof(float) * 0);
-        transY = mkval<float>(data + sizeof(float) * 1);
-        transZ = mkval<float>(data + sizeof(float) * 2);
-        rotX = mkval<float>(data + sizeof(float) * 3);
-        rotY = mkval<float>(data + sizeof(float) * 4);
-        rotZ = mkval<float>(data + sizeof(float) * 5);
-      }
-    };
-    using ExtrinsicOpticToUser = struct ExtrinsicOpticToUser;
-
-    struct Calibration
-    {
-      using Ptr = std::shared_ptr<struct Calibration>;
-      uint32_t modelID;
-      std::array<float, 32> modelParameters;
-      void
-      Read(const uint8_t* data)
-      {
-        modelID = mkval<uint32_t>(data);
-        mkarray<float, 32>(data + sizeof(uint32_t), modelParameters);
-      }
-    };
-
-    using IntrinsicCalibration = struct Calibration;
-    using InverseIntrinsicCalibration = struct Calibration;
 
     void
     Read(const uint8_t* data, size_t size)
@@ -108,9 +71,9 @@ namespace ifm3d
     float distance_resolution;
     float amplitude_resolution;
     std::array<float, 3> amp_normalization_factors;
-    ExtrinsicOpticToUser extrisic_optic_to_user;
-    IntrinsicCalibration intrinsic_calibration;
-    InverseIntrinsicCalibration inverse_intrinsic_calibration;
+    calibration::ExtrinsicOpticToUser extrisic_optic_to_user;
+    calibration::IntrinsicCalibration intrinsic_calibration;
+    calibration::InverseIntrinsicCalibration inverse_intrinsic_calibration;
     std::array<uint64_t, 3> exposure_timestamps_ns;
     std::array<uint32_t, 3> exposure_times_s;
     float illu_temperature;

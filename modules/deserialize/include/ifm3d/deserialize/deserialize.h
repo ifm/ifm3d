@@ -11,5 +11,4 @@
 #include <ifm3d/deserialize/struct_tof_info_v3.hpp>
 #include <ifm3d/deserialize/struct_tof_info_v4.hpp>
 
-
 #endif // IFM3D_DESERIALIZE_DESERIALIZE_H
