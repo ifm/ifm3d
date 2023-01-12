@@ -6,10 +6,10 @@
 #ifndef IFM3D_DESERIALIZE_UTILS_HPP
 #define IFM3D_DESERIALIZE_UTILS_HPP
 
+namespace ifm3d
+{
 
-namespace ifm3d { 
- 
- template <typename T, size_t n>
+  template <typename T, size_t n>
   void
   mkarray(const uint8_t* data, std::array<T, n>& arr)
   {
@@ -20,6 +20,6 @@ namespace ifm3d {
         element_index++;
       }
   }
-} //end namespace 
+} // end namespace
 
 #endif // IFM3D_DESERIALIZE_UTILS_HPP

@@ -7,7 +7,6 @@
 #ifndef IFM3D_DESERIALIZE_STRUCT_TOF_INFO_V4_HPP
 #define IFM3D_DESERIALIZE_STRUCT_TOF_INFO_V4_HPP
 
-
 #include <array>
 #include <chrono>
 #include <ifm3d/device/device.h>
@@ -39,7 +38,7 @@ namespace ifm3d
           throw ifm3d::Error(IFM3D_BUFFER_NOT_COMPATIABLE);
         }
 
-     TofInfoV3::Read(data, size);
+      TofInfoV3::Read(data, size);
       const uint8_t* start_ptr = data;
       measurement_block_index =
         mkval<std::uint32_t>(start_ptr + MEASUREMENT_BLOCK_INDEX);

@@ -15,8 +15,8 @@ void
 bind_struct_tofinfov3(pybind11::module_& m)
 {
   // clang-format off
-  py::class_<ifm3d::TofInfoV3::ExtrinsicOpticToUser,
-             ifm3d::TofInfoV3::ExtrinsicOpticToUser::Ptr> extrinsic_optic_to_user(
+  py::class_<ifm3d::calibration::ExtrinsicOpticToUser,
+             ifm3d::calibration::ExtrinsicOpticToUser::Ptr> extrinsic_optic_to_user(
       m,
       "ExtrinsicOpticToUser",
       R"(
@@ -29,42 +29,42 @@ bind_struct_tofinfov3(pybind11::module_& m)
       )");
   extrinsic_optic_to_user.def_readonly(
     "transX",
-    &ifm3d::TofInfoV3::ExtrinsicOpticToUser::transX,
+    &ifm3d::calibration::ExtrinsicOpticToUser::transX,
     R"(
         Extrinsic Parameter transX
       )");
   extrinsic_optic_to_user.def_readonly(
     "transY",
-    &ifm3d::TofInfoV3::ExtrinsicOpticToUser::transY,
+    &ifm3d::calibration::ExtrinsicOpticToUser::transY,
     R"(
         Extrinsic Parameter transY
       )");
   extrinsic_optic_to_user.def_readonly(
     "transZ",
-    &ifm3d::TofInfoV3::ExtrinsicOpticToUser::transZ,
+    &ifm3d::calibration::ExtrinsicOpticToUser::transZ,
     R"(
         Extrinsic Parameter transZ
       )");
   extrinsic_optic_to_user.def_readonly(
     "rotX",
-    &ifm3d::TofInfoV3::ExtrinsicOpticToUser::rotX,
+    &ifm3d::calibration::ExtrinsicOpticToUser::rotX,
     R"(
         Extrinsic Parameter rotX
       )");
   extrinsic_optic_to_user.def_readonly(
     "rotY",
-    &ifm3d::TofInfoV3::ExtrinsicOpticToUser::rotY,
+    &ifm3d::calibration::ExtrinsicOpticToUser::rotY,
     R"(
         Extrinsic Parameter rotY
       )");
   extrinsic_optic_to_user.def_readonly(
     "rotZ",
-    &ifm3d::TofInfoV3::ExtrinsicOpticToUser::rotZ,
+    &ifm3d::calibration::ExtrinsicOpticToUser::rotZ,
     R"(
         Extrinsic Parameter rotZ
       )");
 
-  py::class_<ifm3d::TofInfoV3::Calibration, ifm3d::TofInfoV3::Calibration::Ptr>Calibration(
+  py::class_<ifm3d::calibration::Calibration, ifm3d::calibration::Calibration::Ptr>Calibration(
     m,
     "Calibration",
     R"(
@@ -77,14 +77,14 @@ bind_struct_tofinfov3(pybind11::module_& m)
       )");
   Calibration.def_readonly(
     "model_id",
-    &ifm3d::TofInfoV3::Calibration::modelID,
+    &ifm3d::calibration::Calibration::modelID,
     R"(
         Model Id for calibration parameters
       )");
 
   Calibration.def_readonly(
     "parameters",
-    &ifm3d::TofInfoV3::Calibration::modelParameters,
+    &ifm3d::calibration::Calibration::modelParameters,
     R"(
         Parameters for calibration
       )");

@@ -10,10 +10,12 @@
 #include <pybind11/stl.h>
 #include <pybind11/chrono.h>
 #include "tof_info_v3.h"
+#include "tof_info_v4.h"
 void
 bind_deserialize_struct(pybind11::module_& m)
 {
   bind_struct_tofinfov3(m);
+  bind_struct_tofinfov4(m);
 }
 
 #endif // IFM3D_PYBIND_BINDING_DESERIALIZE

@@ -48,9 +48,8 @@ TEST(DeserializeTestWithFile, struct_tof_info_v3)
     tof_info_v3.extrisic_optic_to_user.rotY,
     tof_info_v3.extrisic_optic_to_user.rotZ};
 
-  EXPECT_TRUE(
-    ifm3d::compare_array(extrinc_opt_to_user,
-                         ifm3d::tof_info::extrincsic_optic_to_user));
+  EXPECT_TRUE(ifm3d::compare_array(extrinc_opt_to_user,
+                                   ifm3d::tof_info::extrincsic_optic_to_user));
 
   EXPECT_EQ(tof_info_v3.intrinsic_calibration.modelID,
             ifm3d::tof_info::intrinsic_calib_model_id);
@@ -66,9 +65,8 @@ TEST(DeserializeTestWithFile, struct_tof_info_v3)
     tof_info_v3.inverse_intrinsic_calibration.modelParameters,
     ifm3d::tof_info::inverse_intrinsic_calib_model_param));
 
-  EXPECT_TRUE(
-    ifm3d::compare_array(tof_info_v3.exposure_timestamps_ns,
-                         ifm3d::tof_info::exposure_timestamps_ns));
+  EXPECT_TRUE(ifm3d::compare_array(tof_info_v3.exposure_timestamps_ns,
+                                   ifm3d::tof_info::exposure_timestamps_ns));
 
   EXPECT_TRUE(ifm3d::compare_array(tof_info_v3.exposure_times_s,
                                    ifm3d::tof_info::exposure_times_s));
@@ -77,8 +75,7 @@ TEST(DeserializeTestWithFile, struct_tof_info_v3)
               ifm3d::tof_info::illu_temperature,
               ifm3d::epsilon);
 
-  EXPECT_TRUE(
-    ifm3d::compare_array(tof_info_v3.mode, ifm3d::tof_info::mode));
+  EXPECT_TRUE(ifm3d::compare_array(tof_info_v3.mode, ifm3d::tof_info::mode));
 
   EXPECT_TRUE(
     ifm3d::compare_array(tof_info_v3.imager, ifm3d::tof_info::imager));
@@ -148,13 +145,12 @@ TEST(DeserializeTestWithFile, struct_tof_info_v4)
   EXPECT_TRUE(
     ifm3d::compare_array(tof_info_v4.imager, ifm3d::tof_info::imager));
 
-   EXPECT_EQ(tof_info_v4.measurement_block_index,
+  EXPECT_EQ(tof_info_v4.measurement_block_index,
             ifm3d::tof_info::measurement_block_index);
   EXPECT_NEAR(tof_info_v4.measurement_range_min,
-               ifm3d::tof_info::measurement_range_min,
-               ifm3d::epsilon);
-   EXPECT_NEAR(tof_info_v4.measurement_range_max,
-               ifm3d::tof_info::measurement_range_max,
-               ifm3d::epsilon);
-
+              ifm3d::tof_info::measurement_range_min,
+              ifm3d::epsilon);
+  EXPECT_NEAR(tof_info_v4.measurement_range_max,
+              ifm3d::tof_info::measurement_range_max,
+              ifm3d::epsilon);
 }
