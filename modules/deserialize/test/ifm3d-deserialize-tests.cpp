@@ -201,3 +201,15 @@ TEST(DeserializeTestWithFile, struct_rgb_info_v1)
     rgb_info_v1.inverse_intrinsic_calibration.modelParameters,
     ifm3d::rgb_info::inverse_intrinsic_calib_model_param));
 }
+
+TEST(DeserializeTestWithFile, struct_ods_info_v1_size_exception)
+{
+  auto buffer = ifm3d::Buffer(1, 5, 1, ifm3d::pixel_format::FORMAT_8U);
+
+  EXPECT_THROW(ifm3d::TofInfoV4::Deserialize(buffer), ifm3d::Error);
+}
+
+TEST(DeserializeTestWithFile, struct_ods_info_v1)
+{
+  // TODO : when device will be avaliable
+}
