@@ -14,33 +14,38 @@
 void
 bind_struct_tofinfov4(pybind11::module_& m)
 {
-  py::class_<ifm3d::TofInfoV4, ifm3d::TofInfoV4::Ptr, ifm3d::TofInfoV3>
-    tof_info_v4(m,
-                "ToFInfoV4",
-                R"(
+  // clang-format off
+  py::class_<ifm3d::TofInfoV4, ifm3d::TofInfoV4::Ptr, ifm3d::TofInfoV3> tof_info_v4(
+    m,
+    "ToFInfoV4",
+    R"(
         Class for managing an instance of an struct TofInfoV4
       )");
 
-  tof_info_v4.def(py::init<>(),
-                  R"(
+  tof_info_v4.def(
+    py::init<>(),
+    R"(
         Constructor
       )");
 
-  tof_info_v4.def_readonly("measurement_block_index",
-                           &ifm3d::TofInfoV4::measurement_block_index,
-                           R"(
+  tof_info_v4.def_readonly(
+    "measurement_block_index",
+    &ifm3d::TofInfoV4::measurement_block_index,
+    R"(
         index of the measurement box
       )");
 
-  tof_info_v4.def_readonly("measurement_range_min",
-                           &ifm3d::TofInfoV4::measurement_range_min,
-                           R"(
+  tof_info_v4.def_readonly(
+    "measurement_range_min",
+    &ifm3d::TofInfoV4::measurement_range_min,
+    R"(
          minimum of the measurement range 
       )");
 
-  tof_info_v4.def_readonly("measurement_range_max",
-                           &ifm3d::TofInfoV4::measurement_range_max,
-                           R"(
+  tof_info_v4.def_readonly(
+    "measurement_range_max",
+    &ifm3d::TofInfoV4::measurement_range_max,
+    R"(
          minimum of the measurement range 
       )");
 
