@@ -15,7 +15,7 @@ void
 bind_struct_odsinfov1(pybind11::module_& m)
 {
 
-  /// clang-format off
+  // clang-format off
   py::class_<ifm3d::ODSInfoV1, ifm3d::ODSInfoV1::Ptr>ods_info_v1(
     m,
     "ODSInfoV1",
