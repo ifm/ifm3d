@@ -93,11 +93,12 @@ namespace ifm3d
     width = ifm3d::mkval<uint32_t>(fileBuffer.data());
     height = ifm3d::mkval<uint32_t>(fileBuffer.data() + 4);
     nchannel = ifm3d::mkval<uint32_t>(fileBuffer.data() + 8);
-    pix_format = static_cast<ifm3d::pixel_format>(ifm3d::mkval<uint32_t>(fileBuffer.data() + 12));
+    pix_format = static_cast<ifm3d::pixel_format>(
+      ifm3d::mkval<uint32_t>(fileBuffer.data() + 12));
 
     auto buffer = ifm3d::Buffer(width, height, nchannel, pix_format);
     std::copy(fileBuffer.begin() + 16, fileBuffer.end(), buffer.begin<char>());
-    
+
     return buffer;
   }
 };
