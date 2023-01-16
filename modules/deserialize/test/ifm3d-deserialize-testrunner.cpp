@@ -7,7 +7,7 @@ main(int argc, char** argv)
   std::map<std::string, std::string> device_to_filter(
     {{"O3D", ""},
      {"O3X", ""},
-     {"O3R", ""},
+     {"O3R", "DeserializeTestWithDevice.*"},
      {"device_independent", "DeserializeTestWithFile.*"}});
 
   std::map<ifm3d::Device::device_family, std::string> device_family_to_device(
