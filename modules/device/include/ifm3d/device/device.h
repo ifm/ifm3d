@@ -248,7 +248,8 @@ namespace ifm3d
     static Ptr MakeShared(
       const std::string& ip = ifm3d::DEFAULT_IP,
       const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
-      const std::string& password = ifm3d::DEFAULT_PASSWORD);
+      const std::string& password = ifm3d::DEFAULT_PASSWORD,
+      bool throwIfUnavailable = true);
 
     /**
      * Initializes the device interface utilizing library defaults

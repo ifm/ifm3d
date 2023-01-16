@@ -18,6 +18,8 @@ if(NOT BUILD_IN_DEPS)
     set(LIB_glog glog::glog)
   endif (NOT TARGET glog::glog)
 
+  find_package(CURL REQUIRED)
+
   if(NOT WIN32)
     find_library(LIB_xmlrpcxx NAMES xmlrpc++)
     find_library(LIB_xmlrpc NAMES xmlrpc)
@@ -34,7 +36,8 @@ if(NOT BUILD_IN_DEPS)
     set(LIB_xmlrpc_client xmlrpc-c::xmlrpc_client)
   endif(NOT WIN32)
 else (NOT BUILD_IN_DEPS)
-  set( LIB_glog glog)
+  set(LIB_glog glog)
+  set(CURL_LIBRARIES libcurl)
   set(LIB_xmlrpcxx xmlrpc++)
   set(LIB_xmlrpc xmlrpc)
   set(LIB_xmlrpc_clientxx xmlrpc_client++)
@@ -57,6 +60,7 @@ target_include_directories(ifm3d_device
     $<BUILD_INTERFACE:${IFM3D_DEVICE_SOURCE_DIR}/include>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CURL_INCLUDE_DIRS}
     ${XMLRPC_INCLUDE_DIRS}
     ${BUILTIN_INCLUDES}
     )
@@ -84,6 +88,7 @@ target_link_libraries(
   ifm3d_device
   PRIVATE
     ${LIB_glog}
+    ${CURL_LIBRARIES}
     ${LIB_xmlrpc_clientxx}
     ${LIB_xmlrpc_client}
     ${LIB_xmlrpcxx}
