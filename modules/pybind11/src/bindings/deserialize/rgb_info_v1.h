@@ -81,7 +81,7 @@ bind_struct_rgbinfov1(pybind11::module_& m)
     return val;
   },
     R"(
-        Deserialize ToFInfoV3 Buffer
+        Deserialize RGBInfoV1 Buffer
       )");
 }
 // clang-format on
