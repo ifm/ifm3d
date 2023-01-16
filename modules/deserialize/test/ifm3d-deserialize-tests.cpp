@@ -28,9 +28,7 @@ TEST(DeserializeTestWithFile, struct_tof_info_v3_size_exception)
 }
 TEST(DeserializeTestWithFile, struct_tof_info_v3)
 {
-
   auto buffer = ifm3d::read_buffer_from_file("tof_info.data");
-
   auto tof_info_v3 = ifm3d::TofInfoV3::Deserialize(buffer);
   constexpr auto minimum_required_version = 3;
   EXPECT_GE(tof_info_v3.version, minimum_required_version);
@@ -167,7 +165,7 @@ TEST(DeserializeTestWithFile, struct_rgb_info_v1_size_exception)
 }
 TEST(DeserializeTestWithFile, struct_rgb_info_v1)
 {
-  auto buffer = ifm3d::read_buffer_from_file("rgb_info.data");
+ auto buffer = ifm3d::read_buffer_from_file("rgb_info.data");
   auto rgb_info_v1 = ifm3d::RGBInfoV1::Deserialize(buffer);
 
   constexpr auto minimum_required_version = 1;
