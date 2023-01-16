@@ -14,6 +14,7 @@ include:
   - local: .gitlab/build_windows.yml
   - local: .gitlab/build_linux.yml
   - local: .gitlab/test_windows.yml
+  - local: .gitlab/test_linux.yml
   - local: .gitlab/deploy.yml
   - local: .gitlab/deploy_docs.yml
   - local: .gitlab/deploy_python.yml
