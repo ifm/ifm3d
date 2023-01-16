@@ -11,6 +11,8 @@
 #include <ifm3d/deserialize/struct_tof_info_v3.hpp>
 #include <ifm3d/deserialize/struct_tof_info_v4.hpp>
 #include <ifm3d/deserialize/struct_rgb_info_v1.hpp>
+#include <ifm3d/deserialize/struct_o3r_ods_info_v1.hpp>
+#include <ifm3d/deserialize/struct_o3r_ods_occupancy_grid_v1.hpp>
 #include <algorithm>
 #include <fstream>
 #include "tof_info_test_data.hpp"
@@ -206,10 +208,22 @@ TEST(DeserializeTestWithFile, struct_ods_info_v1_size_exception)
 {
   auto buffer = ifm3d::Buffer(1, 5, 1, ifm3d::pixel_format::FORMAT_8U);
 
-  EXPECT_THROW(ifm3d::TofInfoV4::Deserialize(buffer), ifm3d::Error);
+  EXPECT_THROW(ifm3d::ODSInfoV1::Deserialize(buffer), ifm3d::Error);
 }
 
 TEST(DeserializeTestWithFile, struct_ods_info_v1)
+{
+  // TODO : when device will be avaliable
+}
+
+TEST(DeserializeTestWithFile, struct_ods_occupancy_grid_v1_size_exception)
+{
+  auto buffer = ifm3d::Buffer(1, 5, 1, ifm3d::pixel_format::FORMAT_8U);
+
+  EXPECT_THROW(ifm3d::ODSOccupancyGridV1::Deserialize(buffer), ifm3d::Error);
+}
+
+TEST(DeserializeTestWithFile, struct_ods_occupancy_grid_info_v1)
 {
   // TODO : when device will be avaliable
 }

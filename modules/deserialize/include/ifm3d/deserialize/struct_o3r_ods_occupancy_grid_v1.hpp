@@ -50,7 +50,7 @@ namespace ifm3d
         transfor_cell_center_to_user);
       ods_occupancy_grid_v1_size =
         ods_occupancy_grid_v1_minimum_size + width * height;
-      if (size < ods_occupancy_grid_v1_size;)
+      if (size < ods_occupancy_grid_v1_size)
         {
           throw ifm3d::Error(IFM3D_BUFFER_NOT_COMPATIABLE);
         }
@@ -71,6 +71,7 @@ namespace ifm3d
   private:
     const size_t ods_occupancy_grid_v1_minimum_size = 40;
 
+  public:
     static ODSOccupancyGridV1
     Deserialize(const Buffer& ods_occupancy_buffer_grid)
     {
