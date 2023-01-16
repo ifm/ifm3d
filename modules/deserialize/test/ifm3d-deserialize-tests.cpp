@@ -165,7 +165,7 @@ TEST(DeserializeTestWithFile, struct_rgb_info_v1_size_exception)
 }
 TEST(DeserializeTestWithFile, struct_rgb_info_v1)
 {
- auto buffer = ifm3d::read_buffer_from_file("rgb_info.data");
+  auto buffer = ifm3d::read_buffer_from_file("rgb_info.data");
   auto rgb_info_v1 = ifm3d::RGBInfoV1::Deserialize(buffer);
 
   constexpr auto minimum_required_version = 1;
@@ -224,4 +224,43 @@ TEST(DeserializeTestWithFile, struct_ods_occupancy_grid_v1_size_exception)
 TEST(DeserializeTestWithFile, struct_ods_occupancy_grid_info_v1)
 {
   // TODO : when device will be avaliable
+}
+
+TEST(DeserializeTestWithDevice, struct_tof_info_v3)
+{
+  auto dev = std::make_shared<ifm3d::O3R>();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(dev, 50012);
+
+  fg->Start({ifm3d::buffer_id::TOF_INFO});
+  auto frame = fg->WaitForFrame().get();
+
+  auto buffer = frame->GetBuffer(ifm3d::buffer_id::TOF_INFO);
+  EXPECT_NO_THROW(ifm3d::TofInfoV3::Deserialize(buffer));
+}
+
+TEST(DeserializeTestWithDevice, struct_tof_info_v4)
+{
+  auto dev = std::make_shared<ifm3d::O3R>();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(dev, 50012);
+
+  fg->Start({ifm3d::buffer_id::TOF_INFO});
+  auto frame = fg->WaitForFrame().get();
+
+  auto buffer = frame->GetBuffer(ifm3d::buffer_id::TOF_INFO);
+
+  EXPECT_NO_THROW(ifm3d::TofInfoV3::Deserialize(buffer));
+  EXPECT_NO_THROW(ifm3d::TofInfoV4::Deserialize(buffer));
+}
+
+TEST(DeserializeTestWithDevice, struct_rgb_info_v1)
+{
+  auto dev = std::make_shared<ifm3d::O3R>();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(dev, 50010);
+
+  fg->Start({ifm3d::buffer_id::RGB_INFO});
+  auto frame = fg->WaitForFrame().get();
+
+  auto buffer = frame->GetBuffer(ifm3d::buffer_id::RGB_INFO);
+
+  EXPECT_NO_THROW(ifm3d::RGBInfoV1::Deserialize(buffer));
 }

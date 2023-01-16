@@ -60,7 +60,8 @@ namespace ifm3d
     const uint32_t nchannel = buffer.nchannels();
     const ifm3d::pixel_format pix_format = buffer.dataFormat();
 
-    auto buffer_file = std::fstream(file_name, std::ios::out|std::ios::binary);
+    auto buffer_file =
+      std::fstream(file_name, std::ios::out | std::ios::binary);
 
     buffer_file.write(reinterpret_cast<const char*>(&width), sizeof(width));
     buffer_file.write(reinterpret_cast<const char*>(&height), sizeof(height));
