@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `O3R::RebootToRecovery` to reboot supported O3R devices into recovery mode
 - Support for O3R recovery based updates
 - Add size() interface in ifm3d::Buffer
+- Add Deserialize module
+  - Add struct TofInfoV3
+  - Add struct TofInfoV4
+  - Add struct RGBInfoV1
+  - Add struct ODSInfoV1
+  - Add struct ODSOccupancyGridV1
 
 ## 1.1.1 - 2022-12-9
 ### Fixes 
