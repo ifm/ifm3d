@@ -5,8 +5,8 @@ namespace ifm3d
   namespace rgb_info
   {
     constexpr uint32_t version = 1;
-    constexpr uint32_t frame_counter = 1505237;
-    constexpr uint64_t timestamp_ns = 1581169388099096262;
+    constexpr uint32_t frame_counter = 8174615;
+    constexpr uint64_t timestamp_ns = 1581500914182583358;
     constexpr float exposure_time = 0.009999998845;
 
     constexpr std::array<float, 6> extrincsic_optic_to_user = {0.01400010101,
