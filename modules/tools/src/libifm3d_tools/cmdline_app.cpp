@@ -15,7 +15,8 @@
 
 ifm3d::CmdLineApp::CmdLineApp(int argc,
                               const char** argv,
-                              const std::string& name)
+                              const std::string& name,
+                              bool throwIfUnavailable)
   : all_opts_("ifm3d")
 {
   // clang-format off
@@ -44,7 +45,8 @@ ifm3d::CmdLineApp::CmdLineApp(int argc,
     {
       this->cam_ = ifm3d::Device::MakeShared(this->ip_,
                                              this->xmlrpc_port_,
-                                             this->password_);
+                                             this->password_,
+                                             throwIfUnavailable);
     }
 }
 
