@@ -33,14 +33,14 @@ bind_struct_odsinfov1(pybind11::module_& m)
     "timestamp_ns",
     &ifm3d::ODSInfoV1::timestamp_ns,
     R"(
-        timestamp of the info 
+        Timestamp of zone information [ns]
       )");
 
   ods_info_v1.def_readonly(
     "zone_occupied",
     &ifm3d::ODSInfoV1::zone_occupied,
     R"(
-         array with three value of uint8_t
+         Array with three value of uint8_t
          0 : zone is free 
          1 : zone is occupied
       )");
@@ -49,7 +49,7 @@ bind_struct_odsinfov1(pybind11::module_& m)
     "zone_config_id",
     &ifm3d::ODSInfoV1::zone_config_id,
     R"(
-         user specific id to identify the zone configuration
+         User specific id to identify the zone configuration
       )");
 
   ods_info_v1.def_static(
@@ -61,7 +61,7 @@ bind_struct_odsinfov1(pybind11::module_& m)
       return val;
     },
     R"(
-        Deserialize ODSInfoV1 Buffer
+        Deserialize ODS_INFO Buffer to ODSInfoV1 struct
       )");
 }
 // clang-format on

@@ -43,10 +43,21 @@ namespace ifm3d
                           zone_occupied);
       zone_config_id = mkval<float>(start_ptr + ODS_INFO_ZONE_CONFIG_ID_INDEX);
     };
-
+    /*@brief Timestamp of zone information [ns]*/
     uint64_t timestamp_ns;
+    /*
+     * @brief array with 3 elements of unit8 values
+     *  0: zone is free
+     *  1: zone is occupied
+     */
     std::array<uint8_t, 3> zone_occupied;
+    /*
+     * @brief user-specified ID to identify the zone configuration
+     */
     uint32_t zone_config_id;
+    /*
+     *@brief size ofthe ODS_INFO_V1 in bytes
+     * */
     const size_t ods_info_v1 = 15;
 
     static ODSInfoV1
