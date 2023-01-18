@@ -60,12 +60,21 @@ namespace ifm3d
                   start_ptr + ODS_OCCUPANCY_GRID_IMAGE_INDEX,
                   image.size());
     };
-
+    /*@brief Timestamp of occupany grid in [ns]*/
     uint64_t timestamp_ns;
+    /*@brief Number of grid cells*/
     uint32_t width;
+    /*@brief number of grid cells*/
     uint32_t height;
+    /*@brief  Values of matrix 2x3
+     * affine mapping between grid cell and user coordinate system
+     * e.g, multiplying the matrix with [0,0,1] gives the user cordinate
+     * of the center of upper left cell
+     */
     std::array<float, 6> transfor_cell_center_to_user;
+    /*@brief Buffer of width* height of type uint8_t */
     ifm3d::Buffer image;
+    /*@brief size of ODS_OCCUPANCY_GRID in bytes*/
     size_t ods_occupancy_grid_v1_size;
 
   private:
