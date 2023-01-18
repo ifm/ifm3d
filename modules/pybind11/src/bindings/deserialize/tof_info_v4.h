@@ -32,21 +32,27 @@ bind_struct_tofinfov4(pybind11::module_& m)
     "measurement_block_index",
     &ifm3d::TofInfoV4::measurement_block_index,
     R"(
-        index of the measurement box
+         Current measurement block index (range 0 to N-1, where N is the number of sub-modes).
+         This identifies the currently used sub-mode in cyclic modes.
+         In non-cyclic modes this value is always 0.
       )");
 
   tof_info_v4.def_readonly(
     "measurement_range_min",
     &ifm3d::TofInfoV4::measurement_range_min,
     R"(
-         minimum of the measurement range 
+        Current minimum measurement range [m].
+        The value is based on the camera-individual ToF calibration.
+        It is influenced by temperature.
       )");
 
   tof_info_v4.def_readonly(
     "measurement_range_max",
     &ifm3d::TofInfoV4::measurement_range_max,
     R"(
-         minimum of the measurement range 
+         Current maximum measurement range [m].
+         The value is based on the camera-individual ToF calibration.
+         It is influenced by temperature.
       )");
 
   tof_info_v4.def_static(
@@ -58,7 +64,7 @@ bind_struct_tofinfov4(pybind11::module_& m)
       return val;
     },
     R"(
-        Deserialize ToFInfoV3 Buffer
+        Deserialize TOF_INFO buffer to ToFInfoV4
       )");
 }
 // clang-format on

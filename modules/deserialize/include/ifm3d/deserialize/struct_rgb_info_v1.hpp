@@ -56,14 +56,22 @@ namespace ifm3d
       inverse_intrinsic_calibration.Read(
         start_ptr + RGB_INFO_INVERSE_INTRINSIC_CALIBRATION_INDEX);
     };
-
+    /*@brief Version of the RGB_INFO data*/
     std::uint32_t version;
+    /*@brief Frame count, The frame counter is initialized to 0 at the
+     * initialization */
     std::uint32_t frame_counter;
+    /*@brief The timestamp of the 2D image, given in nano second*/
     std::uint64_t timestamp_ns;
+    /*@brief Actual exposure time of the 2D image*/
     float exposure_time;
+    /*@brief Extrinsic optic paramter of the 2D head*/
     calibration::ExtrinsicOpticToUser extrisic_optic_to_user;
+    /*@brief Intrinsic Calibration parameters*/
     calibration::IntrinsicCalibration intrinsic_calibration;
+    /*@brief Inverse intrinsic Calibration parameters*/
     calibration::InverseIntrinsicCalibration inverse_intrinsic_calibration;
+    /*@brief Size of RGB_INFO in bytes*/
     const size_t rgb_info_v1_size = 308;
 
     static RGBInfoV1

@@ -106,26 +106,26 @@ bind_struct_tofinfov3(pybind11::module_& m)
     "version",
     &ifm3d::TofInfoV3::version,
     R"(
-        Version of the TOF_INFO
+         Version of the TOF_INFO data
       )");
 
   tof_info_v3.def_readonly(
     "amplitude_resolution",
     &ifm3d::TofInfoV3::amplitude_resolution,
     R"(
-        Amplitude Resolution
+         Resolution of the amplitude buffer
       )");
   tof_info_v3.def_readonly(
     "distance_resolution",
     &ifm3d::TofInfoV3::distance_resolution,
     R"(
-        Distance Resolution
+        Resolution of distance buffer per digit[m]
       )");
   tof_info_v3.def_readonly(
     "amp_normalization_factors",
     &ifm3d::TofInfoV3::amp_normalization_factors,
     R"(
-         Amplitude Resolution factors
+          Amplitude normalization factors for the individual exposure times
       )");
   tof_info_v3.def_readonly(
     "extrisic_optic_to_user",
@@ -137,43 +137,43 @@ bind_struct_tofinfov3(pybind11::module_& m)
     "intrinsic_calibration",
     &ifm3d::TofInfoV3::intrinsic_calibration,
     R"(
-        intrinsic calibration paramter
+        Intrinsic calibration parameters
       )");
   tof_info_v3.def_readonly(
     "inverse_intrinsic_calibration",
     &ifm3d::TofInfoV3::inverse_intrinsic_calibration,
     R"(
-        inverse intrinsic calibration paramter
+        Inverse intrinsic calibration parameters
       )");
   tof_info_v3.def_readonly(
     "exposure_timestamps_ns",
     &ifm3d::TofInfoV3::exposure_timestamps_ns,
     R"(
-         exposure timestamp in nano seconds
+         The timestamp of the individual exposure time [nano seconds]
       )");
   tof_info_v3.def_readonly(
     "exposure_times_s",
     &ifm3d::TofInfoV3::exposure_times_s,
     R"(
-         exposure times in seconds
+         Actual exposure times of a single phase image [seconds]
       )");
   tof_info_v3.def_readonly(
     "illu_temperature",
     &ifm3d::TofInfoV3::illu_temperature,
     R"(
-        illumination temperature
+         Illumination temperature
       )");
   tof_info_v3.def_readonly(
     "mode",
     &ifm3d::TofInfoV3::mode,
     R"(
-        mode of imager
+        Mode of the head
       )");
   tof_info_v3.def_readonly(
     "imager",
     &ifm3d::TofInfoV3::imager,
     R"(
-        imager
+        Imager type
       )");
 
   tof_info_v3.def_static(
@@ -184,7 +184,7 @@ bind_struct_tofinfov3(pybind11::module_& m)
     return val;
   },
     R"(
-        Deserialize ToFInfoV3 Buffer
+        Deserialize TOF_INFO Buffer to ToFInfoV3 struct.
       )");
 }
 // clang-format on
