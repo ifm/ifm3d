@@ -801,16 +801,7 @@ ifm3d::FrameGrabber::Impl::CalculateAsyncCommand()
   // enable  algodebug
   if (this->requested_images_.count(ifm3d::buffer_id::ALGO_DEBUG) > 0)
     {
-      // only algo debug is required
-      if (this->requested_images_.size() == 1 && p == 1)
-        {
-          p = (1 << 3);
-          return fmt::format("p{0:X}", p);
-        }
-      else
-        {
-          return fmt::format("pF");
-        }
+      p = this->requested_images_.size() == 1 && p == 0x1 ? 0x8 : 0xF;
     }
   return fmt::format("p{0:X}", p);
 }
