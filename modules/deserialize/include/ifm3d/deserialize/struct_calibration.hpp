@@ -15,6 +15,10 @@ namespace ifm3d
 {
   namespace calibration
   {
+    /*@brief
+     * All items are given in SI units, i.e. transXYZ are in [m] and rotXYZ are
+     * in [rad].
+     */
     struct ExtrinsicOpticToUser
     {
       using Ptr = std::shared_ptr<struct ExtrinsicOpticToUser>;
@@ -50,8 +54,9 @@ namespace ifm3d
         mkarray<float, 32>(data + sizeof(uint32_t), modelParameters);
       }
     };
-
+    /*@brief Intrisnsic parameter model for the device/head*/
     using IntrinsicCalibration = struct Calibration;
+    /*@brief Inverse intrisnsic parameter model for the device/head*/
     using InverseIntrinsicCalibration = struct Calibration;
   } // end namespace calibration
 

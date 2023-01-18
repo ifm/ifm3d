@@ -70,19 +70,32 @@ namespace ifm3d
       mkarray<char, 32>(start_ptr + TOF_INFO_MODE_INDEX, mode);
       mkarray<char, 32>(start_ptr + TOF_INFO_IMAGER_INDEX, imager);
     };
-
+    /*@brief Version of the TOF_INFO data */
     uint32_t version;
+    /*@brief Resolution of distance buffer per digit[m]*/
     float distance_resolution;
+    /*@brief Resolution of the amplitude buffer*/
     float amplitude_resolution;
+    /*@brief Amplitude normalization factors for the individual exposure
+     * times*/
     std::array<float, 3> amp_normalization_factors;
+    /*@brief Extrinsic optic parameter to user*/
     calibration::ExtrinsicOpticToUser extrisic_optic_to_user;
+    /*@brief Intrinsic calibration parameters*/
     calibration::IntrinsicCalibration intrinsic_calibration;
+    /*@brief Inverse intrinsic calibration parameters*/
     calibration::InverseIntrinsicCalibration inverse_intrinsic_calibration;
+    /*@brief The timestamp of the individual exposure time [nano seconds]*/
     std::array<uint64_t, 3> exposure_timestamps_ns;
+    /*@brief Actual exposure times of a single phase image [seconds].*/
     std::array<uint32_t, 3> exposure_times_s;
+    /*@brief Illumination temperature*/
     float illu_temperature;
+    /*@brief Mode of the head*/
     std::array<char, 32> mode;
+    /*@brief Imager type*/
     std::array<char, 32> imager;
+    /*@brief TOF_INFO data size in bytes*/
     const size_t tof_info_v3_size = 416;
 
     static TofInfoV3

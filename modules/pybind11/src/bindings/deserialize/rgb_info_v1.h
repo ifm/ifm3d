@@ -33,44 +33,44 @@ bind_struct_rgbinfov1(pybind11::module_& m)
     "version",
     &ifm3d::RGBInfoV1::version,
     R"(
-        Version of the TOF_INFO
+        Version of the RGB_INFO data
       )");
 
   rgb_info_v1.def_readonly(
     "frame_counter",
     &ifm3d::RGBInfoV1::frame_counter,
     R"(
-        Frame count from the start of the device 
+        Frame count, The frame counter is initialized to 0 at the initialization
       )");
   rgb_info_v1.def_readonly(
     "timestamp_ns",
     &ifm3d::RGBInfoV1::timestamp_ns,
     R"(
-       Timestamp of the image in the frame
+        The timestamp of the 2D image, given in nano second
       )");
   rgb_info_v1.def_readonly(
     "exposure_time",
     &ifm3d::RGBInfoV1::exposure_time,
     R"(
-         Exposure time for the capture of the image
+        Actual exposure time of the 2D image
       )");
   rgb_info_v1.def_readonly(
     "extrisic_optic_to_user",
     &ifm3d::RGBInfoV1::extrisic_optic_to_user,
     R"(
-        Extrinsic optic parameter to user
+        Extrinsic optic paramter of the 2D head
       )");
   rgb_info_v1.def_readonly(
     "intrinsic_calibration",
     &ifm3d::RGBInfoV1::intrinsic_calibration,
     R"(
-        intrinsic calibration paramter
+        Intrinsic Calibration parameters
       )");
   rgb_info_v1.def_readonly(
     "inverse_intrinsic_calibration",
     &ifm3d::RGBInfoV1::inverse_intrinsic_calibration,
     R"(
-        inverse intrinsic calibration paramter
+        Inverse intrinsic Calibration parameters
       )");
  
   rgb_info_v1.def_static(

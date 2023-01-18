@@ -47,10 +47,27 @@ namespace ifm3d
       measurement_range_max =
         mkval<float>(start_ptr + TOF_INFO_MEASUREMENT_RANGE_MAX_INDEX);
     };
-
+    /**
+     * @brief Current measurement block index (range 0 to N-1, where N is the
+     * number of sub-modes). This identifies the currently used sub-mode in
+     * cyclic modes. In non-cyclic modes this value is always 0.
+     */
     uint32_t measurement_block_index;
+    /*
+     * @brief Current minimum measurement range [m].
+     * The value is based on the camera-individual ToF calibration.
+     * It is influenced by temperature.
+     **/
     float measurement_range_min;
+    /*
+     * @brief Current maximum measurement range [m].
+     * The value is based on the camera-individual ToF calibration.
+     * It is influenced by temperature.
+     **/
     float measurement_range_max;
+    /**
+     * @brief size of ToFInfoV4 in bytes
+     */
     const size_t tof_info_v4_size = 428;
 
     static TofInfoV4
