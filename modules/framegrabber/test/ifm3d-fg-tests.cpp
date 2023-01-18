@@ -303,6 +303,5 @@ TEST_F(FrameGrabberTest, DISABLED_algo_with_other_data)
   auto frame = fg_->WaitForFrame().get();
 
   EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::ALGO_DEBUG));
-  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE),
-                  ifm3d::Error);
+  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE));
 }
