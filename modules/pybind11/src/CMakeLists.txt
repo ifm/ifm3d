@@ -63,6 +63,7 @@ target_link_libraries(
     pybind11::module
     ifm3d_tools_shared
     ifm3d_swupdater
+    $<BUILD_INTERFACE:fmt::fmt-header-only>
   )
 
 #------------------
