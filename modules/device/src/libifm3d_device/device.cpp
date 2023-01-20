@@ -34,6 +34,9 @@ const int ifm3d::MAX_HEARTBEAT = 300; // secs
 const std::size_t ifm3d::SESSION_ID_SZ = 32;
 const std::string ifm3d::DEFAULT_APPLICATION_TYPE = "Camera";
 
+const long ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT = 10;     // seconds
+const long ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT = 30; // seconds
+
 auto ifm3d_session_id__ = []() -> std::string {
   std::string sid;
 
@@ -378,22 +381,24 @@ ifm3d::Device::XWrapper()
   return pImpl->XWrapper();
 }
 
-ifm3d::Device::swu_version
-ifm3d::Device::SwUpdateVersion()
+bool
+isV1SWUpdate(const std::string& ip)
 {
-  /* SWU_V1 device expose a /id.lp endpoint in recovery, so we
-  check for it's existance and othwerise assume a SWU_V2 device */
-  auto swu = ifm3d::Device::swu_version::SWU_V2;
-
+  /* SWU_V1 device expose a /id.lp endpoint in recovery, so we check for it's
+   * existance to determine if this is a SWU_V1 device */
   auto curl = curl_easy_init();
   if (curl)
     {
-      auto url = fmt::format("http://{}:8080/id.lp", this->IP());
+      auto url = fmt::format("http://{}:8080/id.lp", ip);
       curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
       curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
 
-      curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 3);
-      curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);
+      curl_easy_setopt(curl,
+                       CURLOPT_CONNECTTIMEOUT,
+                       ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
+      curl_easy_setopt(curl,
+                       CURLOPT_TIMEOUT,
+                       ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
 
       if (curl_easy_perform(curl) == CURLE_OK)
         {
@@ -402,7 +407,7 @@ ifm3d::Device::SwUpdateVersion()
 
           if ((response_code >= 200) && (response_code < 300))
             {
-              swu = ifm3d::Device::swu_version::SWU_V1;
+              return true;
             }
         }
       curl_easy_cleanup(curl);
@@ -410,5 +415,12 @@ ifm3d::Device::SwUpdateVersion()
       curl = NULL;
     }
 
-  return swu;
+  return false;
+}
+
+ifm3d::Device::swu_version
+ifm3d::Device::SwUpdateVersion()
+{
+  return isV1SWUpdate(this->IP()) ? ifm3d::Device::swu_version::SWU_V1 :
+                                    ifm3d::Device::swu_version::SWU_V2;
 }
