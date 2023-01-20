@@ -40,7 +40,7 @@ target_link_libraries(ifm3d-fg-tests
                       ifm3d_device
                       ${LIB_glog}
                       )
-
+                      
 if(NOT CMAKE_CROSSCOMPILING)
   add_custom_target(check_fg
     COMMAND ${IFM3D_FG_BINARY_DIR}/test/${TEST_WRAPPER} DEPENDS ifm3d-fg-tests

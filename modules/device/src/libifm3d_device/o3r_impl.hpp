@@ -82,14 +82,14 @@ ifm3d::O3R::Impl::Impl(std::shared_ptr<XMLRPCWrapper> xwrapper)
 
 ifm3d::O3R::Impl::~Impl() {}
 
-json
+ifm3d::json
 ifm3d::O3R::Impl::Get(const std::vector<std::string>& path)
 {
   return json::parse(
     xmlrpc_c::value_string(this->xwrapper_->XCallMain("get", path)).cvalue());
 }
 
-json
+ifm3d::json
 ifm3d::O3R::Impl::ResolveConfig(const json::json_pointer& ptr)
 {
   return this->Get({})[ptr];
@@ -113,7 +113,7 @@ ifm3d::O3R::Impl::Reset(const std::string& jsonPointer)
   this->xwrapper_->XCallMain("reset", jsonPointer);
 }
 
-json
+ifm3d::json
 ifm3d::O3R::Impl::GetInit()
 {
   return json::parse(
@@ -189,14 +189,14 @@ ifm3d::O3R::Impl::Ports()
   return result;
 }
 
-json
+ifm3d::json
 ifm3d::O3R::Impl::GetDiagnostic()
 {
   return json::parse(
     xmlrpc_c::value_string(this->_XCallDiagnostic("get")).cvalue());
 }
 
-json
+ifm3d::json
 ifm3d::O3R::Impl::GetDiagnosticFilterSchema()
 {
   return json::parse(
@@ -204,7 +204,7 @@ ifm3d::O3R::Impl::GetDiagnosticFilterSchema()
       .cvalue());
 }
 
-json
+ifm3d::json
 ifm3d::O3R::Impl::GetDiagnosticFiltered(json filter)
 {
   return json::parse(xmlrpc_c::value_string(

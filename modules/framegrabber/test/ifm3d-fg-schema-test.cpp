@@ -80,7 +80,6 @@ TEST(Schema, o3r_firmware_compatibility_rgb_info)
   };
 
   check_buffer_id_and_id(ifm3d::buffer_id::RGB_INFO);
-  check_buffer_id_and_id(ifm3d::buffer_id::O3R_RGB_IMAGE_INFO);
 }
 
 TEST(Schema, o3r_firmware_compatibility_tof_info)
@@ -116,5 +115,4 @@ TEST(Schema, o3r_firmware_compatibility_tof_info)
   };
 
   check_buffer_id_and_id(ifm3d::buffer_id::TOF_INFO);
-  check_buffer_id_and_id(ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFO);
 }

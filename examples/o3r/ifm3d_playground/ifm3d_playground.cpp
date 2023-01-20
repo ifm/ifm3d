@@ -4,6 +4,7 @@
  */
 #include <iostream>
 #include <chrono>
+#include <thread>
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/fg.h>
 

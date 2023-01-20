@@ -330,7 +330,7 @@ void
 ifm3d::Device::ForceTrigger()
 {}
 
-json
+ifm3d::json
 ifm3d::Device::ToJSON()
 {
   throw ifm3d::Error(IFM3D_UNSUPPORTED_OP);
