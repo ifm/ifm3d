@@ -18,6 +18,7 @@
 #include <discovery.hpp>
 #include <xmlrpc_wrapper.hpp>
 #include <fmt/core.h>
+#include <curl/curl.h>
 
 //================================================
 // Public constants
@@ -121,7 +122,8 @@ ifm3d::Device::DeviceDiscovery()
 ifm3d::Device::Ptr
 ifm3d::Device::MakeShared(const std::string& ip,
                           const std::uint16_t xmlrpc_port,
-                          const std::string& password)
+                          const std::string& password,
+                          bool throwIfUnavailable)
 {
   auto base = std::make_shared<ifm3d::Device>(ip, xmlrpc_port);
   try
@@ -171,7 +173,10 @@ ifm3d::Device::MakeShared(const std::string& ip,
       if (ex.code() == IFM3D_XMLRPC_TIMEOUT)
         {
           LOG(WARNING) << "Could not probe device type: " << ex.what();
-          throw;
+          if (throwIfUnavailable)
+            {
+              throw;
+            }
         }
       else
         {
@@ -376,8 +381,34 @@ ifm3d::Device::XWrapper()
 ifm3d::Device::swu_version
 ifm3d::Device::SwUpdateVersion()
 {
-  /*SWU_V1 is retured as device type is not avaliable
-   in recovery mode and SWU_V2 doesnot support
-   recovery mode hence device type is always SWU_V1*/
-  return ifm3d::Device::swu_version::SWU_V1;
+  /* SWU_V1 device expose a /id.lp endpoint in recovery, so we
+  check for it's existance and othwerise assume a SWU_V2 device */
+  auto swu = ifm3d::Device::swu_version::SWU_V2;
+
+  auto curl = curl_easy_init();
+  if (curl)
+    {
+      auto url = fmt::format("http://{}:8080/id.lp", this->IP());
+      curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+      curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
+
+      curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 3);
+      curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);
+
+      if (curl_easy_perform(curl) == CURLE_OK)
+        {
+          int response_code;
+          curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+
+          if ((response_code >= 200) && (response_code < 300))
+            {
+              swu = ifm3d::Device::swu_version::SWU_V1;
+            }
+        }
+      curl_easy_cleanup(curl);
+
+      curl = NULL;
+    }
+
+  return swu;
 }
