@@ -4,6 +4,8 @@ include(FetchContent)
 if(BUILD_IN_DEPS)
   list(APPEND BUILTIN_INCLUDES "" PARENT_SCOPE)
 
+  add_compile_options($<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-w>$<$<CXX_COMPILER_ID:MSVC>:/w>)
+
   FetchContent_Declare(
     curl
     FETCHCONTENT_FULLY_DISCONNECTED ON
@@ -52,6 +54,7 @@ if(BUILD_IN_DEPS)
   if(WIN32)
     target_compile_definitions(xmlrpc PUBLIC _HAS_AUTO_PTR_ETC=1)
   endif()
+
 
   FetchContent_Declare(
    glog

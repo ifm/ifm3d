@@ -16,7 +16,7 @@
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/device/logging.h>
-#include <ifm3d/contrib/nlohmann/json.hpp>
+#include <ifm3d/device/json.hpp>
 #include <iostream>
 
 #include <iostream>
@@ -562,7 +562,7 @@ ifm3d::SWUpdater::Impl::GetUpdaterStatus()
   c->Call(curl_easy_perform);
 
   // Parse status
-  auto json = nlohmann::json::parse(status_string.c_str());
+  auto json = ifm3d::json::parse(status_string.c_str());
   status_id = std::stoi(json["Status"].get<std::string>());
   status_error = std::stoi(json["Error"].get<std::string>());
   status_message = json["Msg"].get<std::string>();

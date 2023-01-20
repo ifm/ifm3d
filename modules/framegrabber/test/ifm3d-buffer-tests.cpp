@@ -552,7 +552,7 @@ TEST(Frame, TimeStamp)
       )";
 
   ifm3d::Camera::Ptr cam = std::make_shared<ifm3d::Camera>();
-  cam->FromJSON(nlohmann::json::parse(json));
+  cam->FromJSON(ifm3d::json::parse(json));
 
   ifm3d::StlImageBuffer::Ptr img = std::make_shared<ifm3d::StlImageBuffer>();
   ifm3d::FrameGrabber::Ptr fg =
