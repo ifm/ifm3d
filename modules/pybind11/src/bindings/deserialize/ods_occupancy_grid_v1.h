@@ -70,7 +70,7 @@ bind_struct_odsoccupancygridv1(pybind11::module_& m)
       )");
 
   ods_occupancy_grid_v1.def_static(
-    "Deserialize",
+    "deserialize",
     [](py::array_t<uint8_t, py::array::c_style | py::array::forcecast> in)
       -> ifm3d::ODSOccupancyGridV1 {
       ifm3d::ODSOccupancyGridV1 val;
