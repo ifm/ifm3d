@@ -13,12 +13,5 @@ Manipulating images <content/stlimage.md>
 Python API <python_api>
 C++ API <cpp_api/annotated>
 Examples <examples/examples_list>
+<<< Back to O3R docs <http://ifm3d.com>
 ::: 
-
-
-Indices and tables
-==================
-
-* {ref}`genindex`
-* {ref}`modindex`
-* {ref}`search`

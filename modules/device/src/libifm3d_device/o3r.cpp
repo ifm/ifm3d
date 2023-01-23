@@ -141,7 +141,22 @@ ifm3d::O3R::GetDiagnosticFiltered(json filter)
 void
 ifm3d::O3R::Reboot(const boot_mode& mode)
 {
-  this->pImpl->Reboot();
+  switch (mode)
+    {
+    case boot_mode::PRODUCTIVE:
+      this->pImpl->Reboot();
+      break;
+
+    case boot_mode::RECOVERY:
+      this->pImpl->RebootToRecovery();
+      break;
+    }
+}
+
+void
+ifm3d::O3R::RebootToRecovery()
+{
+  this->pImpl->RebootToRecovery();
 }
 
 ifm3d::Device::swu_version

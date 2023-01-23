@@ -60,6 +60,7 @@ namespace ifm3d
 
     void FactoryReset(bool keepNetworkSettings);
     void Reboot();
+    void RebootToRecovery();
 
   protected:
     std::shared_ptr<XMLRPCWrapper> xwrapper_;
@@ -222,6 +223,12 @@ void
 ifm3d::O3R::Impl::Reboot()
 {
   this->xwrapper_->XCallMain("reboot");
+}
+
+void
+ifm3d::O3R::Impl::RebootToRecovery()
+{
+  this->xwrapper_->XCallMain("rebootToRecovery");
 }
 
 #endif // IFM3D_DEVICE_O3R_IMPL_HPP

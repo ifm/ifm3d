@@ -24,7 +24,7 @@
 ifm3d::SWUpdateApp::SWUpdateApp(int argc,
                                 const char** argv,
                                 const std::string& name)
-  : ifm3d::CmdLineApp(argc, argv, name)
+  : ifm3d::CmdLineApp(argc, argv, name, false)
 {
   // clang-format off
   this->all_opts_.add_options(name)

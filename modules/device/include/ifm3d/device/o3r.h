@@ -178,6 +178,12 @@ namespace ifm3d
 
     void Reboot(
       const boot_mode& mode = ifm3d::Device::boot_mode::PRODUCTIVE) override;
+
+    /**
+     * Reboot the device into Recovery Mode
+     */
+    void RebootToRecovery();
+
     device_family WhoAmI() override;
     ifm3d::Device::swu_version SwUpdateVersion() override;
 
@@ -186,6 +192,7 @@ namespace ifm3d
      * Equivalent to the @ref Get() method
      */
     json ToJSON() override;
+
     /**
      * @copydoc Device::FromJSON()
      * Equivalent to @ref Set() followed by @ref SaveInit()
