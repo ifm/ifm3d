@@ -25,10 +25,10 @@ namespace ifm3d
     constexpr auto TOF_INFO_MEASUREMENT_RANGE_MAX_INDEX = 0x01A8;
   };
 
-  class TofInfoV4 : public TofInfoV3
+  class TOFInfoV4 : public TOFInfoV3
   {
   public:
-    using Ptr = std::shared_ptr<TofInfoV4>;
+    using Ptr = std::shared_ptr<TOFInfoV4>;
 
     void
     Read(const uint8_t* data, size_t size)
@@ -38,7 +38,7 @@ namespace ifm3d
           throw ifm3d::Error(IFM3D_BUFFER_NOT_COMPATIABLE);
         }
 
-      TofInfoV3::Read(data, size);
+      TOFInfoV3::Read(data, size);
       const uint8_t* start_ptr = data;
       measurement_block_index =
         mkval<std::uint32_t>(start_ptr + TOF_INFO_MEASUREMENT_BLOCK_INDEX);
@@ -70,10 +70,10 @@ namespace ifm3d
      */
     const size_t tof_info_v4_size = 428;
 
-    static TofInfoV4
+    static TOFInfoV4
     Deserialize(const Buffer& tof_info_buffer)
     {
-      TofInfoV4 tof_info_v4;
+      TOFInfoV4 tof_info_v4;
 
       tof_info_v4.Read(tof_info_buffer.ptr<uint8_t>(0),
                        tof_info_buffer.size());

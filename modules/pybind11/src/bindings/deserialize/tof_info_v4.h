@@ -15,7 +15,7 @@ void
 bind_struct_tofinfov4(pybind11::module_& m)
 {
   // clang-format off
-  py::class_<ifm3d::TofInfoV4, ifm3d::TofInfoV4::Ptr, ifm3d::TofInfoV3> tof_info_v4(
+  py::class_<ifm3d::TOFInfoV4, ifm3d::TOFInfoV4::Ptr, ifm3d::TOFInfoV3> tof_info_v4(
     m,
     "ToFInfoV4",
     R"(
@@ -30,7 +30,7 @@ bind_struct_tofinfov4(pybind11::module_& m)
 
   tof_info_v4.def_readonly(
     "measurement_block_index",
-    &ifm3d::TofInfoV4::measurement_block_index,
+    &ifm3d::TOFInfoV4::measurement_block_index,
     R"(
          Current measurement block index (range 0 to N-1, where N is the number of sub-modes).
          This identifies the currently used sub-mode in cyclic modes.
@@ -39,7 +39,7 @@ bind_struct_tofinfov4(pybind11::module_& m)
 
   tof_info_v4.def_readonly(
     "measurement_range_min",
-    &ifm3d::TofInfoV4::measurement_range_min,
+    &ifm3d::TOFInfoV4::measurement_range_min,
     R"(
         Current minimum measurement range [m].
         The value is based on the camera-individual ToF calibration.
@@ -48,7 +48,7 @@ bind_struct_tofinfov4(pybind11::module_& m)
 
   tof_info_v4.def_readonly(
     "measurement_range_max",
-    &ifm3d::TofInfoV4::measurement_range_max,
+    &ifm3d::TOFInfoV4::measurement_range_max,
     R"(
          Current maximum measurement range [m].
          The value is based on the camera-individual ToF calibration.
@@ -58,8 +58,8 @@ bind_struct_tofinfov4(pybind11::module_& m)
   tof_info_v4.def_static(
     "Deserialize",
     [](py::array_t<uint8_t, py::array::c_style | py::array::forcecast> in)
-      -> ifm3d::TofInfoV4 {
-      ifm3d::TofInfoV4 val;
+      -> ifm3d::TOFInfoV4 {
+      ifm3d::TOFInfoV4 val;
       val.Read(reinterpret_cast<const uint8_t*>(in.data(0)), in.nbytes());
       return val;
     },
