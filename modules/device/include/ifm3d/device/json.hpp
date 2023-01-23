@@ -7,8 +7,6 @@
 #ifndef IFM3D_DEVICE_JSON_HPP
 #define IFM3D_DEVICE_JSON_HPP
 
-#include <ifm3d/device/json_impl.hpp>
-
 #ifdef DOXYGEN
 
 namespace ifm3d
@@ -61,6 +59,8 @@ namespace ifm3d
 #  ifndef IFM3D_JSON_USE_GLOBAL_UDLS
 #    define IFM3D_JSON_USE_GLOBAL_UDLS 0
 #  endif
+
+#  include <ifm3d/device/json_impl.hpp>
 
 #  ifdef IFM3D_JSON_NLOHMANN_COMPAT
 #    ifndef NLOHMANN_JSON_VERSION_MAJOR
