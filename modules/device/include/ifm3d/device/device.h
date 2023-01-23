@@ -27,6 +27,8 @@ namespace ifm3d
   extern IFM3D_DEVICE_EXPORT const std::size_t SESSION_ID_SZ;
   extern IFM3D_DEVICE_EXPORT const std::string DEFAULT_SESSION_ID;
   extern IFM3D_DEVICE_EXPORT const std::string DEFAULT_APPLICATION_TYPE;
+  extern IFM3D_DEVICE_EXPORT const long DEFAULT_CURL_CONNECT_TIMEOUT;
+  extern IFM3D_DEVICE_EXPORT const long DEFAULT_CURL_TRANSACTION_TIMEOUT;
 
   extern IFM3D_DEVICE_EXPORT const int DEV_O3D_MIN;
   extern IFM3D_DEVICE_EXPORT const int DEV_O3D_MAX;
@@ -246,7 +248,8 @@ namespace ifm3d
     static Ptr MakeShared(
       const std::string& ip = ifm3d::DEFAULT_IP,
       const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
-      const std::string& password = ifm3d::DEFAULT_PASSWORD);
+      const std::string& password = ifm3d::DEFAULT_PASSWORD,
+      bool throwIfUnavailable = true);
 
     /**
      * Initializes the device interface utilizing library defaults
