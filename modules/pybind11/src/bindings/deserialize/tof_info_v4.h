@@ -17,7 +17,7 @@ bind_struct_tofinfov4(pybind11::module_& m)
   // clang-format off
   py::class_<ifm3d::TOFInfoV4, ifm3d::TOFInfoV4::Ptr, ifm3d::TOFInfoV3> tof_info_v4(
     m,
-    "ToFInfoV4",
+    "TOFInfoV4",
     R"(
         Class for managing an instance of an struct TofInfoV4
       )");
@@ -56,7 +56,7 @@ bind_struct_tofinfov4(pybind11::module_& m)
       )");
 
   tof_info_v4.def_static(
-    "Deserialize",
+    "deserialize",
     [](py::array_t<uint8_t, py::array::c_style | py::array::forcecast> in)
       -> ifm3d::TOFInfoV4 {
       ifm3d::TOFInfoV4 val;

@@ -74,7 +74,7 @@ bind_struct_rgbinfov1(pybind11::module_& m)
       )");
  
   rgb_info_v1.def_static(
-    "Deserialize",
+    "deserialize",
     [](py::array_t<uint8_t, py::array::c_style | py::array::forcecast> in) -> ifm3d::RGBInfoV1 {
     ifm3d::RGBInfoV1 val;
     val.Read(reinterpret_cast<const uint8_t*>(in.data(0)),in.nbytes());

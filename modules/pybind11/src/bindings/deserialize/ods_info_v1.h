@@ -53,7 +53,7 @@ bind_struct_odsinfov1(pybind11::module_& m)
       )");
 
   ods_info_v1.def_static(
-    "Deserialize",
+    "deserialize",
     [](py::array_t<uint8_t, py::array::c_style | py::array::forcecast> in)
       -> ifm3d::ODSInfoV1 {
       ifm3d::ODSInfoV1 val;

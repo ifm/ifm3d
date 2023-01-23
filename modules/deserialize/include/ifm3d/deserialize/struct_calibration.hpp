@@ -22,22 +22,22 @@ namespace ifm3d
     struct ExtrinsicOpticToUser
     {
       using Ptr = std::shared_ptr<struct ExtrinsicOpticToUser>;
-      float transX; // value in meter
-      float transY; // value in meter
-      float transZ; // value in meter
-      float rotX;   // value in radians
-      float rotY;   // value in radians
-      float rotZ;   // value in radians
+      float trans_x; // value in meter
+      float trans_y; // value in meter
+      float trans_z; // value in meter
+      float rot_x;   // value in radians
+      float rot_y;   // value in radians
+      float rot_z;   // value in radians
 
       void
       Read(const uint8_t* data)
       {
-        transX = mkval<float>(data + sizeof(float) * 0);
-        transY = mkval<float>(data + sizeof(float) * 1);
-        transZ = mkval<float>(data + sizeof(float) * 2);
-        rotX = mkval<float>(data + sizeof(float) * 3);
-        rotY = mkval<float>(data + sizeof(float) * 4);
-        rotZ = mkval<float>(data + sizeof(float) * 5);
+        trans_x = mkval<float>(data + sizeof(float) * 0);
+        trans_y = mkval<float>(data + sizeof(float) * 1);
+        trans_z = mkval<float>(data + sizeof(float) * 2);
+        rot_x = mkval<float>(data + sizeof(float) * 3);
+        rot_y = mkval<float>(data + sizeof(float) * 4);
+        rot_z = mkval<float>(data + sizeof(float) * 5);
       }
     };
     using ExtrinsicOpticToUser = struct ExtrinsicOpticToUser;
@@ -45,13 +45,13 @@ namespace ifm3d
     struct Calibration
     {
       using Ptr = std::shared_ptr<struct Calibration>;
-      uint32_t modelID;
-      std::array<float, 32> modelParameters;
+      uint32_t model_id;
+      std::array<float, 32> model_parameters;
       void
       Read(const uint8_t* data)
       {
-        modelID = mkval<uint32_t>(data);
-        mkarray<float, 32>(data + sizeof(uint32_t), modelParameters);
+        model_id = mkval<uint32_t>(data);
+        mkarray<float, 32>(data + sizeof(uint32_t), model_parameters);
       }
     };
     /*@brief Intrisnsic parameter model for the device/head*/

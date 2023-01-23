@@ -43,28 +43,28 @@ TEST(DeserializeTestWithFile, struct_tof_info_v3)
                          ifm3d::tof_info::amp_normalization_factors));
 
   std::array<float, 6> extrinc_opt_to_user = {
-    tof_info_v3.extrisic_optic_to_user.transX,
-    tof_info_v3.extrisic_optic_to_user.transY,
-    tof_info_v3.extrisic_optic_to_user.transZ,
-    tof_info_v3.extrisic_optic_to_user.rotX,
-    tof_info_v3.extrisic_optic_to_user.rotY,
-    tof_info_v3.extrisic_optic_to_user.rotZ};
+    tof_info_v3.extrisic_optic_to_user.trans_x,
+    tof_info_v3.extrisic_optic_to_user.trans_y,
+    tof_info_v3.extrisic_optic_to_user.trans_z,
+    tof_info_v3.extrisic_optic_to_user.rot_x,
+    tof_info_v3.extrisic_optic_to_user.rot_y,
+    tof_info_v3.extrisic_optic_to_user.rot_z};
 
   EXPECT_TRUE(ifm3d::compare_array(extrinc_opt_to_user,
                                    ifm3d::tof_info::extrincsic_optic_to_user));
 
-  EXPECT_EQ(tof_info_v3.intrinsic_calibration.modelID,
+  EXPECT_EQ(tof_info_v3.intrinsic_calibration.model_id,
             ifm3d::tof_info::intrinsic_calib_model_id);
 
   EXPECT_TRUE(
-    ifm3d::compare_array(tof_info_v3.intrinsic_calibration.modelParameters,
+    ifm3d::compare_array(tof_info_v3.intrinsic_calibration.model_parameters,
                          ifm3d::tof_info::intrinsic_calib_model_param));
 
-  EXPECT_EQ(tof_info_v3.inverse_intrinsic_calibration.modelID,
+  EXPECT_EQ(tof_info_v3.inverse_intrinsic_calibration.model_id,
             ifm3d::tof_info::inverse_intrinsic_calib_model_id);
 
   EXPECT_TRUE(ifm3d::compare_array(
-    tof_info_v3.inverse_intrinsic_calibration.modelParameters,
+    tof_info_v3.inverse_intrinsic_calibration.model_parameters,
     ifm3d::tof_info::inverse_intrinsic_calib_model_param));
 
   EXPECT_TRUE(ifm3d::compare_array(tof_info_v3.exposure_timestamps_ns,
@@ -108,28 +108,28 @@ TEST(DeserializeTestWithFile, struct_tof_info_v4)
                          ifm3d::tof_info::amp_normalization_factors));
 
   std::array<float, 6> extrinc_opt_to_user = {
-    tof_info_v4.extrisic_optic_to_user.transX,
-    tof_info_v4.extrisic_optic_to_user.transY,
-    tof_info_v4.extrisic_optic_to_user.transZ,
-    tof_info_v4.extrisic_optic_to_user.rotX,
-    tof_info_v4.extrisic_optic_to_user.rotY,
-    tof_info_v4.extrisic_optic_to_user.rotZ};
+    tof_info_v4.extrisic_optic_to_user.trans_x,
+    tof_info_v4.extrisic_optic_to_user.trans_y,
+    tof_info_v4.extrisic_optic_to_user.trans_z,
+    tof_info_v4.extrisic_optic_to_user.rot_x,
+    tof_info_v4.extrisic_optic_to_user.rot_y,
+    tof_info_v4.extrisic_optic_to_user.rot_z};
 
   EXPECT_TRUE(ifm3d::compare_array(extrinc_opt_to_user,
                                    ifm3d::tof_info::extrincsic_optic_to_user));
 
-  EXPECT_EQ(tof_info_v4.intrinsic_calibration.modelID,
+  EXPECT_EQ(tof_info_v4.intrinsic_calibration.model_id,
             ifm3d::tof_info::intrinsic_calib_model_id);
 
   EXPECT_TRUE(
-    ifm3d::compare_array(tof_info_v4.intrinsic_calibration.modelParameters,
+    ifm3d::compare_array(tof_info_v4.intrinsic_calibration.model_parameters,
                          ifm3d::tof_info::intrinsic_calib_model_param));
 
-  EXPECT_EQ(tof_info_v4.inverse_intrinsic_calibration.modelID,
+  EXPECT_EQ(tof_info_v4.inverse_intrinsic_calibration.model_id,
             ifm3d::tof_info::inverse_intrinsic_calib_model_id);
 
   EXPECT_TRUE(ifm3d::compare_array(
-    tof_info_v4.inverse_intrinsic_calibration.modelParameters,
+    tof_info_v4.inverse_intrinsic_calibration.model_parameters,
     ifm3d::tof_info::inverse_intrinsic_calib_model_param));
 
   EXPECT_TRUE(ifm3d::compare_array(tof_info_v4.exposure_timestamps_ns,
@@ -177,28 +177,28 @@ TEST(DeserializeTestWithFile, struct_rgb_info_v1)
               ifm3d::epsilon);
 
   std::array<float, 6> extrinc_opt_to_user = {
-    rgb_info_v1.extrisic_optic_to_user.transX,
-    rgb_info_v1.extrisic_optic_to_user.transY,
-    rgb_info_v1.extrisic_optic_to_user.transZ,
-    rgb_info_v1.extrisic_optic_to_user.rotX,
-    rgb_info_v1.extrisic_optic_to_user.rotY,
-    rgb_info_v1.extrisic_optic_to_user.rotZ};
+    rgb_info_v1.extrisic_optic_to_user.trans_x,
+    rgb_info_v1.extrisic_optic_to_user.trans_y,
+    rgb_info_v1.extrisic_optic_to_user.trans_z,
+    rgb_info_v1.extrisic_optic_to_user.rot_x,
+    rgb_info_v1.extrisic_optic_to_user.rot_y,
+    rgb_info_v1.extrisic_optic_to_user.rot_z};
 
   EXPECT_TRUE(ifm3d::compare_array(extrinc_opt_to_user,
                                    ifm3d::rgb_info::extrincsic_optic_to_user));
 
-  EXPECT_EQ(rgb_info_v1.intrinsic_calibration.modelID,
+  EXPECT_EQ(rgb_info_v1.intrinsic_calibration.model_id,
             ifm3d::rgb_info::intrinsic_calib_model_id);
 
   EXPECT_TRUE(
-    ifm3d::compare_array(rgb_info_v1.intrinsic_calibration.modelParameters,
+    ifm3d::compare_array(rgb_info_v1.intrinsic_calibration.model_parameters,
                          ifm3d::rgb_info::intrinsic_calib_model_param));
 
-  EXPECT_EQ(rgb_info_v1.inverse_intrinsic_calibration.modelID,
+  EXPECT_EQ(rgb_info_v1.inverse_intrinsic_calibration.model_id,
             ifm3d::rgb_info::inverse_intrinsic_calib_model_id);
 
   EXPECT_TRUE(ifm3d::compare_array(
-    rgb_info_v1.inverse_intrinsic_calibration.modelParameters,
+    rgb_info_v1.inverse_intrinsic_calibration.model_parameters,
     ifm3d::rgb_info::inverse_intrinsic_calib_model_param));
 }
 
