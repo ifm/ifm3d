@@ -24,12 +24,12 @@ TEST(DeserializeTestWithFile, struct_tof_info_v3_size_exception)
 {
   auto buffer = ifm3d::Buffer(1, 200, 1, ifm3d::pixel_format::FORMAT_8U);
 
-  EXPECT_THROW(ifm3d::TofInfoV3::Deserialize(buffer), ifm3d::Error);
+  EXPECT_THROW(ifm3d::TOFInfoV3::Deserialize(buffer), ifm3d::Error);
 }
 TEST(DeserializeTestWithFile, struct_tof_info_v3)
 {
   auto buffer = ifm3d::read_buffer_from_file("tof_info.data");
-  auto tof_info_v3 = ifm3d::TofInfoV3::Deserialize(buffer);
+  auto tof_info_v3 = ifm3d::TOFInfoV3::Deserialize(buffer);
   constexpr auto minimum_required_version = 3;
   EXPECT_GE(tof_info_v3.version, minimum_required_version);
   EXPECT_NEAR(tof_info_v3.amplitude_resolution,
@@ -87,14 +87,14 @@ TEST(DeserializeTestWithFile, struct_tof_info_v4_size_exception)
 {
   auto buffer = ifm3d::Buffer(1, 200, 1, ifm3d::pixel_format::FORMAT_8U);
 
-  EXPECT_THROW(ifm3d::TofInfoV4::Deserialize(buffer), ifm3d::Error);
+  EXPECT_THROW(ifm3d::TOFInfoV4::Deserialize(buffer), ifm3d::Error);
 }
 TEST(DeserializeTestWithFile, struct_tof_info_v4)
 {
 
   auto buffer = ifm3d::read_buffer_from_file("tof_info.data");
 
-  auto tof_info_v4 = ifm3d::TofInfoV4::Deserialize(buffer);
+  auto tof_info_v4 = ifm3d::TOFInfoV4::Deserialize(buffer);
   constexpr auto minimum_required_version = 4;
   EXPECT_GE(tof_info_v4.version, minimum_required_version);
   EXPECT_NEAR(tof_info_v4.amplitude_resolution,
@@ -235,7 +235,7 @@ TEST(DeserializeTestWithDevice, struct_tof_info_v3)
   auto frame = fg->WaitForFrame().get();
 
   auto buffer = frame->GetBuffer(ifm3d::buffer_id::TOF_INFO);
-  EXPECT_NO_THROW(ifm3d::TofInfoV3::Deserialize(buffer));
+  EXPECT_NO_THROW(ifm3d::TOFInfoV3::Deserialize(buffer));
 }
 
 TEST(DeserializeTestWithDevice, struct_tof_info_v4)
@@ -248,8 +248,8 @@ TEST(DeserializeTestWithDevice, struct_tof_info_v4)
 
   auto buffer = frame->GetBuffer(ifm3d::buffer_id::TOF_INFO);
 
-  EXPECT_NO_THROW(ifm3d::TofInfoV3::Deserialize(buffer));
-  EXPECT_NO_THROW(ifm3d::TofInfoV4::Deserialize(buffer));
+  EXPECT_NO_THROW(ifm3d::TOFInfoV3::Deserialize(buffer));
+  EXPECT_NO_THROW(ifm3d::TOFInfoV4::Deserialize(buffer));
 }
 
 TEST(DeserializeTestWithDevice, struct_rgb_info_v1)

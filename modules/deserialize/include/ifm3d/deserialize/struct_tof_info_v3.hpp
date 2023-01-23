@@ -34,11 +34,11 @@ namespace ifm3d
     constexpr auto TOF_INFO_IMAGER_INDEX = 0x0180;
   };
 
-  class TofInfoV3
+  class TOFInfoV3
   {
 
   public:
-    using Ptr = std::shared_ptr<TofInfoV3>;
+    using Ptr = std::shared_ptr<TOFInfoV3>;
 
     void
     Read(const uint8_t* data, size_t size)
@@ -98,10 +98,10 @@ namespace ifm3d
     /*@brief TOF_INFO data size in bytes*/
     const size_t tof_info_v3_size = 416;
 
-    static TofInfoV3
+    static TOFInfoV3
     Deserialize(const Buffer& tof_info_buffer)
     {
-      TofInfoV3 tof_info_v3;
+      TOFInfoV3 tof_info_v3;
 
       tof_info_v3.Read(tof_info_buffer.ptr<uint8_t>(0),
                        tof_info_buffer.size());

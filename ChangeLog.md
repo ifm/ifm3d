@@ -14,8 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for O3R recovery based updates
 - Add size() interface in ifm3d::Buffer
 - Add Deserialize module
-  - Add struct TofInfoV3
-  - Add struct TofInfoV4
+  - Add struct TOFInfoV3
+  - Add struct TOFInfoV4
   - Add struct RGBInfoV1
   - Add struct ODSInfoV1
   - Add struct ODSOccupancyGridV1
