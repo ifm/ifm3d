@@ -60,7 +60,7 @@ bind_struct_odsoccupancygridv1(pybind11::module_& m)
          of the center of upper left cell
       )");
 
-  ods_occupancy_grid_v1.def(
+  ods_occupancy_grid_v1.def_property_readonly(
     "image",
      [](const ifm3d::ODSOccupancyGridV1::Ptr& ods_occupancy_grid){
         return ifm3d::image_to_array(ods_occupancy_grid->image);
