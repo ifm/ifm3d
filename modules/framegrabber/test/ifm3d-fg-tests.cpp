@@ -286,7 +286,7 @@ TEST_F(FrameGrabberTest, only_algo_debug)
 }
 
 // disabled due to firmware issue with pF pcic command
-TEST_F(FrameGrabberTest, DISABLED_algo_with_other_data)
+TEST_F(FrameGrabberTest, algo_with_other_data)
 {
   LOG(INFO) << " obtain  algo debug with other data";
   auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
@@ -300,8 +300,23 @@ TEST_F(FrameGrabberTest, DISABLED_algo_with_other_data)
   fg_->Start(
     {ifm3d::buffer_id::ALGO_DEBUG, ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE});
 
-  auto frame = fg_->WaitForFrame().get();
+  for (int i = 0; i < 20; i++)
+    {
+      auto frame = fg_->WaitForFrame().get();
 
-  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::ALGO_DEBUG));
-  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE));
+      if (frame->HasBuffer(ifm3d::buffer_id::ALGO_DEBUG))
+        {
+          EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::ALGO_DEBUG));
+          EXPECT_THROW(
+            frame->GetBuffer(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE),
+            ifm3d::Error);
+        }
+      else
+        {
+          EXPECT_THROW(frame->GetBuffer(ifm3d::buffer_id::ALGO_DEBUG),
+                       ifm3d::Error);
+          EXPECT_NO_THROW(
+            frame->GetBuffer(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE));
+        }
+    }
 }
