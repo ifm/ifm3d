@@ -109,8 +109,8 @@ namespace ifm3d
   int32_t evalIntrinsic(float vx[],
                         float vy[],
                         float vz[],
-                        uint32_t model_id,
-                        const float model_parameters[],
+                        uint32_t modelID,
+                        const float modelParameters[],
                         uint16_t width,
                         uint16_t height);
 
@@ -122,7 +122,7 @@ namespace ifm3d
    @param rotY rotation around Y axis [rad]
    @param rotZ rotation around Z axis [rad]
    */
-  int32_t rotMatFromAngles(float R[][3], float rot_x, float rot_y, float rot_z);
+  int32_t rotMatFromAngles(float R[][3], float rotX, float rotY, float rotZ);
 
 }
 
