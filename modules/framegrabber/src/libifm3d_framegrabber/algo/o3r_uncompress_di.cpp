@@ -35,24 +35,24 @@ namespace ifm3d
   evalIntrinsic(float vx[],
                 float vy[],
                 float vz[],
-                uint32_t model_id,
-                const float model_parameters[],
+                uint32_t modelID,
+                const float modelParameters[],
                 uint16_t width,
                 uint16_t height)
   {
-    switch (model_id)
+    switch (modelID)
       {
         case 0: {
-          float fx = model_parameters[0];
-          float fy = model_parameters[1];
-          float mx = model_parameters[2];
-          float my = model_parameters[3];
-          float alpha = model_parameters[4];
-          float k1 = model_parameters[5];
-          float k2 = model_parameters[6];
-          float k3 = model_parameters[7];
-          float k4 = model_parameters[8];
-          float k5 = model_parameters[9];
+          float fx = modelParameters[0];
+          float fy = modelParameters[1];
+          float mx = modelParameters[2];
+          float my = modelParameters[3];
+          float alpha = modelParameters[4];
+          float k1 = modelParameters[5];
+          float k2 = modelParameters[6];
+          float k3 = modelParameters[7];
+          float k4 = modelParameters[8];
+          float k5 = modelParameters[9];
           uint16_t ix, iy;
           uint32_t idx = 0;
           for (iy = 0; iy < height; iy++)
@@ -80,16 +80,16 @@ namespace ifm3d
         }
         return 0;
         case 2: {
-          float fx = model_parameters[0];
-          float fy = model_parameters[1];
-          float mx = model_parameters[2];
-          float my = model_parameters[3];
-          float alpha = model_parameters[4];
-          float k1 = model_parameters[5];
-          float k2 = model_parameters[6];
-          float k3 = model_parameters[7];
-          float k4 = model_parameters[8];
-          float theta_max = model_parameters[9];
+          float fx = modelParameters[0];
+          float fy = modelParameters[1];
+          float mx = modelParameters[2];
+          float my = modelParameters[3];
+          float alpha = modelParameters[4];
+          float k1 = modelParameters[5];
+          float k2 = modelParameters[6];
+          float k3 = modelParameters[7];
+          float k4 = modelParameters[8];
+          float theta_max = modelParameters[9];
           uint16_t ix, iy;
           uint32_t idx = 0;
           for (iy = 0; iy < height; iy++)
@@ -134,14 +134,14 @@ namespace ifm3d
    @param rotZ rotation around Z axis [rad]
    */
   int32_t
-  rotMatFromAngles(float R[][3], float rot_x, float rot_y, float rot_z)
+  rotMatFromAngles(float R[][3], float rotX, float rotY, float rotZ)
   {
-    float cx = cosf(rot_x);
-    float sx = sinf(rot_x);
-    float cy = cosf(rot_y);
-    float sy = sinf(rot_y);
-    float cz = cosf(rot_z);
-    float sz = sinf(rot_z);
+    float cx = cosf(rotX);
+    float sx = sinf(rotX);
+    float cy = cosf(rotY);
+    float sy = sinf(rotY);
+    float cz = cosf(rotZ);
+    float sz = sinf(rotZ);
     R[0][0] = cy * cz;
     R[0][1] = -cy * sz;
     R[0][2] = sy;
