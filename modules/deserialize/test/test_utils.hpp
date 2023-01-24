@@ -47,7 +47,7 @@ namespace ifm3d
     std::cout << "{ ";
     for (auto& val : arr)
       {
-        std::cout << std::setprecision(10) << val << ", ";
+        std::cout << std::setprecision(10) << static_cast<T>(val) << ", ";
       }
     std::cout << "};";
   }

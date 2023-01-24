@@ -17,6 +17,8 @@
 #include <fstream>
 #include "tof_info_test_data.hpp"
 #include "rgb_info_test_data.hpp"
+#include "ods_info_test_data.hpp"
+#include "ods_occupancy_grid.hpp"
 #include "test_utils.hpp"
 #include <limits>
 
@@ -211,7 +213,13 @@ TEST(DeserializeTestWithFile, struct_ods_info_v1_size_exception)
 
 TEST(DeserializeTestWithFile, struct_ods_info_v1)
 {
-  // TODO : when device will be avaliable
+  auto buffer = ifm3d::read_buffer_from_file("o3r_ods_info.data");
+  auto ods_info_v1 = ifm3d::ODSInfoV1::Deserialize(buffer);
+
+  EXPECT_EQ(ods_info_v1.timestamp_ns, ifm3d::ods_info::timestamp_ns);
+  EXPECT_EQ(ods_info_v1.zone_config_id, ifm3d::ods_info::zone_config_id);
+  ifm3d::compare_array<uint8_t, 3>(ods_info_v1.zone_occupied,
+                                   ifm3d::ods_info::zone_occupied);
 }
 
 TEST(DeserializeTestWithFile, struct_ods_occupancy_grid_v1_size_exception)
@@ -223,7 +231,24 @@ TEST(DeserializeTestWithFile, struct_ods_occupancy_grid_v1_size_exception)
 
 TEST(DeserializeTestWithFile, struct_ods_occupancy_grid_info_v1)
 {
-  // TODO : when device will be avaliable
+  auto buffer = ifm3d::read_buffer_from_file("o3r_ods_occupancy_grid.data");
+  auto ods_occupancy_grid_v1 = ifm3d::ODSOccupancyGridV1::Deserialize(buffer);
+
+  EXPECT_EQ(ods_occupancy_grid_v1.timestamp_ns,
+            ifm3d::ods_occupancy_grid::timestamp_ns);
+  EXPECT_EQ(ods_occupancy_grid_v1.width, ifm3d::ods_occupancy_grid::width);
+  EXPECT_EQ(ods_occupancy_grid_v1.height, ifm3d::ods_occupancy_grid::height);
+
+  ifm3d::compare_array<float, 6>(
+    ods_occupancy_grid_v1.transfor_cell_center_to_user,
+    ifm3d::ods_occupancy_grid::transfor_cell_center_to_user);
+
+  EXPECT_EQ(ods_occupancy_grid_v1.image.width(),
+            ifm3d::ods_occupancy_grid::width);
+  EXPECT_EQ(ods_occupancy_grid_v1.image.height(),
+            ifm3d::ods_occupancy_grid::height);
+  EXPECT_EQ(ods_occupancy_grid_v1.image.dataFormat(),
+            ifm3d::pixel_format::FORMAT_8U);
 }
 
 TEST(DeserializeTestWithDevice, struct_tof_info_v3)
