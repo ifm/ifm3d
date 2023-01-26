@@ -48,6 +48,28 @@ namespace ifm3d
    * ifm3d::json j1 = ...;
    * nlohman::json j2 = j1;
    * @endcode
+   *
+   * @subsection udl User Defined Literals
+   *
+   * Using the user-defined string literals `operator""_json` and
+   * `operator""_json_pointer`
+   *
+   * @code{.cpp}
+   * using namespace ifm3d::literals;
+   * ifm3d::json j = "[1,2,3]"_json;
+   * @endcode
+   *
+   * ambiguity errors will occur since by default nlohmann::json currently
+   * places it's `operator""_json` and `operator""_json_pointer` into the
+   * global namespace. To solve this nlohman::json can be configured to place
+   * them into the nlohmann namespace by defining
+   * @code{.cpp}
+   * #define JSON_USE_GLOBAL_UDLS 0
+   * #include <nlohmann/json.hpp>
+   * @endcode
+   * before including it (see the [nlohmann::json
+   * doc](https://json.nlohmann.me/api/macros/json_use_global_udls/) for more
+   * details).
    */
   class json
   {
