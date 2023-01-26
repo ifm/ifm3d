@@ -70,6 +70,58 @@ namespace ifm3d
    * before including it (see the [nlohmann::json
    * doc](https://json.nlohmann.me/api/macros/json_use_global_udls/) for more
    * details).
+   *
+   * After this the correct namespaces can always be brought into scope when
+   * needed, but some care needs to be given to never bring both into the same
+   * scope, e.g. the following **WILL NOT WORK**:
+   *
+   * @code{.cpp}
+   * // Bring both UDLs into scope
+   * using namespace nlohmann::json_literals;
+   * using namespace ifm3d::json_literals;
+   *
+   * int main()
+   * {
+   *     // auto j = "42"_json; // This line would fail to compile,
+   *                            // because _json is ambigous
+   *
+   *     std::cout << j << std::endl;
+   * }
+   * @endcode
+   *
+   * To counteract this, the namspaces can be brought into smaller scopes, the
+   * following will all be valid
+   *
+   * @code{.cpp}
+   * void json_nl()
+   * {
+   *    using namespace nlohmann::literals;
+   *    auto nl = "{}"_json;
+   * }
+   *
+   * void json_ifm()
+   * {
+   *   using namespace ifm3d::literals;
+   *   auto ifm = "{}"_json;
+   * }
+   *
+   * void json_both()
+   * {
+   *   nlohmann::json nl;
+   *   ifm3d::json ifm;
+   *
+   *   {
+   *     using namespace nlohmann::literals;
+   *     nl = "{}"_json;
+   *   }
+   *
+   *   {
+   *     using namespace ifm3d::literals;
+   *     ifm = "{}"_json;
+   *   }
+   * }
+   *
+   * @endcode
    */
   class json
   {
