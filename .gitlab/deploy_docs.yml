@@ -18,6 +18,7 @@ deploy:docs:
     - git clean -fxd
     - cp -r ${CI_PROJECT_DIR}/docs/* ./
     - touch .nojekyll
+    - echo "api.ifm3d.com" > CNAME
     - git add -A
     - git commit -m "update docs" --allow-empty
     - git push
