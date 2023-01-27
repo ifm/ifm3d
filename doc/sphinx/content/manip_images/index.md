@@ -4,7 +4,7 @@
 
 :::{toctree}
 :titlesonly:
-Buffer types and access <buffer_ids>
+Buffer types <buffer_ids>
 Accessing pixel values <stlimage>
 ::: 
 
