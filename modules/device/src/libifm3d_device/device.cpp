@@ -18,6 +18,7 @@
 #include <discovery.hpp>
 #include <xmlrpc_wrapper.hpp>
 #include <fmt/core.h>
+#include <curl/curl.h>
 
 //================================================
 // Public constants
@@ -32,6 +33,9 @@ const std::string ifm3d::DEFAULT_IP = std::getenv("IFM3D_IP") == nullptr ?
 const int ifm3d::MAX_HEARTBEAT = 300; // secs
 const std::size_t ifm3d::SESSION_ID_SZ = 32;
 const std::string ifm3d::DEFAULT_APPLICATION_TYPE = "Camera";
+
+const long ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT = 10;     // seconds
+const long ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT = 30; // seconds
 
 auto ifm3d_session_id__ = []() -> std::string {
   std::string sid;
@@ -121,7 +125,8 @@ ifm3d::Device::DeviceDiscovery()
 ifm3d::Device::Ptr
 ifm3d::Device::MakeShared(const std::string& ip,
                           const std::uint16_t xmlrpc_port,
-                          const std::string& password)
+                          const std::string& password,
+                          bool throwIfUnavailable)
 {
   auto base = std::make_shared<ifm3d::Device>(ip, xmlrpc_port);
   try
@@ -171,7 +176,10 @@ ifm3d::Device::MakeShared(const std::string& ip,
       if (ex.code() == IFM3D_XMLRPC_TIMEOUT)
         {
           LOG(WARNING) << "Could not probe device type: " << ex.what();
-          throw;
+          if (throwIfUnavailable)
+            {
+              throw;
+            }
         }
       else
         {
@@ -320,6 +328,12 @@ ifm3d::Device::CheckMinimumFirmwareVersion(unsigned int major,
     ifm3d::SemVer(major, minor, patch));
 }
 
+ifm3d::SemVer
+ifm3d::Device::FirmwareVersion()
+{
+  return this->pImpl->FirmwareVersion();
+}
+
 void
 ifm3d::Device::ForceTrigger()
 {}
@@ -367,11 +381,46 @@ ifm3d::Device::XWrapper()
   return pImpl->XWrapper();
 }
 
+bool
+isV1SWUpdate(const std::string& ip)
+{
+  /* SWU_V1 device expose a /id.lp endpoint in recovery, so we check for it's
+   * existance to determine if this is a SWU_V1 device */
+  auto curl = curl_easy_init();
+  if (curl)
+    {
+      auto url = fmt::format("http://{}:8080/id.lp", ip);
+      curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+      curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
+
+      curl_easy_setopt(curl,
+                       CURLOPT_CONNECTTIMEOUT,
+                       ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
+      curl_easy_setopt(curl,
+                       CURLOPT_TIMEOUT,
+                       ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
+
+      if (curl_easy_perform(curl) == CURLE_OK)
+        {
+          int response_code;
+          curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+
+          if ((response_code >= 200) && (response_code < 300))
+            {
+              return true;
+            }
+        }
+      curl_easy_cleanup(curl);
+
+      curl = NULL;
+    }
+
+  return false;
+}
+
 ifm3d::Device::swu_version
 ifm3d::Device::SwUpdateVersion()
 {
-  /*SWU_V1 is retured as device type is not avaliable
-   in recovery mode and SWU_V2 doesnot support
-   recovery mode hence device type is always SWU_V1*/
-  return ifm3d::Device::swu_version::SWU_V1;
+  return isV1SWUpdate(this->IP()) ? ifm3d::Device::swu_version::SWU_V1 :
+                                    ifm3d::Device::swu_version::SWU_V2;
 }

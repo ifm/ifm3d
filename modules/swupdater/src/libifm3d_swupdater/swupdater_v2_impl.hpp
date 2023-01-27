@@ -31,6 +31,9 @@ using client = websocketpp::client<websocketpp::config::asio_client>;
 
 namespace ifm3d
 {
+  const ifm3d::SemVer MIN_O3R_FIRMWARE_RECOVERY_UPDATE =
+    ifm3d::SemVer(1, 0, 0);
+
   const std::string SWUPDATER_V2_UPLOAD_URL_SUFFIX = "/upload";
   const std::string SWUPDATER_V2_REBOOT_URL_SUFFIX = "/restart";
   const std::string SWUPDATER_V2_STATUS_URL_SUFFIX = "/ws";
@@ -55,7 +58,7 @@ namespace ifm3d
   const std::string SWUPATER_V2_STATUS_DONE = "DONE";
 
   /* curl parameters */
-  const int SWUPDATE_V2_TIMEOUT_FOR_UPLOAD = 80; // sec
+  const int SWUPDATE_V2_TIMEOUT_FOR_UPLOAD = 200; // sec
   const int CURL_MAX_REDIR = 50;
   //============================================================
   // Impl interface
@@ -276,13 +279,42 @@ ifm3d::ImplV2::ImplV2(ifm3d::Device::Ptr cam,
 void
 ifm3d::ImplV2::RebootToRecovery()
 {
-  return;
+  if (this->cam_->FirmwareVersion() >= MIN_O3R_FIRMWARE_RECOVERY_UPDATE)
+    {
+      this->cam_->Reboot(ifm3d::Device::boot_mode::RECOVERY);
+    }
 }
 
 void
 ifm3d::ImplV2::RebootToProductive()
 {
-  return;
+  try
+    {
+      auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();
+      c->Call(curl_easy_setopt, CURLOPT_URL, this->reboot_url_.c_str());
+      c->Call(curl_easy_setopt, CURLOPT_POST, true);
+      c->Call(curl_easy_setopt, CURLOPT_POSTFIELDSIZE, 0);
+      c->Call(curl_easy_setopt,
+              CURLOPT_WRITEFUNCTION,
+              &ifm3d::SWUpdater::Impl::StatusWriteCallbackIgnore);
+      c->Call(curl_easy_setopt,
+              CURLOPT_CONNECTTIMEOUT,
+              ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
+      c->Call(curl_easy_setopt,
+              CURLOPT_TIMEOUT,
+              ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
+      c->Call(curl_easy_perform);
+    }
+  catch (const ifm3d::Error& e)
+    {
+      // Rethrow unless the code is one that indicates the camera is not
+      // currently reachable (occurs during the reboot process)
+      if (e.code() != IFM3D_CURL_TIMEOUT &&
+          e.code() != IFM3D_RECOVERY_CONNECTION_ERROR)
+        {
+          throw;
+        }
+    }
 }
 
 bool
@@ -324,12 +356,6 @@ ifm3d::ImplV2::FlashFirmware(const std::string& swu_file, long timeout_millis)
 bool
 ifm3d::ImplV2::CheckRecovery()
 {
-  return true;
-}
-
-bool
-ifm3d::ImplV2::CheckProductive()
-{
   auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();
   c->Call(curl_easy_setopt, CURLOPT_URL, this->main_url_.c_str());
   c->Call(curl_easy_setopt, CURLOPT_NOBODY, true);
@@ -357,6 +383,30 @@ ifm3d::ImplV2::CheckProductive()
     }
 
   return status_code == 200;
+}
+
+bool
+ifm3d::ImplV2::CheckProductive()
+{
+  try
+    {
+      if (this->cam_->DeviceParameter("OperatingMode") != "")
+        {
+          return true;
+        }
+    }
+  catch (const ifm3d::Error& e)
+    {
+      // Rethrow unless the code is one that indicates the camera is not
+      // currently reachable by XML-RPC (occurs during the reboot process)
+      if (e.code() != IFM3D_XMLRPC_TIMEOUT &&
+          e.code() != IFM3D_XMLRPC_OBJ_NOT_FOUND)
+        {
+          throw;
+        }
+    }
+
+  return false;
 }
 
 void

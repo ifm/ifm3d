@@ -69,17 +69,17 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
   // for an O3R device, a distance_image_info object will be created
   // for others a nullptr is returned
   std::shared_ptr<DistanceImageInfo> distance_image_info;
-  if (chunks.find(image_chunk::O3R_DISTANCE_IMAGE_INFO) != chunks.end() &&
+  if (chunks.find(image_chunk::TOF_INFO) != chunks.end() &&
       chunks.find(image_chunk::RADIAL_DISTANCE_IMAGE) != chunks.end() &&
       chunks.find(image_chunk::NORM_AMPLITUDE_IMAGE) != chunks.end())
     {
-      distance_image_info = CreateDistanceImageInfo(
-        data,
-        chunks.at(image_chunk::O3R_DISTANCE_IMAGE_INFO),
-        chunks.at(image_chunk::RADIAL_DISTANCE_IMAGE),
-        chunks.at(image_chunk::NORM_AMPLITUDE_IMAGE),
-        width,
-        height);
+      distance_image_info =
+        CreateDistanceImageInfo(data,
+                                chunks.at(image_chunk::TOF_INFO),
+                                chunks.at(image_chunk::RADIAL_DISTANCE_IMAGE),
+                                chunks.at(image_chunk::NORM_AMPLITUDE_IMAGE),
+                                width,
+                                height);
 
       chunks.erase(image_chunk::NORM_AMPLITUDE_IMAGE);
       chunks.erase(image_chunk::RADIAL_DISTANCE_IMAGE);
@@ -134,8 +134,7 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
       auto extracted = ExtractDistanceImageInfo(distance_image_info, mask);
       images.insert(extracted.begin(), extracted.end());
 
-      if (chunks.find(ifm3d::image_chunk::RADIAL_DISTANCE_NOISE) !=
-          chunks.end())
+      if (images.find(ifm3d::buffer_id::RADIAL_DISTANCE_NOISE) != images.end())
         {
           auto dist_noise_buffer =
             distance_image_info->applyDistanceResolution(
@@ -238,7 +237,7 @@ ifm3d::DefaultOrganizer::ShouldMask(buffer_id id)
     case static_cast<buffer_id>(image_chunk::UNIT_VECTOR_ALL):
     case static_cast<buffer_id>(image_chunk::CONFIDENCE_IMAGE):
     case static_cast<buffer_id>(image_chunk::JPEG_IMAGE):
-    case static_cast<buffer_id>(image_chunk::O3R_DISTANCE_IMAGE_INFO):
+    case static_cast<buffer_id>(image_chunk::TOF_INFO):
     case static_cast<buffer_id>(image_chunk::O3R_RGB_IMAGE_INFO):
       return false;
 

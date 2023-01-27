@@ -17,6 +17,7 @@ bind_framegrabber(pybind11::module_& m)
   // clang-format off
 
   bind_future<ifm3d::Frame::Ptr>(m, "FrameAwaitable", "Provides a mechanism to access the frame object");
+  bind_future<void>(m, "Awaitable", "Provides a mechanism to wait for completion of a task");
 
   py::class_<ifm3d::FrameGrabber, ifm3d::FrameGrabber::Ptr> framegrabber(
     m,
@@ -78,9 +79,17 @@ bind_framegrabber(pybind11::module_& m)
 
   framegrabber.def(
     "stop",
-    &ifm3d::FrameGrabber::Stop,
+    [](const ifm3d::FrameGrabber::Ptr& fg) {
+      return FutureAwaitable<void>(fg->Stop());
+      },
     R"(
       Stops the worker thread for streaming in pixel data from the device
+
+      Returns
+      -------
+      FutureAwaitable
+
+          Resolves when framgrabber stops.
     )"
   );
 
@@ -189,6 +198,59 @@ bind_framegrabber(pybind11::module_& m)
       This function will enable the async notifications on device.
       The callback will be executed whenever a async notification
       is avaliable. It receives a message id and payload string
+    )"
+  );
+
+  framegrabber.def(
+    "on_error",
+    [](const ifm3d::FrameGrabber::Ptr& fg, const std::function<void(const py::object&)>& callback) {
+      if(callback) 
+        {
+            fg->OnError([callback](const ifm3d::Error& error){
+            py::gil_scoped_acquire acquire;
+            try
+              {
+                auto error_class = py::module::import("ifm3dpy").attr("Error");
+                auto error_ = error_class(error.code(), error.message(),error.what());
+                callback(error_);
+              }
+            catch(py::error_already_set ex)
+              {
+                py::print(ex.value());
+              }
+          });
+        }
+      else 
+        {
+          fg->OnError();
+        }
+    },
+    py::arg("callback") =  std::function<void(const py::object&)>(),
+    R"(
+      The callback will be executed whenever an error condition
+      occur while grabbing the data from device.
+    )"
+  );
+
+  framegrabber.def(
+    "sw_trigger",
+    [](const ifm3d::FrameGrabber::Ptr& fg) {
+      return FutureAwaitable<void>(fg->SWTrigger());
+    },
+    R"(
+      Triggers the device for image acquisition
+
+      You should be sure to set the `TriggerMode` for your application to
+      `SW` in order for this to be effective. This function
+      simply does the triggering, data are still received asynchronously via
+      `wait_for_frame()`.
+
+      Calling this function when the device is not in `SW` trigger mode or on
+      a device that does not support software-trigger should result in a NOOP
+      and no error will be returned (no exceptions thrown). However, we do not
+      recommend calling this function in a tight framegrabbing loop when you
+      know it is not needed. The "cost" of the NOOP is undefined and incurring
+      it is not recommended.
     )"
   );
 

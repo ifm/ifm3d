@@ -7,7 +7,8 @@ main(int argc, char** argv)
   std::map<std::string, std::string> device_to_filter(
     {{"O3D", "SWUpdater.*"},
      {"O3X", "SWUpdater.*"},
-     {"O3R", "SWUpdater.*:-SWUpdater.FactoryDefaults"},
+     {"O3R",
+      "SWUpdater.*:-SWUpdater.FactoryDefaults:-SWUpdater.FlashEmptyFile"},
      {"device_independent", ""}});
 
   std::map<ifm3d::Device::device_family, std::string> device_family_to_device(

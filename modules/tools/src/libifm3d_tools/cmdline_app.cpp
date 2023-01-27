@@ -15,7 +15,8 @@
 
 ifm3d::CmdLineApp::CmdLineApp(int argc,
                               const char** argv,
-                              const std::string& name)
+                              const std::string& name,
+                              bool throwIfUnavailable)
   : all_opts_("ifm3d")
 {
   // clang-format off
@@ -44,7 +45,8 @@ ifm3d::CmdLineApp::CmdLineApp(int argc,
     {
       this->cam_ = ifm3d::Device::MakeShared(this->ip_,
                                              this->xmlrpc_port_,
-                                             this->password_);
+                                             this->password_,
+                                             throwIfUnavailable);
     }
 }
 
@@ -81,6 +83,8 @@ These are common commands used in various situations:
 
     cp            Create a new application on the sensor,
                   bootstrapped from a copy of an existing one.
+
+    diagnostic    Access the device diagnostic information
 
     discover      Discover ifm devices on the network.
 

@@ -3,9 +3,32 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-## Unreleased
+
+## [Unreleased]
+### Fixes 
+- Missing python bindings for `O3R::Port` and `O3R::Ports`
+- 
 ### Added
+- `O3R::RebootToRecovery` to reboot supported O3R devices into recovery mode
+- Support for O3R recovery based updates
 - Documentation on accessing image data and buffer types.
+
+## 1.1.1 - 2022-12-9
+### Fixes 
+- Data grabbing [issue](https://github.com/ifm/ifm3d/issues/377) with ifm3dpy-v1.1.0
+
+## 1.1.0 - 2022-12-2
+### Added
+- Change ```FrameGrabber::Stop``` to non blocking call and now returns ```std::future<void>```
+- Add onError callback for error reporting in streaming mode of Framegrabber
+- Support for retrieving O3R Diagnostics over XMLRPC
+- Support for Python 3.11
+- Support for Ubuntu 22.04
+- Python binding: FrameGrabber.sw_trigger()
+
+### Fixes
+- XYZ_IMAGE coordinates were actually ZXY instead of XYZ, this has been corrected.
+
 ## 1.0.1 - 2022-10-14
 ### Added
 - Auto closure of stale issue on GitHub

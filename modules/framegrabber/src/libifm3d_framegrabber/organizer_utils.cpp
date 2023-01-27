@@ -164,9 +164,9 @@ create_xyz_buffer(const std::vector<std::uint8_t>& data,
           xyz_ptr = im.ptr<T>(row);
         }
 
-      x_ = ifm3d::mkval<T>(data.data() + zidx);
-      y_ = ifm3d::mkval<T>(data.data() + xidx);
-      z_ = ifm3d::mkval<T>(data.data() + yidx);
+      x_ = ifm3d::mkval<T>(data.data() + xidx);
+      y_ = ifm3d::mkval<T>(data.data() + yidx);
+      z_ = ifm3d::mkval<T>(data.data() + zidx);
 
       if (mask.has_value() && mask.value().at<uint8_t>(row, col) != 0)
         {

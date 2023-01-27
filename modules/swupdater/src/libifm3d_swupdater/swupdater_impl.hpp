@@ -19,8 +19,6 @@
 #include <ifm3d/contrib/nlohmann/json.hpp>
 #include <iostream>
 
-#include <iostream>
-
 namespace ifm3d
 {
   const std::string SWUPDATER_UPLOAD_URL_SUFFIX = "/handle_post_request";
@@ -36,10 +34,6 @@ namespace ifm3d
   const int SWUPDATER_STATUS_RUN = 2;
   const int SWUPDATER_STATUS_SUCCESS = 3;
   const int SWUPDATER_STATUS_FAILURE = 4;
-
-  // Default timeout values for cURL transactions to the camera
-  const long DEFAULT_CURL_CONNECT_TIMEOUT = 3;      // seconds
-  const long DEFAULT_CURL_TRANSACTION_TIMEOUT = 30; // seconds
 
   //============================================================
   // Impl interface

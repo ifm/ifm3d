@@ -120,10 +120,43 @@ ifm3d::O3R::ToJSON()
   return this->Get();
 }
 
+json
+ifm3d::O3R::GetDiagnostic()
+{
+  return this->pImpl->GetDiagnostic();
+}
+
+json
+ifm3d::O3R::GetDiagnosticFilterSchema()
+{
+  return this->pImpl->GetDiagnosticFilterSchema();
+}
+
+json
+ifm3d::O3R::GetDiagnosticFiltered(json filter)
+{
+  return this->pImpl->GetDiagnosticFiltered(filter);
+}
+
 void
 ifm3d::O3R::Reboot(const boot_mode& mode)
 {
-  this->pImpl->Reboot();
+  switch (mode)
+    {
+    case boot_mode::PRODUCTIVE:
+      this->pImpl->Reboot();
+      break;
+
+    case boot_mode::RECOVERY:
+      this->pImpl->RebootToRecovery();
+      break;
+    }
+}
+
+void
+ifm3d::O3R::RebootToRecovery()
+{
+  this->pImpl->RebootToRecovery();
 }
 
 ifm3d::Device::swu_version

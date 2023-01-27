@@ -43,7 +43,8 @@ const int IFM3D_INVALID_PORT = -100029;
 const int IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE = -100030;
 const int IFM3D_UNSUPPORTED_SCHEMA_ON_DEVICE = -100031;
 const int IFM3D_BUFFER_ID_NOT_AVAILABLE = -100032;
-
+const int IFM3D_NETWORK_ERROR = -100033;
+const int IFM3D_SYSTEM_ERROR = -100034;
 // sensor errors
 const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
 const int IFM3D_INVALID_PARAM = 101000;
@@ -141,11 +142,15 @@ ifm3d::strerror(int errnum)
       return "The given port is invalid or not connected. Please make sure "
              "the port is connected and try again.";
     case IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE:
-      return "Lib: This command is not supported by connected the device";
+      return "Lib: This command is not supported by the connected device";
     case IFM3D_UNSUPPORTED_SCHEMA_ON_DEVICE:
       return "Lib: One or multiple schema values are not supported by device";
     case IFM3D_BUFFER_ID_NOT_AVAILABLE:
       return "Lib: A buffer with the requested buffer_id is not available.";
+    case IFM3D_NETWORK_ERROR:
+      return "Lib: Network error";
+    case IFM3D_SYSTEM_ERROR:
+      return "Lib: System error";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
       return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:

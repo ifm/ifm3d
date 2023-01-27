@@ -23,6 +23,7 @@
 #include "bindings/frame.h"
 #include "bindings/framegrabber.h"
 #include "bindings/swupdater.h"
+#include "bindings/semver.h"
 
 namespace py = pybind11;
 
@@ -170,6 +171,7 @@ PYBIND11_MODULE(ifm3dpy, m)
     ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH,
     "Constant for querying for O3D inverse intrinsic parameter support.");
 
+  bind_semver(m);
   bind_error(m);
   bind_device(m);
   bind_legacy_device(m);

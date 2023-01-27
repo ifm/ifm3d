@@ -77,9 +77,14 @@ html_theme_options = {
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+html_css_files = [
+    'custom.css',
+]
+
 
 myst_enable_extensions = [
-    "colon_fence"
+    "colon_fence",
+    "substitution", # This enable the definition of substitution variables (see below)
 ]
 
 sphinx_tabs_disable_tab_closing = True
@@ -92,3 +97,13 @@ def filter_bases(app, name, obj, options, bases):
 
 def setup(app):
     app.connect('autodoc-process-bases', filter_bases)
+
+# -------------------------------------------------
+# -- Substitution variables
+# -------------------------------------------------
+myst_substitutions = {
+    "ifm3d_gh_url" : "https://github.com/ifm/ifm3d",
+    "ifm3d_main_branch":  "main", # The most up to date branch on ifm3d
+    "ifm3d_latest_tag_url": "https://github.com/ifm/ifm3d/tags",
+    "ifm3d_containers_list_url": "https://github.com/ifm/ifm3d/pkgs/container/ifm3d",
+}

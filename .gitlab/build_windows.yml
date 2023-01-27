@@ -26,10 +26,10 @@ build:windows_2019:python_wheel:
   parallel:
     matrix:
       - PYTHON_VERSION:
-          - "3.7.9"
           - "3.8.10"
-          - "3.9.7"
-          - "3.10.0"
+          - "3.9.13"
+          - "3.10.8"
+          - "3.11.0"
   variables:
     IFM3D_CMAKE_GENERATOR: "Visual Studio 16 2019"
     IFM3D_BUILD_DIR: D:/ifm3d_deps

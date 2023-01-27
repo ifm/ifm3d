@@ -28,6 +28,8 @@
 
 namespace ifm3d
 {
+  const std::string XMLRPC_DIAGNOSTIC = "/api/rpc/v1/com.ifm.diagnostic/";
+
   class XMLRPCWrapper;
 
   //============================================================
@@ -51,13 +53,26 @@ namespace ifm3d
     void Lock(const std::string& password);
     void Unlock(const std::string& password);
     std::vector<PortInfo> Ports();
+    json GetDiagnostic();
+    json GetDiagnosticFilterSchema();
+    json GetDiagnosticFiltered(json filter);
     PortInfo Port(const std::string& port);
 
     void FactoryReset(bool keepNetworkSettings);
     void Reboot();
+    void RebootToRecovery();
 
   protected:
     std::shared_ptr<XMLRPCWrapper> xwrapper_;
+
+  private:
+    template <typename... Args>
+    xmlrpc_c::value const
+    _XCallDiagnostic(const std::string& method, Args... args)
+    {
+      std::string url = this->xwrapper_->XPrefix() + ifm3d::XMLRPC_DIAGNOSTIC;
+      return this->xwrapper_->XCall(url, method, args...);
+    }
   }; // end: class O3RCamera::Impl
 
 } // end: namespace ifm3d
@@ -175,6 +190,29 @@ ifm3d::O3R::Impl::Ports()
   return result;
 }
 
+json
+ifm3d::O3R::Impl::GetDiagnostic()
+{
+  return json::parse(
+    xmlrpc_c::value_string(this->_XCallDiagnostic("get")).cvalue());
+}
+
+json
+ifm3d::O3R::Impl::GetDiagnosticFilterSchema()
+{
+  return json::parse(
+    xmlrpc_c::value_string(this->_XCallDiagnostic("getFilterSchema"))
+      .cvalue());
+}
+
+json
+ifm3d::O3R::Impl::GetDiagnosticFiltered(json filter)
+{
+  return json::parse(xmlrpc_c::value_string(
+                       this->_XCallDiagnostic("getFiltered", filter.dump()))
+                       .cvalue());
+}
+
 void
 ifm3d::O3R::Impl::FactoryReset(bool keepNetworkSettings)
 {
@@ -185,6 +223,12 @@ void
 ifm3d::O3R::Impl::Reboot()
 {
   this->xwrapper_->XCallMain("reboot");
+}
+
+void
+ifm3d::O3R::Impl::RebootToRecovery()
+{
+  this->xwrapper_->XCallMain("rebootToRecovery");
 }
 
 #endif // IFM3D_DEVICE_O3R_IMPL_HPP

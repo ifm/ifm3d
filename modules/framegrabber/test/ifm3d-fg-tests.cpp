@@ -195,6 +195,35 @@ TEST_F(FrameGrabberTest, DistanceNoiseImage_type)
             ifm3d::pixel_format::FORMAT_32F);
 }
 
+TEST_F(FrameGrabberTest, onError)
+{
+  LOG(INFO) << " onError ";
+
+  auto result = 0;
+  auto frame_count = 0;
+
+  fg_->OnError([&](const ifm3d::Error& err) { result++; });
+
+  fg_->OnNewFrame([&](const ifm3d::Frame::Ptr& frame) { frame_count++; });
+
+  fg_->Start({ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE,
+              ifm3d::buffer_id::CONFIDENCE_IMAGE});
+
+  std::this_thread::sleep_for(std::chrono::seconds(10));
+
+  // this rebbot will cause network interruption and onError must get error
+  dev_->Reboot();
+
+  std::this_thread::sleep_for(std::chrono::seconds(10));
+
+  // frame_count > 0 shows grabbing data successful
+  // result > 0 error occurred and call back was called
+  EXPECT_TRUE(frame_count > 0 && result > 0);
+
+  // give enough time for device to completely reboot
+  std::this_thread::sleep_for(std::chrono::seconds(90));
+}
+
 TEST_F(FrameGrabberTest, confidence_image_3D)
 {
   LOG(INFO) << " confidence image test on 3D  ";

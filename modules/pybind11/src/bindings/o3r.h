@@ -8,11 +8,31 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <fmt/core.h>
 
 void
 bind_o3r(pybind11::module_& m)
 {
+
   // clang-format off
+  py::class_<ifm3d::PortInfo> port_info(
+      m, "PortInfo",
+      R"(
+        Provides information about a connected Port
+      )"
+    );
+
+  port_info.def_readonly("port", &ifm3d::PortInfo::port, "The name of the port.");
+  port_info.def_readonly("pcic_port", &ifm3d::PortInfo::pcic_port, "The assigned pcic port.");
+  port_info.def_readonly("type", &ifm3d::PortInfo::type, "The type of the conntected sensor.");
+  port_info.def(
+    "__repr__", 
+    [](ifm3d::PortInfo* self) {
+      return fmt::format("PortInfo(port: \"{}\", pcic_port: {}, type: \"{}\")", 
+        self->port, self->pcic_port, self->type);
+    }
+  );
+
   py::class_<ifm3d::O3R, ifm3d::O3R::Ptr, ifm3d::Device> o3r(
     m, "O3R",
     R"(
@@ -207,6 +227,104 @@ bind_o3r(pybind11::module_& m)
       -------
       dict
           The current json schema configuration
+    )");
+
+  o3r.def(
+    "get_diagnostic",
+    [](const ifm3d::O3R::Ptr& c)
+    {
+      // Convert the JSON to a python JSON object using the json module
+      py::object json_loads = py::module::import("json").attr("loads");
+      return json_loads(c->GetDiagnostic().dump());
+    },
+    R"(
+      Returns the content of the diagnostic memory formatted in JSON
+
+      Returns
+      -------
+      dict
+    )");
+
+  o3r.def(
+    "get_diagnostic_filter_schema",
+    [](const ifm3d::O3R::Ptr& c)
+    {
+      // Convert the JSON to a python JSON object using the json module
+      py::object json_loads = py::module::import("json").attr("loads");
+      return json_loads(c->GetDiagnosticFilterSchema().dump());
+    },
+    R"(
+      Returns the JSON schema for the filter expression provided to the 
+      getFiltered() method
+
+      Returns
+      -------
+      dict
+          The JSON schema
+    )");
+
+  o3r.def(
+    "get_diagnostic_filtered",
+    [](const ifm3d::O3R::Ptr& c, const py::dict& filter)
+    {
+      py::object json_dumps = py::module::import("json").attr("dumps");
+      py::object json_loads = py::module::import("json").attr("loads");
+      return json_loads(c->GetDiagnosticFiltered(json::parse(json_dumps(filter).cast<std::string>())).dump());
+    },
+    py::arg("filter"),
+    R"(
+      Returns the content of the diagnostic memory formatted in JSON
+      and filtered according to the JSON filter expression
+
+      Parameters
+      ----------
+      filter : dict
+          A filter expression in JSON format
+
+      Returns
+      -------
+      dict 
+    )");
+
+  o3r.def(
+    "ports",
+    &ifm3d::O3R::Ports,
+    R"(
+      Returns a list containing information about all connected physical ports
+
+      Returns
+      -------
+      List[PortInfo]
+          the list of Ports
+    )");
+
+  o3r.def(
+    "port",
+    &ifm3d::O3R::Port,
+    py::arg("port"),
+    R"(
+      Returns information about a given physical port
+
+      Parameters
+      ----------
+      port : str
+          the port for which to get the information
+
+      Returns
+      -------
+      PortInfo
+          the port information
+    )");
+
+  o3r.def(
+    "reboot_to_recovery",
+    &ifm3d::O3R::RebootToRecovery,
+    R"(
+      Reboot the device into Recovery Mode
+
+      Raises
+      ------
+      RuntimeError
     )");
   // clang-format on
 }
