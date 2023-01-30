@@ -186,7 +186,7 @@ TEST(Buffer, at)
 }
 
 // SetTo
-TEST(Buffer, DISABLED_setTo)
+TEST(Buffer, setTo)
 {
   const int height = 100;
   const int width = 100;
