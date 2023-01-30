@@ -37,7 +37,7 @@ namespace ifm3d
     {
       if (size < ods_occupancy_grid_v1_minimum_size)
         {
-          throw ifm3d::Error(IFM3D_BUFFER_NOT_COMPATIABLE);
+          throw ifm3d::Error(IFM3D_CORRUPTED_STRUCT);
         }
       const uint8_t* start_ptr = data;
       timestamp_ns = mkval<std::uint64_t>(
@@ -52,7 +52,7 @@ namespace ifm3d
         ods_occupancy_grid_v1_minimum_size + width * height;
       if (size < ods_occupancy_grid_v1_size)
         {
-          throw ifm3d::Error(IFM3D_BUFFER_NOT_COMPATIABLE);
+          throw ifm3d::Error(IFM3D_CORRUPTED_STRUCT);
         }
 
       image = ifm3d::Buffer(height, width, 1, ifm3d::pixel_format::FORMAT_8U);
