@@ -11,8 +11,6 @@ test:windows_2019:
   script:
     - mkdir build -Force
     - cd build
-    - 'cmake.exe -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=D:/ifm3d_deps/install_VS2019 -DBUILD_MODULE_PCICCLIENT=ON -DCMAKE_PREFIX_PATH="D:/ifm3d_deps/install_VS2019" -DBUILD_TESTS=ON -DGTEST_CMAKE_DIR=D:/ifm3d_deps/googletest/googletest -Dgtest_force_shared_crt=TRUE ..'
-    - cmake.exe --build . --config Release --target check
-  needs:
-    - job: build:windows_2019
-      artifacts: false
+    - 'cmake.exe -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=D:/ifm3d_deps/install_VS2019 -DBUILD_MODULE_PCICCLIENT=ON -DCMAKE_PREFIX_PATH="D:/ifm3d_deps/install_VS2019" -DBUILD_TESTS=ON -DGTEST_CMAKE_DIR=D:/ifm3d_deps/googletest/googletest -Dgtest_force_shared_crt=TRUE -DBUILD_IN_DEPS=ON ..'
+    - cmake.exe --build . --config Release --clean-first --target check
+ 
