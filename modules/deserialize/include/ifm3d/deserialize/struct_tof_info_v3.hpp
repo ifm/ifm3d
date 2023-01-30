@@ -45,7 +45,7 @@ namespace ifm3d
     {
       if (size < tof_info_v3_size)
         {
-          throw ifm3d::Error(IFM3D_BUFFER_NOT_COMPATIABLE);
+          throw ifm3d::Error(IFM3D_CORRUPTED_STRUCT);
         }
       const uint8_t* start_ptr = data;
       version = mkval<std::uint32_t>(start_ptr + TOF_INFO_VERSION_INDEX);

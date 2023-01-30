@@ -35,7 +35,7 @@ namespace ifm3d
     {
       if (size < tof_info_v4_size)
         {
-          throw ifm3d::Error(IFM3D_BUFFER_NOT_COMPATIABLE);
+          throw ifm3d::Error(IFM3D_CORRUPTED_STRUCT);
         }
 
       TOFInfoV3::Read(data, size);

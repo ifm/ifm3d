@@ -32,9 +32,9 @@ namespace ifm3d
     void
     Read(const uint8_t* data, size_t size)
     {
-      if (size < ods_info_v1)
+      if (size < ods_info_v1_size)
         {
-          throw ifm3d::Error(IFM3D_BUFFER_NOT_COMPATIABLE);
+          throw ifm3d::Error(IFM3D_CORRUPTED_STRUCT);
         }
       const uint8_t* start_ptr = data;
       timestamp_ns =
@@ -58,7 +58,7 @@ namespace ifm3d
     /*
      *@brief size ofthe ODS_INFO_V1 in bytes
      * */
-    const size_t ods_info_v1 = 15;
+    const size_t ods_info_v1_size = 15;
 
     static ODSInfoV1
     Deserialize(const Buffer& tof_info_buffer)
