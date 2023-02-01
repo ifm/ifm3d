@@ -13,7 +13,7 @@
       cp -r ${CI_PROJECT_DIR}/docs/html latest
       if [ "x${CI_COMMIT_TAG}" != "x" ]; then
         cp -r ${CI_PROJECT_DIR}/docs/html "${CI_COMMIT_TAG}"
-        ln -sf "${CI_COMMIT_TAG}/" stable
+        ln -sfn "${CI_COMMIT_TAG}/" stable
       fi
       git add -A
       git commit -m "update docs" --allow-empty
