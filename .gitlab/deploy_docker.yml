@@ -3,19 +3,13 @@
   tags:
     - shared_docker
   image: toolhippie/manifest-tool:20210830
-  needs:
-    - job: deploy:start
-      artifacts: false
-    - job: build:linux:docker
-      artifacts: false
   before_script:
     - !reference [.docker-config, script]
     - mkdir -p $HOME/.docker
     - echo "${DOCKER_CFG}" > $HOME/.docker/config.json
 
-deploy:linux:docker:
-  extends: .docker_manifest
-  script:
+.docker_deploy:
+  latest:
     - |
       for REGISTRY in $REGISTRIES; do
 
@@ -37,13 +31,7 @@ deploy:linux:docker:
         --platforms "linux/arm64"
 
       done
-  rules:
-    - !reference [.tagged, rules]
-    - !reference [.nightly, rules]
-
-deploy:linux:docker_stable:
-  extends: .docker_manifest
-  script:
+  stable:
     - |
       for REGISTRY in $REGISTRIES; do
 
@@ -65,5 +53,26 @@ deploy:linux:docker_stable:
         --platforms "linux/arm64"
 
       done
+
+deploy:linux:docker_tagged:
+  extends: .docker_manifest
+  needs:
+    - job: deploy:start
+      artifacts: false
+    - job: build:linux:docker
+      artifacts: false
+  script:
+    - !reference [.docker_deploy, latest]
+    - !reference [.docker_deploy, stable]
   rules:
     - !reference [.tagged, rules]
+
+deploy:linux:docker_nightly:
+  extends: .docker_manifest
+  needs:
+    - job: build:linux:docker
+      artifacts: false
+  script:
+    - !reference [.docker_deploy, latest]
+  rules:
+    - !reference [.nightly, rules]
