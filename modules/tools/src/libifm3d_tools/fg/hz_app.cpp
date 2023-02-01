@@ -76,6 +76,7 @@ ifm3d::HzApp::Run()
 
   std::vector<double> stats;
 
+  this->fg_->Start({ifm3d::buffer_id::CONFIDENCE_IMAGE});
   for (int i = 0; i < nruns; i++)
     {
       auto start = std::chrono::steady_clock::now();
@@ -93,11 +94,10 @@ ifm3d::HzApp::Run()
               std::cerr << "Timeout waiting for camera!" << std::endl;
               return -1;
             }
-          future.get();
+          future.get()->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE);
         }
       auto stop = std::chrono::steady_clock::now();
       auto diff = stop - start;
-      std::cout << diff.count() << std::endl;
       stats.push_back(std::chrono::duration<double>(diff).count());
     }
 
