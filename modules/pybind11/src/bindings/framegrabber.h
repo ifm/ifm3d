@@ -49,7 +49,7 @@ bind_framegrabber(pybind11::module_& m)
     [](const ifm3d::FrameGrabber::Ptr& self, const ifm3d::FrameGrabber::BufferList& buffers, const std::optional<py::dict>& pcicFormat) {
       py::object json_dumps = py::module::import("json").attr("dumps");
       pcicFormat.has_value() 
-        ? self->Start(buffers, json::parse(json_dumps(pcicFormat.value()).cast<std::string>())) 
+        ? self->Start(buffers, ifm3d::json::parse(json_dumps(pcicFormat.value()).cast<std::string>())) 
         : self->Start(buffers);
     },
     py::arg("buffers") = ifm3d::FrameGrabber::BufferList{},
