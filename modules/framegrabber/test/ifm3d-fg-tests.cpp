@@ -116,7 +116,7 @@ TEST_F(FrameGrabberTest, BlankSchema2D)
   auto frame = fg_->WaitForFrame().get();
 
   EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::JPEG_IMAGE));
-  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::O3R_RGB_IMAGE_INFO));
+  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::RGB_INFO));
 }
 
 TEST_F(FrameGrabberTest, schema_o3r_rgb_image_info)
@@ -130,23 +130,23 @@ TEST_F(FrameGrabberTest, schema_o3r_rgb_image_info)
   o3r->Set(config);
   fg_ = std::make_shared<ifm3d::FrameGrabber>(dev_, 50010);
 
-  fg_->Start({ifm3d::buffer_id::O3R_RGB_IMAGE_INFO});
+  fg_->Start({ifm3d::buffer_id::RGB_INFO});
 
   auto frame = fg_->WaitForFrame().get();
 
-  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::O3R_RGB_IMAGE_INFO));
+  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::RGB_INFO));
 }
 
 TEST_F(FrameGrabberTest, schema_o3r_dist_image_info)
 {
   LOG(INFO) << "schema_o3r_dist_image_info test";
 
-  fg_->Start({ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFO});
+  fg_->Start({ifm3d::buffer_id::TOF_INFO});
 
   auto frame = fg_->WaitForFrame().get();
 
-  EXPECT_NO_THROW(auto o3r_dist_image_info = frame->GetBuffer(
-                    ifm3d::buffer_id::O3R_DISTANCE_IMAGE_INFO));
+  EXPECT_NO_THROW(auto o3r_dist_image_info =
+                    frame->GetBuffer(ifm3d::buffer_id::TOF_INFO));
 }
 
 TEST_F(FrameGrabberTest, BufferIDException)
@@ -195,6 +195,35 @@ TEST_F(FrameGrabberTest, DistanceNoiseImage_type)
             ifm3d::pixel_format::FORMAT_32F);
 }
 
+TEST_F(FrameGrabberTest, onError)
+{
+  LOG(INFO) << " onError ";
+
+  auto result = 0;
+  auto frame_count = 0;
+
+  fg_->OnError([&](const ifm3d::Error& err) { result++; });
+
+  fg_->OnNewFrame([&](const ifm3d::Frame::Ptr& frame) { frame_count++; });
+
+  fg_->Start({ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE,
+              ifm3d::buffer_id::CONFIDENCE_IMAGE});
+
+  std::this_thread::sleep_for(std::chrono::seconds(10));
+
+  // this rebbot will cause network interruption and onError must get error
+  dev_->Reboot();
+
+  std::this_thread::sleep_for(std::chrono::seconds(10));
+
+  // frame_count > 0 shows grabbing data successful
+  // result > 0 error occurred and call back was called
+  EXPECT_TRUE(frame_count > 0 && result > 0);
+
+  // give enough time for device to completely reboot
+  std::this_thread::sleep_for(std::chrono::seconds(90));
+}
+
 TEST_F(FrameGrabberTest, confidence_image_3D)
 {
   LOG(INFO) << " confidence image test on 3D  ";
@@ -231,4 +260,63 @@ TEST_F(FrameGrabberTest, confidence_image_2D)
 
   EXPECT_THROW(frame->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE),
                ifm3d::Error);
+}
+
+TEST_F(FrameGrabberTest, only_algo_debug)
+{
+  LOG(INFO) << " obtain only algo debug data";
+  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
+
+  // enable algo debug flag through xmlrpc set interface
+  o3r->Reset("/ports/port2/data/algoDebugFlag");
+  o3r->Set({{"ports", {{"port2", {{"data", {{"algoDebugFlag", true}}}}}}}});
+
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+
+  fg_->Start({ifm3d::buffer_id::ALGO_DEBUG});
+
+  auto future_ = fg_->WaitForFrame();
+  auto status = future_.wait_for(std::chrono::seconds(1));
+  EXPECT_TRUE(status == std::future_status::ready);
+
+  auto frame = future_.get();
+  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::ALGO_DEBUG));
+  EXPECT_THROW(frame->GetBuffer(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE),
+               ifm3d::Error);
+}
+
+// disabled due to firmware issue with pF pcic command
+TEST_F(FrameGrabberTest, algo_with_other_data)
+{
+  LOG(INFO) << " obtain  algo debug with other data";
+  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
+
+  // enable algo debug flag through xmlrpc set interface
+  o3r->Reset("/ports/port2/data/algoDebugFlag");
+  o3r->Set({{"ports", {{"port2", {{"data", {{"algoDebugFlag", true}}}}}}}});
+
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+
+  fg_->Start(
+    {ifm3d::buffer_id::ALGO_DEBUG, ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE});
+
+  for (int i = 0; i < 20; i++)
+    {
+      auto frame = fg_->WaitForFrame().get();
+
+      if (frame->HasBuffer(ifm3d::buffer_id::ALGO_DEBUG))
+        {
+          EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::ALGO_DEBUG));
+          EXPECT_THROW(
+            frame->GetBuffer(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE),
+            ifm3d::Error);
+        }
+      else
+        {
+          EXPECT_THROW(frame->GetBuffer(ifm3d::buffer_id::ALGO_DEBUG),
+                       ifm3d::Error);
+          EXPECT_NO_THROW(
+            frame->GetBuffer(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE));
+        }
+    }
 }

@@ -4,7 +4,7 @@ This is an example application for retrieving different kinds of images from an 
 
 ## Download the code
 If you built ifm3d from source, you already have the code, in ifm3d/examples/o3r/viewer. 
-If not, you can find the script [here](https://github.com/ifm/ifm3d/tree/o3r/main-next/examples/o3r/viewer).
+If not, you can find the script [here](https://github.com/ifm/ifm3d/tree/main/examples/o3r/viewer).
 ## Installation 
 
 The recommended way is to use a venv. 

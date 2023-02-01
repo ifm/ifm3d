@@ -7,6 +7,7 @@
 #define IFM3D_PYBIND_BINDING_ERROR
 
 #include <pybind11/pybind11.h>
+#include <string>
 
 using namespace pybind11::literals;
 

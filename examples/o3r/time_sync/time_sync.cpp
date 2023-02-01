@@ -76,7 +76,7 @@ int main(){
   //////////////////////////
   // Declare the device object (one object only, corresponding to the VPU)
   auto o3r = std::make_shared<ifm3d::O3R>();
-  json conf = o3r->Get();
+  ifm3d::json conf = o3r->Get();
   // Declare the FrameGrabber and ImageBuffer objects. 
   // One FrameGrabber per camera head (define the port number).
   auto fg0 = std::make_shared<ifm3d::FrameGrabber>(o3r, 50012);
@@ -91,7 +91,7 @@ int main(){
   //////////////////////////
   // Set framerate:
   //////////////////////////
-  o3r->Set(json::parse(R"({"ports":{"port2":{"acquisition": {"framerate": 10}}, 
+  o3r->Set(ifm3d::json::parse(R"({"ports":{"port2":{"acquisition": {"framerate": 10}}, 
                                     "port3":{"acquisition": {"framerate": 10}}}})"));
 
 
@@ -99,10 +99,10 @@ int main(){
   // Start the cameras at
   // the same time
   /////////////////////////
-  o3r->Set(json::parse(R"({"ports":{"port2":{"state": "CONF"}, 
+  o3r->Set(ifm3d::json::parse(R"({"ports":{"port2":{"state": "CONF"}, 
                                     "port3":{"state": "CONF"}}})"));
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  o3r->Set(json::parse(R"({"ports":{"port2":{"state": "RUN"}, 
+  o3r->Set(ifm3d::json::parse(R"({"ports":{"port2":{"state": "RUN"}, 
                                     "port3":{"state": "RUN"}}})"));
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
 

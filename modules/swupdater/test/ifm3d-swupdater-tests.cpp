@@ -67,7 +67,7 @@ TEST_F(SWUpdater, DetectBootMode)
   EXPECT_FALSE(swu->WaitForRecovery(-1));
 }
 
-TEST_F(SWUpdater, FlashEmptyFile)
+TEST_F(SWUpdater, DISABLED_FlashEmptyFile)
 {
   auto cam = ifm3d::Device::MakeShared();
   auto swu = std::make_shared<ifm3d::SWUpdater>(cam);

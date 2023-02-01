@@ -16,9 +16,7 @@
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/device/logging.h>
-#include <ifm3d/contrib/nlohmann/json.hpp>
-#include <iostream>
-
+#include <ifm3d/device/json.hpp>
 #include <iostream>
 
 namespace ifm3d
@@ -36,10 +34,6 @@ namespace ifm3d
   const int SWUPDATER_STATUS_RUN = 2;
   const int SWUPDATER_STATUS_SUCCESS = 3;
   const int SWUPDATER_STATUS_FAILURE = 4;
-
-  // Default timeout values for cURL transactions to the camera
-  const long DEFAULT_CURL_CONNECT_TIMEOUT = 3;      // seconds
-  const long DEFAULT_CURL_TRANSACTION_TIMEOUT = 30; // seconds
 
   //============================================================
   // Impl interface
@@ -562,7 +556,7 @@ ifm3d::SWUpdater::Impl::GetUpdaterStatus()
   c->Call(curl_easy_perform);
 
   // Parse status
-  auto json = nlohmann::json::parse(status_string.c_str());
+  auto json = ifm3d::json::parse(status_string.c_str());
   status_id = std::stoi(json["Status"].get<std::string>());
   status_error = std::stoi(json["Error"].get<std::string>());
   status_message = json["Msg"].get<std::string>();

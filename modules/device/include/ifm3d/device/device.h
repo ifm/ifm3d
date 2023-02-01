@@ -11,11 +11,10 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <ifm3d/contrib/nlohmann/json.hpp>
+#include <ifm3d/device/json.hpp>
 #include <ifm3d/device/device_export.h>
 #include <ifm3d/device/ifm_network_device.h>
-
-using json = nlohmann::json;
+#include <ifm3d/device/semver.h>
 
 namespace ifm3d
 {
@@ -28,6 +27,8 @@ namespace ifm3d
   extern IFM3D_DEVICE_EXPORT const std::size_t SESSION_ID_SZ;
   extern IFM3D_DEVICE_EXPORT const std::string DEFAULT_SESSION_ID;
   extern IFM3D_DEVICE_EXPORT const std::string DEFAULT_APPLICATION_TYPE;
+  extern IFM3D_DEVICE_EXPORT const long DEFAULT_CURL_CONNECT_TIMEOUT;
+  extern IFM3D_DEVICE_EXPORT const long DEFAULT_CURL_TRANSACTION_TIMEOUT;
 
   extern IFM3D_DEVICE_EXPORT const int DEV_O3D_MIN;
   extern IFM3D_DEVICE_EXPORT const int DEV_O3D_MAX;
@@ -103,8 +104,12 @@ namespace ifm3d
     EXTRINSIC_CALIB = 400,
     INTRINSIC_CALIB = 401,
     INVERSE_INTRINSIC_CALIBRATION = 402,
-    O3R_DISTANCE_IMAGE_INFO = 420,
-    O3R_RGB_IMAGE_INFO = 421,
+    TOF_INFO = 420,
+    O3R_DISTANCE_IMAGE_INFO [[deprecated]] =
+      static_cast<uint32_t>(ifm3d::image_chunk::TOF_INFO),
+    RGB_INFO = 421,
+    O3R_RGB_IMAGE_INFO [[deprecated]] =
+      static_cast<uint32_t>(ifm3d::image_chunk::RGB_INFO),
     JSON_MODEL = 500,
     ALGO_DEBUG = 900,
     O3R_ODS_OCCUPANCY_GRID = 1000,
@@ -243,7 +248,8 @@ namespace ifm3d
     static Ptr MakeShared(
       const std::string& ip = ifm3d::DEFAULT_IP,
       const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
-      const std::string& password = ifm3d::DEFAULT_PASSWORD);
+      const std::string& password = ifm3d::DEFAULT_PASSWORD,
+      bool throwIfUnavailable = true);
 
     /**
      * Initializes the device interface utilizing library defaults
@@ -421,6 +427,11 @@ namespace ifm3d
     bool CheckMinimumFirmwareVersion(unsigned int major,
                                      unsigned int minor,
                                      unsigned int patch);
+
+    /**
+     * get the firmware version of the device
+     */
+    ifm3d::SemVer FirmwareVersion();
 
     /**
      * Checks the swupdater version supported by device

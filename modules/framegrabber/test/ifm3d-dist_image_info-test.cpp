@@ -74,8 +74,7 @@ readO3RByteBufferFromFile(std::string sFile,
   auto aidx = ifm3d::get_chunk_index(fileBuffer,
                                      ifm3d::image_chunk::NORM_AMPLITUDE_IMAGE);
   auto distimageidx =
-    ifm3d::get_chunk_index(fileBuffer,
-                           ifm3d::image_chunk::O3R_DISTANCE_IMAGE_INFO);
+    ifm3d::get_chunk_index(fileBuffer, ifm3d::image_chunk::TOF_INFO);
 
   // get the image dimensions
   if (!width)

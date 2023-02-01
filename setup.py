@@ -142,5 +142,6 @@ setup(
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
     packages=find_packages(),
-    entry_points={'console_scripts': ['ifm3dpy = ifm3dpy:_run_cmdtool']}
+    entry_points={'console_scripts': ['ifm3dpy = ifm3dpy:_run_cmdtool']},
+    install_requires=['numpy']
 )

@@ -5,7 +5,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Upgraded nlohmann::json to version 3.11.2
+- Removed json from the global namespace and moved nlohmann::json to the ifm3d::json namespace
+
+### Fixes 
+- Missing python bindings for `O3R::Port` and `O3R::Ports`
+- 
 ### Added
+- `O3R::RebootToRecovery` to reboot supported O3R devices into recovery mode
+- Support for O3R recovery based updates
+- Add size() interface in ifm3d::Buffer
+- Add Deserialize module
+  - Add struct TOFInfoV3
+  - Add struct TOFInfoV4
+  - Add struct RGBInfoV1
+  - Add struct ODSInfoV1
+  - Add struct ODSOccupancyGridV1
+
+## 1.1.1 - 2022-12-9
+### Fixes 
+- Data grabbing [issue](https://github.com/ifm/ifm3d/issues/377) with ifm3dpy-v1.1.0
+
+## 1.1.0 - 2022-12-2
+### Added
+- Change ```FrameGrabber::Stop``` to non blocking call and now returns ```std::future<void>```
+- Add onError callback for error reporting in streaming mode of Framegrabber
+- Support for retrieving O3R Diagnostics over XMLRPC
 - Support for Python 3.11
 - Support for Ubuntu 22.04
 - Python binding: FrameGrabber.sw_trigger()

@@ -46,7 +46,7 @@ main()
   // Declare the camera object
   auto cam = std::make_shared<ifm3d::O3R>();
   // Retreive ports configuration
-  json conf = cam->Get();
+  ifm3d::json conf = cam->Get();
   // Initialize the structures
   std::vector<ifm3d::FrameGrabber::Ptr> fgs;
 
@@ -55,10 +55,10 @@ main()
   for (const auto& port : conf["ports"].items())
     {
       // Create lists of connected PCIC ports along with types
-      nlohmann::json::json_pointer p1("/ports/" + port.key() +
+      ifm3d::json::json_pointer p1("/ports/" + port.key() +
                                       "/data/pcicTCPPort");
       const auto pcic = conf[p1];
-      nlohmann::json::json_pointer p2("/ports/" + port.key() +
+      ifm3d::json::json_pointer p2("/ports/" + port.key() +
                                       "/info/features/type");
       const auto type = conf[p2];
       // Display connected port with type

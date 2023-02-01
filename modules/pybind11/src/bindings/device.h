@@ -81,7 +81,9 @@ bind_device(pybind11::module_& m)
     )",
     py::arg("ip") = ifm3d::DEFAULT_IP,
     py::arg("xmlrpc_port") = ifm3d::DEFAULT_XMLRPC_PORT,
-    py::arg("password") = ifm3d::DEFAULT_PASSWORD);
+    py::arg("password") = ifm3d::DEFAULT_PASSWORD,
+    py::arg("throw_if_unavailable") = true
+  );
 
   // Accessors/Mutators
 
@@ -254,6 +256,18 @@ bind_device(pybind11::module_& m)
       bool
           True if current software version is greater
           or equal to the value passed
+    )");
+
+  device.def(
+    "firmware_version",
+    &ifm3d::Device::FirmwareVersion,
+    R"(
+      Version of firmware installed on device
+
+      Returns
+      -------
+      SemVer
+          Firmware version 
     )");
 
   device.def(

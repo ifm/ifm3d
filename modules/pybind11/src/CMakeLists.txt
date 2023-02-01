@@ -52,6 +52,10 @@ target_include_directories(ifm3dpy
     ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
+target_compile_options(ifm3dpy PRIVATE
+  $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-deprecated-declarations>$<$<CXX_COMPILER_ID:MSVC>:/Wd4996>)
+  
+
 #------------------
 # Linker Settings
 #------------------
@@ -63,6 +67,8 @@ target_link_libraries(
     pybind11::module
     ifm3d_tools_shared
     ifm3d_swupdater
+    $<BUILD_INTERFACE:fmt::fmt-header-only>
+    ifm3d_deserialize
   )
 
 #------------------
