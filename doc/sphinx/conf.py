@@ -83,7 +83,8 @@ html_css_files = [
 
 
 myst_enable_extensions = [
-    "colon_fence"
+    "colon_fence",
+    "substitution", # This enable the definition of substitution variables (see below)
 ]
 
 sphinx_tabs_disable_tab_closing = True
@@ -96,3 +97,13 @@ def filter_bases(app, name, obj, options, bases):
 
 def setup(app):
     app.connect('autodoc-process-bases', filter_bases)
+
+# -------------------------------------------------
+# -- Substitution variables
+# -------------------------------------------------
+myst_substitutions = {
+    "ifm3d_gh_url" : "https://github.com/ifm/ifm3d",
+    "ifm3d_main_branch":  "main", # The most up to date branch on ifm3d
+    "ifm3d_latest_tag_url": "https://github.com/ifm/ifm3d/tags",
+    "ifm3d_containers_list_url": "https://github.com/ifm/ifm3d/pkgs/container/ifm3d",
+}

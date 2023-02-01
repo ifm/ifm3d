@@ -24,6 +24,7 @@
 #include "bindings/framegrabber.h"
 #include "bindings/swupdater.h"
 #include "bindings/semver.h"
+#include "bindings/deserialize/deserialize.h"
 
 namespace py = pybind11;
 
@@ -179,4 +180,5 @@ PYBIND11_MODULE(ifm3dpy, m)
   bind_frame(m);
   bind_framegrabber(m);
   bind_swupdater(m);
+  bind_deserialize_struct(m);
 }

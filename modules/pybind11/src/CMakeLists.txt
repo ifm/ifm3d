@@ -68,6 +68,7 @@ target_link_libraries(
     ifm3d_tools_shared
     ifm3d_swupdater
     $<BUILD_INTERFACE:fmt::fmt-header-only>
+    ifm3d_deserialize
   )
 
 #------------------

@@ -45,6 +45,7 @@ const int IFM3D_UNSUPPORTED_SCHEMA_ON_DEVICE = -100031;
 const int IFM3D_BUFFER_ID_NOT_AVAILABLE = -100032;
 const int IFM3D_NETWORK_ERROR = -100033;
 const int IFM3D_SYSTEM_ERROR = -100034;
+const int IFM3D_CORRUPTED_STRUCT = 100035;
 // sensor errors
 const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
 const int IFM3D_INVALID_PARAM = 101000;
@@ -151,6 +152,9 @@ ifm3d::strerror(int errnum)
       return "Lib: Network error";
     case IFM3D_SYSTEM_ERROR:
       return "Lib: System error";
+    case IFM3D_CORRUPTED_STRUCT:
+      return "Lib: The given Buffer does not contain the expected struct or "
+             "the data is corrupted.";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
       return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:
