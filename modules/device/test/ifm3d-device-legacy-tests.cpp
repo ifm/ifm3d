@@ -6,6 +6,8 @@
 #include <vector>
 #include <ifm3d/device.h>
 #include <gtest/gtest.h>
+  
+using namespace ifm3d::literals;
 
 class LegacyDeviceTest : public ::testing::Test
 {
