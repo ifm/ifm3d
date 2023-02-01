@@ -29,7 +29,8 @@ namespace ifm3d
 
     CmdLineApp(int argc,
                const char** argv,
-               const std::string& name = "version");
+               const std::string& name = "version",
+               bool throwIfUnavailable = true);
     virtual ~CmdLineApp() = default;
 
     // copy and move semantics

@@ -9,17 +9,19 @@ main(int argc, char** argv)
     {{"O3D",
       "DeviceReset.*:FrameGrabberTest.*:-FrameGrabberTest.BlankSchema2D:-"
       "FrameGrabberTest.schema_o3r_rgb_image_info:-FrameGrabberTest.schema_"
-      "o3r_dist_image_info"},
+      "o3r_dist_image_info:-FrameGrabberTest.only_algo_debug:-"
+      "FrameGrabberTest.algo_with_other_data"},
      {"O3X",
       "DeviceReset.*:FrameGrabberTest.*:-FrameGrabberTest.BlankSchema2D:-"
       "FrameGrabberTest.schema_o3r_rgb_image_info:-FrameGrabberTest.schema_"
       "o3r_dist_image_info:-"
-      "FrameGrabberTest.SWTriggerMultipleClients"},
+      "FrameGrabberTest.SWTriggerMultipleClients:-FrameGrabberTest.only_algo_"
+      "debug:-FrameGrabberTest.algo_with_other_data"},
      {"O3R",
       "FrameGrabberTest.*:-FrameGrabberTest.ByteBufferBasics:-"
       "FrameGrabberTest.SoftwareTrigger:-FrameGrabberTest."
       "SWTriggerMultipleClients:-FrameGrabber.JSON_model"},
-     {"device_independent", "DistanceImageInfo.*:Buffer.*"}});
+     {"device_independent", "DistanceImageInfo.*:Buffer.*:Schema.*"}});
 
   std::map<ifm3d::Device::device_family, std::string> device_family_to_device(
     {{ifm3d::Device::device_family::O3D, "O3D"},

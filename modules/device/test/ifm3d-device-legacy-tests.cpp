@@ -7,6 +7,8 @@
 #include <ifm3d/device.h>
 #include <gtest/gtest.h>
 
+using namespace ifm3d::literals;
+
 class LegacyDeviceTest : public ::testing::Test
 {
 protected:
@@ -37,7 +39,7 @@ TEST_F(LegacyDeviceTest, DefaultPassword)
 
 TEST_F(LegacyDeviceTest, ApplicationList)
 {
-  json app_list = this->dev_->ApplicationList();
+  ifm3d::json app_list = this->dev_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1); // factory defaults, we can assume this.
   EXPECT_TRUE(bool(app_list[0]["Active"].get<int>()));
 }
@@ -142,7 +144,7 @@ TEST_F(LegacyDeviceTest, CopyDeleteApplication)
       return;
     }
 
-  json app_list = this->dev_->ApplicationList();
+  ifm3d::json app_list = this->dev_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1);
 
   int idx = this->dev_->CopyApplication(1);
@@ -167,7 +169,7 @@ TEST_F(LegacyDeviceTest, CreateDeleteApplication)
       return;
     }
 
-  json app_list = this->dev_->ApplicationList();
+  ifm3d::json app_list = this->dev_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1);
 
   int idx = -1;
@@ -191,7 +193,7 @@ TEST_F(LegacyDeviceTest, CreateApplicationException)
 
 TEST_F(LegacyDeviceTest, ImportExportApplication)
 {
-  json app_list = this->dev_->ApplicationList();
+  ifm3d::json app_list = this->dev_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1);
 
   int idx = app_list[0]["Index"].get<int>();
@@ -232,7 +234,7 @@ TEST_F(LegacyDeviceTest, ImportExportConfig)
 TEST_F(LegacyDeviceTest, ActiveApplication)
 {
   // factory defaults, should only be 1 application
-  json app_list = this->dev_->ApplicationList();
+  ifm3d::json app_list = this->dev_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1);
 
   //
@@ -316,11 +318,11 @@ TEST_F(LegacyDeviceTest, ImagerTypes)
     {
       return;
     }
-  json dump = this->dev_->ToJSON();
+  ifm3d::json dump = this->dev_->ToJSON();
   std::string curr_im_type = dump["ifm3d"]["Apps"][0]["Imager"]["Type"];
 
   std::vector<std::string> im_types = this->dev_->ImagerTypes();
-  json j = R"({"Apps":[]})"_json;
+  ifm3d::json j = R"({"Apps":[]})"_json;
   for (auto& it : im_types)
     {
       dump["ifm3d"]["Apps"][0]["Imager"]["Type"] = it;
@@ -340,7 +342,7 @@ TEST_F(LegacyDeviceTest, ImagerTypes)
 TEST_F(LegacyDeviceTest, Filters)
 {
   // factory defaults, should only be 1 application
-  json app_list = this->dev_->ApplicationList();
+  ifm3d::json app_list = this->dev_->ApplicationList();
   EXPECT_EQ(app_list.size(), 1);
 
   // Create a median spatial filter
@@ -352,7 +354,7 @@ TEST_F(LegacyDeviceTest, Filters)
 
   // a-priori we know the median filter has a MaskSize param,
   // by default it is 3x3
-  json dump = this->dev_->ToJSON();
+  ifm3d::json dump = this->dev_->ToJSON();
 
   int mask_size = static_cast<int>(ifm3d::LegacyDevice::mfilt_mask_size::_3x3);
 
@@ -412,7 +414,7 @@ TEST_F(LegacyDeviceTest, JSON)
 
 TEST_F(LegacyDeviceTest, Time)
 {
-  json dump = this->dev_->ToJSON();
+  ifm3d::json dump = this->dev_->ToJSON();
   if (dump["/ifm3d/Time"_json_pointer].empty())
     {
       return;

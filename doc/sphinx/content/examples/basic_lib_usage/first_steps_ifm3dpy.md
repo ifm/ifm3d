@@ -17,11 +17,11 @@ from ifm3dpy import O3R
 
 o3r = O3R()
 config = o3r.get()
-config['ports']['port0']['state'] = "RUN" #Expecting a head on Port 0
+config['ports']['port2']['state'] = "RUN" #Expecting a head on Port 2
 o3r.set(config)
 ```
 
-Note: Depending where your imager is connected, `'port0'` might not work.
+Note: Depending where your imager is connected, `'port2'` might not work.
 
 ## Receive an image
 
@@ -36,7 +36,7 @@ from ifm3dpy import O3R, FrameGrabber, buffer_id
 import matplotlib.pyplot as plt
 
 o3r = O3R()
-fg = FrameGrabber(o3r, pcic_port=50010) #Expecting a head on Port 0 (Port 0 == 50010)
+fg = FrameGrabber(o3r, pcic_port=50012) #Expecting a head on Port 2 (Port 2 == 50012)
 
 # Set schema and start Grabber
 fg.start([buffer_id.NORM_AMPLITUDE_IMAGE,buffer_id.RADIAL_DISTANCE_IMAGE,buffer_id.XYZ])

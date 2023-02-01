@@ -81,6 +81,9 @@ $ sudo cmake --build . --target install
 
 This will build and install ifm3d along with its dependencies.
 
+> Note: you can speed up the build by using `ninja`, with `cmake -GNinja -DCMAKE_INSTALL_PREFIX=/usr ..`.
+
+
 #### Building the examples
 
 The examples can be built along with the rest of the library by switching the DBUILD_EXAMPLES flag on. Assuming you are in the /build folder:

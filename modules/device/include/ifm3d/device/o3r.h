@@ -152,8 +152,38 @@ namespace ifm3d
      */
     PortInfo Port(const std::string& port);
 
+    /**
+     * @brief Returns the content of the diagnostic memory formatted in JSON
+     *
+     * @return The JSON containing all known diagnostic events
+     */
+    json GetDiagnostic();
+
+    /**
+     * @brief Returns the JSON schema for the filter expression provided to the
+     * getFiltered() method
+     *
+     * @return The JSON schema
+     */
+    json GetDiagnosticFilterSchema();
+
+    /**
+     * @brief Returns the content of the diagnostic memory formatted in JSON
+     * and filtered according to the JSON filter expression
+     *
+     * @param filter A filter expression in JSON format
+     * @return json
+     */
+    json GetDiagnosticFiltered(json filter);
+
     void Reboot(
       const boot_mode& mode = ifm3d::Device::boot_mode::PRODUCTIVE) override;
+
+    /**
+     * Reboot the device into Recovery Mode
+     */
+    void RebootToRecovery();
+
     device_family WhoAmI() override;
     ifm3d::Device::swu_version SwUpdateVersion() override;
 
@@ -162,6 +192,7 @@ namespace ifm3d
      * Equivalent to the @ref Get() method
      */
     json ToJSON() override;
+
     /**
      * @copydoc Device::FromJSON()
      * Equivalent to @ref Set() followed by @ref SaveInit()

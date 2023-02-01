@@ -206,7 +206,7 @@ ifm3d::LegacyDevice::ActiveApplication()
   return std::stoi(this->DeviceParameter("ActiveApplication"));
 }
 
-json
+ifm3d::json
 ifm3d::LegacyDevice::ApplicationList()
 {
   json retval; // list
@@ -335,7 +335,7 @@ ifm3d::LegacyDevice::ImportIFMApp(const std::vector<std::uint8_t>& bytes)
     [this, &bytes]() -> int { return this->pImpl->ImportIFMApp(bytes); });
 }
 
-json
+ifm3d::json
 ifm3d::LegacyDevice::getApplicationInfosToJSON()
 {
   auto app_info = json::parse("[]");
@@ -386,7 +386,7 @@ ifm3d::LegacyDevice::getApplicationInfosToJSON()
   return app_info;
 }
 
-json
+ifm3d::json
 ifm3d::LegacyDevice::ToJSON_(const bool open_session)
 {
   auto timeNow =
@@ -440,7 +440,7 @@ ifm3d::LegacyDevice::ToJSON_(const bool open_session)
   return j;
 }
 
-json
+ifm3d::json
 ifm3d::LegacyDevice::ToJSON()
 {
   return ToJSON_();
