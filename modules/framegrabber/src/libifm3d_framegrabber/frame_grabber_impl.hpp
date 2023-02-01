@@ -660,7 +660,7 @@ ifm3d::FrameGrabber::Impl::SetSchema(const json& schema)
   VLOG(IFM3D_PROTO_DEBUG) << "schema: " << json;
 }
 
-json
+ifm3d::json
 ifm3d::FrameGrabber::Impl::GenerateDefaultSchema()
 {
   std::set<ifm3d::buffer_id> image_chunk_ids;

@@ -102,7 +102,7 @@ bind_o3r(pybind11::module_& m)
     {
       // Convert the input JSON to string and load it
       py::object json_dumps = py::module::import("json").attr("dumps");
-      c->Set(json::parse(json_dumps(json).cast<std::string>()));
+      c->Set(ifm3d::json::parse(json_dumps(json).cast<std::string>()));
     },
     py::arg("json"),
     R"(
@@ -269,7 +269,7 @@ bind_o3r(pybind11::module_& m)
     {
       py::object json_dumps = py::module::import("json").attr("dumps");
       py::object json_loads = py::module::import("json").attr("loads");
-      return json_loads(c->GetDiagnosticFiltered(json::parse(json_dumps(filter).cast<std::string>())).dump());
+      return json_loads(c->GetDiagnosticFiltered(ifm3d::json::parse(json_dumps(filter).cast<std::string>())).dump());
     },
     py::arg("filter"),
     R"(

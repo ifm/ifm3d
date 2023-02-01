@@ -11,7 +11,7 @@
 namespace ifm3d
 {
   /**
-   * Deicev specialization for O3D
+   * Device specialization for O3D
    */
   class IFM3D_DEVICE_EXPORT O3D : public LegacyDevice
   {

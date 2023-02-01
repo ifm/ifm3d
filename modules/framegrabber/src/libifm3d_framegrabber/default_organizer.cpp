@@ -238,7 +238,6 @@ ifm3d::DefaultOrganizer::ShouldMask(buffer_id id)
     case static_cast<buffer_id>(image_chunk::CONFIDENCE_IMAGE):
     case static_cast<buffer_id>(image_chunk::JPEG_IMAGE):
     case static_cast<buffer_id>(image_chunk::TOF_INFO):
-    case static_cast<buffer_id>(image_chunk::O3R_RGB_IMAGE_INFO):
       return false;
 
     default:

@@ -60,6 +60,10 @@ target_include_directories(ifm3d_device
     $<BUILD_INTERFACE:${IFM3D_DEVICE_SOURCE_DIR}/include>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    
+target_include_directories(ifm3d_device SYSTEM
+  PRIVATE
     ${CURL_INCLUDE_DIRS}
     ${XMLRPC_INCLUDE_DIRS}
     ${BUILTIN_INCLUDES}

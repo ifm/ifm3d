@@ -24,7 +24,7 @@
 #include <ifm3d/device/legacy_device.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/device/logging.h>
-#include <ifm3d/contrib/nlohmann/json.hpp>
+#include <ifm3d/device/json.hpp>
 #include <swupdater_impl.hpp>
 
 using client = websocketpp::client<websocketpp::config::asio_client>;
@@ -463,10 +463,10 @@ ifm3d::ImplV2::UploadFirmware(const std::string& swu_file, long timeout_millis)
 void
 ifm3d::ImplV2::OnWebSocketData(const std::string json_string)
 {
-  nlohmann::json json;
+  ifm3d::json json;
   try
     {
-      json = nlohmann::json::parse(json_string.c_str());
+      json = ifm3d::json::parse(json_string.c_str());
       const auto type = json["type"].get<std::string>();
 
       if (type == SWUPATER_V2_TYPE_STEP)

@@ -23,13 +23,13 @@ ifm3d::O3R::FactoryReset(bool keepNetworkSettings)
   this->pImpl->FactoryReset(keepNetworkSettings);
 }
 
-json
+ifm3d::json
 ifm3d::O3R::Get(const std::vector<std::string>& path)
 {
   return this->pImpl->Get(path);
 }
 
-json
+ifm3d::json
 ifm3d::O3R::ResolveConfig(const json::json_pointer& ptr)
 {
   return this->pImpl->ResolveConfig(ptr);
@@ -53,7 +53,7 @@ ifm3d::O3R::Reset(const std::string& jsonPointer)
   this->pImpl->Reset(jsonPointer);
 }
 
-json
+ifm3d::json
 ifm3d::O3R::GetInit()
 {
   return this->pImpl->GetInit();
@@ -71,7 +71,7 @@ ifm3d::O3R::GetInitStatus()
   return this->pImpl->GetInitStatus();
 }
 
-json
+ifm3d::json
 ifm3d::O3R::GetSchema()
 {
   return json::parse(this->pImpl->GetSchema());
@@ -114,25 +114,25 @@ ifm3d::O3R::FromJSON(const json& j)
   this->SaveInit();
 }
 
-json
+ifm3d::json
 ifm3d::O3R::ToJSON()
 {
   return this->Get();
 }
 
-json
+ifm3d::json
 ifm3d::O3R::GetDiagnostic()
 {
   return this->pImpl->GetDiagnostic();
 }
 
-json
+ifm3d::json
 ifm3d::O3R::GetDiagnosticFilterSchema()
 {
   return this->pImpl->GetDiagnosticFilterSchema();
 }
 
-json
+ifm3d::json
 ifm3d::O3R::GetDiagnosticFiltered(json filter)
 {
   return this->pImpl->GetDiagnosticFiltered(filter);

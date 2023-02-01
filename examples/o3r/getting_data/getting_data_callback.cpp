@@ -4,10 +4,12 @@
  */
 #include <iostream>
 #include <chrono>
+#include <thread>
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/fg.h>
 
 using namespace std::chrono_literals;
+using namespace ifm3d::literals;
 
 void Callback(ifm3d::Frame::Ptr frame){
   auto dist = frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE);
