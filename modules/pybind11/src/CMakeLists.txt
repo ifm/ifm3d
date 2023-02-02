@@ -53,7 +53,7 @@ target_include_directories(ifm3dpy
   )
 
 target_compile_options(ifm3dpy PRIVATE
-  $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-deprecated-declarations>$<$<CXX_COMPILER_ID:MSVC>:/Wd4996>)
+  $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-deprecated-declarations>$<$<CXX_COMPILER_ID:MSVC>:/wd4996>)
   
 
 #------------------
