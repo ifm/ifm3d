@@ -660,7 +660,7 @@ ifm3d::FrameGrabber::Impl::SetSchema(const json& schema)
   VLOG(IFM3D_PROTO_DEBUG) << "schema: " << json;
 }
 
-json
+ifm3d::json
 ifm3d::FrameGrabber::Impl::GenerateDefaultSchema()
 {
   std::set<ifm3d::buffer_id> image_chunk_ids;
@@ -798,12 +798,11 @@ ifm3d::FrameGrabber::Impl::CalculateAsyncCommand()
       p |= (1 << 2);
     }
 
-  // enable algodebug if it's requested
+  // enable  algodebug
   if (this->requested_images_.count(ifm3d::buffer_id::ALGO_DEBUG) > 0)
     {
-      p |= (1 << 3);
+      p = this->requested_images_.size() == 1 && p == 0x1 ? 0x8 : 0xF;
     }
-
   return fmt::format("p{0:X}", p);
 }
 #endif // IFM3D_FG_FRAMEGRABBER_IMPL_H

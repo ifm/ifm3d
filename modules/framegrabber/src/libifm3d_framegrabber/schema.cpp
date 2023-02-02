@@ -13,12 +13,12 @@
 #include <set>
 #include <ifm3d/device/util.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/contrib/nlohmann/json.hpp>
+#include <ifm3d/device/json.hpp>
 
 const ifm3d::SemVer O3R_SCHEMA_FIRMWARE_COMPATIBILITY_CHECK_VERSION =
   ifm3d::SemVer(1, 0, 1);
 
-const std::map<ifm3d::buffer_id, const nlohmann::json> o3d_schema_map{
+const std::map<ifm3d::buffer_id, const ifm3d::json> o3d_schema_map{
   {ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
    {{"type", "blob"}, {"id", "distance_image"}}},
   {ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE,
@@ -45,7 +45,7 @@ const std::map<ifm3d::buffer_id, const nlohmann::json> o3d_schema_map{
   {ifm3d::buffer_id::EXTRINSIC_CALIB,
    {{"type", "blob"}, {"id", "extrinsic_calibration"}}},
   {ifm3d::buffer_id::EXPOSURE_TIME,
-   nlohmann::json::array(
+   ifm3d::json::array(
      {{{"type", "string"}, {"id", "exposure_times"}, {"value", "extime"}},
       {{"type", "uint32"},
        {"id", "exposure_time_1"},
@@ -57,7 +57,7 @@ const std::map<ifm3d::buffer_id, const nlohmann::json> o3d_schema_map{
        {"id", "exposure_time_3"},
        {"format", {{"dataencoding", "binary"}, {"order", "little"}}}}})},
   {ifm3d::buffer_id::ILLUMINATION_TEMP,
-   nlohmann::json::array(
+   ifm3d::json::array(
      {{{"type", "string"}, {"id", "temp_illu"}, {"value", "temp_illu"}},
       {{"type", "float32"},
        {"id", "temp_illu"},
@@ -65,7 +65,7 @@ const std::map<ifm3d::buffer_id, const nlohmann::json> o3d_schema_map{
 };
 
 // TODO : update this for O3R specific Data.
-const std::map<ifm3d::buffer_id, const nlohmann::json> o3r_schema_map{
+const std::map<ifm3d::buffer_id, const ifm3d::json> o3r_schema_map{
   {ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
    {{"type", "blob"}, {"id", "RADIAL_DISTANCE_COMPRESSED"}}},
   {ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE,
@@ -85,13 +85,12 @@ const std::map<ifm3d::buffer_id, const nlohmann::json> o3r_schema_map{
   {ifm3d::buffer_id::RGB_INFO, {{"type", "blob"}, {"id", "RGB_INFO"}}},
 };
 
-json
+ifm3d::json
 ifm3d::make_o3x_json_from_mask(const std::set<ifm3d::buffer_id>& buffer_ids)
 {
   std::map<size_t, std::string> bool_to_string{{0, "false"}, {1, "true"}};
 
-  nlohmann::json schema = {
-    {"Apps", nlohmann::json::array({{{"Index", "1"}}})}};
+  ifm3d::json schema = {{"Apps", ifm3d::json::array({{{"Index", "1"}}})}};
 
   auto& app_json_pointer = schema["/Apps/0"_json_pointer];
 
@@ -115,7 +114,7 @@ ifm3d::make_o3x_json_from_mask(const std::set<ifm3d::buffer_id>& buffer_ids)
   return schema;
 }
 
-json
+ifm3d::json
 ifm3d::make_schema(const std::set<ifm3d::buffer_id>& buffer_ids,
                    ifm3d::Device::device_family device_type)
 {
@@ -126,8 +125,8 @@ ifm3d::make_schema(const std::set<ifm3d::buffer_id>& buffer_ids,
 
   auto check_for_device_support =
     [](const ifm3d::buffer_id buffer_id,
-       const std::map<ifm3d::buffer_id, const nlohmann::json>& schema_map)
-    -> nlohmann::json {
+       const std::map<ifm3d::buffer_id, const ifm3d::json>& schema_map)
+    -> ifm3d::json {
     if (schema_map.find(buffer_id) != schema_map.end())
       {
         return schema_map.at(buffer_id);
@@ -141,17 +140,17 @@ ifm3d::make_schema(const std::set<ifm3d::buffer_id>& buffer_ids,
     return {};
   };
 
-  nlohmann::json schema = {
+  ifm3d::json schema = {
     {"layouter", "flexible"},
     {"format", {{"dataencoding", "ascii"}}},
     {"elements",
-     nlohmann::json::array(
+     ifm3d::json::array(
        {{{"type", "string"}, {"value", "star"}, {"id", "start_string"}}})}};
 
   auto& elements = schema["/elements"_json_pointer];
 
   auto schema_generator =
-    [&](const std::map<ifm3d::buffer_id, const nlohmann::json>& schema_map) {
+    [&](const std::map<ifm3d::buffer_id, const ifm3d::json>& schema_map) {
       for (const auto chunk_id : buffer_ids)
         {
           auto json_schema_for_id =
@@ -192,7 +191,7 @@ ifm3d::make_schema(const std::set<ifm3d::buffer_id>& buffer_ids,
   return schema;
 }
 
-json
+ifm3d::json
 ifm3d::make_o3r_schema_compatible_with_firmware(const json& o3r_schema,
                                                 const ifm3d::SemVer& ver)
 {

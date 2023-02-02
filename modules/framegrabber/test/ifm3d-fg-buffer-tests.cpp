@@ -199,9 +199,14 @@ TEST(Buffer, setTo)
   uint16_t val = 255;
 
   img.setTo<uint16_t>(val, mask);
+  auto mask_itr = mask.begin<uint8_t>();
   for (const auto pix_val : ifm3d::IteratorAdapter<uint16_t>(img))
     {
-      EXPECT_TRUE(pix_val == val);
+      if (*mask_itr == 1)
+        {
+          EXPECT_TRUE(pix_val == val);
+        }
+      mask_itr++;
     }
 }
 

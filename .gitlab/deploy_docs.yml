@@ -1,30 +1,39 @@
-deploy:docs:
+.docs:
   stage: deploy
   tags:
     - shared_docker
   image: bitnami/git
+  script:
+    - |
+      git config --global user.email "support.robotics@ifm.com"
+      git config --global user.name "ifm-csr"
+      git clone https://${DOCS_GIT_USERNAME}:${DOCS_GIT_PASSWORD}@${DOCS_GIT_REPO} repo
+      cd repo
+      rm -rf latest
+      cp -r ${CI_PROJECT_DIR}/docs/html latest
+      if [ "x${CI_COMMIT_TAG}" != "x" ]; then
+        cp -r ${CI_PROJECT_DIR}/docs/html "${CI_COMMIT_TAG}"
+        ln -sfn "${CI_COMMIT_TAG}/" stable
+      fi
+      git add -A
+      git commit -m "update docs" --allow-empty
+      git push
+
+deploy:linux:docs_tagged:
+  extends: .docs
   needs:
     - job: deploy:start
       optional: true
       artifacts: false
     - job: build:linux:docs
       artifacts: true
-  script:
-    - git config --global user.email "support.robotics@ifm.com"
-    - git config --global user.name "ifm-csr"
-    - git clone https://${DOCS_GIT_USERNAME}:${DOCS_GIT_PASSWORD}@${DOCS_GIT_REPO} repo
-    - cd repo
-    - git rm -rf .
-    - git clean -fxd
-    - cp -r ${CI_PROJECT_DIR}/docs/* ./
-    - touch .nojekyll
-    - git add -A
-    - git commit -m "update docs" --allow-empty
-    - git push
-    - if [ "x${CI_COMMIT_TAG}" != "x" ]; then
-    - git tag "${CI_COMMIT_TAG}"
-    - git tag -f stable
-    - git push --tags --force
-    - fi
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - !reference [.tagged, rules]
+
+deploy:linux:docs_nightly:
+  extends: .docs
+  needs:
+    - job: build:linux:docs
+      artifacts: true
+  rules:
+    - !reference [.nightly, rules]

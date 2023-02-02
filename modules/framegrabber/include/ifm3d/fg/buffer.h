@@ -173,6 +173,10 @@ namespace ifm3d
     std::uint32_t nchannels() const;
     ifm3d::pixel_format dataFormat() const;
 
+    /**
+     * @brief Return the size of the buffer in bytes
+     */
+    size_t size() const;
     /** @brief returns a pointer to the specified Buffer row.
         @param row number
      */
