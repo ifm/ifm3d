@@ -5,13 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## 1.2.0 - 2023-02-3
 ### Changed
 - Upgraded nlohmann::json to version 3.11.2
 - Removed json from the global namespace and moved nlohmann::json to the ifm3d::json namespace
 
 ### Fixes 
 - Missing python bindings for `O3R::Port` and `O3R::Ports`
-- 
+- CONFIDENCE_IMAGE image is not requested automatically anymore unless it's required for generating the requested chunks
+
 ### Added
 - `O3R::RebootToRecovery` to reboot supported O3R devices into recovery mode
 - Support for O3R recovery based updates

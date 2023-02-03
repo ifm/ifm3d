@@ -13,5 +13,6 @@ Manipulating images <content/stlimage.md>
 Python API <python_api>
 C++ API <cpp_api/annotated>
 Examples <examples/examples_list>
+Changelog <content/ChangeLog>
 <<< Back to O3R docs <http://ifm3d.com>
 ::: 
