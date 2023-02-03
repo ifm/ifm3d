@@ -16,7 +16,9 @@ ifm3d::ResetApp::ResetApp(int argc, const char** argv, const std::string& name)
 {
   // clang-format off
   this->all_opts_.add_options(name)
-    ("r,reboot", "Reboot the sensor after reset");
+    ("r,reboot", "Reboot the sensor after reset")
+    ("keepNetworkSettings", "Keep the current network settings",
+        cxxopts::value<bool>()->default_value("true"));
 
   // clang-format on
   this->_Parse(argc, argv);
@@ -31,7 +33,19 @@ ifm3d::ResetApp::Run()
       return 0;
     }
 
-  std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)->FactoryReset();
+  if (this->cam_->AmI(ifm3d::Device::device_family::O3R))
+    {
+      auto const keepNetworkSettings =
+        (*this->vm_)["keepNetworkSettings"].as<bool>();
+      std::static_pointer_cast<ifm3d::O3R>(this->cam_)
+        ->FactoryReset(keepNetworkSettings);
+    }
+  else
+    {
+      std::static_pointer_cast<ifm3d::LegacyDevice>(this->cam_)
+        ->FactoryReset();
+    }
+
   if (this->vm_->count("reboot"))
     {
       this->cam_->Reboot();
