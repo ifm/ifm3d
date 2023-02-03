@@ -670,11 +670,11 @@ ifm3d::FrameGrabber::Impl::GenerateDefaultSchema()
       image_chunk_ids.insert(buffer_ids.begin(), buffer_ids.end());
     }
 
-  // Add confidence image
-  image_chunk_ids.insert(ifm3d::buffer_id::CONFIDENCE_IMAGE);
   // Add O3D specific invariants
   if (this->cam_->AmI(ifm3d::Device::device_family::O3D))
     {
+      // Add confidence image
+      image_chunk_ids.insert(ifm3d::buffer_id::CONFIDENCE_IMAGE);
       image_chunk_ids.insert(ifm3d::buffer_id::EXTRINSIC_CALIB);
     }
 
@@ -699,11 +699,10 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(buffer_id id)
     {
     case buffer_id::XYZ:
       if (device_type == ifm3d::Device::device_family::O3R)
-        return {
-          buffer_id::TOF_INFO,
-          buffer_id::RADIAL_DISTANCE_IMAGE,
-          buffer_id::NORM_AMPLITUDE_IMAGE,
-        };
+        return {buffer_id::TOF_INFO,
+                buffer_id::RADIAL_DISTANCE_IMAGE,
+                buffer_id::NORM_AMPLITUDE_IMAGE,
+                buffer_id::CONFIDENCE_IMAGE};
       else if (device_type == ifm3d::Device::device_family::O3D)
         return {
           buffer_id::CARTESIAN_X_COMPONENT,
@@ -723,7 +722,8 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(buffer_id id)
           return {id,
                   buffer_id::TOF_INFO,
                   buffer_id::RADIAL_DISTANCE_IMAGE,
-                  buffer_id::NORM_AMPLITUDE_IMAGE};
+                  buffer_id::NORM_AMPLITUDE_IMAGE,
+                  buffer_id::CONFIDENCE_IMAGE};
         }
       else
         {
@@ -732,7 +732,16 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(buffer_id id)
     case buffer_id::RADIAL_DISTANCE_NOISE:
       if (device_type == ifm3d::Device::device_family::O3R)
         {
-          return {id, buffer_id::TOF_INFO, buffer_id::RADIAL_DISTANCE_NOISE};
+          return {id,
+                  buffer_id::TOF_INFO,
+                  buffer_id::RADIAL_DISTANCE_NOISE,
+                  buffer_id::CONFIDENCE_IMAGE};
+        }
+      return {id};
+    case buffer_id::REFLECTIVITY:
+      if (device_type == ifm3d::Device::device_family::O3R)
+        {
+          return {id, buffer_id::CONFIDENCE_IMAGE};
         }
       return {id};
 
