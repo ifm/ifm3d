@@ -281,7 +281,7 @@ TEST_F(FrameGrabberTest, only_algo_debug)
 
   auto frame = future_.get();
   EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::ALGO_DEBUG));
-  EXPECT_THROW(frame->GetBuffer(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE),
+  EXPECT_THROW(frame->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE),
                ifm3d::Error);
 }
 
