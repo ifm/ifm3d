@@ -158,7 +158,7 @@ capture_frames(ifm3d::FrameGrabber::Ptr fg, std::vector<float>& results)
           std::cerr << "Timeout waiting for image acquisition!" << std::endl;
           return;
         }
-      future.get();
+      future.get()->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE);
       auto t2 = Clock_t::now();
 
       std::chrono::duration<float, std::milli> fp_ms = t2 - t1;
@@ -190,7 +190,8 @@ ifm3d::JitterApp::Run()
   //
   std::vector<float> bb_results(nframes, 0.);
   std::cout << "Capturing frame data..." << std::endl;
-  
+
+  this->fg_->Start({ifm3d::buffer_id::CONFIDENCE_IMAGE});
   capture_frames(this->fg_, bb_results);
   float bb_median = median(bb_results);
   float bb_mean, bb_stdev;
