@@ -1,6 +1,6 @@
 # Migrating guide
 
-This guide is intended to walk you through the changed brought by ifm3d updates and details how to update your code.
+This guide is intended to walk you through the changes brought by ifm3d updates and details how to update your code.
 
 
 :::{toctree}
