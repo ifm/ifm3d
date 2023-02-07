@@ -36,3 +36,4 @@ deploy:python_wheels_nightly:
       artifacts: true
   rules:
     - !reference [.nightly, rules]
+    - !reference [.tagged, rules]
