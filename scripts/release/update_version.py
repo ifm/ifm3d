@@ -23,7 +23,7 @@ def update_file(filename, old_text, new_text):
     print("Keyword replaced successfully")
 
 def update_changelog(version):
-    filename = "Changelog.md"
+    filename = "ChangeLog.md"
     text_to_search = "[Unreleased]"
     text_to_replace = version +" - " + date.today().strftime("%Y-%m-%d")
     update_file(filename,text_to_search,text_to_replace)
