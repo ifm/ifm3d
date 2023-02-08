@@ -1,0 +1,28 @@
+variables:
+  VERSION: 
+    description: "Release version in format vx.x.x"
+
+version:update_version:
+  stage: version
+  image: python:3
+  tags: [shared_docker]
+
+  before_script:
+  - |
+    apt-get -y update
+    apt-get -y install git
+    git config --global user.email "support.robotics@ifm.com"
+    git config --global user.name "ifm-csr"
+
+  script:
+  - |
+    python3 scripts/release/update_version.py --version=${VERSION}
+    git checkout -B Release/${VERSION}
+    git commit -a -m "update document for release-${VERSION}"
+    git remote set-url origin https://"ifm-csr":$RELEASE_ACCESS_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git
+    git push -f -o merge_request.create -o merge_request.target=main -o merge_request.assign="17" -o merge_request.assign="15" -o merge_request.assign="70" -o merge_request.approvals_before_merge=1  origin Release/${VERSION}:Release/${VERSION}
+  rules:
+    - if: $VERSION != ""
+      when: always
+    #- if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+   
