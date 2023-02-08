@@ -2,6 +2,7 @@ stages:
   - check
   - build
   - test
+  - release
   - deploy
 
 variables:
@@ -11,12 +12,13 @@ include:
   - local: .gitlab/rules.yml
   - local: .gitlab/docker_config.yml
   - local: .gitlab/check.yml
-  - local: .gitlab/build_windows.yml
-  - local: .gitlab/build_linux.yml
-  - local: .gitlab/test_windows.yml
-  - local: .gitlab/test_linux.yml
+  - local: .gitlab/release.yml
+ # - local: .gitlab/build_windows.yml
+ # - local: .gitlab/build_linux.yml
+ # - local: .gitlab/test_windows.yml
+ # - local: .gitlab/test_linux.yml
   - local: .gitlab/deploy.yml
-  - local: .gitlab/deploy_docs.yml
-  - local: .gitlab/deploy_python.yml
-  - local: .gitlab/deploy_docker.yml
-  - local: .gitlab/oss_compilance.yml
+ # - local: .gitlab/deploy_docs.yml
+ # - local: .gitlab/deploy_python.yml
+ # - local: .gitlab/deploy_docker.yml
+ # - local: .gitlab/oss_compilance.yml
