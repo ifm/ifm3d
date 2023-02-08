@@ -25,7 +25,7 @@ def update_file(filename, old_text, new_text):
 def update_changelog(version):
     filename = "ChangeLog.md"
     text_to_search = "[Unreleased]"
-    text_to_replace = version +" - " + date.today().strftime("%Y-%m-%d")
+    text_to_replace = text_to_search +"\n\n## "+ version +" - " + date.today().strftime("%Y-%m-%d")
     update_file(filename,text_to_search,text_to_replace)
 
 def update_version_file(version):

@@ -1,4 +1,5 @@
 stages:
+  - version
   - check
   - build
   - test
@@ -11,8 +12,8 @@ variables:
 include:
   - local: .gitlab/rules.yml
   - local: .gitlab/docker_config.yml
+  - local: .gitlab/update_version.yml
   - local: .gitlab/check.yml
-  - local: .gitlab/release.yml
  # - local: .gitlab/build_windows.yml
  # - local: .gitlab/build_linux.yml
  # - local: .gitlab/test_windows.yml
