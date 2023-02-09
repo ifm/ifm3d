@@ -412,7 +412,7 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const asio::error_code& ec,
                                          std::size_t bytes_xferd,
                                          std::size_t bytes_read)
 {
-  if (ec)
+  if (ec && ec.value() != asio::error::try_again)
     {
       throw ifm3d::Error(IFM3D_NETWORK_ERROR,
                          fmt::format("{0}: {1}", ec.value(), ec.message()));
@@ -439,8 +439,6 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const asio::error_code& ec,
     this->ticket_buffer_.begin() + PAYLOAD_SIZE_START,
     this->ticket_buffer_.begin() + PAYLOAD_SIZE_END);
 
-  this->ticket_buffer_.clear();
-
   std::size_t payload_size = std::stoi(payload_size_str);
   payload_buffer_.resize(payload_size);
 
@@ -460,7 +458,7 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
                                           std::size_t bytes_read,
                                           const std::string& ticket_id)
 {
-  if (ec)
+  if (ec && ec.value() != asio::error::try_again)
     {
       throw ifm3d::Error(IFM3D_NETWORK_ERROR,
                          fmt::format("{0}: {1}", ec.value(), ec.message()));
