@@ -529,18 +529,28 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
 
   if (buffer_valid)
     {
-      auto result = this->organizer_->Organize(this->payload_buffer_,
-                                               this->requested_images_);
-      auto frame = std::make_shared<Frame>(result.images, result.timestamps);
-
-      this->wait_for_frame_promise.set_value(frame);
-
-      this->wait_for_frame_promise = std::promise<Frame::Ptr>();
-      this->wait_for_frame_future = this->wait_for_frame_promise.get_future();
-
-      if (this->new_frame_callback_)
+      try
         {
-          this->new_frame_callback_(frame);
+
+          auto result = this->organizer_->Organize(this->payload_buffer_,
+                                                   this->requested_images_);
+          auto frame =
+            std::make_shared<Frame>(result.images, result.timestamps);
+
+          this->wait_for_frame_promise.set_value(frame);
+
+          this->wait_for_frame_promise = std::promise<Frame::Ptr>();
+          this->wait_for_frame_future =
+            this->wait_for_frame_promise.get_future();
+
+          if (this->new_frame_callback_)
+            {
+              this->new_frame_callback_(frame);
+            }
+        }
+      catch (std::exception ex)
+        {
+          LOG(WARNING) << "Bad image: " << ex.what();
         }
     }
   else
