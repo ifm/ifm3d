@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixes 
 - Fix a bug that could result in an endless loop when receiving PCIC tickets
+- Fix a crash when receiving pcic data without any chunks
 
 ## 1.2.0 - 2023-02-3
 ### Changed
