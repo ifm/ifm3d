@@ -5,11 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## 1.2.1 - 2023-02-09
 ### Fixes 
 - Fix a bug that could result in an endless loop when receiving PCIC tickets
 - Fix a crash when receiving pcic data without any chunks
 
-## 1.2.0 - 2023-02-3
+## 1.2.0 - 2023-02-03
 ### Changed
 - Upgraded nlohmann::json to version 3.11.2
 - Removed json from the global namespace and moved nlohmann::json to the ifm3d::json namespace
@@ -29,11 +31,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add struct ODSInfoV1
   - Add struct ODSOccupancyGridV1
 
-## 1.1.1 - 2022-12-9
+## 1.1.1 - 2022-12-09
 ### Fixes 
 - Data grabbing [issue](https://github.com/ifm/ifm3d/issues/377) with ifm3dpy-v1.1.0
 
-## 1.1.0 - 2022-12-2
+## 1.1.0 - 2022-12-02
 ### Added
 - Change ```FrameGrabber::Stop``` to non blocking call and now returns ```std::future<void>```
 - Add onError callback for error reporting in streaming mode of Framegrabber
