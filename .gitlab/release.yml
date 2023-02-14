@@ -12,7 +12,7 @@ release:tag:
     - git remote set-url origin https://"ifm-csr":$RELEASE_ACCESS_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git
     - export tag_value=$(cat VERSION)
     - git tag -a $tag_value
-    - git tags
+    - git tag -n
     
    
   rules:
