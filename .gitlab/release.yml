@@ -16,7 +16,7 @@ release:tag:
     
    
   rules:
-    - if: ($CI_PIPELINE_SOURCE == "push") && ($CI_COMMIT_BRANCH == "automation/release_tags") && ($CI_COMMIT_MESSAGE =~ '/Release\/v\d+\.\d+\.\d+/')
+    - if: ($CI_PIPELINE_SOURCE == "push") && ($CI_COMMIT_BRANCH == "automation/release_tag") && ($CI_COMMIT_MESSAGE =~ '/Release\/v\d+\.\d+\.\d+/')
       when: always
     - when: never
 
