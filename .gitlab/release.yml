@@ -1,0 +1,20 @@
+release:tag:
+  stage: release
+  image: bitnami/git
+  tags: [shared_docker]
+
+  before_script:
+  - |
+    git config --global user.email "support.robotics@ifm.com"
+    git config --global user.name "ifm-csr"
+
+  script:
+    
+    - cat VERSION
+   
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "push") && ($CI_COMMIT_BRANCH == "automation/release_process") && ($CI_COMMIT_MESSAGE =~ '/Release\/v\d+\.\d+\.\d+/')
+      when: always
+    - when: never
+
+   
