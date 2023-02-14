@@ -1,0 +1,23 @@
+release:tag:
+  stage: release
+  image: bitnami/git
+  tags: [shared_docker]
+
+  before_script:
+  - |
+    git config --global user.email "support.robotics@ifm.com"
+    git config --global user.name "ifm-csr"
+
+  script:
+    - git remote set-url origin https://"ifm-csr":$RELEASE_ACCESS_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git
+    - export tag_value=$(cat VERSION)
+    - git tag -a $tag_value -m "$tag_value"
+    - git tag -n
+    
+   
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "push") && ($CI_COMMIT_BRANCH == "automation/release_tag") && ($CI_COMMIT_MESSAGE =~ '/Release\/v\d+\.\d+\.\d+/')
+      when: always
+    - when: never
+
+   
