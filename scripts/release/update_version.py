@@ -58,4 +58,4 @@ if __name__ == "__main__":
     else:
         update_changelog(version[1:])
         update_version_file(version)
-        update_document_version_file("doc/sphinx/version.py",version)
+        update_document_version_file("doc/sphinx/ifm3dpy_version.py",version)

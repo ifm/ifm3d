@@ -16,14 +16,15 @@
 
 from docutils import nodes
 from sphinx.transforms import SphinxTransform
-import version
+import ifm3dpy_version
 
 # -- Project information -----------------------------------------------------
 
 project = 'ifm3d'
 copyright = '2021, ifm electronic'
 author = 'ifm electronic'
-release = version.__version__
+release = ifm3dpy_version.__version__
+version = ifm3dpy_version.__version__
 
 # -- General configuration ---------------------------------------------------
 
