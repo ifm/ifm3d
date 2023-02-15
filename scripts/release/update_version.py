@@ -49,7 +49,7 @@ if __name__ == "__main__":
     version = args.version
     match_found = bool(re.match("^[v]{1}\d{1,2}\.\d{1,2}\.\d{1,3}", version))
     if match_found == False:
-        raise Exception("Error version stringplease format it to vx.x.x")
+        raise Exception("Error in version string, please format it to vx.x.x")
     else:
         update_changelog(version[1:])
         update_version_file(version)

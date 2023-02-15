@@ -15,7 +15,6 @@ def get_changelog_between_version():
         # Write the updated contents to the file
         file.write(result.group(2))
 
-
 if __name__ == "__main__":
     get_changelog_between_version()
     
