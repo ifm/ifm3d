@@ -29,7 +29,7 @@ def update_changelog(version):
     update_file(filename,text_to_search,text_to_replace)
 
 def update_version_file(version):
-    result = re.search('^v(\d+).(\d+).(\d+)'version)
+    result = re.search('^v(\d+).(\d+).(\d+)',version)
     major_version = result.group(1)
     minor_version = result.group(2)
     patch_version = result.group(3)

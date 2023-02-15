@@ -35,7 +35,7 @@
 # Author: Nuno Fachada
 
 # Check if git is found...
-if (GIT_EXECUTABLE)
+if (GIT_EXECUTABLE AND EXISTS ${CMAKE_SOURCE_DIR}/.git)
 
 	# Get last tag from git
 	execute_process(COMMAND ${GIT_EXECUTABLE} describe --abbrev=0 --tags
@@ -98,7 +98,7 @@ else()
 	# Git not available, get version from file
 	file(STRINGS ${CMAKE_SOURCE_DIR}/VERSION ${PROJECT_NAME}_VERSION_LIST)
 	string(REPLACE "*" ";" ${PROJECT_NAME}_VERSION_LIST ${${PROJECT_NAME}_VERSION_LIST})
-  
+
   # Get Length of the version elements
   list(LENGTH ${PROJECT_NAME}_VERSION_LIST VERSION_ELEMENT_LENGTH)
   # Set partial versions
