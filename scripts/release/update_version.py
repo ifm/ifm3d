@@ -29,10 +29,15 @@ def update_changelog(version):
     update_file(filename,text_to_search,text_to_replace)
 
 def update_version_file(version):
+    result = re.search('^v(\d+).(\d+).(\d+)'version)
+    major_version = result.group(1)
+    minor_version = result.group(2)
+    patch_version = result.group(3)
+    version_for_file = version +'*'+version+'*'+major_version+'*'+minor_version+'*'+patch_version
     # Open the file for reading
     with open("VERSION", "w") as file:
         # Write the updated contents to the file
-        file.write(version)
+        file.write(version_for_file)
 
 def update_document_version_file(file_path, version):
     # Open the file for reading
