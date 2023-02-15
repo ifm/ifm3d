@@ -18,7 +18,7 @@ release:tag:
     - git push --tags
     
   rules:
-    - if: ($CI_PIPELINE_SOURCE == "push") && ($CI_COMMIT_BRANCH == "automation/release_process") && ($CI_COMMIT_MESSAGE =~ '/Release\/v\d+\.\d+\.\d+/')
+    - if: ($CI_PIPELINE_SOURCE == "push") && ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH) && ($CI_COMMIT_MESSAGE =~ '/Release\/v\d+\.\d+\.\d+/')
       when: always
     - when: never
 
