@@ -1,22 +1,24 @@
 release:tag:
   stage: release
-  image: bitnami/git
+  image: python:3
   tags: [shared_docker]
 
   before_script:
   - |
+    apt-get -y update
+    apt-get -y install git
     git config --global user.email "support.robotics@ifm.com"
     git config --global user.name "ifm-csr"
 
   script:
+    - python3 scripts/release/get_changelog_between_versions.py
     - git remote set-url origin https://"ifm-csr":$RELEASE_ACCESS_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git
     - export tag_value=$(cat VERSION)
-    - git tag -a $tag_value -m "$tag_value"
-    - git tag -n
+    - git tag -f -a $tag_value -F CHANGELOG
+    - git push --tags
     
-   
   rules:
-    - if: ($CI_PIPELINE_SOURCE == "push") && ($CI_COMMIT_BRANCH == "automation/release_tag") && ($CI_COMMIT_MESSAGE =~ '/Release\/v\d+\.\d+\.\d+/')
+    - if: ($CI_PIPELINE_SOURCE == "push") && ($CI_COMMIT_BRANCH == "automation/release_process") && ($CI_COMMIT_MESSAGE =~ '/Release\/v\d+\.\d+\.\d+/')
       when: always
     - when: never
 
