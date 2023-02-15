@@ -6,12 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.0.66 - 2023-02-15
+
+### Added
+- CI job for release of ifm3d
+
 ## 1.2.1 - 2023-02-09
 ### Fixes 
 - Fix a bug that could result in an endless loop when receiving PCIC tickets
 - Fix a crash when receiving pcic data without any chunks
 
 ## 1.2.0 - 2023-02-03
+
 ### Changed
 - Upgraded nlohmann::json to version 3.11.2
 - Removed json from the global namespace and moved nlohmann::json to the ifm3d::json namespace

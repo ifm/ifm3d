@@ -20,7 +20,7 @@ version:update_version:
     git checkout -B Release/${VERSION}
     git commit -a -m "update document for release-${VERSION}"
     git remote set-url origin https://"ifm-csr":$RELEASE_ACCESS_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git
-    git push -f -o merge_request.create -o merge_request.target=main -o merge_request.assign="17" -o merge_request.assign="15" -o merge_request.assign="70" -o merge_request.approvals_before_merge=1  origin Release/${VERSION}:Release/${VERSION}
+    git push -f -o merge_request.create -o merge_request.target=automation/release_process -o merge_request.assign="17" -o merge_request.assign="15" -o merge_request.assign="70" -o merge_request.approvals_before_merge=1  origin Release/${VERSION}:Release/${VERSION}
   rules:
     - if: $VERSION != ""
       when: always
