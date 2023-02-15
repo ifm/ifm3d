@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.0.66 - 2023-02-15
+
 ### Added
 - CI job for release of ifm3d
 
