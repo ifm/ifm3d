@@ -33,7 +33,7 @@ def update_version_file(version):
     major_version = result.group(1)
     minor_version = result.group(2)
     patch_version = result.group(3)
-    version_for_file = version +'*'+version+'*'+major_version+'*'+minor_version+'*'+patch_version
+    version_for_file = version +'*'+version+'*'+major_version+'*'+minor_version+'*'+patch_version+'*'+'snapshot'
     # Open the file for reading
     with open("VERSION", "w") as file:
         # Write the updated contents to the file
