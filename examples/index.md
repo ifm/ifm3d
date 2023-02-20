@@ -1,6 +1,10 @@
 # Basic Library Usage
 ```{include} ../news/news_release.md
-``` 
+```
+
+All ifm3d example scripts are, as their name implies, example scripts.
+The customer may use these for testing, development, and deployment as permitted in their respective licenses.
+
 :::{toctree}
 First steps with ifm3dpy <basic_lib_usage/first_steps_ifm3dpy>
 How to: configure the camera <o3r/configuration/configuration>
