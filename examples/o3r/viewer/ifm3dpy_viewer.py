@@ -6,7 +6,8 @@
 # THE PROGRAM IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND.
 #
 
-from ifm3dpy import O3R, FrameGrabber, buffer_id
+from ifm3dpy.device import O3R
+from ifm3dpy.framegrabber import FrameGrabber, buffer_id
 import cv2
 import argparse
 import asyncio
