@@ -44,7 +44,7 @@ bind_swupdater(pybind11::module_& m)
     );
 
   swupdater.def(
-    "RebootToRecovery",
+    "reboot_to_recovery",
     &ifm3d::SWUpdater::RebootToRecovery,
     R"(
       Reboot the device in Recovery Modes
@@ -52,7 +52,7 @@ bind_swupdater(pybind11::module_& m)
   );
 
   swupdater.def(
-    "WaitForRecovery",
+    "wait_for_recovery",
     &ifm3d::SWUpdater::WaitForRecovery,
     py::call_guard<py::gil_scoped_release>(),
     py::arg("timeout_millis") = 0,
@@ -74,7 +74,7 @@ bind_swupdater(pybind11::module_& m)
   );
 
   swupdater.def(
-    "RebootToProductive",
+    "reboot_to_productive",
     &ifm3d::SWUpdater::RebootToProductive,
     R"(
       Reboot the device in productive mode
@@ -82,7 +82,7 @@ bind_swupdater(pybind11::module_& m)
   );
 
   swupdater.def(
-    "WaitForProductive",
+    "wait_for_productive",
     &ifm3d::SWUpdater::WaitForProductive,
     py::call_guard<py::gil_scoped_release>(),
     py::arg("timeout_millis") = 0,
@@ -104,7 +104,7 @@ bind_swupdater(pybind11::module_& m)
   );
 
   swupdater.def(
-    "FlashFirmware",
+    "flash_firmware",
     &ifm3d::SWUpdater::FlashFirmware,
     py::call_guard<py::gil_scoped_release>(),
     py::arg("swu_file"),
