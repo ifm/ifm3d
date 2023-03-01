@@ -201,7 +201,7 @@ PYBIND11_MODULE(ifm3dpy, m)
   bind_swupdater(swupdater_module);
 
   auto deserializer_module = m.def_submodule(
-    "deserializer",
+    "deserialize",
     R"(Provides definitions and functions for deserializing structs sent over PCIC)");
   bind_deserialize_struct(deserializer_module);
 
