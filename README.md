@@ -42,6 +42,7 @@ The ifm3d software is organized into modules, they are:
 | `pcicclient` | Direct access to PCIC to, for example, actuate digital IO.|
 | `tools` | Provides the ifm3d command line tool for manipulating and introspecting the hardware interactively. It is also suitable for usage within shell scripts to, for example, manage fleets of cameras.|
 | `pybind11` | Provides python bindings through <a href="https://github.com/pybind/pybind11">pybind11</a> to the native C++ API. Supports all general camera functionality as well as a zero-copy interface to image data, exposed as NumPy arrays. |
+| `deserialize` | Provides definitions and functions for deserializing structs sent over PCIC. |
 
 ## Installation instructions
 Please refer to the corresponding section on [ifm3d.com](https://ifm3d.com/).

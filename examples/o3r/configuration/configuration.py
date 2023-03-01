@@ -1,7 +1,7 @@
 import json
 
 # Define the ifm3d objects for the communication
-from ifm3dpy import O3R
+from ifm3dpy.device import O3R
 o3r = O3R()
 
 # Get the current configuration
