@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changes
-- Split the python bindings into submodules, see the migration guide for details
+- Split the python bindings into submodules, see the migration guide for details. *Warning:* this requires an update of existing codebases.
 
 ### Fixes 
 - Fix a bug that could cause the update process to fail with a hash mismatch error on certain network configurations
