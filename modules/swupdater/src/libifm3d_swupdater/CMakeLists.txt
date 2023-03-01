@@ -1,23 +1,16 @@
 ################################################
 ## Bring in dependent projects
 ################################################
-
 if(NOT BUILD_IN_DEPS)
-  find_package(glog QUIET CONFIG NAMES google-glog glog)
-  if (NOT TARGET glog::glog)
-    find_library(LIB_glog NAMES glog)
-  else()
-    set(LIB_glog glog::glog)
-  endif (NOT TARGET glog::glog)
   find_package(CURL REQUIRED)
 else(NOT BUILD_IN_DEPS)
   set(CURL_LIBRARIES libcurl)
-  set(LIB_glog glog)
 endif(NOT BUILD_IN_DEPS)
+
 ################################################
 ## Target: libifm3d_swupdater.so
 ################################################
-file(GLOB IFM3D_SWUPDATER_SOURCES *.cpp)
+file(GLOB IFM3D_SWUPDATER_SOURCES CONFIGURE_DEPENDS *.cpp)
 add_library(ifm3d_swupdater ${IFM3D_SWUPDATER_SOURCES})
 set_property(TARGET ifm3d_swupdater PROPERTY POSITION_INDEPENDENT_CODE 1)
 
@@ -52,12 +45,13 @@ endif(WIN32)
 #------------------
 target_link_libraries(
   ifm3d_swupdater
-  PRIVATE
+  PUBLIC 
     ifm3d_device
-    ${LIB_glog}
+  PRIVATE
     ${CURL_LIBRARIES}
     $<BUILD_INTERFACE:asio>
     $<BUILD_INTERFACE:websocketpp_wrapper>
+    $<BUILD_INTERFACE:fmt::fmt-header-only>
     )
 
 set_target_properties(

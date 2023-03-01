@@ -11,7 +11,7 @@
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/device/o3r.h>
-#include <glog/logging.h>
+#include <ifm3d/common/logging/log.h>
 #include <gtest/gtest.h>
 
 #include <iostream>
@@ -50,7 +50,7 @@ protected:
 
 TEST_F(FrameGrabberTest, start_stop_start)
 {
-  LOG(INFO) << "start_stop_start test";
+  LOG_INFO("start_stop_start test");
   for (int itr = 0; itr < 10; itr++)
     {
 
@@ -95,7 +95,7 @@ TEST_F(FrameGrabberTest, masking)
 
 TEST_F(FrameGrabberTest, WaitForFrame)
 {
-  LOG(INFO) << "WaitForFrame test";
+  LOG_INFO("WaitForFrame test");
   this->fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
                     ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
                     ifm3d::buffer_id::XYZ});
@@ -111,7 +111,7 @@ TEST_F(FrameGrabberTest, WaitForFrame)
 
 TEST_F(FrameGrabberTest, CustomSchema)
 {
-  LOG(INFO) << "CustomSchema test";
+  LOG_INFO("CustomSchema test");
 
   fg_->Start({ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE,
               ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
@@ -130,7 +130,7 @@ TEST_F(FrameGrabberTest, CustomSchema)
 
 TEST_F(FrameGrabberTest, BlankSchema3D)
 {
-  LOG(INFO) << "BlankSchema3D test";
+  LOG_INFO("BlankSchema3D test");
 
   fg_->Start({});
 
@@ -147,7 +147,7 @@ TEST_F(FrameGrabberTest, BlankSchema3D)
 
 TEST_F(FrameGrabberTest, BlankSchema2D)
 {
-  LOG(INFO) << "BlankSchema2D test";
+  LOG_INFO("BlankSchema2D test");
 
   auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
 
@@ -166,7 +166,7 @@ TEST_F(FrameGrabberTest, BlankSchema2D)
 
 TEST_F(FrameGrabberTest, schema_o3r_rgb_image_info)
 {
-  LOG(INFO) << "schema_o3r_rgb_image_info test";
+  LOG_INFO("schema_o3r_rgb_image_info test");
 
   auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
 
@@ -184,7 +184,7 @@ TEST_F(FrameGrabberTest, schema_o3r_rgb_image_info)
 
 TEST_F(FrameGrabberTest, schema_o3r_dist_image_info)
 {
-  LOG(INFO) << "schema_o3r_dist_image_info test";
+  LOG_INFO("schema_o3r_dist_image_info test");
 
   fg_->Start({ifm3d::buffer_id::TOF_INFO});
 
@@ -196,7 +196,7 @@ TEST_F(FrameGrabberTest, schema_o3r_dist_image_info)
 
 TEST_F(FrameGrabberTest, BufferIDException)
 {
-  LOG(INFO) << "BufferIDException test";
+  LOG_INFO("BufferIDException test");
 
   fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
               ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
@@ -211,7 +211,7 @@ TEST_F(FrameGrabberTest, BufferIDException)
 
 TEST_F(FrameGrabberTest, DistanceNoiseImage)
 {
-  LOG(INFO) << " distance noise image schema test";
+  // LOG_INFO(" distance noise image schema test");
 
   fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
               ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
@@ -225,7 +225,7 @@ TEST_F(FrameGrabberTest, DistanceNoiseImage)
 
 TEST_F(FrameGrabberTest, DistanceNoiseImage_type)
 {
-  LOG(INFO) << " distance noise image test";
+  // LOG_INFO(" distance noise image test");
 
   fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
               ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
@@ -242,7 +242,7 @@ TEST_F(FrameGrabberTest, DistanceNoiseImage_type)
 
 TEST_F(FrameGrabberTest, onError)
 {
-  LOG(INFO) << " onError ";
+  // LOG_INFO(" onError ");
 
   auto result = 0;
   auto frame_count = 0;
@@ -271,7 +271,7 @@ TEST_F(FrameGrabberTest, onError)
 
 TEST_F(FrameGrabberTest, confidence_image_3D)
 {
-  LOG(INFO) << " confidence image test on 3D  ";
+  // LOG_INFO(" confidence image test on 3D  ");
 
   fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
               ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
@@ -289,7 +289,7 @@ TEST_F(FrameGrabberTest, confidence_image_3D)
 
 TEST_F(FrameGrabberTest, confidence_image_2D)
 {
-  LOG(INFO) << " confidence image test on 2D  ";
+  LOG_INFO(" confidence image test on 2D  ");
 
   auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
 
@@ -309,7 +309,7 @@ TEST_F(FrameGrabberTest, confidence_image_2D)
 
 TEST_F(FrameGrabberTest, only_algo_debug)
 {
-  LOG(INFO) << " obtain only algo debug data";
+  LOG_INFO(" obtain only algo debug data");
   auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
 
   // enable algo debug flag through xmlrpc set interface
@@ -332,7 +332,7 @@ TEST_F(FrameGrabberTest, only_algo_debug)
 
 TEST_F(FrameGrabberTest, algo_with_other_data)
 {
-  LOG(INFO) << " obtain  algo debug with other data";
+  LOG_INFO(" obtain  algo debug with other data");
   auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
 
   // enable algo debug flag through xmlrpc set interface

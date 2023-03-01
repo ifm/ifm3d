@@ -1,28 +1,13 @@
 ################################################
-## Bring in dependent projects
-################################################
-if(NOT BUILD_IN_DEPS)
-  find_package(glog QUIET CONFIG NAMES google-glog glog)
-  if (NOT TARGET glog::glog)
-    find_library(LIB_glog NAMES glog)
-  else()
-    set(LIB_glog glog::glog)
-  endif (NOT TARGET glog::glog)
-  find_package(CURL REQUIRED)
-else(NOT BUILD_IN_DEPS)
-  set(CURL_LIBRARIES libcurl)
-  set( LIB_glog glog)
-endif(NOT BUILD_IN_DEPS)
-################################################
 ## Target: libifm3d_tools.so
 ################################################
-file(GLOB IFM3D_TOOLS_SOURCES *.cpp)
+file(GLOB IFM3D_TOOLS_SOURCES CONFIGURE_DEPENDS *.cpp)
 if (BUILD_MODULE_FRAMEGRABBER)
-  file(GLOB IFM3D_TOOLS_FG_SOURCES fg/*.cpp)
+  file(GLOB IFM3D_TOOLS_FG_SOURCES CONFIGURE_DEPENDS fg/*.cpp)
   set(IFM3D_TOOLS_SOURCES ${IFM3D_TOOLS_SOURCES} ${IFM3D_TOOLS_FG_SOURCES})
 endif()
 if (BUILD_MODULE_SWUPDATER)
-  file(GLOB IFM3D_TOOLS_SWUPDATER_SOURCES swupdater/*.cpp)
+  file(GLOB IFM3D_TOOLS_SWUPDATER_SOURCES CONFIGURE_DEPENDS swupdater/*.cpp)
   set(
     IFM3D_TOOLS_SOURCES
     ${IFM3D_TOOLS_SOURCES} ${IFM3D_TOOLS_SWUPDATER_SOURCES}
@@ -75,10 +60,11 @@ endif(WIN32)
 #------------------
 target_link_libraries(
   ifm3d_tools_shared
+  ifm3d_common
   ifm3d_device
-  ${LIB_glog}
   ${CURL_LIBRARIES}
   cxxopts
+  $<BUILD_INTERFACE:fmt::fmt-header-only>
   )
 
 if (BUILD_MODULE_FRAMEGRABBER)

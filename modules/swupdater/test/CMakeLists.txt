@@ -18,25 +18,14 @@ if(NOT CMAKE_CROSSCOMPILING)
     )
 endif()
 
-if(NOT BUILD_IN_DEPS)
-  find_package(glog QUIET CONFIG NAMES google-glog glog)
-  if (NOT TARGET glog::glog)
-    find_library(LIB_glog NAMES glog)
-  else()
-    set(LIB_glog glog::glog)
-  endif (NOT TARGET glog::glog)
-else(NOT BUILD_IN_DEPS)
-  set( LIB_glog glog)
-endif(NOT BUILD_IN_DEPS)
-
-
 file(GLOB TEST_SOURCES *.cpp)
 add_executable(ifm3d-swupdater-tests ${TEST_SOURCES})
 target_link_libraries(ifm3d-swupdater-tests
                       gtest_main
+                      ifm3d_common
                       ifm3d_device
                       ifm3d_swupdater
-                      ${LIB_glog}
+                      $<BUILD_INTERFACE:fmt::fmt-header-only>
                       )
 
 if(NOT CMAKE_CROSSCOMPILING)

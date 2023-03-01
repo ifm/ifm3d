@@ -4,7 +4,7 @@
  */
 
 #include <default_organizer.hpp>
-#include <glog/logging.h>
+#include <ifm3d/common/logging/log.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/organizer_utils.h>
@@ -35,8 +35,8 @@ ifm3d::DefaultOrganizer::CreatePixelMask(Buffer& confidence)
     }
   else
     {
-      LOG(ERROR) << "confidence image format is not supported : "
-                 << (int)confidence.dataFormat();
+      LOG_ERROR("confidence image format is not supported : {}",
+                confidence.dataFormat());
       throw Error(IFM3D_CONFIDENCE_IMAGE_FORMAT_NOT_SUPPORTED);
     }
 
@@ -57,7 +57,7 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
   // if we do not have a meta chunk we cannot go further
   if (metachunk == chunks.end())
     {
-      LOG(ERROR) << "No meta chunk found!";
+      LOG_ERROR("No meta chunk found!");
       throw Error(IFM3D_IMG_CHUNK_NOT_FOUND);
     }
 
