@@ -47,6 +47,31 @@ protected:
   ifm3d::Device::Ptr dev_;
   ifm3d::FrameGrabber::Ptr fg_;
 };
+ 
+TEST_F(FrameGrabberTest, start_stop_start)
+{
+  LOG(INFO) << "start_stop_start test";
+  for (int itr = 0; itr < 10; itr++)
+    {
+
+      EXPECT_EQ(this->fg_->Start({})
+                  .wait_for(std::chrono::seconds(1)),
+                std::future_status::ready);
+      int i = 0;
+      while (i < 10)
+        {
+          EXPECT_NO_THROW(this->fg_->WaitForFrame().get());
+          i++;
+        }
+
+      EXPECT_EQ(i, 10);
+
+      EXPECT_EQ(this->fg_->Stop().wait_for(std::chrono::seconds(1)),
+                std::future_status::ready);
+
+      std::this_thread::sleep_for(std::chrono::seconds(2));
+    }
+}
 
 TEST_F(FrameGrabberTest, WaitForFrame)
 {
