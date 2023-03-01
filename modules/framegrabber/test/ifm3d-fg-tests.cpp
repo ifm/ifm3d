@@ -47,15 +47,14 @@ protected:
   ifm3d::Device::Ptr dev_;
   ifm3d::FrameGrabber::Ptr fg_;
 };
- 
+
 TEST_F(FrameGrabberTest, start_stop_start)
 {
   LOG(INFO) << "start_stop_start test";
   for (int itr = 0; itr < 10; itr++)
     {
 
-      EXPECT_EQ(this->fg_->Start({})
-                  .wait_for(std::chrono::seconds(1)),
+      EXPECT_EQ(this->fg_->Start({}).wait_for(std::chrono::seconds(1)),
                 std::future_status::ready);
       int i = 0;
       while (i < 10)
