@@ -43,5 +43,5 @@ Python API Reference
     :template: module.rst
     :recursive:
 
-    ifm3dpy.deserializer
+    ifm3dpy.deserialize
 ```
