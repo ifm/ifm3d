@@ -8,7 +8,6 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
-#include <glog/logging.h>
 #include <ifm3d/device/err.h>
 #include <pcicclient_impl.hpp>
 

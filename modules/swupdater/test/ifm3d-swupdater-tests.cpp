@@ -5,7 +5,7 @@
 #include <ifm3d/swupdater.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
-#include <glog/logging.h>
+#include <ifm3d/common/logging/log.h>
 #include <gtest/gtest.h>
 #include <fstream>
 
@@ -28,7 +28,7 @@ protected:
 
 TEST_F(SWUpdater, FactoryDefaults)
 {
-  LOG(INFO) << "FactoryDefaults test";
+  LOG_INFO("FactoryDefaults test");
   auto cam = ifm3d::LegacyDevice::MakeShared();
 
   EXPECT_NO_THROW(cam->FactoryReset());

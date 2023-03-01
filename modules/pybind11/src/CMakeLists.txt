@@ -61,7 +61,8 @@ target_compile_options(ifm3dpy PRIVATE
 #------------------
 target_link_libraries(
   ifm3dpy
-  PRIVATE
+  PRIVATE 
+    ifm3d_common
     ifm3d_framegrabber
     ifm3d_device
     pybind11::module

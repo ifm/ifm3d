@@ -124,6 +124,9 @@ else()
 endif(CREATE_WIN_INSTALLER)
 
 # Build sub-modules
+add_subdirectory(modules/common)
+list(APPEND DOXYGEN_MODULES "common")
+
 add_subdirectory(modules/device)
 list(APPEND DOXYGEN_MODULES "device")
 
@@ -172,13 +175,11 @@ if(BUILD_SDK_PKG)
     INSTALL_DESTINATION ${CONFIG_PACKAGE_LOCATION}
     )
 
-  # NOTE: we use 'COMPONENT device' here as it is the one
-  # "required" module in our stack
   install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config-version.cmake
           ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config.cmake
     DESTINATION ${CONFIG_PACKAGE_LOCATION}
-    COMPONENT device
+    COMPONENT common
     )
 endif()
 
