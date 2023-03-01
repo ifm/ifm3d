@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed 
 - Convert SWUpdater python bindings naming to snake_case, see the migration guide for details. *Warning:* this requires an update of existing codebases.
+- `FrameGrabber::Start` now returns a future resolving once the FrameGrabber is ready to receive Frames
 
 ### Fixes 
 - Fix a bug that could cause the update process to fail with a hash mismatch error on certain network configurations
+- Fix a bug preventing the FrameGrabber from being `Start`ed after it was previously `Stop`ped
 
 ## 1.2.1 - 2023-02-09
 ### Fixes 
