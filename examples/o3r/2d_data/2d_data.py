@@ -1,4 +1,5 @@
-from ifm3dpy import O3R, FrameGrabber, buffer_id
+from ifm3dpy.device import O3R
+from ifm3dpy.framegrabber import FrameGrabber, buffer_id
 import cv2
 import asyncio
 import time
