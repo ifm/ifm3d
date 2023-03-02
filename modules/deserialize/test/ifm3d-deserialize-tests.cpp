@@ -240,8 +240,8 @@ TEST(DeserializeTestWithFile, struct_ods_occupancy_grid_info_v1)
   EXPECT_EQ(ods_occupancy_grid_v1.height, ifm3d::ods_occupancy_grid::height);
 
   ifm3d::compare_array<float, 6>(
-    ods_occupancy_grid_v1.transfor_cell_center_to_user,
-    ifm3d::ods_occupancy_grid::transfor_cell_center_to_user);
+    ods_occupancy_grid_v1.transform_cell_center_to_user,
+    ifm3d::ods_occupancy_grid::transform_cell_center_to_user);
 
   EXPECT_EQ(ods_occupancy_grid_v1.image.width(),
             ifm3d::ods_occupancy_grid::width);
