@@ -11,10 +11,6 @@ target_include_directories(ifm3d_deserialize INTERFACE
     $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(ifm3d_deserialize INTERFACE ifm3d_framegrabber)
-file(GLOB_RECURSE source_list "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
-target_sources(ifm3d_deserialize INTERFACE
- ${source_list}
-)
 
 if(BUILD_TESTS)
   add_subdirectory(test)
@@ -25,6 +21,14 @@ endif()
 ################################################
 ## Manage installation process
 ################################################
+install(TARGETS ifm3d_deserialize
+  EXPORT ifm3d-deserialize-targets
+  RUNTIME DESTINATION ${_bin} COMPONENT deserialize
+  LIBRARY DESTINATION ${_lib} COMPONENT deserialize
+  ARCHIVE DESTINATION ${_lib} COMPONENT deserialize
+  PUBLIC_HEADER DESTINATION ${_include} COMPONENT deserialize
+)
+
 if(BUILD_SDK_PKG)
   install(DIRECTORY ${IFM3D_DESERIALIZE_SOURCE_DIR}/include/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
@@ -32,5 +36,12 @@ if(BUILD_SDK_PKG)
     PATTERN "*.in" EXCLUDE
     PATTERN ".git" EXCLUDE
     PATTERN "*~" EXCLUDE
-    )
+  )
+
+  install(EXPORT ifm3d-deserialize-targets
+    NAMESPACE ifm3d::
+    DESTINATION ${CONFIG_PACKAGE_LOCATION}
+    COMPONENT deserialize
+  )
 endif()
+
