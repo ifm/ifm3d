@@ -10,7 +10,6 @@
 #include <iostream>
 #include <fstream>
 #include <cstdio>
-#include <filesystem>
 
 #include <fmt/color.h>
 
@@ -101,7 +100,17 @@ namespace ifm3d
         {
           auto file_name = this->GenerateFileName(0);
           this->file_.open(file_name, std::ios::binary | std::ios::app);
-          this->file_size_ = std::filesystem::file_size(file_name);
+          if (this->file_)
+            {
+              this->file_.seekp(0, std::ios::beg);
+              auto start = this->file_.tellp();
+              this->file_.seekp(0, std::ios::end);
+              this->file_size_ = this->file_.tellp() - start;
+            }
+          else
+            {
+              this->file_size_ = 0;
+            }
         }
     }
 
