@@ -24,6 +24,7 @@ target_link_libraries(ifm3d-pcicclient-tests
                       gtest_main
                       ifm3d_pcicclient
                       ifm3d_device
+                      $<BUILD_INTERFACE:fmt::fmt-header-only>
                       )
 
 if(NOT CMAKE_CROSSCOMPILING)
