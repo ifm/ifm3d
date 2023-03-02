@@ -592,8 +592,9 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
 
           auto result = this->organizer_->Organize(this->payload_buffer_,
                                                    this->requested_images_);
-          auto frame =
-            std::make_shared<Frame>(result.images, result.timestamps);
+          auto frame = std::make_shared<Frame>(result.images,
+                                               result.timestamps,
+                                               result.frame_count);
 
           this->wait_for_frame_promise.set_value(frame);
 
