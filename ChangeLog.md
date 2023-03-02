@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixes 
 - Fix a bug that could cause the update process to fail with a hash mismatch error on certain network configurations
 - Fix a bug preventing the FrameGrabber from being `Start`ed after it was previously `Stop`ped
+- Add missing python binding for `O3R::ResolveConfig`
 
 ## 1.2.1 - 2023-02-09
 ### Fixes 
