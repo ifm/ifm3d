@@ -63,6 +63,13 @@ bind_frame(pybind11::module_& m)
     )");
 
   frame.def(
+    "frame_count",
+    &ifm3d::Frame::FrameCount,
+    R"(
+      Get the frame count according to algorithm output
+    )");
+
+  frame.def(
     "has_buffer",
     &ifm3d::Frame::HasBuffer,
     py::arg("id"),

@@ -26,6 +26,7 @@ namespace ifm3d
     {
       std::map<buffer_id, Buffer> images;
       std::vector<ifm3d::TimePointT> timestamps;
+      uint32_t frame_count;
     };
 
     virtual ~Organizer() {}

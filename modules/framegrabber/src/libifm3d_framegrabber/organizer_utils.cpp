@@ -9,6 +9,7 @@ constexpr auto CHUNK_OFFSET_IMAGE_WIDTH = 0x0010;
 constexpr auto CHUNK_OFFSET_IMAGE_HEIGHT = 0x0014;
 constexpr auto CHUNK_OFFSET_PIXEL_FORMAT = 0x0018;
 constexpr auto CHUNK_OFFSET_TIME_STAMP = 0x001C;
+constexpr auto CHUNK_OFFSET_FRAME_COUNT = 0x0020;
 constexpr auto CHUNK_OFFSET_TIME_STAMP_SEC = 0x0028;
 constexpr auto CHUNK_OFFSET_TIME_STAMP_NSEC = 0x002C;
 
@@ -365,6 +366,13 @@ ifm3d::get_chunk_format(const std::vector<std::uint8_t>& data, std::size_t idx)
 {
   return static_cast<pixel_format>(
     mkval<std::uint32_t>(data.data() + idx + CHUNK_OFFSET_PIXEL_FORMAT));
+}
+
+uint32_t
+ifm3d::get_chunk_frame_count(const std::vector<std::uint8_t>& data,
+                             std::size_t idx)
+{
+  return mkval<std::uint32_t>(data.data() + idx + CHUNK_OFFSET_FRAME_COUNT);
 }
 
 std::vector<ifm3d::TimePointT>
