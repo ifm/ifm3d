@@ -34,6 +34,7 @@ target_link_libraries(ifm3d-deserialize-tests
                       ifm3d_deserialize
                       ifm3d_framegrabber
                       ifm3d_device
+                      $<BUILD_INTERFACE:fmt::fmt-header-only>
                       )
 
 if(NOT CMAKE_CROSSCOMPILING)
