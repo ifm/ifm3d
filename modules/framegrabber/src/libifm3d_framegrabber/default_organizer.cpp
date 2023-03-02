@@ -66,8 +66,6 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
 
   auto timestamps = get_chunk_timestamps(data, metachunk->second);
 
-  bool apply_mask = true;
-
   // for an O3R device, a distance_image_info object will be created
   // for others a nullptr is returned
   std::shared_ptr<DistanceImageInfo> distance_image_info;
@@ -85,8 +83,6 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
 
       chunks.erase(image_chunk::NORM_AMPLITUDE_IMAGE);
       chunks.erase(image_chunk::RADIAL_DISTANCE_IMAGE);
-
-      apply_mask = false;
     }
 
   std::optional<Buffer> mask;
@@ -103,9 +99,6 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
       images[ifm3d::buffer_id::CONFIDENCE_IMAGE] = confidence;
       chunks.erase(image_chunk::CONFIDENCE_IMAGE);
     }
-
-  // apply mask only if mask has a value
-  apply_mask = apply_mask && mask.has_value();
 
   for (const auto& chunk : chunks)
     {
@@ -127,7 +120,7 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
           else
             {
               auto image = create_buffer(data, chunk.second, width, height);
-              if (apply_mask &&
+              if (mask.has_value() &&
                   ShouldMask(static_cast<buffer_id>(chunk.first)))
                 {
                   mask_buffer(image, mask.value());
@@ -201,6 +194,12 @@ ifm3d::DefaultOrganizer::ExtractDistanceImageInfo(
 
   auto amplitude =
     create_buffer(ampl_bytes, 0, width, height, pixel_format::FORMAT_32F);
+
+  if (mask.has_value())
+    {
+      mask_buffer(distance, mask.value());
+      mask_buffer(amplitude, mask.value());
+    }
 
   auto xyz = create_xyz_buffer(xyzd_bytes,
                                0,
