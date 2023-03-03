@@ -51,8 +51,8 @@ bind_struct_odsoccupancygridv1(pybind11::module_& m)
       )");
 
    ods_occupancy_grid_v1.def_readonly(
-    "transfor_cell_center_to_user",
-    &ifm3d::ODSOccupancyGridV1::transfor_cell_center_to_user,
+    "transform_cell_center_to_user",
+    &ifm3d::ODSOccupancyGridV1::transform_cell_center_to_user,
     R"(
          values of matrix 2x3
          affine mapping between grid cell and user coordinate system
