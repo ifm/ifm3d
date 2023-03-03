@@ -16,7 +16,6 @@ set_target_properties(
   ifm3d_deserialize PROPERTIES
   VERSION ${IFM3D_VERSION}
   EXPORT_NAME deserialize
-  OUTPUT_NAME deserialize
 )
 
 if(BUILD_TESTS)
