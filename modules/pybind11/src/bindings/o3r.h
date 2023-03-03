@@ -97,6 +97,25 @@ bind_o3r(pybind11::module_& m)
     )");
 
   o3r.def(
+    "resolve_config",
+    [](const ifm3d::O3R::Ptr& c, std::string& json_pointer)
+    {
+      // Convert the JSON to a python JSON object using the json module
+      py::object json_loads = py::module::import("json").attr("loads");
+      return json_loads(c->ResolveConfig(ifm3d::json::json_pointer(json_pointer)).dump());
+    },
+    py::arg("json_pointer"),
+    R"(
+     * Returns a part of the configuration formatted as JSON based on a
+     * JSON pointer.
+
+      Returns
+      -------
+      dict
+          The partial JSON configuration for the given JSON pointer
+    )");
+
+  o3r.def(
     "set",
     [](const ifm3d::O3R::Ptr& c, const py::dict& json)
     {
