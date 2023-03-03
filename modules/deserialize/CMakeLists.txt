@@ -14,7 +14,6 @@ target_link_libraries(ifm3d_deserialize INTERFACE ifm3d_framegrabber)
 
 set_target_properties(
   ifm3d_deserialize PROPERTIES
-  VERSION ${IFM3D_VERSION}
   EXPORT_NAME deserialize
 )
 
