@@ -7,8 +7,9 @@
 #include <frame_impl.hpp>
 
 ifm3d::Frame::Frame(const std::map<buffer_id, Buffer>& images,
-                    const std::vector<TimePointT> timestamps)
-  : pImpl(std::make_unique<Impl>(images, timestamps))
+                    const std::vector<TimePointT> timestamps,
+                    uint64_t frame_count)
+  : pImpl(std::make_unique<Impl>(images, timestamps, frame_count))
 {}
 
 ifm3d::Frame::~Frame() = default;
@@ -31,6 +32,12 @@ std::vector<ifm3d::TimePointT>
 ifm3d::Frame::TimeStamps()
 {
   return pImpl->TimeStamps();
+}
+
+uint32_t
+ifm3d::Frame::FrameCount()
+{
+  return pImpl->FrameCount();
 }
 
 bool
