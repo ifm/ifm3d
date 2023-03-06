@@ -10,6 +10,7 @@
 #include <optional>
 #include <vector>
 #include <tuple>
+#include <set>
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/frame.h>
@@ -69,6 +70,9 @@ namespace ifm3d
   std::size_t get_chunk_pixeldata_offset(const std::vector<std::uint8_t>& data,
                                          std::size_t idx);
 
+  std::size_t get_chunk_size(const std::vector<std::uint8_t>& data,
+                             std::size_t idx);
+
   std::size_t get_chunk_pixeldata_size(const std::vector<std::uint8_t>& data,
                                        std::size_t idx);
 
@@ -78,6 +82,16 @@ namespace ifm3d
                         std::size_t idx,
                         std::size_t width,
                         std::size_t height);
+
+  Buffer create_pixel_mask(Buffer& confidence);
+
+  void parse_data(const std::vector<uint8_t>& data,
+                  const std::set<buffer_id>& requestedImages,
+                  const std::map<ifm3d::image_chunk, std::size_t>& chunks,
+                  const size_t width,
+                  const size_t height,
+                  std::map<buffer_id, Buffer>& data_blob,
+                  std::map<buffer_id, Buffer>& data_image);
 
   /**
    * Create a value of type T from sizeof(T) bytes of the passed in byte

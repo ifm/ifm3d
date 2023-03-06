@@ -11,6 +11,9 @@ from ifm3dpy.framegrabber import FrameGrabber, buffer_id
 import cv2
 import argparse
 import asyncio
+import numpy as np
+np.set_printoptions(threshold=np.inf, linewidth=200)
+
 
 try:
     import open3d as o3d
@@ -32,7 +35,8 @@ def get_distance(frame):
 
 def get_amplitude(frame):
     return frame.get_buffer(buffer_id.NORM_AMPLITUDE_IMAGE)
-
+  
+    
 
 def get_xyz(frame):
     return frame.get_buffer(buffer_id.XYZ)
