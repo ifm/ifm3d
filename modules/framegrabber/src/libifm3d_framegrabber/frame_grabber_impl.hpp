@@ -29,7 +29,7 @@
 #include <ifm3d/fg/frame_grabber_export.h>
 #include <ifm3d/device.h>
 #include <ifm3d/fg/schema.h>
-#include <default_organizer.hpp>
+#include <o3x_organizer.hpp>
 #include <fmt/core.h>
 
 namespace ifm3d
@@ -174,7 +174,7 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
     pcic_port_(pcic_port.value_or(ifm3d::DEFAULT_PCIC_PORT)),
     io_service_(),
     sock_(),
-    organizer_(std::make_unique<DefaultOrganizer>()),
+    organizer_(std::make_unique<O3XOrganizer>()),
     wait_for_frame_future(wait_for_frame_promise.get_future()),
     trigger_feedback_future_(trigger_feedback_promise_.get_future()),
     ready_future_(ready_promise_.get_future()),
