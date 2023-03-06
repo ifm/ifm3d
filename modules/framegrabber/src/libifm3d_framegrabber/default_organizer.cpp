@@ -65,6 +65,7 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
   std::uint32_t npts = width * height;
 
   auto timestamps = get_chunk_timestamps(data, metachunk->second);
+  auto frame_count = get_chunk_frame_count(data, metachunk->second);
 
   // for an O3R device, a distance_image_info object will be created
   // for others a nullptr is returned
@@ -169,7 +170,7 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
         }
     }
 
-  return {images, timestamps};
+  return {images, timestamps, frame_count};
 }
 
 std::map<ifm3d::buffer_id, ifm3d::Buffer>

@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Added Frame::FrameCount to access the frame counter value
+
 ### Changed 
 - Split the python bindings into submodules, see the migration guide for details. *Warning:* this requires an update of existing codebases.
 - Convert SWUpdater python bindings naming to snake_case, see the migration guide for details. *Warning:* this requires an update of existing codebases.
