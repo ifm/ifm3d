@@ -12,6 +12,11 @@ target_include_directories(ifm3d_deserialize INTERFACE
 
 target_link_libraries(ifm3d_deserialize INTERFACE ifm3d_framegrabber)
 
+set_target_properties(
+  ifm3d_deserialize PROPERTIES
+  EXPORT_NAME deserialize
+)
+
 if(BUILD_TESTS)
   add_subdirectory(test)
 else()
