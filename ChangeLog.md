@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixes 
 - Fix a bug that could cause the update process to fail with a hash mismatch error on certain network configurations
 - Fix a bug preventing the FrameGrabber from being `Start`ed after it was previously `Stop`ped
+- Fix a typo in the `transform_cell_center_to_user` variable (previously called `transfor_cell_center_to_user`).
 - Add missing python binding for `O3R::ResolveConfig`
 
 ## 1.2.1 - 2023-02-09
