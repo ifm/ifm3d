@@ -98,9 +98,9 @@ static std::vector<std::tuple<std::string, std::string, int, bool>>
 TEST(Version, Version)
 {
   int major, minor, patch;
-
-  ifm3d::version(&major, &minor, &patch);
-  EXPECT_EQ(IFM3D_VERSION, IFM3D_MAKE_VERSION(major, minor, patch));
+  std::string tweak;
+  ifm3d::version(&major, &minor, &patch, tweak);
+  EXPECT_EQ(IFM3D_VERSION, IFM3D_MAKE_VERSION(major, minor, patch, tweak));
 }
 
 TEST(Version, ParseVersionValid)
