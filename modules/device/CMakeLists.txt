@@ -1,7 +1,6 @@
 project(IFM3D_DEVICE CXX)
 set(IFM3D_DEVICE_MODULE_NAME "libifm3d-device")
 
-
 configure_file(
   ${IFM3D_DEVICE_SOURCE_DIR}/include/ifm3d/device/version.h.in
   ${IFM3D_DEVICE_BINARY_DIR}/include/ifm3d/device/version.h
