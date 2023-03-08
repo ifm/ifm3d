@@ -208,6 +208,7 @@ PYBIND11_MODULE(ifm3dpy, m)
   // deprecated aliases for backwards compatibility, will removed at some point
   // in the future
   m.attr("SemVer") = device_module.attr("SemVer");
+  m.attr("Error") = device_module.attr("Error");
   m.attr("Device") = device_module.attr("Device");
   m.attr("LegacyDevice") = device_module.attr("LegacyDevice");
   m.attr("O3R") = device_module.attr("O3R");
