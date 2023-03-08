@@ -825,8 +825,11 @@ ifm3d::FrameGrabber::Impl::OnAsyncError(AsyncErrorCallback callback)
 {
   this->async_error_callback_ = callback;
   // enable async error outputs
-  this->io_service_->post(
-    [this]() { SendCommand(TICKET_COMMAND_p, CalculateAsyncCommand()); });
+  if (this->io_service_ != nullptr)
+    {
+      this->io_service_->post(
+        [this]() { SendCommand(TICKET_COMMAND_p, CalculateAsyncCommand()); });
+    }
 }
 
 void
@@ -834,9 +837,12 @@ ifm3d::FrameGrabber::Impl::OnAsyncNotification(
   AsyncNotificationCallback callback)
 {
   this->async_notification_callback_ = callback;
-  // enable async error outputs
-  this->io_service_->post(
-    [this]() { SendCommand(TICKET_COMMAND_p, CalculateAsyncCommand()); });
+  if (this->io_service_ != nullptr)
+    {
+      // enable async error outputs
+      this->io_service_->post(
+        [this]() { SendCommand(TICKET_COMMAND_p, CalculateAsyncCommand()); });
+    }
 }
 
 void
