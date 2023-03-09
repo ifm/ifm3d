@@ -138,7 +138,7 @@ else()
 	  list(GET ${PROJECT_NAME}_VERSION_LIST 7 ${PROJECT_NAME}_VERSION_GIT_SHA)
   endif()
 
-  set(${PROJECT_NAME}_VERSION_META "+dirty")
+  set(${PROJECT_NAME}_VERSION_META "+snapshot")
 
 endif()
 
