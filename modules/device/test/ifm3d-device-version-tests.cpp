@@ -101,7 +101,8 @@ TEST(Version, Version)
   std::string tweak;
   std::string meta;
   ifm3d::version(&major, &minor, &patch, tweak, meta);
-  EXPECT_EQ(IFM3D_VERSION, IFM3D_MAKE_VERSION(major, minor, patch, tweak,meta));
+  EXPECT_EQ(IFM3D_VERSION,
+            IFM3D_MAKE_VERSION(major, minor, patch, tweak, meta));
 }
 
 TEST(Version, ParseVersionValid)
