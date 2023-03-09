@@ -33,17 +33,11 @@ def update_version_file(version):
     major_version = result.group(1)
     minor_version = result.group(2)
     patch_version = result.group(3)
-    version_for_file = version +'*'+version+'*'+major_version+'*'+minor_version+'*'+patch_version+'*'+'snapshot'
+    version_for_file = version +'*'+version+'*'+major_version+'*'+minor_version+'*'+patch_version
     # Open the file for reading
     with open("VERSION", "w") as file:
         # Write the updated contents to the file
         file.write(version_for_file)
-
-def update_document_version_file(file_path, version):
-    # Open the file for reading
-    with open(file_path, "w") as file:
-        # Write the updated contents to the file
-        file.write(f"__version__ = '{version}'")
 
 if __name__ == "__main__":
     
@@ -58,4 +52,3 @@ if __name__ == "__main__":
     else:
         update_changelog(version[1:])
         update_version_file(version)
-        update_document_version_file("doc/sphinx/ifm3dpy_version.py",version)
