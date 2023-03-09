@@ -114,7 +114,10 @@ PYBIND11_MODULE(ifm3dpy, m)
   add_attr("__version__",
            std::to_string(IFM3D_VERSION_MAJOR) + "." +
              std::to_string(IFM3D_VERSION_MINOR) + "." +
-             std::to_string(IFM3D_VERSION_PATCH),
+             std::to_string(IFM3D_VERSION_PATCH)+
+             std::string(IFM3D_VERSION_TWEAK)+
+             std::string(IFM3D_VERSION_META),
+
            "The ifm3d version.");
 
   add_attr("__package__", "ifm3dpy", "The ifm3d package.");
