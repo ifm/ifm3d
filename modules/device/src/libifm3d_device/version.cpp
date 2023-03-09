@@ -10,7 +10,8 @@ void
 ifm3d::version(int* major,
                int* minor,
                int* patch,
-               std::optional<std::reference_wrapper<std::string>> tweak)
+               std::optional<std::reference_wrapper<std::string>> tweak,
+               std::optional<std::reference_wrapper<std::string>> meta)
 {
   *major = IFM3D_VERSION_MAJOR;
   *minor = IFM3D_VERSION_MINOR;
@@ -18,5 +19,9 @@ ifm3d::version(int* major,
   if (tweak.has_value())
     {
       tweak->get() = std::string(IFM3D_VERSION_TWEAK);
+    }
+  if (meta.has_value())
+    {
+      meta->get() = std::string(IFM3D_VERSION_META);
     }
 }
