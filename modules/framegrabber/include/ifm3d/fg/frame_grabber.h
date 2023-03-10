@@ -152,6 +152,16 @@ namespace ifm3d
      */
     void OnError(ErrorCallback callback = nullptr);
 
+    /**
+     * enable masking on 2 dimensional buffers
+     */
+    void EnableMasking();
+
+    /**
+     * disable masking on 2 dimensional buffers
+     */
+    void DisableMasking();
+
   private:
     class Impl;
     std::unique_ptr<Impl> pImpl;
