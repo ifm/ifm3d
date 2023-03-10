@@ -257,6 +257,24 @@ bind_framegrabber(pybind11::module_& m)
     )"
   );
 
+   framegrabber.def(
+    "enable_masking",
+    &ifm3d::FrameGrabber::EnableMasking,
+    R"(
+      Enable masking of 2 dimensional buffer.
+      Note: ifm3dpy.buffer_id.CONFIDENCE_IMAGE should be in schema  list passed to ifm3dpy.FrameGrabber.Start method
+    )"
+  );
+
+    framegrabber.def(
+    "disable_masking",
+    &ifm3d::FrameGrabber::DisableMasking,
+    R"(
+      Disable masking of 2 dimensional buffer.
+      Note: ifm3dpy.buffer_id.CONFIDENCE_IMAGE should be in schema list passed to  ifm3dpy.FrameGrabber.Start method
+    )"
+  );
+
   // clang-format on
 }
 
