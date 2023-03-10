@@ -161,8 +161,6 @@ namespace ifm3d
 
     /**
      * disable masking on 2 dimensional buffers
-     * Note: ifm3d::buffer_id::CONFIDENCE_IMAGE should be in schema set passed
-     * to ifm3d::FrameGrabber::Start method
      */
     void DisableMasking();
 
