@@ -76,6 +76,7 @@ namespace ifm3d
 
     void SetMasking(const bool masking);
     bool GetMasking();
+
   protected:
     void Run(const std::optional<json>& schema);
 
