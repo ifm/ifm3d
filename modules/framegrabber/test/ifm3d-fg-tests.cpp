@@ -72,6 +72,25 @@ TEST_F(FrameGrabberTest, start_stop_start)
     }
 }
 
+
+TEST_F(FrameGrabberTest, masking)
+{
+  LOG(INFO) << "enabling disabling masking test";
+  int frame_count = 0;
+  this->fg_->OnNewFrame([&frame_count](auto frame) { frame_count++; });
+  this->fg_->Start({});
+
+  for (int itr = 0; itr < 10; itr++)
+    {
+      fg_->EnableMasking();
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      fg_->DisableMasking();
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+  this->fg_->Stop();
+
+}
+
 TEST_F(FrameGrabberTest, WaitForFrame)
 {
   LOG(INFO) << "WaitForFrame test";
