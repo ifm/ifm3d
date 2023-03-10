@@ -72,7 +72,6 @@ TEST_F(FrameGrabberTest, start_stop_start)
     }
 }
 
-
 TEST_F(FrameGrabberTest, masking)
 {
   LOG(INFO) << "enabling disabling masking test";
@@ -88,7 +87,6 @@ TEST_F(FrameGrabberTest, masking)
       std::this_thread::sleep_for(std::chrono::seconds(1));
     }
   this->fg_->Stop();
-
 }
 
 TEST_F(FrameGrabberTest, WaitForFrame)
