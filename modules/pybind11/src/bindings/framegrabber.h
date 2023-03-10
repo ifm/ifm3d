@@ -271,7 +271,6 @@ bind_framegrabber(pybind11::module_& m)
     &ifm3d::FrameGrabber::DisableMasking,
     R"(
       Disable masking of 2 dimensional buffer.
-      Note: ifm3dpy.buffer_id.CONFIDENCE_IMAGE should be in schema list passed to  ifm3dpy.FrameGrabber.Start method
     )"
   );
 
