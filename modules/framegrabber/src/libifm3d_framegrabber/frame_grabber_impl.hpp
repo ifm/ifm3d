@@ -120,7 +120,7 @@ namespace ifm3d
     std::unique_ptr<Organizer> organizer_;
     std::set<buffer_id> requested_images_;
     bool is_ready_;
-    bool masking_ = true;
+    bool masking_;
     std::mutex mutex_for_masking_;
 
     //
@@ -179,7 +179,8 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
     ready_future_(ready_promise_.get_future()),
     is_running_(false),
     finish_future_(std::async(std::launch::async, []() {})),
-    is_ready_(false)
+    is_ready_(false),
+    masking_(cam->AmI(Device::device_family::O3R) ? false : true)
 {
   if (!pcic_port.has_value() && this->cam_->AmI(Device::device_family::O3D))
     {
