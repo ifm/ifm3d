@@ -153,16 +153,17 @@ namespace ifm3d
     void OnError(ErrorCallback callback = nullptr);
 
     /**
-     * enable masking on 2 dimensional buffers
+     * enable/disable masking on supported buffer
+     * @param[in] mask flag to enable/disable masking
      * Note: ifm3d::buffer_id::CONFIDENCE_IMAGE should be in schema set passed
      * to ifm3d::FrameGrabber::Start method
      */
-    void EnableMasking();
+    void SetMasking(const bool mask);
 
     /**
-     * disable masking on 2 dimensional buffers
+     *  return masking flag
      */
-    void DisableMasking();
+    bool IsMasking();
 
   private:
     class Impl;

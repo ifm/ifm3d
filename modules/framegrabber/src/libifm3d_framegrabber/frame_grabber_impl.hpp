@@ -75,7 +75,7 @@ namespace ifm3d
     void OnError(ErrorCallback callback);
 
     void SetMasking(const bool masking);
-    bool GetMasking();
+    bool IsMasking();
 
   protected:
     void Run(const std::optional<json>& schema);
@@ -596,10 +596,9 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
     {
       try
         {
-
           auto result = this->organizer_->Organize(this->payload_buffer_,
                                                    this->requested_images_,
-                                                   this->GetMasking());
+                                                   this->IsMasking());
           auto frame = std::make_shared<Frame>(result.images,
                                                result.timestamps,
                                                result.frame_count);
@@ -904,7 +903,7 @@ ifm3d::FrameGrabber::Impl::SetMasking(const bool masking)
 }
 
 bool
-ifm3d::FrameGrabber::Impl::GetMasking()
+ifm3d::FrameGrabber::Impl::IsMasking()
 {
   std::scoped_lock guard{this->mutex_for_masking_};
   return this->masking_;
