@@ -67,7 +67,7 @@ target_link_libraries(
 
 set_target_properties(
   ifm3d_framegrabber PROPERTIES
-  VERSION ${IFM3D_VERSION}
+  VERSION ${ROOT_PROJECT_VERSION_SIMPLE}
   EXPORT_NAME framegrabber
   OUTPUT_NAME ifm3d_framegrabber
   LINKER_LANGUAGE CXX
