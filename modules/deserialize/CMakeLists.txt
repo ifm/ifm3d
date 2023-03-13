@@ -14,7 +14,10 @@ target_link_libraries(ifm3d_deserialize INTERFACE ifm3d_framegrabber)
 
 set_target_properties(
   ifm3d_deserialize PROPERTIES
+  VERSION ${ROOT_PROJECT_VERSION_SIMPLE}
   EXPORT_NAME deserialize
+  OUTPUT_NAME ifm3d_deserialize
+  LINKER_LANGUAGE CXX
 )
 
 if(BUILD_TESTS)

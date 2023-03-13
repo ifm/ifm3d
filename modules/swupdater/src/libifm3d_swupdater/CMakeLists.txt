@@ -62,7 +62,7 @@ target_link_libraries(
 
 set_target_properties(
   ifm3d_swupdater PROPERTIES
-  VERSION ${IFM3D_VERSION}
+  VERSION ${ROOT_PROJECT_VERSION_SIMPLE}
   EXPORT_NAME swupdater
   OUTPUT_NAME ifm3d_swupdater
   LINKER_LANGUAGE CXX
