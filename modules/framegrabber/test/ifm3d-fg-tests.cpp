@@ -81,9 +81,13 @@ TEST_F(FrameGrabberTest, masking)
 
   for (int itr = 0; itr < 10; itr++)
     {
-      fg_->EnableMasking();
+      fg_->SetMasking(true);
       std::this_thread::sleep_for(std::chrono::seconds(1));
-      fg_->DisableMasking();
+      EXPECT_TRUE(fg_->IsMasking());
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      fg_->SetMasking(false);
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      EXPECT_FALSE(fg_->IsMasking());
       std::this_thread::sleep_for(std::chrono::seconds(1));
     }
   this->fg_->Stop();

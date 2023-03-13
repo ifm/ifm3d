@@ -97,13 +97,13 @@ ifm3d::FrameGrabber::OnError(ErrorCallback callback)
 }
 
 void
-ifm3d::FrameGrabber::EnableMasking()
+ifm3d::FrameGrabber::SetMasking(const bool mask)
 {
-  this->pImpl->SetMasking(true);
+  this->pImpl->SetMasking(mask);
 }
 
-void
-ifm3d::FrameGrabber::DisableMasking()
+bool
+ifm3d::FrameGrabber::IsMasking()
 {
-  this->pImpl->SetMasking(false);
+  this->pImpl->IsMasking();
 }
