@@ -105,5 +105,5 @@ ifm3d::FrameGrabber::SetMasking(const bool mask)
 bool
 ifm3d::FrameGrabber::IsMasking()
 {
-  this->pImpl->IsMasking();
+  return this->pImpl->IsMasking();
 }
