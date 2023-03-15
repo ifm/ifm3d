@@ -101,7 +101,19 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(fmt)
 
 #adding asio
-add_subdirectory(asio-1-16-1)
+FetchContent_Declare(
+  asio
+    GIT_REPOSITORY https://github.com/chriskohlhoff/asio
+    GIT_TAG asio-1-26-0
+)
+FetchContent_MakeAvailable(asio)
+add_library(asio INTERFACE)
+target_compile_definitions(asio INTERFACE -DASIO_STANDALONE -DASIO_DISABLE_VISIBILITY)
+#used for tracing the asio async calls
+#target_compile_definitions(asio INTERFACE -DASIO_ENABLE_HANDLER_TRACKING)
+target_include_directories(asio SYSTEM INTERFACE
+    $<BUILD_INTERFACE:${asio_SOURCE_DIR}/asio/include>
+)
 
 #adding cxxopts
 add_subdirectory(cxxopts-2.2.0)
