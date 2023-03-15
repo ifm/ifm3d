@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixes 
 - Fixed Segmentation fault when assigning a AsyncNotification or AsyncError Handler while the FrameGrabber is not running
 - Added Missing alias for ifm3dpy.Error to ifm3dpy.device.Error
+- Fix device discovery requiring manual firewall rule on windows
 
 ## 1.2.2 - 2023-03-06
 ### Added
