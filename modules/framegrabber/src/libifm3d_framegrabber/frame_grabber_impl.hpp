@@ -180,7 +180,8 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
     is_running_(false),
     finish_future_(std::async(std::launch::async, []() {})),
     is_ready_(false),
-    masking_(cam->AmI(Device::device_family::O3R) ? false : true)
+    masking_(cam->AmI(Device::device_family::O3D) ||
+             cam->AmI(Device::device_family::O3X))
 {
   if (!pcic_port.has_value() && this->cam_->AmI(Device::device_family::O3D))
     {
