@@ -1,3 +1,9 @@
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/ifm3dpy_version.py.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/ifm3dpy_version.py
+  @ONLY
+  )
+
 get_target_property(DOXYGEN_DIR ifm3d_doxygen BINARY_DIR)
 get_target_property(IFM3DPY_DIR ifm3dpy BINARY_DIR)
 add_custom_target(ifm3d_sphinx

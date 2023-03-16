@@ -103,7 +103,7 @@ target_link_libraries(
 
 set_target_properties(
   ifm3d_device PROPERTIES
-  VERSION ${IFM3D_VERSION}
+  VERSION ${ROOT_PROJECT_VERSION_SIMPLE}
   EXPORT_NAME device
   OUTPUT_NAME ifm3d_device
   LINKER_LANGUAGE CXX

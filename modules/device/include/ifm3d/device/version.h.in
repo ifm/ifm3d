@@ -8,6 +8,9 @@
 #ifndef IFM3D_DEVICE_VERSION_H
 #define IFM3D_DEVICE_VERSION_H
 #include <ifm3d/device/device_export.h>
+#include <string>
+#include <optional>
+#include <functional>
 
 #define IFM3D_LIBRARY_NAME "@GIT_PROJECT_NAME@"
 
@@ -16,15 +19,18 @@
 #define IFM3D_VERSION_MAJOR @IFM3D_VERSION_MAJOR@
 #define IFM3D_VERSION_MINOR @IFM3D_VERSION_MINOR@
 #define IFM3D_VERSION_PATCH @IFM3D_VERSION_PATCH@
+#define IFM3D_VERSION_TWEAK "@ROOT_PROJECT_VERSION_TWEAK@"
 #define IFM3D_VERSION_META "@IFM3D_VERSION_META@"
 
-#define IFM3D_MAKE_VERSION(major, minor, patch) \
-  ((major) * 10000 + (minor) * 100 + (patch))
+#define IFM3D_MAKE_VERSION(major, minor, patch, tweak, meta) \
+   std::to_string(((major) * 10000 + (minor) * 100 + (patch))) +tweak + meta
 #define IFM3D_VERSION \
   IFM3D_MAKE_VERSION( \
         IFM3D_VERSION_MAJOR, \
         IFM3D_VERSION_MINOR, \
-        IFM3D_VERSION_PATCH)
+        IFM3D_VERSION_PATCH, \
+        IFM3D_VERSION_TWEAK, \
+        IFM3D_VERSION_META)
 
 namespace ifm3d
 {
@@ -34,8 +40,10 @@ namespace ifm3d
    * @param[out] major Major version number
    * @param[out] minor Minor version number
    * @param[out] patch Version patch level
+   * @param[out] tweak of the version
+   * @param[out] meta of the version
    */
-  IFM3D_DEVICE_EXPORT void version(int *major, int *minor, int *patch);
+  IFM3D_DEVICE_EXPORT void version(int *major, int *minor, int *patch,std::optional<std::reference_wrapper<std::string>> tweak = std::nullopt,std::optional<std::reference_wrapper<std::string>> meta = std::nullopt);
 
 } // end: namespace ifm3d
 
