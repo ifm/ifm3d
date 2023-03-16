@@ -33,7 +33,7 @@ namespace ifm3d
 
     virtual Result Organize(const std::vector<uint8_t>& data,
                             const std::set<buffer_id>& requestedImages,
-                            const bool masking = true) = 0;
+                            const bool masking) = 0;
   }; // end: class Organizer
 
 } // end: namespace ifm3d
