@@ -54,7 +54,7 @@ target_link_libraries(
   )
 
 set_target_properties(ifm3d_pcicclient PROPERTIES
-  VERSION ${IFM3D_VERSION}
+  VERSION ${ROOT_PROJECT_VERSION_SIMPLE}
   EXPORT_NAME pcicclient
   OUTPUT_NAME ifm3d_pcicclient
   LINKER_LANGUAGE CXX

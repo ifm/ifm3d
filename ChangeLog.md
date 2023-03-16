@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed Segmentation fault when assigning a AsyncNotification or AsyncError Handler while the FrameGrabber is not running
 - Added Missing alias for ifm3dpy.Error to ifm3dpy.device.Error
 
+### Added
+- CI job for release of ifm3d
+
 ## 1.2.2 - 2023-03-06
 ### Added
 - Added Frame::FrameCount to access the frame counter value
@@ -31,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix a crash when receiving pcic data without any chunks
 
 ## 1.2.0 - 2023-02-03
+
 ### Changed
 - Upgraded nlohmann::json to version 3.11.2
 - Removed json from the global namespace and moved nlohmann::json to the ifm3d::json namespace

@@ -96,7 +96,7 @@ if (BUILD_MODULE_SWUPDATER)
 endif()
 
 set_target_properties(ifm3d_tools_shared PROPERTIES
-  VERSION ${IFM3D_VERSION}
+  VERSION ${ROOT_PROJECT_VERSION_SIMPLE}
   OUTPUT_NAME ifm3d_tools
   LINKER_LANGUAGE CXX
 )
