@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## 1.2.3 - 2023-03-17
 ### Fixes 
 - Fixed Segmentation fault when assigning a AsyncNotification or AsyncError Handler while the FrameGrabber is not running
 - Added Missing alias for ifm3dpy.Error to ifm3dpy.device.Error
