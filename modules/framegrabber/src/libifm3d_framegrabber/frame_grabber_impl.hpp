@@ -22,6 +22,7 @@
 #include <system_error>
 #include <thread>
 #include <vector>
+#include <mutex>
 #include <asio/use_future.hpp>
 #include <asio.hpp>
 #include <glog/logging.h>
@@ -73,6 +74,9 @@ namespace ifm3d
     void OnAsyncNotification(AsyncNotificationCallback callback);
     void OnError(ErrorCallback callback);
 
+    void SetMasking(const bool masking);
+    bool IsMasking();
+
   protected:
     void Run(const std::optional<json>& schema);
 
@@ -116,6 +120,8 @@ namespace ifm3d
     std::unique_ptr<Organizer> organizer_;
     std::set<buffer_id> requested_images_;
     bool is_ready_;
+    bool masking_;
+    std::mutex mutex_for_masking_;
 
     //
     // Holds the raw 'Ticket' bytes received from the sensor:
@@ -173,7 +179,9 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
     ready_future_(ready_promise_.get_future()),
     is_running_(false),
     finish_future_(std::async(std::launch::async, []() {})),
-    is_ready_(false)
+    is_ready_(false),
+    masking_(cam->AmI(Device::device_family::O3D) ||
+             cam->AmI(Device::device_family::O3X))
 {
   if (!pcic_port.has_value() && this->cam_->AmI(Device::device_family::O3D))
     {
@@ -589,9 +597,9 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
     {
       try
         {
-
           auto result = this->organizer_->Organize(this->payload_buffer_,
-                                                   this->requested_images_);
+                                                   this->requested_images_,
+                                                   this->IsMasking());
           auto frame = std::make_shared<Frame>(result.images,
                                                result.timestamps,
                                                result.frame_count);
@@ -887,4 +895,19 @@ ifm3d::FrameGrabber::Impl::CalculateAsyncCommand()
     }
   return fmt::format("p{0:X}", p);
 }
+
+void
+ifm3d::FrameGrabber::Impl::SetMasking(const bool masking)
+{
+  std::scoped_lock guard{this->mutex_for_masking_};
+  masking_ = masking;
+}
+
+bool
+ifm3d::FrameGrabber::Impl::IsMasking()
+{
+  std::scoped_lock guard{this->mutex_for_masking_};
+  return this->masking_;
+}
+
 #endif // IFM3D_FG_FRAMEGRABBER_IMPL_H
