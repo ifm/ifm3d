@@ -94,7 +94,7 @@ PYBIND11_MODULE(ifm3dpy, m)
       )");
 
   m.doc() = R"(
-    Bindings for the ifm3d Camera Library
+    Bindings for the ifm3d Library
 
     **Variables**
 
@@ -114,7 +114,10 @@ PYBIND11_MODULE(ifm3dpy, m)
   add_attr("__version__",
            std::to_string(IFM3D_VERSION_MAJOR) + "." +
              std::to_string(IFM3D_VERSION_MINOR) + "." +
-             std::to_string(IFM3D_VERSION_PATCH),
+             std::to_string(IFM3D_VERSION_PATCH) +
+             std::string(IFM3D_VERSION_TWEAK) +
+             std::string(IFM3D_VERSION_META),
+
            "The ifm3d version.");
 
   add_attr("__package__", "ifm3dpy", "The ifm3d package.");
@@ -172,13 +175,48 @@ PYBIND11_MODULE(ifm3dpy, m)
     ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH,
     "Constant for querying for O3D inverse intrinsic parameter support.");
 
-  bind_semver(m);
-  bind_error(m);
-  bind_device(m);
-  bind_legacy_device(m);
-  bind_o3r(m);
-  bind_frame(m);
-  bind_framegrabber(m);
-  bind_swupdater(m);
-  bind_deserialize_struct(m);
+  bind_future<ifm3d::Frame::Ptr>(
+    m,
+    "FrameAwaitable",
+    "Provides a mechanism to access the frame object");
+  bind_future<void>(m,
+                    "Awaitable",
+                    "Provides a mechanism to wait for completion of a task");
+
+  auto device_module = m.def_submodule(
+    "device",
+    R"(Provides an implementation of the XMLRPC protocol for configuring the camera and pmd imager settings.)");
+  bind_semver(device_module);
+  bind_error(device_module);
+  bind_device(device_module);
+  bind_legacy_device(device_module);
+  bind_o3r(device_module);
+
+  auto framegrabber_module = m.def_submodule(
+    "framegrabber",
+    R"(Provides an implementation of the PCIC protocol for streaming pixel data and triggered image acquisition.)");
+  bind_frame(framegrabber_module);
+  bind_framegrabber(framegrabber_module);
+
+  auto swupdater_module = m.def_submodule(
+    "swupdater",
+    R"(Provides utilities for managing the SWUpdate subsystem of the camera.)");
+  bind_swupdater(swupdater_module);
+
+  auto deserializer_module = m.def_submodule(
+    "deserialize",
+    R"(Provides definitions and functions for deserializing structs sent over PCIC)");
+  bind_deserialize_struct(deserializer_module);
+
+  // deprecated aliases for backwards compatibility, will removed at some point
+  // in the future
+  m.attr("SemVer") = device_module.attr("SemVer");
+  m.attr("Error") = device_module.attr("Error");
+  m.attr("Device") = device_module.attr("Device");
+  m.attr("LegacyDevice") = device_module.attr("LegacyDevice");
+  m.attr("O3R") = device_module.attr("O3R");
+  m.attr("FrameGrabber") = framegrabber_module.attr("FrameGrabber");
+  m.attr("Frame") = framegrabber_module.attr("Frame");
+  m.attr("buffer_id") = framegrabber_module.attr("buffer_id");
+  m.attr("SWUpdater") = swupdater_module.attr("SWUpdater");
 }

@@ -30,11 +30,9 @@ ifm3d::FrameGrabber::OnNewFrame(NewFrameCallback callback)
   this->pImpl->OnNewFrame(callback);
 }
 
-bool
-ifm3d::FrameGrabber::Start(
-  const std::vector<std::variant<std::uint64_t, int, ifm3d::buffer_id>>&
-    buffers,
-  const std::optional<json>& schema)
+std::shared_future<void>
+ifm3d::FrameGrabber::Start(const BufferList& buffers,
+                           const std::optional<json>& schema)
 {
   std::vector<buffer_id> buffer_ids;
   std::transform(
@@ -96,4 +94,16 @@ void
 ifm3d::FrameGrabber::OnError(ErrorCallback callback)
 {
   this->pImpl->OnError(callback);
+}
+
+void
+ifm3d::FrameGrabber::SetMasking(const bool mask)
+{
+  this->pImpl->SetMasking(mask);
+}
+
+bool
+ifm3d::FrameGrabber::IsMasking()
+{
+  return this->pImpl->IsMasking();
 }

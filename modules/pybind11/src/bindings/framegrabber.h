@@ -16,9 +16,6 @@ bind_framegrabber(pybind11::module_& m)
 {
   // clang-format off
 
-  bind_future<ifm3d::Frame::Ptr>(m, "FrameAwaitable", "Provides a mechanism to access the frame object");
-  bind_future<void>(m, "Awaitable", "Provides a mechanism to wait for completion of a task");
-
   py::class_<ifm3d::FrameGrabber, ifm3d::FrameGrabber::Ptr> framegrabber(
     m,
     "FrameGrabber",
@@ -48,14 +45,20 @@ bind_framegrabber(pybind11::module_& m)
     "start",
     [](const ifm3d::FrameGrabber::Ptr& self, const ifm3d::FrameGrabber::BufferList& buffers, const std::optional<py::dict>& pcicFormat) {
       py::object json_dumps = py::module::import("json").attr("dumps");
-      pcicFormat.has_value() 
+      return FutureAwaitable<void>(pcicFormat.has_value() 
         ? self->Start(buffers, ifm3d::json::parse(json_dumps(pcicFormat.value()).cast<std::string>())) 
-        : self->Start(buffers);
+        : self->Start(buffers));
     },
     py::arg("buffers") = ifm3d::FrameGrabber::BufferList{},
     py::arg("pcic_format") = std::nullopt,
     R"(
       Starts the worker thread for streaming in pixel data from the device
+
+      Returns
+      -------
+      FutureAwaitable
+
+          Resolves when framegrabber is ready to receive frames. 
 
       Parameters
       ----------
@@ -251,6 +254,30 @@ bind_framegrabber(pybind11::module_& m)
       recommend calling this function in a tight framegrabbing loop when you
       know it is not needed. The "cost" of the NOOP is undefined and incurring
       it is not recommended.
+    )"
+  );
+
+   framegrabber.def(
+    "set_masking",
+    &ifm3d::FrameGrabber::SetMasking,
+    R"(
+      Enable/Disable masking on supported buffers
+      Note: ifm3dpy.buffer_id.CONFIDENCE_IMAGE should be in schema  list passed to ifm3dpy.FrameGrabber.Start method
+
+      Parameters
+      ----------
+      mask
+          flag to enable/disable masking.
+    )"
+  );
+
+    framegrabber.def(
+    "is_masking",
+    &ifm3d::FrameGrabber::IsMasking,
+    R"(
+      Returns
+      -------
+      Masking flag
     )"
   );
 

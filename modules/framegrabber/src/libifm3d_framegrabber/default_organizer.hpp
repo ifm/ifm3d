@@ -22,7 +22,8 @@ namespace ifm3d
     ~DefaultOrganizer() = default;
 
     Result Organize(const std::vector<uint8_t>& data,
-                    const std::set<buffer_id>& requestedImages) override;
+                    const std::set<buffer_id>& requestedImages,
+                    const bool masking = true) override;
 
   private:
     Buffer CreatePixelMask(Buffer& confidence);

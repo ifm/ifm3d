@@ -41,17 +41,17 @@ index or position in 2D array.
 // To access a pixel in ifm3d::Buffer I ( 100,100,1,ifm3d::FORMAT_8U) at  50,50
 // position
 
-auto pixel = I<uint8_t>(50,50);
+auto pixel = I.at<uint8_t>(50,50);
 // if working as Index array then
 
 auto index = 50*100 + 50 ;
-auto pixel = I<uint8_t>(index);
+auto pixel = I.at<uint8_t>(index);
 
 // Changing the pixel value can be done as follow :
 // Writing 255 at pixel postion 50,50
 
-I<uint8_t>(50,50) = 255;
-I<uint8_t>(index) = 255;
+I.at<uint8_t>(50,50) = 255;
+I.at<uint8_t>(index) = 255;
 ```  
   To access a pixel in n-channel ```ifm3d::Buffer I ( 100,100,3,ifm3d::FORMAT_8U)``` at
   `(50,50)` position, follow the example below (for a 3 channel Buffer),
@@ -67,7 +67,7 @@ uint8_t z;
 
 // Accessing the value at 50, 50 position can be done as 
 
-auto pixel = I<pixel_t>(50,50);
+auto pixel = I.at<pixel_t>(50,50);
 auto x = pixel.x;
 auto y = pixel.y;
 auto z = pixel.z;

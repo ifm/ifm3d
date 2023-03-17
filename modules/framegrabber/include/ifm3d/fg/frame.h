@@ -69,7 +69,8 @@ namespace ifm3d
     using Ptr = std::shared_ptr<Frame>;
 
     Frame(const std::map<buffer_id, Buffer>& images,
-          const std::vector<TimePointT> timestamps);
+          const std::vector<TimePointT> timestamps,
+          uint64_t frame_count);
     ~Frame();
 
     Frame(const Frame& t);
@@ -102,6 +103,11 @@ namespace ifm3d
      * @throw std::out_of_range if no image with the give id exists
      */
     Buffer& GetBuffer(buffer_id id);
+
+    /**
+     * @brief Get the frame count according to algorithm output
+     */
+    uint32_t FrameCount();
 
     /**
      * @brief Get the list of available buffers

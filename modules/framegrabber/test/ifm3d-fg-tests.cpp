@@ -48,6 +48,51 @@ protected:
   ifm3d::FrameGrabber::Ptr fg_;
 };
 
+TEST_F(FrameGrabberTest, start_stop_start)
+{
+  LOG(INFO) << "start_stop_start test";
+  for (int itr = 0; itr < 10; itr++)
+    {
+
+      EXPECT_EQ(this->fg_->Start({}).wait_for(std::chrono::seconds(1)),
+                std::future_status::ready);
+      int i = 0;
+      while (i < 10)
+        {
+          EXPECT_NO_THROW(this->fg_->WaitForFrame().get());
+          i++;
+        }
+
+      EXPECT_EQ(i, 10);
+
+      EXPECT_EQ(this->fg_->Stop().wait_for(std::chrono::seconds(1)),
+                std::future_status::ready);
+
+      std::this_thread::sleep_for(std::chrono::seconds(2));
+    }
+}
+
+TEST_F(FrameGrabberTest, masking)
+{
+  LOG(INFO) << "enabling disabling masking test";
+  int frame_count = 0;
+  this->fg_->OnNewFrame([&frame_count](auto frame) { frame_count++; });
+  this->fg_->Start({});
+
+  for (int itr = 0; itr < 10; itr++)
+    {
+      fg_->SetMasking(true);
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      EXPECT_TRUE(fg_->IsMasking());
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      fg_->SetMasking(false);
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      EXPECT_FALSE(fg_->IsMasking());
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+  this->fg_->Stop();
+}
+
 TEST_F(FrameGrabberTest, WaitForFrame)
 {
   LOG(INFO) << "WaitForFrame test";
@@ -281,7 +326,7 @@ TEST_F(FrameGrabberTest, only_algo_debug)
 
   auto frame = future_.get();
   EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::ALGO_DEBUG));
-  EXPECT_THROW(frame->GetBuffer(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE),
+  EXPECT_THROW(frame->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE),
                ifm3d::Error);
 }
 

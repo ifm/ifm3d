@@ -47,7 +47,7 @@ namespace ifm3d
         mkval<std::uint32_t>(start_ptr + ODS_OCCUPANCY_GRID_HEIGHT_INDEX);
       mkarray<float, 6>(
         start_ptr + ODS_OCCUPANCY_GRID_TRANSFORM_CELL_CENTER_TO_USER_INDEX,
-        transfor_cell_center_to_user);
+        transform_cell_center_to_user);
       ods_occupancy_grid_v1_size =
         ods_occupancy_grid_v1_minimum_size + width * height;
       if (size < ods_occupancy_grid_v1_size)
@@ -71,7 +71,7 @@ namespace ifm3d
      * e.g, multiplying the matrix with [0,0,1] gives the user cordinate
      * of the center of upper left cell
      */
-    std::array<float, 6> transfor_cell_center_to_user;
+    std::array<float, 6> transform_cell_center_to_user;
     /*@brief Buffer of width* height of type uint8_t */
     ifm3d::Buffer image;
     /*@brief size of ODS_OCCUPANCY_GRID in bytes*/

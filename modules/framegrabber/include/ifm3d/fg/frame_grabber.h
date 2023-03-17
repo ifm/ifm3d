@@ -84,6 +84,9 @@ namespace ifm3d
     /**
      * Starts the worker thread for streaming in pixel data from the device
      *
+     * Returns a future that will resolve when the FrameGrabber is ready to
+     * receive frames.
+     *
      * @param[in] buffers set of buffer_ids for receiving, passing in an empty
      * set will received all available images. The buffer_ids are specific to
      * the current Organizer. See buffer_id for a list of buffer_ids available
@@ -99,8 +102,9 @@ namespace ifm3d
      * they are missing from the schema the FrameGrabber will not be able to
      * extract the image data.
      */
-    bool Start(const BufferList& buffers,
-               const std::optional<json>& pcicFormat = std::nullopt);
+    std::shared_future<void> Start(
+      const BufferList& buffers,
+      const std::optional<json>& pcicFormat = std::nullopt);
 
     /**
      * Stops the worker thread for streaming in pixel data from the device
@@ -147,6 +151,19 @@ namespace ifm3d
      * occur while grabbing the data from device.
      */
     void OnError(ErrorCallback callback = nullptr);
+
+    /**
+     * enable/disable masking on supported buffer
+     * @param[in] mask flag to enable/disable masking
+     * Note: ifm3d::buffer_id::CONFIDENCE_IMAGE should be in schema set passed
+     * to ifm3d::FrameGrabber::Start method
+     */
+    void SetMasking(const bool mask);
+
+    /**
+     *  return masking flag
+     */
+    bool IsMasking();
 
   private:
     class Impl;

@@ -22,7 +22,8 @@ namespace ifm3d
   {
   public:
     Impl(const std::map<buffer_id, Buffer>& images,
-         const std::vector<TimePointT> timestamps);
+         const std::vector<TimePointT> timestamps,
+         uint64_t frame_count);
 
     std::vector<ifm3d::TimePointT> TimeStamps();
 
@@ -31,6 +32,8 @@ namespace ifm3d
     Buffer& GetBuffer(buffer_id id);
 
     std::vector<ifm3d::buffer_id> GetBuffers();
+
+    uint64_t FrameCount();
 
     decltype(std::declval<std::map<buffer_id, Buffer>>().begin())
     begin() noexcept;
@@ -46,15 +49,18 @@ namespace ifm3d
     //---------------------
     std::map<buffer_id, Buffer> images_;
     std::vector<TimePointT> timestamps_;
+    uint32_t frame_count_;
 
   }; // end: class FrameGrabber::Impl
 
 } // end: namespace ifm3d
 
 ifm3d::Frame::Impl::Impl(const std::map<buffer_id, Buffer>& images,
-                         const std::vector<TimePointT> timestamps)
+                         const std::vector<TimePointT> timestamps,
+                         uint64_t frame_count)
   : images_(images),
-    timestamps_(timestamps)
+    timestamps_(timestamps),
+    frame_count_(frame_count)
 {}
 
 std::vector<ifm3d::TimePointT>
@@ -92,6 +98,12 @@ ifm3d::Frame::Impl::GetBuffers()
                  [](const auto& pair) { return pair.first; });
 
   return keys;
+}
+
+uint64_t
+ifm3d::Frame::Impl::FrameCount()
+{
+  return frame_count_;
 }
 
 decltype(std::declval<std::map<ifm3d::buffer_id, ifm3d::Buffer>>().begin())

@@ -14,13 +14,17 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+from docutils import nodes
+from sphinx.transforms import SphinxTransform
+import ifm3dpy_version
 
 # -- Project information -----------------------------------------------------
 
 project = 'ifm3d'
 copyright = '2021, ifm electronic'
 author = 'ifm electronic'
-
+release = ifm3dpy_version.__version__
+version = ifm3dpy_version.__version__
 
 # -- General configuration ---------------------------------------------------
 
@@ -89,6 +93,15 @@ myst_enable_extensions = [
 
 sphinx_tabs_disable_tab_closing = True
 
+myst_url_schemes = ("http", "https", "mailto", "ftp", "relurl")
+
+class RelUrlTransform(SphinxTransform):
+    default_priority = 1
+    def apply(self, **kwargs) -> None:
+        for node in self.document.traverse(nodes.reference):
+            if "refuri" in node and node["refuri"].startswith("relurl:"):
+                node["refuri"] = node["refuri"][7:]
+
 
 def filter_bases(app, name, obj, options, bases):
     bases[:] = [None.__class__ if x.__name__ ==
@@ -96,6 +109,7 @@ def filter_bases(app, name, obj, options, bases):
 
 
 def setup(app):
+    app.add_transform(RelUrlTransform)
     app.connect('autodoc-process-bases', filter_bases)
 
 # -------------------------------------------------

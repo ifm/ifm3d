@@ -60,6 +60,9 @@ namespace ifm3d
   pixel_format get_chunk_format(const std::vector<std::uint8_t>& data,
                                 std::size_t idx);
 
+  uint32_t get_chunk_frame_count(const std::vector<std::uint8_t>& data,
+                                 std::size_t idx);
+
   std::vector<TimePointT> get_chunk_timestamps(
     const std::vector<uint8_t>& data,
     std::size_t idx);

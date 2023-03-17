@@ -5,13 +5,48 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## 1.2.3 - 2023-03-17
+### Fixes 
+- Fixed Segmentation fault when assigning a AsyncNotification or AsyncError Handler while the FrameGrabber is not running
+- Added Missing alias for ifm3dpy.Error to ifm3dpy.device.Error
+- Fix device discovery requiring manual firewall rule on windows
+
+### Added
+- CI job for release of ifm3d
+
+## 1.2.2 - 2023-03-06
+### Added
+- Added Frame::FrameCount to access the frame counter value
+- Added API to enable disable masking in FrameGrabber
+
+### Changed 
+- Split the python bindings into submodules, see the migration guide for details. *Warning:* this requires an update of existing codebases.
+- Convert SWUpdater python bindings naming to snake_case, see the migration guide for details. *Warning:* this requires an update of existing codebases.
+- `FrameGrabber::Start` now returns a future resolving once the FrameGrabber is ready to receive Frames
+
+### Fixes 
+- Fix a bug that could cause the update process to fail with a hash mismatch error on certain network configurations
+- Fix a bug preventing the FrameGrabber from being `Start`ed after it was previously `Stop`ped
+- Fix a typo in the `transform_cell_center_to_user` variable (previously called `transfor_cell_center_to_user`).
+- Add missing python binding for `O3R::ResolveConfig`
+- Fix cmake targets for deserialize module
+
+## 1.2.1 - 2023-02-09
+### Fixes 
+- Fix a bug that could result in an endless loop when receiving PCIC tickets
+- Fix a crash when receiving pcic data without any chunks
+
+## 1.2.0 - 2023-02-03
+
 ### Changed
 - Upgraded nlohmann::json to version 3.11.2
 - Removed json from the global namespace and moved nlohmann::json to the ifm3d::json namespace
 
 ### Fixes 
 - Missing python bindings for `O3R::Port` and `O3R::Ports`
-- 
+- CONFIDENCE_IMAGE image is not requested automatically anymore unless it's required for generating the requested chunks
+
 ### Added
 - `O3R::RebootToRecovery` to reboot supported O3R devices into recovery mode
 - Support for O3R recovery based updates
@@ -24,11 +59,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add struct ODSInfoV1
   - Add struct ODSOccupancyGridV1
 
-## 1.1.1 - 2022-12-9
+## 1.1.1 - 2022-12-09
 ### Fixes 
 - Data grabbing [issue](https://github.com/ifm/ifm3d/issues/377) with ifm3dpy-v1.1.0
 
-## 1.1.0 - 2022-12-2
+## 1.1.0 - 2022-12-02
 ### Added
 - Change ```FrameGrabber::Stop``` to non blocking call and now returns ```std::future<void>```
 - Add onError callback for error reporting in streaming mode of Framegrabber

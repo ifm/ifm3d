@@ -83,25 +83,6 @@ namespace ifm3d
                         long timeout_millis) override;
     void OnWebSocketData(const std::string json_string);
 
-    static int
-    XferInfoCallback(void* clientp,
-                     curl_off_t dltotal,
-                     curl_off_t dlnow,
-                     curl_off_t ultotal,
-                     curl_off_t ulnow)
-    {
-      if (ultotal > 0 && ulnow >= ultotal)
-        {
-          // Signal to 'abort' the transfer once all the data has been
-          // transferred. This is a workaround to 'complete' the curl
-          // transaction because the camera does not terminate the connection.
-          return 1;
-        }
-      else
-        {
-          return 0;
-        }
-    }
     /* Wrapper over websocketpp*/
     class WebSocketEndpoint
     {
@@ -434,15 +415,6 @@ ifm3d::ImplV2::UploadFirmware(const std::string& swu_file, long timeout_millis)
   c->Call(curl_easy_setopt,
           CURLOPT_CONNECTTIMEOUT,
           ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
-
-  // Workaround -- device does not close the connection after the firmware has
-  // been transferred. Register an xfer callback and terminate the transaction
-  // after all the data has been sent.
-  c->Call(curl_easy_setopt,
-          CURLOPT_XFERINFOFUNCTION,
-          &ifm3d::ImplV2::XferInfoCallback);
-  c->Call(curl_easy_setopt, CURLOPT_XFERINFODATA, this);
-  c->Call(curl_easy_setopt, CURLOPT_NOPROGRESS, 0);
 
   // `curl_easy_perform` will return CURLE_ABORTED_BY_CALLBACK
   // due to the above workaround. Handle and squash that error.
