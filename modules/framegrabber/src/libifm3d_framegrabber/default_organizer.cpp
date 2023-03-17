@@ -45,7 +45,8 @@ ifm3d::DefaultOrganizer::CreatePixelMask(Buffer& confidence)
 
 ifm3d::Organizer::Result
 ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
-                                  const std::set<buffer_id>& requested_images)
+                                  const std::set<buffer_id>& requested_images,
+                                  const bool masking)
 {
   std::map<buffer_id, Buffer> images;
 
@@ -94,8 +95,10 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
                                       chunks[image_chunk::CONFIDENCE_IMAGE],
                                       width,
                                       height);
-
-      mask = CreatePixelMask(confidence);
+      if (masking)
+        {
+          mask = CreatePixelMask(confidence);
+        }
 
       images[ifm3d::buffer_id::CONFIDENCE_IMAGE] = confidence;
       chunks.erase(image_chunk::CONFIDENCE_IMAGE);

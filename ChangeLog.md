@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 1.2.2 - 2023-03-06
 ### Added
 - Added Frame::FrameCount to access the frame counter value
+- Added API to enable disable masking in FrameGrabber
 
 ### Changed 
 - Split the python bindings into submodules, see the migration guide for details. *Warning:* this requires an update of existing codebases.

@@ -257,6 +257,30 @@ bind_framegrabber(pybind11::module_& m)
     )"
   );
 
+   framegrabber.def(
+    "set_masking",
+    &ifm3d::FrameGrabber::SetMasking,
+    R"(
+      Enable/Disable masking on supported buffers
+      Note: ifm3dpy.buffer_id.CONFIDENCE_IMAGE should be in schema  list passed to ifm3dpy.FrameGrabber.Start method
+
+      Parameters
+      ----------
+      mask
+          flag to enable/disable masking.
+    )"
+  );
+
+    framegrabber.def(
+    "is_masking",
+    &ifm3d::FrameGrabber::IsMasking,
+    R"(
+      Returns
+      -------
+      Masking flag
+    )"
+  );
+
   // clang-format on
 }
 
