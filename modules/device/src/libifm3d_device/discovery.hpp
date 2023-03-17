@@ -241,8 +241,7 @@ namespace ifm3d
     {
       socket_.open(asio::ip::udp::v4());
       data_.resize(MAX_UDP_PACKET_SIZE);
-      asio::socket_base::broadcast option(true);
-      socket_.set_option(option);
+      socket_.set_option(asio::socket_base::broadcast(true));
       socket_.set_option(asio::ip::udp::socket::reuse_address(true));
       socket_.bind(local_endpoint);
     }
@@ -261,6 +260,7 @@ namespace ifm3d
                                       std::placeholders::_1,
                                       std::placeholders::_2));
     }
+
     /*Grab data on the local endpoint till the timeout occur*/
     void
     GrabData()
@@ -358,7 +358,10 @@ namespace ifm3d
         }
       else
         {
-          timer_.async_wait(std::bind(&UDPConnection::_CheckTimeout, this));
+          auto shared_this = this->shared_from_this();
+          timer_.async_wait([shared_this](const asio::error_code&) {
+            shared_this->_CheckTimeout();
+          });
         }
     }
 
@@ -370,11 +373,11 @@ namespace ifm3d
     std::function<void(std::shared_ptr<UDPConnection>)> on_close_;
   };
 
-  const std::map<uint32_t, std::function<size_t(size_t)>> package_validation{
+  const std::map<size_t, std::function<size_t(size_t)>> package_validation{
     {BCAST_MAGIC_REQUEST,
-     [](size_t size) -> uint32_t { return sizeof(BcastRequest) - size; }},
+     [](size_t size) -> size_t { return sizeof(BcastRequest) - size; }},
     {BCAST_MAGIC_REPLY,
-     [](size_t size) -> uint32_t { return sizeof(BcastReply) - size; }}};
+     [](size_t size) -> size_t { return sizeof(BcastReply) - size; }}};
 
   const unsigned int THREADS_FOR_IO_OPERATIONS = 3;
 
@@ -398,22 +401,6 @@ namespace ifm3d
     NetworkSearch()
     {
       device_list_.clear();
-
-      /* Creating universal listener udp connection */
-      asio::ip::udp::endpoint endpoint(asio::ip::address_v4::any(),
-                                       BCAST_DEFAULT_PORT);
-      auto con = std::make_shared<UDPConnection>(io_context_, endpoint);
-
-      con->RegisterOnReceive(std::bind(&IFMDeviceDiscovery::_OnReceive,
-                                       this,
-                                       std::placeholders::_1,
-                                       std::placeholders::_2,
-                                       std::placeholders::_3));
-      con->RegisterOnClose(std::bind(&IFMDeviceDiscovery::_RemoveConnection,
-                                     this,
-                                     std::placeholders::_1));
-
-      connection_list_.push_back(con);
 
       try
         {
@@ -477,7 +464,10 @@ namespace ifm3d
 
       for (const auto& re : re_list)
         {
-          addresses.push_back(re.endpoint().address().to_string());
+          if (re.endpoint().address().is_v4())
+            {
+              addresses.push_back(re.endpoint().address().to_string());
+            }
         }
 #endif
       return addresses;
@@ -518,6 +508,9 @@ namespace ifm3d
                                        std::placeholders::_1,
                                        std::placeholders::_2,
                                        std::placeholders::_3));
+      con->RegisterOnClose(std::bind(&IFMDeviceDiscovery::_RemoveConnection,
+                                     this,
+                                     std::placeholders::_1));
 
       /* send BCAST_REQUEST on all interfaces */
       con->Send(data, broadcast_endpoint);
@@ -547,6 +540,7 @@ namespace ifm3d
           return {};
         }
     }
+
     /* Handles the data packet, parse the reply, creates the
      * IFMNetworkDevice */
     void
@@ -574,8 +568,11 @@ namespace ifm3d
     std::vector<IFMNetworkDevice>
     _GetDeviceList()
     {
-      /** start grab on universal brodcast socket*/
-      connection_list_[0]->GrabData();
+      auto connection_list = connection_list_;
+      for (auto& con : connection_list)
+        {
+          con->GrabData();
+        }
       /*block the main thread till the search is complete
       which is the condition when all the there is no respone on any interface
       for more than  TIMEOUT_FOR_EACH_SEARCH_IN_MS*/
