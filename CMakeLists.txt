@@ -49,6 +49,7 @@ option(BUILD_EXAMPLES "Build the examples" OFF)
 option(BUILD_DOC "Build documentation" OFF)
 option(BUILD_IN_DEPS "download and build dependencies" ON)
 option(CREATE_WIN_INSTALLER "Create windows installer" OFF)
+option(CREATE_PYTHON_STUBS "Create the Python stubs" OFF)
 
 # Installation root
 if(NOT WIN32)
