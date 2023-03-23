@@ -529,8 +529,8 @@ ifm3d::create_pixel_mask(ifm3d::Buffer& confidence)
     }
   else
     {
-      LOG(ERROR) << "confidence image format is not supported : "
-                 << (int)confidence.dataFormat();
+      LOG_ERROR( "confidence image format is not supported : "
+                 , static_cast<int>(confidence.dataFormat()));
       throw Error(IFM3D_CONFIDENCE_IMAGE_FORMAT_NOT_SUPPORTED);
     }
 
@@ -563,6 +563,20 @@ ifm3d::parse_data(const std::vector<uint8_t>& data,
               auto image = create_buffer(data, chunk.second, width, height);
               data_image[static_cast<buffer_id>(chunk.first)] = image;
             }
+        }
+    }
+}
+
+void
+ifm3d::mask_images(std::map<ifm3d::buffer_id, ifm3d::Buffer>& images,
+                   ifm3d::Buffer& mask,
+                   std::function<bool(ifm3d::buffer_id id)> should_mask)
+{
+  for (auto& [buffer_id_value, buffer] : images)
+    {
+      if (should_mask(buffer_id_value))
+        {
+          mask_buffer(buffer, mask);
         }
     }
 }

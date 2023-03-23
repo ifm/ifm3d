@@ -93,6 +93,10 @@ namespace ifm3d
                   std::map<buffer_id, Buffer>& data_blob,
                   std::map<buffer_id, Buffer>& data_image);
 
+  void mask_images(std::map<ifm3d::buffer_id, ifm3d::Buffer>& images,
+                   ifm3d::Buffer& mask,
+                   std::function<bool(ifm3d::buffer_id id)> should_mask);
+
   /**
    * Create a value of type T from sizeof(T) bytes of the passed in byte
    * buffer. Given that the ifm sensors transmit data in little endian
