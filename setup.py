@@ -91,7 +91,8 @@ class CMakeBuild(build_ext):
                       '-DCMAKE_USE_OPENSSL=OFF',
                       '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_ARCHIVE_OUTPUT_DIRECTORY=' + extdir,
-                      '-DPYTHON_EXECUTABLE=' + sys.executable]
+                      '-DPYTHON_EXECUTABLE=' + sys.executable,
+                      '-DCREATE_PYTHON_STUBS=ON']
 
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
