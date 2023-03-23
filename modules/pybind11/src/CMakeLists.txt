@@ -92,3 +92,31 @@ install(TARGETS ifm3dpy
   ARCHIVE DESTINATION ${_python_install_path} COMPONENT ${_component_name}
   PUBLIC_HEADER DESTINATION ${_include} COMPONENT ${_component_name}
   )
+
+#------------------
+# Stubs creation
+#------------------
+
+if(CREATE_PYTHON_STUBS)
+
+  get_filename_component(_python_executable_path ${PYTHON_EXECUTABLE} DIRECTORY)
+  if(NOT _python_executable_path)
+    message(FATAL_ERROR "Python executable not found!")
+  endif()
+
+  find_program(STUBGEN_EXE pybind11-stubgen
+               HINTS "${_python_executable_path}" "${_python_executable_path}/Scripts" "/opt")
+  if(NOT STUBGEN_EXE)
+    message(FATAL_ERROR "Pybind11-stubgen not found!")
+  endif()
+
+  #Note: Editing is prohibited as pybind11-stubgen is too much sensitive to spaces
+  if(WIN32)
+    add_custom_command(TARGET ifm3dpy POST_BUILD
+    COMMAND set PYTHONPATH=$<TARGET_FILE_DIR:ifm3dpy>  && call echo %PYTHONPATH% && call ${STUBGEN_EXE} --ignore-invalid=all --skip-signature-downgrade --no-setup-py --output-dir=$<TARGET_FILE_DIR:ifm3dpy> ifm3dpy && call type nul > $<TARGET_FILE_DIR:ifm3dpy>/ifm3dpy-stubs/__init__.py && call ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:ifm3dpy>/ifm3dpy-stubs ${IFM3D_SOURCE_DIR}/python_stubs/ifm3dpy-stubs && call set PYTHONPATH= )
+  endif(WIN32)
+  if(NOT WIN32)
+    add_custom_command(TARGET ifm3dpy POST_BUILD
+    COMMAND export PYTHONPATH=$<TARGET_FILE_DIR:ifm3dpy>  && ${STUBGEN_EXE} --ignore-invalid=all --skip-signature-downgrade --no-setup-py --output-dir=$<TARGET_FILE_DIR:ifm3dpy> ifm3dpy && touch $<TARGET_FILE_DIR:ifm3dpy>/ifm3dpy-stubs/__init__.py && ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:ifm3dpy>/ifm3dpy-stubs ${IFM3D_SOURCE_DIR}/python_stubs/ifm3dpy-stubs && export PYTHONPATH= )
+  endif(NOT WIN32)
+endif()

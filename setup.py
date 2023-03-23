@@ -52,6 +52,13 @@ def get_version_from_git():
 
     return version
 
+def get_stubs_file(package):
+    stubs = []
+    for root, dirs, files in os.walk(package):
+        for file in files:
+            path = os.path.join(root, file).replace(package + os.sep, '', 1)
+            stubs.append(path)
+    return dict(package=stubs)
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
@@ -91,7 +98,8 @@ class CMakeBuild(build_ext):
                       '-DCMAKE_USE_OPENSSL=OFF',
                       '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_ARCHIVE_OUTPUT_DIRECTORY=' + extdir,
-                      '-DPYTHON_EXECUTABLE=' + sys.executable]
+                      '-DPYTHON_EXECUTABLE=' + sys.executable,
+                      '-DCREATE_PYTHON_STUBS=ON']
 
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
@@ -143,5 +151,6 @@ setup(
     zip_safe=False,
     packages=find_packages(),
     entry_points={'console_scripts': ['ifm3dpy = ifm3dpy:_run_cmdtool']},
-    install_requires=['numpy']
+    install_requires=['numpy'],
+    package_data=get_stubs_file('ifm3dpy-stubs')
 )
