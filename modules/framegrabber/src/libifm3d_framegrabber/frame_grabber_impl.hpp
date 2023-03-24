@@ -182,7 +182,8 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
     finish_future_(std::async(std::launch::async, []() {})),
     is_ready_(false)
 {
-  if (this->cam_->AmI(Device::device_family::O3D))
+  auto device_type = this->cam_->WhoAmI();
+  if (device_type == Device::device_family::O3D)
     {
       this->SetMasking(true);
       this->SetOrganizer(std::make_unique<O3XOrganizer>());
@@ -203,12 +204,12 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
         }
     }
 
-  if (this->cam_->AmI(Device::device_family::O3X))
+  else if (device_type == Device::device_family::O3X)
     {
       this->SetMasking(true);
       this->SetOrganizer(std::make_unique<O3XOrganizer>());
     }
-  if (this->cam_->AmI(Device::device_family::O3R))
+  else if (device_type == Device::device_family::O3R)
     {
       this->SetMasking(false);
 
@@ -806,7 +807,6 @@ ifm3d::FrameGrabber::Impl::GenerateDefaultSchema()
         schema,
         cam_->FirmwareVersion());
     }
-
   return schema;
 }
 

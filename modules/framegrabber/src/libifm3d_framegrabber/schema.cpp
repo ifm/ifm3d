@@ -42,6 +42,8 @@ const std::map<ifm3d::buffer_id, const ifm3d::json> o3d_schema_map{
   {ifm3d::buffer_id::JSON_MODEL, {{"type", "blob"}, {"id", "json_model"}}},
   {ifm3d::buffer_id::CONFIDENCE_IMAGE,
    {{"type", "blob"}, {"id", "confidence_image"}}},
+  {ifm3d::buffer_id::DIAGNOSTIC,
+   {{"type", "blob"}, {"id", "diagnostic_data"}}},
   {ifm3d::buffer_id::EXTRINSIC_CALIB,
    {{"type", "blob"}, {"id", "extrinsic_calibration"}}},
   {ifm3d::buffer_id::EXPOSURE_TIME,
