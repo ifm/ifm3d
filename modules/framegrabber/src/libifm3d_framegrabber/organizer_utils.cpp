@@ -290,12 +290,13 @@ ifm3d::create_xyz_buffer(const std::vector<std::uint8_t>& data,
 
 std::map<ifm3d::image_chunk, std::size_t>
 ifm3d::get_image_chunks(const std::vector<std::uint8_t>& data,
-                        std::size_t start_idx)
+                        std::size_t start_idx,
+                        std::optional<size_t> end_idx)
 {
   std::map<image_chunk, std::size_t> chunks;
 
   std::size_t idx = start_idx; // start of first chunk
-  std::size_t size = data.size() - 6;
+  std::size_t size = end_idx.has_value() ? end_idx.value():  data.size() - 6;
 
   while (idx < size)
     {

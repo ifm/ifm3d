@@ -29,6 +29,7 @@
 #include <ifm3d/fg/frame_grabber_export.h>
 #include <ifm3d/device.h>
 #include <ifm3d/fg/schema.h>
+#include <o3d_organizer.hpp>
 #include <o3x_organizer.hpp>
 #include <o3r_organizer3D.hpp>
 #include <o3r_organizer2D.hpp>
@@ -186,7 +187,7 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
   if (device_type == Device::device_family::O3D)
     {
       this->SetMasking(true);
-      this->SetOrganizer(std::make_unique<O3XOrganizer>());
+      this->SetOrganizer(std::make_unique<O3DOrganizer>());
       if (!pcic_port.has_value())
         {
           try
@@ -807,6 +808,7 @@ ifm3d::FrameGrabber::Impl::GenerateDefaultSchema()
         schema,
         cam_->FirmwareVersion());
     }
+  std::cout << schema << std::endl;
   return schema;
 }
 
