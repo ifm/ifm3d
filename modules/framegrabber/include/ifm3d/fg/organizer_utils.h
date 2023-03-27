@@ -22,7 +22,8 @@ namespace ifm3d
 
   std::map<image_chunk, std::size_t> get_image_chunks(
     const std::vector<std::uint8_t>& data,
-    std::size_t start_idx);
+    std::size_t start_idx,
+    std::optional<size_t> end_idx = std::nullopt);
 
   std::size_t get_format_size(pixel_format fmt);
   std::size_t get_format_channels(pixel_format fmt);
