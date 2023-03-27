@@ -99,7 +99,7 @@ ifm3d::O3R::Impl::ResolveConfig(const json::json_pointer& ptr)
 void
 ifm3d::O3R::Impl::Set(const std::string& config)
 {
-  this->xwrapper_->XCallMain("set", config);
+  this->xwrapper_->XCallMainTimeout("set", NET_WAIT_O3R_SET, config);
 }
 
 void
