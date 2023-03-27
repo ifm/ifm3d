@@ -10,7 +10,6 @@
 #include <ifm3d/fg/distance_image_info.h>
 #include <o3d_organizer.hpp>
 
-
 namespace ifm3d
 {
   namespace
@@ -30,7 +29,6 @@ namespace ifm3d
   };
 };
 
-
 ifm3d::Organizer::Result
 ifm3d::O3DOrganizer::Organize(const std::vector<uint8_t>& data,
                               const std::set<buffer_id>& requested_images,
@@ -38,8 +36,9 @@ ifm3d::O3DOrganizer::Organize(const std::vector<uint8_t>& data,
 {
   std::map<buffer_id, Buffer> images;
   size_t end_idx = data.size() - 6;
-  // iilumination temperature data if present will always come last as it last data in schema
-  // Note : this is automatically done with sorting provided by std::set. 
+  // iilumination temperature data if present will always come last as it last
+  // data in schema Note : this is automatically done with sorting provided by
+  // std::set.
   if (requested_images.count(ifm3d::buffer_id::ILLUMINATION_TEMP) == 1)
     {
 
@@ -59,23 +58,22 @@ ifm3d::O3DOrganizer::Organize(const std::vector<uint8_t>& data,
 
   // Exposure time data if present will always come 2nd last as it
   if (requested_images.count(ifm3d::buffer_id::EXPOSURE_TIME) == 1)
-     {
-       
-    size_t exposure_time_idx =
-         end_idx - ifm3d::SiZE_OF_O3D_EXPOSURE_TIME_DATA;
-       ifm3d::Buffer exposure_time_buffer = ifm3d::create_buffer(
-         data,
-      exposure_time_idx +
-           ifm3d::SIZE_OF_O3D_EXPOSURE_TIME_KEY_STRING,
-         ifm3d::SIZE_OF_O3D_EXPOSURE_TIME_VALUES,
-         1,
-         ifm3d::pixel_format::FORMAT_8U);
-    images[ifm3d::buffer_id::EXPOSURE_TIME] = exposure_time_buffer;
+    {
 
-       end_idx = exposure_time_idx;
-     }
+      size_t exposure_time_idx =
+        end_idx - ifm3d::SiZE_OF_O3D_EXPOSURE_TIME_DATA;
+      ifm3d::Buffer exposure_time_buffer = ifm3d::create_buffer(
+        data,
+        exposure_time_idx + ifm3d::SIZE_OF_O3D_EXPOSURE_TIME_KEY_STRING,
+        ifm3d::SIZE_OF_O3D_EXPOSURE_TIME_VALUES,
+        1,
+        ifm3d::pixel_format::FORMAT_8U);
+      images[ifm3d::buffer_id::EXPOSURE_TIME] = exposure_time_buffer;
 
-  auto chunks = get_image_chunks(data, IMG_BUFF_START,end_idx);
+      end_idx = exposure_time_idx;
+    }
+
+  auto chunks = get_image_chunks(data, IMG_BUFF_START, end_idx);
 
   auto metachunk = find_metadata_chunk(chunks);
 
@@ -128,7 +126,7 @@ ifm3d::O3DOrganizer::Organize(const std::vector<uint8_t>& data,
                       mask.value(),
                       std::bind(&ifm3d::O3DOrganizer::ShouldMask,
                                 this,
-                                 std::placeholders::_1));
+                                std::placeholders::_1));
         }
     }
 
@@ -161,16 +159,16 @@ ifm3d::O3DOrganizer::Organize(const std::vector<uint8_t>& data,
   return {images, timestamps, frame_count};
 }
 
-bool 
+bool
 ifm3d::O3DOrganizer::ShouldMask(buffer_id id)
-  {
-    switch (id)
-      {
-      case static_cast<buffer_id>(image_chunk::UNIT_VECTOR_ALL):
-      case static_cast<buffer_id>(image_chunk::CONFIDENCE_IMAGE):
-        return false;
+{
+  switch (id)
+    {
+    case static_cast<buffer_id>(image_chunk::UNIT_VECTOR_ALL):
+    case static_cast<buffer_id>(image_chunk::CONFIDENCE_IMAGE):
+      return false;
 
-      default:
-        return true;
-      }
-  }
+    default:
+      return true;
+    }
+}

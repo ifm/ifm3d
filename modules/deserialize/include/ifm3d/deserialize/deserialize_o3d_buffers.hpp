@@ -54,8 +54,7 @@ namespace ifm3d
   using O3DInstrinsicCalibration =
     ArrayDeserialize<float, O3D_NUMBER_OF_INTRINSIC_CALIBRATION_PARAM>;
   using O3DInverseInstrinsicCalibration =
-    ArrayDeserialize<float,
-                         O3D_NUMBER_OF_INVERSE_INTRINSIC_CALIBRATION_PARAM>;
+    ArrayDeserialize<float, O3D_NUMBER_OF_INVERSE_INTRINSIC_CALIBRATION_PARAM>;
   using O3DExtrinsicCalibration =
     ArrayDeserialize<float, O3D_NUMBER_OF_EXTRINSIC_PARAM>;
   using O3DExposureTimes =
