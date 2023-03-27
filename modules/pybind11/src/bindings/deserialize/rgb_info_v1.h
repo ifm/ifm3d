@@ -55,8 +55,8 @@ bind_struct_rgbinfov1(pybind11::module_& m)
         Actual exposure time of the 2D image
       )");
   rgb_info_v1.def_readonly(
-    "extrisic_optic_to_user",
-    &ifm3d::RGBInfoV1::extrisic_optic_to_user,
+    "extrinsic_optic_to_user",
+    &ifm3d::RGBInfoV1::extrinsic_optic_to_user,
     R"(
         Extrinsic optic paramter of the 2D head
       )");

@@ -45,12 +45,12 @@ TEST(DeserializeTestWithFile, struct_tof_info_v3)
                          ifm3d::tof_info::amp_normalization_factors));
 
   std::array<float, 6> extrinc_opt_to_user = {
-    tof_info_v3.extrisic_optic_to_user.trans_x,
-    tof_info_v3.extrisic_optic_to_user.trans_y,
-    tof_info_v3.extrisic_optic_to_user.trans_z,
-    tof_info_v3.extrisic_optic_to_user.rot_x,
-    tof_info_v3.extrisic_optic_to_user.rot_y,
-    tof_info_v3.extrisic_optic_to_user.rot_z};
+    tof_info_v3.extrinsic_optic_to_user.trans_x,
+    tof_info_v3.extrinsic_optic_to_user.trans_y,
+    tof_info_v3.extrinsic_optic_to_user.trans_z,
+    tof_info_v3.extrinsic_optic_to_user.rot_x,
+    tof_info_v3.extrinsic_optic_to_user.rot_y,
+    tof_info_v3.extrinsic_optic_to_user.rot_z};
 
   EXPECT_TRUE(ifm3d::compare_array(extrinc_opt_to_user,
                                    ifm3d::tof_info::extrincsic_optic_to_user));
@@ -110,12 +110,12 @@ TEST(DeserializeTestWithFile, struct_tof_info_v4)
                          ifm3d::tof_info::amp_normalization_factors));
 
   std::array<float, 6> extrinc_opt_to_user = {
-    tof_info_v4.extrisic_optic_to_user.trans_x,
-    tof_info_v4.extrisic_optic_to_user.trans_y,
-    tof_info_v4.extrisic_optic_to_user.trans_z,
-    tof_info_v4.extrisic_optic_to_user.rot_x,
-    tof_info_v4.extrisic_optic_to_user.rot_y,
-    tof_info_v4.extrisic_optic_to_user.rot_z};
+    tof_info_v4.extrinsic_optic_to_user.trans_x,
+    tof_info_v4.extrinsic_optic_to_user.trans_y,
+    tof_info_v4.extrinsic_optic_to_user.trans_z,
+    tof_info_v4.extrinsic_optic_to_user.rot_x,
+    tof_info_v4.extrinsic_optic_to_user.rot_y,
+    tof_info_v4.extrinsic_optic_to_user.rot_z};
 
   EXPECT_TRUE(ifm3d::compare_array(extrinc_opt_to_user,
                                    ifm3d::tof_info::extrincsic_optic_to_user));
@@ -179,12 +179,12 @@ TEST(DeserializeTestWithFile, struct_rgb_info_v1)
               ifm3d::epsilon);
 
   std::array<float, 6> extrinc_opt_to_user = {
-    rgb_info_v1.extrisic_optic_to_user.trans_x,
-    rgb_info_v1.extrisic_optic_to_user.trans_y,
-    rgb_info_v1.extrisic_optic_to_user.trans_z,
-    rgb_info_v1.extrisic_optic_to_user.rot_x,
-    rgb_info_v1.extrisic_optic_to_user.rot_y,
-    rgb_info_v1.extrisic_optic_to_user.rot_z};
+    rgb_info_v1.extrinsic_optic_to_user.trans_x,
+    rgb_info_v1.extrinsic_optic_to_user.trans_y,
+    rgb_info_v1.extrinsic_optic_to_user.trans_z,
+    rgb_info_v1.extrinsic_optic_to_user.rot_x,
+    rgb_info_v1.extrinsic_optic_to_user.rot_y,
+    rgb_info_v1.extrinsic_optic_to_user.rot_z};
 
   EXPECT_TRUE(ifm3d::compare_array(extrinc_opt_to_user,
                                    ifm3d::rgb_info::extrincsic_optic_to_user));
