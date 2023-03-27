@@ -49,8 +49,8 @@ namespace ifm3d
       timestamp_ns =
         mkval<std::uint64_t>(start_ptr + RGB_INFO_TIMESTAMPS_INDEX);
       exposure_time = mkval<float>(start_ptr + RGB_INFO_EXPOSURE_TIMES_INDEX);
-      extrisic_optic_to_user.Read(start_ptr +
-                                  RGB_INFO_EXTRINSIC_OPTICAL_TO_USER_INDEX);
+      extrinsic_optic_to_user.Read(start_ptr +
+                                   RGB_INFO_EXTRINSIC_OPTICAL_TO_USER_INDEX);
       intrinsic_calibration.Read(start_ptr +
                                  RGB_INFO_INTRINSIC_CALIBRATION_INDEX);
       inverse_intrinsic_calibration.Read(
@@ -66,7 +66,7 @@ namespace ifm3d
     /*@brief Actual exposure time of the 2D image*/
     float exposure_time;
     /*@brief Extrinsic optic paramter of the 2D head*/
-    calibration::ExtrinsicOpticToUser extrisic_optic_to_user;
+    calibration::ExtrinsicOpticToUser extrinsic_optic_to_user;
     /*@brief Intrinsic Calibration parameters*/
     calibration::IntrinsicCalibration intrinsic_calibration;
     /*@brief Inverse intrinsic Calibration parameters*/
