@@ -5,8 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changes
+- Increase network timeout for the O3R::Set() call to 10 seconds
+
 ### Fixes 
 - Fixed potential crash during device discovery
+- Fixed possible Segmentation fault when calling FrameGrabber::Stop() directly after FrameGrabber::Start()
 - Fixed typo in RGBInfoV1, TOFInfoV4 and TOFInfoV3: extrisic_optic_to_user -> extrinsic_optic_to_user
 
 ## 1.2.3 - 2023-03-17
