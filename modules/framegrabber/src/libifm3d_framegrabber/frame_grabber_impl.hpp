@@ -808,7 +808,6 @@ ifm3d::FrameGrabber::Impl::GenerateDefaultSchema()
         schema,
         cam_->FirmwareVersion());
     }
-  std::cout << schema << std::endl;
   return schema;
 }
 
