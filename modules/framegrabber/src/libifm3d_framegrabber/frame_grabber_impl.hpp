@@ -552,7 +552,7 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
     }
   else if (ticket_id == ifm3d::TICKET_COMMAND_p)
     {
-      if (this->payload_buffer_.at(4) == '*')
+      if (!this->is_ready_ && this->payload_buffer_.at(4) == '*')
         {
           this->is_ready_ = true;
           this->ready_promise_.set_value();
