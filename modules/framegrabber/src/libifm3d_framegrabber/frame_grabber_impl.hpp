@@ -148,6 +148,7 @@ namespace ifm3d
 
     std::promise<Frame::Ptr> wait_for_frame_promise;
     std::shared_future<Frame::Ptr> wait_for_frame_future;
+    std::mutex wait_for_frame_mutex_;
 
     std::promise<void> trigger_feedback_promise_;
     std::shared_future<void> trigger_feedback_future_;
@@ -264,6 +265,7 @@ ifm3d::FrameGrabber::Impl::OnNewFrame(NewFrameCallback callback)
 std::shared_future<ifm3d::Frame::Ptr>
 ifm3d::FrameGrabber::Impl::WaitForFrame()
 {
+  std::lock_guard<std::mutex> lock(this->wait_for_frame_mutex_);
   return this->wait_for_frame_future;
 }
 
@@ -380,8 +382,11 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
       LOG(WARNING) << "System error " << err.code() << ": " << err.what();
     }
 
-  this->sock_.reset();
-  this->io_service_.reset();
+  {
+    std::lock_guard<std::mutex> lock(this->io_service_mutex_);
+    this->sock_.reset();
+    this->io_service_.reset();
+  }
 
   this->ready_promise_ = std::promise<void>();
   this->ready_future_ = this->ready_promise_.get_future();
@@ -601,9 +606,12 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
 
           this->wait_for_frame_promise.set_value(frame);
 
-          this->wait_for_frame_promise = std::promise<Frame::Ptr>();
-          this->wait_for_frame_future =
-            this->wait_for_frame_promise.get_future();
+          {
+            std::lock_guard<std::mutex> lock(this->wait_for_frame_mutex_);
+            this->wait_for_frame_promise = std::promise<Frame::Ptr>();
+            this->wait_for_frame_future =
+              this->wait_for_frame_promise.get_future();
+          }
 
           if (this->new_frame_callback_)
             {
