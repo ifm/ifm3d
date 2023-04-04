@@ -175,13 +175,10 @@ PYBIND11_MODULE(ifm3dpy, m)
     ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH,
     "Constant for querying for O3D inverse intrinsic parameter support.");
 
-  bind_future<ifm3d::Frame::Ptr>(
-    m,
-    "FrameAwaitable",
-    "Provides a mechanism to access the frame object");
   bind_future<void>(m,
                     "Awaitable",
-                    "Provides a mechanism to wait for completion of a task");
+                    "Provides a mechanism to wait for completion of a task",
+                    "None");
 
   auto device_module = m.def_submodule(
     "device",
@@ -196,6 +193,11 @@ PYBIND11_MODULE(ifm3dpy, m)
     "framegrabber",
     R"(Provides an implementation of the PCIC protocol for streaming pixel data and triggered image acquisition.)");
   bind_frame(framegrabber_module);
+  bind_future<ifm3d::Frame::Ptr>(
+    m,
+    "FrameAwaitable",
+    "Provides a mechanism to access the frame object",
+    "Frame");
   bind_framegrabber(framegrabber_module);
 
   auto swupdater_module = m.def_submodule(
