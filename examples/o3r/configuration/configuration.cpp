@@ -24,8 +24,6 @@ int main(){
     
     // Configure the device from a json string
     cam->Set(ifm3d::json::parse(R"({"device":{"info":{"name": "my_new_o3r"}}})")); 
-    // Make the configuration persistent
-    cam->SaveInit();
 
     return 0;
 }
