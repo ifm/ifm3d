@@ -79,7 +79,7 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "get",
-    [](const ifm3d::O3R::Ptr& c, const std::vector<std::string>& path)
+    [](const ifm3d::O3R::Ptr& c, const std::vector<std::string>& path) -> py::dict
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
@@ -98,7 +98,7 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "resolve_config",
-    [](const ifm3d::O3R::Ptr& c, std::string& json_pointer)
+    [](const ifm3d::O3R::Ptr& c, std::string& json_pointer) -> py::dict
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
@@ -168,7 +168,7 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "get_init",
-    [](const ifm3d::O3R::Ptr& c)
+    [](const ifm3d::O3R::Ptr& c) -> py::dict
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
@@ -233,7 +233,7 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "get_schema",
-    [](const ifm3d::O3R::Ptr& c)
+    [](const ifm3d::O3R::Ptr& c) -> py::dict
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
@@ -250,7 +250,7 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "get_diagnostic",
-    [](const ifm3d::O3R::Ptr& c)
+    [](const ifm3d::O3R::Ptr& c) -> py::dict
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
@@ -266,7 +266,7 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "get_diagnostic_filter_schema",
-    [](const ifm3d::O3R::Ptr& c)
+    [](const ifm3d::O3R::Ptr& c) -> py::dict
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
@@ -284,7 +284,7 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "get_diagnostic_filtered",
-    [](const ifm3d::O3R::Ptr& c, const py::dict& filter)
+    [](const ifm3d::O3R::Ptr& c, const py::dict& filter) -> py::dict
     {
       py::object json_dumps = py::module::import("json").attr("dumps");
       py::object json_loads = py::module::import("json").attr("loads");
