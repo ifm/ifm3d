@@ -390,6 +390,7 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
 
   this->ready_promise_ = std::promise<void>();
   this->ready_future_ = this->ready_promise_.get_future();
+  this->is_ready_ = false;
 
   if (error.has_value())
     {
@@ -552,16 +553,20 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
     }
   else if (ticket_id == ifm3d::TICKET_COMMAND_p)
     {
-      if (!this->is_ready_ && this->payload_buffer_.at(4) == '*')
+      if (!this->is_ready_)
         {
-          this->is_ready_ = true;
-          this->ready_promise_.set_value();
-        }
-      else
-        {
-          LOG(ERROR) << "Error setting pcic mode on device";
-          throw ifm3d::Error(IFM3D_PCIC_BAD_REPLY,
-                             fmt::format("Error setting pcic mode on device"));
+          if (this->payload_buffer_.at(4) == '*')
+            {
+              this->is_ready_ = true;
+              this->ready_promise_.set_value();
+            }
+          else
+            {
+              LOG(ERROR) << "Error setting pcic mode on device";
+              throw ifm3d::Error(
+                IFM3D_PCIC_BAD_REPLY,
+                fmt::format("Error setting pcic mode on device"));
+            }
         }
     }
   else if (ticket_id == ifm3d::TICKET_COMMAND_t)
