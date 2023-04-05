@@ -56,7 +56,7 @@ bind_framegrabber(pybind11::module_& m)
       py::arg("buffers") = ifm3d::FrameGrabber::BufferList{},
       py::arg("pcic_format") = std::nullopt,
       py::doc(R"(
-        start(self: ifm3dpy.framegrabber.FrameGrabber, buffers: typing.Sequence[Union[int, ifm3dpy.framegrabber.buffer_id]] = [], pcic_format: Optional[dict] = None) -> ifm3dpy.FrameAwaitable
+        start(self: ifm3dpy.framegrabber.FrameGrabber, buffers: typing.Sequence[Union[int, ifm3dpy.framegrabber.buffer_id]] = [], pcic_format: Optional[dict] = None) -> ifm3dpy.Awaitable
 
 
         Starts the worker thread for streaming in pixel data from the device

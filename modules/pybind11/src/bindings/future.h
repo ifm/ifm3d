@@ -158,12 +158,13 @@ bind_future(py::module_& m,
   py::class_<FutureAwaitable<T>> future(m, name, message);
 
   future.def(py::init<>(), message);
-  future.def("__iter__", &FutureAwaitable<T>::iter);
-  future.def("__await__", &FutureAwaitable<T>::await);
   future.def("__next__", &FutureAwaitable<T>::next);
 
   py::options options;
   options.disable_function_signatures();
+
+  future.def("__iter__", &FutureAwaitable<T>::iter, py::doc(fmt::format("__iter__(self) -> typing.Generator[{0},{0},{0}]", result_type).c_str()));
+  future.def("__await__", &FutureAwaitable<T>::await, py::doc(fmt::format("__await__(self) -> typing.Generator[{0},{0},{0}]", result_type).c_str()));
 
   future.def(
     "wait", 
