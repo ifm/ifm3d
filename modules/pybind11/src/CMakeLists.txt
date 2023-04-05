@@ -99,24 +99,50 @@ install(TARGETS ifm3dpy
 
 if(CREATE_PYTHON_STUBS)
 
-  get_filename_component(_python_executable_path ${PYTHON_EXECUTABLE} DIRECTORY)
-  if(NOT _python_executable_path)
-    message(FATAL_ERROR "Python executable not found!")
+  if(BUILD_SHARED_LIBS)
+    message (
+      FATAL_ERROR
+        "Error while creating stubs as BUILD_SHARED_LIBS is ON")
   endif()
 
-  find_program(STUBGEN_EXE pybind11-stubgen
-               HINTS "${_python_executable_path}" "${_python_executable_path}/Scripts" "/opt")
-  if(NOT STUBGEN_EXE)
-    message(FATAL_ERROR "Pybind11-stubgen not found!")
+  # Create a venv
+  set(venv ${CMAKE_CURRENT_BINARY_DIR}/stubgen-venv)
+  if(NOT IS_DIRECTORY ${venv})
+    execute_process(
+      COMMAND ${PYTHON_EXECUTABLE} -m venv ${venv}
+      RESULT_VARIABLE status
+      OUTPUT_VARIABLE output
+      ERROR_VARIABLE output)
+    if(status AND NOT status EQUAL 0)
+      message(
+        FATAL_ERROR
+          "Error while creating venv in ${venv}:\n${output}")
+    endif()
   endif()
 
-  #Note: Editing is prohibited as pybind11-stubgen is too much sensitive to spaces
-  if(WIN32)
-    add_custom_command(TARGET ifm3dpy POST_BUILD
-    COMMAND set PYTHONPATH=$<TARGET_FILE_DIR:ifm3dpy>  && call echo %PYTHONPATH% && call ${STUBGEN_EXE} --ignore-invalid=all --skip-signature-downgrade --no-setup-py --output-dir=$<TARGET_FILE_DIR:ifm3dpy> ifm3dpy && call type nul > $<TARGET_FILE_DIR:ifm3dpy>/ifm3dpy-stubs/__init__.py && call ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:ifm3dpy>/ifm3dpy-stubs ${IFM3D_SOURCE_DIR}/python_stubs/ifm3dpy-stubs && call set PYTHONPATH= )
-  endif(WIN32)
-  if(NOT WIN32)
-    add_custom_command(TARGET ifm3dpy POST_BUILD
-    COMMAND export PYTHONPATH=$<TARGET_FILE_DIR:ifm3dpy>  && ${STUBGEN_EXE} --ignore-invalid=all --skip-signature-downgrade --no-setup-py --output-dir=$<TARGET_FILE_DIR:ifm3dpy> ifm3dpy && touch $<TARGET_FILE_DIR:ifm3dpy>/ifm3dpy-stubs/__init__.py && ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:ifm3dpy>/ifm3dpy-stubs ${IFM3D_SOURCE_DIR}/python_stubs/ifm3dpy-stubs && export PYTHONPATH= )
-  endif(NOT WIN32)
+  find_program(venv_python python PATHS ${venv}/bin/ ${venv}/Scripts REQUIRED NO_DEFAULT_PATH)
+
+  # Install pybind11-stubgen in the venv
+  execute_process(
+    COMMAND ${venv_python} -m pip install pybind11-stubgen
+    RESULT_VARIABLE status
+    OUTPUT_VARIABLE output
+    ERROR_VARIABLE output)
+  if(status AND NOT status EQUAL 0)
+    message(
+      FATAL_ERROR
+        "Error while installing pybind11-stubgen in ${venv}:\n${output}"
+    )
+  endif()
+
+  # Generate the stubs
+  add_custom_command(
+    TARGET ifm3dpy
+    POST_BUILD
+    COMMAND
+      ${CMAKE_COMMAND} -E env PYTHONPATH="$<TARGET_FILE_DIR:ifm3dpy>"
+      ${CMAKE_COMMAND} -E env PYTHONHOME=""
+      ${CMAKE_COMMAND} -E env VIRTUAL_ENV="${venv}"
+        ${venv_python} -m pybind11_stubgen --ignore-invalid=all --skip-signature-downgrade --no-setup-py --output-dir=$<TARGET_FILE_DIR:ifm3dpy> --root-module-suffix="" ifm3dpy
+  )
 endif()

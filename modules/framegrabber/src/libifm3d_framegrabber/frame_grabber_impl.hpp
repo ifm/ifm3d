@@ -114,9 +114,9 @@ namespace ifm3d
     std::string cam_ip_;
     uint16_t pcic_port_;
     std::unique_ptr<asio::io_service> io_service_;
+    std::mutex io_service_mutex_;
     std::unique_ptr<asio::ip::tcp::socket> sock_;
     std::shared_future<void> finish_future_;
-    std::atomic<bool> is_running_;
     std::unique_ptr<Organizer> organizer_;
     std::set<buffer_id> requested_images_;
     bool is_ready_;
@@ -148,6 +148,7 @@ namespace ifm3d
 
     std::promise<Frame::Ptr> wait_for_frame_promise;
     std::shared_future<Frame::Ptr> wait_for_frame_future;
+    std::mutex wait_for_frame_mutex_;
 
     std::promise<void> trigger_feedback_promise_;
     std::shared_future<void> trigger_feedback_future_;
@@ -177,7 +178,6 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
     wait_for_frame_future(wait_for_frame_promise.get_future()),
     trigger_feedback_future_(trigger_feedback_promise_.get_future()),
     ready_future_(ready_promise_.get_future()),
-    is_running_(false),
     finish_future_(std::async(std::launch::async, []() {})),
     is_ready_(false),
     masking_(cam->AmI(Device::device_family::O3D) ||
@@ -265,6 +265,7 @@ ifm3d::FrameGrabber::Impl::OnNewFrame(NewFrameCallback callback)
 std::shared_future<ifm3d::Frame::Ptr>
 ifm3d::FrameGrabber::Impl::WaitForFrame()
 {
+  std::lock_guard<std::mutex> lock(this->wait_for_frame_mutex_);
   return this->wait_for_frame_future;
 }
 
@@ -272,16 +273,16 @@ std::shared_future<void>
 ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::buffer_id>& images,
                                  const std::optional<json>& schema)
 {
-  if (!this->is_running_.load())
+  std::lock_guard<std::mutex> lock(this->io_service_mutex_);
+  if (!this->io_service_)
     {
+      this->io_service_ = std::make_unique<asio::io_service>();
+      this->sock_ = std::make_unique<asio::ip::tcp::socket>(*io_service_);
       this->requested_images_ = images;
+
       this->finish_future_ = std::async(
         std::launch::async,
-        [this](const std::optional<json>& schema) {
-          this->is_running_.store(true);
-          this->Run(schema);
-          this->is_running_.store(false);
-        },
+        [this](const std::optional<json>& schema) { this->Run(schema); },
         schema);
       return this->ready_future_;
     }
@@ -294,7 +295,8 @@ ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::buffer_id>& images,
 std::shared_future<void>
 ifm3d::FrameGrabber::Impl::Stop()
 {
-  if (this->is_running_.load())
+  std::lock_guard<std::mutex> lock(this->io_service_mutex_);
+  if (this->io_service_)
     {
       this->io_service_->post(
         []() { throw ifm3d::Error(IFM3D_THREAD_INTERRUPTED); });
@@ -306,7 +308,7 @@ ifm3d::FrameGrabber::Impl::Stop()
 bool
 ifm3d::FrameGrabber::Impl::IsRunning()
 {
-  return this->is_running_.load();
+  return this->io_service_ != nullptr;
 }
 
 void
@@ -327,9 +329,6 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
   this->ticket_buffer_.clear();
   this->ticket_buffer_.resize(ifm3d::TICKET_SIZE);
 
-  this->io_service_ = std::make_unique<asio::io_service>();
-  this->sock_ = std::make_unique<asio::ip::tcp::socket>(*io_service_);
-
   std::optional<ifm3d::Error> error;
 
   try
@@ -347,7 +346,6 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
       if (ex.code() != IFM3D_THREAD_INTERRUPTED)
         {
           LOG(WARNING) << ex.what();
-          // this->ReportError(ex);
           error = ex;
         }
     }
@@ -369,19 +367,6 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
       error = ifm3d::Error(IFM3D_SYSTEM_ERROR, fmt::format("{1}", err.what()));
     }
 
-  if (error.has_value())
-    {
-      LOG(WARNING) << "Exception: " << error.value().what();
-      this->ReportError(error.value());
-
-      auto ex_ptr = std::make_exception_ptr(error.value());
-      this->wait_for_frame_promise.set_exception(ex_ptr);
-      if (!this->is_ready_)
-        {
-          this->ready_promise_.set_exception(ex_ptr);
-        }
-    }
-
   try
     {
       this->sock_->shutdown(asio::socket_base::shutdown_both);
@@ -397,12 +382,27 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
       LOG(WARNING) << "System error " << err.code() << ": " << err.what();
     }
 
-  this->sock_.reset();
-  this->io_service_.reset();
+  {
+    std::lock_guard<std::mutex> lock(this->io_service_mutex_);
+    this->sock_.reset();
+    this->io_service_.reset();
+  }
 
   this->ready_promise_ = std::promise<void>();
   this->ready_future_ = this->ready_promise_.get_future();
-  this->is_ready_ = false;
+
+  if (error.has_value())
+    {
+      LOG(WARNING) << "Exception: " << error.value().what();
+      this->ReportError(error.value());
+
+      auto ex_ptr = std::make_exception_ptr(error.value());
+      this->wait_for_frame_promise.set_exception(ex_ptr);
+      if (!this->is_ready_)
+        {
+          this->ready_promise_.set_exception(ex_ptr);
+        }
+    }
 
   LOG(INFO) << "FrameGrabber thread done.";
 }
@@ -552,7 +552,7 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
     }
   else if (ticket_id == ifm3d::TICKET_COMMAND_p)
     {
-      if (this->payload_buffer_.at(4) == '*')
+      if (!this->is_ready_ && this->payload_buffer_.at(4) == '*')
         {
           this->is_ready_ = true;
           this->ready_promise_.set_value();
@@ -606,9 +606,12 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
 
           this->wait_for_frame_promise.set_value(frame);
 
-          this->wait_for_frame_promise = std::promise<Frame::Ptr>();
-          this->wait_for_frame_future =
-            this->wait_for_frame_promise.get_future();
+          {
+            std::lock_guard<std::mutex> lock(this->wait_for_frame_mutex_);
+            this->wait_for_frame_promise = std::promise<Frame::Ptr>();
+            this->wait_for_frame_future =
+              this->wait_for_frame_promise.get_future();
+          }
 
           if (this->new_frame_callback_)
             {
