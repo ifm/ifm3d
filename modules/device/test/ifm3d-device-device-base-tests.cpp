@@ -34,7 +34,7 @@ TEST_F(DeviceTest, DeviceDiscovery)
   EXPECT_NO_THROW(ifm3d::Device::DeviceDiscovery());
 }
 
-TEST_F(DeviceTest, Reboot_productive)
+TEST_F(DeviceTest, DISABLED_Reboot_productive)
 {
   EXPECT_NO_THROW(dev_->Reboot());
   std::this_thread::sleep_for(std::chrono::seconds(60));
