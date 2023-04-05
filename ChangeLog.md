@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.2.6 - 2023-04-05
+### Added
+- Add MAC address in ifm3d discover command output
+
 ## 1.2.5 - 2023-04-03
 ### Fixes 
 - Fixed a crash in FrameGrabber when the p command is called multiple times
