@@ -85,7 +85,6 @@ ifm3d::O3XOrganizer::Organize(const std::vector<uint8_t>& data,
       auto y = chunks.find(image_chunk::CARTESIAN_Y_COMPONENT);
       auto z = chunks.find(image_chunk::CARTESIAN_Z_COMPONENT);
 
-      std::cout << "XYz requested" << std::endl;
       if (x != chunks.end() && y != chunks.end() && z != chunks.end())
         {
           auto fmt = get_chunk_format(data, x->second);
