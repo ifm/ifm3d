@@ -46,7 +46,6 @@ build:windows_2019:python_wheel:
   artifacts:
     paths:
       - wheelhouse/*.whl
-      - python_stubs/
     expire_in: 1 week
   rules:
     - !reference [.tagged, rules]
