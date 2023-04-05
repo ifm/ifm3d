@@ -57,7 +57,7 @@ bind_struct_o3d_paramters(pybind11::module_& m)
   bind_o3d_parameter<ifm3d::O3DInstrinsicCalibration>(
     m,
     "O3DInstrinsicCalibration");
-    
+
   m.attr("O3DInverseInstrinsicCalibration") =
     m.attr("O3DInstrinsicCalibration");
 
