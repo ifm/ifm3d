@@ -81,6 +81,12 @@ PYBIND11_MODULE(ifm3dpy, m)
     R"(
         This function provides python application interface to run command line tool
 
+        Note: It is not recommended to use this for scripting as there is no way to 
+        monitor progress or handle errors, instead please directly use the functions 
+        provided by the corresponding modules. 
+        This function is mainly intended to be used to integrate the ifm3d CLI into 
+        existing console based applications.
+
         Parameters
         ----------
         argv : py::list

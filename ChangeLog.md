@@ -6,6 +6,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.2.7 - 2023-04-05
+### Added
+- Generate and distribute stubs with python wheel package
+
+## 1.2.6 - 2023-04-05
+### Added
+- Add MAC address in ifm3d discover command output
+
+## 1.2.5 - 2023-04-03
+### Fixes 
+- Fixed a crash in FrameGrabber when the p command is called multiple times
+- Fixed potential crash when waiting for the future returned by FrameGrabber::WaitForFrame()
+
+## 1.2.4 - 2023-03-28
+### Changes
+- Increase network timeout for the O3R::Set() call to 10 seconds
+
+### Fixes 
+- Fixed potential crash during device discovery
+- Fixed possible Segmentation fault when calling FrameGrabber::Stop() directly after FrameGrabber::Start()
+- Fixed typo in RGBInfoV1, TOFInfoV4 and TOFInfoV3: extrisic_optic_to_user -> extrinsic_optic_to_user
+
 ## 1.2.3 - 2023-03-17
 ### Fixes 
 - Fixed Segmentation fault when assigning a AsyncNotification or AsyncError Handler while the FrameGrabber is not running
