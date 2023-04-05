@@ -330,7 +330,6 @@ TEST_F(FrameGrabberTest, only_algo_debug)
                ifm3d::Error);
 }
 
-// disabled due to firmware issue with pF pcic command
 TEST_F(FrameGrabberTest, algo_with_other_data)
 {
   LOG(INFO) << " obtain  algo debug with other data";
@@ -364,4 +363,41 @@ TEST_F(FrameGrabberTest, algo_with_other_data)
             frame->GetBuffer(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE));
         }
     }
+}
+
+TEST_F(FrameGrabberTest, StartStopStart)
+{
+  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
+
+  auto config = o3r->Get();
+  config["ports"]["port0"]["state"] = "RUN";
+  o3r->Set(config);
+  fg_ = std::make_shared<ifm3d::FrameGrabber>(dev_, 50010);
+
+  bool has_error = false;
+  fg_->OnError([&has_error](ifm3d::Error e) {
+    LOG(ERROR) << e.what();
+    has_error = true;
+  });
+
+  for (int i = 0; i < 3; ++i)
+    {
+      EXPECT_FALSE(fg_->IsRunning());
+
+      EXPECT_TRUE(fg_->Start({ifm3d::buffer_id::JPEG_IMAGE})
+                    .wait_for(std::chrono::seconds(5)) ==
+                  std::future_status::ready);
+
+      EXPECT_TRUE(fg_->WaitForFrame().wait_for(std::chrono::seconds(1)) ==
+                  std::future_status::ready);
+
+      EXPECT_TRUE(fg_->IsRunning());
+
+      EXPECT_TRUE(fg_->Stop().wait_for(std::chrono::seconds(5)) ==
+                  std::future_status::ready);
+
+      EXPECT_FALSE(fg_->IsRunning());
+    }
+
+  EXPECT_FALSE(has_error);
 }
