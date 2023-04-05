@@ -107,16 +107,14 @@ build:linux:python_wheel:
   tags:
     - ${RUNNER}
   script:
-    - /opt/python/${PYTHON_VERSION}/bin/pip install pybind11-stubgen
     - |
-      "/opt/python/${PYTHON_VERSION}/bin/pip" wheel ${CI_PROJECT_DIR} --no-deps -v -w /tmp/wheelhouse/
+      "/opt/python/${PYTHON_VERSION}/bin/pip" wheel ${CI_PROJECT_DIR} --no-deps -w /tmp/wheelhouse/
       for whl in /tmp/wheelhouse/*.whl; do
         auditwheel repair "$whl" -w /${CI_PROJECT_DIR}/wheelhouse/
       done
   artifacts:
     paths:
       - wheelhouse/*.whl
-      - python_stubs/
     expire_in: 1 week
   rules:
     - !reference [.tagged, rules]
