@@ -24,9 +24,11 @@ bind_swupdater(pybind11::module_& m)
   );
 
   swupdater.def(
-    py::init<ifm3d::Device::Ptr, const ifm3d::SWUpdater::FlashStatusCb&, const std::uint16_t>(),
+    py::init([](ifm3d::Device::Ptr cam, const std::optional<ifm3d::SWUpdater::FlashStatusCb>& cb, const std::uint16_t swupdate_recovery_port) {
+      return std::make_shared<ifm3d::SWUpdater>(cam, cb ? cb.value() : [](float progress,const std::string& message)->void {}, swupdate_recovery_port);
+    }),
     py::arg("cam"),
-    py::arg("cb") =  py::cpp_function([](float progress,const std::string& message)->void {}),
+    py::arg("cb") = std::nullopt,
     py::arg("swupdate_recovery_port") = ifm3d::SWUPDATER_RECOVERY_PORT,
     R"(
       Constructor
@@ -38,6 +40,7 @@ bind_swupdater(pybind11::module_& m)
 
       cb : callback function  with parameters (float, string)
           A  function for progress of the update
+
       swupdate_recovery_port : uint16_t
           The Swupdate communication port
       )"

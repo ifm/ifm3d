@@ -7,6 +7,7 @@
 #define IFM3D_PYBIND_BINDING_FUTURE
 
 #include <pybind11/pybind11.h>
+#include <fmt/format.h>
 
 class StopIteration : public py::stop_iteration
 {
@@ -147,26 +148,48 @@ private:
 
 template <typename T>
 void
-bind_future(py::module_& m, const char* name, const char* message)
+bind_future(py::module_& m,
+            const char* name,
+            const char* message,
+            const char* result_type)
 {
-  py::class_<FutureAwaitable<T>>(m, name, message)
-    .def(py::init<>(), message)
-    .def("__iter__", &FutureAwaitable<T>::iter)
-    .def("__await__", &FutureAwaitable<T>::await)
-    .def("__next__", &FutureAwaitable<T>::next)
-    .def("wait",
-         &FutureAwaitable<T>::wait,
-         R"(
-          Blocks until the result becomes available.
-    )")
-    .def("wait_for",
-         &FutureAwaitable<T>::wait_for,
-         py::arg("timeout_ms"),
-         R"(
-          Blocks until specified timeout runs out or the result to becomes available. 
+  // clang-format off
 
-          :return: a tuple (True, Result) if a result was received within the timeout, (False, None) otherwise.
-    )");
+  py::class_<FutureAwaitable<T>> future(m, name, message);
+
+  future.def(py::init<>(), message);
+  future.def("__next__", &FutureAwaitable<T>::next);
+
+  py::options options;
+  options.disable_function_signatures();
+
+  future.def("__iter__", &FutureAwaitable<T>::iter, py::doc(fmt::format("__iter__(self) -> typing.Generator[{0},{0},{0}]", result_type).c_str()));
+  future.def("__await__", &FutureAwaitable<T>::await, py::doc(fmt::format("__await__(self) -> typing.Generator[{0},{0},{0}]", result_type).c_str()));
+
+  future.def(
+    "wait", 
+    &FutureAwaitable<T>::wait, 
+     py::doc(fmt::format(R"(
+      wait(self) -> {}
+
+
+      Blocks until the result becomes available.
+    )", result_type).c_str()));
+
+  future.def(
+    "wait_for",
+    &FutureAwaitable<T>::wait_for,
+    py::arg("timeout_ms"),
+    py::doc(fmt::format(R"(
+      wait_for(self, timeout_ms: int) -> Tuple[bool, {}]
+
+
+      Blocks until specified timeout runs out or the result to becomes available. 
+
+      :return: a tuple (True, Result) if a result was received within the timeout, (False, None) otherwise.
+    )", result_type).c_str()));
+
+  // clang-format on
 }
 
 #endif // IFM3D_PYBIND_BINDING_FUTURE

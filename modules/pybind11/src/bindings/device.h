@@ -272,7 +272,7 @@ bind_device(pybind11::module_& m)
 
   device.def(
     "to_json",
-    [](const ifm3d::Device::Ptr& c)
+    [](const ifm3d::Device::Ptr& c) -> py::dict
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
