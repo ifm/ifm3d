@@ -7,16 +7,20 @@ main(int argc, char** argv)
 
   std::map<std::string, std::string> device_to_filter(
     {{"O3D",
-      "FrameGrabberTest.*:-FrameGrabberTest.BlankSchema2D:FrameGrabberTest.schema_o3r_rgb_image_info:FrameGrabberTest.schema_o3r_dist_image_info:FrameGrabberTest.only_algo_debug:"
-      "FrameGrabberTest.algo_with_other_data:FrameGrabberTest.DistanceNoiseImage_type:"
-      "FrameGrabberTest.confidence_image_2D:FrameGrabberTest.onError"
-      },
+      "FrameGrabberTest.*:-FrameGrabberTest.BlankSchema2D:FrameGrabberTest."
+      "schema_o3r_rgb_image_info:FrameGrabberTest.schema_o3r_dist_image_info:"
+      "FrameGrabberTest.only_algo_debug:"
+      "FrameGrabberTest.algo_with_other_data:FrameGrabberTest."
+      "DistanceNoiseImage_type:"
+      "FrameGrabberTest.confidence_image_2D:FrameGrabberTest.onError"},
      {"O3X",
       "FrameGrabberTest.*:-FrameGrabberTest.BlankSchema2D:"
       "FrameGrabberTest.schema_o3r_rgb_image_info:FrameGrabberTest.schema_"
-      "o3r_dist_image_info:FrameGrabberTest.only_algo_debug:FrameGrabberTest.algo_with_other_data:"
+      "o3r_dist_image_info:FrameGrabberTest.only_algo_debug:FrameGrabberTest."
+      "algo_with_other_data:"
       "FrameGrabberTest.SWTriggerMultipleClients:FrameGrabberTest."
-      "confidence_image_2D::FrameGrabberTest.JSON_model:FrameGrabberTest.onError"},
+      "confidence_image_2D::FrameGrabberTest.JSON_model:FrameGrabberTest."
+      "onError"},
      {"O3R",
       "FrameGrabberTest.*:-FrameGrabberTest.SoftwareTrigger:FrameGrabberTest."
       "SWTriggerMultipleClients:FrameGrabberTest.JSON_model"},

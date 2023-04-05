@@ -228,9 +228,11 @@ TEST_F(FrameGrabberTest, DistanceNoiseImage_type)
 {
   LOG_INFO(" distance noise image test");
 
-  fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
-              ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
-              ifm3d::buffer_id::RADIAL_DISTANCE_NOISE}).wait_for(std::chrono::seconds(2));
+  fg_
+    ->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
+             ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
+             ifm3d::buffer_id::RADIAL_DISTANCE_NOISE})
+    .wait_for(std::chrono::seconds(2));
   size_t count = 0;
   fg_->OnNewFrame([&](ifm3d::Frame::Ptr frame) {
     if (frame->HasBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_NOISE))
@@ -291,10 +293,12 @@ TEST_F(FrameGrabberTest, confidence_image_3D)
 {
   // LOG_INFO(" confidence image test on 3D  ");
 
-  fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
-              ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
-              ifm3d::buffer_id::XYZ,
-              ifm3d::buffer_id::CONFIDENCE_IMAGE}).wait_for(std::chrono::seconds(1));
+  fg_
+    ->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
+             ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
+             ifm3d::buffer_id::XYZ,
+             ifm3d::buffer_id::CONFIDENCE_IMAGE})
+    .wait_for(std::chrono::seconds(1));
   size_t count = 0;
   fg_->OnNewFrame([&](ifm3d::Frame::Ptr frame) {
     count++;
@@ -444,14 +448,15 @@ TEST_F(FrameGrabberTest, StartStopStart)
 TEST_F(FrameGrabberTest, FrameGrabberRecycling)
 {
   LOG(INFO) << "FrameGrabberRecycling test";
-   fg_->Start({});
+  fg_->Start({});
 
   for (int i = 0; i < 5; ++i)
     {
-      auto status = fg_->WaitForFrame().wait_for(std::chrono::milliseconds(1000));
+      auto status =
+        fg_->WaitForFrame().wait_for(std::chrono::milliseconds(1000));
       EXPECT_TRUE(status == std::future_status::ready);
     }
-      fg_.reset();
+  fg_.reset();
   if (dev_->WhoAmI() == ifm3d::Device::device_family::O3R)
     {
       auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
@@ -497,7 +502,7 @@ TEST_F(FrameGrabberTest, SoftwareTrigger)
     {
       fg_->SWTrigger();
       auto status =
-       fg_->WaitForFrame().wait_for(std::chrono::milliseconds(1000));
+        fg_->WaitForFrame().wait_for(std::chrono::milliseconds(1000));
       EXPECT_TRUE(status == std::future_status::ready);
     }
 
@@ -505,7 +510,6 @@ TEST_F(FrameGrabberTest, SoftwareTrigger)
   config["ifm3d"]["Apps"][idx - 1]["TriggerMode"] =
     std::to_string(static_cast<int>(ifm3d::Device::trigger_mode::FREE_RUN));
   dev_->FromJSON(config);
-
 }
 
 TEST_F(FrameGrabberTest, SWTriggerMultipleClients)
@@ -565,5 +569,5 @@ TEST_F(FrameGrabberTest, JSON_model)
         EXPECT_TRUE(false);
       }
   });
-
 }
+
