@@ -410,13 +410,6 @@ TEST_F(FrameGrabberTest, algo_with_other_data)
 
 TEST_F(FrameGrabberTest, StartStopStart)
 {
-  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
-
-  auto config = o3r->Get();
-  config["ports"]["port0"]["state"] = "RUN";
-  o3r->Set(config);
-  fg_ = std::make_shared<ifm3d::FrameGrabber>(dev_, 50010);
-
   bool has_error = false;
   fg_->OnError([&has_error](ifm3d::Error e) {
     LOG_ERROR(e.what());
@@ -427,8 +420,7 @@ TEST_F(FrameGrabberTest, StartStopStart)
     {
       EXPECT_FALSE(fg_->IsRunning());
 
-      EXPECT_TRUE(fg_->Start({ifm3d::buffer_id::JPEG_IMAGE})
-                    .wait_for(std::chrono::seconds(5)) ==
+      EXPECT_TRUE(fg_->Start({}).wait_for(std::chrono::seconds(5)) ==
                   std::future_status::ready);
 
       EXPECT_TRUE(fg_->WaitForFrame().wait_for(std::chrono::seconds(1)) ==
@@ -570,4 +562,3 @@ TEST_F(FrameGrabberTest, JSON_model)
       }
   });
 }
-

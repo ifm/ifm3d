@@ -1,18 +1,18 @@
 // -*- c++ -*-
 /*
- * Copyright 2022-present ifm electronic, gmbh
+ * Copyright 2023-present ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
 
 #ifndef IFM3D_DESERIALIZE_O3D_BUFFERS_HPP
-#  define IFM3D_DESERIALIZE_O3D_BUFFFERS_HPP
+#define IFM3D_DESERIALIZE_O3D_BUFFERS_HPP
 
-#  include <array>
-#  include <chrono>
-#  include <ifm3d/device/err.h>
-#  include <ifm3d/fg/organizer_utils.h>
-#  include <ifm3d/fg/buffer.h>
-#  include <ifm3d/deserialize/deserialize_utils.hpp>
+#include <array>
+#include <chrono>
+#include <ifm3d/device/err.h>
+#include <ifm3d/fg/organizer_utils.h>
+#include <ifm3d/fg/buffer.h>
+#include <ifm3d/deserialize/deserialize_utils.hpp>
 
 namespace ifm3d
 {
@@ -63,4 +63,4 @@ namespace ifm3d
 
 } // end namespace ifm3d
 
-#endif // IFM3D_DESERIALIZE_STRUCT_O3R__ODS_INFO_V1_HPP
+#endif // IFM3D_DESERIALIZE_O3D_BUFFERS_HPP

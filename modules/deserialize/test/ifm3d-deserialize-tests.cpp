@@ -303,6 +303,10 @@ TEST(DeserializeTestWithFile, struct_o3d_intrinsic_parameter)
 
   EXPECT_TRUE(ifm3d::compare_array(o3d_instrinsic_param.data,
                                    ifm3d::o3d::intrinsic_parameter));
+
+  ifm3d::Buffer buffer_blank;
+  EXPECT_THROW(ifm3d::O3DInstrinsicCalibration::Deserialize(buffer_blank),
+               ifm3d::Error);
 }
 
 TEST(DeserializeTestWithFile, struct_o3d_inverse_intrinsic_parameter)
@@ -314,6 +318,11 @@ TEST(DeserializeTestWithFile, struct_o3d_inverse_intrinsic_parameter)
 
   EXPECT_TRUE(ifm3d::compare_array(o3d_param.data,
                                    ifm3d::o3d::invers_intrinsic_parameter));
+
+  ifm3d::Buffer buffer_blank;
+  EXPECT_THROW(
+    ifm3d::O3DInverseInstrinsicCalibration::Deserialize(buffer_blank),
+    ifm3d::Error);
 }
 
 TEST(DeserializeTestWithFile, struct_o3d_extrinsic_parameter)
@@ -325,6 +334,10 @@ TEST(DeserializeTestWithFile, struct_o3d_extrinsic_parameter)
 
   EXPECT_TRUE(ifm3d::compare_array(o3d_param.data,
                                    ifm3d::o3d::extrincsic_calib_parameter));
+
+  ifm3d::Buffer buffer_blank;
+  EXPECT_THROW(ifm3d::O3DExtrinsicCalibration::Deserialize(buffer_blank),
+               ifm3d::Error);
 }
 
 TEST(DeserializeTestWithFile, struct_o3d_exposure_time_parameter)
@@ -336,6 +349,10 @@ TEST(DeserializeTestWithFile, struct_o3d_exposure_time_parameter)
 
   EXPECT_TRUE(
     ifm3d::compare_array(o3d_param.data, ifm3d::o3d::exposure_times));
+
+  ifm3d::Buffer buffer_blank;
+  EXPECT_THROW(ifm3d::O3DExposureTimes::Deserialize(buffer_blank),
+               ifm3d::Error);
 }
 
 TEST(DeserializeTestWithFile, struct_o3d_illu_temp_parameter)
@@ -345,8 +362,11 @@ TEST(DeserializeTestWithFile, struct_o3d_illu_temp_parameter)
 
   auto o3d_param = ifm3d::O3DILLUTemperature::Deserialize(buffer);
 
-  EXPECT_TRUE(
-    ifm3d::compare_array(o3d_param.data, ifm3d::o3d::illu_temp));
+  EXPECT_TRUE(ifm3d::compare_array(o3d_param.data, ifm3d::o3d::illu_temp));
+
+  ifm3d::Buffer buffer_blank;
+  EXPECT_THROW(ifm3d::O3DILLUTemperature::Deserialize(buffer_blank),
+               ifm3d::Error);
 }
 
 TEST(DeserializeTestWithO3D, struct_o3d_intrinsic_parameter)
