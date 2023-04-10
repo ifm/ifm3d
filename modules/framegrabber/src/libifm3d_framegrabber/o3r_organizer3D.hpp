@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-present ifm electronic, gmbh
+ * Copyright 2023-present ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
 

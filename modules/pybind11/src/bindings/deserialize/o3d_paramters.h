@@ -30,8 +30,8 @@ bind_o3d_parameter(pybind11::module_& m, const std::string& name)
       )");
 
    o3d_parameter.def_readonly(
-    "param_value",
-    &T::param_vector,
+    "data",
+    &T::data,
     R"(
         array of paramter values
       )");

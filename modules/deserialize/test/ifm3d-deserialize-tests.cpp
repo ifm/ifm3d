@@ -301,7 +301,7 @@ TEST(DeserializeTestWithFile, struct_o3d_intrinsic_parameter)
   auto o3d_instrinsic_param =
     ifm3d::O3DInstrinsicCalibration::Deserialize(buffer);
 
-  EXPECT_TRUE(ifm3d::compare_array(o3d_instrinsic_param.param_vector,
+  EXPECT_TRUE(ifm3d::compare_array(o3d_instrinsic_param.data,
                                    ifm3d::o3d::intrinsic_parameter));
 }
 
@@ -312,7 +312,7 @@ TEST(DeserializeTestWithFile, struct_o3d_inverse_intrinsic_parameter)
 
   auto o3d_param = ifm3d::O3DInverseInstrinsicCalibration::Deserialize(buffer);
 
-  EXPECT_TRUE(ifm3d::compare_array(o3d_param.param_vector,
+  EXPECT_TRUE(ifm3d::compare_array(o3d_param.data,
                                    ifm3d::o3d::invers_intrinsic_parameter));
 }
 
@@ -323,7 +323,7 @@ TEST(DeserializeTestWithFile, struct_o3d_extrinsic_parameter)
 
   auto o3d_param = ifm3d::O3DExtrinsicCalibration::Deserialize(buffer);
 
-  EXPECT_TRUE(ifm3d::compare_array(o3d_param.param_vector,
+  EXPECT_TRUE(ifm3d::compare_array(o3d_param.data,
                                    ifm3d::o3d::extrincsic_calib_parameter));
 }
 
@@ -335,7 +335,7 @@ TEST(DeserializeTestWithFile, struct_o3d_exposure_time_parameter)
   auto o3d_param = ifm3d::O3DExposureTimes::Deserialize(buffer);
 
   EXPECT_TRUE(
-    ifm3d::compare_array(o3d_param.param_vector, ifm3d::o3d::exposure_times));
+    ifm3d::compare_array(o3d_param.data, ifm3d::o3d::exposure_times));
 }
 
 TEST(DeserializeTestWithFile, struct_o3d_illu_temp_parameter)
@@ -346,7 +346,7 @@ TEST(DeserializeTestWithFile, struct_o3d_illu_temp_parameter)
   auto o3d_param = ifm3d::O3DILLUTemperature::Deserialize(buffer);
 
   EXPECT_TRUE(
-    ifm3d::compare_array(o3d_param.param_vector, ifm3d::o3d::illu_temp));
+    ifm3d::compare_array(o3d_param.data, ifm3d::o3d::illu_temp));
 }
 
 TEST(DeserializeTestWithO3D, struct_o3d_intrinsic_parameter)
