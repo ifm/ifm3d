@@ -10,19 +10,18 @@ from ifm3dpy.framegrabber import FrameGrabber, buffer_id
 from ifm3dpy.deserialize import RGBInfoV1
 
 ###########################
-# Choose the IP
-# and create the O3R object
+# Choose the IP and port number
 ###########################
 IP = "192.168.0.69"
-o3r = O3R(IP)
+PORT = 0
 
 ###########################
-# Choose the port number
+# Create the O3R and FrameGrabber
 # and choose which images
 # to receive
 ###########################
-# Assuming this is a 2D port
-PORT = 0
+o3r = O3R(IP)
+# Assuming PORT is a 2D port
 pcic_port = o3r.get()["ports"][f"port{PORT}"]["data"]["pcicTCPPort"]
 fg = FrameGrabber(cam=o3r, pcic_port=pcic_port)
 # Define the images to receive when starting the data stream
@@ -43,13 +42,13 @@ except Exception as e:
 # Using the deserializer module
 ###############################
 rgb_info = RGBInfoV1()
-rgb_info_deserialized = rgb_info.deserialize(rgb_info_buffer)
+rgb_info_deser = rgb_info.deserialize(rgb_info_buffer)
 print("Sample of data available in the RGBInfoV1 buffer:")
-print(f"RGB info timestamp: {rgb_info_deserialized.timestamp_ns}")
-print(f"Exposure time used for rgb images: {rgb_info_deserialized.exposure_time}")
+print(f"RGB info timestamp: {rgb_info_deser.timestamp_ns}")
+print(f"Exposure time used for rgb images: {rgb_info_deser.exposure_time}")
 print(
-    f"RGB intrinsic calibration model id: {rgb_info_deserialized.intrinsic_calibration.model_id}"
+    f"RGB intrinsic calibration model id: {rgb_info_deser.intrinsic_calibration.model_id}"
 )
 print(
-    f"RGB intrinsic calibration parameters: {rgb_info_deserialized.intrinsic_calibration.parameters}"
+    f"RGB intrinsic calibration parameters: {rgb_info_deser.intrinsic_calibration.parameters}"
 )
