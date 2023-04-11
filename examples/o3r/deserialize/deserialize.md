@@ -12,16 +12,14 @@ For more information on the data structures of each buffer please refer to the [
 The usage of the deserializer is the same for all the buffers mentioned above: create the object, and call the deserlize function. Follow the example below for an example on deserialializing the `RGBInfoV1` buffer.
 
 :::::{tabs}
-:::: Python
-:::python
-``{include} deserialize.py
-``
+:::: {group-tab} Python
+:::{literalinclude} deserialize.py
+:language: python
 :::
 ::::
-:::: C++
-:::c++
-``{include} deserialize.c++
-``
+:::: {group-tab} C++
+:::{literalinclude} deserialize.cpp
+:language: cpp
 :::
 ::::
 :::::
