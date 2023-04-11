@@ -13,7 +13,7 @@ from ifm3dpy.deserialize import RGBInfoV1
 # Choose the IP and port number
 ###########################
 IP = "192.168.0.69"
-PORT = 0
+PORT = "port0"
 
 ###########################
 # Create the O3R and FrameGrabber
@@ -22,7 +22,7 @@ PORT = 0
 ###########################
 o3r = O3R(IP)
 # Assuming PORT is a 2D port
-pcic_port = o3r.get()["ports"][f"port{PORT}"]["data"]["pcicTCPPort"]
+pcic_port = o3r.port(PORT).pcic_port
 fg = FrameGrabber(cam=o3r, pcic_port=pcic_port)
 # Define the images to receive when starting the data stream
 fg.start([buffer_id.RGB_INFO])
