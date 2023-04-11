@@ -5,7 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
+### Added
+- Add an example on how to use the deserializer module
 ## 1.2.6 - 2023-04-05
 ### Fixes
 - Fix state of the FrameGrabber not being reset correctly after Stop() causing receive failures on subsequent Start()s
