@@ -15,15 +15,17 @@ using namespace ifm3d::literals;
 int
 main()
 {
+    ////////////////////////////
     // Define IP and port number
+    // EDIT WITH YOUR SETTINGS
+    ////////////////////////////
     const auto IP = "192.168.0.69";
-    const auto PORT = 0;
+    const auto PORT = "port0";
+    ////////////////////////////
     // Create the O3R and FrameGrabber objects
+    ////////////////////////////
     auto o3r = std::make_shared<ifm3d::O3R>(IP);
-    // const auto PCIC_PORT =
-    // o3r->Get()["/ports/port"+std::to_string(PORT)+"/data/pcicTCPPort"_json_pointer];
-    const auto PCIC_PORT =
-    o3r->Get()["/ports/port0/data/pcicTCPPort"_json_pointer];
+    const auto PCIC_PORT = o3r->Port(PORT).pcic_port;
     auto fg = std::make_shared<ifm3d::FrameGrabber>(o3r, PCIC_PORT);
 
     // Define which buffer to retrieve and start the data stream
