@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Add Project description and links to PYPI page
+
+### Added
 - Add an example on how to use the deserializer module
 ## 1.2.6 - 2023-04-05
 ### Fixes
