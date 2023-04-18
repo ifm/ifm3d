@@ -129,6 +129,9 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] +
                               build_args, cwd=self.build_temp)
 
+# Read the contents of README file
+def read_description(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname), encoding='utf-8').read()
 
 setup(
     name='ifm3dpy',
@@ -138,11 +141,17 @@ setup(
     description='Library for working with ifm pmd-based 3D ToF Cameras',
     url='https://github.com/ifm/ifm3d',
     license='Apache 2.0',
-    long_description='',
+    long_description=read_description("README.md"),
+    long_description_content_type='text/markdown',
     ext_modules=[CMakeExtension('IFM3D_PYBIND11')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
     packages=find_packages(),
     entry_points={'console_scripts': ['ifm3dpy = ifm3dpy:_run_cmdtool']},
-    install_requires=['numpy']
+    install_requires=['numpy'],
+    project_urls={
+        'Documentation': 'https://ifm3d.com/',
+        'Issue Tracker': 'https://github.com/ifm/ifm3d/issues',
+        'Source Code': 'https://github.com/ifm/ifm3d'
+    }
 )
