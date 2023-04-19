@@ -117,7 +117,7 @@ class CMakeBuild(build_ext):
         else:
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             cmake_args += ['-DCMAKE_POSITION_INDEPENDENT_CODE=ON']
-            build_args += ['--', '-j2']
+            build_args += ['--']
 
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
@@ -126,7 +126,7 @@ class CMakeBuild(build_ext):
             os.makedirs(self.build_temp)
         subprocess.check_call(['cmake', ext.sourcedir] +
                               cmake_args, cwd=self.build_temp, env=env)
-        subprocess.check_call(['cmake', '--build', '.'] +
+        subprocess.check_call(['cmake', '--build', '.', f'-j{os.cpu_count()}'] +
                               build_args, cwd=self.build_temp)
 
 # Read the contents of README file
