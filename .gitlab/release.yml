@@ -16,10 +16,33 @@ release:tag:
     - export tag_value=$(cat VERSION | awk  '{print $1}' FS="*")
     - git tag -a $tag_value -F CHANGELOG
     - git push origin $tag_value
-    
+ artifacts:
+    paths:
+      - CHANGELOG
+
   rules:
     - if: ($CI_PIPELINE_SOURCE == "push") && ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH) && ($CI_COMMIT_MESSAGE =~ '/Release\/v\d+\.\d+\.\d+/')
       when: always
     - when: never
 
-   
+release:github:
+  variables:
+    GH_TOKEN: ${GITHUB_TOKEN}
+  stage: release
+  image: ghcr.io/supportpal/github-gh-cli
+  needs:
+    - job: deploy:start
+      artifacts: false
+    - job: release:tag
+      artifacts: true
+    - job: build:linux:deb:
+      artifacts true
+
+  rules:
+    - !reference [.tagged, rules]
+    - !reference [.manual, rules]
+  script:
+    - export tag_value=$(cat VERSION | awk  '{print $1}' FS="*")
+    - gh --version
+    - gh release create $tag_value -R https://github.com/inbangsa/ifm3d.git --verify-tag --draft -F CHANGELOG --title $tag_value
+    - gh release upload $tag_value -R https://github.com/inbangsa/ifm3d.git ifm3d-*.tar
