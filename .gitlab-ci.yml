@@ -1,10 +1,11 @@
 stages:
   - version
   - check
-  - build
+ #- build
   #- test
   - release
   #- deploy
+  - predeploy
 
 variables:
   SKIP_TEST: "false"
@@ -15,7 +16,7 @@ include:
   - local: .gitlab/update_version.yml
   - local: .gitlab/check.yml
  # - local: .gitlab/build_windows.yml
-  - local: .gitlab/build_linux.yml
+ # - local: .gitlab/build_linux.yml
  # - local: .gitlab/test_windows.yml
  # - local: .gitlab/test_linux.yml
   - local: .gitlab/release.yml
