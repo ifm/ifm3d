@@ -398,9 +398,9 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
 
   if (error.has_value())
     {
-      LOG_WARNING( "Exception: " + error.value().what());
-      this->ReportError(error.value());
-
+      LOG_WARNING("Exception: {}: {}",
+                  static_cast<int>(error.value().code()),
+                  error.value().what());
       auto ex_ptr = std::make_exception_ptr(error.value());
       this->wait_for_frame_promise.set_exception(ex_ptr);
       if (!this->is_ready_)
