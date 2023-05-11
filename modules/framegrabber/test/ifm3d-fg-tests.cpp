@@ -74,7 +74,7 @@ TEST_F(FrameGrabberTest, start_stop_start)
 
 TEST_F(FrameGrabberTest, masking)
 {
-  LOG_INFO( "enabling disabling masking test");
+  LOG_INFO("enabling disabling masking test");
   int frame_count = 0;
   this->fg_->OnNewFrame([&frame_count](auto frame) { frame_count++; });
   this->fg_->Start({});
@@ -211,7 +211,7 @@ TEST_F(FrameGrabberTest, BufferIDException)
 
 TEST_F(FrameGrabberTest, DistanceNoiseImage)
 {
-   LOG_INFO(" distance noise image schema test");
+  LOG_INFO(" distance noise image schema test");
 
   fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
               ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
@@ -225,7 +225,7 @@ TEST_F(FrameGrabberTest, DistanceNoiseImage)
 
 TEST_F(FrameGrabberTest, DistanceNoiseImage_type)
 {
-   LOG_INFO(" distance noise image test");
+  LOG_INFO(" distance noise image test");
 
   fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
               ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
@@ -242,7 +242,7 @@ TEST_F(FrameGrabberTest, DistanceNoiseImage_type)
 
 TEST_F(FrameGrabberTest, onError)
 {
-   LOG_INFO(" onError ");
+  LOG_INFO(" onError ");
 
   auto result = 0;
   auto frame_count = 0;
@@ -376,7 +376,7 @@ TEST_F(FrameGrabberTest, StartStopStart)
 
   bool has_error = false;
   fg_->OnError([&has_error](ifm3d::Error e) {
-    LOG_ERROR( e.what());
+    LOG_ERROR(e.what());
     has_error = true;
   });
 
