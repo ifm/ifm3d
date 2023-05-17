@@ -4,7 +4,7 @@
 Configuring the parameters of an ifm 3D camera is accomplished in ifm3d in one
 of two ways: 1) via the `ifm3d` command line tool; 2) via the `ifm3d`
 library's `camera` module API. We show below how to do so with the command line tool. 
-Please refer to [this doc](ifm3d/doc/sphinx/content/examples/o3r/configuration/configuration.md) for instructions on configuring the camera through `ifm3d` library.
+Please refer to [this doc](ifm3d/doc/sphinx/content/examples/o3r/configuration/configuration:How%20to%3A%20configure%20the%20camera) for instructions on configuring the camera through `ifm3d` library.
 
 The primary mechanism for using the `ifm3d` command line tool to configure an
 ifm 3D camera is to utilize the `dump` and `config` subcommands to `ifm3d`. The
@@ -17,7 +17,7 @@ stream passed to it.
 
 The remainder of this document will contain a set of examples and associated
 narrative in hopes of demonstrating how to leverage `ifm3d` to configure your
-3D camera. For purposes of this document, an ifm O3D303, and an O3R platform will be
+3D camera. For purposes of this document, an ifm O3D303 will be
 utilized. However, the techniques shown here apply to any supported `ifm3d`
 camera (e.g., O3X). Additionally, since the camera state is serialized via
 JSON, some of the examples below will utilize the
@@ -372,7 +372,7 @@ $ ifm3d dump | jq .ifm3d._.SWVersion.IFM_Software
 ::::{group-tab} O3R
 :::bash
 $ ifm3d dump | jq .device.swVersion.firmware
-"1.0.14-973"
+"0.14.23-493"
 :::
 ::::
 :::::

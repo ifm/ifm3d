@@ -5,8 +5,6 @@
 [![O3D](https://img.shields.io/badge/O3D-green.svg)]()
 [![O3X](https://img.shields.io/badge/O3X-green.svg)]()
 
->Note: for more information on how to create applications for the O3R platform, please refer to [the ODS documentation](TODO-ADD-LINK).
-
 Let's first list the applications on the camera.
 
 ```
@@ -148,7 +146,6 @@ $ ifm3d ls
 [![O3D](https://img.shields.io/badge/O3D-green.svg)]()
 [![O3X](https://img.shields.io/badge/O3X-green.svg)]()
 
-> Note: for NTP information on the O3R platform, please refer to [the O3R documentation](TODO-ADD-LINK).
 
 Using `jq`, you can set easily the NTP-Server on a camera. You just need to provide the
 right IP address. In this case, the IP: 192.168.0.100 is the NTP server.
