@@ -30,7 +30,11 @@ namespace ifm3d
     StdErr,
   };
 
-  template <class Formatter>
+  template <class Formatter,
+            typename std::enable_if_t<std::is_same_v<
+              decltype(Formatter::format(
+                ifm3d::LogEntry("", ifm3d::LogLevel::Info, "", "", 1))),
+              std::string>>* = nullptr>
   class LogWriterConsole : public LogWriter
   {
   public:
