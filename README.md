@@ -16,10 +16,8 @@ Comprehensive documentation is available on [ifm3d.com](https://ifm3d.com/).
 | ![3D cloud of a stack of boxes](xyz.png) | ![Distance image of a stack of boxes](distance.png) | ![RGB image of a stack of boxes](jpeg.png) |
 ## Released Versions
 
-⚠️ Note that the `master` branch is generally in a work in progress state and you probably want to use a
+⚠️ Note that the `main` branch is generally in a work in progress state and you probably want to use a
 tagged [release version](https://github.com/ifm/ifm3d/releases) for production.
-
-⚠️ Branch `o3r/main-next` is an O3R early adopters version which contains the latest changes to the interface. It may contain braking changes.
 
 ### Current Revision
 
