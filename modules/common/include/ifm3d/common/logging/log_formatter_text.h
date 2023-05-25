@@ -8,28 +8,14 @@
 #define IFM3D_COMMON_LOGGING_LOG_FORMATTER_TEXT_H
 
 #include <cstring>
-
-#include <fmt/format.h>
-#include <fmt/chrono.h>
-
 #include <ifm3d/common/logging/log_entry.h>
-
+#include <ifm3d/common/common_export.h>
 namespace ifm3d
 {
-  class LogFormatterText
+  class IFM3D_COMMON_LOCAL LogFormatterText
   {
   public:
-    static std::string
-    format(const LogEntry& entry)
-    {
-
-      return fmt::format("{} {} [{}:{}] {}",
-                         entry.GetTime(),
-                         LogLevelToString(entry.GetLogLevel()),
-                         entry.GetFile(),
-                         entry.GetLine(),
-                         entry.GetMessage());
-    }
+    static std::string format(const LogEntry& entry);
   };
 }
 #endif // IFM3D_COMMON_LOGGING_LOG_FORMATTER_TEXT_H
