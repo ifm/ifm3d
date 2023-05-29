@@ -12,7 +12,7 @@
 #include <ifm3d/common/common_export.h>
 namespace ifm3d
 {
-  class IFM3D_COMMON_LOCAL LogFormatterText
+  class IFM3D_COMMON_EXPORT LogFormatterText
   {
   public:
     static std::string format(const LogEntry& entry);
