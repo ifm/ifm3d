@@ -4,6 +4,7 @@
  */
 
 #include <memory>
+#include <ctime>
 #include <ifm3d/device/legacy_device.h>
 #include <ifm3d/device/util.h>
 #include <ifm3d/device/version.h>
