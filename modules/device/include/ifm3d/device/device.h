@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <ifm3d/device/json.hpp>
+#include <ifm3d/common/json.hpp>
 #include <ifm3d/device/device_export.h>
 #include <ifm3d/device/ifm_network_device.h>
 #include <ifm3d/device/semver.h>

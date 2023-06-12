@@ -11,13 +11,6 @@ if(NOT BUILD_IN_DEPS)
     find_package(XMLRPC REQUIRED c++ client)
   endif()
 
-  find_package(glog QUIET CONFIG NAMES google-glog glog)
-  if (NOT TARGET glog::glog)
-    find_library(LIB_glog NAMES glog)
-  else()
-    set(LIB_glog glog::glog)
-  endif (NOT TARGET glog::glog)
-
   find_package(CURL REQUIRED)
 
   if(NOT WIN32)
@@ -36,17 +29,17 @@ if(NOT BUILD_IN_DEPS)
     set(LIB_xmlrpc_client xmlrpc-c::xmlrpc_client)
   endif(NOT WIN32)
 else (NOT BUILD_IN_DEPS)
-  set(LIB_glog glog)
   set(CURL_LIBRARIES libcurl)
   set(LIB_xmlrpcxx xmlrpc++)
   set(LIB_xmlrpc xmlrpc)
   set(LIB_xmlrpc_clientxx xmlrpc_client++)
   set(LIB_xmlrpc_client xmlrpc_client)
 endif(NOT BUILD_IN_DEPS)
+
 ################################################
 ## Target: libifm3d_device.so
 ################################################
-file(GLOB IFM3D_DEVICE_SOURCES *.cpp  ../../include/ifm3d/device)
+file(GLOB IFM3D_DEVICE_SOURCES CONFIGURE_DEPENDS *.cpp  ../../include/ifm3d/device)
 add_library(ifm3d_device ${IFM3D_DEVICE_SOURCES})
 set_property(TARGET ifm3d_device PROPERTY POSITION_INDEPENDENT_CODE 1)
 
@@ -90,8 +83,9 @@ endif(WIN32)
 #------------------
 target_link_libraries(
   ifm3d_device
+  PUBLIC
+    ifm3d_common
   PRIVATE
-    ${LIB_glog}
     ${CURL_LIBRARIES}
     ${LIB_xmlrpc_clientxx}
     ${LIB_xmlrpc_client}

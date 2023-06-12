@@ -9,7 +9,7 @@
 #include <vector>
 #include <fmt/ostream.h>
 #include <ifm3d/device/legacy_device.h>
-#include <ifm3d/device/logging.h>
+#include <ifm3d/common/logging/log.h>
 #include <ifm3d/device/semver.h>
 #include <xmlrpc_wrapper.hpp>
 
@@ -58,12 +58,15 @@ namespace ifm3d
 ifm3d::Device::Impl::Impl(std::shared_ptr<XMLRPCWrapper> xwrapper)
   : xwrapper_(std::move(xwrapper))
 {
-  VLOG(IFM3D_TRACE) << "Initializing Camera: ip=" << this->IP()
-                    << ", xmlrpc_port=" << this->XMLRPCPort();
-  VLOG(IFM3D_TRACE) << "XMLRPC URL Prefix=" << this->XPrefix();
+  LOG_VERBOSE(
+    "Initializing Camera: ip={}, xmlrpc_port={}, XMLRPC URL Prefix={}",
+    this->IP(),
+    this->XMLRPCPort(),
+    this->XPrefix());
+  LOG_VERBOSE("XMLRPC URL Prefix={}", this->XPrefix());
 }
 
-ifm3d::Device::Impl::~Impl() { VLOG(IFM3D_TRACE) << "Dtor..."; }
+ifm3d::Device::Impl::~Impl() { LOG_VERBOSE("Dtor..."); }
 
 //-------------------------------------
 // Accessor/mutators

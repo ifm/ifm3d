@@ -18,12 +18,11 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <glog/logging.h>
 #include <xmlrpc-c/client.hpp>
 #include <fmt/core.h>
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/device/logging.h>
+#include <ifm3d/common/logging/log.h>
 #include <xmlrpc_wrapper.hpp>
 
 namespace ifm3d

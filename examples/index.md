@@ -12,4 +12,5 @@ How to: receive data from multiple heads <o3r/multi_head/multi_head>
 How to: view the images <o3r/viewer/README>
 How to: handle rgb data <o3r/2d_data/2d_data>
 How to: use the deserializer module <o3r/deserialize/deserialize>
+How to: configure the logging <logging/logging>
 :::
