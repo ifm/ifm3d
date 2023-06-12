@@ -1,22 +1,7 @@
 ################################################
-## Dependent projects
-################################################
-find_package(Threads REQUIRED)
-if(NOT BUILD_IN_DEPS)
-  find_package(glog QUIET CONFIG NAMES google-glog glog)
-  if (NOT TARGET glog::glog)
-    find_library(LIB_glog NAMES glog)
-  else()
-    set(LIB_glog glog::glog)
-  endif (NOT TARGET glog::glog)
-else(NOT BUILD_IN_DEPS)
-  set( LIB_glog glog)
-endif(NOT BUILD_IN_DEPS)
-
-################################################
 ## Target: libifm3d_pcicclient.so
 ################################################
-file(GLOB IFM3D_PCICCLIENT_SOURCES *.cpp)
+file(GLOB IFM3D_PCICCLIENT_SOURCES CONFIGURE_DEPENDS *.cpp)
 add_library(ifm3d_pcicclient ${IFM3D_PCICCLIENT_SOURCES})
 set_property(TARGET ifm3d_pcicclient PROPERTY POSITION_INDEPENDENT_CODE 1)
 
@@ -46,10 +31,10 @@ endif(WIN32)
 
 target_link_libraries(
   ifm3d_pcicclient
-  PRIVATE
+  PUBLIC
     ifm3d_device
-    ${LIB_glog}
-    Threads::Threads
+  PRIVATE
+    $<BUILD_INTERFACE:fmt::fmt-header-only>
     $<BUILD_INTERFACE:asio>
   )
 

@@ -55,24 +55,6 @@ if(BUILD_IN_DEPS)
     target_compile_definitions(xmlrpc PUBLIC _HAS_AUTO_PTR_ETC=1)
   endif()
 
-
-  FetchContent_Declare(
-   glog
-    GIT_REPOSITORY "https://github.com/google/glog.git"
-    GIT_TAG "v0.3.5"
-    GIT_SHALLOW TRUE
-    GIT_PROGRESS TRUE
-  )
-
-  FetchContent_Populate(glog)
-  FetchContent_GetProperties(glog SOURCE_DIR glog_src_dir)
-  FetchContent_GetProperties(glog BINARY_DIR glog_bin_dir)
-
-  add_subdirectory(${glog_src_dir} ${glog_bin_dir})
-  list(APPEND BUILTIN_INCLUDES ${glog_src_dir} ${glog_bin_dir} ${glog_src_dir}/src)
-  if(WIN32)
-    target_compile_definitions(logging_unittest PUBLIC _HAS_AUTO_PTR_ETC=1)
-  endif()
   if(BUILD_MODULE_PYBIND11)
     FetchContent_Declare(
      pybind11

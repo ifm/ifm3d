@@ -16,15 +16,14 @@
 #include <vector>
 #include <mutex>
 #include <condition_variable>
-#include <glog/logging.h>
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>
 #include <websocketpp/common/thread.hpp>
 #include <websocketpp/common/memory.hpp>
 #include <ifm3d/device/legacy_device.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/device/logging.h>
-#include <ifm3d/device/json.hpp>
+#include <ifm3d/common/logging/log.h>
+#include <ifm3d/common/json.hpp>
 #include <swupdater_impl.hpp>
 
 using client = websocketpp::client<websocketpp::config::asio_client>;
@@ -110,7 +109,7 @@ namespace ifm3d
                             ec);
             if (ec)
               {
-                VLOG(google::GLOG_ERROR) << "> Error closing connection ";
+                LOG_ERROR("> Error closing connection ");
               }
           }
         thread_->join();
@@ -123,8 +122,7 @@ namespace ifm3d
         endpoint_.close(hdl_, code, "", ec);
         if (ec)
           {
-            VLOG(google::GLOG_ERROR)
-              << "> Error initiating close: " << ec.message();
+            LOG_ERROR("> Error initiating close: {}", ec.message());
           }
       }
 
@@ -137,7 +135,7 @@ namespace ifm3d
 
         if (ec)
           {
-            LOG(INFO) << "> Connect initialization error: " << ec.message();
+            LOG_INFO("> Connect initialization error: {}", ec.message());
             return -1;
           }
         hdl_ = con->get_handle();
@@ -174,7 +172,7 @@ namespace ifm3d
       {
         client::connection_ptr con = c->get_con_from_hdl(hdl);
         std::string server = con->get_response_header("Server");
-        LOG(INFO) << server.c_str();
+        LOG_INFO(server.c_str());
       }
 
       void
@@ -183,7 +181,7 @@ namespace ifm3d
         client::connection_ptr con = c->get_con_from_hdl(hdl);
         std::string server = con->get_response_header("Server");
         std::string error_msg = con->get_ec().message();
-        LOG(INFO) << server.c_str() << error_msg.c_str();
+        LOG_INFO("{}: {}", server.c_str(), error_msg.c_str());
       }
       void
       OnMessage(websocketpp::connection_hdl hdl, client::message_ptr msg)
@@ -198,18 +196,17 @@ namespace ifm3d
             status = websocketpp::utility::to_hex(msg->get_payload());
           }
         this->cb_data_recv(status);
-        VLOG(IFM3D_TRACE_DEEP) << status.c_str();
+        // VLOG(IFM3D_TRACE_DEEP) << status.c_str();
       }
       void
       OnClose(client* c, websocketpp::connection_hdl hdl)
       {
         client::connection_ptr con = c->get_con_from_hdl(hdl);
-        std::stringstream s;
-        s << "close code: " << con->get_remote_close_code() << " ("
-          << websocketpp::close::status::get_string(
-               con->get_remote_close_code())
-          << "), close reason: " << con->get_remote_close_reason();
-        LOG(INFO) << s.str().c_str();
+        LOG_INFO(
+          "close code: {} ({}), close reason: {}",
+          con->get_remote_close_code(),
+          websocketpp::close::status::get_string(con->get_remote_close_code()),
+          con->get_remote_close_reason());
       }
 
       client endpoint_;

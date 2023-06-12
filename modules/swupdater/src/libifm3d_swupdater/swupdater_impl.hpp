@@ -12,11 +12,10 @@
 #include <tuple>
 #include <vector>
 #include <curl/curl.h>
-#include <glog/logging.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/device/logging.h>
-#include <ifm3d/device/json.hpp>
+#include <ifm3d/common/logging/log.h>
+#include <ifm3d/common/json.hpp>
 #include <iostream>
 
 namespace ifm3d
@@ -257,7 +256,7 @@ ifm3d::SWUpdater::Impl::WaitForRecovery(long timeout_millis)
             curr - start);
           if (elapsed.count() > timeout_millis)
             {
-              LOG(WARNING) << "Timed out waiting for recovery mode";
+              LOG_WARNING("Timed out waiting for recovery mode");
               return false;
             }
         }
@@ -303,7 +302,7 @@ ifm3d::SWUpdater::Impl::WaitForProductive(long timeout_millis)
           if (elapsed.count() > timeout_millis)
             {
               // timeout
-              LOG(WARNING) << "Timed out waiting for productive mode";
+              LOG_WARNING("Timed out waiting for productive mode");
               return false;
             }
         }
@@ -496,8 +495,8 @@ ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
           if (elapsed.count() > timeout_millis)
             {
               // timeout
-              LOG(WARNING) << "Timed out waiting for updater status: "
-                           << desired_status;
+              LOG_WARNING("Timed out waiting for updater status: {}",
+                          desired_status);
               return false;
             }
         }
@@ -511,8 +510,7 @@ ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
             {
               this->cb_(1.0, status_message);
             }
-          LOG(INFO) << "[" << status_id << "][" << status_error
-                    << "]: " << status_message;
+          LOG_INFO("[{}][{}]: {}", status_id, status_error, status_message);
         }
 
       if (status_id == SWUPDATER_STATUS_FAILURE)
@@ -520,7 +518,7 @@ ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
           // Work around a false positive condition
           if (status_message != "ERROR parser/parse_config.c : parse_cfg")
             {
-              LOG(ERROR) << "SWUpdate failed with status: " << status_message;
+              LOG_ERROR("SWUpdate failed with status: {}", status_message);
               throw ifm3d::Error(IFM3D_UPDATE_ERROR);
             }
         }

@@ -1,5 +1,5 @@
 #include <ifm3d/fg/organizer_utils.h>
-#include <glog/logging.h>
+#include <ifm3d/common/logging/log.h>
 #include <ifm3d/device/err.h>
 
 constexpr auto CHUNK_OFFSET_CHUNK_SIZE = 0x0004;
@@ -38,7 +38,7 @@ ifm3d::get_format_size(ifm3d::pixel_format fmt)
       return 8;
 
     default:
-      LOG(ERROR) << "Invalid pixel format => " << static_cast<uint32_t>(fmt);
+      LOG_ERROR("Invalid pixel format => {}", static_cast<uint32_t>(fmt));
       throw ifm3d::Error(IFM3D_PIXEL_FORMAT_ERROR);
     }
 }
@@ -66,7 +66,7 @@ ifm3d::get_format_channels(ifm3d::pixel_format fmt)
       return 3;
 
     default:
-      LOG(ERROR) << "Invalid pixel format => " << static_cast<uint32_t>(fmt);
+      LOG_ERROR("Invalid pixel format => {}", static_cast<uint32_t>(fmt));
       throw ifm3d::Error(IFM3D_PIXEL_FORMAT_ERROR);
     }
 }
@@ -283,7 +283,7 @@ ifm3d::create_xyz_buffer(const std::vector<std::uint8_t>& data,
                                          mask);
 
     default:
-      LOG(ERROR) << "Invalid pixel format => " << static_cast<uint32_t>(fmt);
+      LOG_ERROR("Invalid pixel format => {}", static_cast<uint32_t>(fmt));
       throw ifm3d::Error(IFM3D_PIXEL_FORMAT_ERROR);
     }
 }
@@ -308,8 +308,9 @@ ifm3d::get_image_chunks(const std::vector<std::uint8_t>& data,
       std::uint32_t incr = mkval<std::uint32_t>(data.data() + idx + 4);
       if (incr <= 0)
         {
-          LOG(WARNING) << "Next chunk is supposedly " << incr
-                       << " bytes from the current one ... failing!";
+          LOG_WARNING("Next chunk is supposedly {} bytes from the current one "
+                      "... failing!",
+                      incr);
           break;
         }
       idx += incr;

@@ -6,14 +6,12 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
-#include <glog/logging.h>
 #include <o3r_uncompress_di.h>
-#include <ifm3d/device/logging.h>
+#include <ifm3d/common/logging/log.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/fg/distance_image_info.h>
 #include <tuple>
-#include <glog/logging.h>
 
 namespace ifm3d
 {
@@ -112,7 +110,7 @@ namespace ifm3d
       {
         // the following reading of the buffer depends on a correct
         // chunk size
-        VLOG(IFM3D_PROTO_DEBUG) << "Incorrect chunk size: " << chunk_size;
+        LOG_VERBOSE("Incorrect chunk size: {}", chunk_size);
         return {};
       }
 
@@ -171,19 +169,28 @@ namespace ifm3d
      * info*/
     if (timestamps_nsec.empty())
       {
-        VLOG(IFM3D_PROTO_DEBUG) << "dist image Header Version value is 1,"
-                                << "does not support exposure parameters";
+        LOG_VERBOSE("dist image Header Version value is 1, does not support "
+                    "exposure parameters");
       }
 
-    VLOG(IFM3D_PROTO_DEBUG)
-      << "O3R_DISTANCE_IMAGE_INFORMATION \n\t-Chunk Index: "
-      << distimageinfo_idx << "\n\t-Chunk size: " << chunk_size
-      << "\n\t-Chunk end index: " << data_offset
-      << "\n\t-Header size: " << header_size
-      << "\n\t-Version: " << dist_info_version << "\n\t-dist_idx: " << dist_idx
-      << " amp_idx: " << amp_idx
-      << "\n\t-DistanceResolution: " << dist_resolution
-      << "\n\t-AmplitudeResolution: " << ampl_resolution;
+    LOG_VERBOSE("O3R_DISTANCE_IMAGE_INFORMATION\n"
+                "\t-Chunk Index: {}\n"
+                "\t-Chunk size: {}\n"
+                "\t-Chunk end index: {}\n"
+                "\t-Header size: {}\n"
+                "\t-Version: {}\n"
+                "\t-dist_idx: {} amp_idx: {}\n"
+                "\t-DistanceResolution: {}\n"
+                "\t-AmplitudeResolution: {}",
+                distimageinfo_idx,
+                chunk_size,
+                data_offset,
+                header_size,
+                dist_info_version,
+                dist_idx,
+                amp_idx,
+                dist_resolution,
+                ampl_resolution);
 
     return std::make_unique<DistanceImageInfo>(
       dist_resolution,
@@ -270,7 +277,7 @@ namespace ifm3d
                          width,
                          height) != 0)
       {
-        LOG(ERROR) << "xyzdFromDistance calculation interrupted";
+        LOG_ERROR("xyzdFromDistance calculation interrupted");
         return {};
       }
 
@@ -299,7 +306,7 @@ namespace ifm3d
                          height) != 0)
 
       {
-        LOG(ERROR) << "amplitude calculation interrupted";
+        LOG_ERROR("amplitude calculation interrupted");
         return {};
       }
 
@@ -322,7 +329,7 @@ namespace ifm3d
                              height) != 0)
 
       {
-        LOG(ERROR) << "distance noise calculation interrupted";
+        LOG_ERROR("distance noise calculation interrupted");
         return {};
       }
 
