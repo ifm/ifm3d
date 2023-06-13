@@ -57,7 +57,9 @@ namespace ifm3d
   const std::string SWUPATER_V2_STATUS_DONE = "DONE";
 
   /* curl parameters */
-  const int SWUPDATE_V2_TIMEOUT_FOR_UPLOAD = 400; // sec
+  const int SWUPDATE_V2_TIMEOUT_FOR_UPLOAD =
+    std::getenv("IFM3D_SWUPDATE_CURL_TIMEOUT") == nullptr ? 600 :
+                                         std::stoi(std::getenv("IFM3D_SWUPDATE_CURL_TIMEOUT"));
   const int CURL_MAX_REDIR = 50;
   //============================================================
   // Impl interface
