@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Add env variable IFM3D_SWUPDATE_CURL_TIMEOUT for curl transaction timeout during swupdate
 - Add Project description and links to PYPI page
 - Add an example on how to use the deserializer module
 
