@@ -81,17 +81,18 @@ if (GIT_EXECUTABLE AND EXISTS ${CMAKE_SOURCE_DIR}/.git)
 	set(${PROJECT_NAME}_VERSION_STRING_FULL
 		${${PROJECT_NAME}_VERSION_STRING}+${${PROJECT_NAME}_VERSION_AHEAD}.${${PROJECT_NAME}_VERSION_GIT_SHA})
 
-   # Check wether working tree is clean
-	execute_process(COMMAND ${GIT_EXECUTABLE} diff --quiet
+   	# Check wether working tree is clean
+	execute_process(COMMAND ${GIT_EXECUTABLE} status --porcelain
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-		RESULT_VARIABLE ${PROJECT_NAME}_WORKING_DIR_CLEAN)
+		OUTPUT_VARIABLE ${PROJECT_NAME}_WORKING_DIR_CLEAN) 
 
-  if(${${PROJECT_NAME}_WORKING_DIR_CLEAN} GREATER 0)
-	  SET(${PROJECT_NAME}_VERSION_META "+dirty")
-  endif()
+	if(NOT ${PROJECT_NAME}_WORKING_DIR_CLEAN STREQUAL "")
+		SET(${PROJECT_NAME}_VERSION_META "+dirty")
+		MESSAGE(WARNING "Workdir not clean, marking version as dirty:\n${${PROJECT_NAME}_WORKING_DIR_CLEAN}")
+	endif()
 
-  # Unset working dir clean
-  unset(${PROJECT_NAME}_WORKING_DIR_CLEAN)
+	# Unset working dir clean
+	unset(${PROJECT_NAME}_WORKING_DIR_CLEAN)
 
 	# Save version to file (which will be used when Git is not available
 	# or VERSION_UPDATE_FROM_GIT is disabled)
