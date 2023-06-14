@@ -39,29 +39,6 @@ namespace ifm3d
   /**
    * Organizer Interface for device 3D
    */
-  class IFM3D_FRAME_GRABBER_EXPORT Organizer3D : public Organizer
-  {
-  public:
-    virtual ~Organizer3D() {}
-
-    Result Organize(const std::vector<uint8_t>& data,
-                    const std::set<buffer_id>& requestedImages,
-                    const bool masking) = 0;
-  }; // end: class Organizer
-
-  /**
-   * Organizer Interface for device 2D
-   */
-  class IFM3D_FRAME_GRABBER_EXPORT Organizer2D : public Organizer
-  {
-  public:
-    virtual ~Organizer2D() {}
-
-    Result Organize(const std::vector<uint8_t>& data,
-                    const std::set<buffer_id>& requestedImages,
-                    const bool masking) = 0;
-  }; // end: class Organizer
-
 } // end: namespace ifm3d
 
 #endif // IFM3D_FG_ORGANIZER_H

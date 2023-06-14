@@ -19,6 +19,8 @@
 #include "bindings/device.h"
 #include "bindings/legacy_device.h"
 #include "bindings/o3r.h"
+#include "bindings/o3d.h"
+#include "bindings/o3x.h"
 #include "bindings/error.h"
 #include "bindings/frame.h"
 #include "bindings/framegrabber.h"
@@ -192,8 +194,10 @@ PYBIND11_MODULE(ifm3dpy, m)
   bind_semver(device_module);
   bind_error(device_module);
   bind_device(device_module);
-  bind_legacy_device(device_module);
   bind_o3r(device_module);
+  bind_legacy_device(device_module);
+  bind_o3d(device_module);
+  bind_o3x(device_module);
 
   auto framegrabber_module = m.def_submodule(
     "framegrabber",
@@ -223,6 +227,8 @@ PYBIND11_MODULE(ifm3dpy, m)
   m.attr("Device") = device_module.attr("Device");
   m.attr("LegacyDevice") = device_module.attr("LegacyDevice");
   m.attr("O3R") = device_module.attr("O3R");
+  m.attr("O3D") = device_module.attr("O3D");
+  m.attr("O3X") = device_module.attr("O3X");
   m.attr("FrameGrabber") = framegrabber_module.attr("FrameGrabber");
   m.attr("Frame") = framegrabber_module.attr("Frame");
   m.attr("buffer_id") = framegrabber_module.attr("buffer_id");
