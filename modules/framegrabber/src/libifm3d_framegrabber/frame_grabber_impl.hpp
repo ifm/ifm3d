@@ -197,9 +197,10 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
             }
           catch (const ifm3d::Error& ex)
             {
-              LOG_ERROR("Could not get PCIC Port of the camera: {}", ex.what());
+              LOG_ERROR("Could not get PCIC Port of the camera: {}",
+                        ex.what());
               LOG_WARNING("Assuming default PCIC port: {}",
-                      ifm3d::DEFAULT_PCIC_PORT);
+                          ifm3d::DEFAULT_PCIC_PORT);
               this->pcic_port_ = ifm3d::DEFAULT_PCIC_PORT;
             }
         }
@@ -230,7 +231,6 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
                   this->SetOrganizer(std::make_unique<O3ROrganizer2D>());
                 }
             }
-
         }
     }
 
