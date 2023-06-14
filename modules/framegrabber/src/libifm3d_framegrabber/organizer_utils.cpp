@@ -530,8 +530,8 @@ ifm3d::create_pixel_mask(ifm3d::Buffer& confidence)
     }
   else
     {
-      LOG_ERROR( "confidence image format is not supported : "
-                 , static_cast<int>(confidence.dataFormat()));
+      LOG_ERROR("confidence image format is not supported : ",
+                static_cast<int>(confidence.dataFormat()));
       throw Error(IFM3D_CONFIDENCE_IMAGE_FORMAT_NOT_SUPPORTED);
     }
 
