@@ -296,7 +296,7 @@ ifm3d::get_image_chunks(const std::vector<std::uint8_t>& data,
   std::map<image_chunk, std::size_t> chunks;
 
   std::size_t idx = start_idx; // start of first chunk
-  std::size_t size = end_idx.has_value() ? end_idx.value() : data.size() - 6;
+  std::size_t size = (end_idx.has_value() ? end_idx.value() : data.size()) - 6;
 
   while (idx < size)
     {
