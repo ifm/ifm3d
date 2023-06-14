@@ -15,7 +15,7 @@ namespace ifm3d
   /**
    * organizer for O3R 2D port
    */
-  class O3ROrganizer2D : public Organizer2D
+  class O3ROrganizer2D : public Organizer
   {
   public:
     O3ROrganizer2D() = default;
