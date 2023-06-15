@@ -103,7 +103,7 @@ int main()
   fg->OnNewFrame([&](ifm3d::Frame::Ptr frame)
   {
     auto distance_image = frame->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE);
-    LOG_VERBOSE("Width: {}, Height: {}", distance_image.width(), distance_image.width());
+    LOG_VERBOSE("Width: {}, Height: {}", distance_image.width(), distance_image.height());
   });
 
   std::this_thread::sleep_for(std::chrono::seconds(10));
