@@ -58,16 +58,16 @@ build:linux:deb:
       - RUNNER: shared_docker_aarch64
         PLATFORM: linux/aarch64
         BASE_IMAGE:
- #         - nvcr.io/nvidia/l4t-base:r32.4.3
+          - nvcr.io/nvidia/l4t-base:r32.4.3
           - ubuntu:22.04
- #         - ubuntu:20.04
- #         - ubuntu:18.04
+          - ubuntu:20.04
+          - ubuntu:18.04
       - RUNNER: shared_docker
         PLATFORM: linux/amd64
         BASE_IMAGE:
           - ubuntu:22.04
- #         - ubuntu:20.04
- #         - ubuntu:18.04
+          - ubuntu:20.04
+          - ubuntu:18.04
   tags:
     - ${RUNNER}
   image:
