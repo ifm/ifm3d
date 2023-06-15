@@ -28,9 +28,9 @@ RUN id ifm 2>/dev/null || useradd --uid 30000 --create-home -s /bin/bash -U ifm
 # Create a venv and install python dependencies
 RUN python3 -m venv /home/ifm/venv \
     && . /home/ifm/venv/bin/activate \
+    && python -m pip install --upgrade pip \
     && python -m pip install --upgrade \
         numpy \
-        pip \
         pytest \
         setuptools \
         wheel
