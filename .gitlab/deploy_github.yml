@@ -13,9 +13,9 @@ deploy:github:
   before_script:
   - |
     apt-get -y update
-    apt-get -y install git
+    apt-get -y install
     git config --global user.email "support.robotics@ifm.com"
     git config --global user.name "ifm-csr"  
   script:
     - export tag_value=$(cat VERSION | awk  '{print $1}' FS="*")
-    - gh release edit $tag_value  -R https://github.com/inbangsa/ifm3d.git --prerelease=false --latest
+    - gh release edit $tag_value  -R https://github.com/ifm/ifm3d.git --prerelease=false --latest
