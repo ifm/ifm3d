@@ -439,7 +439,7 @@ TEST_F(FrameGrabberTest, StartStopStart)
 
 TEST_F(FrameGrabberTest, FrameGrabberRecycling)
 {
-  LOG(INFO) << "FrameGrabberRecycling test";
+  LOG_INFO("FrameGrabberRecycling test");
   fg_->Start({});
 
   for (int i = 0; i < 5; ++i)
@@ -473,7 +473,7 @@ TEST_F(FrameGrabberTest, FrameGrabberRecycling)
 
 TEST_F(FrameGrabberTest, SoftwareTrigger)
 {
-  LOG(INFO) << "SoftwareTrigger test";
+  LOG_INFO("SoftwareTrigger test");
 
   auto legacy_device = std::dynamic_pointer_cast<ifm3d::LegacyDevice>(dev_);
   // mark the current active application as sw triggered
@@ -506,7 +506,7 @@ TEST_F(FrameGrabberTest, SoftwareTrigger)
 
 TEST_F(FrameGrabberTest, SWTriggerMultipleClients)
 {
-  LOG(INFO) << "SWTriggerMultipleClients test";
+  LOG_INFO("SWTriggerMultipleClients test");
 
   auto legacy_device = std::dynamic_pointer_cast<ifm3d::LegacyDevice>(dev_);
   // mark the current active application as sw triggered
@@ -547,7 +547,7 @@ TEST_F(FrameGrabberTest, SWTriggerMultipleClients)
 
 TEST_F(FrameGrabberTest, JSON_model)
 {
-  LOG(INFO) << "JSON_modelSchema test";
+  LOG_INFO("JSON_modelSchema test");
   fg_->Start({ifm3d::buffer_id::JSON_MODEL});
   size_t count = 0;
   fg_->OnNewFrame([&](ifm3d::Frame::Ptr frame) {
