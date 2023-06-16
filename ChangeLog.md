@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## 1.3.1 - 2023-06-16
+## 1.3.2 - 2023-06-16
 ### Added
 - Add env variable IFM3D_SWUPDATE_CURL_TIMEOUT for curl transaction timeout during swupdate
 - Add Project description and links to PYPI page
@@ -18,17 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Replaced glog with ifm3d::Logger, see the migration guide for details
 
-## 1.3.0 - 2023-06-16 [YANKED] error during release - use 1.3.1
-### Added
-- Add env variable IFM3D_SWUPDATE_CURL_TIMEOUT for curl transaction timeout during swupdate
-- Add Project description and links to PYPI page
-- Add an example on how to use the deserializer module
+## 1.3.1 - 2023-06-16 [YANKED] error during release - use 1.3.2
 
-### Fixed
-- Release versions wrongly marked as +dirty
-
-### Changed
-- Replaced glog with ifm3d::Logger, see the migration guide for details
+## 1.3.0 - 2023-06-16 [YANKED] error during release - use 1.3.2
 
 ## 1.2.6 - 2023-04-05
 ### Fixes
