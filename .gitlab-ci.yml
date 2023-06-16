@@ -3,6 +3,7 @@ stages:
   - check
   - build
   - test
+  - tag
   - release
   - deploy
 
@@ -18,9 +19,11 @@ include:
   - local: .gitlab/build_linux.yml
   - local: .gitlab/test_windows.yml
   - local: .gitlab/test_linux.yml
+  - local: .gitlab/tag.yml
   - local: .gitlab/release.yml
   - local: .gitlab/deploy.yml
   - local: .gitlab/deploy_docs.yml
   - local: .gitlab/deploy_python.yml
   - local: .gitlab/deploy_docker.yml
   - local: .gitlab/oss_compilance.yml
+  - local: .gitlab/deploy_github.yml
