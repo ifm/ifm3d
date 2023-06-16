@@ -14,12 +14,11 @@ release:github:
     - when: never
   script:
     - python3 scripts/release/get_changelog_between_versions.py
-    - echo $'\nThis is a pre-release and might contain bugs, we recommed to use last release version of ifm3d\n\n' | cat - CHANGELOG > CHANGELOG.tmp
     - export tag_value=$(cat VERSION | awk  '{print $1}' FS="*")
     - |
       while ! curl -sSfI https://github.com/ifm/ifm3d/releases/tag/$tag_value > /dev/null; do
        sleep 1
       done
     - gh --version
-    - gh release create $tag_value -R https://github.com/ifm/ifm3d.git --prerelease -F CHANGELOG.tmp --title $tag_value --verify-tag
+    - gh release create $tag_value -R https://github.com/ifm/ifm3d.git --prerelease -F CHANGELOG --title $tag_value --verify-tag
     - gh release upload $tag_value -R https://github.com/ifm/ifm3d.git ifm3d-*.tar
