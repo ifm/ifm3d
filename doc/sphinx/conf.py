@@ -120,4 +120,5 @@ myst_substitutions = {
     "ifm3d_main_branch":  "main", # The most up to date branch on ifm3d
     "ifm3d_latest_tag_url": "https://github.com/ifm/ifm3d/tags",
     "ifm3d_containers_list_url": "https://github.com/ifm/ifm3d/pkgs/container/ifm3d",
+    "ifm3d_version": ifm3dpy_version.__version__,
 }

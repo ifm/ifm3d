@@ -82,9 +82,7 @@ int main()
   // Get the logging instance
   auto& logger = ifm3d::Logger::Get();
   // Set the log level
-  logger.SetLogLevel(ifm3d::LogLevel
-
-::Verbose);
+  logger.SetLogLevel(ifm3d::LogLevel::Verbose);
 
   // Declare the device object (one object only, corresponding to the VPU)
   auto dev = std::make_shared<ifm3d::O3R>();
@@ -105,7 +103,7 @@ int main()
   fg->OnNewFrame([&](ifm3d::Frame::Ptr frame)
   {
     auto distance_image = frame->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE);
-    LOG_VERBOSE(distance_image.width());
+    LOG_VERBOSE("Width: {}, Height: {}", distance_image.width(), distance_image.height());
   });
 
   std::this_thread::sleep_for(std::chrono::seconds(10));
