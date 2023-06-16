@@ -6,8 +6,6 @@ release:github:
   needs:
     - job: build:linux:deb
       artifacts: true
-    - job: release:tag
-      artifacts: false
   rules:
     - !reference [.tagged, rules]
   script:
