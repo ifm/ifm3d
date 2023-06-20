@@ -348,7 +348,7 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
       if (ex.code() != IFM3D_THREAD_INTERRUPTED)
         {
           LOG_WARNING(ex.what());
-          // this->ReportError(ex);
+          this->ReportError(ex);
           error = ex;
         }
     }
