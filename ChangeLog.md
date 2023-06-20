@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed the error reporting through onError callback
+
 ## 1.3.2 - 2023-06-16
 ### Added
 - Add env variable IFM3D_SWUPDATE_CURL_TIMEOUT for curl transaction timeout during swupdate
