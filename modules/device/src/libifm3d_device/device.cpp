@@ -8,12 +8,11 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include <glog/logging.h>
 #include <ifm3d/device/o3d.h>
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/device/o3x.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/device/logging.h>
+#include <ifm3d/common/logging/log.h>
 #include <device_impl.hpp>
 #include <discovery.hpp>
 #include <xmlrpc_wrapper.hpp>
@@ -53,18 +52,18 @@ auto ifm3d_session_id__ = []() -> std::string {
                 (sid.find_first_not_of("0123456789abcdefABCDEF") ==
                  std::string::npos)))
             {
-              LOG(WARNING) << "Invalid session id: " << sid;
+              LOG_WARNING("Invalid session id: {}", sid);
               sid = "";
             }
           else
             {
-              LOG(INFO) << "Default session id: " << sid;
+              LOG_INFO("Default session id: {}", sid);
             }
         }
     }
   catch (const std::exception& ex)
     {
-      LOG(WARNING) << "When trying to set default session id: " << ex.what();
+      LOG_WARNING("When trying to set default session id: {}", ex.what());
 
       sid = "";
     }
@@ -141,7 +140,7 @@ ifm3d::Device::MakeShared(const std::string& ip,
                 O3R_MINIMUM_FIRWARE_SUPPORTED.minor_num,
                 O3R_MINIMUM_FIRWARE_SUPPORTED.patch_num))
             {
-              VLOG(IFM3D_TRACE) << "Instantiating O3R...";
+              LOG_VERBOSE("Instantiating O3R...");
               return std::make_shared<ifm3d::O3R>(ip, xmlrpc_port);
             }
           else
@@ -151,31 +150,30 @@ ifm3d::Device::MakeShared(const std::string& ip,
                             "version required is {}",
                             O3R_MINIMUM_FIRWARE_SUPPORTED);
 
-              VLOG(IFM3D_TRACE) << error_msg;
+              LOG_VERBOSE(error_msg);
               throw Error(IFM3D_INVALID_FIRMWARE_VERSION, error_msg);
             }
         }
       if (base->AmI(device_family::O3X))
         {
-          VLOG(IFM3D_TRACE) << "Instantiating O3X...";
+          LOG_VERBOSE("Instantiating O3X...");
           return std::make_shared<ifm3d::O3X>(ip, xmlrpc_port, password);
         }
       else if (base->AmI(device_family::O3D))
         {
-          VLOG(IFM3D_TRACE) << "Instantiating O3D...";
+          LOG_VERBOSE("Instantiating O3D...");
           return std::make_shared<ifm3d::O3D>(ip, xmlrpc_port, password);
         }
       else
         {
-          LOG(WARNING) << "Unexpected camera device type: "
-                       << base->DeviceType();
+          LOG_WARNING("Unexpected camera device type: {}", base->DeviceType());
         }
     }
   catch (const ifm3d::Error& ex)
     {
       if (ex.code() == IFM3D_XMLRPC_TIMEOUT)
         {
-          LOG(WARNING) << "Could not probe device type: " << ex.what();
+          LOG_WARNING("Could not probe device type: {}", ex.what());
           if (throwIfUnavailable)
             {
               throw;
@@ -183,7 +181,7 @@ ifm3d::Device::MakeShared(const std::string& ip,
         }
       else
         {
-          LOG(ERROR) << "While trying to instantiate camera: " << ex.what();
+          LOG_ERROR("While trying to instantiate camera: {}", ex.what());
           //
           // XXX: For now, we re-throw. I am not sure what else would
           // go wrong here except for a network time out. To that end,
@@ -197,7 +195,7 @@ ifm3d::Device::MakeShared(const std::string& ip,
   //
   // worst case: we return the "non-optimized" base class
   //
-  LOG(WARNING) << "Returning instance of base camera class!";
+  LOG_WARNING("Returning instance of base camera class!");
   return base;
 }
 
@@ -248,8 +246,7 @@ ifm3d::Device::DeviceType(bool use_cached)
 {
   if (!ifm3d::ASSUME_DEVICE.empty())
     {
-      LOG(WARNING) << "Returning assumed device type: "
-                   << ifm3d::ASSUME_DEVICE;
+      LOG_WARNING("Returning assumed device type: {}", ifm3d::ASSUME_DEVICE);
       return ifm3d::ASSUME_DEVICE;
     }
 
@@ -278,7 +275,7 @@ ifm3d::Device::DeviceID()
         }
       catch (std::out_of_range& ex)
         {
-          LOG(WARNING) << ex.what();
+          LOG_WARNING(ex.what());
         }
     }
   return -1;
@@ -368,7 +365,7 @@ ifm3d::Device::FromJSONStr(const std::string& jstr)
     }
   catch (const std::exception& ex)
     {
-      LOG(ERROR) << "JSON: " << ex.what();
+      LOG_ERROR("JSON: {}", ex.what());
       throw ifm3d::Error(IFM3D_JSON_ERROR);
     }
 

@@ -13,7 +13,7 @@
 #include <set>
 #include <ifm3d/device/util.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/device/json.hpp>
+#include <ifm3d/common/json.hpp>
 
 const ifm3d::SemVer O3R_SCHEMA_FIRMWARE_COMPATIBILITY_CHECK_VERSION =
   ifm3d::SemVer(1, 0, 1);

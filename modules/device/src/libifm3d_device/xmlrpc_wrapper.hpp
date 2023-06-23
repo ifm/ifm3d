@@ -17,11 +17,10 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <glog/logging.h>
 #include <xmlrpc-c/client.hpp>
 #include <ifm3d/device/legacy_device.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/device/logging.h>
+#include <ifm3d/common/logging/log.h>
 
 namespace ifm3d
 {
@@ -96,7 +95,7 @@ namespace ifm3d
         }
       catch (const std::exception& ex)
         {
-          LOG(ERROR) << url << "->" << method << ":" << ex.what();
+          LOG_ERROR("{} -> {}: {}", url, method, ex.what());
 
           if (std::strstr(ex.what(), "HTTP response code is 407, not 200"))
             {

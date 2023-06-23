@@ -1,6 +1,6 @@
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/ifm3dpy_version.py.in
-  ${CMAKE_CURRENT_SOURCE_DIR}/ifm3dpy_version.py
+  ${CMAKE_CURRENT_BINARY_DIR}/ifm3dpy_version.py
   @ONLY
   )
 

@@ -38,7 +38,7 @@ namespace ifm3d
    *                              // any ifm3d include.
    *
    * #define IFM3D_JSON_NLOHMANN_COMPAT // enable the nlohmann json converter
-   * #include <ifm3d/device/json.hpp>
+   * #include <ifm3d/common/json.hpp>
    * @endcode
    *
    * After this the values can just be assigned and will be converted
@@ -134,7 +134,7 @@ namespace ifm3d
 #    define IFM3D_JSON_USE_GLOBAL_UDLS 0
 #  endif
 
-#  include <ifm3d/device/json_impl.hpp>
+#  include <ifm3d/common/json_impl.hpp>
 
 #  ifdef IFM3D_JSON_NLOHMANN_COMPAT
 #    ifndef NLOHMANN_JSON_VERSION_MAJOR

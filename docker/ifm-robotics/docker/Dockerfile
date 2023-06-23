@@ -1,6 +1,3 @@
-# Python version
-ARG PYTHON_VERSION=3.9
-
 # Set the base image
 ARG BASE_IMAGE=ubuntu:20.04
 
@@ -13,30 +10,27 @@ ARG RUN_TESTS
 
 # This stage used as a base for building and the final image
 FROM ${BASE_IMAGE} AS base
-ARG PYTHON_VERSION
 
-# Set up the deadsnakes ppa and install python
+# install python
 RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y gnupg2 wget \
-    && UBUNTU_RELEASE=$(awk -F'=' '/UBUNTU_CODENAME/ {print $2}' /etc/os-release) \
-    && echo "deb http://ppa.launchpad.net/deadsnakes/ppa/ubuntu ${UBUNTU_RELEASE} main" > "/etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-${UBUNTU_RELEASE}.list" \
-    && wget -O - "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xba6932366a755776" | gpg --dearmor -o /etc/apt/trusted.gpg.d/deadsnakes_ubuntu_ppa.gpg \
-    && apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        python${PYTHON_VERSION} \
-        python${PYTHON_VERSION}-venv \
-        python${PYTHON_VERSION}-dev \
+        gnupg2 \
+        wget \
+        python3 \
+        python3-pip \
+        python3-venv \
+        python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Create the ifm user
 RUN id ifm 2>/dev/null || useradd --uid 30000 --create-home -s /bin/bash -U ifm
 
 # Create a venv and install python dependencies
-RUN python${PYTHON_VERSION} -m venv /home/ifm/venv \
+RUN python3 -m venv /home/ifm/venv \
     && . /home/ifm/venv/bin/activate \
+    && python -m pip install --upgrade pip \
     && python -m pip install --upgrade \
         numpy \
-        pip \
         pytest \
         setuptools \
         wheel
@@ -44,7 +38,6 @@ RUN python${PYTHON_VERSION} -m venv /home/ifm/venv \
 
 # This stage is used for building ifm3d
 FROM base AS build
-ARG PYTHON_VERSION
 ARG CMAKE_VERSION
 
 # Install build-time dependencies
@@ -80,7 +73,7 @@ RUN git clone --branch v2.8.0 https://github.com/pybind/pybind11.git /pybind  \
         -DCMAKE_BUILD_TYPE=Release \
         -DPYBIND11_TEST=OFF \
         -DCMAKE_INSTALL_PREFIX=/app \
-        -DPYTHON_EXECUTABLE=/home/ifm/venv/bin/python${PYTHON_VERSION} \
+        -DPYTHON_EXECUTABLE=/home/ifm/venv/bin/python3 \
         .. \
     && cmake --build . \
     && cmake --build . --target install
@@ -101,7 +94,7 @@ RUN mkdir -p /ifm3d/build \
         -DBUILD_MODULE_OPENCV=ON \
         -DBUILD_MODULE_PCICCLIENT=ON \
         -DBUILD_MODULE_PYBIND11=ON \
-        -DPYTHON_EXECUTABLE=/usr/bin/python${PYTHON_VERSION} \
+        -DPYTHON_EXECUTABLE=/usr/bin/python3 \
         .. \
     && cmake --build . \
     && if [ "x$RUN_TESTS" = "x" ]; then echo "Skipping tests..."; else ninja check; fi \
@@ -110,7 +103,6 @@ RUN mkdir -p /ifm3d/build \
 
 # Create the final image based on the base stage
 FROM base
-ARG PYTHON_VERSION
 
 # Copy the build output
 COPY --from=build /app /usr

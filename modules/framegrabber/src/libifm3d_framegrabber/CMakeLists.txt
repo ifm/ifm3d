@@ -1,18 +1,4 @@
 ################################################
-## Bring in dependent projects
-################################################
-find_package(Threads REQUIRED)
-if(NOT BUILD_IN_DEPS)
-  find_package(glog QUIET CONFIG NAMES google-glog glog)
-  if(NOT TARGET glog::glog)
-    find_library(LIB_glog NAMES glog)
-  else(NOT TARGET glog::glog)
-    set(LIB_glog glog::glog)
-  endif (NOT TARGET glog::glog)
-else(NOT BUILD_IN_DEPS)
-  set(LIB_glog glog)
-endif()
-################################################
 ## Target: libifm3d_framegrabber.so
 ################################################
 file(GLOB IFM3D_FG_SOURCES CONFIGURE_DEPENDS *.cpp *.hpp)
@@ -57,10 +43,8 @@ endif(WIN32)
 target_link_libraries(
   ifm3d_framegrabber
   PUBLIC
-    ${LIB_glog}
-  PRIVATE
     ifm3d_device
-    Threads::Threads
+  PRIVATE
     $<BUILD_INTERFACE:asio>
     $<BUILD_INTERFACE:fmt::fmt-header-only>
   )
