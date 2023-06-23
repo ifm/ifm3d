@@ -25,7 +25,7 @@ The table below show the compatibility between the current ifm3d version and the
 
 | ifm3d version | Supported O3D Firmware Version | Supported O3X Firmware Version | Supported O3R Firmware Version | Supported Ubuntu Linux Version | Notes | 
 | ------------- | ------------------------------ | ------------------------------ | -------------------- | ------------------------------ | ----- |
-| 1.0.x | Not supported, please use ifm3d 0.20.x | Not tested, please use ifm3d 0.20.x | 0.13.11, 0.14.23 | 20.04 | Major re-architecture of the library, please see the changelog and the migrating guide. |
+| 1.2.6 | Not supported, please use ifm3d 0.20.x | Not tested, please use ifm3d 0.20.x | 1.0.14 | 20.04, 22.04 | See the changelog and the migrating guide. |
 
 > Note that a full compatibility matrix is available [here](ifm3d/doc/sphinx/content/swcompat:ifm3d%20Software%20Compatibility%20Matrix) for older versions.
 ## Organization of the Software

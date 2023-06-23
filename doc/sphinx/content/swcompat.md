@@ -289,8 +289,24 @@ ifm3d Software Compatibility Matrix
     <td>1.0.0 </td>
     <td>Not tested</td>
     <td>Not tested</td>
-    <td>13.11, 0.14.23</td>
+    <td>13.11, 0.14.23, 0.16.23</td>
     <td>20.04</td>
     <td>Official release for O3R</td>
-  </tr>    
+  </tr>  
+  <tr>
+    <td>1.1.0 </td>
+    <td>Not tested</td>
+    <td>Not tested</td>
+    <td>13.11, 0.14.23, 0.16.23</td>
+    <td>20.04, 22.04</td>
+    <td>Provides documentation update, bugfixes and .debs files</td>
+  </tr>   
+  <tr>
+    <td>1.1.1 </td>
+    <td>Not tested</td>
+    <td>Not tested</td>
+    <td>13.11, 0.14.23, 0.16.23</td>
+    <td>20.04, 22.04</td>
+    <td>Bugfixes</td>
+  </tr>      
 </table>
