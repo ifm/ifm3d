@@ -4,6 +4,8 @@
  */
 
 #include <memory>
+#include <ctime>
+#include <sstream>
 #include <ifm3d/device/legacy_device.h>
 #include <ifm3d/device/util.h>
 #include <ifm3d/device/version.h>
@@ -98,7 +100,7 @@ ifm3d::LegacyDevice::MakeShared(const std::string& ip,
 
   if (base == nullptr)
     {
-      LOG(ERROR) << "Incompatible device";
+      LOG_ERROR("Incompatible device");
       throw ifm3d::Error(IFM3D_UNSUPPORTED_DEVICE);
     }
 
@@ -176,7 +178,7 @@ ifm3d::LegacyDevice::SetTemporaryApplicationParameters(
                                          ifm3d::O3D_TMP_PARAMS_SUPPORT_MINOR,
                                          ifm3d::O3D_TMP_PARAMS_SUPPORT_PATCH)))
     {
-      LOG(WARNING) << "Setting temp params not supported by this device!";
+      LOG_WARNING("Setting temp params not supported by this device!");
       return;
     }
 
@@ -191,7 +193,7 @@ ifm3d::LegacyDevice::UnitVectors()
       return this->pImpl->UnitVectors();
     }
 
-  LOG(ERROR) << "The device does not support the XMLRPC UnitVectors accessor";
+  LOG_ERROR("The device does not support the XMLRPC UnitVectors accessor");
   throw ifm3d::Error(IFM3D_UNSUPPORTED_OP);
 }
 
@@ -255,7 +257,7 @@ ifm3d::LegacyDevice::CreateApplication(const std::string& type)
 {
   if (this->AmI(device_family::O3X))
     {
-      LOG(ERROR) << "O3X only supports a single app, create not supported";
+      LOG_ERROR("O3X only supports a single app, create not supported");
       throw ifm3d::Error(IFM3D_UNSUPPORTED_OP);
     }
 
@@ -268,7 +270,7 @@ ifm3d::LegacyDevice::CopyApplication(int idx)
 {
   if (this->AmI(device_family::O3X))
     {
-      LOG(ERROR) << "O3X only supports a single app, copy not supported";
+      LOG_ERROR("O3X only supports a single app, copy not supported");
       throw ifm3d::Error(IFM3D_UNSUPPORTED_OP);
     }
 
@@ -281,7 +283,7 @@ ifm3d::LegacyDevice::DeleteApplication(int idx)
 {
   if (this->AmI(device_family::O3X))
     {
-      LOG(ERROR) << "O3X only supports a single app, delete not supported";
+      LOG_ERROR("O3X only supports a single app, delete not supported");
       throw ifm3d::Error(IFM3D_UNSUPPORTED_OP);
     }
 
@@ -455,11 +457,11 @@ ifm3d::LegacyDevice::FromJSON_(
   const std::string& name,
   int idx)
 {
-  VLOG(IFM3D_TRACE) << "Setting " << name << " parameters";
+  LOG_VERBOSE("Setting {} parameters", name);
   if (!j_new.is_object())
     {
-      LOG(ERROR) << "The passed in " << name << " json should be an object!";
-      VLOG(IFM3D_TRACE) << "Invalid JSON was: " << j_new.dump();
+      LOG_ERROR("The passed in {} json should be an object!", name);
+      LOG_VERBOSE("Invalid JSON was: {}", j_new.dump());
 
       throw ifm3d::Error(IFM3D_JSON_ERROR);
     }
@@ -468,7 +470,7 @@ ifm3d::LegacyDevice::FromJSON_(
     {
       if (!this->AmI(device_family::O3X))
         {
-          VLOG(IFM3D_TRACE) << "Editing app at idx=" << idx;
+          LOG_VERBOSE("Editing app at idx={}", idx);
           this->pImpl->EditApplication(idx);
         }
     }
@@ -477,12 +479,10 @@ ifm3d::LegacyDevice::FromJSON_(
   for (auto it = j_new.begin(); it != j_new.end(); ++it)
     {
       std::string key = it.key();
-      VLOG(IFM3D_TRACE) << "Processing key=" << key
-                        << ", with val=" << j_new[key].dump(2);
+      LOG_VERBOSE("Processing key={} with val={}", key, j_new[key].dump(2));
       if (it.value().is_null())
         {
-          LOG(WARNING) << "Skipping " << key
-                       << ", null value -- should be string!";
+          LOG_WARNING("Skipping {}, null value -- should be string!", key);
           continue;
         }
       std::string val = j_new[key].get<std::string>();
@@ -500,8 +500,9 @@ ifm3d::LegacyDevice::FromJSON_(
                 {
                   if (RO_LUT.at(name).at(key))
                     {
-                      VLOG(IFM3D_TRACE)
-                        << "Skipping read-only " << name << " param: " << key;
+                      LOG_VERBOSE("Skipping read-only {} param: {}",
+                                  name,
+                                  key);
                       continue;
                     }
                 }
@@ -511,8 +512,7 @@ ifm3d::LegacyDevice::FromJSON_(
                   // r/w parameter
                 }
 
-              VLOG(IFM3D_TRACE)
-                << "Setting " << name << " parameter: " << key << "=" << val;
+              LOG_VERBOSE("Setting {} parameter: {}={}", name, key, val);
               SetFunc(key, val);
               do_save = true;
             }
@@ -520,8 +520,9 @@ ifm3d::LegacyDevice::FromJSON_(
             {
               if (ex.code() == IFM3D_READONLY_PARAM)
                 {
-                  LOG(WARNING)
-                    << "Tried to set read-only " << name << " param: " << key;
+                  LOG_WARNING("Tried to set read-only {} param: {}",
+                              name,
+                              key);
                 }
               else
                 {
@@ -531,7 +532,7 @@ ifm3d::LegacyDevice::FromJSON_(
         }
       else
         {
-          VLOG(IFM3D_TRACE) << "Skipping " << key << ", no change in value";
+          LOG_VERBOSE("Skipping {}, no change in value", val);
         }
     }
 
@@ -543,7 +544,7 @@ ifm3d::LegacyDevice::FromJSON_(
     {
       if (!this->AmI(device_family::O3X))
         {
-          VLOG(IFM3D_TRACE) << "Stop editing app at idx=" << idx;
+          LOG_VERBOSE("Stop editing app at idx={}", idx);
           this->pImpl->StopEditingApplication();
         }
     }
@@ -574,21 +575,21 @@ ifm3d::LegacyDevice::getAppJSON(int index, const json& j, json& app) /*static*/
 void
 ifm3d::LegacyDevice::FromJSON(const json& j)
 {
-  VLOG(IFM3D_TRACE) << "Checking if passed in JSON is an object";
+  LOG_VERBOSE("Checking if passed in JSON is an object");
   if (!j.is_object())
     {
-      LOG(ERROR) << "The passed in json should be an object!";
-      VLOG(IFM3D_TRACE) << "Invalid JSON was: " << j.dump();
+      LOG_ERROR("The passed in json should be an object!");
+      LOG_VERBOSE("Invalid JSON was: {}", j.dump());
 
       throw ifm3d::Error(IFM3D_JSON_ERROR);
     }
 
   // we use this to lessen the number of overall network calls
-  VLOG(IFM3D_TRACE) << "Caching current camera dump";
+  LOG_VERBOSE("Caching current camera dump");
   json current = this->ToJSON();
 
   // make the `ifm3d` root element optional
-  VLOG(IFM3D_TRACE) << "Extracing root element";
+  LOG_VERBOSE("Extracing root element");
   json root = j.count("ifm3d") ? j["ifm3d"] : j;
 
   // Ensure we cancel the session when leaving this method
@@ -613,19 +614,19 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
       {
         if (!j_apps.is_array())
           {
-            LOG(ERROR) << "The `Apps` element should be an array!";
-            VLOG(IFM3D_TRACE) << "Invalid JSON was: " << j_apps.dump();
+            LOG_ERROR("The `Apps` element should be an array!");
+            LOG_VERBOSE("Invalid JSON was: {}", j_apps.dump());
 
             throw ifm3d::Error(IFM3D_JSON_ERROR);
           }
 
-        VLOG(IFM3D_TRACE) << "Looping over applications";
+        LOG_VERBOSE("Looping over applications");
         for (auto& j_app : j_apps)
           {
             if (!j_app.is_object())
               {
-                LOG(ERROR) << "All 'Apps' must be a JSON object!";
-                VLOG(IFM3D_TRACE) << "Invalid JSON was: " << j_app.dump();
+                LOG_ERROR("All 'Apps' must be a JSON object!");
+                LOG_VERBOSE("Invalid JSON was: {}", j_app.dump());
                 throw ifm3d::Error(IFM3D_JSON_ERROR);
               }
 
@@ -637,30 +638,29 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
               {
                 if (!this->AmI(device_family::O3X))
                   {
-                    VLOG(IFM3D_TRACE) << "Creating new application";
+                    LOG_VERBOSE("Creating new application");
                     idx = j_app["Type"].is_null() ?
                             this->pImpl->CreateApplication(
                               DEFAULT_APPLICATION_TYPE) :
                             this->pImpl->CreateApplication(
                               j_app["Type"].get<std::string>());
 
-                    VLOG(IFM3D_TRACE) << "Created new app, updating our dump";
+                    LOG_VERBOSE("Created new app, updating our dump");
                     current = this->ToJSON_(false);
                   }
                 else
                   {
-                    VLOG(IFM3D_TRACE)
-                      << "O3X only has a single app, assuming idx=1";
+                    LOG_VERBOSE("O3X only has a single app, assuming idx=1");
                     idx = 1;
                   }
               }
             else
               {
-                VLOG(IFM3D_TRACE) << "Getting index of existing application";
+                LOG_VERBOSE("Getting index of existing application");
                 idx = std::stoi(j_app["Index"].get<std::string>());
               }
 
-            VLOG(IFM3D_TRACE) << "Application of interest is at index=" << idx;
+            LOG_VERBOSE("Application of interest is at index={}", idx);
 
             // now in `current` (which is a whole camera dump)
             // we need to find the application at index `idx`.
@@ -668,7 +668,7 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
             bool app_found = getAppJSON(idx, current, curr_app);
             if (!app_found)
               {
-                LOG(ERROR) << "Could not find an application at index=" << idx;
+                LOG_ERROR("Could not find an application at index={}", idx);
                 throw ifm3d::Error(IFM3D_JSON_ERROR);
               }
 
@@ -812,8 +812,8 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
               {
                 if (ex.code() == IFM3D_XMLRPC_TIMEOUT)
                   {
-                    LOG(WARNING) << "XML-RPC timeout saving net params, "
-                                 << "this is expected";
+                    LOG_WARNING(
+                      "XML-RPC timeout saving net params, this is expecte");
                   }
                 else
                   {

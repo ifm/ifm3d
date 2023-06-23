@@ -12,7 +12,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <glog/logging.h>
 #include <ifm3d/tools.h>
 #include <ifm3d/device.h>
 

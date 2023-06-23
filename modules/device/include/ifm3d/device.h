@@ -14,7 +14,7 @@
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/device/o3x.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/device/logging.h>
+#include <ifm3d/common/logging/log.h>
 #include <ifm3d/device/util.h>
 #include <ifm3d/device/semver.h>
 #include <ifm3d/device/version.h>

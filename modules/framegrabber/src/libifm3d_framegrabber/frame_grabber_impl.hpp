@@ -25,7 +25,7 @@
 #include <mutex>
 #include <asio/use_future.hpp>
 #include <asio.hpp>
-#include <glog/logging.h>
+#include <ifm3d/common/logging/log.h>
 #include <ifm3d/fg/frame_grabber_export.h>
 #include <ifm3d/device.h>
 #include <ifm3d/fg/schema.h>
@@ -192,24 +192,25 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
         }
       catch (const ifm3d::Error& ex)
         {
-          LOG(ERROR) << "Could not get PCIC Port of the camera: " << ex.what();
-          LOG(WARNING) << "Assuming default PCIC port: "
-                       << ifm3d::DEFAULT_PCIC_PORT;
+          LOG_ERROR("Could not get PCIC Port of the camera: {}", ex.what());
+          LOG_WARNING("Assuming default PCIC port: {}",
+                      ifm3d::DEFAULT_PCIC_PORT);
           this->pcic_port_ = ifm3d::DEFAULT_PCIC_PORT;
         }
     }
 
-  LOG(INFO) << "Camera connection info: ip=" << this->cam_ip_
-            << ", port=" << this->pcic_port_;
+  LOG_INFO("Camera connection info: ip={}, port={}",
+           this->cam_ip_,
+           this->pcic_port_);
 }
 
 ifm3d::FrameGrabber::Impl::~Impl()
 {
-  VLOG(IFM3D_TRACE) << "FrameGrabber dtor running...";
+  LOG_VERBOSE("FrameGrabber dtor running...");
 
   Stop().wait();
 
-  VLOG(IFM3D_TRACE) << "FrameGrabber destroyed.";
+  LOG_VERBOSE("FrameGrabber destroyed.");
 }
 
 //-------------------------------------
@@ -239,8 +240,9 @@ ifm3d::FrameGrabber::Impl::SWTrigger()
       }
     catch (const ifm3d::Error& ex)
       {
-        LOG(ERROR) << "While trying to software trigger the camera: "
-                   << ex.code() << " - " << ex.what();
+        LOG_ERROR("While trying to software trigger the camera: {} = {}",
+                  ex.code(),
+                  ex.what());
         this->trigger_feedback_promise_.set_exception(
           std::current_exception());
         reinitialize_promise();
@@ -324,7 +326,7 @@ ifm3d::FrameGrabber::Impl::SetOrganizer(std::unique_ptr<Organizer> organizer)
 void
 ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
 {
-  VLOG(IFM3D_TRACE) << "Framegrabber thread running...";
+  LOG_DEBUG("Framegrabber thread running...");
 
   this->ticket_buffer_.clear();
   this->ticket_buffer_.resize(ifm3d::TICKET_SIZE);
@@ -345,7 +347,8 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
     {
       if (ex.code() != IFM3D_THREAD_INTERRUPTED)
         {
-          LOG(WARNING) << ex.what();
+          LOG_WARNING(ex.what());
+          // this->ReportError(ex);
           error = ex;
         }
     }
@@ -366,7 +369,6 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
     {
       error = ifm3d::Error(IFM3D_SYSTEM_ERROR, fmt::format("{1}", err.what()));
     }
-
   try
     {
       this->sock_->shutdown(asio::socket_base::shutdown_both);
@@ -379,7 +381,9 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
                      fmt::format("{0}: {1}",
                                  static_cast<int>(err.code().value()),
                                  err.what())));
-      LOG(WARNING) << "System error " << err.code() << ": " << err.what();
+      LOG_WARNING("System error {}: {}",
+                  static_cast<int>(err.code().value()),
+                  err.what());
     }
 
   {
@@ -394,9 +398,9 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
 
   if (error.has_value())
     {
-      LOG(WARNING) << "Exception: " << error.value().what();
-      this->ReportError(error.value());
-
+      LOG_WARNING("Exception: {}: {}",
+                  static_cast<int>(error.value().code()),
+                  error.value().what());
       auto ex_ptr = std::make_exception_ptr(error.value());
       this->wait_for_frame_promise.set_exception(ex_ptr);
       if (!this->is_ready_)
@@ -405,7 +409,7 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
         }
     }
 
-  LOG(INFO) << "FrameGrabber thread done.";
+  LOG_INFO("FrameGrabber thread done.");
 }
 
 void
@@ -545,7 +549,7 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
     {
       if (this->payload_buffer_.at(4) != '*')
         {
-          LOG(ERROR) << "Error setting pcic schema on device";
+          LOG_ERROR("Error setting pcic schema on device");
           throw ifm3d::Error(
             IFM3D_PCIC_BAD_REPLY,
             fmt::format("Error setting pcic schema on device"));
@@ -562,7 +566,7 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
             }
           else
             {
-              LOG(ERROR) << "Error setting pcic mode on device";
+              LOG_ERROR("Error setting pcic mode on device");
               throw ifm3d::Error(
                 IFM3D_PCIC_BAD_REPLY,
                 fmt::format("Error setting pcic mode on device"));
@@ -625,12 +629,12 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
         }
       catch (std::exception ex)
         {
-          LOG(WARNING) << "Bad image: " << ex.what();
+          LOG_WARNING("Bad image: {}", ex.what());
         }
     }
   else
     {
-      LOG(WARNING) << "Bad image!";
+      LOG_WARNING("Bad image!");
     }
 }
 
@@ -662,7 +666,7 @@ ifm3d::FrameGrabber::Impl::AsyncErrorHandler()
     }
   else
     {
-      LOG(WARNING) << "Bad error message!";
+      LOG_WARNING("Bad error message!");
     }
 }
 
@@ -692,7 +696,7 @@ ifm3d::FrameGrabber::Impl::AsyncNotificationHandler()
     }
   else
     {
-      LOG(WARNING) << "Bad error message!";
+      LOG_WARNING("Bad error message!");
     }
 }
 
@@ -701,7 +705,7 @@ ifm3d::FrameGrabber::Impl::TriggerHandler()
 {
   if (this->payload_buffer_.at(4) != '*')
     {
-      LOG(ERROR) << "Error Sending trigger on device";
+      LOG_ERROR("Error Sending trigger on device");
       this->trigger_feedback_promise_.set_exception(
         std::make_exception_ptr(Error(IFM3D_CANNOT_SW_TRIGGER)));
     }
@@ -724,15 +728,15 @@ ifm3d::FrameGrabber::Impl::SetSchema(const json& schema)
     {
       // O3X does not set the schema via PCIC, rather we set it via
       // XMLRPC using the camera interface.
-      VLOG(IFM3D_PROTO_DEBUG) << "o3x schema: " << std::endl << json;
+      LOG_VERBOSE("o3x schema: \n{}", json);
       try
         {
           this->cam_->FromJSONStr(json);
         }
       catch (const std::exception& ex)
         {
-          LOG(ERROR) << "Failed to set schema on O3X: " << ex.what();
-          LOG(WARNING) << "Running with currently applied schema";
+          LOG_ERROR("Failed to set schema on O3X: {}", ex.what());
+          LOG_WARNING("Running with currently applied schema");
         }
       return;
     }
@@ -740,7 +744,7 @@ ifm3d::FrameGrabber::Impl::SetSchema(const json& schema)
   // Setting schema for O3D O3R devices
   const std::string c_length = fmt::format("{0}{1:09}", "c", json.size());
   SendCommand(TICKET_COMMAND_c, c_length + json);
-  VLOG(IFM3D_PROTO_DEBUG) << "schema: " << json;
+  LOG_VERBOSE("schema: {}", json);
 }
 
 ifm3d::json

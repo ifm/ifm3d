@@ -6,7 +6,7 @@
 #include <ifm3d/device.h>
 #include <ifm3d/fg.h>
 #include <ifm3d/fg/buffer.h>
-#include <glog/logging.h>
+#include <ifm3d/common/logging/log.h>
 #include <gtest/gtest.h>
 
 namespace
@@ -109,7 +109,7 @@ namespace
 } // end namespace
 TEST(Frame, MoveCtor)
 {
-  LOG(INFO) << "Frame.MoveCtor test";
+  LOG_INFO("Frame.MoveCtor test");
   auto cam = ifm3d::Device::MakeShared();
   auto fg_ = std::make_shared<ifm3d::FrameGrabber>(cam);
   fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
@@ -149,7 +149,7 @@ TEST(Frame, MoveCtor)
 
 TEST(Frame, MoveAssignmentOperator)
 {
-  LOG(INFO) << "Frame.MoveAssignmentOperator test";
+  LOG_INFO("Frame.MoveAssignmentOperator test");
   auto cam = ifm3d::Device::MakeShared();
   auto fg_ = std::make_shared<ifm3d::FrameGrabber>(cam);
   fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
@@ -189,7 +189,7 @@ TEST(Frame, MoveAssignmentOperator)
 
 TEST(Frame, CopyCtor)
 {
-  LOG(INFO) << "frame.CopyCtor test";
+  LOG_INFO("frame.CopyCtor test");
   auto cam = ifm3d::Device::MakeShared();
   auto fg_ = std::make_shared<ifm3d::FrameGrabber>(cam);
   fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
@@ -251,7 +251,7 @@ TEST(Frame, CopyCtor)
 
 TEST(Frame, CopyAssignmentOperator)
 {
-  LOG(INFO) << "Frame.CopyAssignmentOperator test";
+  LOG_INFO("Frame.CopyAssignmentOperator test");
 
   auto cam = ifm3d::Device::MakeShared();
   auto fg_ = std::make_shared<ifm3d::FrameGrabber>(cam);
@@ -308,7 +308,7 @@ TEST(Frame, CopyAssignmentOperator)
 
 TEST(Frame, References)
 {
-  LOG(INFO) << "Image.References test";
+  LOG_INFO("Image.References test");
 
   auto cam = ifm3d::Device::MakeShared();
   auto fg_ = std::make_shared<ifm3d::FrameGrabber>(cam);

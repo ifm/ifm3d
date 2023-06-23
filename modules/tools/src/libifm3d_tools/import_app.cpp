@@ -15,7 +15,6 @@
 #include <vector>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/device.h>
-#include <glog/logging.h>
 
 ifm3d::ImportApp::ImportApp(int argc,
                             const char** argv,

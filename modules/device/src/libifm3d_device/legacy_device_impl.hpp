@@ -18,11 +18,10 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <glog/logging.h>
 #include <xmlrpc-c/client.hpp>
 #include <ifm3d/device/legacy_device.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/device/logging.h>
+#include <ifm3d/common/logging/log.h>
 #include <xmlrpc_wrapper.hpp>
 
 namespace ifm3d
@@ -159,7 +158,7 @@ namespace ifm3d
         }
       catch (const ifm3d::Error& ex)
         {
-          LOG(ERROR) << ex.what();
+          LOG_ERROR(ex.what());
           this->CancelSession();
           throw;
         }
@@ -178,7 +177,7 @@ namespace ifm3d
         }
       catch (const ifm3d::Error& ex)
         {
-          LOG(ERROR) << ex.what();
+          LOG_ERROR(ex.what());
           this->CancelSession();
           throw;
         }
@@ -307,14 +306,14 @@ ifm3d::LegacyDevice::Impl::Impl(std::shared_ptr<XMLRPCWrapper> xwrapper,
     session_("")
 {
   // Needed for fetching unit vectors over xmlrpc for O3X
-  VLOG(IFM3D_TRACE) << "Increasing XML-RPC response size limit...";
+  LOG_VERBOSE("Increasing XML-RPC response size limit...");
   xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID,
                    XMLRPC_XML_SIZE_LIMIT_DEFAULT * 2);
 }
 
 ifm3d::LegacyDevice::Impl::~Impl()
 {
-  VLOG(IFM3D_TRACE) << "Dtor...";
+  LOG_VERBOSE("Dtor...");
   this->CancelSession();
 }
 
@@ -474,8 +473,9 @@ ifm3d::LegacyDevice::Impl::CancelSession()
     }
   catch (const ifm3d::Error& ex)
     {
-      LOG(WARNING) << "Failed to cancel session: " << this->SessionID()
-                   << " -> " << ex.what();
+      LOG_WARNING("Failed to cancel session: {} -> {}",
+                  this->SessionID(),
+                  ex.what());
 
       if (ex.code() == IFM3D_XMLRPC_OBJ_NOT_FOUND)
         {
