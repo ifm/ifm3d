@@ -9,7 +9,7 @@ test:windows_2019:
   variables:
     GIT_CLEAN_FLAGS: none
   script:
-       cmake.exe -B build -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_MODULE_PCICCLIENT=ON -DBUILD_TESTS=ON -DGTEST_CMAKE_DIR=C:/googletest -Dgtest_force_shared_crt=TRUE -DCMAKE_INSTALL_PREFIX=$PWD/build/install .'
+    - cmake.exe -B build -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_MODULE_PCICCLIENT=ON -DBUILD_TESTS=ON -DGTEST_CMAKE_DIR=C:/googletest -Dgtest_force_shared_crt=TRUE -DCMAKE_INSTALL_PREFIX=$PWD/build/install .'
     - cd build
     - cmake.exe --build . -j 8 --config Release --clean-first --target check
  
