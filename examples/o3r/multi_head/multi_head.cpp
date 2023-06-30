@@ -69,7 +69,12 @@ main()
       auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, pcic);
 
       // Start the framegrabber
-      fg->Start({ifm3d::buffer_id::XYZ, ifm3d::buffer_id::JPEG_IMAGE});
+      if (type=="2D"){
+        fg->Start({ifm3d::buffer_id::JPEG_IMAGE});
+      }
+      else{
+        fg->Start({ifm3d::buffer_id::XYZ});
+      }
       fgs.push_back(fg);
     }
 
@@ -85,10 +90,11 @@ main()
           return -1;
         }
       auto frame = future.get();
-
       std::cout << "Timestamp of frame " << std::setw(2) << std::setfill('0')
                 << ": " << formatTimestamp(frame->TimeStamps()[0])
                 << std::endl;
+      
+      fg->Stop();
     }
 
   return 0;
