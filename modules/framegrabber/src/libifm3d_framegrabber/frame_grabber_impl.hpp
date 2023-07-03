@@ -29,7 +29,10 @@
 #include <ifm3d/fg/frame_grabber_export.h>
 #include <ifm3d/device.h>
 #include <ifm3d/fg/schema.h>
-#include <default_organizer.hpp>
+#include <o3d_organizer.hpp>
+#include <o3x_organizer.hpp>
+#include <o3r_organizer3D.hpp>
+#include <o3r_organizer2D.hpp>
 #include <fmt/core.h>
 
 namespace ifm3d
@@ -174,28 +177,60 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
     pcic_port_(pcic_port.value_or(ifm3d::DEFAULT_PCIC_PORT)),
     io_service_(),
     sock_(),
-    organizer_(std::make_unique<DefaultOrganizer>()),
     wait_for_frame_future(wait_for_frame_promise.get_future()),
     trigger_feedback_future_(trigger_feedback_promise_.get_future()),
     ready_future_(ready_promise_.get_future()),
     finish_future_(std::async(std::launch::async, []() {})),
-    is_ready_(false),
-    masking_(cam->AmI(Device::device_family::O3D) ||
-             cam->AmI(Device::device_family::O3X))
+    is_ready_(false)
 {
-  if (!pcic_port.has_value() && this->cam_->AmI(Device::device_family::O3D))
+  auto device_type = this->cam_->WhoAmI();
+  if (device_type == Device::device_family::O3D)
     {
-      try
+      this->SetMasking(true);
+      this->SetOrganizer(std::make_unique<O3DOrganizer>());
+      if (!pcic_port.has_value())
         {
-          this->pcic_port_ =
-            std::stoi(this->cam_->DeviceParameter("PcicTcpPort"));
+          try
+            {
+              this->pcic_port_ =
+                std::stoi(this->cam_->DeviceParameter("PcicTcpPort"));
+            }
+          catch (const ifm3d::Error& ex)
+            {
+              LOG_ERROR("Could not get PCIC Port of the camera: {}",
+                        ex.what());
+              LOG_WARNING("Assuming default PCIC port: {}",
+                          ifm3d::DEFAULT_PCIC_PORT);
+              this->pcic_port_ = ifm3d::DEFAULT_PCIC_PORT;
+            }
         }
-      catch (const ifm3d::Error& ex)
+    }
+
+  else if (device_type == Device::device_family::O3X)
+    {
+      this->SetMasking(true);
+      this->SetOrganizer(std::make_unique<O3XOrganizer>());
+    }
+  else if (device_type == Device::device_family::O3R)
+    {
+      this->SetMasking(false);
+
+      auto ports_info =
+        std::dynamic_pointer_cast<ifm3d::O3R>(this->cam_)->Ports();
+
+      for (auto& port_info : ports_info)
         {
-          LOG_ERROR("Could not get PCIC Port of the camera: {}", ex.what());
-          LOG_WARNING("Assuming default PCIC port: {}",
-                      ifm3d::DEFAULT_PCIC_PORT);
-          this->pcic_port_ = ifm3d::DEFAULT_PCIC_PORT;
+          if (port_info.pcic_port == pcic_port)
+            {
+              if (port_info.type == "3D")
+                {
+                  this->SetOrganizer(std::make_unique<O3ROrganizer3D>());
+                }
+              if (port_info.type == "2D")
+                {
+                  this->SetOrganizer(std::make_unique<O3ROrganizer2D>());
+                }
+            }
         }
     }
 
@@ -773,7 +808,6 @@ ifm3d::FrameGrabber::Impl::GenerateDefaultSchema()
         schema,
         cam_->FirmwareVersion());
     }
-
   return schema;
 }
 
