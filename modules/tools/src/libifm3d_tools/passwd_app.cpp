@@ -41,7 +41,7 @@ ifm3d::PasswdApp::Run()
   if (new_password && disable)
     {
       std::cerr << "invalid option combination" << std::endl;
-      throw cxxopts::OptionSpecException("invalid options combination");
+      throw cxxopts::exceptions::specification("invalid options combination");
     }
   else if (new_password)
     {
