@@ -98,7 +98,15 @@ target_include_directories(asio SYSTEM INTERFACE
 )
 
 #adding cxxopts
-add_subdirectory(cxxopts-2.2.0)
+if(BUILD_MODULE_TOOLS)
+  FetchContent_Declare(
+    cxxopts
+      GIT_REPOSITORY https://github.com/jarro2783/cxxopts
+      GIT_TAG v3.1.1
+      GIT_SHALLOW TRUE
+  )
+  FetchContent_MakeAvailable(cxxopts)
+endif(BUILD_MODULE_TOOLS)
 
 #adding websocketpp
 add_subdirectory(websocketpp)
