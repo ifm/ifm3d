@@ -5,7 +5,7 @@ int
 main(int argc, char** argv)
 {
   std::map<std::string, std::string> device_to_filter(
-    {{"O3D", ""},
+    {{"O3D", "DeserializeTestWithO3D.*"},
      {"O3X", ""},
      {"O3R", "DeserializeTestWithDevice.*"},
      {"device_independent", "DeserializeTestWithFile.*"}});

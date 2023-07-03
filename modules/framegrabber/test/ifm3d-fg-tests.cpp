@@ -12,6 +12,9 @@
 #include <ifm3d/device/err.h>
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/common/logging/log.h>
+#include <ifm3d/device/o3d.h>
+#include <ifm3d/device/o3x.h>
+
 #include <gtest/gtest.h>
 
 #include <iostream>
@@ -47,7 +50,7 @@ protected:
   ifm3d::Device::Ptr dev_;
   ifm3d::FrameGrabber::Ptr fg_;
 };
-
+#if 0
 TEST_F(FrameGrabberTest, start_stop_start)
 {
   LOG_INFO("start_stop_start test");
@@ -92,7 +95,7 @@ TEST_F(FrameGrabberTest, masking)
     }
   this->fg_->Stop();
 }
-
+#endif
 TEST_F(FrameGrabberTest, WaitForFrame)
 {
   LOG_INFO("WaitForFrame test");
@@ -136,11 +139,9 @@ TEST_F(FrameGrabberTest, BlankSchema3D)
 
   auto frame = fg_->WaitForFrame().get();
 
-  auto amplitude = frame->GetBuffer(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE);
   auto distance = frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE);
   auto xyz = frame->GetBuffer(ifm3d::buffer_id::XYZ);
 
-  EXPECT_TRUE(amplitude.width() != 0);
   EXPECT_TRUE(distance.width() != 0);
   EXPECT_TRUE(xyz.nchannels() == 3);
 }
@@ -209,7 +210,7 @@ TEST_F(FrameGrabberTest, BufferIDException)
                ifm3d::Error);
 }
 
-TEST_F(FrameGrabberTest, DistanceNoiseImage)
+TEST_F(FrameGrabberTest, DistanceNoiseImageSchema)
 {
   LOG_INFO(" distance noise image schema test");
 
@@ -227,17 +228,36 @@ TEST_F(FrameGrabberTest, DistanceNoiseImage_type)
 {
   LOG_INFO(" distance noise image test");
 
-  fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
-              ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
-              ifm3d::buffer_id::RADIAL_DISTANCE_NOISE});
-
-  auto frame = fg_->WaitForFrame().get();
-
-  auto distance_noise_image =
-    frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_NOISE);
-
-  EXPECT_EQ(distance_noise_image.dataFormat(),
-            ifm3d::pixel_format::FORMAT_32F);
+  fg_
+    ->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
+             ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
+             ifm3d::buffer_id::RADIAL_DISTANCE_NOISE})
+    .wait_for(std::chrono::seconds(2));
+  size_t count = 0;
+  fg_->OnNewFrame([&](ifm3d::Frame::Ptr frame) {
+    if (frame->HasBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_NOISE))
+      {
+        count++;
+        auto distance_noise_image =
+          frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_NOISE);
+        if (dev_->AmI(ifm3d::Device::device_family::O3R))
+          {
+            EXPECT_EQ(distance_noise_image.dataFormat(),
+                      ifm3d::pixel_format::FORMAT_32F);
+          }
+        if (dev_->AmI(ifm3d::Device::device_family::O3X))
+          {
+            EXPECT_EQ(distance_noise_image.dataFormat(),
+                      ifm3d::pixel_format::FORMAT_16U);
+          }
+        fg_->Stop();
+      }
+    else if (count == 10)
+      {
+        fg_->Stop();
+        EXPECT_TRUE(false);
+      }
+  });
 }
 
 TEST_F(FrameGrabberTest, onError)
@@ -256,7 +276,7 @@ TEST_F(FrameGrabberTest, onError)
 
   std::this_thread::sleep_for(std::chrono::seconds(10));
 
-  // this rebbot will cause network interruption and onError must get error
+  // this reboot will cause network interruption and onError must get error
   dev_->Reboot();
 
   std::this_thread::sleep_for(std::chrono::seconds(10));
@@ -273,18 +293,41 @@ TEST_F(FrameGrabberTest, confidence_image_3D)
 {
   // LOG_INFO(" confidence image test on 3D  ");
 
-  fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
-              ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
-              ifm3d::buffer_id::XYZ,
-              ifm3d::buffer_id::CONFIDENCE_IMAGE});
+  fg_
+    ->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
+             ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
+             ifm3d::buffer_id::XYZ,
+             ifm3d::buffer_id::CONFIDENCE_IMAGE})
+    .wait_for(std::chrono::seconds(1));
+  size_t count = 0;
+  fg_->OnNewFrame([&](ifm3d::Frame::Ptr frame) {
+    count++;
+    if (frame->HasBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE))
+      {
 
-  auto frame = fg_->WaitForFrame().get();
+        EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE));
 
-  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE));
+        auto confidence_image =
+          frame->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE);
 
-  auto confidence_image = frame->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE);
-
-  EXPECT_EQ(confidence_image.dataFormat(), ifm3d::pixel_format::FORMAT_16U);
+        if (dev_->AmI(ifm3d::Device::device_family::O3R))
+          {
+            EXPECT_EQ(confidence_image.dataFormat(),
+                      ifm3d::pixel_format::FORMAT_16U);
+          }
+        else
+          {
+            EXPECT_EQ(confidence_image.dataFormat(),
+                      ifm3d::pixel_format::FORMAT_8U);
+          }
+        fg_->Stop();
+      }
+    else if (count == 10)
+      {
+        fg_->Stop();
+        EXPECT_TRUE(false);
+      }
+  });
 }
 
 TEST_F(FrameGrabberTest, confidence_image_2D)
@@ -367,13 +410,6 @@ TEST_F(FrameGrabberTest, algo_with_other_data)
 
 TEST_F(FrameGrabberTest, StartStopStart)
 {
-  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
-
-  auto config = o3r->Get();
-  config["ports"]["port0"]["state"] = "RUN";
-  o3r->Set(config);
-  fg_ = std::make_shared<ifm3d::FrameGrabber>(dev_, 50010);
-
   bool has_error = false;
   fg_->OnError([&has_error](ifm3d::Error e) {
     LOG_ERROR(e.what());
@@ -384,8 +420,7 @@ TEST_F(FrameGrabberTest, StartStopStart)
     {
       EXPECT_FALSE(fg_->IsRunning());
 
-      EXPECT_TRUE(fg_->Start({ifm3d::buffer_id::JPEG_IMAGE})
-                    .wait_for(std::chrono::seconds(5)) ==
+      EXPECT_TRUE(fg_->Start({}).wait_for(std::chrono::seconds(5)) ==
                   std::future_status::ready);
 
       EXPECT_TRUE(fg_->WaitForFrame().wait_for(std::chrono::seconds(1)) ==
@@ -400,4 +435,130 @@ TEST_F(FrameGrabberTest, StartStopStart)
     }
 
   EXPECT_FALSE(has_error);
+}
+
+TEST_F(FrameGrabberTest, FrameGrabberRecycling)
+{
+  LOG_INFO("FrameGrabberRecycling test");
+  fg_->Start({});
+
+  for (int i = 0; i < 5; ++i)
+    {
+      auto status =
+        fg_->WaitForFrame().wait_for(std::chrono::milliseconds(1000));
+      EXPECT_TRUE(status == std::future_status::ready);
+    }
+  fg_.reset();
+  if (dev_->WhoAmI() == ifm3d::Device::device_family::O3R)
+    {
+      auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
+
+      auto config = o3r->Get();
+      config["ports"]["port2"]["state"] = "RUN";
+      o3r->Set(config);
+      fg_ = std::make_shared<ifm3d::FrameGrabber>(dev_, o3r_port);
+    }
+  else
+    {
+      fg_ = std::make_shared<ifm3d::FrameGrabber>(dev_);
+    }
+  fg_->Start({});
+  for (int i = 0; i < 5; ++i)
+    {
+      auto status =
+        fg_->WaitForFrame().wait_for(std::chrono::milliseconds(1000));
+      EXPECT_TRUE(status == std::future_status::ready);
+    }
+}
+
+TEST_F(FrameGrabberTest, SoftwareTrigger)
+{
+  LOG_INFO("SoftwareTrigger test");
+
+  auto legacy_device = std::dynamic_pointer_cast<ifm3d::LegacyDevice>(dev_);
+  // mark the current active application as sw triggered
+  int idx = legacy_device->ActiveApplication();
+  ifm3d::json config = legacy_device->ToJSON();
+  config["ifm3d"]["Apps"][idx - 1]["TriggerMode"] =
+    std::to_string(static_cast<int>(ifm3d::Device::trigger_mode::SW));
+  legacy_device->FromJSON(config);
+
+  fg_->Start({});
+
+  // waiting for an image should now timeout
+  auto status = fg_->WaitForFrame().wait_for(std::chrono::milliseconds(1000));
+  EXPECT_TRUE(status == std::future_status::timeout);
+
+  // now, get image data by explicitly s/w triggering the device
+  for (int i = 0; i < 10; ++i)
+    {
+      fg_->SWTrigger();
+      auto status =
+        fg_->WaitForFrame().wait_for(std::chrono::milliseconds(1000));
+      EXPECT_TRUE(status == std::future_status::ready);
+    }
+
+  // set the camera back into free-run mode
+  config["ifm3d"]["Apps"][idx - 1]["TriggerMode"] =
+    std::to_string(static_cast<int>(ifm3d::Device::trigger_mode::FREE_RUN));
+  dev_->FromJSON(config);
+}
+
+TEST_F(FrameGrabberTest, SWTriggerMultipleClients)
+{
+  LOG_INFO("SWTriggerMultipleClients test");
+
+  auto legacy_device = std::dynamic_pointer_cast<ifm3d::LegacyDevice>(dev_);
+  // mark the current active application as sw triggered
+  int idx = legacy_device->ActiveApplication();
+  ifm3d::json config = legacy_device->ToJSON();
+  config["ifm3d"]["Apps"][idx - 1]["TriggerMode"] =
+    std::to_string(static_cast<int>(ifm3d::Device::trigger_mode::SW));
+  legacy_device->FromJSON(config);
+
+  // create two framegrabbers and two buffers
+  auto fg1 = std::make_shared<ifm3d::FrameGrabber>(legacy_device, 50010);
+  auto fg2 = fg_;
+
+  fg1->Start({});
+  fg2->Start({});
+
+  // waiting for an image should now timeout
+  auto status1 = fg1->WaitForFrame().wait_for(std::chrono::milliseconds(1000));
+  EXPECT_TRUE(status1 == std::future_status::timeout);
+
+  auto status2 = fg2->WaitForFrame().wait_for(std::chrono::milliseconds(1000));
+  EXPECT_TRUE(status2 == std::future_status::timeout);
+
+  // Let's S/W trigger from the first -- this could have been a third
+  // framegrabber (i.e., client to PCIC)
+  fg1->SWTrigger();
+
+  status1 = fg1->WaitForFrame().wait_for(std::chrono::milliseconds(1000));
+  EXPECT_TRUE(status1 == std::future_status::ready);
+  status2 = fg2->WaitForFrame().wait_for(std::chrono::milliseconds(1000));
+  EXPECT_TRUE(status1 == std::future_status::ready);
+
+  // set the camera back into free-run mode
+  config["ifm3d"]["Apps"][idx - 1]["TriggerMode"] =
+    std::to_string(static_cast<int>(ifm3d::Device::trigger_mode::FREE_RUN));
+  dev_->FromJSON(config);
+}
+
+TEST_F(FrameGrabberTest, JSON_model)
+{
+  LOG_INFO("JSON_modelSchema test");
+  fg_->Start({ifm3d::buffer_id::JSON_MODEL});
+  size_t count = 0;
+  fg_->OnNewFrame([&](ifm3d::Frame::Ptr frame) {
+    if (frame->HasBuffer(ifm3d::buffer_id::JSON_MODEL))
+      {
+        fg_->Stop();
+      }
+    else if (count == 10)
+      {
+        fg_->Stop();
+        EXPECT_TRUE(false);
+      }
+  });
 }

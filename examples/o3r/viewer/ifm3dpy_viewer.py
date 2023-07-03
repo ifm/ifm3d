@@ -32,8 +32,7 @@ def get_distance(frame):
 
 def get_amplitude(frame):
     return frame.get_buffer(buffer_id.NORM_AMPLITUDE_IMAGE)
-
-
+  
 def get_xyz(frame):
     return frame.get_buffer(buffer_id.XYZ)
 
