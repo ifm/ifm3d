@@ -5,7 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
+### Added
+- Add support for O3D3xx and O3X devices
+ 
 ## 1.3.3 - 2023-06-22
 
 ### Fixed
@@ -16,7 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add env variable IFM3D_SWUPDATE_CURL_TIMEOUT for curl transaction timeout during swupdate
 - Add Project description and links to PYPI page
 - Add an example on how to use the deserializer module
-- Add support for O3D3xx and O3X devices 
 
 ### Fixed
 - Release versions wrongly marked as +dirty
