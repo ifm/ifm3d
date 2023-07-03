@@ -6,6 +6,8 @@ release:github:
   needs:
     - job: build:linux:deb
       artifacts: true
+    - job: sign:windows_2019
+      artifacts: true
   rules:
     - !reference [.tagged, rules]
   script:
@@ -18,3 +20,4 @@ release:github:
     - gh --version
     - gh release create $tag_value -R https://github.com/ifm/ifm3d.git --prerelease -F CHANGELOG --title $tag_value --verify-tag
     - gh release upload $tag_value -R https://github.com/ifm/ifm3d.git ifm3d-*.tar
+    - gh release upload $tag_value -R https://github.com/ifm/ifm3d.git ifm3d_installer/ifm3d_windows_*.exe
