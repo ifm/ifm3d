@@ -106,8 +106,8 @@ bind_o3r(pybind11::module_& m)
     },
     py::arg("json_pointer"),
     R"(
-     * Returns a part of the configuration formatted as JSON based on a
-     * JSON pointer.
+       Returns a part of the configuration formatted as JSON based on a
+       JSON pointer.
 
       Returns
       -------
