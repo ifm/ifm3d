@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Extend Ports() to return app port
+- Extend Port() to return information of given app port
+
 ### Changed
 - Updated Cxxopts library to version 3.1.1 and used through FetchContent
 
