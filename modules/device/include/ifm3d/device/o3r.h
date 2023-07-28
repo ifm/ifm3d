@@ -139,14 +139,15 @@ namespace ifm3d
     void Unlock(const std::string& password);
 
     /**
-     * Returns a list containing information about all connected physical ports
+     * Returns a list containing information about all connected physical and
+     * application ports
      *
      * @return the list of ports
      */
     std::vector<PortInfo> Ports();
 
     /**
-     * Returns information about a given physical port
+     * Returns information about a given physical or application port
      *
      * @param[in] port the port for which to get the information
      *
