@@ -19,6 +19,8 @@ bind_o3x(pybind11::module_& m)
     m, "O3X",
     R"(
       Class for managing an instance of an O3X Camera
+
+      Note that O3X support is currently experimental- Use at your own risk!.
     )");
 
   o3x.def(
