@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.4.0 - 2023-08-02
+
 **NOTE** : O3D and O3X support is currently experimental- Use at your own risk!.
 
 ### Added
