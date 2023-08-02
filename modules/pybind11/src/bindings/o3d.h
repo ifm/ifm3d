@@ -20,6 +20,8 @@ bind_o3d(pybind11::module_& m)
     m, "O3D",
     R"(
       Class for managing an instance of an O3D Camera
+
+      Note that O3D support is currently experimental- Use at your own risk!.
     )");
 
   o3d.def(
