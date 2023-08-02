@@ -12,6 +12,8 @@ namespace ifm3d
 {
   /**
    * Device specialization for O3D
+   *
+   * Note that O3D support is currently experimental- Use at your own risk!.
    */
   class IFM3D_DEVICE_EXPORT O3D : public LegacyDevice
   {

@@ -6,15 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+**NOTE** : O3D and O3X support is currently experimental- Use at your own risk!.
+
 ### Added
+- Add support for O3D3xx and O3X devices
 - Extend Ports() to return app port
 - Extend Port() to return information of given app port
 
 ### Changed
 - Updated Cxxopts library to version 3.1.1 and used through FetchContent
 
-### Added
-- Add support for O3D3xx and O3X devices
+
  
 ## 1.3.3 - 2023-06-22
 
