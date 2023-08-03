@@ -29,3 +29,4 @@ include:
   - local: .gitlab/deploy_docker.yml
   - local: .gitlab/oss_compilance.yml
   - local: .gitlab/deploy_github.yml
+  - local: .gitlab/notification.yml

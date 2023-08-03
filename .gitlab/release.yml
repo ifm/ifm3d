@@ -3,6 +3,8 @@ release:github:
     GH_TOKEN: ${IFM_CSR_GH_RELEASE_TOKEN}
   stage: release
   image: ghcr.io/cicirello/pyaction
+  tags: 
+    - shared_docker
   needs:
     - job: build:linux:deb
       artifacts: true
