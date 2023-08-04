@@ -85,6 +85,20 @@ Note: we use [string literals](https://en.cppreference.com/w/cpp/language/string
 ::::
 :::::
 
+## Parameter configuration priorities
+
+When configuring the O3R, the parameters are applied in a specific order. This is to ensure no inconsistent configuration can be applied. For instance, changing the mode will change the limits of some parameters, therefore the mode change has to be applied first. 
+
+Order of configuration: 
+- device
+- ports
+- applications/classes
+- applications/instances
+## Using the JSON schema
+
+
+A JSON schema for the current O3R configuration is available and the user can use it to check the configuration before setting it.
+
 ## Configuration after replacing / changing hardware
 
 If the user utilized a `save_init()`-function to make the configuration persistent over reboots in the past they may face a situation when replacing hardware / changing camera head connectivity to the VPU:
