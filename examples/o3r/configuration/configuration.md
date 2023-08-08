@@ -1,10 +1,10 @@
 # How to: configure the camera
 
-The O3R has multiple parameters that have an influence on the point cloud. Some of them affect the raw measurement and others modify how the data is converted into x,y,z, etc values. These parameters can be changed to better fit your applications and we are going to see how here. You can refer to [this page](documentation/O3R/Parameters/parameters:Settings%20Description) for a detailed description of each parameter.
+The O3R has multiple parameters that have an influence on the point cloud. Some of them affect the raw measurement and others modify how the data is converted into x,y,z, etc values. These parameters can be changed to better fit your applications and this document presents how. You can refer to [this page](https://ifm3d.com/documentation/Technology/3D/index_3d.html) for a detailed description of each parameter.
 
-There are multiple functions available to read the current configuration of the device and to set a new one. We are using JSON formatting.
+There are multiple functions available to read the current configuration of the device and to set a new one. Note that JSON formatting is used for all the configurations.
 
-For this process, we have to initialize the camera object (please have a look at the code example provided for full details of the imported libraries).
+For this process, a camera object has to be initialized (please have a look at the code example provided for full details of the imported libraries).
 :::::{tabs}
 ::::{group-tab} Python
 :::python
@@ -13,7 +13,7 @@ o3r = O3R()
 ::::
 ::::{group-tab} C++
 :::cpp
-auto cam = std::make_shared<ifm3d::O3R>();
+auto o3r = std::make_shared<ifm3d::O3R>();
 :::
 ::::
 :::::
@@ -22,7 +22,7 @@ Note: if you are using multiple ifm devices (O3D, O3X, O3R), you can use the `De
 :::::{tabs}
 ::::{group-tab} Python
 :::python
-cam = Device()
+dev = Device()
 :::
 ::::
 ::::{group-tab} C++
@@ -30,8 +30,8 @@ cam = Device()
 If you need to use Device specific functions at a later point you can cast the pointer to the relevant class:
 
 :::cpp
-auto cam = ifm3d::Device::MakeShared();
-auto cam_O3R = std::static_pointer_cast<ifm3d::O3R>(cam);
+auto dev = ifm3d::Device::MakeShared();
+auto dev_O3R = std::static_pointer_cast<ifm3d::O3R>(dev);
 :::
 ::::
 :::::
@@ -42,19 +42,19 @@ The first provided function outputs the current configuration of the device (the
 :::::{tabs}
 ::::{group-tab} Python
 :::python
-conf = cam.get();
+conf = o3r.get();
 :::
 ::::
 ::::{group-tab} C++
 :::cpp
-json conf = cam->Get();
+json conf = o3r->Get();
 :::
 ::::
 :::::
 
 ## Write a new configuration
 
-To write a new configuration to the device, you need to provide said configuration in json formatting. The provided configuration can be a subset or the full configuration.
+To write a new configuration to the device, you need to provide said configuration in JSON formatting. The provided configuration can be a subset or the full configuration.
 :::::{tabs}
 ::::{group-tab} Python
 :::python
@@ -63,7 +63,7 @@ o3r.set({'device':{'info':{'name':'great_o3r'}}})
 ::::
 ::::{group-tab} C++
 :::cpp
-cam->Set(R"({"device":{"info": {"name": "my_o3r"}}})");
+o3r->Set(R"({"device":{"info": {"name": "my_o3r"}}})");
 :::
 ::::
 :::::
