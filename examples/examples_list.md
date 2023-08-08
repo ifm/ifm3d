@@ -4,4 +4,4 @@ The examples listed below show various applications using one of the ifm 3D perc
 
 | File | Comments | Last updated on |
 | ---- | -------- | --------------- |
-| [time_sync.cpp](o3r/time_sync/time_sync.cpp) | Usage of timestamps and CONF/RUN modes for multi head application | March 2022 |
+| [time_sync.cpp](o3r/time_sync/time_sync.cpp) | DEPRECATED: camera heads are now automatically synchronized. <br>Usage of timestamps and CONF/RUN modes for multi head application | March 2022 |
