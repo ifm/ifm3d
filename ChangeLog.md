@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Replaced glog with ifm3d::Logger, see the migration guide for details
+- The json module has been moved from `device` to `common`. Update your includes accordingly: use `#include <ifm3d/common/json.hpp` instead of `#include <ifm3d/device/json.hpp`.
 
 ## 1.3.1 - 2023-06-16 [YANKED] error during release - use 1.3.2
 
