@@ -2,9 +2,9 @@
 
 The O3R has multiple parameters that have an influence on the point cloud. Some of them affect the raw measurement and others modify how the data is converted into x,y,z, etc values. These parameters can be changed to better fit your applications and this document presents how. You can refer to [this page](https://ifm3d.com/documentation/Technology/3D/index_3d.html) for a detailed description of each parameter.
 
-There are multiple functions available to read the current configuration of the device and to set a new one. Note that JSON formatting is used for all the configurations.
+The ifm3d API provides functions to read and set the configuration of the device. Note that JSON formatting is used for all the configurations.
 
-For this process, a camera object has to be initialized (please have a look at the code example provided for full details of the imported libraries).
+For this process, an O3R object has to be initialized to establish a connection with the device (please have a look at the code example provided for full details of the imported libraries).
 :::::{tabs}
 ::::{group-tab} Python
 :::python
@@ -27,7 +27,7 @@ dev = Device()
 ::::
 ::::{group-tab} C++
 
-If you need to use Device specific functions at a later point you can cast the pointer to the relevant class:
+If you need to use `Device` specific functions, you can cast the pointer to the relevant class:
 
 :::cpp
 auto dev = ifm3d::Device::MakeShared();
@@ -54,7 +54,8 @@ json conf = o3r->Get();
 
 ## Write a new configuration
 
-To write a new configuration to the device, you need to provide said configuration in JSON formatting. The provided configuration can be a subset or the full configuration.
+To set a new configuration, you need to provide said configuration in JSON formatting. The provided configuration can be a subset or the full configuration, as long as it follows the proper JSON hierarchy.
+
 :::::{tabs}
 ::::{group-tab} Python
 :::python

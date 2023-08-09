@@ -1,6 +1,6 @@
 # How to: receive an image
 
-A primary objective of `ifm3d` is to make it as simple and performant as possible to acquire pixel data from an ifm 3D camera.
+The primary objective of `ifm3d` is to make it as simple and performant as possible to acquire pixel data from an ifm 3D camera.
 Additionally, the data should be encoded in a useful format for performing computer vision and/or robotics perception tasks.
 A typical `ifm3d` client program follows the structure of a control loop whereby images are continuously acquired from the camera and acted upon in some application-specific way.
 
