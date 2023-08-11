@@ -27,7 +27,7 @@ dev = Device()
 ::::
 ::::{group-tab} C++
 
-If you need to use `Device` specific functions, you can cast the pointer to the relevant class:
+If you need to use functions specific to the concrete `Device` subclass, you can cast the pointer to the relevant class:
 
 :::cpp
 auto dev = ifm3d::Device::MakeShared();
