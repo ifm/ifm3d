@@ -33,18 +33,22 @@ If you need to use functions specific to the concrete `Device` subclass, you can
 auto dev = ifm3d::Device::MakeShared();
 // Only do this if you're sure the `Device` is an instance of `O3R`:
 auto dev_O3R = std::static_pointer_cast<ifm3d::O3R>(dev);
-dev_O3R->SaveInit();
+auto init_status = dev_O3R->GetInitStatus();
 
 
 // Otherwise use dynamic_pointer_cast and check the value for nullptr:
 auto dev_O3R = std::dynamic_pointer_cast<ifm3d::O3R>(dev);
 if (dev_O3R)
 {
-   dev_O3R->SaveInit();
+   auto init_status = dev_O3R->GetInitStatus();
 }
 :::
 ::::
 :::::
+
+:::{note}
+The `GetInitStatus` returns the status of the device's initialization process. Use it to ensure the device is properly booted up before querying for data.
+:::
 
 ## Read the current configuration
 
