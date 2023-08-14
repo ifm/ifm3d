@@ -40,7 +40,7 @@ auto init_status = dev_O3R->GetInitStatus();
 auto dev_O3R = std::dynamic_pointer_cast<ifm3d::O3R>(dev);
 if (dev_O3R)
 {
-   auto init_status = dev_O3R->GetInitStatus();
+   auto ports = dev_O3R->Ports();
 }
 :::
 ::::
