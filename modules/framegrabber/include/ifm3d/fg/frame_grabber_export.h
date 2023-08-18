@@ -29,4 +29,6 @@
 #  define IFM3D_FRAME_GRABBER_LOCAL
 #endif
 
+/** \defgroup FrameGrabber FrameGrabber Module */
+
 #endif /* IFM3D_FRAME_GRABBER_EXPORT_HPP */

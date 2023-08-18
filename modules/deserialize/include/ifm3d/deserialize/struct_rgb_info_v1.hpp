@@ -29,6 +29,7 @@ namespace ifm3d
     constexpr auto RGB_INFO_INVERSE_INTRINSIC_CALIBRATION_INDEX = 0x00B0;
   };
 
+  /** @ingroup Deserialize */
   class RGBInfoV1
   {
 

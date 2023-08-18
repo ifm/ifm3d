@@ -12,6 +12,8 @@
 namespace ifm3d
 {
   /**
+   * @ingroup Common
+   *
    * @section documentation Documentation
    *
    * ifm3d provides a copy of nlohmann::json, please see it's documentation for

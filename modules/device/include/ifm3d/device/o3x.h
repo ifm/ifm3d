@@ -10,7 +10,8 @@
 
 namespace ifm3d
 {
-  /**
+  /** @ingroup Device
+   *
    * Device specialization for O3X
    *
    * Note that O3X support is currently experimental- Use at your own risk!.
