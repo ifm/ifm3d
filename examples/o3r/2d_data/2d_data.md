@@ -19,7 +19,7 @@ auto jpeg = frame->GetBuffer(ifm3d::buffer_id::JPEG_IMAGE);
 :::::
 
 ## Decode the data
-Once accessed, the RGB image has to be decoded:
+Once accessed, the RGB image has to be decoded. We use OpenCV in this example:
 :::::{tabs}
 ::::{group-tab} Python
 :::python

@@ -24,12 +24,12 @@ main()
   // Declare the objects:
   //////////////////////////
   // Declare the device object (one object only, corresponding to the VPU)
-  auto cam = std::make_shared<ifm3d::O3R>();
+  auto o3r = std::make_shared<ifm3d::O3R>();
   // Declare the FrameGrabber and ImageBuffer objects.
   // One FrameGrabber per camera head (define the port number).
   const auto FG_PCIC_PORT =
-    cam->Get()["/ports/port2/data/pcicTCPPort"_json_pointer];
-  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, FG_PCIC_PORT);
+    o3r->Get()["/ports/port2/data/pcicTCPPort"_json_pointer];
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(o3r, FG_PCIC_PORT);
 
   //Set Schema and start the grabber
   fg->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE, ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,ifm3d::buffer_id::XYZ});

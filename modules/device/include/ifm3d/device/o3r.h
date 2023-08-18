@@ -96,7 +96,8 @@ namespace ifm3d
     /**
      * Sets the default value of an object inside the JSON. The object is
      * addressed by a JSON Pointer. The object is resetted to the values
-     * defined in the JSON schema.
+     * defined in the JSON schema. Note that this does not reset the init
+     * configuration.
      *
      * @param[in] jsonPointer A JSON Pointer to the object to be set to
      * default.
