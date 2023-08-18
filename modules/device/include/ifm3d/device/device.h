@@ -118,7 +118,8 @@ namespace ifm3d
 
   class XMLRPCWrapper;
 
-  /**
+  /** @ingroup Device
+   *
    * Software interface to an ifm 3D device
    *
    * The `Device` class implements the underlying network protocol for

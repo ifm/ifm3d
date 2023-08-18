@@ -92,7 +92,7 @@ ifm3d::O3R::Impl::Get(const std::vector<std::string>& path)
 ifm3d::json
 ifm3d::O3R::Impl::ResolveConfig(const json::json_pointer& ptr)
 {
-  return this->Get({})[ptr];
+  return this->Get({ptr.to_string()})[ptr];
 }
 
 void
@@ -157,29 +157,29 @@ ifm3d::O3R::Impl::Unlock(const std::string& password)
 ifm3d::PortInfo
 ifm3d::O3R::Impl::Port(const std::string& port)
 {
-  auto port_data =
-    ResolveConfig(json::json_pointer(fmt::format("/ports/{0}", port)));
-
-  if (port_data.is_null())
+  try
     {
-      auto app_port_data = ResolveConfig(
-        json::json_pointer(fmt::format("/applications/instances/{0}", port)));
-      if (app_port_data.is_null())
+      auto app = port.find("app") == 0;
+
+      auto basePtr =
+        app ? "/applications/instances"_json_pointer : "/ports"_json_pointer;
+
+      auto port_data = ResolveConfig(basePtr / port);
+
+      if (port_data.is_null())
         {
           throw ifm3d::Error(IFM3D_INVALID_PORT);
         }
-      else
-        {
-          return {port,
-                  app_port_data["/data/pcicTCPPort"_json_pointer],
-                  "app"};
-        }
+
+      auto pcicTCPPort = port_data["/data/pcicTCPPort"_json_pointer];
+      auto type = app ? "app" : port_data["/info/features/type"_json_pointer];
+
+      return {port, pcicTCPPort, type};
     }
-  else
+  catch (const std::exception& ex)
     {
-      return {port,
-              port_data["/data/pcicTCPPort"_json_pointer],
-              port_data["/info/features/type"_json_pointer]};
+      LOG_WARNING("JSON: {}", ex.what());
+      throw ifm3d::Error(IFM3D_JSON_ERROR);
     }
 }
 
@@ -196,9 +196,16 @@ ifm3d::O3R::Impl::Ports()
       auto port_key = port.key();
       auto port_data = port.value();
 
-      result.push_back({port_key,
-                        port_data["/data/pcicTCPPort"_json_pointer],
-                        port_data["/info/features/type"_json_pointer]});
+      try
+        {
+          result.push_back({port_key,
+                            port_data["/data/pcicTCPPort"_json_pointer],
+                            port_data["/info/features/type"_json_pointer]});
+        }
+      catch (const std::exception& ex)
+        {
+          LOG_WARNING("JSON: {}", ex.what());
+        }
     }
   auto app_ports = json["/applications/instances"_json_pointer];
   for (const auto& port : app_ports.items())
@@ -206,8 +213,16 @@ ifm3d::O3R::Impl::Ports()
       auto port_key = port.key();
       auto port_data = port.value();
 
-      result.push_back(
-        {port_key, port_data["/data/pcicTCPPort"_json_pointer], "app"});
+      try
+        {
+
+          result.push_back(
+            {port_key, port_data["/data/pcicTCPPort"_json_pointer], "app"});
+        }
+      catch (const std::exception& ex)
+        {
+          LOG_WARNING("JSON: {}", ex.what());
+        }
     }
   return result;
 }

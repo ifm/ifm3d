@@ -12,6 +12,7 @@ namespace ifm3d
 {
   static const int NET_WAIT_O3R_SET = 10000;
 
+  /** @ingroup Device */
   struct IFM3D_DEVICE_EXPORT PortInfo
   {
     std::string port;
@@ -19,7 +20,8 @@ namespace ifm3d
     std::string type;
   };
 
-  /**
+  /** @ingroup Device
+   *
    * Device specialization for O3R
    */
   class IFM3D_DEVICE_EXPORT O3R : public Device

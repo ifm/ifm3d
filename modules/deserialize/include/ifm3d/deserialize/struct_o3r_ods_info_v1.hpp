@@ -24,6 +24,7 @@ namespace ifm3d
     constexpr auto ODS_INFO_ZONE_CONFIG_ID_INDEX = 0x000B;
   };
 
+  /** @ingroup Deserialize */
   class ODSInfoV1
   {
   public:

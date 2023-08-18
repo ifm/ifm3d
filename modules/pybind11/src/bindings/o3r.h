@@ -98,7 +98,7 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "resolve_config",
-    [](const ifm3d::O3R::Ptr& c, std::string& json_pointer) -> py::dict
+    [](const ifm3d::O3R::Ptr& c, std::string& json_pointer) -> py::object
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
