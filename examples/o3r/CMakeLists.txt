@@ -30,15 +30,6 @@ target_link_libraries(multi_head
                       ifm3d_device
                       ifm3d_framegrabber
                       )
-
-# Heads "sync" example
-find_package(fmt)
-add_executable(time_sync time_sync/time_sync.cpp)
-target_link_libraries(time_sync
-                      ifm3d_device
-                      ifm3d_framegrabber
-                      fmt::fmt
-                      )
                                             
 ## ifm3d-example playground 
 add_executable(ifm3d_playground ifm3d_playground/ifm3d_playground.cpp)
@@ -57,3 +48,11 @@ add_executable(2d_data 2d_data/2d_data.cpp)
                         ifm3d_framegrabber
                         )
 endif()
+
+## Deserializer example
+add_executable(deserialize deserialize/deserialize.cpp)
+target_link_libraries(deserialize
+                      ifm3d_device
+                      ifm3d_framegrabber
+                      ifm3d_deserialize
+                      )

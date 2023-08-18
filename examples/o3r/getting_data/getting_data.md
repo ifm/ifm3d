@@ -1,8 +1,8 @@
 # How to: receive an image
 
-A primary objective of `ifm3d` is to make it as simple and performant as possible to acquire pixel data from an ifm 3D camera.
-Additionally, those data should be encoded in a useful format for performing computer vision and/or robotics perception tasks.
-A typical `ifm3d` client program will follow the structure of a control loop whereby images are continuously acquired from the camera and acted upon in some application-specific way.
+The primary objective of `ifm3d` is to make it as simple and performant as possible to acquire pixel data from an ifm 3D camera of the O3xxxx series.
+Additionally, the data should be encoded in a useful format for performing computer vision and/or robotics perception tasks.
+A typical `ifm3d` client program follows the structure of a control loop whereby images are continuously acquired from the camera and acted upon in some application-specific way.
 
 At the end of this 'how to', you should be able to receive images and know the basic usage of the `O3R`, `FrameGrabber` and `Frame` classes.
 
@@ -19,19 +19,19 @@ Instantiating these objects is as follows:
 :::::{tabs}
 ::::{group-tab} Python
 :::python
-cam = O3R()
+o3r = O3R()
 fg = FrameGrabber(o3r, pcic_port=50012)
 :::
 ::::
 ::::{group-tab} C++
 :::cpp
-auto cam = std::make_shared<ifm3d::O3R>();
-auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, 50012);
+auto o3r = std::make_shared<ifm3d::O3R>();
+auto fg = std::make_shared<ifm3d::FrameGrabber>(o3r, 50012);
 :::
 ::::
 :::::
 
->Note: The example above assumes that a camera head (i.e. O3R camera) is connected to the VPU at the physical port 2, e.g. corresponding PCIC TCP port 50012. If you're unsure about the connectivity, please see the section hardware unboxing under O3R/Getting Started.
+>Note: The example above assumes that an O3R camera head is connected to the VPU at the physical port 2, corresponding to the PCIC TCP port 50012. If you're unsure about the connectivity, please see the section hardware unboxing under O3R/Getting Started.
 
 The `O3R` class, counter-intuitively, refers to the computing unit (the VPU). It inherits its name from previous ifm 3D devices that only used one camera, with no distinction between sensing and computing units.
 You can input:
@@ -41,8 +41,8 @@ You can input:
 
 The `FrameGrabber` stores a reference to the passed in camera shared pointer and starts a worker thread to stream in pixel data from the device.
 Its inputs:
-- `cam`: The camera instance (the image processing platform) that handles the connection the the camera heads;
-- `port`: Port number of the camera head to grab data from (not the physical port number);
+- `o3r`: The o3r instance (the image processing platform) that handles the connection the the camera heads;
+- `port`: PCIC port number of the camera head to grab data from (not the physical port number);
 
 > Note: instantiating the objects is done the same way for any imager type (2D, 3D, different resolutions, etc).
 
@@ -52,8 +52,9 @@ To instantiate the `ifm3d::O3R` object (or `ifm3d::O3D`/`ifm3d::O3X`), a call to
 This wrapper function is used to handle direct hardware probing to determine the type of camera that is connected.
 For example, this may be an O3R, O3D303, O3X, or something else. Regardless, a `std::shared_ptr` is returned from this call.
 
-## Set the schema and start framegrabber
-Call `Start` function. This `Start` needs a schema information which is a `std::set<ifm3d::buffer_id>` contains the `buffer_id` of the data needed for the application
+## Set the schema and start the FrameGrabber
+
+To start the data stream, the `Start` function must be used. This `Start` needs a schema which is a `std::vector<ifm3d::buffer_id>` and contains the `buffer_id` of the data needed for the application:
 :::::{tabs}
 ::::{group-tab} Python
 :::python
@@ -67,13 +68,13 @@ fg->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE, ifm3d::buffer_id::RADIAL_DISTANCE_
 ::::
 :::::
 
-device provides many types of the buffer, all the buffers might not be required for application, schema setting provides a way to enable only buffer_id's requooired for the application. This
-also reduce the bandwidth required to get the data from device to `ifm3d`
+The device provides many types of buffers. All the buffers might not be required for application. Setting the schema provides a way to enable only `buffer_id`s required for the application. 
+This also reduce the bandwidth required to get the data from the device.
 
 ## Receive an image
 
 ### Register a callback
-The recommended way to reveive a frame is to use the callback function. You can register a callback function that will be executed for every received frame, until the program exits.
+The recommended way to receive a frame is to use the callback function. You can register a callback function that will be executed for every received frame, until the program exits.
 
 :::::{tabs}
 ::::{group-tab} Python
@@ -113,7 +114,7 @@ main()
 :::::
 
 ### Alternatively: wait for a frame
-You just need to call the `WaitForFrame` function. This `Framegrabber` method will return `std::Future<ifm3d::Frame>`. The `Frame` class stores all the reveiced data. Make sure the camera head is in "RUN" mode.
+You just need to call the `WaitForFrame` function. This `Framegrabber` method returns `std::Future<ifm3d::Frame>`. The `Frame` class stores all the received data. Make sure the camera head is in "RUN" mode.
 :::::{tabs}
 ::::{group-tab} Python
 :::python
@@ -134,7 +135,7 @@ auto frame = fg->WaitForFrame().get();
 ## Access the data
 
 Accessing the received data is done through the `Frame`. Different data types are available depending on whether the camera is a 2D or a 3D camera.
-Simply access the image by calling `Get_buffer` passing the `buffer_id` of the required image as a parameter.
+Simply access the image by calling `get_buffer` passing the `buffer_id` of the required image as a parameter.
 :::::{tabs}
 ::::{group-tab} Python
 :::python

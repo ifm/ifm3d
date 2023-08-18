@@ -9,10 +9,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 #find ifm3d on the system
-find_package(ifm3d 0.93.0 CONFIG
+find_package(ifm3d 1.3.3 CONFIG
   REQUIRED COMPONENTS device framegrabber
   )
-
 ## Configuration example
 add_executable(ifm3d_playground ifm3d_playground.cpp)
 target_link_libraries(ifm3d_playground

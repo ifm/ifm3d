@@ -7,8 +7,7 @@
  One feature of the O3R platform is to enable the use of multiple camera heads
  of different types (2D, 3D, various resolutions, etc). In this example, we
  show how to retrieve the pcic port number for each head connected to the VPU
- along with its type and create `FrameGrabber` and `ImageBuffer` objects for
- each.
+ along with its type, create `FrameGrabber` objects and get a frame for each.
 */
 #include <ifm3d/device/o3r.h>
 #include <chrono>
@@ -44,9 +43,9 @@ main()
 {
 
   // Declare the camera object
-  auto cam = std::make_shared<ifm3d::O3R>();
+  auto o3r = std::make_shared<ifm3d::O3R>();
   // Retreive ports configuration
-  ifm3d::json conf = cam->Get();
+  ifm3d::json conf = o3r->Get();
   // Initialize the structures
   std::vector<ifm3d::FrameGrabber::Ptr> fgs;
 
@@ -66,7 +65,7 @@ main()
                 << "\t Type: " << type << std::endl;
       // Create list of FrameGrabber and ImageBuffer objects for connected
       // ports
-      auto fg = std::make_shared<ifm3d::FrameGrabber>(cam, pcic);
+      auto fg = std::make_shared<ifm3d::FrameGrabber>(o3r, pcic);
 
       // Start the framegrabber
       fg->Start({ifm3d::buffer_id::XYZ, ifm3d::buffer_id::JPEG_IMAGE});
