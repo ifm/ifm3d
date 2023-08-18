@@ -9,11 +9,12 @@
 #include <string>
 #include <ifm3d/tools/cmdline_app.h>
 #include <ifm3d/device/device.h>
+#include <ifm3d/swupdater.h>
 
 ifm3d::RebootApp::RebootApp(int argc,
                             const char** argv,
                             const std::string& name)
-  : ifm3d::CmdLineApp(argc, argv, name)
+  : ifm3d::CmdLineApp(argc, argv, name, false)
 {
   // clang-format off
   this->all_opts_.add_options(name)
@@ -37,7 +38,17 @@ ifm3d::RebootApp::Run()
                                     ifm3d::Device::boot_mode::RECOVERY :
                                     ifm3d::Device::boot_mode::PRODUCTIVE;
 
-  this->cam_->Reboot(mode);
+  ifm3d::SWUpdater::Ptr swupdater;
+  swupdater = std::make_shared<ifm3d::SWUpdater>(this->cam_);
+
+  if (swupdater->WaitForRecovery(-1))
+    {
+      swupdater->RebootToProductive();
+    }
+  else
+    {
+      this->cam_->Reboot(mode);
+    }
 
   return 0;
 }
