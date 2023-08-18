@@ -99,17 +99,3 @@ Note: we use [string literals](https://en.cppreference.com/w/cpp/language/string
 :::
 ::::
 :::::
-
-## Configuration after replacing / changing hardware
-
-If the user utilized a `save_init()`-function to make the configuration persistent over reboots in the past they may face a situation when replacing hardware / changing camera head connectivity to the VPU:
-
-The `save_init()`-function saves a `ConfInitJSON` file on the VPU which gets applied at every reboot. During the boot-up process the VPU compares the saved configuration to the incoming configuration. If there is any mismatch the respective port(s) will be put to ERROR state and the PORT LED flashes in RED color.
-
-In diagnostics, `ERROR_BOOT_SEQUENCE_HEAD_INVALID_SERIALNUMBER` corresponding to the PORT will be displayed if the extrinsic calibration is applied to the respective port but the camera head connected to that port has a different serial number as in the saved configuration file.
-
-This issue can be fixed and the system can be recovered from this stage in the following way:
-1. Via Factory Reset: This resets all the settings including the extrinsic calibration values onto the VPU.
-2. Edit the extrinsic calibration parameters: either default extrinsic calibration values or update to any different set of extrinsic calibration values.
-
-If the heads with a saved non-default extrinsic calibration are swapped out, this is considered an error until the extrinsic calibration has been updated and the VPU is rebooted.
