@@ -162,12 +162,25 @@ ifm3d::O3R::Impl::Port(const std::string& port)
 
   if (port_data.is_null())
     {
-      throw ifm3d::Error(IFM3D_INVALID_PORT);
+      auto app_port_data = ResolveConfig(
+        json::json_pointer(fmt::format("/applications/instances/{0}", port)));
+      if (app_port_data.is_null())
+        {
+          throw ifm3d::Error(IFM3D_INVALID_PORT);
+        }
+      else
+        {
+          return {port,
+                  app_port_data["/data/pcicTCPPort"_json_pointer],
+                  "app"};
+        }
     }
-
-  return {port,
-          port_data["/data/pcicTCPPort"_json_pointer],
-          port_data["/info/features/type"_json_pointer]};
+  else
+    {
+      return {port,
+              port_data["/data/pcicTCPPort"_json_pointer],
+              port_data["/info/features/type"_json_pointer]};
+    }
 }
 
 std::vector<ifm3d::PortInfo>
@@ -175,7 +188,9 @@ ifm3d::O3R::Impl::Ports()
 {
   std::vector<ifm3d::PortInfo> result;
 
-  auto ports = ResolveConfig("/ports"_json_pointer);
+  auto json = Get({"/ports", "/applications/instances"});
+  auto ports = json["/ports"_json_pointer];
+
   for (const auto& port : ports.items())
     {
       auto port_key = port.key();
@@ -185,7 +200,15 @@ ifm3d::O3R::Impl::Ports()
                         port_data["/data/pcicTCPPort"_json_pointer],
                         port_data["/info/features/type"_json_pointer]});
     }
+  auto app_ports = json["/applications/instances"_json_pointer];
+  for (const auto& port : app_ports.items())
+    {
+      auto port_key = port.key();
+      auto port_data = port.value();
 
+      result.push_back(
+        {port_key, port_data["/data/pcicTCPPort"_json_pointer], "app"});
+    }
   return result;
 }
 

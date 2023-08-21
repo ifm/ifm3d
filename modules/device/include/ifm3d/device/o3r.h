@@ -54,7 +54,7 @@ namespace ifm3d
     /**
      * Returns the configuration formatted as JSON based on a path.
      * If the path is empty, returns the whole configuration.
-     *
+     * This function is blocking for firmware versions above 1.1.0.
      * @param[in] path A List of JSON path fragments to retrieve the
      * information for
      *
@@ -76,6 +76,7 @@ namespace ifm3d
     /**
      * Overwrites parts of the temporary JSON configuration which is achieved
      * by merging the provided JSON fragment with the current temporary JSON.
+     * This function is blocking for firmware versions above 1.1.0.
      *
      * @param[in] j The new temporay JSON configuration of the device.
      */
@@ -139,14 +140,15 @@ namespace ifm3d
     void Unlock(const std::string& password);
 
     /**
-     * Returns a list containing information about all connected physical ports
+     * Returns a list containing information about all connected physical and
+     * application ports
      *
      * @return the list of ports
      */
     std::vector<PortInfo> Ports();
 
     /**
-     * Returns information about a given physical port
+     * Returns information about a given physical or application port
      *
      * @param[in] port the port for which to get the information
      *

@@ -14,6 +14,7 @@
 #include "rgb_info_v1.h"
 #include "ods_info_v1.h"
 #include "ods_occupancy_grid_v1.h"
+#include "o3d_paramters.h"
 
 void
 bind_deserialize_struct(pybind11::module_& m)
@@ -23,6 +24,7 @@ bind_deserialize_struct(pybind11::module_& m)
   bind_struct_rgbinfov1(m);
   bind_struct_odsinfov1(m);
   bind_struct_odsoccupancygridv1(m);
+  bind_struct_o3d_paramters(m);
 }
 
 #endif // IFM3D_PYBIND_BINDING_DESERIALIZE

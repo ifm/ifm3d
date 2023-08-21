@@ -1,52 +1,19 @@
 /*
- * Copyright 2022-present ifm electronic, gmbh
+ * Copyright 2023-present ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <default_organizer.hpp>
+#include <o3r_organizer3D.hpp>
 #include <ifm3d/common/logging/log.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/fg/distance_image_info.h>
 
-ifm3d::Buffer
-ifm3d::DefaultOrganizer::CreatePixelMask(Buffer& confidence)
-{
-  Buffer mask = Buffer(confidence.width(),
-                       confidence.height(),
-                       1,
-                       pixel_format::FORMAT_8U);
-
-  int index = 0;
-  if (confidence.dataFormat() == pixel_format::FORMAT_16U)
-    {
-      std::transform(confidence.begin<std::uint16_t>(),
-                     confidence.end<std::uint16_t>(),
-                     mask.begin<std::uint8_t>(),
-                     [](auto& value) -> uint8_t { return value & 0x1; });
-    }
-  else if (confidence.dataFormat() == pixel_format::FORMAT_8U)
-    {
-      std::transform(confidence.begin<std::uint8_t>(),
-                     confidence.end<std::uint8_t>(),
-                     mask.begin<std::uint8_t>(),
-                     [](auto& value) -> uint8_t { return value & 0x1; });
-    }
-  else
-    {
-      LOG_ERROR("confidence image format is not supported : {}",
-                confidence.dataFormat());
-      throw Error(IFM3D_CONFIDENCE_IMAGE_FORMAT_NOT_SUPPORTED);
-    }
-
-  return mask;
-}
-
 ifm3d::Organizer::Result
-ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
-                                  const std::set<buffer_id>& requested_images,
-                                  const bool masking)
+ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
+                                const std::set<buffer_id>& requested_images,
+                                const bool masking)
 {
   std::map<buffer_id, Buffer> images;
 
@@ -87,52 +54,32 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
       chunks.erase(image_chunk::RADIAL_DISTANCE_IMAGE);
     }
 
-  std::optional<Buffer> mask;
+  std::map<buffer_id, Buffer> data_blob, data_image;
+  ifm3d::parse_data(data,
+                    requested_images,
+                    chunks,
+                    width,
+                    height,
+                    data_blob,
+                    data_image);
 
-  if (chunks.find(image_chunk::CONFIDENCE_IMAGE) != chunks.end())
+  images.insert(data_image.begin(), data_image.end());
+  images.insert(data_blob.begin(), data_blob.end());
+
+  std::optional<ifm3d::Buffer> mask;
+  if (masking)
     {
-      auto confidence = create_buffer(data,
-                                      chunks[image_chunk::CONFIDENCE_IMAGE],
-                                      width,
-                                      height);
-      if (masking)
+      if (images.find(buffer_id::CONFIDENCE_IMAGE) != images.end())
         {
-          mask = CreatePixelMask(confidence);
+          mask = create_pixel_mask(images[ifm3d::buffer_id::CONFIDENCE_IMAGE]);
+          mask_images(data_image,
+                      mask.value(),
+                      std::bind(&ifm3d::O3ROrganizer3D::ShouldMask,
+                                this,
+                                std::placeholders::_1));
         }
-
-      images[ifm3d::buffer_id::CONFIDENCE_IMAGE] = confidence;
-      chunks.erase(image_chunk::CONFIDENCE_IMAGE);
     }
 
-  for (const auto& chunk : chunks)
-    {
-      // for O3D only as this chunk donot need to create image
-      if (chunk.first == ifm3d::image_chunk::DIAGNOSTIC ||
-          chunk.first == ifm3d::image_chunk::EXTRINSIC_CALIB)
-        {
-          continue;
-        }
-      if (requested_images.empty() ||
-          requested_images.find(static_cast<buffer_id>(chunk.first)) !=
-            requested_images.end())
-        {
-          if (is_probably_blob(data, chunk.second, width, height))
-            {
-              auto buffer = create_1d_buffer(data, chunk.second);
-              images[static_cast<buffer_id>(chunk.first)] = buffer;
-            }
-          else
-            {
-              auto image = create_buffer(data, chunk.second, width, height);
-              if (mask.has_value() &&
-                  ShouldMask(static_cast<buffer_id>(chunk.first)))
-                {
-                  mask_buffer(image, mask.value());
-                }
-              images[static_cast<buffer_id>(chunk.first)] = image;
-            }
-        }
-    }
   if (distance_image_info != nullptr)
     {
       auto extracted = ExtractDistanceImageInfo(distance_image_info, mask);
@@ -177,7 +124,7 @@ ifm3d::DefaultOrganizer::Organize(const std::vector<uint8_t>& data,
 }
 
 std::map<ifm3d::buffer_id, ifm3d::Buffer>
-ifm3d::DefaultOrganizer::ExtractDistanceImageInfo(
+ifm3d::O3ROrganizer3D::ExtractDistanceImageInfo(
   std::shared_ptr<DistanceImageInfo> distance_image_info,
   const std::optional<Buffer>& mask)
 {
@@ -234,7 +181,7 @@ ifm3d::DefaultOrganizer::ExtractDistanceImageInfo(
 }
 
 bool
-ifm3d::DefaultOrganizer::ShouldMask(buffer_id id)
+ifm3d::O3ROrganizer3D::ShouldMask(buffer_id id)
 {
   switch (id)
     {

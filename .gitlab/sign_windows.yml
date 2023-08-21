@@ -1,0 +1,12 @@
+sign:windows_2019:
+  extends: .sign:ev
+  stage: sign
+  needs:
+    - job: build:windows_2019
+      artifacts: true
+  variables:
+    SIGN_FILE: $CI_PROJECT_DIR/ifm3d_installer/ifm3d_windows_*.exe
+
+include:
+  - project: "ifm-public/standard/gitlab-ci-yml-templates"
+    file: "templates/service-codeSigning/public_signing.yml"

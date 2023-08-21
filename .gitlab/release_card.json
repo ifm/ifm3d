@@ -1,0 +1,148 @@
+{
+    "type": "message",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "contentUrl": null,
+            "content": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "summary": "ifm3d release v%%VERSION%%",
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "body": [
+                    {
+                        "type": "ColumnSet",
+                        "columns": [
+                            {
+                                "width": "32px",
+                                "items": [
+                                    {
+                                        "type": "Image",
+                                        "width": "16px",
+                                        "horizontalAlignment": "Center",
+                                        "url": "https://avatars.githubusercontent.com/u/43432334",
+                                        "altText": "ifm Logo"
+                                    }
+                                ],
+                                "type": "Column",
+                                "padding": "None"
+                            },
+                            {
+                                "width": "stretch",
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "**ifm3d version %%VERSION%%**",
+                                        "size": "ExtraLarge"
+                                    }
+                                ],
+                                "type": "Column",
+                                "padding": "None"
+                            }
+                        ],
+                        "padding": "None"
+                    },
+                    {
+                        "type": "ColumnSet",
+                        "spacing": "Large",
+                        "separator": true,
+                        "columns": [
+                            {
+                                "width": "stretch",
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "spacing": "None",
+                                        "text": "ifm3d v%%VERSION%% has been released and can be downloaded from https://pypi.org/project/ifm3dpy/:",
+                                        "wrap": true
+                                    }
+                                ],
+                                "type": "Column",
+                                "padding": "None"
+                            }
+                        ],
+                        "padding": "None"
+                    },
+                    {
+                        "type": "Container",
+                        "id": "3823f8bf-ac06-4344-7bd1-940cf3c6bb46",
+                        "padding": "None",
+                        "items": [
+                            {
+                                "type": "TextBlock",
+                                "id": "6f94d820-6945-51d2-f609-42307cafd863",
+                                "text": "pip install ifm3dpy==%%VERSION%%",
+                                "wrap": true
+                            }
+                        ],
+                        "style": "emphasis"
+                    },
+                    {
+                        "type": "TextBlock",
+                        "id": "75aaa9e3-3798-e73d-60a6-c5e6cb74dc7f",
+                        "text": "Docker images are also available as always from GHCR/DockerHub.",
+                        "wrap": true
+                    },
+                    {
+                        "type": "TextBlock",
+                        "id": "ec6c9079-c992-88f0-0635-57e94a6d72d9",
+                        "text": "Please let us know if any problems arise.",
+                        "wrap": true
+                    },
+                    {
+                        "type": "Container",
+                        "items": [
+                            {
+                                "type": "ColumnSet",
+                                "columns": [
+                                    {
+                                        "width": "stretch",
+                                        "items": [
+                                            {
+                                                "type": "ActionSet",
+                                                "actions": [
+                                                    {
+                                                        "type": "Action.OpenUrl",
+                                                        "id": "e80abe00-7b9a-95e8-023a-7d654b2909d9",
+                                                        "title": "GitHub Release",
+                                                        "url": "https://github.com/ifm/ifm3d/releases/tag/v%%VERSION%%"
+                                                    },
+                                                    {
+                                                        "type": "Action.OpenUrl",
+                                                        "id": "627d7eb8-62e8-a5d7-80d5-1b86cf88bdcd",
+                                                        "title": "Changelog",
+                                                        "url": "https://github.com/ifm/ifm3d/blob/main/ChangeLog.md"
+                                                    },
+                                                    {
+                                                        "type": "Action.OpenUrl",
+                                                        "id": "8e2233c9-5f92-f457-c4a3-eeae74677631",
+                                                        "title": "Migration Guide",
+                                                        "url": "https://api.ifm3d.com/latest/content/migration_guide/index.html"
+                                                    },
+                                                    {
+                                                        "type": "Action.OpenUrl",
+                                                        "id": "a447a455-9c3d-843b-f5a9-f030bd1222ce",
+                                                        "title": "Documentation",
+                                                        "url": "https://api.ifm3d.com/v%%VERSION%%/"
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "type": "Column",
+                                        "padding": "None"
+                                    }
+                                ],
+                                "padding": "None"
+                            }
+                        ],
+                        "padding": "None"
+                    }
+                ],
+                "padding": "Default",
+                "msteams": {
+                    "width": "Full"
+                }
+            }
+        }
+    ]
+}
