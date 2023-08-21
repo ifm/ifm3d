@@ -18,13 +18,13 @@ namespace ifm3d
 {
   /**
    *
-   * @brief The class Buffer represent a STL conatiner to store data  from
-   * the ifm devices in 2 dimension and supports multiple channel. data stores
-   * in sequnetial memory layout and class provides function template to access
+   * @brief The class Buffer represent a STL container to store data  from
+   * the ifm devices in 2 dimension and supports multiple channel. Data stored
+   * in sequential memory layout and class provides function template to access
    * the pixel. Creating an Buffer object :
    *
    * - Use the Create(cols, rows, nchannel, ifm3d::pixel_format ) method or the
-   * similar Buffer(cols,rows, nchannel, type) constructor.
+   * similar Buffer(cols, rows, nchannel, type) constructor.
    *
    * For example, FORMAT_8U means a 8-bit array, FORMAT_32F floating-point
    * array, and so on.
