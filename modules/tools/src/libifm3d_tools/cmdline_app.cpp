@@ -5,7 +5,6 @@
  */
 
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/tools/mutable_args.h>
 #include <ifm3d/tools/make_app.h>
 #include <cstdint>
 #include <iostream>
@@ -69,10 +68,9 @@ ifm3d::CmdLineApp::CmdLineApp(int argc,
 void
 ifm3d::CmdLineApp::_Parse(int argc, const char** argv)
 {
-  auto args = std::make_unique<ifm3d::MutableArgs>(argc, argv);
   this->all_opts_.allow_unrecognised_options();
-  vm_ = std::make_unique<cxxopts::ParseResult>(
-    this->all_opts_.parse(args->argc, args->argv));
+  vm_ =
+    std::make_unique<cxxopts::ParseResult>(this->all_opts_.parse(argc, argv));
 }
 
 void

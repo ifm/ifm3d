@@ -290,12 +290,13 @@ ifm3d::create_xyz_buffer(const std::vector<std::uint8_t>& data,
 
 std::map<ifm3d::image_chunk, std::size_t>
 ifm3d::get_image_chunks(const std::vector<std::uint8_t>& data,
-                        std::size_t start_idx)
+                        std::size_t start_idx,
+                        std::optional<size_t> end_idx)
 {
   std::map<image_chunk, std::size_t> chunks;
 
   std::size_t idx = start_idx; // start of first chunk
-  std::size_t size = data.size() - 6;
+  std::size_t size = (end_idx.has_value() ? end_idx.value() : data.size()) - 6;
 
   while (idx < size)
     {
@@ -425,6 +426,21 @@ ifm3d::get_chunk_pixeldata_offset(const std::vector<std::uint8_t>& data,
 }
 
 std::size_t
+ifm3d::get_chunk_size(const std::vector<std::uint8_t>& data, std::size_t idx)
+{
+
+  if (idx + CHUNK_OFFSET_CHUNK_SIZE + sizeof(std::uint32_t) >= data.size())
+    {
+      return 0;
+    }
+
+  auto chunk_size =
+    ifm3d::mkval<std::uint32_t>(data.data() + idx + CHUNK_OFFSET_CHUNK_SIZE);
+
+  return chunk_size;
+}
+
+std::size_t
 ifm3d::get_chunk_pixeldata_size(const std::vector<std::uint8_t>& data,
                                 std::size_t idx)
 {
@@ -487,4 +503,81 @@ ifm3d::is_probably_blob(const std::vector<std::uint8_t>& data,
   auto channel = ifm3d::get_format_channels(fmt);
 
   return size != (width * height * pixel_size * channel);
+}
+
+ifm3d::Buffer
+ifm3d::create_pixel_mask(ifm3d::Buffer& confidence)
+{
+  Buffer mask = Buffer(confidence.width(),
+                       confidence.height(),
+                       1,
+                       pixel_format::FORMAT_8U);
+
+  int index = 0;
+  if (confidence.dataFormat() == pixel_format::FORMAT_16U)
+    {
+      std::transform(confidence.begin<std::uint16_t>(),
+                     confidence.end<std::uint16_t>(),
+                     mask.begin<std::uint8_t>(),
+                     [](auto& value) -> uint8_t { return value & 0x1; });
+    }
+  else if (confidence.dataFormat() == pixel_format::FORMAT_8U)
+    {
+      std::transform(confidence.begin<std::uint8_t>(),
+                     confidence.end<std::uint8_t>(),
+                     mask.begin<std::uint8_t>(),
+                     [](auto& value) -> uint8_t { return value & 0x1; });
+    }
+  else
+    {
+      LOG_ERROR("confidence image format is not supported : ",
+                static_cast<int>(confidence.dataFormat()));
+      throw Error(IFM3D_CONFIDENCE_IMAGE_FORMAT_NOT_SUPPORTED);
+    }
+
+  return mask;
+}
+
+void
+ifm3d::parse_data(const std::vector<uint8_t>& data,
+                  const std::set<ifm3d::buffer_id>& requested_images,
+                  const std::map<ifm3d::image_chunk, std::size_t>& chunks,
+                  const size_t width,
+                  const size_t height,
+                  std::map<buffer_id, Buffer>& data_blob,
+                  std::map<buffer_id, Buffer>& data_image)
+{
+
+  for (const auto& chunk : chunks)
+    {
+      if (requested_images.empty() ||
+          requested_images.find(static_cast<buffer_id>(chunk.first)) !=
+            requested_images.end())
+        {
+          if (is_probably_blob(data, chunk.second, width, height))
+            {
+              auto buffer = create_1d_buffer(data, chunk.second);
+              data_blob[static_cast<buffer_id>(chunk.first)] = buffer;
+            }
+          else
+            {
+              auto image = create_buffer(data, chunk.second, width, height);
+              data_image[static_cast<buffer_id>(chunk.first)] = image;
+            }
+        }
+    }
+}
+
+void
+ifm3d::mask_images(std::map<ifm3d::buffer_id, ifm3d::Buffer>& images,
+                   ifm3d::Buffer& mask,
+                   std::function<bool(ifm3d::buffer_id id)> should_mask)
+{
+  for (auto& [buffer_id_value, buffer] : images)
+    {
+      if (should_mask(buffer_id_value))
+        {
+          mask_buffer(buffer, mask);
+        }
+    }
 }

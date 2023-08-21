@@ -17,7 +17,7 @@
 namespace ifm3d
 {
   /**
-   *
+   * Organizer Interface for device data
    */
   class IFM3D_FRAME_GRABBER_EXPORT Organizer
   {
@@ -36,6 +36,9 @@ namespace ifm3d
                             const bool masking) = 0;
   }; // end: class Organizer
 
+  /**
+   * Organizer Interface for device 3D
+   */
 } // end: namespace ifm3d
 
 #endif // IFM3D_FG_ORGANIZER_H
