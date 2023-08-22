@@ -36,7 +36,7 @@ try:
         raise TimeoutError
 except Exception as e:
     raise e
-
+fg.stop()
 ###############################
 # Extract data from the buffer
 # Using the deserializer module
