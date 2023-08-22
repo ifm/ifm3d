@@ -113,11 +113,18 @@ namespace ifm3d
 
     /**
      * Save to current temporary JSON configuration as initial JSON
-     * configuration
+     * configuration, so it will be applied with the next transition to the
+     * INIT state (system boot up)
+     *
+     * @param[in] pointers A List of JSON pointers specifying which parts of
+     * the configuration should be saved as initial JSON. If no list is
+     * provided the whole config will be saved
      */
-    void SaveInit();
+    void SaveInit(const std::vector<std::string>& pointers = {});
 
     /**
+     * @private
+     *
      * Returns the init status of the device
      *
      * @return The init status of the device
@@ -125,16 +132,20 @@ namespace ifm3d
     std::string GetInitStatus();
 
     /**
-     * Release the lock from the Device
+     * @private
+     *
+     * Locks the device until it is unlocked.
+     * If the device is unlocked and an empty password is provided the password
+     * protection is removed.
      *
      * @param[in] password the password used to unlock the device
      */
     void Lock(const std::string& password);
 
     /**
-     * Locks the device until it is unlocked.
-     * If the device is unlocked and an empty password is provided the password
-     * protection is removed.
+     * @private
+     *
+     * Release the lock from the Device
      *
      * @param[in] password the password used to lock the device
      */
