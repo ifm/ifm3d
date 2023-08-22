@@ -60,9 +60,9 @@ ifm3d::O3R::GetInit()
 }
 
 void
-ifm3d::O3R::SaveInit()
+ifm3d::O3R::SaveInit(const std::vector<std::string>& pointers)
 {
-  return this->pImpl->SaveInit();
+  return this->pImpl->SaveInit(pointers);
 }
 
 std::string

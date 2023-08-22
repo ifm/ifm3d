@@ -186,9 +186,18 @@ bind_o3r(pybind11::module_& m)
   o3r.def(
     "save_init",
     &ifm3d::O3R::SaveInit,
+    py::arg("pointers") = std::vector<std::string>(),
     R"(
       Save to current temporary JSON configuration as initial JSON
-      configuration
+      configuration, so it will be applied with the next transition to the
+      INIT state (system boot up)
+     
+      Parameters
+      ----------
+      pointers : List[str]
+        A List of JSON pointers specifying which parts of
+        the configuration should be saved as initial JSON. If no list is
+        provided the whole config will be saved
     )");
 
   o3r.def(
@@ -201,6 +210,8 @@ bind_o3r(pybind11::module_& m)
       -------
       dict
           The init status of the device
+
+      :meta hidden:
     )");
 
   o3r.def(
@@ -214,6 +225,8 @@ bind_o3r(pybind11::module_& m)
       -------
       string
           The password used to unlock the device
+
+      :meta hidden:
     )");
 
   o3r.def(
@@ -229,6 +242,8 @@ bind_o3r(pybind11::module_& m)
       -------
       string
           The password used to lock the device
+
+      :meta hidden:
     )");
 
   o3r.def(
