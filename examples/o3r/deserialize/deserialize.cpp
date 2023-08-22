@@ -43,7 +43,7 @@ main()
     auto frame = future.get();
     // Get the data from the relevant buffer
     auto rgb_info_buffer = frame->GetBuffer(ifm3d::buffer_id::RGB_INFO);
-
+    fg->Stop();
     //////////////////////////
     // Extract data from the buffer
     // Using the deserializer module
