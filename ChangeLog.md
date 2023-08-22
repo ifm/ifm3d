@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - O3R::Ports and O3R::Port now wrap internal errors in ifm3d::Error
 
 ### Added 
+- O3R add support for SaveInit with json pointers as arguments
 - ifm3d::Error codes are now exposed to python 
 - python bindings for ifm3d logging
 

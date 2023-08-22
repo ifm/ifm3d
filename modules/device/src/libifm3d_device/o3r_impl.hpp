@@ -46,7 +46,7 @@ namespace ifm3d
     void Remove(const std::string& jsonPointer);
     void Reset(const std::string& jsonPointer);
     json GetInit();
-    void SaveInit();
+    void SaveInit(const std::vector<std::string>& pointers);
     std::string GetInitStatus();
     std::string GetSchema();
     void Lock(const std::string& password);
@@ -121,9 +121,16 @@ ifm3d::O3R::Impl::GetInit()
 }
 
 void
-ifm3d::O3R::Impl::SaveInit()
+ifm3d::O3R::Impl::SaveInit(const std::vector<std::string>& pointers)
 {
-  this->xwrapper_->XCallMain("saveInit");
+  if (pointers.size() == 0)
+    {
+      this->xwrapper_->XCallMain("saveInit");
+    }
+  else
+    {
+      this->xwrapper_->XCallMain("saveInit", pointers);
+    }
 }
 
 std::string

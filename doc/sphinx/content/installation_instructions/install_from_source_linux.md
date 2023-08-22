@@ -145,12 +145,15 @@ $ mkdir build
 $ cd build
 $ cmake -DCMAKE_INSTALL_PREFIX=/usr ..
 $ cmake --build .
-$ cmake --build . package
-$ cmake --build . repackage
-$ sudo dpkg -i ifm3d_1.0.0_amd64-device.deb
-$ sudo dpkg -i ifm3d_1.0.0_amd64-swupdater.deb
-$ sudo dpkg -i ifm3d_1.0.0_amd64-framegrabber.deb
-$ sudo dpkg -i ifm3d_1.0.0_amd64-tools.deb
+$ cmake --build . --target package
+$ cmake --build . --target repackage
+
+$ sudo dpkg -i ifm3d_*_amd64-common.deb
+$ sudo dpkg -i ifm3d_*_amd64-deserialize.deb
+$ sudo dpkg -i ifm3d_*_amd64-device.deb
+$ sudo dpkg -i ifm3d_*_amd64-framegrabber.deb
+$ sudo dpkg -i ifm3d_*_amd64-swupdater.deb
+$ sudo dpkg -i ifm3d_*_amd64-tools.deb
 ```
 
 (The version number embedded in the deb file will be dependent upon which
