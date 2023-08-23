@@ -5,8 +5,21 @@ The `ifm3d::Logger` is a powerful logging utility designed to facilitate effecti
 ## Log Levels
 
 The `ifm3d::Logger` library supports the following log levels:
-
-```C++
+:::::{tabs}
+::::{group-tab} Python
+:::python
+class LogLevel():
+    None
+    Critical
+    Error
+    Info
+    Warning
+    Debug
+    Verbose
+:::
+::::
+::::{group-tab} C++
+:::cpp
 enum class LogLevel
 {
   None = 0,
@@ -17,7 +30,9 @@ enum class LogLevel
   Debug = 5,
   Verbose = 6
 };
-```
+:::
+::::
+:::::
 
 - None: No logging is done.
 - Critical: Indicates a critical error that may cause the application to terminate.
@@ -27,11 +42,42 @@ enum class LogLevel
 - Debug: Detailed information for debugging purposes.
 - Verbose: Logs with internal values for debugging purposes.
 
-By default, the log level is set to Warning, which means all log messages of Warning, Error, and Critical will be recorded. However, users can configure the log level to control which messages are logged.
+By default, the log level is set to Warning, which means all log messages of Warning, Error, and Critical will be recorded. However, users can configure the log level to control which messages 
+are logged.
+
+:::::{tabs}
+::::{group-tab} Python
+:::python
+from ifm3dpy.logging import Logger, LogLevel, LogWriter, LogFormatterText, LogEntry
+
+# Define a custom LogWriter
+class MyLogWriter(LogWriter):
+    def write(self, entry: LogEntry) -> None:
+        print("Logging from python: ", LogFormatterText.format(entry))
+
+# Create the MyLogWriter instance
+MY_LOGGER = MyLogWriter()
+
+if __name__ == "__main__":
+  # Set a log level
+  Logger.set_writer(LogLevel.Error)
+
+  # Assign the LogWriter instance
+  Logger.set_writer(MY_LOGGER)
+
+  # Do something that causes a log message to happen
+  o3r = ifm3dpy.O3R()
+  o3r.port("non-existing-port")
+
+:::
+::::
+::::{group-tab} C++
+Instantiating these objects is as follows:
 
 ## Accessing the Logger Instance
 
 The `ifm3d::Logger` class follows the Singleton design pattern, which ensures that only one instance of the logger exists throughout the library. The `ifm3d::Logger::Get` method is responsible for creating the instance and returning a reference to the instance.
+
 
 ```CPP
 auto& logger = ifm3d::Logger::Get();
@@ -164,4 +210,6 @@ public:
   }
 };
 ```
+::::
+:::::
 

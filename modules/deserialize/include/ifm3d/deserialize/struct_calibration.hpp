@@ -15,7 +15,9 @@ namespace ifm3d
 {
   namespace calibration
   {
-    /*@brief
+    /** @ingroup Deserialize
+     *
+     * @brief
      * All items are given in SI units, i.e. transXYZ are in [m] and rotXYZ are
      * in [rad].
      */
@@ -42,6 +44,7 @@ namespace ifm3d
     };
     using ExtrinsicOpticToUser = struct ExtrinsicOpticToUser;
 
+    /** @ingroup Deserialize */
     struct Calibration
     {
       using Ptr = std::shared_ptr<struct Calibration>;

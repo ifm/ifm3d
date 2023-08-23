@@ -34,4 +34,6 @@
 #  define IFM3D_DEVICE_LOCAL
 #endif
 
+/** \defgroup Device Device Module */
+
 #endif /* IFM3D_DEVICE_EXPORT_HPP */

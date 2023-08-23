@@ -17,12 +17,12 @@
 
 namespace ifm3d
 {
-  /**
+  /** @ingroup PCICClient
+   *
    * The PCICClient is a class that, when given access to an
    * ifm3d::Camera::Ptr, it provides unbuffered communication with
    * the PCIC interface.
    */
-
   class IFM3D_PCICCLIENT_EXPORT PCICClient
   {
   public:

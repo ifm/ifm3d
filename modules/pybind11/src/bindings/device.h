@@ -59,7 +59,6 @@ bind_device(pybind11::module_& m)
     .value("O3R", ifm3d::Device::device_family::O3R);
 
   // Ctor
-
   device.def(
     py::init(&ifm3d::Device::MakeShared),
     R"(

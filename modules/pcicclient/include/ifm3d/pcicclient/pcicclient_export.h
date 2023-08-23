@@ -29,4 +29,6 @@
 #  define IFM3D_PCICCLIENT_LOCAL
 #endif
 
+/** \defgroup PCICClient PCICClient Module */
+
 #endif /* IFM3D_PCICCLIENT_EXPORT_HPP */
