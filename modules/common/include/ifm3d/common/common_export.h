@@ -34,4 +34,6 @@
 #  define IFM3D_COMMON_LOCAL
 #endif
 
+/** \defgroup Common Common Module */
+
 #endif /* IFM3D_COMMON_EXPORT_HPP */

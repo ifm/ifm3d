@@ -29,4 +29,6 @@
 #  define IFM3D_SWUPDATER_LOCAL
 #endif
 
+/** \defgroup SWUpdater SWUpdater Module */
+
 #endif /* IFM3D_SWUPDATER_EXPORT_HPP */

@@ -25,6 +25,7 @@ namespace ifm3d
     constexpr auto TOF_INFO_MEASUREMENT_RANGE_MAX_INDEX = 0x01A8;
   };
 
+  /** @ingroup Deserialize */
   class TOFInfoV4 : public TOFInfoV3
   {
   public:

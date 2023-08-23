@@ -5,8 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-### Added
+### Fixed
+- O3R.resolve_config unable to resolve leaf values
+- O3R::Ports and O3R::Port now wrap internal errors in ifm3d::Error
+
+### Added 
 - O3R add support for SaveInit with json pointers as arguments
+- ifm3d::Error codes are now exposed to python 
+- python bindings for ifm3d logging
 
 ## 1.4.0 - 2023-08-02
 

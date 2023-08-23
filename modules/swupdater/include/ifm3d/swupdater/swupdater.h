@@ -16,6 +16,7 @@ namespace ifm3d
   /* const for the swupdate recovery port value */
   extern IFM3D_SWUPDATER_EXPORT const std::uint16_t SWUPDATER_RECOVERY_PORT;
 
+  /** @ingroup SWUpdater */
   class IFM3D_SWUPDATER_EXPORT SWUpdater
   {
   public:

@@ -34,6 +34,7 @@ namespace ifm3d
     constexpr auto TOF_INFO_IMAGER_INDEX = 0x0180;
   };
 
+  /** @ingroup Deserialize */
   class TOFInfoV3
   {
 

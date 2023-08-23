@@ -98,6 +98,18 @@ namespace ifm3d
         throw std::runtime_error("Unsupported ifm3d::image type");
       }
   }
+
+  template <typename T>
+  void
+  add_attr(pybind11::object& o,
+           const std::string& name,
+           const T& value,
+           const std::string& doc = "")
+  {
+    o.attr(name.c_str()) = value;
+    o.doc() =
+      o.doc().cast<std::string>() + "     \"" + name + "\", \"" + doc + "\"\n";
+  }
 }
 
 #endif // IFM3D_PY_UTIL_HPP
