@@ -32,7 +32,7 @@
 #include <o3d_organizer.hpp>
 #include <o3x_organizer.hpp>
 #include <o3r_organizer3D.hpp>
-#include <o3r_organizer2D.hpp>
+#include <o3r_organizer.hpp>
 #include <fmt/core.h>
 
 namespace ifm3d
@@ -226,12 +226,19 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
                 {
                   this->SetOrganizer(std::make_unique<O3ROrganizer3D>());
                 }
-              if (port_info.type == "2D")
+              else
                 {
-                  this->SetOrganizer(std::make_unique<O3ROrganizer2D>());
+                  this->SetOrganizer(std::make_unique<O3ROrganizer>());
                 }
             }
         }
+    }
+
+  if (organizer_ == nullptr)
+    {
+      LOG_ERROR(
+        "The device's PCIC port does not match any compatible organizers");
+      throw ifm3d::Error(IFM3D_DEVICE_PORT_INCOMPATIBLE_WITH_ORGANIZER);
     }
 
   LOG_INFO("Camera connection info: ip={}, port={}",
