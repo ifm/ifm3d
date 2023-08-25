@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <o3r_organizer2D.hpp>
+#include <o3r_organizer.hpp>
 #include <ifm3d/common/logging/log.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/fg/buffer.h>
@@ -11,9 +11,9 @@
 #include <ifm3d/fg/distance_image_info.h>
 
 ifm3d::Organizer::Result
-ifm3d::O3ROrganizer2D::Organize(const std::vector<uint8_t>& data,
-                                const std::set<buffer_id>& requested_images,
-                                const bool masking)
+ifm3d::O3ROrganizer::Organize(const std::vector<uint8_t>& data,
+                              const std::set<buffer_id>& requested_images,
+                              const bool masking)
 {
   std::map<buffer_id, Buffer> images;
 
