@@ -501,6 +501,15 @@ ifm3d::FrameGrabber::Impl::ConnectHandler(const std::optional<json>& schema)
               std::placeholders::_1,
               std::placeholders::_2,
               0));
+
+  if (this->cam_->AmI(ifm3d::Device::device_family::O3X))
+    {
+      if (!this->is_ready_)
+        {
+          this->is_ready_ = true;
+          this->ready_promise_.set_value();
+        }
+    }
 }
 
 void

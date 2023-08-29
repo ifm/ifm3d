@@ -97,10 +97,10 @@ TEST_F(FrameGrabberTest, masking)
 }
 #endif
 
-
 TEST_F(FrameGrabberTest, FactoryDefaults)
 {
-  EXPECT_NO_THROW(std::dynamic_pointer_cast<ifm3d::LegacyDevice>(dev_)->FactoryReset());
+  EXPECT_NO_THROW(
+    std::dynamic_pointer_cast<ifm3d::LegacyDevice>(dev_)->FactoryReset());
   std::this_thread::sleep_for(std::chrono::seconds(6));
   EXPECT_NO_THROW(this->dev_->DeviceType());
 }
