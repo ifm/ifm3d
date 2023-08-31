@@ -125,7 +125,7 @@ if(CREATE_PYTHON_STUBS)
 
   # Install pybind11-stubgen in the venv
   execute_process(
-    COMMAND ${venv_python} -m pip install pybind11-stubgen
+    COMMAND ${venv_python} -m pip install pybind11-stubgen==0.16.2
     RESULT_VARIABLE status
     OUTPUT_VARIABLE output
     ERROR_VARIABLE output)
