@@ -200,7 +200,9 @@ bind_legacy_device(pybind11::module_& m)
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
       py::gil_scoped_release release;
-      return json_loads(c->ApplicationList().dump(2));
+      auto json_string = c->ApplicationList().dump(2);
+      py::gil_scoped_acquire acquire;
+      return json_loads(json_string);
       },
       R"(
       Delivers basic information about all applications stored on the device.

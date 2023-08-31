@@ -282,7 +282,9 @@ bind_device(pybind11::module_& m)
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
       py::gil_scoped_release release;
-      return json_loads(c->ToJSONStr());
+      auto json_string = c->ToJSONStr();
+      py::gil_scoped_acquire acquire;
+      return json_loads(json_string);
     },
     R"(
       A JSON object containing the state of the camera
@@ -303,8 +305,9 @@ bind_device(pybind11::module_& m)
     {
       // Convert the input JSON to string and load it
       py::object json_dumps = py::module::import("json").attr("dumps");
+      auto json_string = json_dumps(json).cast<std::string>();
       py::gil_scoped_release release;
-      c->FromJSONStr(json_dumps(json).cast<std::string>());
+      c->FromJSONStr(json_string);
     },
     py::arg("json"),
     R"(

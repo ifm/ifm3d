@@ -49,7 +49,6 @@ bind_framegrabber(pybind11::module_& m)
       "start",
       [](const ifm3d::FrameGrabber::Ptr& self, const ifm3d::FrameGrabber::BufferList& buffers, const std::optional<py::dict>& pcicFormat) {
         py::object json_dumps = py::module::import("json").attr("dumps");
-        py::gil_scoped_release release;
         return FutureAwaitable<void>(pcicFormat.has_value() 
           ? self->Start(buffers, ifm3d::json::parse(json_dumps(pcicFormat.value()).cast<std::string>())) 
           : self->Start(buffers));
@@ -92,7 +91,6 @@ bind_framegrabber(pybind11::module_& m)
   framegrabber.def(
     "stop",
     [](const ifm3d::FrameGrabber::Ptr& fg) {
-      py::gil_scoped_release release;
       return FutureAwaitable<void>(fg->Stop());
       },
     R"(
@@ -109,7 +107,6 @@ bind_framegrabber(pybind11::module_& m)
   framegrabber.def(
     "is_running",
     &ifm3d::FrameGrabber::IsRunning,
-    py::call_guard<py::gil_scoped_release>(),
     R"(
       Returns true if the worker thread is currently running
     )"
@@ -118,7 +115,6 @@ bind_framegrabber(pybind11::module_& m)
   framegrabber.def(
     "wait_for_frame",
     [](const ifm3d::FrameGrabber::Ptr& fg) {
-      py::gil_scoped_release release;
       return FutureAwaitable<ifm3d::Frame::Ptr>(fg->WaitForFrame());
     },
     R"(
@@ -258,7 +254,6 @@ bind_framegrabber(pybind11::module_& m)
   framegrabber.def(
     "sw_trigger",
     [](const ifm3d::FrameGrabber::Ptr& fg) {
-      py::gil_scoped_release release;
       return FutureAwaitable<void>(fg->SWTrigger());
     },
     R"(
