@@ -22,7 +22,8 @@ main(int argc, char** argv)
       "confidence_image_2D::FrameGrabberTest.JSON_model:FrameGrabberTest."
       "onError"},
      {"O3R",
-      "FrameGrabberTest.*:-FrameGrabberTest.SoftwareTrigger:FrameGrabberTest."
+      "FrameGrabberTest.*:-FrameGrabberTest.FactoryDefaults:FrameGrabberTest."
+      "SoftwareTrigger:FrameGrabberTest."
       "SWTriggerMultipleClients:FrameGrabberTest.JSON_model"},
      {"device_independent", "DistanceImageInfo.*:Buffer.*:Schema.*"}});
 
