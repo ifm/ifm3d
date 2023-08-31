@@ -85,7 +85,9 @@ bind_o3r(pybind11::module_& m)
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
       py::gil_scoped_release release;
-      return json_loads(c->Get(path).dump());
+      auto json_string = c->Get(path).dump();
+      py::gil_scoped_acquire acquire;
+      return json_loads(json_string);
     },
     py::arg("path") = std::vector<std::string>(),
     R"(
@@ -104,8 +106,11 @@ bind_o3r(pybind11::module_& m)
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
+
       py::gil_scoped_release release;
-      return json_loads(c->ResolveConfig(ifm3d::json::json_pointer(json_pointer)).dump());
+      auto result = c->ResolveConfig(ifm3d::json::json_pointer(json_pointer)).dump();
+      py::gil_scoped_acquire acquire;
+      return json_loads(result);
     },
     py::arg("json_pointer"),
     R"(
@@ -124,8 +129,9 @@ bind_o3r(pybind11::module_& m)
     {
       // Convert the input JSON to string and load it
       py::object json_dumps = py::module::import("json").attr("dumps");
+      auto json_string =  json_dumps(json).cast<std::string>();
       py::gil_scoped_release release;
-      c->Set(ifm3d::json::parse(json_dumps(json).cast<std::string>()));
+      c->Set(ifm3d::json::parse(json_string));
     },
     py::arg("json"),
     R"(
@@ -179,7 +185,9 @@ bind_o3r(pybind11::module_& m)
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
       py::gil_scoped_release release;
-      return json_loads(c->GetInit().dump());
+      auto json_string = c->GetInit().dump();
+      py::gil_scoped_acquire acquire;
+      return json_loads(json_string);
     },
     R"(
       Return the initial JSON configuration.
@@ -264,7 +272,9 @@ bind_o3r(pybind11::module_& m)
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
       py::gil_scoped_release release;
-      return json_loads(c->GetSchema().dump());
+      auto json_string = c->GetSchema().dump();
+      py::gil_scoped_acquire acquire;
+      return json_loads(json_string);
     },
     R"(
       Returns the current JSON schema configuration
@@ -282,7 +292,9 @@ bind_o3r(pybind11::module_& m)
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
       py::gil_scoped_release release;
-      return json_loads(c->GetDiagnostic().dump());
+      auto json_string = c->GetDiagnostic().dump();
+      py::gil_scoped_acquire acquire;
+      return json_loads(json_string);
     },
     R"(
       Returns the content of the diagnostic memory formatted in JSON
@@ -299,7 +311,9 @@ bind_o3r(pybind11::module_& m)
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
       py::gil_scoped_release release;
-      return json_loads(c->GetDiagnosticFilterSchema().dump());
+      auto json_string =c->GetDiagnosticFilterSchema().dump();
+      py::gil_scoped_acquire acquire;
+      return json_loads(json_string);
     },
     R"(
       Returns the JSON schema for the filter expression provided to the 
@@ -317,7 +331,6 @@ bind_o3r(pybind11::module_& m)
     {
       py::object json_dumps = py::module::import("json").attr("dumps");
       py::object json_loads = py::module::import("json").attr("loads");
-      py::gil_scoped_release release;
       return json_loads(c->GetDiagnosticFiltered(ifm3d::json::parse(json_dumps(filter).cast<std::string>())).dump());
     },
     py::arg("filter"),
