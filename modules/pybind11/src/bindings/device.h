@@ -99,6 +99,7 @@ bind_device(pybind11::module_& m)
   device.def(
     "force_trigger",
     &ifm3d::Device::ForceTrigger,
+    py::call_guard<py::gil_scoped_release>(),
     R"(
       Sends a S/W trigger to the camera over XMLRPC.
 
@@ -109,6 +110,7 @@ bind_device(pybind11::module_& m)
   device.def(
     "reboot",
     &ifm3d::Device::Reboot,
+    py::call_guard<py::gil_scoped_release>(),
     py::arg("mode") = ifm3d::Device::boot_mode::PRODUCTIVE,
     R"(
       Reboot the sensor
@@ -126,6 +128,7 @@ bind_device(pybind11::module_& m)
   device.def(
     "device_type",
     &ifm3d::Device::DeviceType,
+    py::call_guard<py::gil_scoped_release>(),
     py::arg("use_cached") = true,
     R"(
       Obtains the device type of the connected camera.
@@ -189,6 +192,7 @@ bind_device(pybind11::module_& m)
   device.def(
     "device_parameter",
     &ifm3d::Device::DeviceParameter,
+    py::call_guard<py::gil_scoped_release>(),
     py::arg("key"),
     R"(
       Convenience accessor for extracting a device parameter
@@ -213,6 +217,7 @@ bind_device(pybind11::module_& m)
   device.def(
     "trace_logs",
     &ifm3d::Device::TraceLogs,
+    py::call_guard<py::gil_scoped_release>(),
     py::arg("count"),
     R"(
       Delivers the trace log from the camera
@@ -233,6 +238,7 @@ bind_device(pybind11::module_& m)
   device.def(
     "check_minimum_firmware_version",
     &ifm3d::Device::CheckMinimumFirmwareVersion,
+    py::call_guard<py::gil_scoped_release>(),
     py::arg("major"),
     py::arg("minor"),
     py::arg("patch"),
@@ -275,7 +281,10 @@ bind_device(pybind11::module_& m)
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
-      return json_loads(c->ToJSONStr());
+      py::gil_scoped_release release;
+      auto json_string = c->ToJSONStr();
+      py::gil_scoped_acquire acquire;
+      return json_loads(json_string);
     },
     R"(
       A JSON object containing the state of the camera
@@ -296,7 +305,9 @@ bind_device(pybind11::module_& m)
     {
       // Convert the input JSON to string and load it
       py::object json_dumps = py::module::import("json").attr("dumps");
-      c->FromJSONStr(json_dumps(json).cast<std::string>());
+      auto json_string = json_dumps(json).cast<std::string>();
+      py::gil_scoped_release release;
+      c->FromJSONStr(json_string);
     },
     py::arg("json"),
     R"(

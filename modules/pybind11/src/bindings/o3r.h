@@ -66,6 +66,7 @@ bind_o3r(pybind11::module_& m)
   o3r.def(
     "factory_reset",
     &ifm3d::O3R::FactoryReset,
+    py::call_guard<py::gil_scoped_release>(),
     py::arg("keep_network_settings"),
     R"(
       Sets the camera configuration back to the state in which it shipped from
@@ -83,7 +84,10 @@ bind_o3r(pybind11::module_& m)
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
-      return json_loads(c->Get(path).dump());
+      py::gil_scoped_release release;
+      auto json_string = c->Get(path).dump();
+      py::gil_scoped_acquire acquire;
+      return json_loads(json_string);
     },
     py::arg("path") = std::vector<std::string>(),
     R"(
@@ -102,7 +106,11 @@ bind_o3r(pybind11::module_& m)
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
-      return json_loads(c->ResolveConfig(ifm3d::json::json_pointer(json_pointer)).dump());
+
+      py::gil_scoped_release release;
+      auto result = c->ResolveConfig(ifm3d::json::json_pointer(json_pointer)).dump();
+      py::gil_scoped_acquire acquire;
+      return json_loads(result);
     },
     py::arg("json_pointer"),
     R"(
@@ -121,7 +129,9 @@ bind_o3r(pybind11::module_& m)
     {
       // Convert the input JSON to string and load it
       py::object json_dumps = py::module::import("json").attr("dumps");
-      c->Set(ifm3d::json::parse(json_dumps(json).cast<std::string>()));
+      auto json_string =  json_dumps(json).cast<std::string>();
+      py::gil_scoped_release release;
+      c->Set(ifm3d::json::parse(json_string));
     },
     py::arg("json"),
     R"(
@@ -137,6 +147,7 @@ bind_o3r(pybind11::module_& m)
   o3r.def(
     "remove",
     &ifm3d::O3R::Remove,
+    py::call_guard<py::gil_scoped_release>(),
     py::arg("json_pointer"),
     R"(
       Removes an object from the JSON. The scope of this method is limited to
@@ -154,6 +165,7 @@ bind_o3r(pybind11::module_& m)
   o3r.def(
     "reset",
     &ifm3d::O3R::Reset,
+    py::call_guard<py::gil_scoped_release>(),
     py::arg("json_pointer"),
     R"(
       Sets the default value of an object inside the JSON. The object is
@@ -172,7 +184,10 @@ bind_o3r(pybind11::module_& m)
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
-      return json_loads(c->GetInit().dump());
+      py::gil_scoped_release release;
+      auto json_string = c->GetInit().dump();
+      py::gil_scoped_acquire acquire;
+      return json_loads(json_string);
     },
     R"(
       Return the initial JSON configuration.
@@ -186,6 +201,7 @@ bind_o3r(pybind11::module_& m)
   o3r.def(
     "save_init",
     &ifm3d::O3R::SaveInit,
+    py::call_guard<py::gil_scoped_release>(),
     py::arg("pointers") = std::vector<std::string>(),
     R"(
       Save to current temporary JSON configuration as initial JSON
@@ -203,6 +219,7 @@ bind_o3r(pybind11::module_& m)
   o3r.def(
     "get_init_status",
     &ifm3d::O3R::GetInitStatus,
+    py::call_guard<py::gil_scoped_release>(),
     R"(
       Returns the init status of the device
 
@@ -217,6 +234,7 @@ bind_o3r(pybind11::module_& m)
   o3r.def(
     "lock",
     &ifm3d::O3R::Lock,
+    py::call_guard<py::gil_scoped_release>(),
     py::arg("password"),
     R"(
       Release the lock from the Device
@@ -232,6 +250,7 @@ bind_o3r(pybind11::module_& m)
   o3r.def(
     "unlock",
     &ifm3d::O3R::Unlock,
+    py::call_guard<py::gil_scoped_release>(),
     py::arg("password"),
     R"(
       Locks the device until it is unlocked.
@@ -252,7 +271,10 @@ bind_o3r(pybind11::module_& m)
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
-      return json_loads(c->GetSchema().dump());
+      py::gil_scoped_release release;
+      auto json_string = c->GetSchema().dump();
+      py::gil_scoped_acquire acquire;
+      return json_loads(json_string);
     },
     R"(
       Returns the current JSON schema configuration
@@ -269,7 +291,10 @@ bind_o3r(pybind11::module_& m)
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
-      return json_loads(c->GetDiagnostic().dump());
+      py::gil_scoped_release release;
+      auto json_string = c->GetDiagnostic().dump();
+      py::gil_scoped_acquire acquire;
+      return json_loads(json_string);
     },
     R"(
       Returns the content of the diagnostic memory formatted in JSON
@@ -285,7 +310,10 @@ bind_o3r(pybind11::module_& m)
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
-      return json_loads(c->GetDiagnosticFilterSchema().dump());
+      py::gil_scoped_release release;
+      auto json_string =c->GetDiagnosticFilterSchema().dump();
+      py::gil_scoped_acquire acquire;
+      return json_loads(json_string);
     },
     R"(
       Returns the JSON schema for the filter expression provided to the 
@@ -323,6 +351,7 @@ bind_o3r(pybind11::module_& m)
   o3r.def(
     "ports",
     &ifm3d::O3R::Ports,
+    py::call_guard<py::gil_scoped_release>(),
     R"(
       Returns a list containing information about all connected physical ports
 
@@ -335,6 +364,7 @@ bind_o3r(pybind11::module_& m)
   o3r.def(
     "port",
     &ifm3d::O3R::Port,
+    py::call_guard<py::gil_scoped_release>(),
     py::arg("port"),
     R"(
       Returns information about a given physical port
@@ -353,6 +383,7 @@ bind_o3r(pybind11::module_& m)
   o3r.def(
     "reboot_to_recovery",
     &ifm3d::O3R::RebootToRecovery,
+    py::call_guard<py::gil_scoped_release>(),
     R"(
       Reboot the device into Recovery Mode
 
