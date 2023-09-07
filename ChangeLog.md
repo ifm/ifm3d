@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fix data grabbing from diagnostic port
+
+
 ## 1.4.1 - 2023-08-31
 ### Fixed
 - O3R.resolve_config unable to resolve leaf values

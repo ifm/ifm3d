@@ -571,3 +571,9 @@ TEST_F(FrameGrabberTest, JSON_model)
       }
   });
 }
+
+TEST_F(FrameGrabberTest, digonistic_data_grabber)
+{
+  LOG_INFO("digonistic_data_grabber test");
+  EXPECT_NO_THROW(std::make_shared<ifm3d::FrameGrabber>(dev_, 50009));
+}
