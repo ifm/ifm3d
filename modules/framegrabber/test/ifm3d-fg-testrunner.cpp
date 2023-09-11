@@ -12,7 +12,8 @@ main(int argc, char** argv)
       "FrameGrabberTest.only_algo_debug:"
       "FrameGrabberTest.algo_with_other_data:FrameGrabberTest."
       "DistanceNoiseImage_type:"
-      "FrameGrabberTest.confidence_image_2D:FrameGrabberTest.onError"},
+      "FrameGrabberTest.confidence_image_2D:FrameGrabberTest.onError:"
+      "FrameGrabberTest.digonistic_data_grabber"},
      {"O3X",
       "FrameGrabberTest.*:-FrameGrabberTest.BlankSchema2D:"
       "FrameGrabberTest.schema_o3r_rgb_image_info:FrameGrabberTest.schema_"
@@ -20,7 +21,7 @@ main(int argc, char** argv)
       "algo_with_other_data:"
       "FrameGrabberTest.SWTriggerMultipleClients:FrameGrabberTest."
       "confidence_image_2D::FrameGrabberTest.JSON_model:FrameGrabberTest."
-      "onError"},
+      "onError:FrameGrabberTest.digonistic_data_grabber"},
      {"O3R",
       "FrameGrabberTest.*:-FrameGrabberTest.FactoryDefaults:FrameGrabberTest."
       "SoftwareTrigger:FrameGrabberTest."

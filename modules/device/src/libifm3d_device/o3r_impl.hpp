@@ -195,7 +195,7 @@ ifm3d::O3R::Impl::Ports()
 {
   std::vector<ifm3d::PortInfo> result;
 
-  auto json = Get({"/ports", "/applications/instances"});
+  auto json = Get({"/ports", "/applications/instances", "/device/diagnostic"});
   auto ports = json["/ports"_json_pointer];
 
   for (const auto& port : ports.items())
@@ -231,6 +231,19 @@ ifm3d::O3R::Impl::Ports()
           LOG_WARNING("JSON: {}", ex.what());
         }
     }
+  auto daig_port = json["/device/diagnostic"_json_pointer];
+
+  try
+    {
+      result.push_back({"diagnostics",
+                        daig_port["/data/pcicPort"_json_pointer],
+                        "Diagnostics"});
+    }
+  catch (const std::exception& ex)
+    {
+      LOG_WARNING("JSON: {}", ex.what());
+    }
+
   return result;
 }
 
