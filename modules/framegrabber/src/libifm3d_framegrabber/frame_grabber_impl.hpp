@@ -226,11 +226,11 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
                 {
                   this->SetOrganizer(std::make_unique<O3ROrganizer3D>());
                 }
-              else
-                {
-                  this->SetOrganizer(std::make_unique<O3ROrganizer>());
-                }
             }
+        }
+      if (organizer_ == nullptr)
+        {
+          this->SetOrganizer(std::make_unique<O3ROrganizer>());
         }
     }
 
