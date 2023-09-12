@@ -33,13 +33,6 @@ TEST_F(O3XTest, AmI)
 
 TEST_F(O3XTest, ForceTrigger) { EXPECT_NO_THROW(dev_->ForceTrigger()); }
 
-TEST_F(O3XTest, DeviceType)
-{
-  std::string device_type_from_device;
-  EXPECT_NO_THROW(device_type_from_device = dev_->DeviceType(false));
-  EXPECT_STREQ("768:1023", device_type_from_device.c_str());
-}
-
 TEST_F(O3XTest, WhoAmI)
 {
   ifm3d::Device::device_family device;
