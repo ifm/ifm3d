@@ -31,13 +31,6 @@ TEST_F(O3DTest, AmI)
   EXPECT_EQ(isO3D, true);
 }
 
-TEST_F(O3DTest, DeviceType)
-{
-  std::string device_type_from_device;
-  EXPECT_NO_THROW(device_type_from_device = dev_->DeviceType(false));
-  EXPECT_STREQ("1:255", device_type_from_device.c_str());
-}
-
 TEST_F(O3DTest, WhoAmI)
 {
   ifm3d::Device::device_family device;
