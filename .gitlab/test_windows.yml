@@ -5,11 +5,10 @@ test:windows_2019:
     - shared_docker_windows
   image:
     name: ${DOCKER_IMAGE_WINDOWS_BUILDER}
-    entrypoint: ["cmd", "/S", "/C"]
+    entrypoint: ["cmd", "/C"]
   variables:
     GIT_CLEAN_FLAGS: none
   script:
-    - cmake.exe -B build -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_MODULE_PCICCLIENT=ON -DBUILD_TESTS=ON -DGTEST_CMAKE_DIR=C:/googletest -Dgtest_force_shared_crt=TRUE -DCMAKE_INSTALL_PREFIX=$PWD/build/install .'
+    - cmake.exe -B build -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_TESTS=ON -DGTEST_CMAKE_DIR=C:/googletest -Dgtest_force_shared_crt=TRUE -DBUILD_MODULE_TOOLS=OFF -DCMAKE_BUILD_TYPE=Release .
     - cd build
-    - cmake.exe --build . -j 8 --config Release --clean-first --target check
- 
+    - cmake.exe --build . --config Release --clean-first --target check

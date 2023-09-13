@@ -19,7 +19,7 @@ include:
   - local: .gitlab/build_windows.yml
   - local: .gitlab/build_linux.yml
   - local: .gitlab/test_windows.yml
-  - local: .gitlab/test_linux.yml  
+  - local: .gitlab/test_linux.yml
   - local: .gitlab/sign_windows.yml
   - local: .gitlab/tag.yml
   - local: .gitlab/release.yml
