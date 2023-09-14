@@ -1,0 +1,41 @@
+.configs:
+  docker-matrix:
+    - RUNNER: shared_docker
+      BASE_IMAGE: ubuntu:20.04
+      TAG_POSTFIX: -ubuntu-amd64
+    - RUNNER: shared_docker_aarch64
+      BASE_IMAGE: ubuntu:20.04
+      TAG_POSTFIX: -ubuntu-arm64
+    - RUNNER: shared_docker_aarch64
+      BASE_IMAGE: nvcr.io/nvidia/l4t-base:r32.4.3
+      TAG_POSTFIX: -l4t-arm64
+
+  deb-matrix:
+    - RUNNER: shared_docker_aarch64
+      PLATFORM: linux/aarch64
+      BASE_IMAGE:
+        - nvcr.io/nvidia/l4t-base:r32.4.3
+        - ubuntu:22.04
+        - ubuntu:20.04
+        - ubuntu:18.04
+    - RUNNER: shared_docker
+      PLATFORM: linux/amd64
+      BASE_IMAGE:
+        - ubuntu:22.04
+        - ubuntu:20.04
+        - ubuntu:18.04
+
+  python-linux-matrix:
+    - RUNNER: shared_docker
+      IMAGE: quay.io/pypa/manylinux2014_x86_64:latest
+      PYTHON_VERSION: ["cp38-cp38", "cp39-cp39", "cp310-cp310", "cp311-cp311"]
+    - RUNNER: shared_docker_aarch64
+      IMAGE: quay.io/pypa/manylinux2014_aarch64:latest
+      PYTHON_VERSION: ["cp38-cp38", "cp39-cp39", "cp310-cp310", "cp311-cp311"]
+      
+  python-windows-matrix:
+    - PYTHON_VERSION:
+        - "3.8.10"
+        - "3.9.13"
+        - "3.10.11"
+        - "3.11.3"
