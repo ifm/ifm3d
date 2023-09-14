@@ -26,12 +26,7 @@ build:windows_2019:python_wheel:
     name: ${DOCKER_IMAGE_WINDOWS_BUILDER}
     entrypoint: ["cmd", "/S", "/C"]
   parallel:
-    matrix:
-      - PYTHON_VERSION:
-          - "3.8.10"
-          - "3.9.13"
-          - "3.10.11"
-          - "3.11.3"
+    matrix: !reference [.configs, python-windows-matrix]
   variables:
     IFM3D_CMAKE_GENERATOR: "Visual Studio 16 2019"
     CONFIG: Release

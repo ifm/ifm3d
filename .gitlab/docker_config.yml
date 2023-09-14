@@ -17,7 +17,7 @@
     fi
     DOCKER_CFG="${DOCKER_CFG} }"
 
-    KANIKO_BUILD_ARGS="--reproducible --snapshotMode time --cache --cache-repo ${GHCR_REPO}/cache"
+    KANIKO_BUILD_ARGS="--reproducible --snapshot-mode time --use-new-run --cache --cache-repo ${GHCR_REPO}/cache"
 
     KANIKO_PUSH_ARGS="\
       --destination ${DOCKERHUB_REPO}:${DOCKER_TAG}${TAG_POSTFIX}\

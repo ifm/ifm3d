@@ -5,7 +5,7 @@ test:linux:
   variables:
     BASE_IMAGE: ubuntu:18.04
   image:
-    name: gcr.io/kaniko-project/executor:v1.9.0-debug
+    name: gcr.io/kaniko-project/executor:v1.15.0-debug
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]
