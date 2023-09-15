@@ -7,9 +7,9 @@ int
 main(int argc, char** argv)
 {
   std::map<std::string, std::string> device_to_filter(
-    {{"O3D", "DeviceTest.*:LegacyDeviceTest.*:O3DTest"},
-     {"O3X", "DeviceTest.*:LegacyDeviceTest.*:O3XTest"},
-     {"O3R", "DeviceTest.*:O3RTest"},
+    {{"O3D", "DeviceTest.*:LegacyDeviceTest.*:O3DTest.*"},
+     {"O3X", "DeviceTest.*:LegacyDeviceTest.*:O3XTest.*"},
+     {"O3R", "DeviceTest.*:O3RTest.*"},
      {"device_independent", "Err.*:Version.*"}});
 
   std::map<ifm3d::Device::device_family, std::string> device_family_to_device(

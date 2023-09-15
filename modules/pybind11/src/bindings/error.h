@@ -149,6 +149,7 @@ bind_error(pybind11::module_& m)
   ifm3d::add_attr(error_class, "IFM3D_SYSTEM_ERROR", IFM3D_SYSTEM_ERROR);
   ifm3d::add_attr(error_class, "IFM3D_CORRUPTED_STRUCT", IFM3D_CORRUPTED_STRUCT);
   ifm3d::add_attr(error_class, "IFM3D_DEVICE_PORT_INCOMPATIBLE_WITH_ORGANIZER", IFM3D_DEVICE_PORT_INCOMPATIBLE_WITH_ORGANIZER);
+  ifm3d::add_attr(error_class, "IFM3D_DEVICE_PORT_NOT_SUPPORTED", IFM3D_DEVICE_PORT_NOT_SUPPORTED);
   ifm3d::add_attr(error_class, "IFM3D_XMLRPC_OBJ_NOT_FOUND", IFM3D_XMLRPC_OBJ_NOT_FOUND);
   ifm3d::add_attr(error_class, "IFM3D_INVALID_PARAM", IFM3D_INVALID_PARAM);
   ifm3d::add_attr(error_class, "IFM3D_INVALID_VALUE_TYPE", IFM3D_INVALID_VALUE_TYPE);
