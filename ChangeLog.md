@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fix data grabbing from diagnostic port
+- SWUpdate fix installing O3R updates from stdin
 
 
 ## 1.4.1 - 2023-08-31

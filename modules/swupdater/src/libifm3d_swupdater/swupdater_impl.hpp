@@ -16,7 +16,11 @@
 #include <ifm3d/device/err.h>
 #include <ifm3d/common/logging/log.h>
 #include <ifm3d/common/json.hpp>
-#include <iostream>
+
+#ifdef _WIN32
+#  include <io.h>
+#  include <fcntl.h>
+#endif
 
 namespace ifm3d
 {
@@ -27,6 +31,7 @@ namespace ifm3d
   const std::string SWUPDATER_FILENAME_HEADER = "X_FILENAME: swupdate.swu";
   const std::string SWUPDATER_CONTENT_TYPE_HEADER =
     "Content-Type: application/octet-stream";
+  const std::string SWUPDATER_MIME_PART_NAME = "upload";
 
   const int SWUPDATER_STATUS_IDLE = 0;
   const int SWUPDATER_STATUS_START = 1;
@@ -138,6 +143,7 @@ namespace ifm3d
       CURLTransaction()
       {
         this->header_list_ = nullptr;
+        this->mime_ = nullptr;
         this->curl_ = curl_easy_init();
         if (!this->curl_)
           {
@@ -147,6 +153,10 @@ namespace ifm3d
 
       ~CURLTransaction()
       {
+        if (mime_ != nullptr)
+          {
+            curl_mime_free(mime_);
+          }
         curl_slist_free_all(this->header_list_);
         curl_easy_cleanup(this->curl_);
       }
@@ -165,6 +175,14 @@ namespace ifm3d
       void
       Call(F f, Args... args)
       {
+        if ((void*)f == (void*)curl_easy_perform)
+          {
+            if (mime_ != nullptr)
+              {
+                Call(curl_easy_setopt, CURLOPT_MIMEPOST, mime_);
+              }
+          }
+
         CURLcode retcode = f(this->curl_, args...);
         if (retcode != CURLE_OK)
           {
@@ -177,7 +195,8 @@ namespace ifm3d
               case CURLE_ABORTED_BY_CALLBACK:
                 throw ifm3d::Error(IFM3D_CURL_ABORTED);
               default:
-                throw ifm3d::Error(IFM3D_CURL_ERROR);
+                throw ifm3d::Error(IFM3D_CURL_ERROR,
+                                   curl_easy_strerror(retcode));
               }
           }
       }
@@ -198,8 +217,20 @@ namespace ifm3d
         this->Call(curl_easy_setopt, CURLOPT_HTTPHEADER, this->header_list_);
       }
 
+      curl_mimepart*
+      AddMimePart()
+      {
+        if (mime_ == nullptr)
+          {
+            mime_ = curl_mime_init(curl_);
+          }
+
+        return curl_mime_addpart(mime_);
+      }
+
     private:
       CURL* curl_;
+      curl_mime* mime_;
       struct curl_slist* header_list_;
     };
 
@@ -413,6 +444,47 @@ ifm3d::SWUpdater::Impl::CheckProductive()
   return false;
 }
 
+struct mime_ctx
+{
+  FILE* fp;
+};
+
+size_t
+mime_read(char* buffer, size_t size, size_t nitems, void* arg)
+{
+  auto ctx = (mime_ctx*)arg;
+  return fread(buffer, size, nitems, ctx->fp);
+}
+
+void
+mime_free(void* arg)
+{
+  auto ctx = (mime_ctx*)arg;
+  if (ctx->fp)
+    {
+      if (ctx->fp != stdin)
+        {
+          fclose(ctx->fp);
+        }
+      ctx->fp = nullptr;
+    }
+}
+
+FILE*
+fopen_read(const std::string& file)
+{
+  if (file == "-")
+    {
+#ifdef _WIN32
+      // on windows we need to reopen stdin in binary mode
+      _setmode(_fileno(stdin), O_BINARY);
+#endif
+      return stdin;
+    }
+
+  return fopen(file.c_str(), "rb");
+}
+
 void
 ifm3d::SWUpdater::Impl::UploadFirmware(const std::string& swu_file,
                                        long timeout_millis)
@@ -459,7 +531,6 @@ ifm3d::SWUpdater::Impl::UploadFirmware(const std::string& swu_file,
   try
     {
       c->Call(curl_easy_perform);
-      curl_formfree(httppost);
     }
   catch (const ifm3d::Error& e)
     {
