@@ -16,6 +16,8 @@
 #include <vector>
 #include <mutex>
 #include <condition_variable>
+#include <limits>
+#include <iostream>
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>
 #include <websocketpp/common/thread.hpp>
@@ -394,21 +396,28 @@ void
 ifm3d::ImplV2::UploadFirmware(const std::string& swu_file, long timeout_millis)
 {
   curl_global_init(CURL_GLOBAL_ALL);
-  struct curl_httppost* httppost = NULL;
-  struct curl_httppost* last_post = NULL;
-
-  curl_formadd(&httppost,
-               &last_post,
-               CURLFORM_COPYNAME,
-               "upload",
-               CURLFORM_FILECONTENT,
-               swu_file.c_str(),
-               CURLFORM_END);
-
   auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();
 
+  mime_ctx mime_ctx;
+  mime_ctx.fp = fopen_read(swu_file);
+
+  if (!mime_ctx.fp)
+    {
+      throw ifm3d::Error(IFM3D_UPDATE_ERROR,
+                         fmt::format("Unable to open file: {}", swu_file));
+    }
+
+  curl_mimepart* mimepart = c->AddMimePart();
+  curl_mime_data_cb(mimepart,
+                    (std::numeric_limits<int32_t>::max)(),
+                    mime_read,
+                    NULL,
+                    mime_free,
+                    &mime_ctx);
+  curl_mime_name(mimepart, SWUPDATER_MIME_PART_NAME.c_str());
+  curl_mime_type(mimepart, SWUPDATER_CONTENT_TYPE_HEADER.c_str());
+
   c->Call(curl_easy_setopt, CURLOPT_URL, this->upload_url_.c_str());
-  c->Call(curl_easy_setopt, CURLOPT_HTTPPOST, httppost);
   c->Call(curl_easy_setopt, CURLOPT_TIMEOUT, SWUPDATE_V2_TIMEOUT_FOR_UPLOAD);
   c->Call(curl_easy_setopt, CURLOPT_TCP_KEEPALIVE, 1);
   c->Call(curl_easy_setopt, CURLOPT_MAXREDIRS, CURL_MAX_REDIR);
@@ -421,7 +430,6 @@ ifm3d::ImplV2::UploadFirmware(const std::string& swu_file, long timeout_millis)
   try
     {
       c->Call(curl_easy_perform);
-      curl_formfree(httppost);
     }
   catch (const ifm3d::Error& e)
     {
