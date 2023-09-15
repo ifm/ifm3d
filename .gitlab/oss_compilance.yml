@@ -1,28 +1,31 @@
 # oss_compilance
 deploy:oss_compilance:
   stage: deploy
+  parallel:
+    matrix: !reference [.configs, docker-matrix]
   needs:
+    - job: build:linux:docker
+      parallel:
+        matrix: !reference [.configs, docker-matrix]
     - job: deploy:start
       artifacts: false
     - job: deploy:linux:docker_tagged
       artifacts: false
   image:
-    name: nexus.ifm.com:20443/ifm-robotics/docker-oss-compliance
+    name: nexus.ifm.com:20443/ifm-robotics/docker-oss-compliance:v0.0.1
     entrypoint: [""]
   tags:
     - shared_docker
-  cache:
-    - key: ifm3d-oss-compliance-release
-      paths:
-        - $CI_PROJECT_DIR/cache
   script:
     - !reference [.docker-config, script]
     - mkdir -p $CI_PROJECT_DIR/oss-compliance
+    - IMAGE_SHA=$(cat digest/${TAG_POSTFIX})
     - cd /app
-    - python generate_html.py --cache $CI_PROJECT_DIR/cache --out $CI_PROJECT_DIR/oss-compliance ghcr.io/ifm/ifm3d:$DOCKER_TAG ifm3d
+    - python oss-compliance.py --cache $CI_PROJECT_DIR/cache --out $CI_PROJECT_DIR/oss-compliance ifm3d image ghcr.io/ifm/ifm3d@${IMAGE_SHA}
   artifacts:
     paths:
-      - $CI_PROJECT_DIR/oss-compliance
-    expire_in: 1 week
+      - $CI_PROJECT_DIR/oss-compliance/*
+  timeout: 3h
   rules:
     - !reference [.tagged, rules]
+

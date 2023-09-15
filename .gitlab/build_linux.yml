@@ -5,7 +5,7 @@ build:linux:
   variables:
     BASE_IMAGE: ubuntu:18.04
   image:
-    name: gcr.io/kaniko-project/executor:v1.9.0-debug
+    name: gcr.io/kaniko-project/executor:v1.15.0-debug
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]
@@ -22,20 +22,11 @@ build:linux:
 build:linux:docker:
   stage: build
   parallel:
-    matrix:
-      - RUNNER: shared_docker
-        BASE_IMAGE: ubuntu:20.04
-        TAG_POSTFIX: -ubuntu-amd64
-      - RUNNER: shared_docker_aarch64
-        BASE_IMAGE: ubuntu:20.04
-        TAG_POSTFIX: -ubuntu-arm64
-      - RUNNER: shared_docker_aarch64
-        BASE_IMAGE: nvcr.io/nvidia/l4t-base:r32.4.3
-        TAG_POSTFIX: -l4t-arm64
+    matrix: !reference [.configs, docker-matrix]
   tags:
     - ${RUNNER}
   image:
-    name: gcr.io/kaniko-project/executor:v1.9.0-debug
+    name: gcr.io/kaniko-project/executor:v1.15.0-debug
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]
@@ -43,9 +34,13 @@ build:linux:docker:
     - echo "${DOCKER_CFG}" > /kaniko/.docker/config.json
     - /kaniko/executor --context ${CI_PROJECT_DIR}
       --dockerfile docker/ifm-robotics/docker/Dockerfile
+      --digest-file ${CI_PROJECT_DIR}/digest/${TAG_POSTFIX}
       ${KANIKO_BUILD_ARGS}
       ${KANIKO_PUSH_ARGS}
       ${DOCKER_BUILD_ARGS}
+  artifacts:
+    paths:
+          - digest/*
   rules:
     - !reference [.tagged, rules]
     - !reference [.nightly, rules]
@@ -54,24 +49,11 @@ build:linux:docker:
 build:linux:deb:
   stage: build
   parallel:
-    matrix:
-      - RUNNER: shared_docker_aarch64
-        PLATFORM: linux/aarch64
-        BASE_IMAGE:
-          - nvcr.io/nvidia/l4t-base:r32.4.3
-          - ubuntu:22.04
-          - ubuntu:20.04
-          - ubuntu:18.04
-      - RUNNER: shared_docker
-        PLATFORM: linux/amd64
-        BASE_IMAGE:
-          - ubuntu:22.04
-          - ubuntu:20.04
-          - ubuntu:18.04
+   matrix: !reference [.configs, deb-matrix]
   tags:
     - ${RUNNER}
   image:
-    name: gcr.io/kaniko-project/executor:v1.9.0-debug
+    name: gcr.io/kaniko-project/executor:v1.15.0-debug
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]
@@ -97,13 +79,7 @@ build:linux:python_wheel:
   image: ${IMAGE}
   stage: build
   parallel:
-    matrix:
-      - RUNNER: shared_docker
-        IMAGE: quay.io/pypa/manylinux2014_x86_64:latest
-        PYTHON_VERSION: ["cp38-cp38", "cp39-cp39", "cp310-cp310", "cp311-cp311"]
-      - RUNNER: shared_docker_aarch64
-        IMAGE: quay.io/pypa/manylinux2014_aarch64:latest
-        PYTHON_VERSION: ["cp38-cp38", "cp39-cp39", "cp310-cp310", "cp311-cp311"]
+    matrix: !reference [.configs, python-linux-matrix]
   tags:
     - ${RUNNER}
   script:
@@ -127,7 +103,7 @@ build:linux:docs:
   tags:
     - shared_docker
   image:
-    name: gcr.io/kaniko-project/executor:v1.9.0-debug
+    name: gcr.io/kaniko-project/executor:v1.15.0-debug
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]
