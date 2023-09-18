@@ -50,7 +50,6 @@ RUN apt-get update \
         git \
         libboost-all-dev \
         libcurl4-openssl-dev \
-        libgoogle-glog-dev \
         libgtest-dev \
         libopencv-dev \
         libpcl-dev \
@@ -112,7 +111,6 @@ COPY --from=build --chown=ifm:ifm /home/ifm/venv/ /home/ifm/venv/
 # Install runtime requirements
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        libgoogle-glog0v5 \
         libopencv-core* \
         libxmlrpc-c++8v5 \
         locales \
