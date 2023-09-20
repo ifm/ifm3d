@@ -31,7 +31,7 @@ auto fg = std::make_shared<ifm3d::FrameGrabber>(o3r, 50012);
 ::::
 :::::
 
->Note: The example above assumes that an O3R camera head is connected to the VPU at the physical port 2, corresponding to the PCIC TCP port 50012. If you're unsure about the connectivity, please see the section hardware unboxing under O3R/Getting Started.
+>Note: The example above assumes that an O3R camera head is connected to the VPU at the physical port 2, which has the PCIC TCP port 50012. The PCIC TCP port number can be retrieved via `o3r.get([f"/ports/portX/data/pcicTCPPort"])` with `portX` being a valid port (eg "port0","port1",etc.).
 
 The `O3R` class, counter-intuitively, refers to the computing unit (the VPU). It inherits its name from previous ifm 3D devices that only used one camera, with no distinction between sensing and computing units.
 You can input:
