@@ -14,6 +14,7 @@ Comprehensive documentation is available on [ifm3d.com](https://ifm3d.com/).
 | 3D cloud | Distance | RGB |
 | -- | -- | -- |
 | ![3D cloud of a stack of boxes](xyz.png) | ![Distance image of a stack of boxes](distance.png) | ![RGB image of a stack of boxes](jpeg.png) |
+
 ## Released Versions
 
 ⚠️ Note that the `main` branch is generally in a work in progress state and you probably want to use a
@@ -21,15 +22,8 @@ tagged [release version](https://github.com/ifm/ifm3d/releases) for production.
 
 ⚠️ Note that O3D and O3X support is currently experimental- Use at your own risk!.
 
-### Current Revision
+For a full compatibility matrix between the ifm3d library, the O3R firmware and the Vision Assistant GUI, please refer to [the compatibility matrix on ifm3d.com](https://ifm3d.com/latest/CompatibilityMatrix/compatibility_matrix.html).
 
-The table below show the compatibility between the current ifm3d version and the firmware versions for the O3X, O3D and O3R devices. Other combinations than the ones listed below might work but have not been thoroughly tested.
-
-| ifm3d version | Supported O3D Firmware Version | Supported O3X Firmware Version | Supported O3R Firmware Version | Supported Ubuntu Linux Version | Notes | 
-| ------------- | ------------------------------ | ------------------------------ | -------------------- | ------------------------------ | ----- |
-| 1.3.4 | 1.30.5309 | 1.1.190 | 1.0.14 | 20.04, 22.04 | See the changelog and the migrating guide. |
-
-> Note that a full compatibility matrix is available [here](ifm3d/doc/sphinx/content/swcompat:ifm3d%20Software%20Compatibility%20Matrix) for older versions.
 ## Organization of the Software
 
 The ifm3d software is organized into modules, they are:
