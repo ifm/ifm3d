@@ -2,11 +2,11 @@
 deploy:oss_compilance:
   stage: deploy
   parallel:
-    matrix: !reference [.configs, docker-matrix]
+    matrix: !reference [.configs, support-matrix]
   needs:
     - job: build:linux:docker
       parallel:
-        matrix: !reference [.configs, docker-matrix]
+        matrix: !reference [.configs, support-matrix]
     - job: deploy:start
       artifacts: false
     - job: deploy:linux:docker_tagged
