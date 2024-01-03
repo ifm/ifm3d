@@ -109,4 +109,32 @@ if(BUILD_MODULE_TOOLS)
 endif(BUILD_MODULE_TOOLS)
 
 #adding websocketpp
-add_subdirectory(websocketpp)
+if(BUILD_MODULE_SWUPDATER)
+  FetchContent_Declare(
+    websocketpp
+      GIT_REPOSITORY https://github.com/zaphoyd/websocketpp.git
+      GIT_TAG 0.8.2
+  )
+  FetchContent_Populate(websocketpp)
+  FetchContent_GetProperties(websocketpp SOURCE_DIR websocketpp_src_dir)
+
+  add_library(websocketpp_wrapper INTERFACE)
+
+  target_include_directories(websocketpp_wrapper INTERFACE
+        $<BUILD_INTERFACE:${websocketpp_src_dir}>
+  )
+  target_link_libraries(websocketpp_wrapper INTERFACE asio)
+
+  if(MSVC)
+    target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_FUNCTIONAL_)
+    target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_SYSTEM_ERROR_)
+    target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_RANDOM_DEVICE_)
+    target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_MEMORY_)
+    target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_STRICT_)
+
+  else()
+    target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_STL_)
+  endif()
+    target_compile_definitions(websocketpp_wrapper INTERFACE ASIO_DISABLE_STD_EXPERIMENTAL_STRING_VIEW)
+
+endif(BUILD_MODULE_SWUPDATER)
