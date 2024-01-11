@@ -1,6 +1,6 @@
 # How to: configure the camera
 
-The O3R has multiple parameters that have an influence on the point cloud. Some of them affect the raw measurement and others modify how the data is converted into x,y,z, etc values. These parameters can be changed to better fit your applications and this document presents how. You can refer to [this page](https://ifm3d.com/documentation/Technology/3D/index_3d.html) for a detailed description of each parameter.
+The O3R has multiple parameters that have an influence on the point cloud. Some of them affect the raw measurement and others modify how the data is converted into x,y,z, etc values. These parameters can be changed to better fit your applications and this document presents how. You can refer to [this page](https://ifm3d.com/latest/Technology/3D/index_3d.html) for a detailed description of each parameter.
 
 The ifm3d API provides functions to read and set the configuration of the device. Note that JSON formatting is used for all the configurations.
 
