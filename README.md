@@ -26,7 +26,7 @@ For a full compatibility matrix between the ifm3d library, the O3R firmware and 
 
 ## Supported languages
 
-ifm3d is a c++ based library, with a Python wrapper mirroring the available features. We support the following versions of these two languages:
+ifm3d is a C++ based library, with a Python wrapper mirroring the available features. We support the following versions of these two languages:
 
 | Name      | Versions              |
 | --------- | --------------------- |
