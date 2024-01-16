@@ -31,7 +31,7 @@ ifm3d is a C++ based library, with a Python wrapper mirroring the available feat
 | Name      | Versions              |
 | --------- | --------------------- |
 | Python    | 3.8, 3.9, 3.10, 3.11  |
-| C++       | 14, 17, 20            |
+| C++       | GCC 7.5+, MSVC 2019+  |
 
 
 ## Organization of the Software
