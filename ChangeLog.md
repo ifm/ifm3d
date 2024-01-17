@@ -411,7 +411,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added OpenCV module build instruction for windows
 * Added minimum MSVC version requirement
 * Added prerequisite packages list for building ifm3d
-* Changed warning message in framegrabber from `WARNING` to `IFM3D_TRACE`
+* Changed warning message in `framegrabber` from `WARNING` to `IFM3D_TRACE`
   severity level
 * Updated `swupdate` command with --check (recovery mode check) and -r (reboot to
   productive mode)
