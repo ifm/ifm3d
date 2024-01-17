@@ -19,9 +19,9 @@ The remainder of this document will contain a set of examples and associated
 narrative in hopes of demonstrating how to leverage `ifm3d` to configure your
 3D camera. For purposes of this document, an ifm O3D303 will be
 utilized. However, the techniques shown here apply to any supported `ifm3d`
-camera (e.g., O3X). Additionally, since the camera state is serialized via
+camera (for example, the O3X). Additionally, since the camera state is serialized via
 JSON, some of the examples below will utilize the
-[jq](https://stedolan.github.io/jq/) command line JSON processor to build up
+[`jq`](https://stedolan.github.io/jq/) command line JSON processor to build up
 Linux pipelines to carry out a specific task. The usage of `jq` is *not*
 required. Standard Linux tools (`grep`, `sed`, `awk`, `perl`, `python`, etc.)
 could also be used or a single pipeline can be decomposed into multiple
@@ -468,7 +468,7 @@ persist them.
 This is the basic paradigm that can be followed to tune just about any
 parameter on the camera. 
 #### Setting multiple parameters 
-To carry out more complex configuration tasks (e.g.,
+To carry out more complex configuration tasks (for example
 changing several parameters at once), the dump can be saved to a file, edited
 via a text editor, then fed into `ifm3d config` to perform the
 configuration. 
