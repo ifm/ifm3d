@@ -24,8 +24,8 @@ check:vale-linting:
   before_script:
     - apk update && apk add git
   script:
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-ee.dev.ifm/syntron/support/csr/formatting-tools.git ${CI_PROJECT_DIR}
-    - cd /builds/syntron/support/csr/o3r/formatting-tools
-    - vale --minAlertLevel error ${CI_PROJECT_DIR}.
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-ee.dev.ifm/syntron/support/csr/formatting-tools.git ${CI_PROJECT_DIR}/formatting-tools
+    - cd ${CI_PROJECT_DIR}/formatting-tools
+    - vale --minAlertLevel error ../.
     - pwd
 
