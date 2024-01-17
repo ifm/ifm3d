@@ -26,7 +26,7 @@ gtest) which are not available as binary packages on Windows.
 
 ### Building source dependencies with ifm3d
 
-ifm3d from version 0.90.4 onward provides ```BUILD_IN_DEPS``` option to cmake configure command,
+ifm3d from version 0.90.4 onward provides ```BUILD_IN_DEPS``` option to CMake configure command,
 which fetches the required dependencies and builds them with ifm3d. After a successful first installation, the
 user can disable `BUILD_IN_DEPS` option and can use the installed dependencies for future builds of the ifm3d.
 
@@ -63,7 +63,7 @@ cmake --build . --config %CONFIG% --target ALL_BUILD
 cmake --build . --config %CONFIG% --target install
 ```
 On successful execution of install step, user can disable the `BUILD_IN_DEPS` flag by appending
-``` -DBUILD_IN_DEPS=OFF``` to cmake configure step, this will avoid building dependencies on every clean build.
+``` -DBUILD_IN_DEPS=OFF``` to CMake configure step, this will avoid building dependencies on every clean build.
 
 ### Building the Examples
 
