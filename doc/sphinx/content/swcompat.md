@@ -25,7 +25,7 @@ ifm3d Software Compatibility Matrix
 | 0.12.0| 1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848| 1.0.111, 1.0.122, 1.0.126| n/a| 16.04,18.04| Inverse intrinsic parameters from O3D cameras|
 | 0.13.0| 1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,  1.25.4073| 1.0.111, 1.0.122, 1.0.126| n/a| 16.04,18.04| Introduced `pybind11` module to provide ifm3d Python bindings|
 | 0.14.0| 1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,  1.25.4073, 1.30.4123| 1.0.111, 1.0.122, 1.0.126| n/a| 16.04,18.04| Introduced `swupdater` module for firmware update utilities|
-| 0.14.1| 1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,  1.25.4073, 1.30.4123| 1.0.111, 1.0.122, 1.0.126| n/a| 16.04,18.04| Timeouts fixes in swupdater module, JSON library update|
+| 0.14.1| 1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,  1.25.4073, 1.30.4123| 1.0.111, 1.0.122, 1.0.126| n/a| 16.04,18.04| Timeouts fixes in `swupdater` module, JSON library update|
 | 0.15.0| 1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,  1.25.4073| 1.0.111, 1.0.122, 1.0.126| n/a| 16.04,18.04| Interface added to grab json_model data of application output|
 | 0.15.1| 1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,  1.25.4073| 1.0.111, 1.0.122, 1.0.126| n/a| 16.04,18.04| Minor updates to allow for cross-compiling ifm3d for the O3D3XX|
 | 0.16.0 (Fine to use, but the `FrameGrabberUdp` module is  not supported by firmware and is removed in the next version of ifm3d)| 1.6.2114, 1.8.769, 1.20.1138, 1.23.1506, 1.23.1522, 1.23.2848,  1.25.4073, 1.30.4123| 1.0.111, 1.0.122, 1.0.126| n/a| 16.04,18.04| Introduced `framegrabberudp` module for usage with UDP-enabled camera  firmwares|

@@ -105,7 +105,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed 
 - Split the Python bindings into submodules, see the migration guide for details. *Warning:* this requires an update of existing codebases.
-- Convert `SWUpdater` python bindings naming to `snake_case`, see the migration guide for details. *Warning:* this requires an update of existing codebases.
+- Convert `SWUpdater` Python bindings naming to `snake_case`, see the migration guide for details. *Warning:* this requires an update of existing codebases.
 - `FrameGrabber::Start` now returns a future resolving once the `FrameGrabber` is ready to receive `Frames`
 
 ### Fixes 
@@ -118,16 +118,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 1.2.1 - 2023-02-09
 ### Fixes 
 - Fix a bug that could result in an endless loop when receiving PCIC tickets
-- Fix a crash when receiving pcic data without any chunks
+- Fix a crash when receiving PCIC data without any chunks
 
 ## 1.2.0 - 2023-02-03
 
 ### Changed
 - Upgraded `nlohmann::json` to version 3.11.2
-- Removed json from the global namespace and moved `nlohmann::json` to the `ifm3d::json` namespace
+- Removed JSON from the global namespace and moved `nlohmann::json` to the `ifm3d::json` namespace
 
 ### Fixes 
-- Missing python bindings for `O3R::Port` and `O3R::Ports`
+- Missing Python bindings for `O3R::Port` and `O3R::Ports`
 - `CONFIDENCE_IMAGE` image is not requested automatically anymore unless it's required for generating the requested chunks
 
 ### Added
@@ -174,7 +174,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.0.0 - 2022-09-08
 ### Added
-- Example update showing usage of framegrabber API
+- Example update showing usage of `FrameGrabber` API
 - Visibility attribute added for ifm3d API
 - Playground example for CMake users
 - Python API renamed as per C++ changes
@@ -189,7 +189,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ifm3dpy documentation update
 - Software trigger support for the `framegrabber` module
 - Software trigger error reporting on execution failure
-- Async error support for `framegrabber` module
+- Asynchronous error support for `framegrabber` module
 - Schema support for `framegrabber` module
 - OSS compliance added
 - Windows build instruction update
@@ -209,7 +209,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Document for schema
 - Document for O3X parameters
-- Added functionality to get timestamp at which data is send over ethernet
+- Added functionality to get timestamp at which data is send over Ethernet
 - Support for distance noise image for O3X Devices
 - Support for latest O3X firmware (1.1.190)
 - New Parameters for O3X device: `AbsDistStraylightThreshold`, `EnableStraylightCorrection`, `EnableNoiseEstimation`,
@@ -217,7 +217,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added the O3X FW 1.1.166 to the compatibility list
 - Added compatibility list to software compatibility document
 - `error_t::message()` function to retrieve details about exceptions
-- custom python exception type: `ifm3dpy.Error`
+- Custom Python exception type: `ifm3dpy.Error`
 - Added timeout option in `swupdate` command of tools
 
 ### Fixed
@@ -284,12 +284,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changes between ifm3d 0.18.0 and 0.20.0 [Unreleased]
 * Added clang format support for formatting
 * Changed license headers to SPDX format
-* Embedded third-party libs asio and cxxopt
+* Embedded third-party libraries Asio and cxxopts
   * Removed boost from dependency list
 * Support user defined port for `camera`, `fg`, `swupdater` module
   * This enable ifm3d to connect to devices behind NAT router
 * Added example for NTP to command line usage
-* Added build jobs in github actions
+* Added build jobs in GitHub actions
   * Windows VS 2019
   * Ubuntu 20.04 
 * Bugfixes
@@ -351,7 +351,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
           * `reboot` subcommand now invoked by `-r` or `--reboot`
         * `file` subcommand will now test for recovery and automatically
           reboot the device into recovery as needed.
-* Disabled framegrabber's `InverseIntrinsicParamSchema` test due to suspected
+* Disabled FrameGrabber's `InverseIntrinsicParamSchema` test due to suspected
   false failures. Test case will be investigated and re-opened in a future
   release.
 * Fixed issues with unit test scripts on Windows
@@ -364,7 +364,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changes between ifm3d 0.12.0 and 0.13.0
 * Honor semantics of CMake's `BUILD_SHARED_LIBS` flag (ON by default). Setting
   to off will build and link against ifm3d modules as static libraries.
-* New module: `pybind11` -- Python bindings for the the C++ API
+* New module: `pybind11` -- Python bindings for the C++ API
 
 ## Changes between ifm3d 0.11.2 and 0.12.0
 
@@ -374,7 +374,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changes between ifm3d 0.11.1 and 0.11.2
 
-* Bugfix for #111, moved a log message in framegrabber to `IFM3D_PROTO_DEBUG` to
+* Bugfix for #111, moved a log message in `framegrabber` to `IFM3D_PROTO_DEBUG` to
   keep noise level low when running an O3X for extended periods of time.
 * Changed flagging bad pixels to always be `0` regardless of data type. Users
   could always consult the confidence image themselves and discriminate between
@@ -408,7 +408,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added build instructions how to switch between Release and Debug
   for Windows builds
 * Added troubleshoot guide
-* Added Opencv module build instruction for windows
+* Added OpenCV module build instruction for windows
 * Added minimum MSVC version requirement
 * Added prerequisite packages list for building ifm3d
 * Changed warning message in framegrabber from `WARNING` to `IFM3D_TRACE`
@@ -419,7 +419,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changes between ifm3d 0.9.1 and 0.9.2
 
 * Added support for the Ubuntu 18.04
-* Added glog support in the CMake config files
+* Added glog support in the CMake configuration files
 
 ## Changes between ifm3d 0.9.0 and 0.9.1
 
@@ -445,19 +445,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `doc` folder.
 * Updated the `ImageBuffer` to conform to the new pixel-publishing
   architecture.
-* Initial implementation of an OpenCV-only (i.e., no PCL) image container. This
+* Initial implementation of an OpenCV-only (that is, no PCL) image container. This
   is the `opencv` module of the `ifm3d` project.
 * Added a `passwd` subcommand to `ifm3d`
 
 ## Changes between ifm3d 0.8.2 and 0.8.3
 
 * Fixed a CMake regression regarding `-std=c++11` flags passed to the compiler;
-  surfaces on old versions of CMake, i.e., in Ubuntu 14.04
+  surfaces on old versions of CMake, that is, in Ubuntu 14.04
 
 ## Changes between ifm3d 0.8.1 and 0.8.2
 
 * Patch to Windows build
-* Better semver parsing of camera firmware
+* Better semantic versioning parsing of camera firmware
 
 ## Changes between ifm3d 0.8.0 and 0.8.1
 
@@ -472,7 +472,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added timestamping of image buffers
 * Added support for setting/getting time on O3D cameras
 * Added support for setting temporary application parameters. Please note, that
-  if the device does not support this, it may "fail silently", so, a
+  if the device does not support this, it may "fail silently," so, a
   closed-loop check by the user is recommended.
 
 ## Changes between ifm3d 0.5.0 and 0.6.0
@@ -515,18 +515,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added software trigger support to O3X
 * Added support for ifm Vision Assistant compatible import/export functions for
   O3X cameras
-* Optimization to `ifm3d` cmd line tool when passed either `--help` or
+* Optimization to `ifm3d` command line tool when passed either `--help` or
   `version`. It will no longer try to connect to the device first, which makes
   this much more responsive and convenient for when no h/w is plugged in.
 * Added the ability to explicitly choose OpenCV 2.4 or OpenCV 3 at
   CMake/compile time.
 * Modifications to enable the library to build under Ubuntu 14.04 (C++11
-  instead of C++14 and gcc 4.8. Big thanks to @aaronhoy at Fetch Robotics for
+  instead of C++14 and GCC 4.8. Big thanks to @aaronhoy at Fetch Robotics for
   [his work](https://github.com/aaronhoy/ifm3d/commit/b2e894e3a4f4afc227b7d33993f0a85e4078d513)
 * Added a new build-time utility
   [ifm3d-dpkg-deps.py](cmake/utils/ifm3d-dpkg-deps.py.in) to auto-generate
-  debian dependencies for the binary packages. This is needed because, for how
-  we are building multiple shared libraries across multiple debian packages,
+  Debian dependencies for the binary packages. This is needed because, for how
+  we are building multiple shared libraries across multiple Debian packages,
   CMake's standard wrapper to `dpkg-shlibdeps` does not work for us (for several
   reasons).
 
