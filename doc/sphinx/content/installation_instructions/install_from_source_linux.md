@@ -24,8 +24,8 @@ and follow these [instructions](https://github.com/ifm/ifm3d/blob/v0.20.3/doc/so
 | --- | --- | --- |
 | [CMake](http://www.cmake.org) | `device`, `framegrabber`, `swupdater`, `pcicclient`, `tools`, `pybind11` | Meta-build framework |
 | [Curl](https://curl.haxx.se/libcurl) | `device`, `tools`, `swupdater` | Used to help enable command-line based firmware flashing. |
-| [Glog](https://github.com/google/glog) | `device`, `framegrabber`, `swupdater`, `pcicclient`, `tools`, `pybind11` | Logging framework |
-| [Gtest](https://github.com/google/googletest) | `device`, `framegrabber`, `swupdater`, `pcicclient`, `tools`, `pybind11` | Unit testing framework |
+| [glog](https://github.com/google/glog) | `device`, `framegrabber`, `swupdater`, `pcicclient`, `tools`, `pybind11` | Logging framework |
+| [GoogleTest](https://github.com/google/googletest) | `device`, `framegrabber`, `swupdater`, `pcicclient`, `tools`, `pybind11` | Unit testing framework |
 | [libxmlrpc](http://xmlrpc-c.sourceforge.net/) | `device`, `pybind11` | XMLRPC client used call into the camera configuration interface |
 | [pybind11](https://github.com/pybind/pybind11) | `pybind11` | A header-only library that exposes C++ types in Python and vice versa, mainly to create Python bindings of existing C++ code. |
 
@@ -39,7 +39,7 @@ Start with cloning the code from the ifm3d GitHub repository {{ '[here]({})'.for
 #### The default build
 
 By default, the `ifm3d` build enables the `device`, `framegrabber`, `swupdater`,
-and `tools` modules. Building the software follows the usual cmake idiom of:
+and `tools` modules. Building the software follows the usual CMake idiom of:
 
 ```
 $ mkdir build
