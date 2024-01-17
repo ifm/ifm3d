@@ -1,5 +1,5 @@
 ## Python installation
-> Note: We recommend for testing purposes to install the ifm3dpy package in an clean python environment first. You can use `python -m venv "venv-name"` to create a new virtual environment.
+> Note: We recommend for testing purposes to install the ifm3dpy package in an clean Python environment first. You can use `python -m venv "venv-name"` to create a new virtual environment.
 
 You can use the official PyPI package to install the ifm3dpy within your virtual environment:
 
@@ -16,7 +16,7 @@ Let's verify quickly that the installation worked! This command should display t
 pip freeze
 ```
 
-Open up a python shell with:
+Open up a Python shell with:
 
 ```python
 python.exe
