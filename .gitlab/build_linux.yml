@@ -13,43 +13,16 @@ build:linux:
     - mkdir -p /kaniko/.docker
     - echo "${DOCKER_CFG}" > /kaniko/.docker/config.json
     - /kaniko/executor --context ${CI_PROJECT_DIR}
-      --dockerfile docker/ifm-robotics/docker/Dockerfile
+      --dockerfile docker/ifm-robotics/deb/Dockerfile
       ${KANIKO_BUILD_ARGS}
       ${KANIKO_PUSH_ARGS}
       ${DOCKER_BUILD_ARGS}
-
-# Docker
-build:linux:docker:
-  stage: build
-  parallel:
-    matrix: !reference [.configs, docker-matrix]
-  tags:
-    - ${RUNNER}
-  image:
-    name: gcr.io/kaniko-project/executor:v1.15.0-debug
-    entrypoint: [""]
-  script:
-    - !reference [.docker-config, script]
-    - mkdir -p /kaniko/.docker
-    - echo "${DOCKER_CFG}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context ${CI_PROJECT_DIR}
-      --dockerfile docker/ifm-robotics/docker/Dockerfile
-      --digest-file ${CI_PROJECT_DIR}/digest/${TAG_POSTFIX}
-      ${KANIKO_BUILD_ARGS}
-      ${KANIKO_PUSH_ARGS}
-      ${DOCKER_BUILD_ARGS}
-  artifacts:
-    paths:
-          - digest/*
-  rules:
-    - !reference [.tagged, rules]
-    - !reference [.nightly, rules]
 
 # Debs
 build:linux:deb:
   stage: build
   parallel:
-   matrix: !reference [.configs, deb-matrix]
+   matrix: !reference [.configs, support-matrix]
   tags:
     - ${RUNNER}
   image:
@@ -73,6 +46,34 @@ build:linux:deb:
     - !reference [.tagged, rules]
     - !reference [.nightly, rules]
     - !reference [.manual, rules]
+
+# Docker
+build:linux:docker:
+  stage: build
+  parallel:
+    matrix: !reference [.configs, support-matrix]
+  tags:
+    - ${RUNNER}
+  image:
+    name: gcr.io/kaniko-project/executor:v1.15.0-debug
+    entrypoint: [""]
+  script:
+    - !reference [.docker-config, script]
+    - mkdir -p /kaniko/.docker
+    - echo "${DOCKER_CFG}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context ${CI_PROJECT_DIR}
+      --dockerfile docker/ifm-robotics/docker/Dockerfile
+      --digest-file ${CI_PROJECT_DIR}/digest/${TAG_POSTFIX}
+      ${KANIKO_BUILD_ARGS}
+      ${KANIKO_PUSH_ARGS}
+      ${DOCKER_BUILD_ARGS}
+  artifacts:
+    paths:
+          - digest/*
+  needs:
+    - job: build:linux:deb
+      parallel:
+        matrix: !reference [.configs, support-matrix]
 
 # Python wheels
 build:linux:python_wheel:
