@@ -24,11 +24,7 @@ check:vale-linting:
   before_script:
     - apk update && apk add git
   script:
-    - git config --global user.email "support.robotics@ifm.com"
-    - git config --global user.name "ifm-csr"
-    - rm -rf /builds/syntron/support/csr/o3r/formatting-tools /builds/syntron/support/csr/o3r/vale
-    - mkdir -p /builds/syntron/support/csr/o3r/formatting-tools
     - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-ee.dev.ifm/syntron/support/csr/formatting-tools.git /builds/syntron/support/csr/o3r/formatting-tools
     - cd /builds/syntron/support/csr/o3r/formatting-tools
-    - vale --minAlertLevel error /builds/syntron/support/csr/ifm3d/ifm3d/.
+    - vale --minAlertLevel error ${CI_PROJECT_DIR}.
 
