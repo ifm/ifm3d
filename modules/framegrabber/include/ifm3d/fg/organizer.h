@@ -24,7 +24,7 @@ namespace ifm3d
   public:
     struct Result
     {
-      std::map<buffer_id, Buffer> images;
+      std::map<buffer_id, BufferList> images;
       std::vector<ifm3d::TimePointT> timestamps;
       uint32_t frame_count;
     };

@@ -7,6 +7,7 @@
 #define IFM3D_FG_ORGANIZER_UTILS_H
 
 #include <map>
+#include <set>
 #include <optional>
 #include <vector>
 #include <tuple>
@@ -20,7 +21,7 @@ namespace ifm3d
 {
   constexpr std::size_t IMG_BUFF_START = 8;
 
-  std::map<image_chunk, std::size_t> get_image_chunks(
+  std::map<image_chunk, std::set<std::size_t>> get_image_chunks(
     const std::vector<std::uint8_t>& data,
     std::size_t start_idx,
     std::optional<size_t> end_idx = std::nullopt);
@@ -40,7 +41,8 @@ namespace ifm3d
                        std::size_t idx,
                        std::size_t width,
                        std::size_t height,
-                       pixel_format fmt);
+                       pixel_format fmt,
+                       std::optional<json> metadata = std::nullopt);
 
   Buffer create_xyz_buffer(const std::vector<std::uint8_t>& data,
                            std::size_t xidx,
@@ -51,7 +53,8 @@ namespace ifm3d
                            pixel_format fmt,
                            const std::optional<Buffer>& mask);
 
-  auto find_metadata_chunk(const std::map<image_chunk, std::size_t>& chunks)
+  auto find_metadata_chunk(
+    const std::map<image_chunk, std::set<std::size_t>>& chunks)
     -> decltype(chunks.end());
 
   std::tuple<uint32_t, uint32_t> get_image_size(
@@ -77,6 +80,9 @@ namespace ifm3d
   std::size_t get_chunk_pixeldata_size(const std::vector<std::uint8_t>& data,
                                        std::size_t idx);
 
+  std::size_t get_chunk_header_version(const std::vector<std::uint8_t>& data,
+                                       std::size_t idx);
+
   void mask_buffer(Buffer& image, const Buffer& mask);
 
   bool is_probably_blob(const std::vector<std::uint8_t>& data,
@@ -86,17 +92,23 @@ namespace ifm3d
 
   Buffer create_pixel_mask(Buffer& confidence);
 
-  void parse_data(const std::vector<uint8_t>& data,
-                  const std::set<buffer_id>& requestedImages,
-                  const std::map<ifm3d::image_chunk, std::size_t>& chunks,
-                  const size_t width,
-                  const size_t height,
-                  std::map<buffer_id, Buffer>& data_blob,
-                  std::map<buffer_id, Buffer>& data_image);
+  void parse_data(
+    const std::vector<uint8_t>& data,
+    const std::set<buffer_id>& requestedImages,
+    const std::map<ifm3d::image_chunk, std::set<std::size_t>>& chunks,
+    const size_t width,
+    const size_t height,
+    std::map<buffer_id, BufferList>& data_blob,
+    std::map<buffer_id, BufferList>& data_image);
 
-  void mask_images(std::map<ifm3d::buffer_id, ifm3d::Buffer>& images,
+  void mask_images(std::map<ifm3d::buffer_id, ifm3d::BufferList>& images,
                    ifm3d::Buffer& mask,
                    std::function<bool(ifm3d::buffer_id id)> should_mask);
+
+  bool has_metadata(const std::vector<std::uint8_t>& data, std::size_t idx);
+
+  ifm3d::json create_metadata(const std::vector<std::uint8_t>& data,
+                              std::size_t idx);
 
   /**
    * Create a value of type T from sizeof(T) bytes of the passed in byte
