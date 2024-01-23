@@ -90,13 +90,16 @@ ifm3d::Buffer::Buffer()
     data_size_in_bytes_(0),
     size_(0),
     bytes_per_pixel(0),
-    bytes_per_row(0)
+    bytes_per_row(0),
+    metadata_(ifm3d::json())
 {}
 
 ifm3d::Buffer::Buffer(const std::uint32_t cols,
                       const std::uint32_t rows,
                       const std::uint32_t nchannel,
-                      ifm3d::pixel_format format)
+                      ifm3d::pixel_format format,
+                      std::optional<ifm3d::json> metadata)
+  : metadata_(metadata.value_or(ifm3d::json()))
 {
   create(cols, rows, nchannel, format);
 }
@@ -129,8 +132,7 @@ ifm3d::Buffer::create(const std::uint32_t cols,
 ifm3d::Buffer
 ifm3d::Buffer::clone() const
 {
-  Buffer copy;
-  copy.create(cols_, rows_, nchannel_, data_format_);
+  Buffer copy(cols_, rows_, nchannel_, data_format_, metadata_);
   std::memcpy(copy.ptr(0), data_, size_);
   return copy;
 }
@@ -163,4 +165,10 @@ size_t
 ifm3d::Buffer::size() const
 {
   return size_;
+}
+
+ifm3d::json
+ifm3d::Buffer::metadata() const
+{
+  return metadata_;
 }

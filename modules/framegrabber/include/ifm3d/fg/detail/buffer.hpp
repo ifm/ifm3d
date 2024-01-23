@@ -314,12 +314,15 @@ template <typename Tp>
 ifm3d::Buffer_<Tp>::Buffer_() : ifm3d::Buffer(){};
 
 template <typename Tp>
-ifm3d::Buffer_<Tp>::Buffer_(const std::uint32_t cols, const std::uint32_t rows)
+ifm3d::Buffer_<Tp>::Buffer_(const std::uint32_t cols,
+                            const std::uint32_t rows,
+                            std::optional<ifm3d::json> metadata)
   : ifm3d::Buffer(
       cols,
       rows,
       static_cast<std::uint32_t>(ifm3d::FormatType<Tp>::nchannel),
-      static_cast<ifm3d::pixel_format>(ifm3d::FormatType<Tp>::format))
+      static_cast<ifm3d::pixel_format>(ifm3d::FormatType<Tp>::format),
+      metadata)
 {}
 
 template <typename Tp>
@@ -388,6 +391,13 @@ ifm3d::pixel_format
 ifm3d::Buffer_<Tp>::dataFormat() const
 {
   return Buffer::dataFormat();
+}
+
+template <typename Tp>
+ifm3d::json
+ifm3d::Buffer_<Tp>::metadata() const
+{
+  return Buffer::metadata();
 }
 
 template <typename Tp>

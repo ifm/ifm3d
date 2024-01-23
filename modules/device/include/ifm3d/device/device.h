@@ -114,6 +114,8 @@ namespace ifm3d
     ALGO_DEBUG = 900,
     O3R_ODS_OCCUPANCY_GRID = 1000,
     O3R_ODS_INFO = 1001,
+    O3R_RESULT_JSON = 1002,
+    O3R_RESULT_ARRAY2D = 1003
   };
 
   class XMLRPCWrapper;
