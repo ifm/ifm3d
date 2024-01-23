@@ -10,6 +10,8 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <optional>
+#include <ifm3d/common/json.hpp>
 #include <limits.h>
 #include <ifm3d/fg/frame_grabber_export.h>
 #include <ifm3d/device/device.h>
@@ -114,6 +116,8 @@ namespace ifm3d
     size_t bytes_per_pixel;
     /* @brief bytes per row */
     size_t bytes_per_row;
+    /* @brief json formatted metadata of the chunk obtain from device*/
+    json metadata_;
 
     class BufferAllocator;
     std::shared_ptr<BufferAllocator> buffer_allocator_;
@@ -132,13 +136,15 @@ namespace ifm3d
       @param nchannel Number of channels in Buffer
       @param format value from ifm3d::pixel_format releates to data type
       need to store one value.
+      @param metadata json formatted metadata of the chunk obtain from device
 
       @note This internally calls Create Method to allocates Memory
     */
     Buffer(const std::uint32_t cols,
            const std::uint32_t rows,
            const std::uint32_t nchannel,
-           ifm3d::pixel_format format);
+           ifm3d::pixel_format format,
+           std::optional<ifm3d::json> metadata = std::nullopt);
 
     virtual ~Buffer() = default;
 
@@ -172,6 +178,7 @@ namespace ifm3d
     std::uint32_t width() const;
     std::uint32_t nchannels() const;
     ifm3d::pixel_format dataFormat() const;
+    ifm3d::json metadata() const;
 
     /**
      * @brief Return the size of the buffer in bytes
@@ -321,7 +328,9 @@ namespace ifm3d
 
     /* Similar to Buffer(cols,rows,ifm3d::formatType<Tp>::nchannel,
      * ifm3d::formatType<Tp>::format ) */
-    Buffer_(const std::uint32_t cols, const std::uint32_t rows);
+    Buffer_(const std::uint32_t cols,
+            const std::uint32_t rows,
+            std::optional<ifm3d::json> metadata = std::nullopt);
 
     ~Buffer_() = default;
 
@@ -349,6 +358,7 @@ namespace ifm3d
     std::uint32_t width() const;
     std::uint32_t nchannels() const;
     ifm3d::pixel_format dataFormat() const;
+    ifm3d::json metadata() const;
 
     /** @brief returns a pointer to the specified Buffer row.
         @param row number
