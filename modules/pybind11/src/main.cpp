@@ -209,7 +209,7 @@ PYBIND11_MODULE(ifm3dpy, m)
     "logging",
     R"(Provides access for configuring the logging facilities of ifm3d.)");
   bind_logging(logging_module);
-
+  bind_numpy(m);
   auto device_module = m.def_submodule(
     "device",
     R"(Provides an implementation of the XMLRPC protocol for configuring the camera and pmd imager settings.)");
@@ -224,7 +224,7 @@ PYBIND11_MODULE(ifm3dpy, m)
   auto framegrabber_module = m.def_submodule(
     "framegrabber",
     R"(Provides an implementation of the PCIC protocol for streaming pixel data and triggered image acquisition.)");
-  bind_frame(framegrabber_module);
+  bind_frame(framegrabber_module, m);
   bind_future<ifm3d::Frame::Ptr>(
     m,
     "FrameAwaitable",

@@ -48,6 +48,7 @@ const int IFM3D_SYSTEM_ERROR = -100034;
 const int IFM3D_CORRUPTED_STRUCT = -100035;
 const int IFM3D_DEVICE_PORT_INCOMPATIBLE_WITH_ORGANIZER = -100036;
 const int IFM3D_DEVICE_PORT_NOT_SUPPORTED = -100037;
+const int IFM3D_INDEX_OUT_OF_RANGE = -100038;
 // sensor errors
 const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
 const int IFM3D_INVALID_PARAM = 101000;
@@ -162,6 +163,8 @@ ifm3d::strerror(int errnum)
              "organizers";
     case IFM3D_DEVICE_PORT_NOT_SUPPORTED:
       return "Lib: Port is not supported by the device";
+    case IFM3D_INDEX_OUT_OF_RANGE:
+      return "Lib:  index is out of range";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
       return "Sensor: XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:

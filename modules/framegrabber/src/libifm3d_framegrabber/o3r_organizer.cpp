@@ -15,10 +15,9 @@ ifm3d::O3ROrganizer::Organize(const std::vector<uint8_t>& data,
                               const std::set<buffer_id>& requested_images,
                               const bool masking)
 {
-  std::map<buffer_id, Buffer> images;
+  std::map<buffer_id, BufferList> images;
 
   auto chunks = get_image_chunks(data, IMG_BUFF_START);
-
   auto metachunk = find_metadata_chunk(chunks);
 
   // if we do not have a meta chunk we cannot go further
@@ -29,13 +28,13 @@ ifm3d::O3ROrganizer::Organize(const std::vector<uint8_t>& data,
     }
 
   // get the image dimensions
-  auto [width, height] = get_image_size(data, metachunk->second);
+  auto [width, height] = get_image_size(data, *(metachunk->second.begin()));
   std::uint32_t npts = width * height;
 
-  auto timestamps = get_chunk_timestamps(data, metachunk->second);
-  auto frame_count = get_chunk_frame_count(data, metachunk->second);
+  auto timestamps = get_chunk_timestamps(data, *(metachunk->second.begin()));
+  auto frame_count = get_chunk_frame_count(data, *(metachunk->second.begin()));
 
-  std::map<buffer_id, Buffer> data_blob, data_image;
+  std::map<buffer_id, BufferList> data_blob, data_image;
   ifm3d::parse_data(data,
                     requested_images,
                     chunks,

@@ -15,7 +15,7 @@ ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
                                 const std::set<buffer_id>& requested_images,
                                 const bool masking)
 {
-  std::map<buffer_id, Buffer> images;
+  std::map<buffer_id, BufferList> images;
 
   auto chunks = get_image_chunks(data, IMG_BUFF_START);
 
@@ -29,11 +29,11 @@ ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
     }
 
   // get the image dimensions
-  auto [width, height] = get_image_size(data, metachunk->second);
+  auto [width, height] = get_image_size(data, *(metachunk->second.begin()));
   std::uint32_t npts = width * height;
 
-  auto timestamps = get_chunk_timestamps(data, metachunk->second);
-  auto frame_count = get_chunk_frame_count(data, metachunk->second);
+  auto timestamps = get_chunk_timestamps(data, *(metachunk->second.begin()));
+  auto frame_count = get_chunk_frame_count(data, *(metachunk->second.begin()));
 
   // for an O3R device, a distance_image_info object will be created
   // for others a nullptr is returned
@@ -42,19 +42,19 @@ ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
       chunks.find(image_chunk::RADIAL_DISTANCE_IMAGE) != chunks.end() &&
       chunks.find(image_chunk::NORM_AMPLITUDE_IMAGE) != chunks.end())
     {
-      distance_image_info =
-        CreateDistanceImageInfo(data,
-                                chunks.at(image_chunk::TOF_INFO),
-                                chunks.at(image_chunk::RADIAL_DISTANCE_IMAGE),
-                                chunks.at(image_chunk::NORM_AMPLITUDE_IMAGE),
-                                width,
-                                height);
+      distance_image_info = CreateDistanceImageInfo(
+        data,
+        *(chunks.at(image_chunk::TOF_INFO).begin()),
+        *(chunks.at(image_chunk::RADIAL_DISTANCE_IMAGE).begin()),
+        *(chunks.at(image_chunk::NORM_AMPLITUDE_IMAGE).begin()),
+        width,
+        height);
 
       chunks.erase(image_chunk::NORM_AMPLITUDE_IMAGE);
       chunks.erase(image_chunk::RADIAL_DISTANCE_IMAGE);
     }
 
-  std::map<buffer_id, Buffer> data_blob, data_image;
+  std::map<buffer_id, BufferList> data_blob, data_image;
   ifm3d::parse_data(data,
                     requested_images,
                     chunks,
@@ -71,7 +71,8 @@ ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
     {
       if (images.find(buffer_id::CONFIDENCE_IMAGE) != images.end())
         {
-          mask = create_pixel_mask(images[ifm3d::buffer_id::CONFIDENCE_IMAGE]);
+          mask =
+            create_pixel_mask(images[ifm3d::buffer_id::CONFIDENCE_IMAGE][0]);
           mask_images(data_image,
                       mask.value(),
                       std::bind(&ifm3d::O3ROrganizer3D::ShouldMask,
@@ -83,17 +84,20 @@ ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
   if (distance_image_info != nullptr)
     {
       auto extracted = ExtractDistanceImageInfo(distance_image_info, mask);
-      images.insert(extracted.begin(), extracted.end());
+      for (auto& itr : extracted)
+        {
+          images.insert({itr.first, {itr.second}});
+        }
 
       if (images.find(ifm3d::buffer_id::RADIAL_DISTANCE_NOISE) != images.end())
         {
           auto dist_noise_buffer =
             distance_image_info->applyDistanceResolution(
               images[static_cast<buffer_id>(
-                ifm3d::image_chunk::RADIAL_DISTANCE_NOISE)]);
+                ifm3d::image_chunk::RADIAL_DISTANCE_NOISE)][0]);
 
           images[static_cast<buffer_id>(
-            ifm3d::buffer_id::RADIAL_DISTANCE_NOISE)] = dist_noise_buffer;
+            ifm3d::buffer_id::RADIAL_DISTANCE_NOISE)] = {dist_noise_buffer};
         }
     }
   else if (requested_images.empty() ||
@@ -106,17 +110,17 @@ ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
 
       if (x != chunks.end() && y != chunks.end() && z != chunks.end())
         {
-          auto fmt = get_chunk_format(data, x->second);
+          auto fmt = get_chunk_format(data, *(x->second.begin()));
           auto xyz = create_xyz_buffer(data,
-                                       x->second,
-                                       y->second,
-                                       z->second,
+                                       *(x->second.begin()),
+                                       *(y->second.begin()),
+                                       *(z->second.begin()),
                                        width,
                                        height,
                                        fmt,
                                        mask);
 
-          images[static_cast<buffer_id>(buffer_id::XYZ)] = xyz;
+          images[static_cast<buffer_id>(buffer_id::XYZ)] = {xyz};
         }
     }
 

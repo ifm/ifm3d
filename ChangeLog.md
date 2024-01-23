@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Parsing of V3 chunks
+- Ability to access V3 chunk metadata (see Frame::Metadata)
+- Ability to access multiple chunks with the same id in a frame (see Frame::GetBuffer and Frame::GetBufferCount)
+- O3R_RESULT_JSON and O3R_RESULT_ARRAY2D chunk ids
 
 ### Changes
 - Use .deb files in Dockerfile instead of building from sources
