@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Python 3.12 builds
 - Parsing of V3 chunks
 - Ability to access V3 chunk metadata (see Frame::Metadata)
 - Ability to access multiple chunks with the same id in a frame (see Frame::GetBuffer and Frame::GetBufferCount)
