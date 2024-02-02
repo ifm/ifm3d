@@ -12,7 +12,7 @@
 ifm3d::DiscoverApp::DiscoverApp(int argc,
                                 const char** argv,
                                 const std::string& name)
-  : ifm3d::CmdLineApp(argc, argv, name)
+  : ifm3d::CmdLineApp(argc, argv, name, false)
 {}
 
 int
