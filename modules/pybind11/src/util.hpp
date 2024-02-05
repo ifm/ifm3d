@@ -35,7 +35,7 @@ bind_numpy(pybind11::module_& m)
   wrapper_class.attr("__new__") = py::cpp_function(
     [parent_class, view_class](py::object self,
                                const py::array& data,
-                               const py::dict& metadata,
+                               const std::optional<py::dict>& metadata,
                                py::args args,
                                py::kwargs kwargs
 

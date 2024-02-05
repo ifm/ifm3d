@@ -86,7 +86,7 @@ bind_frame(pybind11::module_& m, pybind11::module_& ifm3dpy)
        auto ifm3d_buffer = frame->GetBuffer(id, index);
        py::object json_loads = py::module::import("json").attr("loads");
        py::gil_scoped_acquire acquire;
-       return instance(ifm3d::image_to_array(ifm3d_buffer),json_loads(ifm3d_buffer.metadata().dump()));
+       return instance(ifm3d::image_to_array(ifm3d_buffer), json_loads(ifm3d_buffer.metadata().dump()));
     },
     py::arg("id"),
     py::arg("index") = 0,
