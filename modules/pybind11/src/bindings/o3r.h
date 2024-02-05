@@ -169,8 +169,9 @@ bind_o3r(pybind11::module_& m)
     py::arg("json_pointer"),
     R"(
       Sets the default value of an object inside the JSON. The object is
-      addressed by a JSON Pointer. The object is resetted to the values
-      defined in the JSON schema.
+      addressed by a JSON Pointer. The object is reset to the values
+      defined in the JSON schema. Note that this does not reset the init
+      configuration, nor the parameters marked as "sticky".
 
       Parameters
       ----------
