@@ -1,3 +1,4 @@
+
 #include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/common/logging/log.h>
 #include <ifm3d/device/err.h>
@@ -12,6 +13,7 @@ constexpr auto CHUNK_OFFSET_TIME_STAMP = 0x001C;
 constexpr auto CHUNK_OFFSET_FRAME_COUNT = 0x0020;
 constexpr auto CHUNK_OFFSET_TIME_STAMP_SEC = 0x0028;
 constexpr auto CHUNK_OFFSET_TIME_STAMP_NSEC = 0x002C;
+constexpr auto CHUNK_OFFSET_META_DATA = 0x0030;
 
 std::size_t
 ifm3d::get_format_size(ifm3d::pixel_format fmt)
@@ -76,12 +78,13 @@ ifm3d::create_1d_buffer(const std::vector<std::uint8_t>& data, std::size_t idx)
 {
   std::size_t pixeldata_offset = ifm3d::get_chunk_pixeldata_offset(data, idx);
   auto size = ifm3d::get_chunk_pixeldata_size(data, idx);
-
+  auto metadata = create_metadata(data, idx);
   return create_buffer(data,
                        idx + pixeldata_offset,
                        size,
                        1,
-                       pixel_format::FORMAT_8U);
+                       pixel_format::FORMAT_8U,
+                       metadata);
 }
 
 ifm3d::Buffer
@@ -92,11 +95,13 @@ ifm3d::create_buffer(const std::vector<std::uint8_t>& data,
 {
   auto fmt = get_chunk_format(data, idx);
   std::size_t pixeldata_offset = get_chunk_pixeldata_offset(data, idx);
+  auto metadata = create_metadata(data, idx);
   return ifm3d::create_buffer(data,
                               idx + pixeldata_offset,
                               width,
                               height,
-                              fmt);
+                              fmt,
+                              metadata);
 }
 
 ifm3d::Buffer
@@ -104,12 +109,12 @@ ifm3d::create_buffer(const std::vector<std::uint8_t>& data,
                      std::size_t idx,
                      std::size_t width,
                      std::size_t height,
-                     pixel_format fmt)
+                     pixel_format fmt,
+                     std::optional<json> metadata)
 {
   uint32_t nchan = get_format_channels(fmt);
   std::size_t fsize = get_format_size(fmt);
-
-  ifm3d::Buffer image(width, height, nchan, fmt);
+  ifm3d::Buffer image(width, height, nchan, fmt, metadata);
 
   std::size_t incr = fsize * nchan;
   std::size_t npts = width * height;
@@ -288,12 +293,12 @@ ifm3d::create_xyz_buffer(const std::vector<std::uint8_t>& data,
     }
 }
 
-std::map<ifm3d::image_chunk, std::size_t>
+std::map<ifm3d::image_chunk, std::set<std::size_t>>
 ifm3d::get_image_chunks(const std::vector<std::uint8_t>& data,
                         std::size_t start_idx,
                         std::optional<size_t> end_idx)
 {
-  std::map<image_chunk, std::size_t> chunks;
+  std::map<image_chunk, std::set<std::size_t>> chunks;
 
   std::size_t idx = start_idx; // start of first chunk
   std::size_t size = (end_idx.has_value() ? end_idx.value() : data.size()) - 6;
@@ -302,8 +307,8 @@ ifm3d::get_image_chunks(const std::vector<std::uint8_t>& data,
     {
       image_chunk chunk =
         static_cast<image_chunk>(mkval<std::uint32_t>(data.data() + idx));
-
-      chunks[chunk] = idx;
+      std::cout << static_cast<int>(chunk) << "," << idx << " " << std::endl;
+      chunks[chunk].insert(idx);
 
       // move to the beginning of the next chunk
       std::uint32_t incr = mkval<std::uint32_t>(data.data() + idx + 4);
@@ -322,7 +327,7 @@ ifm3d::get_image_chunks(const std::vector<std::uint8_t>& data,
 
 auto
 ifm3d::find_metadata_chunk(
-  const std::map<ifm3d::image_chunk, std::size_t>& chunks)
+  const std::map<image_chunk, std::set<std::size_t>>& chunks)
   -> decltype(chunks.end())
 {
   // to get the metadata we use the confidence image for 3d and
@@ -375,6 +380,13 @@ ifm3d::get_chunk_frame_count(const std::vector<std::uint8_t>& data,
                              std::size_t idx)
 {
   return mkval<std::uint32_t>(data.data() + idx + CHUNK_OFFSET_FRAME_COUNT);
+}
+
+std::size_t
+ifm3d::get_chunk_header_version(const std::vector<std::uint8_t>& data,
+                                std::size_t idx)
+{
+  return mkval<std::uint32_t>(data.data() + idx + CHUNK_OFFSET_HEADER_VERSION);
 }
 
 std::vector<ifm3d::TimePointT>
@@ -539,13 +551,14 @@ ifm3d::create_pixel_mask(ifm3d::Buffer& confidence)
 }
 
 void
-ifm3d::parse_data(const std::vector<uint8_t>& data,
-                  const std::set<ifm3d::buffer_id>& requested_images,
-                  const std::map<ifm3d::image_chunk, std::size_t>& chunks,
-                  const size_t width,
-                  const size_t height,
-                  std::map<buffer_id, Buffer>& data_blob,
-                  std::map<buffer_id, Buffer>& data_image)
+ifm3d::parse_data(
+  const std::vector<uint8_t>& data,
+  const std::set<ifm3d::buffer_id>& requested_images,
+  const std::map<ifm3d::image_chunk, std::set<std::size_t>>& chunks,
+  const size_t width,
+  const size_t height,
+  std::map<buffer_id, BufferList>& data_blob,
+  std::map<buffer_id, BufferList>& data_image)
 {
 
   for (const auto& chunk : chunks)
@@ -554,30 +567,60 @@ ifm3d::parse_data(const std::vector<uint8_t>& data,
           requested_images.find(static_cast<buffer_id>(chunk.first)) !=
             requested_images.end())
         {
-          if (is_probably_blob(data, chunk.second, width, height))
+          for (auto& index : chunk.second)
             {
-              auto buffer = create_1d_buffer(data, chunk.second);
-              data_blob[static_cast<buffer_id>(chunk.first)] = buffer;
-            }
-          else
-            {
-              auto image = create_buffer(data, chunk.second, width, height);
-              data_image[static_cast<buffer_id>(chunk.first)] = image;
+              if (is_probably_blob(data, index, width, height))
+                {
+                  auto buffer = create_1d_buffer(data, index);
+                  data_blob[static_cast<buffer_id>(chunk.first)].push_back(
+                    buffer);
+                }
+              else
+                {
+                  auto image = create_buffer(data, index, width, height);
+                  data_image[static_cast<buffer_id>(chunk.first)].push_back(
+                    image);
+                }
             }
         }
     }
 }
 
 void
-ifm3d::mask_images(std::map<ifm3d::buffer_id, ifm3d::Buffer>& images,
+ifm3d::mask_images(std::map<ifm3d::buffer_id, ifm3d::BufferList>& images,
                    ifm3d::Buffer& mask,
                    std::function<bool(ifm3d::buffer_id id)> should_mask)
 {
-  for (auto& [buffer_id_value, buffer] : images)
+  for (auto& [buffer_id_value, buffers] : images)
     {
       if (should_mask(buffer_id_value))
         {
-          mask_buffer(buffer, mask);
+          for (auto& buffer : buffers)
+            {
+              mask_buffer(buffer, mask);
+            }
         }
     }
+}
+
+bool
+ifm3d::has_metadata(const std::vector<std::uint8_t>& data, std::size_t idx)
+{
+  auto version = get_chunk_header_version(data, idx);
+  return version >= 3;
+}
+
+ifm3d::json
+ifm3d::create_metadata(const std::vector<std::uint8_t>& data, std::size_t idx)
+{
+  if (has_metadata(data, idx))
+    {
+      std::string metadata(
+        std::string((char*)(data.data() + idx + CHUNK_OFFSET_META_DATA),
+                    get_chunk_pixeldata_offset(data, idx) -
+                      CHUNK_OFFSET_META_DATA)
+          .c_str());
+      return ifm3d::json::parse(metadata);
+    }
+  return {};
 }

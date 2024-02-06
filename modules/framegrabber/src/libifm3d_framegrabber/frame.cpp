@@ -6,7 +6,7 @@
 #include <ifm3d/fg/frame.h>
 #include <frame_impl.hpp>
 
-ifm3d::Frame::Frame(const std::map<buffer_id, Buffer>& images,
+ifm3d::Frame::Frame(const BufferDataListMap& images,
                     const std::vector<TimePointT> timestamps,
                     uint64_t frame_count)
   : pImpl(std::make_unique<Impl>(images, timestamps, frame_count))
@@ -47,9 +47,15 @@ ifm3d::Frame::HasBuffer(buffer_id id)
 }
 
 ifm3d::Buffer&
-ifm3d::Frame::GetBuffer(buffer_id key)
+ifm3d::Frame::GetBuffer(buffer_id key, std::optional<size_t> index)
 {
-  return pImpl->GetBuffer(key);
+  return pImpl->GetBuffer(key, index);
+}
+
+size_t
+ifm3d::Frame::GetBufferCount(buffer_id id)
+{
+  return pImpl->GetBufferCount(id);
 }
 
 std::vector<ifm3d::buffer_id>
@@ -58,26 +64,27 @@ ifm3d::Frame::GetBuffers()
   return pImpl->GetBuffers();
 };
 
-decltype(std::declval<std::map<ifm3d::buffer_id, ifm3d::Buffer>>().begin())
+decltype(std::declval<std::map<ifm3d::buffer_id, ifm3d::BufferList>>().begin())
 ifm3d::Frame::begin() noexcept
 {
   return pImpl->begin();
 }
 
 decltype(
-  std::declval<const std::map<ifm3d::buffer_id, ifm3d::Buffer>>().begin())
+  std::declval<const std::map<ifm3d::buffer_id, ifm3d::BufferList>>().begin())
 ifm3d::Frame::begin() const noexcept
 {
   return pImpl->begin();
 }
 
-decltype(std::declval<std::map<ifm3d::buffer_id, ifm3d::Buffer>>().end())
+decltype(std::declval<std::map<ifm3d::buffer_id, ifm3d::BufferList>>().end())
 ifm3d::Frame::end() noexcept
 {
   return pImpl->end();
 }
 
-decltype(std::declval<const std::map<ifm3d::buffer_id, ifm3d::Buffer>>().end())
+decltype(
+  std::declval<const std::map<ifm3d::buffer_id, ifm3d::BufferList>>().end())
 ifm3d::Frame::end() const noexcept
 {
   return pImpl->end();

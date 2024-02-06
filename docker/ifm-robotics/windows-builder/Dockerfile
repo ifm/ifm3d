@@ -4,7 +4,7 @@
 ARG BASE_IMAGE=mcr.microsoft.com/windows:ltsc2019
 
 # List of python versions to install, separated by ';'
-ARG PYTHON_VERSIONS=3.8.10;3.9.13;3.10.11;3.11.3
+ARG PYTHON_VERSIONS=3.8.10;3.9.13;3.10.13;3.11.7;3.12.1
 
 FROM ${BASE_IMAGE}
 ARG PYTHON_VERSIONS
@@ -57,7 +57,7 @@ RUN `
 
 # Download NSIS
 RUN `
-    curl -SL --output nsis.zip http://downloads.sourceforge.net/project/nsis/NSIS%203/3.08/nsis-3.08.zip `
+    curl -SL --output nsis.zip https://downloads.sourceforge.net/project/nsis/NSIS%203/3.08/nsis-3.08.zip `
     && mkdir C:\nsis `
     && tar -xf nsis.zip --strip-components 1 -C C:\nsis\ `
     && del nsis.zip

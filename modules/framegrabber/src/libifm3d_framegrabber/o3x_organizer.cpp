@@ -15,7 +15,7 @@ ifm3d::O3XOrganizer::Organize(const std::vector<uint8_t>& data,
                               const std::set<buffer_id>& requested_images,
                               const bool masking)
 {
-  std::map<buffer_id, Buffer> images;
+  std::map<buffer_id, BufferList> images;
 
   auto chunks = get_image_chunks(data, IMG_BUFF_START);
 
@@ -29,28 +29,28 @@ ifm3d::O3XOrganizer::Organize(const std::vector<uint8_t>& data,
     }
 
   // get the image dimensions
-  auto [width, height] = get_image_size(data, metachunk->second);
+  auto [width, height] = get_image_size(data, *(metachunk->second.begin()));
   std::uint32_t npts = width * height;
 
-  auto timestamps = get_chunk_timestamps(data, metachunk->second);
-  auto frame_count = get_chunk_frame_count(data, metachunk->second);
+  auto timestamps = get_chunk_timestamps(data, *(metachunk->second.begin()));
+  auto frame_count = get_chunk_frame_count(data, *(metachunk->second.begin()));
 
   if (chunks.find(image_chunk::CARTESIAN_ALL) != chunks.end())
     {
-      size_t cart_all_idx = chunks[image_chunk::CARTESIAN_ALL];
+      size_t cart_all_idx = *(chunks[image_chunk::CARTESIAN_ALL].begin());
       size_t x_idx =
         cart_all_idx + get_chunk_pixeldata_offset(data, cart_all_idx);
 
       size_t y_idx = x_idx + get_chunk_size(data, x_idx);
       size_t z_idx = y_idx + get_chunk_size(data, y_idx);
 
-      chunks[image_chunk::CARTESIAN_X_COMPONENT] = x_idx;
-      chunks[image_chunk::CARTESIAN_Y_COMPONENT] = y_idx;
-      chunks[image_chunk::CARTESIAN_Z_COMPONENT] = z_idx;
+      chunks[image_chunk::CARTESIAN_X_COMPONENT] = {x_idx};
+      chunks[image_chunk::CARTESIAN_Y_COMPONENT] = {y_idx};
+      chunks[image_chunk::CARTESIAN_Z_COMPONENT] = {z_idx};
       chunks.erase(image_chunk::CARTESIAN_ALL);
     }
 
-  std::map<buffer_id, Buffer> data_blob, data_image;
+  std::map<buffer_id, BufferList> data_blob, data_image;
   ifm3d::parse_data(data,
                     requested_images,
                     chunks,
@@ -65,7 +65,8 @@ ifm3d::O3XOrganizer::Organize(const std::vector<uint8_t>& data,
     {
       if (images.find(buffer_id::CONFIDENCE_IMAGE) != images.end())
         {
-          mask = create_pixel_mask(images[ifm3d::buffer_id::CONFIDENCE_IMAGE]);
+          mask =
+            create_pixel_mask(images[ifm3d::buffer_id::CONFIDENCE_IMAGE][0]);
           mask_images(data_image,
                       mask.value(),
                       std::bind(&ifm3d::O3XOrganizer::ShouldMask,
@@ -87,17 +88,20 @@ ifm3d::O3XOrganizer::Organize(const std::vector<uint8_t>& data,
 
       if (x != chunks.end() && y != chunks.end() && z != chunks.end())
         {
-          auto fmt = get_chunk_format(data, x->second);
+          auto fmt = get_chunk_format(data, *(x->second.begin()));
           auto xyz = create_xyz_buffer(
             data,
-            x->second + get_chunk_pixeldata_offset(data, x->second),
-            y->second + get_chunk_pixeldata_offset(data, y->second),
-            z->second + get_chunk_pixeldata_offset(data, z->second),
+            *(x->second.begin()) +
+              get_chunk_pixeldata_offset(data, *(x->second.begin())),
+            *(y->second.begin()) +
+              get_chunk_pixeldata_offset(data, *(y->second.begin())),
+            *(z->second.begin()) +
+              get_chunk_pixeldata_offset(data, *(z->second.begin())),
             width,
             height,
             fmt,
             mask);
-          images[static_cast<buffer_id>(buffer_id::XYZ)] = xyz;
+          images[static_cast<buffer_id>(buffer_id::XYZ)] = {xyz};
         }
     }
 

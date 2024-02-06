@@ -10,7 +10,10 @@
 
 namespace ifm3d
 {
-  static const int NET_WAIT_O3R_SET = 10000;
+  static const int NET_WAIT_O3R_SET =
+    std::getenv("IFM3D_NET_WAIT_O3R_SET") == nullptr ?
+      15000 :
+      std::stoi(std::getenv("IFM3D_NET_WAIT_O3R_SET"));
 
   /** @ingroup Device */
   struct IFM3D_DEVICE_EXPORT PortInfo
@@ -97,9 +100,9 @@ namespace ifm3d
 
     /**
      * Sets the default value of an object inside the JSON. The object is
-     * addressed by a JSON Pointer. The object is resetted to the values
+     * addressed by a JSON Pointer. The object is reset to the values
      * defined in the JSON schema. Note that this does not reset the init
-     * configuration.
+     * configuration, nor the parameters marked as "sticky".
      *
      * @param[in] jsonPointer A JSON Pointer to the object to be set to
      * default.
