@@ -30,11 +30,9 @@ into `ifm3d config` in discrete steps. Again, the remainder of this document
 will assume `jq` is available. (To install `jq` on Ubuntu:
 `sudo apt-get install jq`).
 
-### Dump
+### `Dump`
 
-
-Serializing the current state of the camera is accomplished through the `ifm3d
-dump` command. Exemplary output is shown below:
+Serializing the current state of the camera is accomplished through the `ifm3d dump` command. Exemplary output is shown below:
 
 :::::{tabs}
 ::::{group-tab} O3D example
@@ -380,7 +378,7 @@ It follows that the entire JSON serialized configuration may be further
 processed either programmatically or manually via a text editor.
 
 
-### Config
+### `Config`
 
 #### Setting single parameters with `ifm3d config`
 Mutating parameters on the camera is done by creating a *desired* camera state
