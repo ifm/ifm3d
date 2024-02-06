@@ -24,6 +24,16 @@ tagged [release version](https://github.com/ifm/ifm3d/releases) for production.
 
 For a full compatibility matrix between the ifm3d library, the O3R firmware and the Vision Assistant GUI, please refer to [the compatibility matrix on ifm3d.com](https://ifm3d.com/latest/CompatibilityMatrix/compatibility_matrix.html).
 
+## Supported languages
+
+ifm3d is a C++ based library, with a Python wrapper mirroring the available features. We support the following versions of these two languages:
+
+| Name      | Versions              |
+| --------- | --------------------- |
+| Python    | 3.8, 3.9, 3.10, 3.11  |
+| C++       | GCC 7.5+, MSVC 2019+  |
+
+
 ## Organization of the Software
 
 The ifm3d software is organized into modules, they are:

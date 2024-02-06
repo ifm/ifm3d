@@ -10,6 +10,7 @@ ARG RUN_TESTS
 
 # This stage used as a base for building and the final image
 FROM ${BASE_IMAGE} AS base
+ARG BASE_IMAGE
 
 # install python
 RUN apt-get update \
@@ -35,78 +36,9 @@ RUN python3 -m venv /home/ifm/venv \
         setuptools \
         wheel
 
-
-# This stage is used for building ifm3d
-FROM base AS build
-ARG CMAKE_VERSION
-
-# Install build-time dependencies
-RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        build-essential \
-        cmake \
-        coreutils \
-        findutils \
-        git \
-        libboost-all-dev \
-        libcurl4-openssl-dev \
-        libgtest-dev \
-        libopencv-dev \
-        libpcl-dev \
-        libproj-dev \
-        libxmlrpc-c++8-dev \
-        locales \
-        ninja-build \
-        wget \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install cmake 
-RUN wget -O - "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-$(uname -i).tar.gz" \
-    | tar -xz --strip-components=1 -C /usr
-
-# build pybind11 with cmake - but first clone from the official github repo
-RUN git clone --branch v2.8.0 https://github.com/pybind/pybind11.git /pybind  \
-    && mkdir -p /pybind/build \
-    && cd /pybind/build \
-    && cmake -GNinja \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DPYBIND11_TEST=OFF \
-        -DCMAKE_INSTALL_PREFIX=/app \
-        -DPYTHON_EXECUTABLE=/home/ifm/venv/bin/python3 \
-        .. \
-    && cmake --build . \
-    && cmake --build . --target install
-
-# if you are running unit tests against a camera at
-# a different IP, set that here.
-ENV IFM3D_IP 192.168.0.69
-
-# Copy the code
-COPY . /ifm3d
-
-# Run the build
-RUN mkdir -p /ifm3d/build \
-    && cd /ifm3d/build \
-    && cmake -GNinja \ 
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX=/app \
-        -DBUILD_MODULE_DESERIALIZE=ON \
-        -DBUILD_MODULE_OPENCV=ON \
-        -DBUILD_MODULE_PCICCLIENT=ON \
-        -DBUILD_MODULE_PYBIND11=ON \
-        -DPYTHON_EXECUTABLE=/usr/bin/python3 \
-        .. \
-    && cmake --build . \
-    && if [ "x$RUN_TESTS" = "x" ]; then echo "Skipping tests..."; else ninja check; fi \
-    && cmake --build . --target install \
-    && cp /ifm3d/build/modules/pybind11/src/ifm3dpy.*.so /home/ifm/venv/lib/python*/site-packages/
-
 # Create the final image based on the base stage
 FROM base
-
-# Copy the build output
-COPY --from=build /app /usr
-COPY --from=build --chown=ifm:ifm /home/ifm/venv/ /home/ifm/venv/
+ARG BASE_IMAGE
 
 # Install runtime requirements
 RUN apt-get update \
@@ -116,6 +48,19 @@ RUN apt-get update \
         locales \
         sudo \
     && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir /home/ifm/tmp
+
+COPY ./ifm3d*.tar /home/ifm/tmp/
+
+RUN BASE_IMAGE_NAME=$(echo "${BASE_IMAGE}" | grep -o '[^/]*$' | cut -d":" -f1) \
+    && BASE_IMAGE_VERSION=$(echo "${BASE_IMAGE}" | grep -o '[^/]*$' | cut -d":" -f2) \
+    && ARCH=$(dpkg --print-architecture) \
+    && tarname=ifm3d-$BASE_IMAGE_NAME-$BASE_IMAGE_VERSION-$ARCH-debs \
+    && tarfile=$(find /home/ifm/tmp -type f -name "${tarname}*" -print -quit) \
+    && tar -xv -C /home/ifm/tmp -f "$tarfile" \
+    && dpkg -i /home/ifm/tmp/*.deb \
+    && rm -rf /home/ifm/tmp
 
 # Setup localisation
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \

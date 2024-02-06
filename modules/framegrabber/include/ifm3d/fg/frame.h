@@ -149,34 +149,54 @@ namespace ifm3d
     */
     ALGO_DEBUG = static_cast<uint64_t>(ifm3d::image_chunk::ALGO_DEBUG), 
     
-    /** @hideinitializer 
+    /** @hideinitializer
      * @brief ifm3d::ODSOccupancyGridV1
     */
     O3R_ODS_OCCUPANCY_GRID = static_cast<uint64_t>(ifm3d::image_chunk::O3R_ODS_OCCUPANCY_GRID), 
     
-    /** @hideinitializer 
+    /** @hideinitializer
      * @brief ifm3d::ODSInfoV1
     */
     O3R_ODS_INFO = static_cast<uint64_t>(ifm3d::image_chunk::O3R_ODS_INFO), 
     
+    /** @hideinitializer
+     * @brief ifm3d::O3R_RESULT_JSON
+    */
+    O3R_RESULT_JSON = static_cast<uint64_t>(ifm3d::image_chunk::O3R_RESULT_JSON),
+
+    /** @hideinitializer 
+     * @brief ifm3d::O3R_RESULT_ARRAY2D
+    */
+    O3R_RESULT_ARRAY2D = static_cast<uint64_t>(ifm3d::image_chunk::O3R_RESULT_ARRAY2D),
+
+
     /** @hideinitializer 
      * @brief The point cloud encoded as a 3 channel XYZ image
     */
-    XYZ = std::numeric_limits<std::uint32_t>::max(),  
+    XYZ = std::numeric_limits<std::uint32_t>::max(),
     
     /** @hideinitializer 
      * @brief \c
      */
-    EXPOSURE_TIME,  
+    EXPOSURE_TIME,
     
     /** @hideinitializer 
      * @brief \c
     */
     ILLUMINATION_TEMP,
+
+    O3R_ODS_FLAGS,
+    O3R_MCC_LIVE_IMAGE,
+    O3R_MCC_MOTION_IMAGE,
+    O3R_MCC_STATIC_IMAGE,
+
     // clang-format on
   };
   using TimePointT = std::chrono::time_point<std::chrono::system_clock,
                                              std::chrono::nanoseconds>;
+
+  using BufferList = std::vector<Buffer>;
+  using BufferDataListMap = std::map<ifm3d::buffer_id, BufferList>;
 
   /** @ingroup FrameGrabber
    *
@@ -187,7 +207,7 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<Frame>;
 
-    Frame(const std::map<buffer_id, Buffer>& images,
+    Frame(const BufferDataListMap& images,
           const std::vector<TimePointT> timestamps,
           uint64_t frame_count);
     ~Frame();
@@ -218,10 +238,17 @@ namespace ifm3d
      * @brief Get the image with the given id
      *
      * @param id the id of the image to get
+     * @param index of the image
      * @return Image& Reference to the requested buffer
      * @throw std::out_of_range if no image with the give id exists
      */
-    Buffer& GetBuffer(buffer_id id);
+    Buffer& GetBuffer(buffer_id id,
+                      std::optional<size_t> index = std::nullopt);
+
+    /**
+     * @brief Get the total number of image with the given id
+     */
+    size_t GetBufferCount(buffer_id id);
 
     /**
      * @brief Get the frame count according to algorithm output
@@ -236,12 +263,13 @@ namespace ifm3d
      */
     std::vector<buffer_id> GetBuffers();
 
-    decltype(std::declval<std::map<buffer_id, Buffer>>().begin())
+    decltype(std::declval<std::map<buffer_id, BufferList>>().begin())
     begin() noexcept;
-    decltype(std::declval<const std::map<buffer_id, Buffer>>().begin()) begin()
-      const noexcept;
-    decltype(std::declval<std::map<buffer_id, Buffer>>().end()) end() noexcept;
-    decltype(std::declval<const std::map<buffer_id, Buffer>>().end()) end()
+    decltype(std::declval<const std::map<buffer_id, BufferList>>().begin())
+    begin() const noexcept;
+    decltype(std::declval<std::map<buffer_id, BufferList>>().end())
+    end() noexcept;
+    decltype(std::declval<const std::map<buffer_id, BufferList>>().end()) end()
       const noexcept;
 
   private:

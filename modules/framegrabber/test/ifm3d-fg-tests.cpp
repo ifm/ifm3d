@@ -577,3 +577,46 @@ TEST_F(FrameGrabberTest, digonistic_data_grabber)
   LOG_INFO("digonistic_data_grabber test");
   EXPECT_NO_THROW(std::make_shared<ifm3d::FrameGrabber>(dev_, 50009));
 }
+
+TEST_F(FrameGrabberTest, metadata)
+{
+  LOG_INFO("PDS_CHUNKS test");
+  using namespace ifm3d::literals;
+
+  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
+
+  // setup device for PDS application
+  ifm3d::json json_command_extrinsic =
+    "{ \"ports\":{\"port2\":{\"processing\":{\"extrinsicHeadToUser\":{\"rotX\":1.57,\"rotY\" : -1.57,\"rotZ\" : 0,\"transX\" : 0,\"transY\" : 0,\"transZ\" : 0}}}} }"_json;
+
+  o3r->Set(json_command_extrinsic);
+
+  ifm3d::json json_command_testMethod =
+    "{\"applications\":{\"instances\":{\"app0\":{\"class\":\"pds\", \"ports\" : [\"port2\"] , \"state\" : \"IDLE\", \"configuration\" : {\"parameter\":{\"testMode\":1}}}}}}"_json;
+  o3r->Set(json_command_testMethod);
+
+  const auto FG_PCIC_PORT =
+    o3r->Get()["/applications/instances/app0/data/pcicTCPPort"_json_pointer];
+
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(o3r, FG_PCIC_PORT);
+
+  // Set Schema and start the grabber
+  fg->Start(
+    {ifm3d::buffer_id::O3R_RESULT_JSON, ifm3d::buffer_id::O3R_RESULT_ARRAY2D});
+
+  ifm3d::json json_command =
+    "{ \"applications\":{\"instances\":{\"app0\":{\"configuration\":{\"customization\":{\"command\":\"getPallet\"}}}}} }"_json;
+
+  o3r->Set(json_command);
+
+  auto frame = fg->WaitForFrame().get();
+
+  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::O3R_RESULT_JSON));
+
+  auto buffer = frame->GetBuffer(
+    static_cast<ifm3d::buffer_id>(ifm3d::buffer_id::O3R_RESULT_JSON));
+
+  EXPECT_TRUE(buffer.metadata().size() > 0);
+  EXPECT_TRUE(frame->GetBufferCount(static_cast<ifm3d::buffer_id>(
+                ifm3d::buffer_id::O3R_RESULT_JSON)) > 0);
+}

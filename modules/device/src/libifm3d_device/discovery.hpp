@@ -418,6 +418,25 @@ namespace ifm3d
     {
       device_list_.clear();
 
+#ifdef __unix__
+
+      /* Creating universal listener udp connecton */
+      asio::ip::udp::endpoint endpoint(asio::ip::address_v4::any(),
+                                       BCAST_DEFAULT_PORT);
+      auto con = std::make_shared<UDPConnection>(io_context_, endpoint);
+
+      con->RegisterOnReceive(std::bind(&IFMDeviceDiscovery::_OnReceive,
+                                       this,
+                                       std::placeholders::_1,
+                                       std::placeholders::_2,
+                                       std::placeholders::_3));
+      con->RegisterOnClose(std::bind(&IFMDeviceDiscovery::_RemoveConnection,
+                                     this,
+                                     std::placeholders::_1));
+
+      connection_list_.push_back(con);
+#endif
+
       try
         {
           auto addresses = _GetAllInterfaceAddress();

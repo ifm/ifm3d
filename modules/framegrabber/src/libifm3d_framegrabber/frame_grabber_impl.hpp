@@ -653,7 +653,6 @@ void
 ifm3d::FrameGrabber::Impl::ImageHandler()
 {
   std::size_t buffer_size = this->payload_buffer_.size();
-
   bool buffer_valid =
     std::string(this->payload_buffer_.begin() + 4,
                 this->payload_buffer_.begin() + 8) == "star" &&
@@ -669,6 +668,7 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
           auto result = this->organizer_->Organize(this->payload_buffer_,
                                                    this->requested_images_,
                                                    this->IsMasking());
+
           auto frame = std::make_shared<Frame>(result.images,
                                                result.timestamps,
                                                result.frame_count);
@@ -687,6 +687,7 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
               this->new_frame_callback_(frame);
             }
         }
+
       catch (std::exception ex)
         {
           LOG_WARNING("Bad image: {}", ex.what());

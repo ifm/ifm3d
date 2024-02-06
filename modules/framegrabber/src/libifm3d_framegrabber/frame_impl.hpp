@@ -21,7 +21,7 @@ namespace ifm3d
   class IFM3D_FRAME_GRABBER_LOCAL Frame::Impl
   {
   public:
-    Impl(const std::map<buffer_id, Buffer>& images,
+    Impl(const BufferDataListMap& images,
          const std::vector<TimePointT> timestamps,
          uint64_t frame_count);
 
@@ -29,25 +29,27 @@ namespace ifm3d
 
     bool HasBuffer(buffer_id id);
 
-    Buffer& GetBuffer(buffer_id id);
+    Buffer& GetBuffer(buffer_id id, std::optional<size_t> index);
+    size_t GetBufferCount(buffer_id id);
 
     std::vector<ifm3d::buffer_id> GetBuffers();
 
     uint64_t FrameCount();
 
-    decltype(std::declval<std::map<buffer_id, Buffer>>().begin())
+    decltype(std::declval<std::map<buffer_id, BufferList>>().begin())
     begin() noexcept;
-    decltype(std::declval<const std::map<buffer_id, Buffer>>().begin()) begin()
-      const noexcept;
-    decltype(std::declval<std::map<buffer_id, Buffer>>().end()) end() noexcept;
-    decltype(std::declval<const std::map<buffer_id, Buffer>>().end()) end()
+    decltype(std::declval<const std::map<buffer_id, BufferList>>().begin())
+    begin() const noexcept;
+    decltype(std::declval<std::map<buffer_id, BufferList>>().end())
+    end() noexcept;
+    decltype(std::declval<const std::map<buffer_id, BufferList>>().end()) end()
       const noexcept;
 
   protected:
     //---------------------
     // State
     //---------------------
-    std::map<buffer_id, Buffer> images_;
+    BufferDataListMap images_;
     std::vector<TimePointT> timestamps_;
     uint32_t frame_count_;
 
@@ -55,7 +57,7 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
-ifm3d::Frame::Impl::Impl(const std::map<buffer_id, Buffer>& images,
+ifm3d::Frame::Impl::Impl(const BufferDataListMap& images,
                          const std::vector<TimePointT> timestamps,
                          uint64_t frame_count)
   : images_(images),
@@ -76,15 +78,33 @@ ifm3d::Frame::Impl::HasBuffer(buffer_id id)
 }
 
 ifm3d::Buffer&
-ifm3d::Frame::Impl::GetBuffer(buffer_id id)
+ifm3d::Frame::Impl::GetBuffer(buffer_id id, std::optional<size_t> index)
 {
   if (HasBuffer(id))
     {
-      return images_.at(id);
+      auto buffer_list = images_.at(id);
+      auto index_value = index.value_or(0);
+      if (index_value < buffer_list.size())
+        {
+          return images_.at(id)[index_value];
+        }
+      else
+        {
+          throw ifm3d::Error(IFM3D_INDEX_OUT_OF_RANGE,
+                             fmt::format("buffer_id: {}, index = {}",
+                                         std::to_string(static_cast<int>(id)),
+                                         index_value));
+        }
     }
   throw ifm3d::Error(
     IFM3D_BUFFER_ID_NOT_AVAILABLE,
     fmt::format("buffer_id: {}", std::to_string(static_cast<int>(id))));
+}
+
+size_t
+ifm3d::Frame::Impl::GetBufferCount(ifm3d::buffer_id id)
+{
+  return images_.at(id).size();
 }
 
 std::vector<ifm3d::buffer_id>
@@ -106,26 +126,27 @@ ifm3d::Frame::Impl::FrameCount()
   return frame_count_;
 }
 
-decltype(std::declval<std::map<ifm3d::buffer_id, ifm3d::Buffer>>().begin())
+decltype(std::declval<std::map<ifm3d::buffer_id, ifm3d::BufferList>>().begin())
 ifm3d::Frame::Impl::begin() noexcept
 {
   return images_.begin();
 }
 
 decltype(
-  std::declval<const std::map<ifm3d::buffer_id, ifm3d::Buffer>>().begin())
+  std::declval<const std::map<ifm3d::buffer_id, ifm3d::BufferList>>().begin())
 ifm3d::Frame::Impl::begin() const noexcept
 {
   return images_.begin();
 }
 
-decltype(std::declval<std::map<ifm3d::buffer_id, ifm3d::Buffer>>().end())
+decltype(std::declval<std::map<ifm3d::buffer_id, ifm3d::BufferList>>().end())
 ifm3d::Frame::Impl::end() noexcept
 {
   return images_.end();
 }
 
-decltype(std::declval<const std::map<ifm3d::buffer_id, ifm3d::Buffer>>().end())
+decltype(
+  std::declval<const std::map<ifm3d::buffer_id, ifm3d::BufferList>>().end())
 ifm3d::Frame::Impl::end() const noexcept
 {
   return images_.end();

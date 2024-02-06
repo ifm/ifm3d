@@ -24,7 +24,9 @@
 
 namespace ifm3d
 {
-  const int NET_WAIT = 3000; // millis
+  const int NET_WAIT = std::getenv("IFM3D_NET_WAIT") == nullptr ?
+                         3000 :
+                         std::stoi(std::getenv("IFM3D_NET_WAIT")); // millis
 
   const std::string XMLRPC_MAIN = "/api/rpc/v1/com.ifm.efector/";
 
