@@ -10,7 +10,10 @@
 
 namespace ifm3d
 {
-  static const int NET_WAIT_O3R_SET = 10000;
+  static const int NET_WAIT_O3R_SET =
+    std::getenv("IFM3D_NET_WAIT_O3R_SET") == nullptr ?
+      15000 :
+      std::stoi(std::getenv("IFM3D_NET_WAIT_O3R_SET"));
 
   /** @ingroup Device */
   struct IFM3D_DEVICE_EXPORT PortInfo

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes
 - Use .deb files in Dockerfile instead of building from sources
+- Increase timeout for O3R set calls up to 15s
 
 ### Fixed
 - Fix installation prefix [issue](https://github.com/ifm/ifm3d/issues/434) from tools
