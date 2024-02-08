@@ -10,7 +10,6 @@ add_custom_target(ifm3d_sphinx
     DEPENDS ifm3d_doxygen
     DEPENDS ifm3dpy
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/examples ${CMAKE_CURRENT_BINARY_DIR}/examples
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/docker ${CMAKE_CURRENT_BINARY_DIR}/docker   
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/README.md ${CMAKE_CURRENT_BINARY_DIR}/content/README.md       
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ChangeLog.md ${CMAKE_CURRENT_BINARY_DIR}/content/ChangeLog.md       
