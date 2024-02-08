@@ -49,6 +49,8 @@ ENV IFM3D_IP 192.168.0.69
 
 COPY . /ifm3d
 
+RUN git clone https://github.com/ifm/ifm3d-examples /ifm3d/doc/sphinx/content/ifm3d-examples
+
 RUN pip3 install -r /ifm3d/doc/sphinx/requirements.txt
 
 RUN mkdir -p /ifm3d/build \

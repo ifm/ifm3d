@@ -160,13 +160,13 @@ auto rgb = frame->get_buffer(ifm3d::buffer_id::JPEG_IMAGE);
 ### Using a callback
 :::::{tabs}
 ::::{group-tab} Python
-:::{literalinclude} getting_data_callback.py
+:::{literalinclude} ../../ifm3d-examples/ovp8xx/python/ovp8xxexamples/core/getting_data_callback.py
 :language: python
 :::
 ::::
 
 ::::{group-tab} C++
-:::{literalinclude} getting_data_callback.cpp
+:::{literalinclude} ../../ifm3d-examples/ovp8xx/cpp/core/getting_data/getting_data_callback.cpp
 :language: cpp
 :::
 ::::
@@ -175,13 +175,13 @@ auto rgb = frame->get_buffer(ifm3d::buffer_id::JPEG_IMAGE);
 ### Using the polling mode
 :::::{tabs}
 ::::{group-tab} Python
-:::{literalinclude} getting_data.py
+:::{literalinclude} ../../ifm3d-examples/ovp8xx/python/ovp8xxexamples/core/getting_data.py
 :language: python
 :::
 ::::
 
 ::::{group-tab} C++
-:::{literalinclude} getting_data.cpp
+:::{literalinclude} ../../ifm3d-examples/ovp8xx/cpp/core/getting_data/getting_data.cpp
 :language: cpp
 :::
 ::::
