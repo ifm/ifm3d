@@ -28,6 +28,28 @@ and follow these [instructions](https://github.com/ifm/ifm3d/blob/v0.20.3/doc/so
 | libxmlrpc| device, pybind11| XMLRPC client used call into the camera configuration interface|
 | pybind11| pybind11| A header-only library that exposes C++ types in Python and vice versa,  mainly to create Python bindings of existing C++ code.|
 
+Use the following steps to install all the library dependencies on Debian based systems
+
+```
+$ sudo apt-get update && sudo apt-get -y upgrade
+$ sudo apt-get update && sudo apt-get install -y 
+      git \ 
+      jq \ 
+      libssl-dev \
+      libcurl4-openssl-dev \
+      libgtest-dev \
+      libxmlrpc-c++8-dev \ 
+      libproj-dev \
+      build-essential \
+      coreutils \
+      cmake
+
+# Only if you wish to build the python bindings
+$ sudo apt-get update && sudo apt-get install pybind11-dev                          
+```
+Note: The package name may differ in different flavours of Linux. 
+Above apt-get commands are specific to Debian based systems.
+
 ### Building From Source
 Start with cloning the code from the ifm3d github repository {{ '[here]({})'.format(ifm3d_gh_url) }}.
 
@@ -53,11 +75,7 @@ This will build and install ifm3d along with its dependencies.
 
 ### Build debian packages from source
 
-This additional section provides instructions to build Debian packages from ifm3d source.  
-To install the existing ifm3d Debian packages please refer to [this](ifm3d/doc/sphinx/content/installation_instructions/install_linux_binary:Installing%20ifm3d%20from%20.deb%20file) section.
-
-#### Install dependencies for ifm3d debian packages
-
+#### Dependencies
 If you plan to build the debian packages and have the
 dependencies computed for you dynamically (see the note below on the
 `repackage` target), you will also need:
@@ -71,28 +89,8 @@ We note that, if you are running on a supported Linux, all of these packages
 are available through the offical debian repositories and should be a simple
 `apt-get` away from being installed on your machine.
 
-Use the following steps to install all the library dependencies on Debian based systems
-
-```
-$ sudo apt-get update && sudo apt-get -y upgrade
-$ sudo apt-get update && sudo apt-get install -y 
-      git \ 
-      jq \ 
-      libssl-dev \
-      libcurl4-openssl-dev \
-      libgtest-dev \
-      libxmlrpc-c++8-dev \ 
-      libproj-dev \
-      build-essential \
-      coreutils \
-      cmake
-
-# Only if you wish to build the python bindings
-$ sudo apt-get update && sudo apt-get install pybind11-dev                          
-```
-Note: The package name may differ in different flavours of Linux. 
-Above apt-get commands are specific to Debian based systems
-
+This additional section provides instructions to build Debian packages from ifm3d source.  
+To install the existing ifm3d Debian packages please refer to [this](ifm3d/doc/sphinx/content/installation_instructions/install_linux_binary:Installing%20ifm3d%20from%20.deb%20file) section.
 
 #### Building debian packages
 
