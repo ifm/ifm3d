@@ -18,47 +18,15 @@ and follow these [instructions](https://github.com/ifm/ifm3d/blob/v0.20.3/doc/so
 | BUILD_DOC | Build documentation | OFF |
 | BUILD_MODULE_PCICCLIENT | Build the pcicclient module | OFF |
 | BUILD_IN_DEPS | Download, build and install required dependencies with ifm3d (for ifm3d v0.93.0 and above) | ON |
+
 ### Build Dependencies
-
-<table>
-  <tr>
-    <th>Dependency</th>
-    <th>Dependent ifm3d module</th>
-    <th>Notes</th>
-  </tr>
-  <tr>
-    <td><a href="http://www.cmake.org">CMake</a></td>
-    <td>device, framegrabber, swupdater, pcicclient, tools, pybind11</td>
-    <td>Meta-build framework</td>
-  </tr>
-  <tr>
-    <td><a href="https://curl.haxx.se/libcurl">Curl</a></td>
-    <td>device, tools, swupdater</td>
-    <td>Used to help enable command-line based firmware flashing.</td>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/google/glog">Glog</a></td>
-    <td>device, framegrabber, swupdater, pcicclient, tools, pybind11</td>
-    <td>Logging framework</td>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/google/googletest">Gtest</a></td>
-    <td>device, framegrabber, swupdater, pcicclient, tools, pybind11</td>
-    <td>Unit testing framework</td>
-  </tr>
-  <tr>
-    <td><a href="http://xmlrpc-c.sourceforge.net/">libxmlrpc</a></td>
-    <td>device, pybind11</td>
-    <td>XMLRPC client used call into the camera configuration interface</td>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/pybind/pybind11">pybind11</a></td>
-    <td>pybind11</td>
-    <td>A header-only library that exposes C++ types in Python and vice versa,
-    mainly to create Python bindings of existing C++ code.</td>
-  </tr>
-</table>
-
+| Dependency | Dependent ifm3d module | Notes |
+|:---------- |:---------------------- |:----- |
+| CMake| device, framegrabber, swupdater, pcicclient, tools, pybind11| Meta-build framework|
+| Curl| device, tools, swupdater| Used to help enable command-line based firmware flashing.|
+| Gtest| device, framegrabber, swupdater, pcicclient, tools, pybind11| Unit testing framework|
+| libxmlrpc| device, pybind11| XMLRPC client used call into the camera configuration interface|
+| pybind11| pybind11| A header-only library that exposes C++ types in Python and vice versa,  mainly to create Python bindings of existing C++ code.|
 
 ### Building From Source
 Start with cloning the code from the ifm3d github repository {{ '[here]({})'.format(ifm3d_gh_url) }}.
@@ -82,16 +50,6 @@ $ sudo cmake --build . --target install
 This will build and install ifm3d along with its dependencies.
 
 > Note: you can speed up the build by using `ninja`, with `cmake -GNinja -DCMAKE_INSTALL_PREFIX=/usr ..`.
-
-
-#### Building the examples
-
-The examples can be built along with the rest of the library by switching the DBUILD_EXAMPLES flag on. Assuming you are in the /build folder:
-
-```
-$ cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_EXAMPLES=ON ..
-$ cmake --build . --target ALL_BUILD
-```
 
 ### Build debian packages from source
 
@@ -122,7 +80,7 @@ $ sudo apt-get update && sudo apt-get install -y
       jq \ 
       libssl-dev \
       libcurl4-openssl-dev \
-      libgtest-dev libgoogle-glog-dev  \
+      libgtest-dev \
       libxmlrpc-c++8-dev \ 
       libproj-dev \
       build-essential \

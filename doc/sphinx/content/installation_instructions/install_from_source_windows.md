@@ -21,7 +21,7 @@ sure to select the 'Desktop development with C++' workflow.
 
 #### Source Dependencies
 
-`ifm3d` depends on several additional libraries (curl, xmlrpc-c, glog, and
+`ifm3d` depends on several additional libraries (curl, xmlrpc-c, and
 gtest) which are not available as binary packages on Windows.
 
 ### Building source dependencies with ifm3d
