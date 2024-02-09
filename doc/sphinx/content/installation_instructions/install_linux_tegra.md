@@ -13,11 +13,11 @@ the JetPack libraries rather than the Ubuntu libraries.
 Add *one* of the following repositories based on your desired JetPack/L4T
 release:
 
-Jetpack 4.4:
+JetPack 4.4:
 ```
 $ sudo sh -c 'echo "deb https://nexus.ifm.com/repository/ifm-robotics_l4t_jetpack_4_4_arm64 melodic main" > /etc/apt/sources.list.d/ifm-robotics.list'
 ```
-Jetpack 4.3:
+JetPack 4.3:
 ```
 $ sudo sh -c 'echo "deb https://nexus.ifm.com/repository/ifm-robotics_l4t_jetpack_4_3_arm64 melodic main" > /etc/apt/sources.list.d/ifm-robotics.list'
 ```
