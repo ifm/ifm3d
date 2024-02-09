@@ -1,0 +1,62 @@
+# cmake_minimum_required(VERSION 3.16)
+
+##############################################################
+## Building the examples
+##############################################################
+
+# ## Configuration example
+# add_executable(configuration configuration/configuration.cpp)
+# target_link_libraries(configuration
+#                       ifm3d_camera
+#                       )
+
+# ## Getting data example
+# add_executable(getting_data getting_data/getting_data.cpp)
+# target_link_libraries(getting_data
+#                       ifm3d_camera
+#                       ifm3d_framegrabber
+#                       ifm3d_stlimage
+#                       )
+
+
+# ## Multi head example
+# add_executable(multi_head multi_head/multi_head.cpp)
+# target_link_libraries(multi_head
+#                       ifm3d_camera
+#                       ifm3d_framegrabber
+#                       ifm3d_stlimage
+#                       )
+
+find_package(OpenCV REQUIRED COMPONENTS core highgui)
+find_package(realsense2 REQUIRED)
+add_executable(data_conversion data_conversion/data_conversion.cpp)
+target_link_libraries(data_conversion
+                    ${OpenCV_LIBS}
+                    ifm3d_camera
+                    ifm3d_framegrabber
+                    ifm3d_stlimage
+                    /usr/lib/libglog.so.0.3.5
+                    )    
+
+# find_package(HDF5 REQUIRED)
+# add_executable(save_h5 save_h5/save_h5.cpp)
+# target_link_libraries(save_h5
+#                     ifm3d_camera
+#                     ifm3d_framegrabber
+#                     ifm3d_stlimage
+#                     )
+
+# set(HDF5_DIR "/usr/local/HDF_Group/HDF5/1.12.2/cmake")
+# find_package(HDF5 1.12.2 REQUIRED PATHS "usr/local/HDF_Group/HDF5/1.12.2")
+# include_directories("usr/include/hdf5/serial"
+#                     "usr/local/HDF_Group/HDF5/1.12.2/include"
+#                     )
+# link_directories("usr/local/HDF_Group/HDF5/1.12.2/lib")
+
+
+# find_package(HDF5 REQUIRED)
+# add_executable(read_h5 read_h5/read_h5.cpp)
+# target_include_directories(read_h5 PRIVATE "/usr/include/hdf5/serial")#;/usr/local/HDF_Group/HDF5/1.12.2/include")
+# target_link_libraries(read_h5
+#                     -L/usr/lib/x86_64-linux-gnu/hdf5/serial
+#                     )
