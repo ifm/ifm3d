@@ -1,8 +1,0 @@
-version: "3.2"
-services:
-  ifm3d:
-    image: nexus.ifm.com:20443/ifm-robotics:l4t-latest
-    network_mode: host
-    environment:
-      - IFM3D_IP=127.0.0.1
-

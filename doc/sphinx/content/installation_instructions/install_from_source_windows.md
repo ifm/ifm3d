@@ -5,7 +5,7 @@ Following Instruction are for ifm3d-v1.0.0 and above which provide full support 
 and follow these [instructions](https://github.com/ifm/ifm3d/blob/legacy/doc/windows.md)
 
 This tutorial details how to compile the ifm3d library and its dependencies on
-a Windows platform using Visual Studio and cmake.
+a Windows platform using Visual Studio and CMake.
 
 ### Dependencies
 
@@ -21,12 +21,12 @@ sure to select the 'Desktop development with C++' workflow.
 
 #### Source Dependencies
 
-`ifm3d` depends on several additional libraries (curl, xmlrpc-c, glog, and
-gtest) which are not available as binary packages on Windows.
+`ifm3d` depends on several additional libraries (curl, xmlrpc-c, and
+GoogleTest) which are not available as binary packages on Windows.
 
 ### Building source dependencies with ifm3d
 
-ifm3d from version 0.90.4 onwards provides ```BUILD_IN_DEPS``` option to cmake configure command,
+ifm3d from version 0.90.4 onward provides ```BUILD_IN_DEPS``` option to CMake configure command,
 which fetches the required dependencies and builds them with ifm3d. After a successful first installation, the
 user can disable `BUILD_IN_DEPS` option and can use the installed dependencies for future builds of the ifm3d.
 
@@ -63,11 +63,11 @@ cmake --build . --config %CONFIG% --target ALL_BUILD
 cmake --build . --config %CONFIG% --target install
 ```
 On successful execution of install step, user can disable the `BUILD_IN_DEPS` flag by appending
-``` -DBUILD_IN_DEPS=OFF``` to cmake configure step, this will avoid building dependencies on every clean build.
+``` -DBUILD_IN_DEPS=OFF``` to CMake configure step, this will avoid building dependencies on every clean build.
 
 ### Building the Examples
 
-To build the [examples](https://ifm3d.com/sphinx-doc/build/html/ifm3d/doc/sphinx/content/examples/index.html), provide the path `IFM3D_BINARY_DIR` to `CMAKE_PREFIX_PATH` when running cmake configure stage. 
+To build the [examples](https://ifm3d.com/sphinx-doc/build/html/ifm3d/doc/sphinx/content/examples/index.html), provide the path `IFM3D_BINARY_DIR` to `CMAKE_PREFIX_PATH` when running CMake configure stage. 
 To build the examples from source alongside the ifm3d library, enable the build with the `-DBUILD_EXAMPLES=ON`.
 
 ### Running ifm3d command line tools
@@ -87,5 +87,5 @@ $ ifm3d
 
 ### Using ifm3d-playground projects
 
-After installing the ifm3d, one can use ifm3d-playground example, which shows basic cmake configuration required for using 
+After installing the ifm3d, one can use ifm3d-playground example, which shows basic CMake configuration required for using 
 installed ifm3d libraries [ifm3d playground example](https://github.com/ifm/ifm3d/tree/main/examples/o3r/ifm3d_playground)
