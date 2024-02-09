@@ -6,18 +6,18 @@ and follow these [instructions](https://github.com/ifm/ifm3d/blob/v0.20.3/doc/so
 ### Overview of the available build flags
 | Flag name | Description | Default value |
 | --------- | ----------- | ------------- |
-| BUILD_MODULE_FRAMEGRABBER | Build the framegrabber module | ON | 
-| BUILD_MODULE_TOOLS | Build the command-line utility | ON |  
-| BUILD_MODULE_DESERIALIZE | Build the deserializer module | ON | 
-| BUILD_MODULE_PYBIND11 | Build the ifm3dpy python package (it can also be installed directly through `pip`) | OFF | 
-| USE_LEGACY_COORDINATES | Use the legacy coordinates (ifm3d <= 0.92.x) with swapped axis | OFF | 
-| BUILD_MODULE_SWUPDATER | Build the swupdater module | ON | 
-| BUILD_SDK_PKG | Build install packages for development purposes | ON | 
-| BUILD_SHARED_LIBS | Build modules as shared libraries | ON | 
-| BUILD_EXAMPLES | Build the examples | OFF | 
-| BUILD_DOC | Build documentation | OFF |
-| BUILD_MODULE_PCICCLIENT | Build the pcicclient module | OFF |
-| BUILD_IN_DEPS | Download, build and install required dependencies with ifm3d (for ifm3d v0.93.0 and above) | ON |
+| `BUILD_MODULE_FRAMEGRABBER` | Build the `framegrabber` module | ON | 
+| `BUILD_MODULE_TOOLS` | Build the command-line utility | ON |  
+| `BUILD_MODULE_DESERIALIZE` | Build the `deserialize` module | ON | 
+| `BUILD_MODULE_PYBIND11` | Build the ifm3dpy Python package (it can also be installed directly through `pip`) | OFF | 
+| `USE_LEGACY_COORDINATES` | Use the legacy coordinates (ifm3d <= 0.92.x) with swapped axis | OFF | 
+| `BUILD_MODULE_SWUPDATER` | Build the `swupdater` module | ON | 
+| `BUILD_SDK_PKG` | Build install packages for development purposes | ON | 
+| `BUILD_SHARED_LIBS` | Build modules as shared libraries | ON | 
+| `BUILD_EXAMPLES` | Build the examples | OFF | 
+| `BUILD_DOC` | Build documentation | OFF |
+| `BUILD_MODULE_PCICCLIENT` | Build the `pcicclient` module | OFF |
+| `BUILD_IN_DEPS` | Download, build and install required dependencies with ifm3d (for ifm3d v0.93.0 and above) | ON |
 
 ### Build Dependencies
 
@@ -25,11 +25,11 @@ The ifm3d library depends on the libraries listed below. Only CMake and pybind11
 
 | Dependency | Dependent ifm3d module | Notes |
 |:---------- |:---------------------- |:----- |
-| CMake| device, framegrabber, swupdater, pcicclient, tools, pybind11| Meta-build framework|
-| Curl| device, tools, swupdater| Used to help enable command-line based firmware flashing.|
-| Gtest| device, framegrabber, swupdater, pcicclient, tools, pybind11| Unit testing framework|
-| libxmlrpc| device, pybind11| XMLRPC client used call into the camera configuration interface|
-| pybind11| pybind11| A header-only library that exposes C++ types in Python and vice versa,  mainly to create Python bindings of existing C++ code.|
+| CMake| `device`, `framegrabber`, `swupdater`, `pcicclient`, `tools`, `pybind11`| Meta-build framework|
+| curl| `device`, `tools`, `swupdater`| Used to help enable command-line based firmware flashing.|
+| GoogleTest| `device`, `framegrabber`, `swupdater`, `pcicclient`, `tools`, `pybind11`| Unit testing framework|
+| libxmlrpc| `device`, pybind11| XMLRPC client used call into the camera configuration interface|
+| pybind11| `pybind11`| A header-only library that exposes C++ types in Python and vice versa,  mainly to create Python bindings of existing C++ code.|
 
 ### Building From Source
 Start with cloning the code from the ifm3d GitHub repository {{ '[here]({})'.format(ifm3d_gh_url) }}.
@@ -54,10 +54,10 @@ This will build and install ifm3d along with its dependencies.
 
 > Note: you can speed up the build by using `ninja`, with `cmake -GNinja -DCMAKE_INSTALL_PREFIX=/usr ..`.
 
-### Build debian packages from source
+### Build Debian packages from source
 
 #### Dependencies
-If you plan to build the debian packages and have the
+If you plan to build the Debian packages and have the
 dependencies computed for you dynamically (see the note below on the
 `repackage` target), you will also need:
 
