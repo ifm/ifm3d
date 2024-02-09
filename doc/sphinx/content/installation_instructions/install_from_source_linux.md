@@ -20,6 +20,9 @@ and follow these [instructions](https://github.com/ifm/ifm3d/blob/v0.20.3/doc/so
 | BUILD_IN_DEPS | Download, build and install required dependencies with ifm3d (for ifm3d v0.93.0 and above) | ON |
 
 ### Build Dependencies
+
+The ifm3d library depends on the libraries listed below. Only CMake and pybind11 (if building the Python library) need to be installed on the user's machine. The other dependencies will be pulled automatically. 
+
 | Dependency | Dependent ifm3d module | Notes |
 |:---------- |:---------------------- |:----- |
 | CMake| device, framegrabber, swupdater, pcicclient, tools, pybind11| Meta-build framework|
@@ -27,28 +30,6 @@ and follow these [instructions](https://github.com/ifm/ifm3d/blob/v0.20.3/doc/so
 | Gtest| device, framegrabber, swupdater, pcicclient, tools, pybind11| Unit testing framework|
 | libxmlrpc| device, pybind11| XMLRPC client used call into the camera configuration interface|
 | pybind11| pybind11| A header-only library that exposes C++ types in Python and vice versa,  mainly to create Python bindings of existing C++ code.|
-
-Use the following steps to install all the library dependencies on Debian based systems
-
-```
-$ sudo apt-get update && sudo apt-get -y upgrade
-$ sudo apt-get update && sudo apt-get install -y 
-      git \ 
-      jq \ 
-      libssl-dev \
-      libcurl4-openssl-dev \
-      libgtest-dev \
-      libxmlrpc-c++8-dev \ 
-      libproj-dev \
-      build-essential \
-      coreutils \
-      cmake
-
-# Only if you wish to build the python bindings
-$ sudo apt-get update && sudo apt-get install pybind11-dev                          
-```
-Note: The package name may differ in different flavours of Linux. 
-Above apt-get commands are specific to Debian based systems.
 
 ### Building From Source
 Start with cloning the code from the ifm3d github repository {{ '[here]({})'.format(ifm3d_gh_url) }}.
@@ -58,8 +39,8 @@ Start with cloning the code from the ifm3d github repository {{ '[here]({})'.for
 
 #### The default build
 
-By default, the `ifm3d` build enables the `device`, `framegrabber`, `swupdater`,
-and `tools` modules. Building the software follows the usual cmake idiom of:
+By default, the `ifm3d` build enables the `device`, `framegrabber`, `deserializer`, `swupdater`,
+and `tools` modules. Building the software follows the usual CMake idiom of:
 
 ```
 $ mkdir build
@@ -80,7 +61,6 @@ If you plan to build the debian packages and have the
 dependencies computed for you dynamically (see the note below on the
 `repackage` target), you will also need:
 
-* [Python 2.7](https://www.python.org/)
 * [readelf](https://www.gnu.org/software/binutils/) (Part of the `binutils` package)
 * [ldd](http://man7.org/linux/man-pages/man1/ldd.1.html) (Part of the `libc-bin` package)
 * [dpkg](https://help.ubuntu.com/lts/serverguide/dpkg.html)
