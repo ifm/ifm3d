@@ -1,4 +1,4 @@
-# How to: receive and use the 2D rgb image
+# How to: receive and use the 2D RGB image
 
 Receiving RGB data with ifm3d is done similarly as 3D data: the core objects have to be instantiated, and a frame has to be retrieved (see full code below). 
 The important part is how to access the RGB image and how to decode it for further use.
