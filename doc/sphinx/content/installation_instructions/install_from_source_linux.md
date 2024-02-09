@@ -8,7 +8,7 @@ and follow these [instructions](https://github.com/ifm/ifm3d/blob/v0.20.3/doc/so
 | --------- | ----------- | ------------- |
 | BUILD_MODULE_FRAMEGRABBER | Build the framegrabber module | ON | 
 | BUILD_MODULE_TOOLS | Build the command-line utility | ON |  
-| BUILD_IN_DEPS | Download and build dependencies | ON | 
+| BUILD_MODULE_DESERIALIZE | Build the deserializer module | ON | 
 | BUILD_MODULE_PYBIND11 | Build the ifm3dpy python package (it can also be installed directly through `pip`) | OFF | 
 | USE_LEGACY_COORDINATES | Use the legacy coordinates (ifm3d <= 0.92.x) with swapped axis | OFF | 
 | BUILD_MODULE_SWUPDATER | Build the swupdater module | ON | 
