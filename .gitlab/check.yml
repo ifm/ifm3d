@@ -14,3 +14,15 @@ check:clang-format:
       --dockerfile docker/ifm-robotics/check/Dockerfile
       ${KANIKO_BUILD_ARGS}
       --no-push
+
+check:vale-linting:
+  image:
+    name: jdkato/vale:latest
+    entrypoint: [""]
+  stage: check
+  before_script:
+    - apk update && apk add git
+  script:
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-ee.dev.ifm/syntron/support/csr/formatting-tools.git ${CI_PROJECT_DIR}/formatting-tools
+    - cd ${CI_PROJECT_DIR}/formatting-tools
+    - vale --minAlertLevel error ../doc/sphinx/* ../examples/* ../README.md ../ChangeLog.md

@@ -32,7 +32,7 @@ The ifm3d library depends on the libraries listed below. Only CMake and pybind11
 | pybind11| pybind11| A header-only library that exposes C++ types in Python and vice versa,  mainly to create Python bindings of existing C++ code.|
 
 ### Building From Source
-Start with cloning the code from the ifm3d github repository {{ '[here]({})'.format(ifm3d_gh_url) }}.
+Start with cloning the code from the ifm3d GitHub repository {{ '[here]({})'.format(ifm3d_gh_url) }}.
 
 ⚠ The code on the branch {{ ifm3d_main_branch }} is updated nightly and contains the latest changes to the library. It is typically a work in progress.  
 ⚠ We recommend using tagged versions for your builds, to ensure consistency between builds. The latest tagged version can be found {{ '[here]({})'.format(ifm3d_latest_tag_url) }}.
@@ -66,13 +66,13 @@ dependencies computed for you dynamically (see the note below on the
 * [dpkg](https://help.ubuntu.com/lts/serverguide/dpkg.html)
 
 We note that, if you are running on a supported Linux, all of these packages
-are available through the offical debian repositories and should be a simple
+are available through the official Debian repositories and should be a simple
 `apt-get` away from being installed on your machine.
 
 This additional section provides instructions to build Debian packages from ifm3d source.  
 To install the existing ifm3d Debian packages please refer to [this](ifm3d/doc/sphinx/content/installation_instructions/install_linux_binary:Installing%20ifm3d%20from%20.deb%20file) section.
 
-#### Building debian packages
+#### Building Debian packages
 
 Alternatively, to build *debs* to be distributed to multiple runtime machines, you can use the following:
 
@@ -96,7 +96,7 @@ $ sudo dpkg -i ifm3d_*_amd64-tools.deb
 version of the `ifm3d` software you are building)
 
 > Note: Experienced users may be puzzled by the `repackage` step. 
-> This step is used to dynamically compute the debian dependencies for the particular module. 
+> This step is used to dynamically compute the Debian dependencies for the particular module. 
 > Due to how we are partitioning out the software, this approach is necessary vs. the more traditional `CPACK_DEBIAN_PACKAGE_SHLIBDEPS` wrapper around `dpkg-shlibdeps`. 
-> We basically created [a version of that tool](cmake/utils/ifm3d-dpkg-deps.py.in) that exploits *a-priori* information about the `ifm3d` environment to properly compute the debian dependencies. 
+> We basically created [a version of that tool](cmake/utils/ifm3d-dpkg-deps.py.in) that exploits *a-priori* information about the `ifm3d` environment to properly compute the Debian dependencies. 
 > If you are building debs on a build machine to be distributed out to various runtime computers, you will certainly want to execute the `repackage` target so that you are ensured the runtime machines have the proper dependency chain in place.
