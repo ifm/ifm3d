@@ -169,6 +169,11 @@ namespace ifm3d
     */
     O3R_RESULT_ARRAY2D = static_cast<uint64_t>(ifm3d::image_chunk::O3R_RESULT_ARRAY2D),
 
+    /** @hideinitializer 
+     * @brief ifm3d::O3R_RESULT_IMU
+    */
+    O3R_RESULT_IMU = static_cast<uint64_t>(ifm3d::image_chunk::O3R_RESULT_IMU),
+
 
     /** @hideinitializer 
      * @brief The point cloud encoded as a 3 channel XYZ image
