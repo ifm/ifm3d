@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- add O3R_RESULT_JSON, O3R_RESULT_ARRAY2D, O3R_RESULT_IMU buffer_ids
+- add `O3R_RESULT_JSON`, `O3R_RESULT_ARRAY2D`, `O3R_RESULT_IMU` `buffer_ids`
 
 ## 1.5.1 - 2024-02-07
 ### Fixed
