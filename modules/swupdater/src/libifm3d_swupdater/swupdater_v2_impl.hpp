@@ -415,6 +415,7 @@ ifm3d::ImplV2::UploadFirmware(const std::string& swu_file, long timeout_millis)
                     mime_free,
                     &mime_ctx);
   curl_mime_name(mimepart, SWUPDATER_MIME_PART_NAME.c_str());
+  curl_mime_filename(mimepart, SWUPATER_V2_FILENAME.c_str());
   curl_mime_type(mimepart, SWUPDATER_CONTENT_TYPE_HEADER.c_str());
 
   c->Call(curl_easy_setopt, CURLOPT_URL, this->upload_url_.c_str());
