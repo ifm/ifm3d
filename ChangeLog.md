@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - add `O3R_RESULT_JSON`, `O3R_RESULT_ARRAY2D`, `O3R_RESULT_IMU` `buffer_ids`
 
+### Fixed
+- Fix curl error from `SWUpdate`
+
 ## 1.5.1 - 2024-02-07
 ### Fixed
 - release pipeline
@@ -28,7 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix installation prefix [issue](https://github.com/ifm/ifm3d/issues/434) from tools
 - Add WebSockets++ third-party dependency using FetchContent_Declare
 - Fix device discovery [issue](https://github.com/ifm/ifm3d/discussions/441)
-- Fix curl error from `SWUpdate`
 
 ## 1.4.3 - 2023-09-28
 ### Fixed
