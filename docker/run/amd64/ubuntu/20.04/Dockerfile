@@ -25,7 +25,7 @@ ENV LC_ALL en_US.UTF-8
 
 RUN echo 'deb [arch=amd64] https://nexus.ifm.com/repository/ifm-robotics_ubuntu_focal_amd64 focal main' > /etc/apt/sources.list.d/ifm-robotics.list
 RUN apt-key adv \
-         --keyserver hkp://ha.pool.sks-keyservers.net:80 \
+         --keyserver keyserver.ubuntu.com \
          --recv-key 8AB59D3A2BD7B692
 RUN apt-get update && \
     apt-get install -y ifm3d-camera \
