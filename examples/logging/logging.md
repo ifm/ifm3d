@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
 :::
 :::{warning}
-Due to a known issue with the third party tool pybind11, the user needs to ensure that the instance of the logger is kept alive.
+Due to a known issue with the third party tool pybind11, the user needs to ensure that the instance of the logger is kept alive throughout the whole execution of the script.
 :::
 ::::
 ::::{group-tab} C++
