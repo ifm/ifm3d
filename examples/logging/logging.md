@@ -70,9 +70,6 @@ if __name__ == "__main__":
   o3r.port("non-existing-port")
 
 :::
-:::{warning}
-Due to a known issue with the third party tool pybind11, the user needs to ensure that the instance of the logger is kept alive.
-:::
 ::::
 ::::{group-tab} C++
 Instantiating these objects is as follows:
@@ -215,3 +212,4 @@ public:
 ```
 ::::
 :::::
+
