@@ -595,7 +595,14 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
 
   if (ticket_id == ifm3d::TICKET_IMAGE || ticket_id == ifm3d::TICKET_ALGO_DGB)
     {
-      this->ImageHandler();
+      if (this->is_ready_)
+        {
+          this->ImageHandler();
+        }
+      else
+        {
+          LOG_DEBUG("Waiting for pcic command ACK!");
+        }
     }
   else if (ticket_id == ifm3d::TICKET_ASYNC_ERROR)
     {
@@ -687,7 +694,6 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
               this->new_frame_callback_(frame);
             }
         }
-
       catch (std::exception ex)
         {
           LOG_WARNING("Bad image: {}", ex.what());
