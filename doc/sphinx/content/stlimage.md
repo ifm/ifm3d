@@ -3,7 +3,7 @@
 ```ifm3d::Buffer``` is designed to provide a C++ STL container that can hold
 buffer data of different types provided by ifm3d vision devices. Data is stored
 in sequential memory layout and ```ifm3d::Buffer``` provides a function template to access
-the pixel. The pixel data type is defined in an enum [```ifm3d::pixel_format```](../../../modules/device/include/ifm3d/device/device.h#L69).
+the pixel. The pixel data type is defined in an enumeration [```ifm3d::pixel_format```](../../../modules/device/include/ifm3d/device/device.h#L69).
 ```ifm3d::Buffer``` class does memory management and the user is free from the memory allocation
 and deallocation. The assignment operator and the copy constructor
 only copy the attributes and data is shared across the object.

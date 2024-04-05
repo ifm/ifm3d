@@ -23,7 +23,7 @@ and follow these [instructions](https://github.com/ifm/ifm3d/blob/v0.20.3/doc/so
 | Dependency | Dependent ifm3d module | Notes |
 | --- | --- | --- |
 | [CMake](http://www.cmake.org) | `device`, `framegrabber`, `swupdater`, `pcicclient`, `tools`, `pybind11` | Meta-build framework |
-| [Curl](https://curl.haxx.se/libcurl) | `device`, `tools`, `swupdater` | Used to help enable command-line based firmware flashing. |
+| [curl](https://curl.haxx.se/libcurl) | `device`, `tools`, `swupdater` | Used to help enable command-line based firmware flashing. |
 | [glog](https://github.com/google/glog) | `device`, `framegrabber`, `swupdater`, `pcicclient`, `tools`, `pybind11` | Logging framework |
 | [GoogleTest](https://github.com/google/googletest) | `device`, `framegrabber`, `swupdater`, `pcicclient`, `tools`, `pybind11` | Unit testing framework |
 | [libxmlrpc](http://xmlrpc-c.sourceforge.net/) | `device`, `pybind11` | XMLRPC client used call into the camera configuration interface |
