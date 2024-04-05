@@ -6,6 +6,9 @@ configure_file(
 
 get_target_property(DOXYGEN_DIR ifm3d_doxygen BINARY_DIR)
 get_target_property(IFM3DPY_DIR ifm3dpy BINARY_DIR)
+execute_process(
+    COMMAND git clone https://github.com/ifm/ifm3d-examples ${PROJECT_SOURCE_DIR}/doc/sphinx/content/ifm3d-examples
+)
 add_custom_target(ifm3d_sphinx
     DEPENDS ifm3d_doxygen
     DEPENDS ifm3dpy
