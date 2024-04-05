@@ -307,7 +307,6 @@ ifm3d::get_image_chunks(const std::vector<std::uint8_t>& data,
     {
       image_chunk chunk =
         static_cast<image_chunk>(mkval<std::uint32_t>(data.data() + idx));
-      std::cout << static_cast<int>(chunk) << "," << idx << " " << std::endl;
       chunks[chunk].insert(idx);
 
       // move to the beginning of the next chunk
