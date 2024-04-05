@@ -16,6 +16,8 @@ check:clang-format:
       --no-push
 
 check:vale-linting:
+  variables:
+    FORMATTING_TOOLS_REF: d7042c3b648c81be53aa6647788a565b720a418c
   image:
     name: jdkato/vale:latest
     entrypoint: [""]
@@ -25,4 +27,5 @@ check:vale-linting:
   script:
     - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-ee.dev.ifm/syntron/support/csr/formatting-tools.git ${CI_PROJECT_DIR}/formatting-tools
     - cd ${CI_PROJECT_DIR}/formatting-tools
+    - git reset --hard ${FORMATTING_TOOLS_REF}
     - vale --minAlertLevel error ../doc/sphinx/* ../README.md ../ChangeLog.md
