@@ -4,7 +4,7 @@
 Configuring the parameters of an ifm 3D camera is accomplished in ifm3d in one
 of two ways: 1) via the `ifm3d` command line tool; 2) via the `ifm3d`
 library's `camera` module API. We show below how to do so with the command line tool. 
-Please refer to [this doc](ifm3d/doc/sphinx/content/examples/o3r/configuration/configuration:How%20to%3A%20configure%20the%20camera) for instructions on configuring the camera through `ifm3d` library.
+Please refer to [this doc](content/basic_lib_usage/configuration/configuration.md) for instructions on configuring the camera through `ifm3d` library.
 
 The primary mechanism for using the `ifm3d` command line tool to configure an
 ifm 3D camera is to utilize the `dump` and `config` subcommands to `ifm3d`. The
