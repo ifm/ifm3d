@@ -694,6 +694,19 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
               this->new_frame_callback_(frame);
             }
         }
+      catch (ifm3d::Error ex)
+        {
+          // We might get empty frames when we requesting only algo debug but
+          // also enable async notifications or async errors, so we just ignore
+          // these frames.
+          if (!(ex.code() == IFM3D_IMG_CHUNK_NOT_FOUND &&
+                this->requested_images_.count(ifm3d::buffer_id::ALGO_DEBUG) >
+                  0 &&
+                this->requested_images_.size() == 1))
+            {
+              LOG_WARNING("Bad image: {}", ex.message());
+            }
+        }
       catch (std::exception ex)
         {
           LOG_WARNING("Bad image: {}", ex.what());
