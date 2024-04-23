@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.5.3 - 2024-04-05
+### Fixed
+- Fix receiving frames with default format before PCIC p command
+    has been acknowledged
+
 ## 1.5.2 - 2024-02-20
 ### Added
 - add `O3R_RESULT_JSON`, `O3R_RESULT_ARRAY2D`, `O3R_RESULT_IMU` `buffer_ids`
