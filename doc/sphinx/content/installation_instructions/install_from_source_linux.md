@@ -8,7 +8,7 @@ and follow these [instructions](https://github.com/ifm/ifm3d/blob/v0.20.3/doc/so
 | --------- | ----------- | ------------- |
 | `BUILD_MODULE_FRAMEGRABBER` | Build the `framegrabber` module | ON | 
 | `BUILD_MODULE_TOOLS` | Build the command-line utility | ON |  
-| `BUILD_IN_DEPS` | Download and build dependencies | ON | 
+| `BUILD_MODULE_DESERIALIZE` | Build the `deserialize` module | ON | 
 | `BUILD_MODULE_PYBIND11` | Build the ifm3dpy Python package (it can also be installed directly through `pip`) | OFF | 
 | `USE_LEGACY_COORDINATES` | Use the legacy coordinates (ifm3d <= 0.92.x) with swapped axis | OFF | 
 | `BUILD_MODULE_SWUPDATER` | Build the `swupdater` module | ON | 
@@ -20,15 +20,16 @@ and follow these [instructions](https://github.com/ifm/ifm3d/blob/v0.20.3/doc/so
 | `BUILD_IN_DEPS` | Download, build and install required dependencies with ifm3d (for ifm3d v0.93.0 and above) | ON |
 
 ### Build Dependencies
-| Dependency | Dependent ifm3d module | Notes |
-| --- | --- | --- |
-| [CMake](http://www.cmake.org) | `device`, `framegrabber`, `swupdater`, `pcicclient`, `tools`, `pybind11` | Meta-build framework |
-| [curl](https://curl.haxx.se/libcurl) | `device`, `tools`, `swupdater` | Used to help enable command-line based firmware flashing. |
-| [glog](https://github.com/google/glog) | `device`, `framegrabber`, `swupdater`, `pcicclient`, `tools`, `pybind11` | Logging framework |
-| [GoogleTest](https://github.com/google/googletest) | `device`, `framegrabber`, `swupdater`, `pcicclient`, `tools`, `pybind11` | Unit testing framework |
-| [libxmlrpc](http://xmlrpc-c.sourceforge.net/) | `device`, `pybind11` | XMLRPC client used call into the camera configuration interface |
-| [pybind11](https://github.com/pybind/pybind11) | `pybind11` | A header-only library that exposes C++ types in Python and vice versa, mainly to create Python bindings of existing C++ code. |
 
+The ifm3d library depends on the libraries listed below. Only CMake and pybind11 (if building the Python library) need to be installed on the user's machine. The other dependencies will be pulled automatically. 
+
+| Dependency | Dependent ifm3d module | Notes |
+|:---------- |:---------------------- |:----- |
+| CMake| `device`, `framegrabber`, `swupdater`, `pcicclient`, `tools`, `pybind11`| Meta-build framework|
+| curl| `device`, `tools`, `swupdater`| Used to help enable command-line based firmware flashing.|
+| GoogleTest| `device`, `framegrabber`, `swupdater`, `pcicclient`, `tools`, `pybind11`| Unit testing framework|
+| libxmlrpc| `device`, pybind11| XMLRPC client used call into the camera configuration interface|
+| pybind11| `pybind11`| A header-only library that exposes C++ types in Python and vice versa,  mainly to create Python bindings of existing C++ code.|
 
 ### Building From Source
 Start with cloning the code from the ifm3d GitHub repository {{ '[here]({})'.format(ifm3d_gh_url) }}.
@@ -38,7 +39,7 @@ Start with cloning the code from the ifm3d GitHub repository {{ '[here]({})'.for
 
 #### The default build
 
-By default, the `ifm3d` build enables the `device`, `framegrabber`, `swupdater`,
+By default, the `ifm3d` build enables the `device`, `framegrabber`, `deserializer`, `swupdater`,
 and `tools` modules. Building the software follows the usual CMake idiom of:
 
 ```
@@ -53,28 +54,13 @@ This will build and install ifm3d along with its dependencies.
 
 > Note: you can speed up the build by using `ninja`, with `cmake -GNinja -DCMAKE_INSTALL_PREFIX=/usr ..`.
 
-
-#### Building the examples
-
-The examples can be built along with the rest of the library by switching the DBUILD_EXAMPLES flag on. Assuming you are in the /build folder:
-
-```
-$ cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_EXAMPLES=ON ..
-$ cmake --build . --target ALL_BUILD
-```
-
 ### Build Debian packages from source
 
-This additional section provides instructions to build Debian packages from ifm3d source.  
-To install the existing ifm3d Debian packages please refer to [this](ifm3d/doc/sphinx/content/installation_instructions/install_linux_binary:Installing%20ifm3d%20from%20.deb%20file) section.
-
-#### Install dependencies for ifm3d Debian packages
-
+#### Dependencies
 If you plan to build the Debian packages and have the
 dependencies computed for you dynamically (see the note below on the
 `repackage` target), you will also need:
 
-* [Python 2.7](https://www.python.org/)
 * [readelf](https://www.gnu.org/software/binutils/) (Part of the `binutils` package)
 * [ldd](http://man7.org/linux/man-pages/man1/ldd.1.html) (Part of the `libc-bin` package)
 * [dpkg](https://help.ubuntu.com/lts/serverguide/dpkg.html)
@@ -83,28 +69,8 @@ We note that, if you are running on a supported Linux, all of these packages
 are available through the official Debian repositories and should be a simple
 `apt-get` away from being installed on your machine.
 
-Use the following steps to install all the library dependencies on Debian based systems
-
-```
-$ sudo apt-get update && sudo apt-get -y upgrade
-$ sudo apt-get update && sudo apt-get install -y 
-      git \ 
-      jq \ 
-      libssl-dev \
-      libcurl4-openssl-dev \
-      libgtest-dev libgoogle-glog-dev  \
-      libxmlrpc-c++8-dev \ 
-      libproj-dev \
-      build-essential \
-      coreutils \
-      cmake
-
-# Only if you wish to build the python bindings
-$ sudo apt-get update && sudo apt-get install pybind11-dev                          
-```
-Note: The package name may differ in different flavours of Linux. 
-Above apt-get commands are specific to Debian based systems
-
+This additional section provides instructions to build Debian packages from ifm3d source.  
+To install the existing ifm3d Debian packages please refer to [this](ifm3d/doc/sphinx/content/installation_instructions/install_linux_binary:Installing%20ifm3d%20from%20.deb%20file) section.
 
 #### Building Debian packages
 
