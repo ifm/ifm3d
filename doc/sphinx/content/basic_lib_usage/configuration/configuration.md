@@ -91,13 +91,13 @@ Note: we use [string literals](https://en.cppreference.com/w/cpp/language/string
 ## The full example
 :::::{tabs}
 ::::{group-tab} Python
-:::{literalinclude} configuration.py
+:::{literalinclude} ../../ifm3d-examples/ovp8xx/python/ovp8xxexamples/core/configuration.py
 :language: python
 :::
 ::::
 
 ::::{group-tab} C++
-:::{literalinclude} configuration.cpp
+:::{literalinclude} ../../ifm3d-examples/ovp8xx/cpp/core/configuration/configuration.cpp
 :language: cpp
 :::
 ::::

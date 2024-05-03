@@ -63,13 +63,14 @@ cv::waitKey(0);
 ## The full example
 :::::{tabs}
 ::::{group-tab} Python
-:::{literalinclude} 2d_data.py
+:::{literalinclude} ../../ifm3d-examples/ovp8xx/python/ovp8xxexamples/core/2d_data.py
+
 :language: python
 :::
 ::::
 
 ::::{group-tab} C++
-:::{literalinclude} 2d_data.cpp
+:::{literalinclude} ../../ifm3d-examples/ovp8xx/cpp/core/2d_data/2d_data.cpp
 :language: cpp
 :::
 ::::

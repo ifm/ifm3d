@@ -13,12 +13,12 @@ The usage of the deserializer is the same for all the buffers mentioned above: c
 
 :::::{tabs}
 :::: {group-tab} Python
-:::{literalinclude} deserialize.py
+:::{literalinclude} ../../ifm3d-examples/ovp8xx/python/ovp8xxexamples/core/deserialize.py
 :language: python
 :::
 ::::
 :::: {group-tab} C++
-:::{literalinclude} deserialize.cpp
+:::{literalinclude} ../../ifm3d-examples/ovp8xx/cpp/core/deserialize/deserialize.cpp
 :language: cpp
 :::
 ::::
