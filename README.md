@@ -65,6 +65,10 @@ Note that we provide 2 tags, *stable* always points to the latest tagged version
 For more details on the available containers, see [here](ifm3d/doc/sphinx/content/installation_instructions/install_docker:Docker%20dev%20container).  
 For more details on docker and the O3R platform see [here](documentation/O3R/Docker/README:Docker%20on%20O3R).
 
+## Examples
+
+Examples for the ifm3d library can be found in the [ifm3d-examples](https://github.com/ifm/ifm3d-examples) repository.
+
 ## Report a bug and check the known issues
 
 Please see the [GitHub Issue Tracker](https://github.com/ifm/ifm3d/issues), or contact `support.robotics@ifm.com`.

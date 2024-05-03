@@ -65,11 +65,6 @@ cmake --build . --config %CONFIG% --target install
 On successful execution of install step, user can disable the `BUILD_IN_DEPS` flag by appending
 ``` -DBUILD_IN_DEPS=OFF``` to CMake configure step, this will avoid building dependencies on every clean build.
 
-### Building the Examples
-
-To build the [examples](https://ifm3d.com/sphinx-doc/build/html/ifm3d/doc/sphinx/content/examples/index.html), provide the path `IFM3D_BINARY_DIR` to `CMAKE_PREFIX_PATH` when running CMake configure stage. 
-To build the examples from source alongside the ifm3d library, enable the build with the `-DBUILD_EXAMPLES=ON`.
-
 ### Running ifm3d command line tools
 After Building `ifm3d`, the binary files will be installed at
 ``%IFM3D_BUILD_DIR%\install\bin``. To run the ifm3d tool you need to add this
@@ -87,5 +82,4 @@ $ ifm3d
 
 ### Using ifm3d-playground projects
 
-After installing the ifm3d, one can use ifm3d-playground example, which shows basic CMake configuration required for using 
-installed ifm3d libraries [ifm3d playground example](https://github.com/ifm/ifm3d/tree/main/examples/o3r/ifm3d_playground)
+After installing the ifm3d, one can use [ifm3d-playground example available on GitHub](https://github.com/ifm/ifm3d-examples/tree/main/ovp8xx/cpp/core/ifm3d_playground), which shows basic CMake configuration required for using installed ifm3d libraries.

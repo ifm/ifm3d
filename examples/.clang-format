@@ -1,4 +1,0 @@
----
-# Disable clang format for the examples since the code style differs from the ifm3d code style
-DisableFormat: true
-SortIncludes: false
