@@ -68,7 +68,10 @@ json conf = o3r->Get();
 
 ## Write a new configuration
 
-To set a new configuration, you need to provide said configuration in JSON formatting. The provided configuration can be a subset or the full configuration, as long as it follows the proper JSON hierarchy.
+To set a new configuration, you need to provide said configuration in JSON formatting. The provided configuration can be a subset or the full configuration, as long as it follows the proper JSON hierarchy. 
+:::{note}
+For the O3R platform, you can refer to [the JSON schema documentation](https://ifm3d.com/latest/Technology/configuration.html#json-schema)
+::: 
 
 :::::{tabs}
 ::::{group-tab} Python
