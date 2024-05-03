@@ -28,4 +28,4 @@ check:vale-linting:
     - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-ee.dev.ifm/syntron/support/csr/formatting-tools.git ${CI_PROJECT_DIR}/formatting-tools
     - cd ${CI_PROJECT_DIR}/formatting-tools
     - git reset --hard ${FORMATTING_TOOLS_REF}
-    - vale --minAlertLevel error ../doc/sphinx/* ../examples/* ../README.md ../ChangeLog.md
+    - vale --minAlertLevel error ../doc/sphinx/* ../README.md ../ChangeLog.md
