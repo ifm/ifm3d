@@ -24,7 +24,7 @@ $ sudo sh -c 'echo "deb https://nexus.ifm.com/repository/ifm-robotics_l4t_jetpac
 
 Add the public key for the repository:
 ```
-$ sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 8AB59D3A2BD7B692
+$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key 8AB59D3A2BD7B692
 ```
 
 Install the software:
