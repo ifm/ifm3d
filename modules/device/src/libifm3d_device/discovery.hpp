@@ -14,6 +14,7 @@
 #include <iomanip>
 #include <chrono>
 #include <thread>
+#include <system_error>
 #include <ifm3d/device/ifm_network_device.h>
 #ifdef __unix__
 #  include <arpa/inet.h>
@@ -360,7 +361,22 @@ namespace ifm3d
         {
           auto shared_this = this->shared_from_this();
           timer_.async_wait([shared_this](const asio::error_code&) {
-            shared_this->_CheckTimeout();
+            try
+              {
+                shared_this->_CheckTimeout();
+              }
+            catch (std::system_error err)
+              {
+                if (err.code().category() == asio::system_category() &&
+                    err.code().value() == asio::error::bad_descriptor)
+                  {
+                    // Socket already closed
+                  }
+                else
+                  {
+                    std::cout << err.code() << ": " << err.what() << std::endl;
+                  }
+              }
           });
         }
     }
@@ -401,6 +417,25 @@ namespace ifm3d
     NetworkSearch()
     {
       device_list_.clear();
+
+#ifdef __unix__
+
+      /* Creating universal listener udp connecton */
+      asio::ip::udp::endpoint endpoint(asio::ip::address_v4::any(),
+                                       BCAST_DEFAULT_PORT);
+      auto con = std::make_shared<UDPConnection>(io_context_, endpoint);
+
+      con->RegisterOnReceive(std::bind(&IFMDeviceDiscovery::_OnReceive,
+                                       this,
+                                       std::placeholders::_1,
+                                       std::placeholders::_2,
+                                       std::placeholders::_3));
+      con->RegisterOnClose(std::bind(&IFMDeviceDiscovery::_RemoveConnection,
+                                     this,
+                                     std::placeholders::_1));
+
+      connection_list_.push_back(con);
+#endif
 
       try
         {

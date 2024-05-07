@@ -1,0 +1,38 @@
+release:teams_notification:
+  stage: release
+  image: 
+    name: quay.io/curl/curl:latest
+    entrypoint: [""]
+  tags: 
+    - shared_docker
+  rules:
+    - !reference [.tagged, rules]
+  needs:
+    - job: release:github
+      artifacts: false
+  script:
+    - export VERSION=$(echo ${CI_COMMIT_TAG} | cut -c 2-)
+    - >-
+      cat .gitlab/pre_release_card.json 
+      | sed "s|%%VERSION%%|${VERSION}|g" 
+      | sed "s|%%PRE_RELEASE_PYTHON_INDEX%%|${TEST_PYTHON_REPO_URL}|g" 
+      | curl -H "Content-Type: application/json" -d @- ${TEAMS_WEBHOOK_URL}
+
+deploy:teams_notification:
+  stage: deploy
+  image: 
+    name: quay.io/curl/curl:latest
+    entrypoint: [""]
+  tags: 
+    - shared_docker
+  rules:
+    - !reference [.tagged, rules]
+  needs:
+    - job: deploy:start
+      artifacts: false
+  script:
+    - export VERSION=$(echo ${CI_COMMIT_TAG} | cut -c 2-)
+    - >-
+      cat .gitlab/release_card.json 
+      | sed "s|%%VERSION%%|${VERSION}|g" 
+      | curl -H "Content-Type: application/json" -d @- ${TEAMS_WEBHOOK_URL}

@@ -1,4 +1,4 @@
-## Docker dev containers
+## Docker development containers
 Multiple development containers are available. You can pull them using the following command, with the relevant tag:
 ```
 $ docker pull ghcr.io/ifm/ifm3d:TAG
@@ -14,7 +14,7 @@ The full list of available container versions is available {{ '[here]({})'.forma
 
 For each tag, several suffixes are available:
 - `ubuntu`: an Ubuntu-based build, available both for amd64 and aarch64.
-- `l4t`: a build based on nvidia's Linux 4 Tegra, only available for aarch64 architecture.
+- `l4t`: a build based on NVIDIA's Linux 4 Tegra, only available for aarch64 architecture.
 
 Each of these suffixes can be combined with a tag to get a specific version for a specific OS. For instance, you can use the tag `v0.93.0-l4t` to get the Linux 4 Tegra based build of ifm3d version 0.93.0.
 When no suffix is added to the tag, the default build is used, which is Ubuntu based.

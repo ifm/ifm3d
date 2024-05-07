@@ -15,6 +15,7 @@
 
 namespace ifm3d
 {
+  /** @ingroup Device */
   struct IFM3D_DEVICE_EXPORT SemVer
   {
     SemVer(size_t major,

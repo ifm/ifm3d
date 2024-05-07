@@ -18,12 +18,11 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <glog/logging.h>
 #include <xmlrpc-c/client.hpp>
 #include <fmt/core.h>
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/device/logging.h>
+#include <ifm3d/common/logging/log.h>
 #include <xmlrpc_wrapper.hpp>
 
 namespace ifm3d
@@ -47,7 +46,7 @@ namespace ifm3d
     void Remove(const std::string& jsonPointer);
     void Reset(const std::string& jsonPointer);
     json GetInit();
-    void SaveInit();
+    void SaveInit(const std::vector<std::string>& pointers);
     std::string GetInitStatus();
     std::string GetSchema();
     void Lock(const std::string& password);
@@ -93,13 +92,13 @@ ifm3d::O3R::Impl::Get(const std::vector<std::string>& path)
 ifm3d::json
 ifm3d::O3R::Impl::ResolveConfig(const json::json_pointer& ptr)
 {
-  return this->Get({})[ptr];
+  return this->Get({ptr.to_string()})[ptr];
 }
 
 void
 ifm3d::O3R::Impl::Set(const std::string& config)
 {
-  this->xwrapper_->XCallMain("set", config);
+  this->xwrapper_->XCallMainTimeout("set", NET_WAIT_O3R_SET, config);
 }
 
 void
@@ -122,9 +121,16 @@ ifm3d::O3R::Impl::GetInit()
 }
 
 void
-ifm3d::O3R::Impl::SaveInit()
+ifm3d::O3R::Impl::SaveInit(const std::vector<std::string>& pointers)
 {
-  this->xwrapper_->XCallMain("saveInit");
+  if (pointers.size() == 0)
+    {
+      this->xwrapper_->XCallMain("saveInit");
+    }
+  else
+    {
+      this->xwrapper_->XCallMain("saveInit", pointers);
+    }
 }
 
 std::string
@@ -158,33 +164,121 @@ ifm3d::O3R::Impl::Unlock(const std::string& password)
 ifm3d::PortInfo
 ifm3d::O3R::Impl::Port(const std::string& port)
 {
-  auto port_data =
-    ResolveConfig(json::json_pointer(fmt::format("/ports/{0}", port)));
+  auto get_port_data = [this](const ifm3d::json::json_pointer basePtr,
+                              const std::string& port) {
+    auto port_data = ResolveConfig(basePtr / port);
 
-  if (port_data.is_null())
+    if (port_data.is_null())
+      {
+        throw ifm3d::Error(IFM3D_INVALID_PORT);
+      }
+    return port_data;
+  };
+  try
     {
-      throw ifm3d::Error(IFM3D_INVALID_PORT);
+      if (port.find("app") == 0)
+        {
+          auto port_data =
+            get_port_data("/applications/instances"_json_pointer, port);
+          auto pcicTCPPort = port_data["/data/pcicTCPPort"_json_pointer];
+          return {port, pcicTCPPort, "app"};
+        }
+      if (port.find("port") == 0)
+        {
+          auto port_data = get_port_data("/ports"_json_pointer, port);
+          auto pcicTCPPort = port_data["/data/pcicTCPPort"_json_pointer];
+          auto type = port_data["/info/features/type"_json_pointer];
+          return {port, pcicTCPPort, type};
+        }
+      if (port.find("diagnostics") == 0)
+        {
+          auto json = ResolveConfig({"/device/diagnostic"_json_pointer});
+          auto daig_port = json["/data/pcicPort"_json_pointer];
+          return {"diagnostics", daig_port, "Diagnostics"};
+        }
     }
-
-  return {port,
-          port_data["/data/pcicTCPPort"_json_pointer],
-          port_data["/info/features/type"_json_pointer]};
+  catch (const ifm3d::json::exception& ex)
+    {
+      LOG_WARNING("JSON: {}", ex.what());
+      throw ifm3d::Error(IFM3D_JSON_ERROR);
+    }
+  throw ifm3d::Error(IFM3D_DEVICE_PORT_NOT_SUPPORTED, port);
 }
 
 std::vector<ifm3d::PortInfo>
 ifm3d::O3R::Impl::Ports()
 {
   std::vector<ifm3d::PortInfo> result;
+  ifm3d::json device_dump = {};
 
-  auto ports = ResolveConfig("/ports"_json_pointer);
-  for (const auto& port : ports.items())
+  try
     {
-      auto port_key = port.key();
-      auto port_data = port.value();
+      device_dump =
+        Get({"/ports", "/applications/instances", "/device/diagnostic"});
+    }
+  catch (ifm3d::Error& error)
+    {
+      LOG_WARNING("XMLRPC ERRO : {}", error.what());
+      device_dump = Get({});
+    }
+  try
+    {
+      auto json_ptr = "/ports"_json_pointer;
+      if (device_dump.contains(json_ptr))
+        {
+          auto ports = device_dump[json_ptr];
+          for (const auto& port : ports.items())
+            {
+              auto port_key = port.key();
+              auto port_data = port.value();
 
-      result.push_back({port_key,
-                        port_data["/data/pcicTCPPort"_json_pointer],
-                        port_data["/info/features/type"_json_pointer]});
+              result.push_back(
+                {port_key,
+                 port_data["/data/pcicTCPPort"_json_pointer],
+                 port_data["/info/features/type"_json_pointer]});
+            }
+        }
+    }
+  catch (const std::exception& ex)
+    {
+      LOG_WARNING("JSON: {}", ex.what());
+    }
+  try
+    {
+      auto json_ptr = "/applications/instances"_json_pointer;
+      if (device_dump.contains(json_ptr))
+        {
+          auto app_ports = device_dump["/applications/instances"_json_pointer];
+          for (const auto& port : app_ports.items())
+            {
+              auto port_key = port.key();
+              auto port_data = port.value();
+
+              result.push_back({port_key,
+                                port_data["/data/pcicTCPPort"_json_pointer],
+                                "app"});
+            }
+        }
+    }
+  catch (const std::exception& ex)
+    {
+      LOG_WARNING("JSON: {}", ex.what());
+    }
+
+  try
+    {
+      auto json_ptr = "/device/diagnostic"_json_pointer;
+      if (device_dump.contains(json_ptr))
+        {
+          auto daig_port =
+            device_dump["/device/diagnostic/data/pcicPort"_json_pointer];
+
+          result.push_back({"diagnostics", daig_port, "Diagnostics"});
+        }
+    }
+  catch (const std::exception& ex)
+    {
+      LOG_WARNING("JSON: {}", ex.what());
     }
 
   return result;

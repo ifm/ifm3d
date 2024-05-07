@@ -1,0 +1,22 @@
+deploy:github:
+  variables:
+    GH_TOKEN: ${IFM_CSR_GH_RELEASE_TOKEN}
+  stage: deploy
+  image: ghcr.io/cicirello/pyaction
+  tags: 
+    - shared_docker
+  needs:
+    - job: release:github
+      artifacts: false
+    - job: deploy:start
+      artifacts: false
+  rules:
+    - !reference [.tagged, rules]
+  before_script:
+  - |
+    apt-get -y update
+    git config --global user.email "support.robotics@ifm.com"
+    git config --global user.name "ifm-csr"  
+  script:
+    - export tag_value=$(cat VERSION | awk  '{print $1}' FS="*")
+    - gh release edit $tag_value  -R https://github.com/ifm/ifm3d.git --prerelease=false --latest

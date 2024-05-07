@@ -5,13 +5,14 @@
  */
 
 #include <ifm3d/tools/cmdline_app.h>
-#include <ifm3d/tools/mutable_args.h>
 #include <ifm3d/tools/make_app.h>
 #include <cstdint>
 #include <iostream>
 #include <string>
 #include <memory>
 #include <ifm3d/device.h>
+#include <ifm3d/common/logging/logger.h>
+#include <ifm3d/common/logging/log_writer_file.h>
 
 ifm3d::CmdLineApp::CmdLineApp(int argc,
                               const char** argv,
@@ -27,13 +28,27 @@ ifm3d::CmdLineApp::CmdLineApp(int argc,
     ("xmlrpc-port","XMLRPC port of the sensor",
      cxxopts::value<std::uint16_t>()->default_value(std::to_string(ifm3d::DEFAULT_XMLRPC_PORT)))
     ("password","Password for establishing an edit-session with the sensor",
-     cxxopts::value<std::string>()->default_value(ifm3d::DEFAULT_PASSWORD));
+     cxxopts::value<std::string>()->default_value(ifm3d::DEFAULT_PASSWORD))
+    ("log-level","The minimum severity of messages that will be logged, possible values in descending order: CRITICAL,ERROR,WARN,INFO,DEBUG,VERBOSE,NONE",
+     cxxopts::value<std::string>()->default_value("WARNING"))
+    ("log-file","Log to a file instead of stderr",
+     cxxopts::value<std::string>());
 
   this->all_opts_.add_options("Hidden")("command",
     "ifm3d Sub-command to execute", cxxopts::value<std::string>()->default_value(name));
 
   // clang-format on
   this->_Parse(argc, argv);
+
+  ifm3d::Logger::Get().SetLogLevel(ifm3d::LogLevelFromString(
+    (*this->vm_)["log-level"].as<std::string>().c_str()));
+
+  if (this->vm_->count("log-file"))
+    {
+      ifm3d::Logger::Get().SetWriter(
+        std::make_shared<ifm3d::LogWriterFile<ifm3d::LogFormatterText>>(
+          (*this->vm_)["log-file"].as<std::string>()));
+    }
 
   this->ip_ = (*this->vm_)["ip"].as<std::string>();
   this->xmlrpc_port_ = (*this->vm_)["xmlrpc-port"].as<uint16_t>();
@@ -53,10 +68,9 @@ ifm3d::CmdLineApp::CmdLineApp(int argc,
 void
 ifm3d::CmdLineApp::_Parse(int argc, const char** argv)
 {
-  auto args = std::make_unique<ifm3d::MutableArgs>(argc, argv);
   this->all_opts_.allow_unrecognised_options();
-  vm_ = std::make_unique<cxxopts::ParseResult>(
-    this->all_opts_.parse(args->argc, args->argv));
+  vm_ =
+    std::make_unique<cxxopts::ParseResult>(this->all_opts_.parse(argc, argv));
 }
 
 void

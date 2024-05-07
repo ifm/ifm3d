@@ -41,44 +41,52 @@ bind_framegrabber(pybind11::module_& m)
     )"
   );
 
-  framegrabber.def(
-    "start",
-    [](const ifm3d::FrameGrabber::Ptr& self, const ifm3d::FrameGrabber::BufferList& buffers, const std::optional<py::dict>& pcicFormat) {
-      py::object json_dumps = py::module::import("json").attr("dumps");
-      return FutureAwaitable<void>(pcicFormat.has_value() 
-        ? self->Start(buffers, ifm3d::json::parse(json_dumps(pcicFormat.value()).cast<std::string>())) 
-        : self->Start(buffers));
-    },
-    py::arg("buffers") = ifm3d::FrameGrabber::BufferList{},
-    py::arg("pcic_format") = std::nullopt,
-    R"(
-      Starts the worker thread for streaming in pixel data from the device
+  {
+    py::options options;
+    options.disable_function_signatures();
 
-      Returns
-      -------
-      FutureAwaitable
+    framegrabber.def(
+      "start",
+      [](const ifm3d::FrameGrabber::Ptr& self, const ifm3d::FrameGrabber::BufferList& buffers, const std::optional<py::dict>& pcicFormat) {
+        py::object json_dumps = py::module::import("json").attr("dumps");
+        return FutureAwaitable<void>(pcicFormat.has_value() 
+          ? self->Start(buffers, ifm3d::json::parse(json_dumps(pcicFormat.value()).cast<std::string>())) 
+          : self->Start(buffers));
+      },
+      py::arg("buffers") = ifm3d::FrameGrabber::BufferList{},
+      py::arg("pcic_format") = std::nullopt,
+      py::doc(R"(
+        start(self: ifm3dpy.framegrabber.FrameGrabber, buffers: typing.Sequence[Union[int, ifm3dpy.framegrabber.buffer_id]] = [], pcic_format: Optional[dict] = None) -> ifm3dpy.Awaitable
 
-          Resolves when framegrabber is ready to receive frames. 
 
-      Parameters
-      ----------
-      buffers : List[uint64]
-          A List of buffer_ids for receiving, passing in an List
-          set will received all available images. The buffer_ids are specific to
-          the current Organizer. See buffer_id for a list of buffer_ids available
-          with the default Organizer
-      
-      pcicFormat : Dict
-          allows to manually set a PCIC pcicFormat for
-          asynchronous results. See ifm3d::make_schema for generation logic of the
-          default pcicFormat. Manually setting the pcicFormat should rarely be needed and
-          most usecases should be covered by the default generated pcicFormat.
-      
-          Note: The FrameGrabber is relying on some specific formatting rules, if
-          they are missing from the pcicFormat the FrameGrabber will not be able to
-          extract the image data.
-    )"
-  );
+        Starts the worker thread for streaming in pixel data from the device
+
+        Returns
+        -------
+        FutureAwaitable
+
+            Resolves when framegrabber is ready to receive frames. 
+
+        Parameters
+        ----------
+        buffers : List[uint64]
+            A List of buffer_ids for receiving, passing in an List
+            set will received all available images. The buffer_ids are specific to
+            the current Organizer. See buffer_id for a list of buffer_ids available
+            with the default Organizer
+        
+        pcicFormat : Dict
+            allows to manually set a PCIC pcicFormat for
+            asynchronous results. See ifm3d::make_schema for generation logic of the
+            default pcicFormat. Manually setting the pcicFormat should rarely be needed and
+            most usecases should be covered by the default generated pcicFormat.
+        
+            Note: The FrameGrabber is relying on some specific formatting rules, if
+            they are missing from the pcicFormat the FrameGrabber will not be able to
+            extract the image data.
+      )")
+    );
+  }
 
   framegrabber.def(
     "stop",
@@ -204,36 +212,44 @@ bind_framegrabber(pybind11::module_& m)
     )"
   );
 
-  framegrabber.def(
-    "on_error",
-    [](const ifm3d::FrameGrabber::Ptr& fg, const std::function<void(const py::object&)>& callback) {
-      if(callback) 
-        {
-            fg->OnError([callback](const ifm3d::Error& error){
-            py::gil_scoped_acquire acquire;
-            try
-              {
-                auto error_class = py::module::import("ifm3dpy").attr("Error");
-                auto error_ = error_class(error.code(), error.message(),error.what());
-                callback(error_);
-              }
-            catch(py::error_already_set ex)
-              {
-                py::print(ex.value());
-              }
-          });
-        }
-      else 
-        {
-          fg->OnError();
-        }
-    },
-    py::arg("callback") =  std::function<void(const py::object&)>(),
-    R"(
-      The callback will be executed whenever an error condition
-      occur while grabbing the data from device.
-    )"
-  );
+  {
+    py::options options;
+    options.disable_function_signatures();
+
+    framegrabber.def(
+      "on_error",
+      [](const ifm3d::FrameGrabber::Ptr& fg, const std::function<void(const py::object&)>& callback) {
+        if(callback) 
+          {
+              fg->OnError([callback](const ifm3d::Error& error){
+              py::gil_scoped_acquire acquire;
+              try
+                {
+                  auto error_class = py::module::import("ifm3dpy").attr("Error");
+                  auto error_ = error_class(error.code(), error.message(),error.what());
+                  callback(error_);
+                }
+              catch(py::error_already_set ex)
+                {
+                  py::print(ex.value());
+                }
+            });
+          }
+        else 
+          {
+            fg->OnError();
+          }
+      },
+      py::arg("callback") =  std::function<void(const py::object&)>(),
+      R"(
+        on_error(self: ifm3dpy.framegrabber.FrameGrabber, callback: Callable[[ifm3dpy.device.Error], None] = None) -> None
+
+
+        The callback will be executed whenever an error condition
+        occur while grabbing the data from device.
+      )"
+    );
+  }
 
   framegrabber.def(
     "sw_trigger",

@@ -7,20 +7,26 @@ main(int argc, char** argv)
 
   std::map<std::string, std::string> device_to_filter(
     {{"O3D",
-      "DeviceReset.*:FrameGrabberTest.*:-FrameGrabberTest.BlankSchema2D:-"
-      "FrameGrabberTest.schema_o3r_rgb_image_info:-FrameGrabberTest.schema_"
-      "o3r_dist_image_info:-FrameGrabberTest.only_algo_debug:-"
-      "FrameGrabberTest.algo_with_other_data"},
+      "FrameGrabberTest.*:-FrameGrabberTest.BlankSchema2D:FrameGrabberTest."
+      "schema_o3r_rgb_image_info:FrameGrabberTest.schema_o3r_dist_image_info:"
+      "FrameGrabberTest.only_algo_debug:"
+      "FrameGrabberTest.algo_with_other_data:FrameGrabberTest."
+      "DistanceNoiseImage_type:"
+      "FrameGrabberTest.confidence_image_2D:FrameGrabberTest.onError:"
+      "FrameGrabberTest.digonistic_data_grabber:FrameGrabberTest.portinfo"},
      {"O3X",
-      "DeviceReset.*:FrameGrabberTest.*:-FrameGrabberTest.BlankSchema2D:-"
-      "FrameGrabberTest.schema_o3r_rgb_image_info:-FrameGrabberTest.schema_"
-      "o3r_dist_image_info:-"
-      "FrameGrabberTest.SWTriggerMultipleClients:-FrameGrabberTest.only_algo_"
-      "debug:-FrameGrabberTest.algo_with_other_data"},
+      "FrameGrabberTest.*:-FrameGrabberTest.BlankSchema2D:"
+      "FrameGrabberTest.schema_o3r_rgb_image_info:FrameGrabberTest.schema_"
+      "o3r_dist_image_info:FrameGrabberTest.only_algo_debug:FrameGrabberTest."
+      "algo_with_other_data:"
+      "FrameGrabberTest.SWTriggerMultipleClients:FrameGrabberTest."
+      "confidence_image_2D::FrameGrabberTest.JSON_model:FrameGrabberTest."
+      "onError:FrameGrabberTest.digonistic_data_grabber:FrameGrabberTest."
+      "portinfo"},
      {"O3R",
-      "FrameGrabberTest.*:-FrameGrabberTest.ByteBufferBasics:-"
-      "FrameGrabberTest.SoftwareTrigger:-FrameGrabberTest."
-      "SWTriggerMultipleClients:-FrameGrabber.JSON_model"},
+      "FrameGrabberTest.*:-FrameGrabberTest.FactoryDefaults:FrameGrabberTest."
+      "SoftwareTrigger:FrameGrabberTest."
+      "SWTriggerMultipleClients:FrameGrabberTest.JSON_model"},
      {"device_independent", "DistanceImageInfo.*:Buffer.*:Schema.*"}});
 
   std::map<ifm3d::Device::device_family, std::string> device_family_to_device(

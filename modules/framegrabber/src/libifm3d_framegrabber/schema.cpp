@@ -13,7 +13,7 @@
 #include <set>
 #include <ifm3d/device/util.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/device/json.hpp>
+#include <ifm3d/common/json.hpp>
 
 const ifm3d::SemVer O3R_SCHEMA_FIRMWARE_COMPATIBILITY_CHECK_VERSION =
   ifm3d::SemVer(1, 0, 1);
@@ -42,6 +42,8 @@ const std::map<ifm3d::buffer_id, const ifm3d::json> o3d_schema_map{
   {ifm3d::buffer_id::JSON_MODEL, {{"type", "blob"}, {"id", "json_model"}}},
   {ifm3d::buffer_id::CONFIDENCE_IMAGE,
    {{"type", "blob"}, {"id", "confidence_image"}}},
+  {ifm3d::buffer_id::DIAGNOSTIC,
+   {{"type", "blob"}, {"id", "diagnostic_data"}}},
   {ifm3d::buffer_id::EXTRINSIC_CALIB,
    {{"type", "blob"}, {"id", "extrinsic_calibration"}}},
   {ifm3d::buffer_id::EXPOSURE_TIME,
@@ -86,6 +88,26 @@ const std::map<ifm3d::buffer_id, const ifm3d::json> o3r_schema_map{
   {ifm3d::buffer_id::O3R_ODS_INFO, {{"type", "blob"}, {"id", "O3R_ODS_INFO"}}},
   {ifm3d::buffer_id::O3R_ODS_OCCUPANCY_GRID,
    {{"type", "blob"}, {"id", "O3R_ODS_OCCUPANCY_GRID"}}},
+  {ifm3d::buffer_id::O3R_RESULT_JSON,
+   {{"type", "blob"}, {"id", "O3R_RESULT_JSON"}}},
+  {ifm3d::buffer_id::O3R_RESULT_ARRAY2D,
+   {{"type", "blob"}, {"id", "O3R_RESULT_ARRAY2D"}}},
+  {ifm3d::buffer_id::O3R_ODS_FLAGS,
+   {{"type", "records"},
+    {"id", "O3R_ODS_FLAGS"},
+    {"elements", {{{"type", "blob"}, {"id", "O3R_RESULT_ARRAY2D"}}}}}},
+  {ifm3d::buffer_id::O3R_MCC_LIVE_IMAGE,
+   {{"type", "records"},
+    {"id", "O3R_MCC_LIVE_IMAGE"},
+    {"elements", {{{"type", "blob"}, {"id", "O3R_RESULT_ARRAY2D"}}}}}},
+  {ifm3d::buffer_id::O3R_MCC_MOTION_IMAGE,
+   {{"type", "records"},
+    {"id", "O3R_MCC_MOTION_IMAGE"},
+    {"elements", {{{"type", "blob"}, {"id", "O3R_RESULT_ARRAY2D"}}}}}},
+  {ifm3d::buffer_id::O3R_MCC_STATIC_IMAGE,
+   {{"type", "records"},
+    {"id", "O3R_MCC_STATIC_IMAGE"},
+    {"elements", {{{"type", "blob"}, {"id", "O3R_RESULT_ARRAY2D"}}}}}},
 };
 
 ifm3d::json

@@ -91,7 +91,8 @@ class CMakeBuild(build_ext):
                       '-DCMAKE_USE_OPENSSL=OFF',
                       '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_ARCHIVE_OUTPUT_DIRECTORY=' + extdir,
-                      '-DPYTHON_EXECUTABLE=' + sys.executable]
+                      '-DPYTHON_EXECUTABLE=' + sys.executable,
+                      '-DCREATE_PYTHON_STUBS=OFF']
 
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
@@ -116,7 +117,7 @@ class CMakeBuild(build_ext):
         else:
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             cmake_args += ['-DCMAKE_POSITION_INDEPENDENT_CODE=ON']
-            build_args += ['--', '-j2']
+            build_args += ['--']
 
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
@@ -125,9 +126,12 @@ class CMakeBuild(build_ext):
             os.makedirs(self.build_temp)
         subprocess.check_call(['cmake', ext.sourcedir] +
                               cmake_args, cwd=self.build_temp, env=env)
-        subprocess.check_call(['cmake', '--build', '.'] +
+        subprocess.check_call(['cmake', '--build', '.', f'-j{os.cpu_count()}'] +
                               build_args, cwd=self.build_temp)
 
+# Read the contents of README file
+def read_description(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname), encoding='utf-8').read()
 
 setup(
     name='ifm3dpy',
@@ -137,11 +141,17 @@ setup(
     description='Library for working with ifm pmd-based 3D ToF Cameras',
     url='https://github.com/ifm/ifm3d',
     license='Apache 2.0',
-    long_description='',
+    long_description=read_description("README.md"),
+    long_description_content_type='text/markdown',
     ext_modules=[CMakeExtension('IFM3D_PYBIND11')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
     packages=find_packages(),
     entry_points={'console_scripts': ['ifm3dpy = ifm3dpy:_run_cmdtool']},
-    install_requires=['numpy']
+    install_requires=['numpy'],
+    project_urls={
+        'Documentation': 'https://ifm3d.com/',
+        'Issue Tracker': 'https://github.com/ifm/ifm3d/issues',
+        'Source Code': 'https://github.com/ifm/ifm3d'
+    }
 )

@@ -2,15 +2,13 @@
 test:windows_2019:
   stage: test
   tags:
-    - ifm3d_windows
+    - shared_docker_windows
+  image:
+    name: ${DOCKER_IMAGE_WINDOWS_BUILDER}
+    entrypoint: ["cmd", "/C"]
   variables:
     GIT_CLEAN_FLAGS: none
-    HTTP_PROXY: ${CI_HTTP_PROXY}
-    HTTPS_PROXY: ${CI_HTTPS_PROXY}
-    NO_PROXY: ${CI_NO_PROXY}
   script:
-    - mkdir build -Force
+    - cmake.exe -B build -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_TESTS=ON -DGTEST_CMAKE_DIR=C:/googletest -Dgtest_force_shared_crt=TRUE -DBUILD_MODULE_TOOLS=OFF -DCMAKE_BUILD_TYPE=Release .
     - cd build
-    - 'cmake.exe -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=D:/ifm3d_deps/install_VS2019 -DBUILD_MODULE_PCICCLIENT=ON -DCMAKE_PREFIX_PATH="D:/ifm3d_deps/install_VS2019" -DBUILD_TESTS=ON -DGTEST_CMAKE_DIR=D:/ifm3d_deps/googletest/googletest -Dgtest_force_shared_crt=TRUE -DBUILD_IN_DEPS=ON ..'
     - cmake.exe --build . --config Release --clean-first --target check
- 

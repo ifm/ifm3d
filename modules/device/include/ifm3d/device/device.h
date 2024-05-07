@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <ifm3d/device/json.hpp>
+#include <ifm3d/common/json.hpp>
 #include <ifm3d/device/device_export.h>
 #include <ifm3d/device/ifm_network_device.h>
 #include <ifm3d/device/semver.h>
@@ -118,12 +118,16 @@ namespace ifm3d
     ALGO_DEBUG = 900,
     O3R_ODS_OCCUPANCY_GRID = 1000,
     O3R_ODS_INFO = 1001,
+    O3R_RESULT_JSON = 1002,
+    O3R_RESULT_ARRAY2D = 1003,
+    O3R_RESULT_IMU = 1004,
   };
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
   class XMLRPCWrapper;
 
-  /**
+  /** @ingroup Device
+   *
    * Software interface to an ifm 3D device
    *
    * The `Device` class implements the underlying network protocol for

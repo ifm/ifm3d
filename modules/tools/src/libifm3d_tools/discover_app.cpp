@@ -12,7 +12,7 @@
 ifm3d::DiscoverApp::DiscoverApp(int argc,
                                 const char** argv,
                                 const std::string& name)
-  : ifm3d::CmdLineApp(argc, argv, name)
+  : ifm3d::CmdLineApp(argc, argv, name, false)
 {}
 
 int
@@ -55,7 +55,8 @@ ifm3d::DiscoverApp::Run()
               std::cout << ip_address << " (Unsupported device)" << std::endl;
               continue;
             }
-          std::cout << ip_address << " (" << device_type << ")" << std::endl;
+          std::cout << ip_address << " (" << device_type << ")"
+                    << " [" << device.GetMACAddress() << "]" << std::endl;
         }
       catch (ifm3d::Error& e)
         {

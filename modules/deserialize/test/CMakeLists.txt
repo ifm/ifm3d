@@ -22,17 +22,6 @@ file(GLOB TEST_DATA_FILES data/*.data)
 file(COPY ${TEST_DATA_FILES}
     DESTINATION ${IFM3D_DESERIALIZE_BINARY_DIR}/test)
 
-if(NOT BUILD_IN_DEPS)
-  find_package(glog QUIET CONFIG NAMES google-glog glog)
-  if (NOT TARGET glog::glog)
-    find_library(LIB_glog NAMES glog)
-  else()
-    set(LIB_glog glog::glog)
-  endif (NOT TARGET glog::glog)
-else(NOT BUILD_IN_DEPS)
-  set( LIB_glog glog)
-endif(NOT BUILD_IN_DEPS)
-
 file(GLOB TEST_SOURCES *.cpp)
 add_executable(ifm3d-deserialize-tests ${TEST_SOURCES})
 
@@ -41,9 +30,11 @@ target_include_directories(ifm3d-deserialize-tests PRIVATE
  )
 target_link_libraries(ifm3d-deserialize-tests 
                       gtest_main
+                      ifm3d_common
                       ifm3d_deserialize
                       ifm3d_framegrabber
                       ifm3d_device
+                      $<BUILD_INTERFACE:fmt::fmt-header-only>
                       )
 
 if(NOT CMAKE_CROSSCOMPILING)

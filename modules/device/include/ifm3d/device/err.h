@@ -12,6 +12,12 @@
 #include <string>
 #include <ifm3d/device/device_export.h>
 
+/** @ingroup Device
+ * @{
+ */
+/** @defgroup ErrorCodes
+ * @{
+ */
 // library errors
 extern IFM3D_DEVICE_EXPORT const int IFM3D_NO_ERRORS;
 extern IFM3D_DEVICE_EXPORT const int IFM3D_XMLRPC_FAILURE;
@@ -55,6 +61,10 @@ extern IFM3D_DEVICE_EXPORT const int IFM3D_BUFFER_ID_NOT_AVAILABLE;
 extern IFM3D_DEVICE_EXPORT const int IFM3D_NETWORK_ERROR;
 extern IFM3D_DEVICE_EXPORT const int IFM3D_SYSTEM_ERROR;
 extern IFM3D_DEVICE_EXPORT const int IFM3D_CORRUPTED_STRUCT;
+extern IFM3D_DEVICE_EXPORT const int
+  IFM3D_DEVICE_PORT_INCOMPATIBLE_WITH_ORGANIZER;
+extern IFM3D_DEVICE_EXPORT const int IFM3D_DEVICE_PORT_NOT_SUPPORTED;
+extern IFM3D_DEVICE_EXPORT const int IFM3D_INDEX_OUT_OF_RANGE;
 // sensor errors
 extern IFM3D_DEVICE_EXPORT const int IFM3D_XMLRPC_OBJ_NOT_FOUND;
 extern IFM3D_DEVICE_EXPORT const int IFM3D_INVALID_PARAM;
@@ -86,6 +96,8 @@ extern IFM3D_DEVICE_EXPORT const int IFM3D_AUTO_EXPOSURE_NOT_SUPPORTED;
 extern IFM3D_DEVICE_EXPORT const int IFM3D_INVALID_FIRMWARE_VERSION;
 extern IFM3D_DEVICE_EXPORT const int IFM3D_PROXY_AUTH_REQUIRED;
 extern IFM3D_DEVICE_EXPORT const int IFM3D_PIXEL_FORMAT_NOT_SUPPORTED;
+/** @}*/
+/** @}*/
 
 namespace ifm3d
 {
@@ -97,7 +109,8 @@ namespace ifm3d
    */
   IFM3D_DEVICE_EXPORT const char* strerror(int errnum);
 
-  /**
+  /** @ingroup Device
+   *
    * Exception wrapper for library and system errors encountered by the
    * library.
    */

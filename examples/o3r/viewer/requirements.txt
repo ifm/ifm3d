@@ -1,2 +1,0 @@
-open3d==0.13.0
-opencv-python==4.5.3.56

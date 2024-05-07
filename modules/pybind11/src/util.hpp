@@ -12,7 +12,58 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 
+using namespace pybind11::literals;
+
 namespace py = pybind11;
+
+void
+bind_numpy(pybind11::module_& m)
+{
+  py::options options;
+  options.disable_function_signatures();
+  py::object view_class =
+    py::module::import("numpy").attr("ndarray").attr("view");
+  py::object parent_class = py::module::import("numpy").attr("ndarray");
+  py::object parent_metaclass =
+    py::reinterpret_borrow<py::object>((PyObject*)&PyType_Type)(parent_class);
+  py::dict attributes;
+
+  py::object wrapper_class = parent_metaclass("ifm3d_ndarray",
+                                              py::make_tuple(parent_class),
+                                              attributes);
+
+  wrapper_class.attr("__new__") = py::cpp_function(
+    [parent_class, view_class](py::object self,
+                               const py::array& data,
+                               const std::optional<py::dict>& metadata,
+                               py::args args,
+                               py::kwargs kwargs
+
+    ) {
+      auto obj = view_class(data, self);
+      obj.attr("metadata") = metadata;
+
+      return obj;
+    },
+    //  py::arg("data"),
+    //  py::arg("metadada"),
+    py::is_method(wrapper_class),
+    py::doc(R"(
+        __new__(self, data: ndarray, metada: dict) -> ndarray
+        Create a buffer as numpy.ndarray with metadata.
+      )"));
+
+  attributes["__array_finalize__"] = py::cpp_function(
+    [](py::object self, py::object obj) {
+      if (obj == Py_None)
+        {
+          return;
+        }
+      self.attr("metadata") = obj.attr("metadata");
+    },
+    py::is_method(wrapper_class));
+  m.attr("buffer") = wrapper_class;
+};
 
 namespace ifm3d
 {
@@ -97,6 +148,18 @@ namespace ifm3d
       default:
         throw std::runtime_error("Unsupported ifm3d::image type");
       }
+  }
+
+  template <typename T>
+  void
+  add_attr(pybind11::object& o,
+           const std::string& name,
+           const T& value,
+           const std::string& doc = "")
+  {
+    o.attr(name.c_str()) = value;
+    o.doc() =
+      o.doc().cast<std::string>() + "     \"" + name + "\", \"" + doc + "\"\n";
   }
 }
 

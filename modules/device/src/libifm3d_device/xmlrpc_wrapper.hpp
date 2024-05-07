@@ -17,15 +17,16 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <glog/logging.h>
 #include <xmlrpc-c/client.hpp>
 #include <ifm3d/device/legacy_device.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/device/logging.h>
+#include <ifm3d/common/logging/log.h>
 
 namespace ifm3d
 {
-  const int NET_WAIT = 3000; // millis
+  const int NET_WAIT = std::getenv("IFM3D_NET_WAIT") == nullptr ?
+                         3000 :
+                         std::stoi(std::getenv("IFM3D_NET_WAIT")); // millis
 
   const std::string XMLRPC_MAIN = "/api/rpc/v1/com.ifm.efector/";
 
@@ -35,11 +36,7 @@ namespace ifm3d
     XMLRPCWrapper(const std::string& ip, const std::uint16_t xmlrpc_port)
       : ip_(ip),
         xmlrpc_port_(xmlrpc_port),
-        xmlrpc_url_prefix_("http://" + ip + ":" + std::to_string(xmlrpc_port)),
-        xclient_(new xmlrpc_c::client_xml(xmlrpc_c::clientXmlTransportPtr(
-          new xmlrpc_c::clientXmlTransport_curl(
-            xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(
-              ifm3d::NET_WAIT)))))
+        xmlrpc_url_prefix_("http://" + ip + ":" + std::to_string(xmlrpc_port))
     {}
 
     // ---------------------------------------------
@@ -71,20 +68,36 @@ namespace ifm3d
     xmlrpc_c::value const
     XCall(std::string& url, const std::string& method, Args... args)
     {
+      return XCallTimeout(url, method, NET_WAIT, args...);
+    }
+
+    // ---------------------------------------------
+    // Encapsulates XMLRPC calls to the sensor and
+    // unifies the trapping of comm errors.
+    // ---------------------------------------------
+    template <typename... Args>
+    xmlrpc_c::value const
+    XCallTimeout(std::string& url,
+                 const std::string& method,
+                 int timeout,
+                 Args... args)
+    {
       xmlrpc_c::paramList params;
       this->XSetParams(params, args...);
       xmlrpc_c::rpcPtr rpc(method, params);
       xmlrpc_c::carriageParm_curl0 cparam(url);
+      xmlrpc_c::client_xml xlcient(
+        xmlrpc_c::clientXmlTransportPtr(new xmlrpc_c::clientXmlTransport_curl(
+          xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(timeout))));
 
-      std::lock_guard<std::mutex> lock(this->xclient_mutex_);
       try
         {
-          rpc->call(this->xclient_.get(), &cparam);
+          rpc->call(&xlcient, &cparam);
           return rpc->getResult();
         }
       catch (const std::exception& ex)
         {
-          LOG(ERROR) << url << "->" << method << ":" << ex.what();
+          LOG_ERROR("{} -> {}: {}", url, method, ex.what());
 
           if (std::strstr(ex.what(), "HTTP response code is 407, not 200"))
             {
@@ -110,8 +123,15 @@ namespace ifm3d
     xmlrpc_c::value const
     XCallMain(const std::string& method, Args... args)
     {
+      return this->XCallMainTimeout(method, NET_WAIT, args...);
+    }
+
+    template <typename... Args>
+    xmlrpc_c::value const
+    XCallMainTimeout(const std::string& method, int timeout, Args... args)
+    {
       std::string url = this->XPrefix() + ifm3d::XMLRPC_MAIN;
-      return this->XCall(url, method, args...);
+      return this->XCallTimeout(url, method, timeout, args...);
     }
 
     // utilities for taking xmlrpc structures to STL structures
@@ -186,7 +206,6 @@ namespace ifm3d
     std::uint16_t xmlrpc_port_;
     std::string xmlrpc_url_prefix_;
     xmlrpc_c::clientPtr xclient_;
-    std::mutex xclient_mutex_;
   };
 }
 

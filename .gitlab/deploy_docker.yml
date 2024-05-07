@@ -2,7 +2,9 @@
   stage: deploy
   tags:
     - shared_docker
-  image: toolhippie/manifest-tool:20210830
+  image: 
+    name: mplatform/manifest-tool:alpine-v2.0.8
+    entrypoint: [""]
   before_script:
     - !reference [.docker-config, script]
     - mkdir -p $HOME/.docker

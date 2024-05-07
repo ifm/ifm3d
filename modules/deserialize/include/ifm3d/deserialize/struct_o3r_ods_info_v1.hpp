@@ -24,6 +24,7 @@ namespace ifm3d
     constexpr auto ODS_INFO_ZONE_CONFIG_ID_INDEX = 0x000B;
   };
 
+  /** @ingroup Deserialize */
   class ODSInfoV1
   {
   public:
@@ -41,7 +42,8 @@ namespace ifm3d
         mkval<std::uint64_t>(start_ptr + ODS_INFO_TIMESTAMP_NS_INDEX);
       mkarray<uint8_t, 3>(start_ptr + ODS_INFO_ZONE_OCCUPIED_INDEX,
                           zone_occupied);
-      zone_config_id = mkval<float>(start_ptr + ODS_INFO_ZONE_CONFIG_ID_INDEX);
+      zone_config_id =
+        mkval<uint32_t>(start_ptr + ODS_INFO_ZONE_CONFIG_ID_INDEX);
     };
     /*@brief Timestamp of zone information [ns]*/
     uint64_t timestamp_ns;

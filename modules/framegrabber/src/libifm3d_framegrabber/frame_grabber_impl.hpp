@@ -25,11 +25,14 @@
 #include <mutex>
 #include <asio/use_future.hpp>
 #include <asio.hpp>
-#include <glog/logging.h>
+#include <ifm3d/common/logging/log.h>
 #include <ifm3d/fg/frame_grabber_export.h>
 #include <ifm3d/device.h>
 #include <ifm3d/fg/schema.h>
-#include <default_organizer.hpp>
+#include <o3d_organizer.hpp>
+#include <o3x_organizer.hpp>
+#include <o3r_organizer3D.hpp>
+#include <o3r_organizer.hpp>
 #include <fmt/core.h>
 
 namespace ifm3d
@@ -114,9 +117,9 @@ namespace ifm3d
     std::string cam_ip_;
     uint16_t pcic_port_;
     std::unique_ptr<asio::io_service> io_service_;
+    std::mutex io_service_mutex_;
     std::unique_ptr<asio::ip::tcp::socket> sock_;
     std::shared_future<void> finish_future_;
-    std::atomic<bool> is_running_;
     std::unique_ptr<Organizer> organizer_;
     std::set<buffer_id> requested_images_;
     bool is_ready_;
@@ -148,6 +151,7 @@ namespace ifm3d
 
     std::promise<Frame::Ptr> wait_for_frame_promise;
     std::shared_future<Frame::Ptr> wait_for_frame_future;
+    std::mutex wait_for_frame_mutex_;
 
     std::promise<void> trigger_feedback_promise_;
     std::shared_future<void> trigger_feedback_future_;
@@ -173,43 +177,91 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
     pcic_port_(pcic_port.value_or(ifm3d::DEFAULT_PCIC_PORT)),
     io_service_(),
     sock_(),
-    organizer_(std::make_unique<DefaultOrganizer>()),
     wait_for_frame_future(wait_for_frame_promise.get_future()),
     trigger_feedback_future_(trigger_feedback_promise_.get_future()),
     ready_future_(ready_promise_.get_future()),
-    is_running_(false),
     finish_future_(std::async(std::launch::async, []() {})),
-    is_ready_(false),
-    masking_(cam->AmI(Device::device_family::O3D) ||
-             cam->AmI(Device::device_family::O3X))
+    is_ready_(false)
 {
-  if (!pcic_port.has_value() && this->cam_->AmI(Device::device_family::O3D))
+  auto device_type = this->cam_->WhoAmI();
+  if (device_type == Device::device_family::O3D)
     {
-      try
+      this->SetMasking(true);
+      this->SetOrganizer(std::make_unique<O3DOrganizer>());
+      if (!pcic_port.has_value())
         {
-          this->pcic_port_ =
-            std::stoi(this->cam_->DeviceParameter("PcicTcpPort"));
-        }
-      catch (const ifm3d::Error& ex)
-        {
-          LOG(ERROR) << "Could not get PCIC Port of the camera: " << ex.what();
-          LOG(WARNING) << "Assuming default PCIC port: "
-                       << ifm3d::DEFAULT_PCIC_PORT;
-          this->pcic_port_ = ifm3d::DEFAULT_PCIC_PORT;
+          try
+            {
+              this->pcic_port_ =
+                std::stoi(this->cam_->DeviceParameter("PcicTcpPort"));
+            }
+          catch (const ifm3d::Error& ex)
+            {
+              LOG_ERROR("Could not get PCIC Port of the camera: {}",
+                        ex.what());
+              LOG_WARNING("Assuming default PCIC port: {}",
+                          ifm3d::DEFAULT_PCIC_PORT);
+              this->pcic_port_ = ifm3d::DEFAULT_PCIC_PORT;
+            }
         }
     }
 
-  LOG(INFO) << "Camera connection info: ip=" << this->cam_ip_
-            << ", port=" << this->pcic_port_;
+  else if (device_type == Device::device_family::O3X)
+    {
+      this->SetMasking(true);
+      this->SetOrganizer(std::make_unique<O3XOrganizer>());
+    }
+  else if (device_type == Device::device_family::O3R)
+    {
+      this->SetMasking(false);
+
+      auto ports_info =
+        std::dynamic_pointer_cast<ifm3d::O3R>(this->cam_)->Ports();
+
+      for (auto& port_info : ports_info)
+        {
+          if (port_info.pcic_port == pcic_port)
+            {
+              if (port_info.type == "3D")
+                {
+                  this->SetOrganizer(std::make_unique<O3ROrganizer3D>());
+                }
+              else
+                {
+                  this->SetOrganizer(std::make_unique<O3ROrganizer>());
+                }
+              LOG_INFO("Device port compatibility verified, Organizer "
+                       "configuration aligned.")
+            }
+        }
+      if (organizer_ == nullptr)
+        {
+          this->SetOrganizer(std::make_unique<O3ROrganizer>());
+          LOG_WARNING(
+            "The specified port is not compatible with the connected device. "
+            "Falling back to the default Organizer");
+        }
+    }
+
+  if (organizer_ == nullptr)
+    {
+      LOG_ERROR(
+        "The device's PCIC port does not match any compatible organizers");
+      throw ifm3d::Error(IFM3D_DEVICE_PORT_INCOMPATIBLE_WITH_ORGANIZER);
+    }
+
+  LOG_INFO("Camera connection info: ip={}, port={}",
+           this->cam_ip_,
+           this->pcic_port_);
 }
 
 ifm3d::FrameGrabber::Impl::~Impl()
 {
-  VLOG(IFM3D_TRACE) << "FrameGrabber dtor running...";
+  LOG_VERBOSE("FrameGrabber dtor running...");
 
   Stop().wait();
 
-  VLOG(IFM3D_TRACE) << "FrameGrabber destroyed.";
+  LOG_VERBOSE("FrameGrabber destroyed.");
 }
 
 //-------------------------------------
@@ -239,8 +291,9 @@ ifm3d::FrameGrabber::Impl::SWTrigger()
       }
     catch (const ifm3d::Error& ex)
       {
-        LOG(ERROR) << "While trying to software trigger the camera: "
-                   << ex.code() << " - " << ex.what();
+        LOG_ERROR("While trying to software trigger the camera: {} = {}",
+                  ex.code(),
+                  ex.what());
         this->trigger_feedback_promise_.set_exception(
           std::current_exception());
         reinitialize_promise();
@@ -265,6 +318,7 @@ ifm3d::FrameGrabber::Impl::OnNewFrame(NewFrameCallback callback)
 std::shared_future<ifm3d::Frame::Ptr>
 ifm3d::FrameGrabber::Impl::WaitForFrame()
 {
+  std::lock_guard<std::mutex> lock(this->wait_for_frame_mutex_);
   return this->wait_for_frame_future;
 }
 
@@ -272,16 +326,16 @@ std::shared_future<void>
 ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::buffer_id>& images,
                                  const std::optional<json>& schema)
 {
-  if (!this->is_running_.load())
+  std::lock_guard<std::mutex> lock(this->io_service_mutex_);
+  if (!this->io_service_)
     {
+      this->io_service_ = std::make_unique<asio::io_service>();
+      this->sock_ = std::make_unique<asio::ip::tcp::socket>(*io_service_);
       this->requested_images_ = images;
+
       this->finish_future_ = std::async(
         std::launch::async,
-        [this](const std::optional<json>& schema) {
-          this->is_running_.store(true);
-          this->Run(schema);
-          this->is_running_.store(false);
-        },
+        [this](const std::optional<json>& schema) { this->Run(schema); },
         schema);
       return this->ready_future_;
     }
@@ -294,7 +348,8 @@ ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::buffer_id>& images,
 std::shared_future<void>
 ifm3d::FrameGrabber::Impl::Stop()
 {
-  if (this->is_running_.load())
+  std::lock_guard<std::mutex> lock(this->io_service_mutex_);
+  if (this->io_service_)
     {
       this->io_service_->post(
         []() { throw ifm3d::Error(IFM3D_THREAD_INTERRUPTED); });
@@ -306,7 +361,7 @@ ifm3d::FrameGrabber::Impl::Stop()
 bool
 ifm3d::FrameGrabber::Impl::IsRunning()
 {
-  return this->is_running_.load();
+  return this->io_service_ != nullptr;
 }
 
 void
@@ -322,13 +377,10 @@ ifm3d::FrameGrabber::Impl::SetOrganizer(std::unique_ptr<Organizer> organizer)
 void
 ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
 {
-  VLOG(IFM3D_TRACE) << "Framegrabber thread running...";
+  LOG_DEBUG("Framegrabber thread running...");
 
   this->ticket_buffer_.clear();
   this->ticket_buffer_.resize(ifm3d::TICKET_SIZE);
-
-  this->io_service_ = std::make_unique<asio::io_service>();
-  this->sock_ = std::make_unique<asio::ip::tcp::socket>(*io_service_);
 
   std::optional<ifm3d::Error> error;
 
@@ -346,8 +398,8 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
     {
       if (ex.code() != IFM3D_THREAD_INTERRUPTED)
         {
-          LOG(WARNING) << ex.what();
-          // this->ReportError(ex);
+          LOG_WARNING(ex.what());
+          this->ReportError(ex);
           error = ex;
         }
     }
@@ -368,20 +420,6 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
     {
       error = ifm3d::Error(IFM3D_SYSTEM_ERROR, fmt::format("{1}", err.what()));
     }
-
-  if (error.has_value())
-    {
-      LOG(WARNING) << "Exception: " << error.value().what();
-      this->ReportError(error.value());
-
-      auto ex_ptr = std::make_exception_ptr(error.value());
-      this->wait_for_frame_promise.set_exception(ex_ptr);
-      if (!this->is_ready_)
-        {
-          this->ready_promise_.set_exception(ex_ptr);
-        }
-    }
-
   try
     {
       this->sock_->shutdown(asio::socket_base::shutdown_both);
@@ -394,17 +432,35 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
                      fmt::format("{0}: {1}",
                                  static_cast<int>(err.code().value()),
                                  err.what())));
-      LOG(WARNING) << "System error " << err.code() << ": " << err.what();
+      LOG_WARNING("System error {}: {}",
+                  static_cast<int>(err.code().value()),
+                  err.what());
     }
 
-  this->sock_.reset();
-  this->io_service_.reset();
+  {
+    std::lock_guard<std::mutex> lock(this->io_service_mutex_);
+    this->sock_.reset();
+    this->io_service_.reset();
+  }
 
   this->ready_promise_ = std::promise<void>();
   this->ready_future_ = this->ready_promise_.get_future();
   this->is_ready_ = false;
 
-  LOG(INFO) << "FrameGrabber thread done.";
+  if (error.has_value())
+    {
+      LOG_WARNING("Exception: {}: {}",
+                  static_cast<int>(error.value().code()),
+                  error.value().what());
+      auto ex_ptr = std::make_exception_ptr(error.value());
+      this->wait_for_frame_promise.set_exception(ex_ptr);
+      if (!this->is_ready_)
+        {
+          this->ready_promise_.set_exception(ex_ptr);
+        }
+    }
+
+  LOG_INFO("FrameGrabber thread done.");
 }
 
 void
@@ -454,6 +510,15 @@ ifm3d::FrameGrabber::Impl::ConnectHandler(const std::optional<json>& schema)
               std::placeholders::_1,
               std::placeholders::_2,
               0));
+
+  if (this->cam_->AmI(ifm3d::Device::device_family::O3X))
+    {
+      if (!this->is_ready_)
+        {
+          this->is_ready_ = true;
+          this->ready_promise_.set_value();
+        }
+    }
 }
 
 void
@@ -530,7 +595,14 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
 
   if (ticket_id == ifm3d::TICKET_IMAGE || ticket_id == ifm3d::TICKET_ALGO_DGB)
     {
-      this->ImageHandler();
+      if (this->is_ready_)
+        {
+          this->ImageHandler();
+        }
+      else
+        {
+          LOG_DEBUG("Waiting for pcic command ACK!");
+        }
     }
   else if (ticket_id == ifm3d::TICKET_ASYNC_ERROR)
     {
@@ -544,7 +616,7 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
     {
       if (this->payload_buffer_.at(4) != '*')
         {
-          LOG(ERROR) << "Error setting pcic schema on device";
+          LOG_ERROR("Error setting pcic schema on device");
           throw ifm3d::Error(
             IFM3D_PCIC_BAD_REPLY,
             fmt::format("Error setting pcic schema on device"));
@@ -552,16 +624,20 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
     }
   else if (ticket_id == ifm3d::TICKET_COMMAND_p)
     {
-      if (this->payload_buffer_.at(4) == '*')
+      if (!this->is_ready_)
         {
-          this->is_ready_ = true;
-          this->ready_promise_.set_value();
-        }
-      else
-        {
-          LOG(ERROR) << "Error setting pcic mode on device";
-          throw ifm3d::Error(IFM3D_PCIC_BAD_REPLY,
-                             fmt::format("Error setting pcic mode on device"));
+          if (this->payload_buffer_.at(4) == '*')
+            {
+              this->is_ready_ = true;
+              this->ready_promise_.set_value();
+            }
+          else
+            {
+              LOG_ERROR("Error setting pcic mode on device");
+              throw ifm3d::Error(
+                IFM3D_PCIC_BAD_REPLY,
+                fmt::format("Error setting pcic mode on device"));
+            }
         }
     }
   else if (ticket_id == ifm3d::TICKET_COMMAND_t)
@@ -584,7 +660,6 @@ void
 ifm3d::FrameGrabber::Impl::ImageHandler()
 {
   std::size_t buffer_size = this->payload_buffer_.size();
-
   bool buffer_valid =
     std::string(this->payload_buffer_.begin() + 4,
                 this->payload_buffer_.begin() + 8) == "star" &&
@@ -600,15 +675,19 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
           auto result = this->organizer_->Organize(this->payload_buffer_,
                                                    this->requested_images_,
                                                    this->IsMasking());
+
           auto frame = std::make_shared<Frame>(result.images,
                                                result.timestamps,
                                                result.frame_count);
 
           this->wait_for_frame_promise.set_value(frame);
 
-          this->wait_for_frame_promise = std::promise<Frame::Ptr>();
-          this->wait_for_frame_future =
-            this->wait_for_frame_promise.get_future();
+          {
+            std::lock_guard<std::mutex> lock(this->wait_for_frame_mutex_);
+            this->wait_for_frame_promise = std::promise<Frame::Ptr>();
+            this->wait_for_frame_future =
+              this->wait_for_frame_promise.get_future();
+          }
 
           if (this->new_frame_callback_)
             {
@@ -617,12 +696,12 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
         }
       catch (std::exception ex)
         {
-          LOG(WARNING) << "Bad image: " << ex.what();
+          LOG_WARNING("Bad image: {}", ex.what());
         }
     }
   else
     {
-      LOG(WARNING) << "Bad image!";
+      LOG_WARNING("Bad image!");
     }
 }
 
@@ -654,7 +733,7 @@ ifm3d::FrameGrabber::Impl::AsyncErrorHandler()
     }
   else
     {
-      LOG(WARNING) << "Bad error message!";
+      LOG_WARNING("Bad error message!");
     }
 }
 
@@ -684,7 +763,7 @@ ifm3d::FrameGrabber::Impl::AsyncNotificationHandler()
     }
   else
     {
-      LOG(WARNING) << "Bad error message!";
+      LOG_WARNING("Bad error message!");
     }
 }
 
@@ -693,7 +772,7 @@ ifm3d::FrameGrabber::Impl::TriggerHandler()
 {
   if (this->payload_buffer_.at(4) != '*')
     {
-      LOG(ERROR) << "Error Sending trigger on device";
+      LOG_ERROR("Error Sending trigger on device");
       this->trigger_feedback_promise_.set_exception(
         std::make_exception_ptr(Error(IFM3D_CANNOT_SW_TRIGGER)));
     }
@@ -716,15 +795,15 @@ ifm3d::FrameGrabber::Impl::SetSchema(const json& schema)
     {
       // O3X does not set the schema via PCIC, rather we set it via
       // XMLRPC using the camera interface.
-      VLOG(IFM3D_PROTO_DEBUG) << "o3x schema: " << std::endl << json;
+      LOG_VERBOSE("o3x schema: \n{}", json);
       try
         {
           this->cam_->FromJSONStr(json);
         }
       catch (const std::exception& ex)
         {
-          LOG(ERROR) << "Failed to set schema on O3X: " << ex.what();
-          LOG(WARNING) << "Running with currently applied schema";
+          LOG_ERROR("Failed to set schema on O3X: {}", ex.what());
+          LOG_WARNING("Running with currently applied schema");
         }
       return;
     }
@@ -732,7 +811,7 @@ ifm3d::FrameGrabber::Impl::SetSchema(const json& schema)
   // Setting schema for O3D O3R devices
   const std::string c_length = fmt::format("{0}{1:09}", "c", json.size());
   SendCommand(TICKET_COMMAND_c, c_length + json);
-  VLOG(IFM3D_PROTO_DEBUG) << "schema: " << json;
+  LOG_VERBOSE("schema: {}", json);
 }
 
 ifm3d::json
@@ -761,7 +840,6 @@ ifm3d::FrameGrabber::Impl::GenerateDefaultSchema()
         schema,
         cam_->FirmwareVersion());
     }
-
   return schema;
 }
 

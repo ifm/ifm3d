@@ -18,7 +18,10 @@
 
 #include "bindings/device.h"
 #include "bindings/legacy_device.h"
+#include "bindings/logging.h"
 #include "bindings/o3r.h"
+#include "bindings/o3d.h"
+#include "bindings/o3x.h"
 #include "bindings/error.h"
 #include "bindings/frame.h"
 #include "bindings/framegrabber.h"
@@ -81,6 +84,12 @@ PYBIND11_MODULE(ifm3dpy, m)
     R"(
         This function provides python application interface to run command line tool
 
+        Note: It is not recommended to use this for scripting as there is no way to 
+        monitor progress or handle errors, instead please directly use the functions 
+        provided by the corresponding modules. 
+        This function is mainly intended to be used to integrate the ifm3d CLI into 
+        existing console based applications.
+
         Parameters
         ----------
         argv : py::list
@@ -102,100 +111,125 @@ PYBIND11_MODULE(ifm3dpy, m)
 
   )";
 
-  auto add_attr = [&m](const std::string& name,
-                       const auto& value,
-                       const std::string& doc = "") {
-    m.attr(name.c_str()) = value;
-    m.doc() =
-      m.doc().cast<std::string>() + "     \"" + name + "\", \"" + doc + "\"\n";
-  };
-
   // Module metadata
-  add_attr("__version__",
-           std::to_string(IFM3D_VERSION_MAJOR) + "." +
-             std::to_string(IFM3D_VERSION_MINOR) + "." +
-             std::to_string(IFM3D_VERSION_PATCH) +
-             std::string(IFM3D_VERSION_TWEAK) +
-             std::string(IFM3D_VERSION_META),
+  ifm3d::add_attr(m,
+                  "__version__",
+                  std::to_string(IFM3D_VERSION_MAJOR) + "." +
+                    std::to_string(IFM3D_VERSION_MINOR) + "." +
+                    std::to_string(IFM3D_VERSION_PATCH) +
+                    std::string(IFM3D_VERSION_TWEAK) +
+                    std::string(IFM3D_VERSION_META),
 
-           "The ifm3d version.");
+                  "The ifm3d version.");
 
-  add_attr("__package__", "ifm3dpy", "The ifm3d package.");
+  ifm3d::add_attr(m, "__package__", "ifm3dpy", "The ifm3d package.");
 
   // Camera defaults
-  add_attr("DEFAULT_IP", ifm3d::DEFAULT_IP, "The default IP to connect to.");
-  add_attr("DEFAULT_XMLRPC_PORT",
-           ifm3d::DEFAULT_XMLRPC_PORT,
-           "The default XMLRPC port.");
-  add_attr("DEFAULT_PASSWORD",
-           ifm3d::DEFAULT_PASSWORD,
-           "The default password.");
+  ifm3d::add_attr(m,
+                  "DEFAULT_IP",
+                  ifm3d::DEFAULT_IP,
+                  "The default IP to connect to.");
+  ifm3d::add_attr(m,
+                  "DEFAULT_XMLRPC_PORT",
+                  ifm3d::DEFAULT_XMLRPC_PORT,
+                  "The default XMLRPC port.");
+  ifm3d::add_attr(m,
+                  "DEFAULT_PASSWORD",
+                  ifm3d::DEFAULT_PASSWORD,
+                  "The default password.");
 
   // Constants to use for querying supported firmware versions
-  add_attr("O3D_TIME_SUPPORT_MAJOR",
-           ifm3d::O3D_TIME_SUPPORT_MAJOR,
-           "Constant for querying for O3D time support.");
-  add_attr("O3D_TIME_SUPPORT_MINOR",
-           ifm3d::O3D_TIME_SUPPORT_MINOR,
-           "Constant for querying for O3D time support.");
-  add_attr("O3D_TIME_SUPPORT_PATCH",
-           ifm3d::O3D_TIME_SUPPORT_PATCH,
-           "Constant for querying for O3D time support.");
+  ifm3d::add_attr(m,
+                  "O3D_TIME_SUPPORT_MAJOR",
+                  ifm3d::O3D_TIME_SUPPORT_MAJOR,
+                  "Constant for querying for O3D time support.");
+  ifm3d::add_attr(m,
+                  "O3D_TIME_SUPPORT_MINOR",
+                  ifm3d::O3D_TIME_SUPPORT_MINOR,
+                  "Constant for querying for O3D time support.");
+  ifm3d::add_attr(m,
+                  "O3D_TIME_SUPPORT_PATCH",
+                  ifm3d::O3D_TIME_SUPPORT_PATCH,
+                  "Constant for querying for O3D time support.");
 
-  add_attr("O3D_TMP_PARAMS_SUPPORT_MAJOR",
-           ifm3d::O3D_TMP_PARAMS_SUPPORT_MAJOR,
-           "Constant for querying for O3D temporary parameter support.");
-  add_attr("O3D_TMP_PARAMS_SUPPORT_MINOR",
-           ifm3d::O3D_TMP_PARAMS_SUPPORT_MINOR,
-           "Constant for querying for O3D temporary parameter support.");
-  add_attr("O3D_TMP_PARAMS_SUPPORT_PATCH",
-           ifm3d::O3D_TMP_PARAMS_SUPPORT_PATCH,
-           "Constant for querying for O3D temporary parameter support.");
+  ifm3d::add_attr(
+    m,
+    "O3D_TMP_PARAMS_SUPPORT_MAJOR",
+    ifm3d::O3D_TMP_PARAMS_SUPPORT_MAJOR,
+    "Constant for querying for O3D temporary parameter support.");
+  ifm3d::add_attr(
+    m,
+    "O3D_TMP_PARAMS_SUPPORT_MINOR",
+    ifm3d::O3D_TMP_PARAMS_SUPPORT_MINOR,
+    "Constant for querying for O3D temporary parameter support.");
+  ifm3d::add_attr(
+    m,
+    "O3D_TMP_PARAMS_SUPPORT_PATCH",
+    ifm3d::O3D_TMP_PARAMS_SUPPORT_PATCH,
+    "Constant for querying for O3D temporary parameter support.");
 
-  add_attr("O3D_INTRINSIC_PARAM_SUPPORT_MAJOR",
-           ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MAJOR,
-           "Constant for querying for O3D intrinsic parameter support.");
-  add_attr("O3D_INTRINSIC_PARAM_SUPPORT_MINOR",
-           ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MINOR,
-           "Constant for querying for O3D intrinsic parameter support.");
-  add_attr("O3D_INTRINSIC_PARAM_SUPPORT_PATCH",
-           ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_PATCH,
-           "Constant for querying for O3D intrinsic parameter support.");
+  ifm3d::add_attr(
+    m,
+    "O3D_INTRINSIC_PARAM_SUPPORT_MAJOR",
+    ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MAJOR,
+    "Constant for querying for O3D intrinsic parameter support.");
+  ifm3d::add_attr(
+    m,
+    "O3D_INTRINSIC_PARAM_SUPPORT_MINOR",
+    ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_MINOR,
+    "Constant for querying for O3D intrinsic parameter support.");
+  ifm3d::add_attr(
+    m,
+    "O3D_INTRINSIC_PARAM_SUPPORT_PATCH",
+    ifm3d::O3D_INTRINSIC_PARAM_SUPPORT_PATCH,
+    "Constant for querying for O3D intrinsic parameter support.");
 
-  add_attr(
+  ifm3d::add_attr(
+    m,
     "O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR",
     ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR,
     "Constant for querying for O3D inverse intrinsic parameter support.");
-  add_attr(
+  ifm3d::add_attr(
+    m,
     "O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR",
     ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR,
     "Constant for querying for O3D inverse intrinsic parameter support.");
-  add_attr(
+  ifm3d::add_attr(
+    m,
     "O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH",
     ifm3d::O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH,
     "Constant for querying for O3D inverse intrinsic parameter support.");
 
-  bind_future<ifm3d::Frame::Ptr>(
-    m,
-    "FrameAwaitable",
-    "Provides a mechanism to access the frame object");
   bind_future<void>(m,
                     "Awaitable",
-                    "Provides a mechanism to wait for completion of a task");
+                    "Provides a mechanism to wait for completion of a task",
+                    "None");
 
+  auto logging_module = m.def_submodule(
+    "logging",
+    R"(Provides access for configuring the logging facilities of ifm3d.)");
+  bind_logging(logging_module);
+  bind_numpy(m);
   auto device_module = m.def_submodule(
     "device",
     R"(Provides an implementation of the XMLRPC protocol for configuring the camera and pmd imager settings.)");
   bind_semver(device_module);
   bind_error(device_module);
   bind_device(device_module);
-  bind_legacy_device(device_module);
   bind_o3r(device_module);
+  bind_legacy_device(device_module);
+  bind_o3d(device_module);
+  bind_o3x(device_module);
 
   auto framegrabber_module = m.def_submodule(
     "framegrabber",
     R"(Provides an implementation of the PCIC protocol for streaming pixel data and triggered image acquisition.)");
-  bind_frame(framegrabber_module);
+  bind_frame(framegrabber_module, m);
+  bind_future<ifm3d::Frame::Ptr>(
+    m,
+    "FrameAwaitable",
+    "Provides a mechanism to access the frame object",
+    "Frame");
   bind_framegrabber(framegrabber_module);
 
   auto swupdater_module = m.def_submodule(

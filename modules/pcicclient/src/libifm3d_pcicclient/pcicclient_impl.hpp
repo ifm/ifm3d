@@ -24,10 +24,9 @@
 #include <thread>
 #include <vector>
 #include <asio.hpp>
-#include <glog/logging.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/device/logging.h>
+#include <ifm3d/common/logging/log.h>
 
 namespace ifm3d
 {
@@ -430,15 +429,16 @@ ifm3d::PCICClient::Impl::Impl(ifm3d::LegacyDevice::Ptr cam,
     }
   catch (const ifm3d::Error& ex)
     {
-      LOG(ERROR) << "Could not get IP/Port of the camera: " << ex.what();
+      LOG_ERROR("Could not get IP/Port of the camera: {}", ex.what());
       // NOTE: GetIP() won't throw, so, the problem must be getting the PCIC
       // port. Here we assume the default. Former behavior was to throw!
-      LOG(WARNING) << "Assuming default PCIC port!";
+      LOG_WARNING("Assuming default PCIC port!");
       this->cam_port_ = ifm3d::DEFAULT_PCIC_PORT;
     }
 
-  LOG(INFO) << "Camera connection info: ip=" << this->cam_ip_
-            << ", port=" << this->cam_port_;
+  LOG_INFO("Camera connection info: ip={} , port={}",
+           this->cam_ip_,
+           this->cam_port_);
 
   if (this->cam_->AmI(Device::device_family::O3X))
     {
@@ -455,7 +455,7 @@ ifm3d::PCICClient::Impl::Impl(ifm3d::LegacyDevice::Ptr cam,
 
 ifm3d::PCICClient::Impl::~Impl()
 {
-  VLOG(IFM3D_TRACE) << "FrameGrabber dtor running...";
+  LOG_VERBOSE("FrameGrabber dtor running...");
 
   if (this->thread_ && this->thread_->joinable())
     {
@@ -463,7 +463,7 @@ ifm3d::PCICClient::Impl::~Impl()
       this->thread_->join();
     }
 
-  VLOG(IFM3D_TRACE) << "FrameGrabber destroyed.";
+  LOG_VERBOSE("FrameGrabber destroyed.");
 }
 
 void
@@ -487,7 +487,7 @@ ifm3d::PCICClient::Impl::Call(
 
       if (i > ifm3d::CONNECTED_FLAG_TIMEOUT)
         {
-          LOG(WARNING) << "connected_ flag not set!";
+          LOG_WARNING("connected_ flag not set!");
           return -1;
         }
     }
@@ -523,7 +523,7 @@ ifm3d::PCICClient::Impl::Call(
   // Prepare pre content buffer
   this->out_pre_content_buffer_ = pre_content_ss.str();
 
-  DLOG(INFO) << "Client sending request";
+  LOG_DEBUG("Client sending request");
 
   // Send command
   this->DoWrite(State::PRE_CONTENT, request);
@@ -590,8 +590,8 @@ ifm3d::PCICClient::Impl::Call(const std::string& request,
                   this->in_cv_.notify_all();
                   if (this->thread_ && this->thread_->joinable())
                     {
-                      LOG(WARNING) << "PCICClient::Call: Timed out waiting "
-                                   << "for a resopnse, stopping thread...";
+                      LOG_WARNING("PCICClient::Call: Timed out waiting for a "
+                                  "response, stopping thread...");
                       this->Stop();
                       this->thread_->join();
                     }
@@ -602,7 +602,7 @@ ifm3d::PCICClient::Impl::Call(const std::string& request,
 
       catch (const std::system_error& ex)
         {
-          LOG(WARNING) << "PCICClient::Call: " << ex.what();
+          LOG_WARNING("PCICClient::Call: {}", ex.what());
           return has_result.load();
         }
     }
@@ -660,10 +660,10 @@ ifm3d::PCICClient::Impl::DoConnect()
     }
   catch (const std::exception& ex)
     {
-      LOG(WARNING) << "Exception: " << ex.what();
+      LOG_WARNING("Exception: {}", ex.what());
     }
 
-  LOG(INFO) << "PCICClient thread done.";
+  LOG_INFO("PCICClient thread done.");
 }
 
 void
@@ -772,7 +772,7 @@ ifm3d::PCICClient::Impl::ReadHandler(State state,
               }
             catch (std::out_of_range ex)
               {
-                DLOG(INFO) << "No callback for ticket " << ticket << " found!";
+                LOG_DEBUG("No callback for ticket {} found", ticket);
               }
           }
           this->DoRead(State::PRE_CONTENT);
