@@ -595,8 +595,7 @@ ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
         }
 
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    }
-  while (status_id != desired_status);
+  } while (status_id != desired_status);
 
   return true;
 }
