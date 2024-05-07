@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 #  ifndef IFM3D_FG_ORGANIZER_UTILS_H
 #    define IFM3D_FG_ORGANIZER_UTILS_H
 
