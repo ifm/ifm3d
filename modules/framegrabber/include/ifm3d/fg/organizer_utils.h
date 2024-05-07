@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #  ifndef IFM3D_FG_ORGANIZER_UTILS_H
 #    define IFM3D_FG_ORGANIZER_UTILS_H
 
@@ -188,4 +188,3 @@ namespace ifm3d
 } // end: namespace ifm3d
 
 #  endif // IFM3D_FG_ORGANIZER_UTILS_H
-#endif   // DOXYGEN_SHOULD_SKIP_THIS
