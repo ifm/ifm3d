@@ -132,8 +132,8 @@ ifm3d::Frame::Impl::begin() noexcept
   return images_.begin();
 }
 
-decltype(std::declval<const std::map<ifm3d::buffer_id, ifm3d::BufferList>>()
-           .begin())
+decltype(
+  std::declval<const std::map<ifm3d::buffer_id, ifm3d::BufferList>>().begin())
 ifm3d::Frame::Impl::begin() const noexcept
 {
   return images_.begin();
@@ -145,8 +145,8 @@ ifm3d::Frame::Impl::end() noexcept
   return images_.end();
 }
 
-decltype(std::declval<const std::map<ifm3d::buffer_id, ifm3d::BufferList>>()
-           .end())
+decltype(
+  std::declval<const std::map<ifm3d::buffer_id, ifm3d::BufferList>>().end())
 ifm3d::Frame::Impl::end() const noexcept
 {
   return images_.end();

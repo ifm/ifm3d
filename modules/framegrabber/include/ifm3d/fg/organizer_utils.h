@@ -53,8 +53,9 @@ namespace ifm3d
                            pixel_format fmt,
                            const std::optional<Buffer>& mask);
 
-  auto find_metadata_chunk(const std::map<image_chunk, std::set<std::size_t>>&
-                             chunks) -> decltype(chunks.end());
+  auto find_metadata_chunk(
+    const std::map<image_chunk, std::set<std::size_t>>& chunks)
+    -> decltype(chunks.end());
 
   std::tuple<uint32_t, uint32_t> get_image_size(
     const std::vector<std::uint8_t>& data,

@@ -14,7 +14,7 @@ class StopIteration : public py::stop_iteration
 public:
   StopIteration(const py::object& result)
     : stop_iteration("--"),
-      result_(std::move(result)) {};
+      result_(std::move(result)){};
 
   void
   set_error() const override

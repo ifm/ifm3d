@@ -70,8 +70,8 @@ ifm3d::Frame::begin() noexcept
   return pImpl->begin();
 }
 
-decltype(std::declval<const std::map<ifm3d::buffer_id, ifm3d::BufferList>>()
-           .begin())
+decltype(
+  std::declval<const std::map<ifm3d::buffer_id, ifm3d::BufferList>>().begin())
 ifm3d::Frame::begin() const noexcept
 {
   return pImpl->begin();
@@ -83,8 +83,8 @@ ifm3d::Frame::end() noexcept
   return pImpl->end();
 }
 
-decltype(std::declval<const std::map<ifm3d::buffer_id, ifm3d::BufferList>>()
-           .end())
+decltype(
+  std::declval<const std::map<ifm3d::buffer_id, ifm3d::BufferList>>().end())
 ifm3d::Frame::end() const noexcept
 {
   return pImpl->end();
