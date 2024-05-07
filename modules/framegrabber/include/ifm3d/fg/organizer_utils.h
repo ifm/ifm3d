@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#  ifndef IFM3D_FG_ORGANIZER_UTILS_H
-#    define IFM3D_FG_ORGANIZER_UTILS_H
+#ifndef IFM3D_FG_ORGANIZER_UTILS_H
+#define IFM3D_FG_ORGANIZER_UTILS_H
 
 #include <map>
 #include <set>
@@ -53,9 +53,8 @@ namespace ifm3d
                            pixel_format fmt,
                            const std::optional<Buffer>& mask);
 
-  auto find_metadata_chunk(
-    const std::map<image_chunk, std::set<std::size_t>>& chunks)
-    -> decltype(chunks.end());
+  auto find_metadata_chunk(const std::map<image_chunk, std::set<std::size_t>>&
+                             chunks) -> decltype(chunks.end());
 
   std::tuple<uint32_t, uint32_t> get_image_size(
     const std::vector<std::uint8_t>& data,
@@ -132,11 +131,11 @@ namespace ifm3d
       unsigned char bytes[sizeof(T)];
     } value;
 
-#    if !defined(_WIN32) && __BYTE_ORDER == __BIG_ENDIAN
+#if !defined(_WIN32) && __BYTE_ORDER == __BIG_ENDIAN
     std::reverse_copy(buff, buff + sizeof(T), value.bytes);
-#    else
+#else
     std::copy(buff, buff + sizeof(T), value.bytes);
-#    endif
+#endif
 
     return value.v;
   }
@@ -186,4 +185,4 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
-#  endif // IFM3D_FG_ORGANIZER_UTILS_H
+#endif // IFM3D_FG_ORGANIZER_UTILS_H

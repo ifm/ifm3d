@@ -16,7 +16,6 @@
 #include <ifm3d/device/ifm_network_device.h>
 #include <ifm3d/device/semver.h>
 
-
 /// @brief
 namespace ifm3d
 {
