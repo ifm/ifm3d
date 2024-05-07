@@ -61,7 +61,8 @@ target_compile_options(ifm3dpy PRIVATE
 #------------------
 target_link_libraries(
   ifm3dpy
-  PRIVATE
+  PRIVATE 
+    ifm3d_common
     ifm3d_framegrabber
     ifm3d_device
     pybind11::module
@@ -92,3 +93,57 @@ install(TARGETS ifm3dpy
   ARCHIVE DESTINATION ${_python_install_path} COMPONENT ${_component_name}
   PUBLIC_HEADER DESTINATION ${_include} COMPONENT ${_component_name}
   )
+
+#------------------
+# Stubs creation
+#------------------
+
+if(CREATE_PYTHON_STUBS)
+
+  if(BUILD_SHARED_LIBS)
+    message (
+      FATAL_ERROR
+        "Error while creating stubs as BUILD_SHARED_LIBS is ON")
+  endif()
+
+  # Create a venv
+  set(venv ${CMAKE_CURRENT_BINARY_DIR}/stubgen-venv)
+  if(NOT IS_DIRECTORY ${venv})
+    execute_process(
+      COMMAND ${PYTHON_EXECUTABLE} -m venv ${venv}
+      RESULT_VARIABLE status
+      OUTPUT_VARIABLE output
+      ERROR_VARIABLE output)
+    if(status AND NOT status EQUAL 0)
+      message(
+        FATAL_ERROR
+          "Error while creating venv in ${venv}:\n${output}")
+    endif()
+  endif()
+
+  find_program(venv_python python PATHS ${venv}/bin/ ${venv}/Scripts REQUIRED NO_DEFAULT_PATH)
+
+  # Install pybind11-stubgen in the venv
+  execute_process(
+    COMMAND ${venv_python} -m pip install pybind11-stubgen==0.16.2
+    RESULT_VARIABLE status
+    OUTPUT_VARIABLE output
+    ERROR_VARIABLE output)
+  if(status AND NOT status EQUAL 0)
+    message(
+      FATAL_ERROR
+        "Error while installing pybind11-stubgen in ${venv}:\n${output}"
+    )
+  endif()
+
+  # Generate the stubs
+  add_custom_command(
+    TARGET ifm3dpy
+    POST_BUILD
+    COMMAND
+      ${CMAKE_COMMAND} -E env PYTHONPATH="$<TARGET_FILE_DIR:ifm3dpy>"
+      ${CMAKE_COMMAND} -E env PYTHONHOME=""
+      ${CMAKE_COMMAND} -E env VIRTUAL_ENV="${venv}"
+        ${venv_python} -m pybind11_stubgen --ignore-invalid=all --skip-signature-downgrade --no-setup-py --output-dir=$<TARGET_FILE_DIR:ifm3dpy> --root-module-suffix="" ifm3dpy
+  )
+endif()

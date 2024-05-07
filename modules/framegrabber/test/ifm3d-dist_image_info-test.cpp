@@ -7,7 +7,7 @@
 #include <fstream>
 #include <iterator>
 #include <vector>
-#include <glog/logging.h>
+#include <ifm3d/common/logging/log.h>
 #include <gtest/gtest.h>
 #include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/fg/frame_grabber.h>
@@ -43,8 +43,9 @@ namespace ifm3d
           ifm3d::mkval<std::uint32_t>(buff.data() + idx + 4);
         if (incr <= 0)
           {
-            LOG(WARNING) << "Next chunk is supposedly " << incr
-                         << " bytes from the current one ... failing!";
+            LOG_WARNING("Next chunk is supposedly {} bytes from the current "
+                        "one ... failing!",
+                        incr);
             break;
           }
         idx += incr;

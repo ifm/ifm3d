@@ -128,8 +128,8 @@ bind_struct_tofinfov3(pybind11::module_& m)
           Amplitude normalization factors for the individual exposure times
       )");
   tof_info_v3.def_readonly(
-    "extrisic_optic_to_user",
-    &ifm3d::TOFInfoV3::extrisic_optic_to_user,
+    "extrinsic_optic_to_user",
+    &ifm3d::TOFInfoV3::extrinsic_optic_to_user,
     R"(
         Extrinsic optic parameter to user
       )");

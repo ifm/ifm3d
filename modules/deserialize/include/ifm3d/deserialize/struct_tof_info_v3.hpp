@@ -34,6 +34,7 @@ namespace ifm3d
     constexpr auto TOF_INFO_IMAGER_INDEX = 0x0180;
   };
 
+  /** @ingroup Deserialize */
   class TOFInfoV3
   {
 
@@ -55,8 +56,8 @@ namespace ifm3d
         mkval<float>(start_ptr + TOF_INFO_AMPLITUDE_RESOLUTION_INDEX);
       mkarray<float, 3>(start_ptr + TOF_INFO_AMPLITUDE_NORM_FACTOR_INDEX,
                         amp_normalization_factors);
-      extrisic_optic_to_user.Read(start_ptr +
-                                  TOF_INFO_EXTRINSIC_OPTICAL_TO_USER_INDEX);
+      extrinsic_optic_to_user.Read(start_ptr +
+                                   TOF_INFO_EXTRINSIC_OPTICAL_TO_USER_INDEX);
       intrinsic_calibration.Read(start_ptr +
                                  TOF_INFO_INTRINSIC_CALIBRATION_INDEX);
       inverse_intrinsic_calibration.Read(
@@ -80,7 +81,7 @@ namespace ifm3d
      * times*/
     std::array<float, 3> amp_normalization_factors;
     /*@brief Extrinsic optic parameter to user*/
-    calibration::ExtrinsicOpticToUser extrisic_optic_to_user;
+    calibration::ExtrinsicOpticToUser extrinsic_optic_to_user;
     /*@brief Intrinsic calibration parameters*/
     calibration::IntrinsicCalibration intrinsic_calibration;
     /*@brief Inverse intrinsic calibration parameters*/

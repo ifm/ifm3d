@@ -22,7 +22,6 @@
 #include <ifm3d/tools/ls_app.h>
 #include <ifm3d/tools/passwd_app.h>
 #include <ifm3d/tools/make_app.h>
-#include <ifm3d/tools/mutable_args.h>
 #include <ifm3d/tools/reboot_app.h>
 #include <ifm3d/tools/reset_app.h>
 #include <ifm3d/tools/rm_app.h>

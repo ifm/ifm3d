@@ -6,6 +6,8 @@
 #ifndef IFM3D_DESERIALIZE_DESERIALIZE_H
 #define IFM3D_DESERIALIZE_DESERIALIZE_H
 
+/** \defgroup Deserialize Deserialize Module */
+
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/deserialize/struct_tof_info_v3.hpp>

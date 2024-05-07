@@ -10,8 +10,9 @@
 #include <pybind11/stl.h>
 #include <pybind11/chrono.h>
 
+#define PYBIND11_DETAILED_ERROR_MESSAGES
 void
-bind_frame(pybind11::module_& m)
+bind_frame(pybind11::module_& m, pybind11::module_& ifm3dpy)
 {
   // clang-format off
   py::class_<ifm3d::Frame, ifm3d::Frame::Ptr> frame(
@@ -50,7 +51,10 @@ bind_frame(pybind11::module_& m)
     .value("JSON_MODEL", ifm3d::buffer_id::JSON_MODEL)      
     .value("ALGO_DEBUG", ifm3d::buffer_id::ALGO_DEBUG)      
     .value("O3R_ODS_OCCUPANCY_GRID", ifm3d::buffer_id::O3R_ODS_OCCUPANCY_GRID)      
-    .value("O3R_ODS_INFO", ifm3d::buffer_id::O3R_ODS_INFO)      
+    .value("O3R_ODS_INFO", ifm3d::buffer_id::O3R_ODS_INFO)          
+    .value("O3R_RESULT_JSON", ifm3d::buffer_id::O3R_RESULT_JSON)          
+    .value("O3R_RESULT_ARRAY2D", ifm3d::buffer_id::O3R_RESULT_ARRAY2D)        
+    .value("O3R_RESULT_IMU", ifm3d::buffer_id::O3R_RESULT_IMU)      
     .value("XYZ", ifm3d::buffer_id::XYZ)      
     .value("EXPOSURE_TIME", ifm3d::buffer_id::EXPOSURE_TIME)      
     .value("ILLUMINATION_TEMP", ifm3d::buffer_id::ILLUMINATION_TEMP);
@@ -79,12 +83,29 @@ bind_frame(pybind11::module_& m)
 
   frame.def(
     "get_buffer",
-    [](const ifm3d::Frame::Ptr& frame, ifm3d::buffer_id id){
-        return ifm3d::image_to_array(frame->GetBuffer(id));
+    [ifm3dpy](const ifm3d::Frame::Ptr& frame, ifm3d::buffer_id id, size_t index)
+    {
+       auto instance = ifm3dpy.attr("buffer");
+       auto ifm3d_buffer = frame->GetBuffer(id, index);
+       py::object json_loads = py::module::import("json").attr("loads");
+       py::gil_scoped_acquire acquire;
+       return instance(ifm3d::image_to_array(ifm3d_buffer), json_loads(ifm3d_buffer.metadata().dump()));
     },
     py::arg("id"),
+    py::arg("index") = 0,
     R"(
       Get the buffer with the given id
+    )");
+
+   frame.def(
+    "get_buffer_count",
+    [](const ifm3d::Frame::Ptr& frame, ifm3d::buffer_id id)
+     {
+        return frame->GetBufferCount(id);
+     },
+    py::arg("id"),
+    R"(
+       Get the total number of image with the given id
     )");
 
   frame.def(

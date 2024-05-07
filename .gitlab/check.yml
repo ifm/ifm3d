@@ -3,7 +3,7 @@ check:clang-format:
   tags:
     - shared_docker
   image:
-    name: gcr.io/kaniko-project/executor:v1.9.0-debug
+    name: gcr.io/kaniko-project/executor:v1.15.0-debug
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]
@@ -14,3 +14,18 @@ check:clang-format:
       --dockerfile docker/ifm-robotics/check/Dockerfile
       ${KANIKO_BUILD_ARGS}
       --no-push
+
+check:vale-linting:
+  variables:
+    FORMATTING_TOOLS_REF: d7042c3b648c81be53aa6647788a565b720a418c
+  image:
+    name: jdkato/vale:latest
+    entrypoint: [""]
+  stage: check
+  before_script:
+    - apk update && apk add git
+  script:
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-ee.dev.ifm/syntron/support/csr/formatting-tools.git ${CI_PROJECT_DIR}/formatting-tools
+    - cd ${CI_PROJECT_DIR}/formatting-tools
+    - git reset --hard ${FORMATTING_TOOLS_REF}
+    - vale --minAlertLevel error ../doc/sphinx/* ../README.md ../ChangeLog.md

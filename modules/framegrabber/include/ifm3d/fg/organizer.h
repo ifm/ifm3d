@@ -17,14 +17,14 @@
 namespace ifm3d
 {
   /**
-   *
+   * Organizer Interface for device data
    */
   class IFM3D_FRAME_GRABBER_EXPORT Organizer
   {
   public:
     struct Result
     {
-      std::map<buffer_id, Buffer> images;
+      std::map<buffer_id, BufferList> images;
       std::vector<ifm3d::TimePointT> timestamps;
       uint32_t frame_count;
     };
@@ -36,6 +36,9 @@ namespace ifm3d
                             const bool masking) = 0;
   }; // end: class Organizer
 
+  /**
+   * Organizer Interface for device 3D
+   */
 } // end: namespace ifm3d
 
 #endif // IFM3D_FG_ORGANIZER_H

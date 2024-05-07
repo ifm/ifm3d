@@ -12,7 +12,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <glog/logging.h>
 #include <ifm3d/tools.h>
 #include <ifm3d/device.h>
 
@@ -169,8 +168,7 @@ ifm3d::make_app(int argc, const char** argv)
     options.allow_unrecognised_options();
     options.parse_positional("command");
 
-    auto args = std::make_unique<ifm3d::MutableArgs>(argc, argv);
-    return options.parse(args->argc, args->argv);
+    return options.parse(argc, argv);
   }(argc, argv);
 
   std::string cmd = vm["command"].as<std::string>();

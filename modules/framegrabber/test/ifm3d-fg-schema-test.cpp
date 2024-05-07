@@ -8,7 +8,6 @@
 #include <iterator>
 #include <vector>
 #include <set>
-#include <glog/logging.h>
 #include <gtest/gtest.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/schema.h>

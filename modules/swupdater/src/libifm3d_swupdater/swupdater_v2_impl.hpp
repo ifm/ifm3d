@@ -16,15 +16,16 @@
 #include <vector>
 #include <mutex>
 #include <condition_variable>
-#include <glog/logging.h>
+#include <limits>
+#include <iostream>
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>
 #include <websocketpp/common/thread.hpp>
 #include <websocketpp/common/memory.hpp>
 #include <ifm3d/device/legacy_device.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/device/logging.h>
-#include <ifm3d/device/json.hpp>
+#include <ifm3d/common/logging/log.h>
+#include <ifm3d/common/json.hpp>
 #include <swupdater_impl.hpp>
 
 using client = websocketpp::client<websocketpp::config::asio_client>;
@@ -58,7 +59,10 @@ namespace ifm3d
   const std::string SWUPATER_V2_STATUS_DONE = "DONE";
 
   /* curl parameters */
-  const int SWUPDATE_V2_TIMEOUT_FOR_UPLOAD = 200; // sec
+  const int SWUPDATE_V2_TIMEOUT_FOR_UPLOAD =
+    std::getenv("IFM3D_SWUPDATE_CURL_TIMEOUT") == nullptr ?
+      600 :
+      std::stoi(std::getenv("IFM3D_SWUPDATE_CURL_TIMEOUT"));
   const int CURL_MAX_REDIR = 50;
   //============================================================
   // Impl interface
@@ -110,7 +114,7 @@ namespace ifm3d
                             ec);
             if (ec)
               {
-                VLOG(google::GLOG_ERROR) << "> Error closing connection ";
+                LOG_ERROR("> Error closing connection ");
               }
           }
         thread_->join();
@@ -123,8 +127,7 @@ namespace ifm3d
         endpoint_.close(hdl_, code, "", ec);
         if (ec)
           {
-            VLOG(google::GLOG_ERROR)
-              << "> Error initiating close: " << ec.message();
+            LOG_ERROR("> Error initiating close: {}", ec.message());
           }
       }
 
@@ -137,7 +140,7 @@ namespace ifm3d
 
         if (ec)
           {
-            LOG(INFO) << "> Connect initialization error: " << ec.message();
+            LOG_INFO("> Connect initialization error: {}", ec.message());
             return -1;
           }
         hdl_ = con->get_handle();
@@ -174,7 +177,7 @@ namespace ifm3d
       {
         client::connection_ptr con = c->get_con_from_hdl(hdl);
         std::string server = con->get_response_header("Server");
-        LOG(INFO) << server.c_str();
+        LOG_INFO(server.c_str());
       }
 
       void
@@ -183,7 +186,7 @@ namespace ifm3d
         client::connection_ptr con = c->get_con_from_hdl(hdl);
         std::string server = con->get_response_header("Server");
         std::string error_msg = con->get_ec().message();
-        LOG(INFO) << server.c_str() << error_msg.c_str();
+        LOG_INFO("{}: {}", server.c_str(), error_msg.c_str());
       }
       void
       OnMessage(websocketpp::connection_hdl hdl, client::message_ptr msg)
@@ -198,18 +201,17 @@ namespace ifm3d
             status = websocketpp::utility::to_hex(msg->get_payload());
           }
         this->cb_data_recv(status);
-        VLOG(IFM3D_TRACE_DEEP) << status.c_str();
+        // VLOG(IFM3D_TRACE_DEEP) << status.c_str();
       }
       void
       OnClose(client* c, websocketpp::connection_hdl hdl)
       {
         client::connection_ptr con = c->get_con_from_hdl(hdl);
-        std::stringstream s;
-        s << "close code: " << con->get_remote_close_code() << " ("
-          << websocketpp::close::status::get_string(
-               con->get_remote_close_code())
-          << "), close reason: " << con->get_remote_close_reason();
-        LOG(INFO) << s.str().c_str();
+        LOG_INFO(
+          "close code: {} ({}), close reason: {}",
+          con->get_remote_close_code(),
+          websocketpp::close::status::get_string(con->get_remote_close_code()),
+          con->get_remote_close_reason());
       }
 
       client endpoint_;
@@ -394,21 +396,29 @@ void
 ifm3d::ImplV2::UploadFirmware(const std::string& swu_file, long timeout_millis)
 {
   curl_global_init(CURL_GLOBAL_ALL);
-  struct curl_httppost* httppost = NULL;
-  struct curl_httppost* last_post = NULL;
-
-  curl_formadd(&httppost,
-               &last_post,
-               CURLFORM_COPYNAME,
-               "upload",
-               CURLFORM_FILECONTENT,
-               swu_file.c_str(),
-               CURLFORM_END);
-
   auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();
 
+  mime_ctx mime_ctx;
+  mime_ctx.fp = fopen_read(swu_file);
+
+  if (!mime_ctx.fp)
+    {
+      throw ifm3d::Error(IFM3D_UPDATE_ERROR,
+                         fmt::format("Unable to open file: {}", swu_file));
+    }
+
+  curl_mimepart* mimepart = c->AddMimePart();
+  curl_mime_data_cb(mimepart,
+                    (std::numeric_limits<int32_t>::max)(),
+                    mime_read,
+                    NULL,
+                    mime_free,
+                    &mime_ctx);
+  curl_mime_name(mimepart, SWUPDATER_MIME_PART_NAME.c_str());
+  curl_mime_filename(mimepart, SWUPATER_V2_FILENAME.c_str());
+  curl_mime_type(mimepart, SWUPDATER_CONTENT_TYPE_HEADER.c_str());
+
   c->Call(curl_easy_setopt, CURLOPT_URL, this->upload_url_.c_str());
-  c->Call(curl_easy_setopt, CURLOPT_HTTPPOST, httppost);
   c->Call(curl_easy_setopt, CURLOPT_TIMEOUT, SWUPDATE_V2_TIMEOUT_FOR_UPLOAD);
   c->Call(curl_easy_setopt, CURLOPT_TCP_KEEPALIVE, 1);
   c->Call(curl_easy_setopt, CURLOPT_MAXREDIRS, CURL_MAX_REDIR);
@@ -421,7 +431,6 @@ ifm3d::ImplV2::UploadFirmware(const std::string& swu_file, long timeout_millis)
   try
     {
       c->Call(curl_easy_perform);
-      curl_formfree(httppost);
     }
   catch (const ifm3d::Error& e)
     {

@@ -20,9 +20,9 @@ import ifm3dpy_version
 
 # -- Project information -----------------------------------------------------
 
-project = 'ifm3d'
-copyright = '2021, ifm electronic'
-author = 'ifm electronic'
+project = "ifm3d"
+copyright = "2021, ifm electronic"
+author = "ifm electronic"
 release = ifm3dpy_version.__version__
 version = ifm3dpy_version.__version__
 
@@ -32,46 +32,45 @@ version = ifm3dpy_version.__version__
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.napoleon',
-    'myst_parser',
-    'sphinx_tabs.tabs',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",
+    "myst_parser",
+    "sphinx_tabs.tabs",
 ]
 
 autosummary_generate = True
 
+
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
-master_doc = 'index'
+master_doc = "index"
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 html_theme_options = {
-    'canonical_url': '',
-    'analytics_id': '',
-    'display_version': True,
-    'prev_next_buttons_location': 'bottom',
-    'style_external_links': False,
-
-    'logo_only': False,
-
+    "canonical_url": "",
+    "analytics_id": "",
+    "display_version": True,
+    "prev_next_buttons_location": "bottom",
+    "style_external_links": False,
+    "logo_only": False,
     # Toc options
-    'collapse_navigation': True,
-    'sticky_navigation': True,
-    'navigation_depth': -1,
-    'includehidden': True,
-    'titles_only': False
+    "collapse_navigation": True,
+    "sticky_navigation": True,
+    "navigation_depth": -1,
+    "includehidden": True,
+    "titles_only": False,
 }
 # html_logo = ''
 # github_url = ''
@@ -80,23 +79,25 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 html_css_files = [
-    'custom.css',
+    "custom.css",
 ]
 
 
 myst_enable_extensions = [
     "colon_fence",
-    "substitution", # This enable the definition of substitution variables (see below)
+    "substitution",  # This enable the definition of substitution variables (see below)
 ]
 
 sphinx_tabs_disable_tab_closing = True
 
 myst_url_schemes = ("http", "https", "mailto", "ftp", "relurl")
 
+
 class RelUrlTransform(SphinxTransform):
     default_priority = 1
+
     def apply(self, **kwargs) -> None:
         for node in self.document.traverse(nodes.reference):
             if "refuri" in node and node["refuri"].startswith("relurl:"):
@@ -104,20 +105,28 @@ class RelUrlTransform(SphinxTransform):
 
 
 def filter_bases(app, name, obj, options, bases):
-    bases[:] = [None.__class__ if x.__name__ ==
-                "pybind11_object" else x for x in bases]
+    bases[:] = [None.__class__ if x.__name__ == "pybind11_object" else x for x in bases]
+
+
+def skip_member(app, what, name, obj, skip, opts):
+    if ":meta hidden:" in obj.__doc__:
+        return True
+    return None
 
 
 def setup(app):
     app.add_transform(RelUrlTransform)
-    app.connect('autodoc-process-bases', filter_bases)
+    app.connect("autodoc-process-bases", filter_bases)
+    app.connect("autodoc-skip-member", skip_member)
+
 
 # -------------------------------------------------
 # -- Substitution variables
 # -------------------------------------------------
 myst_substitutions = {
-    "ifm3d_gh_url" : "https://github.com/ifm/ifm3d",
-    "ifm3d_main_branch":  "main", # The most up to date branch on ifm3d
+    "ifm3d_gh_url": "https://github.com/ifm/ifm3d",
+    "ifm3d_main_branch": "main",  # The most up to date branch on ifm3d
     "ifm3d_latest_tag_url": "https://github.com/ifm/ifm3d/tags",
     "ifm3d_containers_list_url": "https://github.com/ifm/ifm3d/pkgs/container/ifm3d",
+    "ifm3d_version": ifm3dpy_version.__version__,
 }

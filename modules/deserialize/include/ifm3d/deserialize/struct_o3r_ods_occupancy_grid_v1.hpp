@@ -27,6 +27,7 @@ namespace ifm3d
     constexpr auto ODS_OCCUPANCY_GRID_IMAGE_INDEX = 0x0028;
   };
 
+  /** @ingroup Deserialize */
   class ODSOccupancyGridV1
   {
   public:

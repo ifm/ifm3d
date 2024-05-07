@@ -45,3 +45,12 @@ Python API Reference
 
     ifm3dpy.deserialize
 ```
+
+```{eval-rst}
+.. autosummary::
+    :toctree: _autosummary
+    :template: module.rst
+    :recursive:
+
+    ifm3dpy.logging
+```

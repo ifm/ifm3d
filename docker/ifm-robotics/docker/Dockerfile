@@ -1,6 +1,3 @@
-# Python version
-ARG PYTHON_VERSION=3.9
-
 # Set the base image
 ARG BASE_IMAGE=ubuntu:20.04
 
@@ -13,118 +10,57 @@ ARG RUN_TESTS
 
 # This stage used as a base for building and the final image
 FROM ${BASE_IMAGE} AS base
-ARG PYTHON_VERSION
+ARG BASE_IMAGE
 
-# Set up the deadsnakes ppa and install python
+# install python
 RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y gnupg2 wget \
-    && UBUNTU_RELEASE=$(awk -F'=' '/UBUNTU_CODENAME/ {print $2}' /etc/os-release) \
-    && echo "deb http://ppa.launchpad.net/deadsnakes/ppa/ubuntu ${UBUNTU_RELEASE} main" > "/etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-${UBUNTU_RELEASE}.list" \
-    && wget -O - "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xba6932366a755776" | gpg --dearmor -o /etc/apt/trusted.gpg.d/deadsnakes_ubuntu_ppa.gpg \
-    && apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        python${PYTHON_VERSION} \
-        python${PYTHON_VERSION}-venv \
-        python${PYTHON_VERSION}-dev \
+        gnupg2 \
+        wget \
+        python3 \
+        python3-pip \
+        python3-venv \
+        python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Create the ifm user
 RUN id ifm 2>/dev/null || useradd --uid 30000 --create-home -s /bin/bash -U ifm
 
 # Create a venv and install python dependencies
-RUN python${PYTHON_VERSION} -m venv /home/ifm/venv \
+RUN python3 -m venv /home/ifm/venv \
     && . /home/ifm/venv/bin/activate \
+    && python -m pip install --upgrade pip \
     && python -m pip install --upgrade \
         numpy \
-        pip \
         pytest \
         setuptools \
         wheel
 
-
-# This stage is used for building ifm3d
-FROM base AS build
-ARG PYTHON_VERSION
-ARG CMAKE_VERSION
-
-# Install build-time dependencies
-RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        build-essential \
-        cmake \
-        coreutils \
-        findutils \
-        git \
-        libboost-all-dev \
-        libcurl4-openssl-dev \
-        libgoogle-glog-dev \
-        libgtest-dev \
-        libopencv-dev \
-        libpcl-dev \
-        libproj-dev \
-        libxmlrpc-c++8-dev \
-        locales \
-        ninja-build \
-        wget \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install cmake 
-RUN wget -O - "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-$(uname -i).tar.gz" \
-    | tar -xz --strip-components=1 -C /usr
-
-# build pybind11 with cmake - but first clone from the official github repo
-RUN git clone --branch v2.8.0 https://github.com/pybind/pybind11.git /pybind  \
-    && mkdir -p /pybind/build \
-    && cd /pybind/build \
-    && cmake -GNinja \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DPYBIND11_TEST=OFF \
-        -DCMAKE_INSTALL_PREFIX=/app \
-        -DPYTHON_EXECUTABLE=/home/ifm/venv/bin/python${PYTHON_VERSION} \
-        .. \
-    && cmake --build . \
-    && cmake --build . --target install
-
-# if you are running unit tests against a camera at
-# a different IP, set that here.
-ENV IFM3D_IP 192.168.0.69
-
-# Copy the code
-COPY . /ifm3d
-
-# Run the build
-RUN mkdir -p /ifm3d/build \
-    && cd /ifm3d/build \
-    && cmake -GNinja \ 
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX=/app \
-        -DBUILD_MODULE_OPENCV=ON \
-        -DBUILD_MODULE_PCICCLIENT=ON \
-        -DBUILD_MODULE_PYBIND11=ON \
-        -DPYTHON_EXECUTABLE=/usr/bin/python${PYTHON_VERSION} \
-        .. \
-    && cmake --build . \
-    && if [ "x$RUN_TESTS" = "x" ]; then echo "Skipping tests..."; else ninja check; fi \
-    && cmake --build . --target install \
-    && cp /ifm3d/build/modules/pybind11/src/ifm3dpy.*.so /home/ifm/venv/lib/python*/site-packages/
-
 # Create the final image based on the base stage
 FROM base
-ARG PYTHON_VERSION
-
-# Copy the build output
-COPY --from=build /app /usr
-COPY --from=build --chown=ifm:ifm /home/ifm/venv/ /home/ifm/venv/
+ARG BASE_IMAGE
 
 # Install runtime requirements
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        libgoogle-glog0v5 \
         libopencv-core* \
         libxmlrpc-c++8v5 \
         locales \
         sudo \
     && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir /home/ifm/tmp
+
+COPY ./ifm3d*.tar /home/ifm/tmp/
+
+RUN BASE_IMAGE_NAME=$(echo "${BASE_IMAGE}" | grep -o '[^/]*$' | cut -d":" -f1) \
+    && BASE_IMAGE_VERSION=$(echo "${BASE_IMAGE}" | grep -o '[^/]*$' | cut -d":" -f2) \
+    && ARCH=$(dpkg --print-architecture) \
+    && tarname=ifm3d-$BASE_IMAGE_NAME-$BASE_IMAGE_VERSION-$ARCH-debs \
+    && tarfile=$(find /home/ifm/tmp -type f -name "${tarname}*" -print -quit) \
+    && tar -xv -C /home/ifm/tmp -f "$tarfile" \
+    && dpkg -i /home/ifm/tmp/*.deb \
+    && rm -rf /home/ifm/tmp
 
 # Setup localisation
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \

@@ -55,24 +55,6 @@ if(BUILD_IN_DEPS)
     target_compile_definitions(xmlrpc PUBLIC _HAS_AUTO_PTR_ETC=1)
   endif()
 
-
-  FetchContent_Declare(
-   glog
-    GIT_REPOSITORY "https://github.com/google/glog.git"
-    GIT_TAG "v0.3.5"
-    GIT_SHALLOW TRUE
-    GIT_PROGRESS TRUE
-  )
-
-  FetchContent_Populate(glog)
-  FetchContent_GetProperties(glog SOURCE_DIR glog_src_dir)
-  FetchContent_GetProperties(glog BINARY_DIR glog_bin_dir)
-
-  add_subdirectory(${glog_src_dir} ${glog_bin_dir})
-  list(APPEND BUILTIN_INCLUDES ${glog_src_dir} ${glog_bin_dir} ${glog_src_dir}/src)
-  if(WIN32)
-    target_compile_definitions(logging_unittest PUBLIC _HAS_AUTO_PTR_ETC=1)
-  endif()
   if(BUILD_MODULE_PYBIND11)
     FetchContent_Declare(
      pybind11
@@ -116,7 +98,43 @@ target_include_directories(asio SYSTEM INTERFACE
 )
 
 #adding cxxopts
-add_subdirectory(cxxopts-2.2.0)
+if(BUILD_MODULE_TOOLS)
+  FetchContent_Declare(
+    cxxopts
+      GIT_REPOSITORY https://github.com/jarro2783/cxxopts
+      GIT_TAG v3.1.1
+      GIT_SHALLOW TRUE
+  )
+  FetchContent_MakeAvailable(cxxopts)
+endif(BUILD_MODULE_TOOLS)
 
 #adding websocketpp
-add_subdirectory(websocketpp)
+if(BUILD_MODULE_SWUPDATER)
+  FetchContent_Declare(
+    websocketpp
+      GIT_REPOSITORY https://github.com/zaphoyd/websocketpp.git
+      GIT_TAG 0.8.2
+  )
+  FetchContent_Populate(websocketpp)
+  FetchContent_GetProperties(websocketpp SOURCE_DIR websocketpp_src_dir)
+
+  add_library(websocketpp_wrapper INTERFACE)
+
+  target_include_directories(websocketpp_wrapper INTERFACE
+        $<BUILD_INTERFACE:${websocketpp_src_dir}>
+  )
+  target_link_libraries(websocketpp_wrapper INTERFACE asio)
+
+  if(MSVC)
+    target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_FUNCTIONAL_)
+    target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_SYSTEM_ERROR_)
+    target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_RANDOM_DEVICE_)
+    target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_MEMORY_)
+    target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_STRICT_)
+
+  else()
+    target_compile_definitions (websocketpp_wrapper INTERFACE -D_WEBSOCKETPP_CPP11_STL_)
+  endif()
+    target_compile_definitions(websocketpp_wrapper INTERFACE ASIO_DISABLE_STD_EXPERIMENTAL_STRING_VIEW)
+
+endif(BUILD_MODULE_SWUPDATER)

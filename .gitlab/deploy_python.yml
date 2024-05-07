@@ -11,8 +11,9 @@
 deploy:python_wheels_tagged:
   extends: .python_wheels
   variables:
-    TWINE_USERNAME: __token__
-    TWINE_PASSWORD: ${PYPI_TOKEN}
+    TWINE_USERNAME: ${PYTHON_REPO_USERNAME}
+    TWINE_PASSWORD: ${PYTHON_REPO_PASSWORD}
+    TWINE_REPOSITORY_URL: ${PYTHON_REPO_URL}
   needs:
     - job: deploy:start
       artifacts: false
@@ -26,9 +27,9 @@ deploy:python_wheels_tagged:
 deploy:python_wheels_nightly:
   extends: .python_wheels
   variables:
-    TWINE_USERNAME: __token__
-    TWINE_PASSWORD: ${TEST_PYPI_TOKEN}
-    TWINE_REPOSITORY: testpypi
+    TWINE_USERNAME: ${TEST_PYTHON_REPO_USERNAME}
+    TWINE_PASSWORD: ${TEST_PYTHON_REPO_PASSWORD}
+    TWINE_REPOSITORY_URL: ${TEST_PYTHON_REPO_URL}
   needs:
     - job: build:windows_2019:python_wheel
       artifacts: true

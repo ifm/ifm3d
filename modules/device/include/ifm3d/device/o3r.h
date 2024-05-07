@@ -10,6 +10,12 @@
 
 namespace ifm3d
 {
+  static const int NET_WAIT_O3R_SET =
+    std::getenv("IFM3D_NET_WAIT_O3R_SET") == nullptr ?
+      15000 :
+      std::stoi(std::getenv("IFM3D_NET_WAIT_O3R_SET"));
+
+  /** @ingroup Device */
   struct IFM3D_DEVICE_EXPORT PortInfo
   {
     std::string port;
@@ -17,7 +23,8 @@ namespace ifm3d
     std::string type;
   };
 
-  /**
+  /** @ingroup Device
+   *
    * Device specialization for O3R
    */
   class IFM3D_DEVICE_EXPORT O3R : public Device
@@ -52,7 +59,7 @@ namespace ifm3d
     /**
      * Returns the configuration formatted as JSON based on a path.
      * If the path is empty, returns the whole configuration.
-     *
+     * This function is blocking for firmware versions above 1.1.0.
      * @param[in] path A List of JSON path fragments to retrieve the
      * information for
      *
@@ -74,6 +81,7 @@ namespace ifm3d
     /**
      * Overwrites parts of the temporary JSON configuration which is achieved
      * by merging the provided JSON fragment with the current temporary JSON.
+     * This function is blocking for firmware versions above 1.1.0.
      *
      * @param[in] j The new temporay JSON configuration of the device.
      */
@@ -92,8 +100,9 @@ namespace ifm3d
 
     /**
      * Sets the default value of an object inside the JSON. The object is
-     * addressed by a JSON Pointer. The object is resetted to the values
-     * defined in the JSON schema.
+     * addressed by a JSON Pointer. The object is reset to the values
+     * defined in the JSON schema. Note that this does not reset the init
+     * configuration, nor the parameters marked as "sticky".
      *
      * @param[in] jsonPointer A JSON Pointer to the object to be set to
      * default.
@@ -109,11 +118,18 @@ namespace ifm3d
 
     /**
      * Save to current temporary JSON configuration as initial JSON
-     * configuration
+     * configuration, so it will be applied with the next transition to the
+     * INIT state (system boot up)
+     *
+     * @param[in] pointers A List of JSON pointers specifying which parts of
+     * the configuration should be saved as initial JSON. If no list is
+     * provided the whole config will be saved
      */
-    void SaveInit();
+    void SaveInit(const std::vector<std::string>& pointers = {});
 
     /**
+     * @private
+     *
      * Returns the init status of the device
      *
      * @return The init status of the device
@@ -121,30 +137,35 @@ namespace ifm3d
     std::string GetInitStatus();
 
     /**
-     * Release the lock from the Device
+     * @private
+     *
+     * Locks the device until it is unlocked.
+     * If the device is unlocked and an empty password is provided the password
+     * protection is removed.
      *
      * @param[in] password the password used to unlock the device
      */
     void Lock(const std::string& password);
 
     /**
-     * Locks the device until it is unlocked.
-     * If the device is unlocked and an empty password is provided the password
-     * protection is removed.
+     * @private
+     *
+     * Release the lock from the Device
      *
      * @param[in] password the password used to lock the device
      */
     void Unlock(const std::string& password);
 
     /**
-     * Returns a list containing information about all connected physical ports
+     * Returns a list containing information about all connected physical and
+     * application ports
      *
      * @return the list of ports
      */
     std::vector<PortInfo> Ports();
 
     /**
-     * Returns information about a given physical port
+     * Returns information about a given physical or application port
      *
      * @param[in] port the port for which to get the information
      *

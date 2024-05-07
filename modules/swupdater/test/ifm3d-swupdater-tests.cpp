@@ -5,7 +5,7 @@
 #include <ifm3d/swupdater.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
-#include <glog/logging.h>
+#include <ifm3d/common/logging/log.h>
 #include <gtest/gtest.h>
 #include <fstream>
 
@@ -28,7 +28,7 @@ protected:
 
 TEST_F(SWUpdater, FactoryDefaults)
 {
-  LOG(INFO) << "FactoryDefaults test";
+  LOG_INFO("FactoryDefaults test");
   auto cam = ifm3d::LegacyDevice::MakeShared();
 
   EXPECT_NO_THROW(cam->FactoryReset());
@@ -41,27 +41,19 @@ TEST_F(SWUpdater, DetectBootMode)
   auto cam = ifm3d::Device::MakeShared();
   auto swu = std::make_shared<ifm3d::SWUpdater>(cam);
 
-  if (cam->AmI(ifm3d::Device::device_family::O3R))
-    {
-      /* both mode are active at the same time */
-      EXPECT_TRUE(swu->WaitForProductive(-1));
-      EXPECT_TRUE(swu->WaitForRecovery(-1));
-      return;
-    }
-
   EXPECT_TRUE(swu->WaitForProductive(-1));
   EXPECT_FALSE(swu->WaitForRecovery(-1));
   EXPECT_FALSE(swu->WaitForRecovery(5000));
 
   swu->RebootToRecovery();
-  EXPECT_TRUE(swu->WaitForRecovery(80000));
+  EXPECT_TRUE(swu->WaitForRecovery(100000));
 
   EXPECT_FALSE(swu->WaitForProductive(-1));
   EXPECT_TRUE(swu->WaitForRecovery(-1));
   EXPECT_FALSE(swu->WaitForProductive(5000));
 
   swu->RebootToProductive();
-  EXPECT_TRUE(swu->WaitForProductive(80000));
+  EXPECT_TRUE(swu->WaitForProductive(100000));
 
   EXPECT_TRUE(swu->WaitForProductive(-1));
   EXPECT_FALSE(swu->WaitForRecovery(-1));

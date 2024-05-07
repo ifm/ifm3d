@@ -2,7 +2,9 @@ stages:
   - version
   - check
   - build
-  - test
+  - test  
+  - sign
+  - tag
   - release
   - deploy
 
@@ -11,6 +13,7 @@ variables:
 
 include:
   - local: .gitlab/rules.yml
+  - local: .gitlab/configs.yml
   - local: .gitlab/docker_config.yml
   - local: .gitlab/update_version.yml
   - local: .gitlab/check.yml
@@ -18,9 +21,13 @@ include:
   - local: .gitlab/build_linux.yml
   - local: .gitlab/test_windows.yml
   - local: .gitlab/test_linux.yml
+  - local: .gitlab/sign_windows.yml
+  - local: .gitlab/tag.yml
   - local: .gitlab/release.yml
   - local: .gitlab/deploy.yml
   - local: .gitlab/deploy_docs.yml
   - local: .gitlab/deploy_python.yml
   - local: .gitlab/deploy_docker.yml
   - local: .gitlab/oss_compilance.yml
+  - local: .gitlab/deploy_github.yml
+  - local: .gitlab/notification.yml

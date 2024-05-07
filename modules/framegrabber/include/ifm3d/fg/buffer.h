@@ -10,6 +10,8 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <optional>
+#include <ifm3d/common/json.hpp>
 #include <limits.h>
 #include <ifm3d/fg/frame_grabber_export.h>
 #include <ifm3d/device/device.h>
@@ -17,82 +19,82 @@
 namespace ifm3d
 {
   /**
-  @brief The class Buffer represent a STL conatiner to store data  from
-  the ifm devices in 2 dimension and supports multiple channel. data stores
-  in sequnetial memory layout and class provides function template to access
-  the pixel. Creating an Buffer object :
-
-  - Use the Create(cols, rows, nchannel, ifm3d::pixel_format ) method or the
-  similar Buffer(cols,rows, nchannel, type) constructor.
-
-  For example, FORMAT_8U means a 8-bit array, FORMAT_32F floating-point array,
-  and so on.
-  @code
-      //a 100 x 100 Buffer of type 8U
-      ifm3d::Buffer image(100,100,1,ifm3d::FORMAT_8U);
-      // and now turn image to a 10 x10 3-channel 8-bit matrix.
-      // The old content will be deallocated
-      image.create(10,10,3,ifm3d::FORMAT_8U);
-  @endcode
-  note: create() allocates new memory.
-
-  - Accessing the pixels
-  use at<T>(index) or at<T>(i,j) to access the pixel this return the reference
-  to the pixel. A pixel is defined as structure of n-channel values at a given
-  index or pixel position in 2D array
-
-  to access a pixel in Buffer I ( 100,100,1,ifm3d::FORMAT_8U) at  50,50
-  position
-
-   @code
-
-     auto pixel = I<uint8_t>(50,50);
-     // if working as Index array then
-
-     auto index = 50*100 + 50 ;
-     auto pixel = I<uint8_t>(index);
-
-   @endcode
-
-   changing the pixel value can be done as follow :
-   writing 100 at pixel postion 50,50
-
-   @code
-     I<uint8_t>(50,50) = 100;
-     I<uint8_t>(index) = 100;
-   @endcode
-
-   to access a pixel in n-channel Buffer I ( 100,100,3,ifm3d::FORMAT_8U) at
-   50,50 position This will be the case accessing the values for 3 channel
-   Buffer
-   as pixel is structure of the values of n-chanel at given position.
-
-   @code
-
-     auto pixel = I<Point3D<uint8_t>>(50,50);
-
-     //now individual channel values can be access with
-     val[0], val[1] , val[2]
-   @endcode
-
-   -Processing the whole array
-  If you need to process a whole image, the most efficient way is to
-  get the pointer to the row first, and then just use the plain C operator [] :
-  @code
-     Buffer I(100,100,1,FORMAT_8U);
-      for(int i = 0; i < I.height(); i++)
-      {
-          const uint8_t* rowi = M.ptr<uint8_t>(i);
-          for(int j = 0; j < I.width(); j++)
-              {
-                //some operation here
-              }
-      }
-  @endcode
-
-  One can aslo use range based for loops with adapter explained
-  in ifm3d::IteratorAdapter section
-  */
+   *
+   * @brief The class Buffer represent a STL container to store data  from
+   * the ifm devices in 2 dimension and supports multiple channel. Data stored
+   * in sequential memory layout and class provides function template to access
+   * the pixel. Creating an Buffer object :
+   *
+   * - Use the Create(cols, rows, nchannel, ifm3d::pixel_format ) method or the
+   * similar Buffer(cols, rows, nchannel, type) constructor.
+   *
+   * For example, FORMAT_8U means a 8-bit array, FORMAT_32F floating-point
+   * array, and so on.
+   * @code
+   *     //a 100 x 100 Buffer of type 8U
+   *     ifm3d::Buffer image(100,100,1,ifm3d::FORMAT_8U);
+   *     // and now turn image to a 10 x10 3-channel 8-bit matrix.
+   *     // The old content will be deallocated
+   *     image.create(10,10,3,ifm3d::FORMAT_8U);
+   * @endcode
+   * note: create() allocates new memory.
+   *
+   * - Accessing the pixels
+   * use at<T>(index) or at<T>(i,j) to access the pixel this return the
+   * reference to the pixel. A pixel is defined as structure of n-channel
+   * values at a given index or pixel position in 2D array
+   *
+   * to access a pixel in Buffer I ( 100,100,1,ifm3d::FORMAT_8U) at  50,50
+   * position
+   *
+   * @code
+   *
+   *   auto pixel = I<uint8_t>(50,50);
+   *   // if working as Index array then
+   *
+   *   auto index = 50*100 + 50 ;
+   *   auto pixel = I<uint8_t>(index);
+   *
+   * @endcode
+   *
+   * changing the pixel value can be done as follow :
+   * writing 100 at pixel postion 50,50
+   *
+   *  @code
+   *    I<uint8_t>(50,50) = 100;
+   *    I<uint8_t>(index) = 100;
+   *  @endcode
+   *
+   * to access a pixel in n-channel Buffer I ( 100,100,3,ifm3d::FORMAT_8U) at
+   * 50,50 position This will be the case accessing the values for 3 channel
+   * Buffer
+   * as pixel is structure of the values of n-chanel at given position.
+   *
+   * @code
+   *   auto pixel = I<Point3D<uint8_t>>(50,50);
+   *
+   *   //now individual channel values can be access with
+   *   val[0], val[1] , val[2]
+   * @endcode
+   *
+   * - Processing the whole array
+   * If you need to process a whole image, the most efficient way is to get the
+   * pointer to the row first, and then just use the plain C operator[] :
+   * @code
+   *   Buffer I(100,100,1,FORMAT_8U);
+   *   for(int i = 0; i < I.height(); i++)
+   *    {
+   *     const uint8_t* rowi = M.ptr<uint8_t>(i);
+   *     for(int j = 0; j < I.width(); j++)
+   *      {
+   *       //some operation here
+   *      }
+   *    }
+   * @endcode
+   *
+   * One can also use range based for loops with adapter explained
+   * in ifm3d::IteratorAdapter section
+   */
   class IFM3D_FRAME_GRABBER_EXPORT Buffer
   {
   private:
@@ -114,6 +116,8 @@ namespace ifm3d
     size_t bytes_per_pixel;
     /* @brief bytes per row */
     size_t bytes_per_row;
+    /* @brief json formatted metadata of the chunk obtain from device*/
+    json metadata_;
 
     class BufferAllocator;
     std::shared_ptr<BufferAllocator> buffer_allocator_;
@@ -132,13 +136,15 @@ namespace ifm3d
       @param nchannel Number of channels in Buffer
       @param format value from ifm3d::pixel_format releates to data type
       need to store one value.
+      @param metadata json formatted metadata of the chunk obtain from device
 
       @note This internally calls Create Method to allocates Memory
     */
     Buffer(const std::uint32_t cols,
            const std::uint32_t rows,
            const std::uint32_t nchannel,
-           ifm3d::pixel_format format);
+           ifm3d::pixel_format format,
+           std::optional<ifm3d::json> metadata = std::nullopt);
 
     virtual ~Buffer() = default;
 
@@ -172,6 +178,7 @@ namespace ifm3d
     std::uint32_t width() const;
     std::uint32_t nchannels() const;
     ifm3d::pixel_format dataFormat() const;
+    ifm3d::json metadata() const;
 
     /**
      * @brief Return the size of the buffer in bytes
@@ -321,7 +328,9 @@ namespace ifm3d
 
     /* Similar to Buffer(cols,rows,ifm3d::formatType<Tp>::nchannel,
      * ifm3d::formatType<Tp>::format ) */
-    Buffer_(const std::uint32_t cols, const std::uint32_t rows);
+    Buffer_(const std::uint32_t cols,
+            const std::uint32_t rows,
+            std::optional<ifm3d::json> metadata = std::nullopt);
 
     ~Buffer_() = default;
 
@@ -349,6 +358,7 @@ namespace ifm3d
     std::uint32_t width() const;
     std::uint32_t nchannels() const;
     ifm3d::pixel_format dataFormat() const;
+    ifm3d::json metadata() const;
 
     /** @brief returns a pointer to the specified Buffer row.
         @param row number

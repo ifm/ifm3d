@@ -45,10 +45,10 @@ option(BUILD_MODULE_TOOLS "Build the tools module" ON)
 option(BUILD_MODULE_PYBIND11 "Build the python bindings module" OFF)
 option(BUILD_SDK_PKG "Build install packages for development purposes" ON)
 option(BUILD_SHARED_LIBS "Build modules as shared libraries" ON)
-option(BUILD_EXAMPLES "Build the examples" OFF)
 option(BUILD_DOC "Build documentation" OFF)
 option(BUILD_IN_DEPS "download and build dependencies" ON)
 option(CREATE_WIN_INSTALLER "Create windows installer" OFF)
+option(CREATE_PYTHON_STUBS "Create the Python stubs" OFF)
 
 # Installation root
 if(NOT WIN32)
@@ -123,6 +123,9 @@ else()
 endif(CREATE_WIN_INSTALLER)
 
 # Build sub-modules
+add_subdirectory(modules/common)
+list(APPEND DOXYGEN_MODULES "common")
+
 add_subdirectory(modules/device)
 list(APPEND DOXYGEN_MODULES "device")
 
@@ -154,10 +157,6 @@ if(BUILD_MODULE_DESERIALIZE)
   list(APPEND DOXYGEN_MODULES "deserialize")
 endif()
 
-if(BUILD_EXAMPLES)
-  add_subdirectory(examples)
-endif()
-
 if(BUILD_MODULE_TOOLS)
   add_subdirectory(modules/tools)
 endif()
@@ -171,13 +170,11 @@ if(BUILD_SDK_PKG)
     INSTALL_DESTINATION ${CONFIG_PACKAGE_LOCATION}
     )
 
-  # NOTE: we use 'COMPONENT device' here as it is the one
-  # "required" module in our stack
   install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config-version.cmake
           ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config.cmake
     DESTINATION ${CONFIG_PACKAGE_LOCATION}
-    COMPONENT device
+    COMPONENT common
     )
 endif()
 

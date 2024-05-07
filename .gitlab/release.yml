@@ -1,25 +1,25 @@
-release:tag:
+release:github:
+  variables:
+    GH_TOKEN: ${IFM_CSR_GH_RELEASE_TOKEN}
   stage: release
-  image: python:3
-  tags: [shared_docker]
-
-  before_script:
-  - |
-    apt-get -y update
-    apt-get -y install git
-    git config --global user.email "support.robotics@ifm.com"
-    git config --global user.name "ifm-csr"
-
+  image: ghcr.io/cicirello/pyaction
+  tags: 
+    - shared_docker
+  needs:
+    - job: build:linux:deb
+      artifacts: true
+    - job: sign:windows_2019
+      artifacts: true
+  rules:
+    - !reference [.tagged, rules]
   script:
     - python3 scripts/release/get_changelog_between_versions.py
-    - git remote set-url origin https://"ifm-csr":$RELEASE_ACCESS_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git
     - export tag_value=$(cat VERSION | awk  '{print $1}' FS="*")
-    - git tag -a $tag_value -F CHANGELOG
-    - git push origin $tag_value
-    
-  rules:
-    - if: ($CI_PIPELINE_SOURCE == "push") && ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH) && ($CI_COMMIT_MESSAGE =~ '/Release\/v\d+\.\d+\.\d+/')
-      when: always
-    - when: never
-
-   
+    - |
+      while ! curl -sSfI https://github.com/ifm/ifm3d/releases/tag/$tag_value > /dev/null; do
+       sleep 1
+      done
+    - gh --version
+    - gh release create $tag_value -R https://github.com/ifm/ifm3d.git --prerelease -F CHANGELOG --title $tag_value --verify-tag
+    - gh release upload $tag_value -R https://github.com/ifm/ifm3d.git ifm3d-*.tar
+    - gh release upload $tag_value -R https://github.com/ifm/ifm3d.git ifm3d_installer/ifm3d_windows_*.exe
