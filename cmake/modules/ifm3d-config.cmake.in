@@ -1,26 +1,3 @@
-# 'commons' component is required
-if(NOT TARGET ifm3d::common)
-  include("${CMAKE_CURRENT_LIST_DIR}/ifm3d-common-targets.cmake")
-endif()
-
-if(NOT TARGET ifm3d::common)
-  set(ifm3d_FOUND False)
-  message(FATAL_ERROR
-    "ifm3d installation is broken, common targets not found!"
-    )
-else()
-  message(STATUS "ifm3d found component: common")
-  foreach(_comp ${ifm3d_FIND_COMPONENTS})
-    if(NOT "${_comp}" MATCHES "common")
-      if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/ifm3d-${_comp}-targets.cmake")
-        include("${CMAKE_CURRENT_LIST_DIR}/ifm3d-${_comp}-targets.cmake")
-        message(STATUS "ifm3d found component: ${_comp}")
-      else()
-          if(ifm3d_FIND_REQUIRED_${_comp})
-            set(ifm3d_FOUND False)
-            message(WARNING "ifm3d could not find component: ${_comp}")
-          endif()
-      endif()
-    endif()
-  endforeach()
+if(NOT TARGET ifm3d::ifm3d)
+  include("${CMAKE_CURRENT_LIST_DIR}/ifm3d-targets.cmake")
 endif()

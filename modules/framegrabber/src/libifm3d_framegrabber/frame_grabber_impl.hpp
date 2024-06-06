@@ -26,7 +26,7 @@
 #include <asio/use_future.hpp>
 #include <asio.hpp>
 #include <ifm3d/common/logging/log.h>
-#include <ifm3d/fg/frame_grabber_export.h>
+#include <ifm3d/fg/module_frame_grabber.h>
 #include <ifm3d/device.h>
 #include <ifm3d/fg/schema.h>
 #include <o3d_organizer.hpp>
@@ -54,7 +54,7 @@ namespace ifm3d
   //============================================================
   // Impl interface
   //============================================================
-  class IFM3D_FRAME_GRABBER_LOCAL FrameGrabber::Impl
+  class IFM3D_NO_EXPORT FrameGrabber::Impl
   {
   public:
     Impl(ifm3d::Device::Ptr cam, std::optional<std::uint16_t> nat_pcic_port);
@@ -966,7 +966,7 @@ ifm3d::FrameGrabber::Impl::CalculateAsyncCommand()
       p |= (1 << 2);
     }
 
-  // enable  algodebug
+  // enable algodebug
   if (this->requested_images_.count(ifm3d::buffer_id::ALGO_DEBUG) > 0)
     {
       p = this->requested_images_.size() == 1 && p == 0x1 ? 0x8 : 0xF;
