@@ -37,10 +37,10 @@ build:linux:deb:
       --no-push
       ${KANIKO_BUILD_ARGS}
       ${DOCKER_BUILD_ARGS}
-    - cp /out/*.tar ${CI_PROJECT_DIR}/
+    - cp /out/*.deb ${CI_PROJECT_DIR}/
   artifacts:
     paths:
-      - ifm3d-*.tar
+      - ifm3d-*.deb
     expire_in: 1 week
   rules:
     - !reference [.tagged, rules]

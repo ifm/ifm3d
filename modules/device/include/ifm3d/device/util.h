@@ -9,36 +9,33 @@
 
 #include <string>
 #include <vector>
-#include <ifm3d/device/device_export.h>
+#include <ifm3d/device/module_device.h>
 
 namespace ifm3d
 {
   /**
    * Trim whitespace from left side of string
    */
-  IFM3D_DEVICE_EXPORT std::string& ltrim(
-    std::string& str,
-    const std::string& chars = "\t\n\v\f\r ");
+  IFM3D_EXPORT std::string& ltrim(std::string& str,
+                                  const std::string& chars = "\t\n\v\f\r ");
 
   /**
    * Trim whitespace from right side of string
    */
-  IFM3D_DEVICE_EXPORT std::string& rtrim(
-    std::string& str,
-    const std::string& chars = "\t\n\v\f\r ");
+  IFM3D_EXPORT std::string& rtrim(std::string& str,
+                                  const std::string& chars = "\t\n\v\f\r ");
 
   /**
    * Trim whitespace from left and right side of string
    */
-  IFM3D_DEVICE_EXPORT std::string& trim(
-    std::string& str,
-    const std::string& chars = "\t\n\v\f\r ");
+  IFM3D_EXPORT std::string& trim(std::string& str,
+                                 const std::string& chars = "\t\n\v\f\r ");
 
   /**
    * Split a string into its component parts based on a delimeter
    */
-  IFM3D_DEVICE_EXPORT std::vector<std::string> split(const std::string& in,
-                                                     char delim);
+  IFM3D_EXPORT std::vector<std::string> split(const std::string& in,
+                                              char delim);
 
 } // end: namespace ifm3d
 

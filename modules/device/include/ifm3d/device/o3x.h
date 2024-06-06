@@ -16,7 +16,7 @@ namespace ifm3d
    *
    * Note that O3X support is currently experimental- Use at your own risk!.
    */
-  class IFM3D_DEVICE_EXPORT O3X : public LegacyDevice
+  class IFM3D_EXPORT O3X : public LegacyDevice
   {
   public:
     using Ptr = std::shared_ptr<O3X>;
