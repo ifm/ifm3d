@@ -23,6 +23,7 @@ set(ROOT_PROJECT_VERSION_GIT_SHA ${${ROOT_PROJECT_NAME}_VERSION_GIT_SHA})
 set(ROOT_PROJECT_VERSION_FULL_IN_CASE_OF_PATCHES ${${ROOT_PROJECT_NAME}_VERSION_FULL_IN_CASE_OF_PATCHES})
 set(ROOT_PROJECT_VERSION_META ${${ROOT_PROJECT_NAME}_VERSION_META})
 set(ROOT_PROJECT_VERSION_SIMPLE "${ROOT_PROJECT_VERSION_MAJOR}.${ROOT_PROJECT_VERSION_MINOR}.${ROOT_PROJECT_VERSION_PATCH}")
+set(ROOT_PROJECT_DIR ${CMAKE_CURRENT_LIST_DIR})
 project(${ROOT_PROJECT_NAME} LANGUAGES C CXX VERSION ${ROOT_PROJECT_VERSION_SIMPLE})
 
 set(GIT_PROJECT_NAME "ifm3d")
@@ -46,7 +47,6 @@ option(BUILD_MODULE_PYBIND11 "Build the python bindings module" OFF)
 option(BUILD_SDK_PKG "Build install packages for development purposes" ON)
 option(BUILD_SHARED_LIBS "Build modules as shared libraries" ON)
 option(BUILD_DOC "Build documentation" OFF)
-option(BUILD_IN_DEPS "download and build dependencies" ON)
 option(CREATE_WIN_INSTALLER "Create windows installer" OFF)
 option(CREATE_PYTHON_STUBS "Create the Python stubs" OFF)
 
@@ -74,21 +74,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 if(WIN32)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-  add_definitions(-DBOOST_ALL_NO_LIB)
 endif(WIN32)
-
-# create the cmake-package files
-if(BUILD_SDK_PKG)
-  include(CMakePackageConfigHelpers)
-
-  write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config-version.cmake
-    VERSION ${IFM3D_VERSION}
-    COMPATIBILITY AnyNewerVersion
-    )
-
-  set(CONFIG_PACKAGE_LOCATION ${_lib}/cmake/ifm3d-${IFM3D_VERSION})
-endif()
 
 ################################################
 ## Start deferring work to the submodules
@@ -129,6 +115,10 @@ list(APPEND DOXYGEN_MODULES "common")
 add_subdirectory(modules/device)
 list(APPEND DOXYGEN_MODULES "device")
 
+if (BUILD_SHARED_LIBS)
+  add_subdirectory(modules/libifm3d)
+endif()
+
 if(BUILD_MODULE_FRAMEGRABBER)
   add_definitions(-DBUILD_MODULE_FRAMEGRABBER=ON)
   add_subdirectory(modules/framegrabber)
@@ -160,23 +150,6 @@ endif()
 if(BUILD_MODULE_TOOLS)
   add_subdirectory(modules/tools)
 endif()
-################################################
-## Sub-modules are done, finish up the cmake package
-################################################
-if(BUILD_SDK_PKG)
-  configure_package_config_file(
-    ${CMAKE_CURRENT_LIST_DIR}/cmake/modules/ifm3d-config.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config.cmake
-    INSTALL_DESTINATION ${CONFIG_PACKAGE_LOCATION}
-    )
-
-  install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config-version.cmake
-          ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config.cmake
-    DESTINATION ${CONFIG_PACKAGE_LOCATION}
-    COMPONENT common
-    )
-endif()
 
 #################################################
 # Documentation
@@ -189,45 +162,21 @@ endif()
 # Packaging stuff - for now, we build debs only
 #################################################
 if(NOT WIN32)
-  file(COPY ${IFM3D_SOURCE_DIR}/cmake/utils/ifm3d-dpkg-deps.py.in
-    DESTINATION ${IFM3D_BINARY_DIR}
-    FILE_PERMISSIONS OWNER_READ
-                     OWNER_WRITE
-                     OWNER_EXECUTE
-                     GROUP_READ
-                     GROUP_EXECUTE
-                     WORLD_READ
-                     WORLD_EXECUTE
-    )
-  configure_file(
-    ${IFM3D_BINARY_DIR}/ifm3d-dpkg-deps.py.in
-    ${IFM3D_BINARY_DIR}/ifm3d-dpkg-deps.py
-    @ONLY
-    )
+  execute_process(COMMAND uname -m
+    OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
 
-  # Turn on component-based installation
-  set(CPACK_DEB_COMPONENT_INSTALL ON)
-  set(CPACK_GENERATOR "DEB")
-  get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
-  list(REMOVE_ITEM CPACK_COMPONENTS_ALL "Unspecified")
-
-  # Package architecture
-  find_program(DPKG_CMD dpkg)
-  if(NOT CMAKE_CROSSCOMPILING)
-    if(NOT DPKG_CMD)
-      message(STATUS
-        "Cannot find dpkg in your path, default to ${CMAKE_SYSTEM_PROCESSOR}.")
-      set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "${CMAKE_SYSTEM_PROCESSOR}")
-    else()
-      execute_process(COMMAND "${DPKG_CMD}" --print-architecture
-        OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        )
-    endif(NOT DPKG_CMD)
+  if (CPACK_DEBIAN_PACKAGE_ARCHITECTURE STREQUAL "x86_64")
+    set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+  elseif(CPACK_DEBIAN_PACKAGE_ARCHITECTURE STREQUAL "aarch64")
+    set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "arm64")
   else()
-    # big assumption here
-    set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "armhf")
+    message(FATAL_ERROR "Unsupported architecture: ${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
   endif()
+
+  set(CPACK_GENERATOR "DEB")
+  set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 
   set(CPACK_DEBIAN_PACKAGE_SECTION Libraries)
   set(CPACK_DEBIAN_PACKAGE_NAME ${GIT_PROJECT_NAME})
@@ -239,12 +188,6 @@ if(NOT WIN32)
   set(CPACK_PACKAGE_VERSION_PATCH ${IFM3D_VERSION_PATCH})
   set(CPACK_PACKAGE_FILE_NAME
       "${GIT_PROJECT_NAME}_${IFM3D_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
-
-  # dynamically create dependencies of the various modules
-  #set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON) # <-- Good idea, doesn't work for us
-  add_custom_target(repackage
-    COMMAND ${IFM3D_BINARY_DIR}/ifm3d-dpkg-deps.py ${IFM3D_BINARY_DIR}/*.deb
-    )
 
   include(CPack)
 endif(NOT WIN32)

@@ -21,5 +21,5 @@ release:github:
       done
     - gh --version
     - gh release create $tag_value -R https://github.com/ifm/ifm3d.git --prerelease -F CHANGELOG --title $tag_value --verify-tag
-    - gh release upload $tag_value -R https://github.com/ifm/ifm3d.git ifm3d-*.tar
+    - gh release upload $tag_value -R https://github.com/ifm/ifm3d.git ifm3d-*.deb
     - gh release upload $tag_value -R https://github.com/ifm/ifm3d.git ifm3d_installer/ifm3d_windows_*.exe

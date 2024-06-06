@@ -10,12 +10,12 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <ifm3d/device/device_export.h>
+#include <ifm3d/device/module_device.h>
 
 namespace ifm3d
 {
   using Data = std::vector<unsigned char>;
-  class IFM3D_DEVICE_EXPORT IFMNetworkDevice
+  class IFM3D_EXPORT IFMNetworkDevice
   {
   public:
     IFMNetworkDevice(Data& data, const std::string& ip_address_via_interface);

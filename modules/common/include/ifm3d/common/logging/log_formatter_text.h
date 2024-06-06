@@ -9,10 +9,11 @@
 
 #include <cstring>
 #include <ifm3d/common/logging/log_entry.h>
-#include <ifm3d/common/common_export.h>
+#include <ifm3d/common/module_common.h>
+
 namespace ifm3d
 {
-  class IFM3D_COMMON_EXPORT LogFormatterText
+  class IFM3D_EXPORT LogFormatterText
   {
   public:
     static std::string format(const LogEntry& entry);
