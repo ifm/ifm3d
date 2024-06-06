@@ -10,7 +10,7 @@
 
 namespace ifm3d
 {
-  class IFM3D_DEVICE_EXPORT LegacyDevice : public Device
+  class IFM3D_EXPORT LegacyDevice : public Device
   {
   public:
     using Ptr = std::shared_ptr<LegacyDevice>;

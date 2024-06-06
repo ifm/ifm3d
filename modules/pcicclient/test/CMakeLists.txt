@@ -20,6 +20,7 @@ endif()
 
 file(GLOB TEST_SOURCES *.cpp)
 add_executable(ifm3d-pcicclient-tests ${TEST_SOURCES})
+target_compile_definitions(ifm3d-pcicclient-tests PRIVATE IFM3D_STATIC_LIB)
 target_link_libraries(ifm3d-pcicclient-tests
                       gtest_main
                       ifm3d_pcicclient

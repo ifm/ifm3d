@@ -51,15 +51,12 @@ RUN apt-get update \
 
 RUN mkdir /home/ifm/tmp
 
-COPY ./ifm3d*.tar /home/ifm/tmp/
-
+COPY ./ifm3d*.deb /home/ifm/tmp/
 RUN BASE_IMAGE_NAME=$(echo "${BASE_IMAGE}" | grep -o '[^/]*$' | cut -d":" -f1) \
     && BASE_IMAGE_VERSION=$(echo "${BASE_IMAGE}" | grep -o '[^/]*$' | cut -d":" -f2) \
     && ARCH=$(dpkg --print-architecture) \
-    && tarname=ifm3d-$BASE_IMAGE_NAME-$BASE_IMAGE_VERSION-$ARCH-debs \
-    && tarfile=$(find /home/ifm/tmp -type f -name "${tarname}*" -print -quit) \
-    && tar -xv -C /home/ifm/tmp -f "$tarfile" \
-    && dpkg -i /home/ifm/tmp/*.deb \
+    && cd /home/ifm/tmp/ \
+    && dpkg -i ifm3d-${BASE_IMAGE_NAME}-${BASE_IMAGE_VERSION}-${ARCH}-*.deb \
     && rm -rf /home/ifm/tmp
 
 # Setup localisation
