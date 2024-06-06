@@ -12,14 +12,14 @@
 #include <set>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/frame.h>
-#include <ifm3d/fg/frame_grabber_export.h>
+#include <ifm3d/fg/module_frame_grabber.h>
 
 namespace ifm3d
 {
   /**
    * Organizer Interface for device data
    */
-  class IFM3D_FRAME_GRABBER_EXPORT Organizer
+  class IFM3D_EXPORT Organizer
   {
   public:
     struct Result

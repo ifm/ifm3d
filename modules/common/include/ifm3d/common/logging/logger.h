@@ -12,14 +12,14 @@
 #include <ifm3d/common/logging/log_writer_console.h>
 #include <ifm3d/common/logging/log_writer_console_colored.h>
 #include <ifm3d/common/logging/log_formatter_text.h>
-#include <ifm3d/common/common_export.h>
+#include <ifm3d/common/module_common.h>
 
 #include <vector>
 #include <memory>
 
 namespace ifm3d
 {
-  class IFM3D_COMMON_EXPORT Logger
+  class IFM3D_EXPORT Logger
   {
   public:
     Logger(LogLevel log_level = LogLevel::Warning)

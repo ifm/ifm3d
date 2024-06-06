@@ -8,7 +8,7 @@
 #define IFM3D_FG_FRAME_IMPL_H
 
 #include <map>
-#include <ifm3d/fg/frame_grabber_export.h>
+#include <ifm3d/fg/module_frame_grabber.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/fg/frame.h>
 #include <fmt/format.h>
@@ -18,7 +18,7 @@ namespace ifm3d
   //============================================================
   // Impl interface
   //============================================================
-  class IFM3D_FRAME_GRABBER_LOCAL Frame::Impl
+  class IFM3D_NO_EXPORT Frame::Impl
   {
   public:
     Impl(const BufferDataListMap& images,

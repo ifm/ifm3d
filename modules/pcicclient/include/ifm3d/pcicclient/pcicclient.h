@@ -6,7 +6,7 @@
 #ifndef IFM3D_PCICCLIENT_PCICCLIENT_H
 #define IFM3D_PCICCLIENT_PCICCLIENT_H
 
-#include <ifm3d/pcicclient/pcicclient_export.h>
+#include <ifm3d/pcicclient/module_pcicclient.h>
 #include <atomic>
 #include <condition_variable>
 #include <map>
@@ -23,7 +23,7 @@ namespace ifm3d
    * ifm3d::Camera::Ptr, it provides unbuffered communication with
    * the PCIC interface.
    */
-  class IFM3D_PCICCLIENT_EXPORT PCICClient
+  class IFM3D_EXPORT PCICClient
   {
   public:
     using Ptr = std::shared_ptr<PCICClient>;
@@ -173,7 +173,7 @@ namespace ifm3d
     void CancelCallback(long callback_id);
 
   private:
-    class IFM3D_PCICCLIENT_LOCAL Impl;
+    class IFM3D_NO_EXPORT Impl;
     std::unique_ptr<Impl> pImpl;
 
   }; // end: class PCICClient

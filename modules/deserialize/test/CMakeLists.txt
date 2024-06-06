@@ -24,6 +24,7 @@ file(COPY ${TEST_DATA_FILES}
 
 file(GLOB TEST_SOURCES *.cpp)
 add_executable(ifm3d-deserialize-tests ${TEST_SOURCES})
+target_compile_definitions(ifm3d-deserialize-tests PRIVATE IFM3D_STATIC_LIB)
 
 target_include_directories(ifm3d-deserialize-tests PRIVATE
  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/data>
