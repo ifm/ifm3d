@@ -67,7 +67,7 @@ namespace ifm3d
   //============================================================
   // Impl interface
   //============================================================
-  class ImplV2 : public SWUpdater::Impl
+  class IFM3D_NO_EXPORT ImplV2 : public SWUpdater::Impl
   {
   public:
     ImplV2(ifm3d::Device::Ptr cam,
