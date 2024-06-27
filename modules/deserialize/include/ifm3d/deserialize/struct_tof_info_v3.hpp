@@ -8,6 +8,7 @@
 #define IFM3D_DESERIALIZE_STRUCT_TOF_INFO_V3_HPP
 
 #include <array>
+#include <string>
 #include <chrono>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
@@ -49,6 +50,7 @@ namespace ifm3d
           throw ifm3d::Error(IFM3D_CORRUPTED_STRUCT);
         }
       const uint8_t* start_ptr = data;
+      std::array<char, 32> buff;
       version = mkval<std::uint32_t>(start_ptr + TOF_INFO_VERSION_INDEX);
       distance_resolution =
         mkval<float>(start_ptr + TOF_INFO_DISTANCE_RESOLUTION_INDEX);
@@ -64,12 +66,16 @@ namespace ifm3d
         start_ptr + TOF_INFO_INVERSE_INTRINSIC_CALIBRATION_INDEX);
       mkarray<uint64_t, 3>(start_ptr + TOF_INFO_EXPOSURE_TIMESTAMPS_INDEX,
                            exposure_timestamps_ns);
-      mkarray<uint32_t, 3>(start_ptr + TOF_INFO_EXPOSURE_TIMES_INDEX,
-                           exposure_times_s);
+      mkarray<float, 3>(start_ptr + TOF_INFO_EXPOSURE_TIMES_INDEX,
+                        exposure_times_s);
       illu_temperature =
         mkval<float>(start_ptr + TOF_INFO_ILLUTEMPERATURE_INDEX);
-      mkarray<char, 32>(start_ptr + TOF_INFO_MODE_INDEX, mode);
-      mkarray<char, 32>(start_ptr + TOF_INFO_IMAGER_INDEX, imager);
+      mkarray<char, 32>(start_ptr + TOF_INFO_MODE_INDEX, buff);
+      mode = std::string(buff.begin(), buff.end());
+      buff.fill('\0');
+      mkarray<char, 32>(start_ptr + TOF_INFO_IMAGER_INDEX, buff);
+      imager = std::string(buff.begin(), buff.end());
+      buff.fill('\0');
     };
     /*@brief Version of the TOF_INFO data */
     uint32_t version;
@@ -89,13 +95,13 @@ namespace ifm3d
     /*@brief The timestamp of the individual exposure time [nano seconds]*/
     std::array<uint64_t, 3> exposure_timestamps_ns;
     /*@brief Actual exposure times of a single phase image [seconds].*/
-    std::array<uint32_t, 3> exposure_times_s;
+    std::array<float, 3> exposure_times_s;
     /*@brief Illumination temperature*/
     float illu_temperature;
     /*@brief Mode of the head*/
-    std::array<char, 32> mode;
+    std::string mode;
     /*@brief Imager type*/
-    std::array<char, 32> imager;
+    std::string imager;
     /*@brief TOF_INFO data size in bytes*/
     const size_t tof_info_v3_size = 416;
 
