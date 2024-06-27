@@ -12,17 +12,13 @@ RUN apt-get update \
         findutils \
         git \
         graphviz \
-        libboost-all-dev \
         libcurl4-openssl-dev \
-        libgoogle-glog-dev \
-        libgtest-dev \
-        libopencv-dev \
-        libpcl-dev \
         libproj-dev \
-        libxmlrpc-c++8-dev \
+        libssl-dev \
         locales \
         ninja-build \
         python3-dev \
+        python3-venv \
         python3-numpy \
         python3-pip \
         python3-pytest \
@@ -55,9 +51,6 @@ RUN mkdir -p /ifm3d/build \
     && cd /ifm3d/build \
     && cmake -GNinja \ 
         -DCMAKE_INSTALL_PREFIX=/app \
-        -DBUILD_IN_DEPS=OFF \
-        -DBUILD_MODULE_IMAGE=ON \
-        -DBUILD_MODULE_OPENCV=ON \
         -DBUILD_MODULE_PCICCLIENT=ON \
         -DBUILD_MODULE_PYBIND11=ON \
         -DBUILD_MODULE_TOOLS=ON \

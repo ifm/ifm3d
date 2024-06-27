@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: ifm3dpy
+Version: @ROOT_PROJECT_VERSION@
+Summary: Library for working with ifm pmd-based 3D ToF Cameras
+Home-page: https://github.com/ifm/ifm3d
+Author: ifm Robotics Perception
+Author-email: support.robotics@ifm.com
+License: Apache 2.0
+Project-URL: Documentation, https://ifm3d.com/
+Project-URL: Issue Tracker, https://github.com/ifm/ifm3d/issues
+Project-URL: Source Code, https://github.com/ifm/ifm3d
+Description-Content-Type: text/markdown
+License-File: LICENSE
+License-File: LICENSE-thirdparty
+Requires-Dist: numpy

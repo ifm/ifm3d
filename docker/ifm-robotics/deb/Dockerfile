@@ -14,17 +14,15 @@ RUN apt-get update \
         coreutils \
         findutils \
         git \
-        libboost-all-dev \
         libcurl4-openssl-dev \
         libgoogle-glog-dev \
         libgtest-dev \
-        libopencv-dev \
-        libpcl-dev \
-        libproj-dev \
-        libxmlrpc-c++8-dev \
+        libssl-dev \
         locales \
+        file \
         ninja-build \
         python3-dev \
+        python3-venv \
         python3-numpy \
         python3-pip \
         python3-pytest \
@@ -57,14 +55,14 @@ COPY . /ifm3d
 
 RUN mkdir -p /ifm3d/build \
     && cd /ifm3d/build \
+    && PYTHON_MINOR_VERSION=$(python3 -c 'import sys; print(sys.version_info.minor)') \
     && cmake -GNinja \ 
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/usr \
-        -DBUILD_MODULE_OPENCV=ON \
         -DBUILD_MODULE_PCICCLIENT=ON \
         -DBUILD_MODULE_PYBIND11=ON \
+        -DCREATE_PYTHON_STUBS=$(if [ $PYTHON_MINOR_VERSION -ge 7 ]; then echo "ON"; else echo "OFF"; fi) \
         -DPYTHON_EXECUTABLE=/usr/bin/python3 \
-        -DBUILD_IN_DEPS=OFF \
         .. \
     && cmake --build . \
     && if [ "x$RUN_TESTS" = "x" ]; then echo "Skipping tests..."; else ninja check; fi \
@@ -75,7 +73,8 @@ RUN mkdir -p /ifm3d/build \
     && ARCH=$(dpkg --print-architecture) \
     && mkdir -p /out \
     && cd /ifm3d/build/  \
-    && mv /ifm3d/build/ifm3d*.deb /out/ifm3d-${BASE_IMAGE_NAME}-${BASE_IMAGE_VERSION}-${ARCH}-${IFM3D_VERSION}.deb
+    && mv /ifm3d/build/*ifm3d.deb /out/ifm3d-${BASE_IMAGE_NAME}-${BASE_IMAGE_VERSION}-${ARCH}-${IFM3D_VERSION}.deb \
+    && mv /ifm3d/build/*ifm3dpy.deb /out/ifm3dpy-${BASE_IMAGE_NAME}-${BASE_IMAGE_VERSION}-${ARCH}-${IFM3D_VERSION}.deb
 
 FROM scratch AS output
 COPY --from=build /out /out
