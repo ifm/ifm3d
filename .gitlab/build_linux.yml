@@ -40,7 +40,7 @@ build:linux:deb:
     - cp /out/*.deb ${CI_PROJECT_DIR}/
   artifacts:
     paths:
-      - ifm3d-*.deb
+      - ifm3d*.deb
     expire_in: 1 week
   rules:
     - !reference [.tagged, rules]
