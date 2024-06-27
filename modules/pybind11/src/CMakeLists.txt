@@ -7,23 +7,18 @@ if(DEFINED PYTHON_PACKAGES_PATH)
   set(_python_install_path ${PYTHON_PACKAGES_PATH})
 else()
   execute_process(
-    COMMAND ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(prefix=''))"
+    COMMAND ${PYTHON_EXECUTABLE} -c "from sysconfig import get_paths; print(get_paths()['stdlib'].removeprefix('/usr'))"
     OUTPUT_VARIABLE _site_packages
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
   set(_python_install_path "${CMAKE_INSTALL_PREFIX}/${_site_packages}")
 endif()
+set(_python_metadata_path "${_python_install_path}/ifm3dpy-${ROOT_PROJECT_VERSION}.dist-info")
 
-# Set the component name based on selected python version. This is primarily
-# to honor debian python packge naming convetions.
-if(PYTHON_VERSION_MAJOR EQUAL 2)
-  set(_component_name "python")
-elseif(PYTHON_VERSION_MAJOR EQUAL 3)
-  set(_component_name "python3")
-else()
-  message(
-    FATAL_ERROR "Unexpected PYTHON_VERSION_MAJOR: ${PYTHON_VERSION_MAJOR}"
-  )
+configure_file(METADATA.in ${CMAKE_CURRENT_BINARY_DIR}/METADATA @ONLY)
+
+if(NOT PYTHON_VERSION_MAJOR EQUAL 3)
+  message(FATAL_ERROR "Unsupported PYTHON_VERSION_MAJOR: ${PYTHON_VERSION_MAJOR}")
 endif()
 
 ################################################
@@ -74,7 +69,7 @@ target_link_libraries(
 #------------------
 set_target_properties(
   ifm3dpy PROPERTIES
-  EXPORT_NAME ${_component_name}
+  EXPORT_NAME ifm3dpy
   PREFIX "${PYTHON_MODULE_PREFIX}"
   SUFFIX "${PYTHON_MODULE_EXTENSION}"
   DEBUG_POSTFIX ""
@@ -85,21 +80,34 @@ set_target_properties(
 # Installation
 #------------------
 install(TARGETS ifm3dpy
-  RUNTIME DESTINATION ${_python_install_path} COMPONENT ${_component_name}
-  LIBRARY DESTINATION ${_python_install_path} COMPONENT ${_component_name}
-  ARCHIVE DESTINATION ${_python_install_path} COMPONENT ${_component_name}
-  PUBLIC_HEADER DESTINATION ${_include} COMPONENT ${_component_name}
+  RUNTIME DESTINATION ${_python_install_path} COMPONENT ifm3dpy
+  LIBRARY DESTINATION ${_python_install_path} COMPONENT ifm3dpy
+  ARCHIVE DESTINATION ${_python_install_path} COMPONENT ifm3dpy
+  PUBLIC_HEADER DESTINATION ${_include} 
+  COMPONENT ifm3dpy
 )
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/METADATA 
+  DESTINATION ${_python_metadata_path}
+  COMPONENT ifm3dpy
+)
+
+set(CPACK_DEBIAN_IFM3DPY_PACKAGE_SECTION python CACHE INTERNAL "")
+set(CPACK_DEBIAN_IFM3DPY_PACKAGE_DEPENDS "python3-numpy"  CACHE INTERNAL "")
+set(CPACK_DEBIAN_IFM3DPY_PACKAGE_NAME ifm3dpy CACHE INTERNAL "")
+set(CPACK_DEBIAN_IFM3DPY_DESCRIPTION "Python sensor interface to ifm 3D cameras" CACHE INTERNAL "")
 
 #------------------
 # Stubs creation
 #------------------
 
 if(CREATE_PYTHON_STUBS)
+  if(PYTHON_VERSION_MINOR LESS 7)
+    message ( FATAL_ERROR "CREATE_PYTHON_STUBS requires Python 3.7 or later")
+  endif()
+
   if(BUILD_SHARED_LIBS AND WIN32)
-    message (
-      FATAL_ERROR
-        "CREATE_PYTHON_STUBS on WIN32 currently is only supported with BUILD_SHARED_LIBS=OFF")
+    message (FATAL_ERROR "CREATE_PYTHON_STUBS on WIN32 currently is only supported with BUILD_SHARED_LIBS=OFF")
   endif()
 
   # Create a venv
@@ -137,9 +145,12 @@ if(CREATE_PYTHON_STUBS)
     TARGET ifm3dpy
     POST_BUILD
     COMMAND
-      ${CMAKE_COMMAND} -E env PYTHONPATH="$<TARGET_FILE_DIR:ifm3dpy>"
-      ${CMAKE_COMMAND} -E env PYTHONHOME=""
-      ${CMAKE_COMMAND} -E env VIRTUAL_ENV="${venv}"
+      ${CMAKE_COMMAND} -E env --unset=PYTHONHOME PYTHONPATH="$<TARGET_FILE_DIR:ifm3dpy>" VIRTUAL_ENV="${venv}" 
         ${venv_python} -m pybind11_stubgen --ignore-invalid-expressions='.*' -o=$<TARGET_FILE_DIR:ifm3dpy> --root-suffix="" ifm3dpy
+  )
+
+  install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/ifm3dpy 
+    DESTINATION ${_python_install_path}
+    COMPONENT ifm3dpy
   )
 endif()
