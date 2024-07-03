@@ -1,7 +1,10 @@
-/build/*
+**/build/*
 /docker/build/**/debs/*
 .vscode
 /examples/**/build
 venv
 __pycache__
 examples/o3r/oem/ssh/.*
+*.h5
+.cache
+doc/sphinx/_autosummary
