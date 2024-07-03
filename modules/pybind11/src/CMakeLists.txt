@@ -1,10 +1,6 @@
 ################################################
 ## Setup
 ################################################
-if(NOT BUILD_IN_DEPS)
-  # Bring in pybind11, including cmake macros and variables
-  find_package(pybind11 REQUIRED)
-endif()
 
 # Query the selected interpreter for the installation path, or use the override
 if(DEFINED PYTHON_PACKAGES_PATH)
@@ -14,8 +10,7 @@ else()
     COMMAND ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(prefix=''))"
     OUTPUT_VARIABLE _site_packages
     OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-
+  )
   set(_python_install_path "${CMAKE_INSTALL_PREFIX}/${_site_packages}")
 endif()
 
@@ -28,7 +23,7 @@ elseif(PYTHON_VERSION_MAJOR EQUAL 3)
 else()
   message(
     FATAL_ERROR "Unexpected PYTHON_VERSION_MAJOR: ${PYTHON_VERSION_MAJOR}"
-    )
+  )
 endif()
 
 ################################################
@@ -50,11 +45,13 @@ target_include_directories(ifm3dpy
     $<BUILD_INTERFACE:${IFM3D_FG_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_TOOLS_SOURCE_DIR}/include>
     ${CMAKE_CURRENT_SOURCE_DIR}
-  )
+)
 
 target_compile_options(ifm3dpy PRIVATE
-  $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-deprecated-declarations>$<$<CXX_COMPILER_ID:MSVC>:/wd4996>)
-  
+  $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-deprecated-declarations>$<$<CXX_COMPILER_ID:MSVC>:/wd4996>
+)  
+
+target_compile_definitions(ifm3dpy PRIVATE IFM3D_STATIC_LIB=1)
 
 #------------------
 # Linker Settings
@@ -65,12 +62,12 @@ target_link_libraries(
     ifm3d_common
     ifm3d_framegrabber
     ifm3d_device
-    pybind11::module
-    ifm3d_tools_shared
+    ifm3d_tools
     ifm3d_swupdater
-    $<BUILD_INTERFACE:fmt::fmt-header-only>
     ifm3d_deserialize
-  )
+    pybind11::module
+    $<BUILD_INTERFACE:fmt::fmt-header-only>
+)
 
 #------------------
 # Properties
@@ -82,7 +79,7 @@ set_target_properties(
   SUFFIX "${PYTHON_MODULE_EXTENSION}"
   DEBUG_POSTFIX ""
   CXX_VISIBILITY_PRESET "hidden"
-  )
+)
 
 #------------------
 # Installation
@@ -92,18 +89,17 @@ install(TARGETS ifm3dpy
   LIBRARY DESTINATION ${_python_install_path} COMPONENT ${_component_name}
   ARCHIVE DESTINATION ${_python_install_path} COMPONENT ${_component_name}
   PUBLIC_HEADER DESTINATION ${_include} COMPONENT ${_component_name}
-  )
+)
 
 #------------------
 # Stubs creation
 #------------------
 
 if(CREATE_PYTHON_STUBS)
-
-  if(BUILD_SHARED_LIBS)
+  if(BUILD_SHARED_LIBS AND WIN32)
     message (
       FATAL_ERROR
-        "Error while creating stubs as BUILD_SHARED_LIBS is ON")
+        "CREATE_PYTHON_STUBS on WIN32 currently is only supported with BUILD_SHARED_LIBS=OFF")
   endif()
 
   # Create a venv
@@ -123,16 +119,16 @@ if(CREATE_PYTHON_STUBS)
 
   find_program(venv_python python PATHS ${venv}/bin/ ${venv}/Scripts REQUIRED NO_DEFAULT_PATH)
 
-  # Install pybind11-stubgen in the venv
+  # Install requirements in the venv
   execute_process(
-    COMMAND ${venv_python} -m pip install pybind11-stubgen==0.16.2
+    COMMAND ${venv_python} -m pip install -r ${ROOT_PROJECT_DIR}/requirements.txt
     RESULT_VARIABLE status
     OUTPUT_VARIABLE output
     ERROR_VARIABLE output)
   if(status AND NOT status EQUAL 0)
     message(
       FATAL_ERROR
-        "Error while installing pybind11-stubgen in ${venv}:\n${output}"
+        "Error while installing requirements in ${venv}:\n${output}"
     )
   endif()
 
@@ -144,6 +140,6 @@ if(CREATE_PYTHON_STUBS)
       ${CMAKE_COMMAND} -E env PYTHONPATH="$<TARGET_FILE_DIR:ifm3dpy>"
       ${CMAKE_COMMAND} -E env PYTHONHOME=""
       ${CMAKE_COMMAND} -E env VIRTUAL_ENV="${venv}"
-        ${venv_python} -m pybind11_stubgen --ignore-invalid=all --skip-signature-downgrade --no-setup-py --output-dir=$<TARGET_FILE_DIR:ifm3dpy> --root-module-suffix="" ifm3dpy
+        ${venv_python} -m pybind11_stubgen --ignore-invalid-expressions='.*' -o=$<TARGET_FILE_DIR:ifm3dpy> --root-suffix="" ifm3dpy
   )
 endif()

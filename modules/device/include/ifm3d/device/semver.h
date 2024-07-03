@@ -11,12 +11,12 @@
 #include <optional>
 #include <string>
 #include <vector>
-#include <ifm3d/device/device_export.h>
+#include <ifm3d/device/module_device.h>
 
 namespace ifm3d
 {
   /** @ingroup Device */
-  struct IFM3D_DEVICE_EXPORT SemVer
+  struct IFM3D_EXPORT SemVer
   {
     SemVer(size_t major,
            size_t minor,

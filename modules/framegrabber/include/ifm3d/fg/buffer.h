@@ -13,7 +13,7 @@
 #include <optional>
 #include <ifm3d/common/json.hpp>
 #include <limits.h>
-#include <ifm3d/fg/frame_grabber_export.h>
+#include <ifm3d/fg/module_frame_grabber.h>
 #include <ifm3d/device/device.h>
 
 namespace ifm3d
@@ -95,7 +95,7 @@ namespace ifm3d
    * One can also use range based for loops with adapter explained
    * in ifm3d::IteratorAdapter section
    */
-  class IFM3D_FRAME_GRABBER_EXPORT Buffer
+  class IFM3D_EXPORT Buffer
   {
   private:
     /* @ brief raw pointer to the data*/

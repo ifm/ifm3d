@@ -19,14 +19,14 @@
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/organizer.h>
 #include <ifm3d/fg/frame.h>
-#include <ifm3d/fg/frame_grabber_export.h>
+#include <ifm3d/fg/module_frame_grabber.h>
 namespace ifm3d
 {
   /** @ingroup FrameGrabber
    *
    * Implements a TCP FrameGrabber connected to the device passed to its ctor
    */
-  class IFM3D_FRAME_GRABBER_EXPORT FrameGrabber
+  class IFM3D_EXPORT FrameGrabber
   {
   public:
     using Ptr = std::shared_ptr<FrameGrabber>;

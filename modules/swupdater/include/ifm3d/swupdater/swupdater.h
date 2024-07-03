@@ -9,15 +9,15 @@
 #include <memory>
 #include <vector>
 #include <ifm3d/device/legacy_device.h>
-#include <ifm3d/swupdater/swupdater_export.h>
+#include <ifm3d/swupdater/module_swupdater.h>
 
 namespace ifm3d
 {
   /* const for the swupdate recovery port value */
-  extern IFM3D_SWUPDATER_EXPORT const std::uint16_t SWUPDATER_RECOVERY_PORT;
+  extern IFM3D_EXPORT const std::uint16_t SWUPDATER_RECOVERY_PORT;
 
   /** @ingroup SWUpdater */
-  class IFM3D_SWUPDATER_EXPORT SWUpdater
+  class IFM3D_EXPORT SWUpdater
   {
   public:
     using Ptr = std::shared_ptr<SWUpdater>;
@@ -132,7 +132,7 @@ namespace ifm3d
      */
     bool FlashFirmware(const std::string& swu_file, long timeout_millis = 0);
 
-    class IFM3D_SWUPDATER_LOCAL Impl;
+    class IFM3D_NO_EXPORT Impl;
 
   private:
     std::unique_ptr<Impl> pImpl;

@@ -11,7 +11,7 @@
 #include <ifm3d/fg/buffer.h>
 #include <memory>
 
-#include <ifm3d/fg/frame_grabber_export.h>
+#include <ifm3d/fg/module_frame_grabber.h>
 
 namespace ifm3d
 {
@@ -43,7 +43,7 @@ namespace ifm3d
     float model_parameters[NR_MODEL_PARAMS];
   };
 
-  class IFM3D_FRAME_GRABBER_EXPORT DistanceImageInfo
+  class IFM3D_EXPORT DistanceImageInfo
   {
     const float dist_resolution;
     const float ampl_resolution;
@@ -134,7 +134,7 @@ namespace ifm3d
       const ifm3d::Buffer& ui16_distance_buffer);
   };
   using DistanceImageInfoPtr = std::unique_ptr<DistanceImageInfo>;
-  IFM3D_FRAME_GRABBER_EXPORT DistanceImageInfoPtr
+  IFM3D_EXPORT DistanceImageInfoPtr
   CreateDistanceImageInfo(const std::vector<std::uint8_t>& data_buffer,
                           const std::size_t distimageinfo_idx,
                           const std::size_t dist_idx,
