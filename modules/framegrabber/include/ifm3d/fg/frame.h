@@ -13,7 +13,7 @@
 #include <vector>
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/buffer.h>
-#include <ifm3d/fg/frame_grabber_export.h>
+#include <ifm3d/fg/module_frame_grabber.h>
 
 /// @brief
 namespace ifm3d
@@ -209,7 +209,7 @@ namespace ifm3d
    *
    * Represent a frame of data received from the the device.
    */
-  class IFM3D_FRAME_GRABBER_EXPORT Frame
+  class IFM3D_EXPORT Frame
   {
   public:
     using Ptr = std::shared_ptr<Frame>;

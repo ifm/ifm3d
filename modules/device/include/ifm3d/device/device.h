@@ -12,60 +12,57 @@
 #include <string>
 #include <vector>
 #include <ifm3d/common/json.hpp>
-#include <ifm3d/device/device_export.h>
+#include <ifm3d/device/module_device.h>
 #include <ifm3d/device/ifm_network_device.h>
 #include <ifm3d/device/semver.h>
 
 /// @brief
 namespace ifm3d
 {
-  extern IFM3D_DEVICE_EXPORT const std::string DEFAULT_IP;
-  extern IFM3D_DEVICE_EXPORT const std::uint16_t DEFAULT_XMLRPC_PORT;
-  extern IFM3D_DEVICE_EXPORT const int DEFAULT_PCIC_PORT;
-  extern IFM3D_DEVICE_EXPORT const std::uint16_t PCIC_PORT;
-  extern IFM3D_DEVICE_EXPORT const std::string DEFAULT_PASSWORD;
-  extern IFM3D_DEVICE_EXPORT const int MAX_HEARTBEAT;
-  extern IFM3D_DEVICE_EXPORT const std::size_t SESSION_ID_SZ;
-  extern IFM3D_DEVICE_EXPORT const std::string DEFAULT_SESSION_ID;
-  extern IFM3D_DEVICE_EXPORT const std::string DEFAULT_APPLICATION_TYPE;
-  extern IFM3D_DEVICE_EXPORT const long DEFAULT_CURL_CONNECT_TIMEOUT;
-  extern IFM3D_DEVICE_EXPORT const long DEFAULT_CURL_TRANSACTION_TIMEOUT;
+  extern IFM3D_EXPORT const std::string DEFAULT_IP;
+  extern IFM3D_EXPORT const std::uint16_t DEFAULT_XMLRPC_PORT;
+  extern IFM3D_EXPORT const int DEFAULT_PCIC_PORT;
+  extern IFM3D_EXPORT const std::uint16_t PCIC_PORT;
+  extern IFM3D_EXPORT const std::string DEFAULT_PASSWORD;
+  extern IFM3D_EXPORT const int MAX_HEARTBEAT;
+  extern IFM3D_EXPORT const std::size_t SESSION_ID_SZ;
+  extern IFM3D_EXPORT const std::string DEFAULT_SESSION_ID;
+  extern IFM3D_EXPORT const std::string DEFAULT_APPLICATION_TYPE;
+  extern IFM3D_EXPORT const long DEFAULT_CURL_CONNECT_TIMEOUT;
+  extern IFM3D_EXPORT const long DEFAULT_CURL_TRANSACTION_TIMEOUT;
 
-  extern IFM3D_DEVICE_EXPORT const int DEV_O3D_MIN;
-  extern IFM3D_DEVICE_EXPORT const int DEV_O3D_MAX;
-  extern IFM3D_DEVICE_EXPORT const int DEV_O3R_MIN;
-  extern IFM3D_DEVICE_EXPORT const int DEV_O3R_MAX;
-  extern IFM3D_DEVICE_EXPORT const int DEV_O3X_MIN;
-  extern IFM3D_DEVICE_EXPORT const int DEV_O3X_MAX;
-  extern IFM3D_DEVICE_EXPORT const std::string ASSUME_DEVICE;
+  extern IFM3D_EXPORT const int DEV_O3D_MIN;
+  extern IFM3D_EXPORT const int DEV_O3D_MAX;
+  extern IFM3D_EXPORT const int DEV_O3R_MIN;
+  extern IFM3D_EXPORT const int DEV_O3R_MAX;
+  extern IFM3D_EXPORT const int DEV_O3X_MIN;
+  extern IFM3D_EXPORT const int DEV_O3X_MAX;
+  extern IFM3D_EXPORT const std::string ASSUME_DEVICE;
 
-  extern IFM3D_DEVICE_EXPORT const unsigned int O3D_TIME_SUPPORT_MAJOR;
-  extern IFM3D_DEVICE_EXPORT const unsigned int O3D_TIME_SUPPORT_MINOR;
-  extern IFM3D_DEVICE_EXPORT const unsigned int O3D_TIME_SUPPORT_PATCH;
+  extern IFM3D_EXPORT const unsigned int O3D_TIME_SUPPORT_MAJOR;
+  extern IFM3D_EXPORT const unsigned int O3D_TIME_SUPPORT_MINOR;
+  extern IFM3D_EXPORT const unsigned int O3D_TIME_SUPPORT_PATCH;
 
-  extern IFM3D_DEVICE_EXPORT const unsigned int O3D_TMP_PARAMS_SUPPORT_MAJOR;
-  extern IFM3D_DEVICE_EXPORT const unsigned int O3D_TMP_PARAMS_SUPPORT_MINOR;
-  extern IFM3D_DEVICE_EXPORT const unsigned int O3D_TMP_PARAMS_SUPPORT_PATCH;
+  extern IFM3D_EXPORT const unsigned int O3D_TMP_PARAMS_SUPPORT_MAJOR;
+  extern IFM3D_EXPORT const unsigned int O3D_TMP_PARAMS_SUPPORT_MINOR;
+  extern IFM3D_EXPORT const unsigned int O3D_TMP_PARAMS_SUPPORT_PATCH;
 
-  extern IFM3D_DEVICE_EXPORT const unsigned int
-    O3D_INTRINSIC_PARAM_SUPPORT_MAJOR;
-  extern IFM3D_DEVICE_EXPORT const unsigned int
-    O3D_INTRINSIC_PARAM_SUPPORT_MINOR;
-  extern IFM3D_DEVICE_EXPORT const unsigned int
-    O3D_INTRINSIC_PARAM_SUPPORT_PATCH;
+  extern IFM3D_EXPORT const unsigned int O3D_INTRINSIC_PARAM_SUPPORT_MAJOR;
+  extern IFM3D_EXPORT const unsigned int O3D_INTRINSIC_PARAM_SUPPORT_MINOR;
+  extern IFM3D_EXPORT const unsigned int O3D_INTRINSIC_PARAM_SUPPORT_PATCH;
 
-  extern IFM3D_DEVICE_EXPORT const unsigned int
+  extern IFM3D_EXPORT const unsigned int
     O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MAJOR;
-  extern IFM3D_DEVICE_EXPORT const unsigned int
+  extern IFM3D_EXPORT const unsigned int
     O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_MINOR;
-  extern IFM3D_DEVICE_EXPORT const unsigned int
+  extern IFM3D_EXPORT const unsigned int
     O3D_INVERSE_INTRINSIC_PARAM_SUPPORT_PATCH;
 
-  extern IFM3D_DEVICE_EXPORT const unsigned int
+  extern IFM3D_EXPORT const unsigned int
     O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MAJOR;
-  extern IFM3D_DEVICE_EXPORT const unsigned int
+  extern IFM3D_EXPORT const unsigned int
     O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MINOR;
-  extern IFM3D_DEVICE_EXPORT const unsigned int
+  extern IFM3D_EXPORT const unsigned int
     O3X_DISTANCE_NOISE_IMAGE_SUPPORT_PATCH;
 
   /// @brief Pixel format correspondence
@@ -134,7 +131,7 @@ namespace ifm3d
    * class exposes objects that can be used to mutate and tune the device
    * parameters including those of the underlying pmd imager.
    */
-  class IFM3D_DEVICE_EXPORT Device
+  class IFM3D_EXPORT Device
   {
   public:
     using Ptr = std::shared_ptr<Device>;
