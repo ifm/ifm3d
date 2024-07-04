@@ -17,24 +17,16 @@ RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         gnupg2 \
         wget \
+        libssl-dev \
         python3 \
         python3-pip \
         python3-venv \
         python3-dev \
+        python3-numpy \
     && rm -rf /var/lib/apt/lists/*
 
 # Create the ifm user
 RUN id ifm 2>/dev/null || useradd --uid 30000 --create-home -s /bin/bash -U ifm
-
-# Create a venv and install python dependencies
-RUN python3 -m venv /home/ifm/venv \
-    && . /home/ifm/venv/bin/activate \
-    && python -m pip install --upgrade pip \
-    && python -m pip install --upgrade \
-        numpy \
-        pytest \
-        setuptools \
-        wheel
 
 # Create the final image based on the base stage
 FROM base
@@ -43,8 +35,6 @@ ARG BASE_IMAGE
 # Install runtime requirements
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        libopencv-core* \
-        libxmlrpc-c++8v5 \
         locales \
         sudo \
     && rm -rf /var/lib/apt/lists/*
@@ -57,6 +47,7 @@ RUN BASE_IMAGE_NAME=$(echo "${BASE_IMAGE}" | grep -o '[^/]*$' | cut -d":" -f1) \
     && ARCH=$(dpkg --print-architecture) \
     && cd /home/ifm/tmp/ \
     && dpkg -i ifm3d-${BASE_IMAGE_NAME}-${BASE_IMAGE_VERSION}-${ARCH}-*.deb \
+    && dpkg -i ifm3dpy-${BASE_IMAGE_NAME}-${BASE_IMAGE_VERSION}-${ARCH}-*.deb \
     && rm -rf /home/ifm/tmp
 
 # Setup localisation
@@ -71,7 +62,5 @@ ENV LC_ALL en_US.UTF-8
 RUN echo "ifm ALL=(ALL) NOPASSWD: ALL" | tee /etc/sudoers.d/ifm
 
 USER ifm
-ENV VIRTUAL_ENV="/home/ifm/venv"
-ENV PATH="/home/ifm/venv/bin:$PATH"
 
 ENTRYPOINT ["/bin/bash"]
