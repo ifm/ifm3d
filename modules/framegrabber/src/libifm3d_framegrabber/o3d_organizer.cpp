@@ -80,8 +80,7 @@ ifm3d::O3DOrganizer::Organize(const std::vector<uint8_t>& data,
   // if we do not have a meta chunk we cannot go further
   if (metachunk == chunks.end())
     {
-      LOG_ERROR("No meta chunk found!");
-      throw Error(IFM3D_IMG_CHUNK_NOT_FOUND);
+      throw Error(IFM3D_IMG_CHUNK_NOT_FOUND, "No meta chunk found!");
     }
 
   // get the image dimensions
