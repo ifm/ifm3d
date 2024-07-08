@@ -89,25 +89,16 @@ namespace ifm3d
       1581587830144571155,
       1581587830131172393,
     };
-    constexpr std::array<uint32_t, 3> exposure_times_s = {
-      933735213,
-      970045206,
-      1000591837,
+    constexpr std::array<float, 3> exposure_times_s = {
+      0.0000199877,
+      0.0004,
+      0.00499938,
     };
 
     constexpr float illu_temperature = 58.336933135986328;
 
-    constexpr std::array<char, 32> mode = {
-      's',  't',  'a',  'n',  'd',  'a',  'r',  'd',  '_',  'r',  'a',
-      'n',  'g',  'e',  '4',  'm',  '\0', '\0', '\0', '\0', '\0', '\0',
-      '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
-    };
-    constexpr std::array<char, 32> imager = {
-      'I',  'R',  'S',  '2',  '3',  '8',  '1',  'C',  '\0', '\0', '\0',
-      '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
-      '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
-    };
-
+    std::string mode = "standard_range4m";
+    std::string imager = "IRS2381C";
     constexpr std::uint32_t measurement_block_index = 0;
     constexpr float measurement_range_min = 0;
     constexpr float measurement_range_max = 4.143615246;

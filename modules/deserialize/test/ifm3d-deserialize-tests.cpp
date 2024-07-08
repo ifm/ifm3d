@@ -82,10 +82,9 @@ TEST(DeserializeTestWithFile, struct_tof_info_v3)
               ifm3d::tof_info::illu_temperature,
               ifm3d::epsilon);
 
-  EXPECT_TRUE(ifm3d::compare_array(tof_info_v3.mode, ifm3d::tof_info::mode));
+  EXPECT_TRUE(tof_info_v3.mode.compare(ifm3d::tof_info::mode));
 
-  EXPECT_TRUE(
-    ifm3d::compare_array(tof_info_v3.imager, ifm3d::tof_info::imager));
+  EXPECT_TRUE(tof_info_v3.imager.compare(ifm3d::tof_info::imager));
 }
 
 TEST(DeserializeTestWithFile, struct_tof_info_v4_size_exception)
@@ -147,10 +146,9 @@ TEST(DeserializeTestWithFile, struct_tof_info_v4)
               ifm3d::tof_info::illu_temperature,
               ifm3d::epsilon);
 
-  EXPECT_TRUE(ifm3d::compare_array(tof_info_v4.mode, ifm3d::tof_info::mode));
+  EXPECT_TRUE(tof_info_v4.mode.compare(ifm3d::tof_info::mode));
 
-  EXPECT_TRUE(
-    ifm3d::compare_array(tof_info_v4.imager, ifm3d::tof_info::imager));
+  EXPECT_TRUE(tof_info_v4.imager.compare(ifm3d::tof_info::imager));
 
   EXPECT_EQ(tof_info_v4.measurement_block_index,
             ifm3d::tof_info::measurement_block_index);
