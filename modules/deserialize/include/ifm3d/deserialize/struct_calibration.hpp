@@ -44,18 +44,7 @@ namespace ifm3d
     };
     using ExtrinsicOpticToUser = struct ExtrinsicOpticToUser;
 
-    /** @ingroup Deserialize
-     *
-     * @brief
-     *
-     * @param model_id The model id identifies which model is used.\n 
-     *                 0: Bouguet (unprojection, intrinsic), 1: Bouguet (projection, inverse intrinsic)\n 
-     *                 2: Fish eye (unprojection, intrinsic), 3: Fish eye (projection, inverse intrinsic)\n 
-     * @param model_parameters The parameters of the model.\n 
-     *                         For the Bouguet model:  fx, fy, mx, my, alpha, k1, k2, k3, k4, k5,\n 
-     *                         For the fish eye model: fx, fy, mx, my, alpha, k1, k2, k3, k4, theta*_max or theta_max\n 
-     */
-     
+    /** @ingroup Deserialize */
     struct Calibration
     {
       using Ptr = std::shared_ptr<struct Calibration>;
