@@ -79,14 +79,18 @@ bind_struct_tofinfov3(pybind11::module_& m)
     "model_id",
     &ifm3d::calibration::Calibration::model_id,
     R"(
-        Model Id for calibration parameters
+        Model Id for calibration parameters.
+        0: Bouguet (unprojection, intrinsic), 1: Bouguet (projection, inverse intrinsic)
+        2: Fish eye (unprojection, intrinsic), 3: Fish eye (projection, inverse intrinsic)
       )");
 
   calibration.def_readonly(
     "parameters",
     &ifm3d::calibration::Calibration::model_parameters,
     R"(
-        Parameters for calibration
+        Parameters for calibration.
+        For the Bouguet model:  fx, fy, mx, my, alpha, k1, k2, k3, k4, k5,
+        For the fish eye model: fx, fy, mx, my, alpha, k1, k2, k3, k4, theta*_max or theta_max
       )");
 
   py::class_<ifm3d::TOFInfoV3, ifm3d::TOFInfoV3::Ptr> tof_info_v3(
