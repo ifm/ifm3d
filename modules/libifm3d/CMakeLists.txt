@@ -69,6 +69,7 @@ endif()
 #------------------
 install(TARGETS libifm3d
   EXPORT ifm3d
+  COMPONENT ifm3d
   RUNTIME DESTINATION ${_bin}
   LIBRARY DESTINATION ${_lib}
   ARCHIVE DESTINATION ${_lib}
@@ -81,6 +82,7 @@ if(BUILD_SDK_PKG)
     FILE ifm3d-targets.cmake
     NAMESPACE ifm3d::
     DESTINATION ${_lib}/cmake/ifm3d-${IFM3D_VERSION}
+    COMPONENT ifm3d
   )
 
   include(CMakePackageConfigHelpers)
@@ -100,6 +102,6 @@ if(BUILD_SDK_PKG)
     FILES ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config-version.cmake
           ${CMAKE_CURRENT_BINARY_DIR}/ifm3d-config.cmake
     DESTINATION ${_lib}/cmake/ifm3d-${IFM3D_VERSION}
-    COMPONENT common
+    COMPONENT ifm3d
   )
 endif()

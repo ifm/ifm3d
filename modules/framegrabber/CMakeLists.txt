@@ -19,9 +19,9 @@ endif()
 if(BUILD_SDK_PKG)
   install(DIRECTORY ${IFM3D_FG_SOURCE_DIR}/include/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    COMPONENT framegrabber
+    COMPONENT ifm3d
     PATTERN "*.in" EXCLUDE
     PATTERN ".git" EXCLUDE
     PATTERN "*~" EXCLUDE
-   )
+  )
 endif()
