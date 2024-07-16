@@ -111,11 +111,11 @@ fg.stop()
 
 | `buffer_id`             | Description                                                   | Native or calculated in ifm3d |
 | ----------------------- | ------------------------------------------------------------- | ----------------------------- |
+| `AMPLITUDE_IMAGE`       | The amplitude image.                                          | Native                        |
 | `CARTESIAN_X_COMPONENT` | Cartesian coordinate along X axis.                            | Calculated                    |
 | `CARTESIAN_Y_COMPONENT` | Cartesian coordinate along Y axis.                            | Calculated                    |
 | `CARTESIAN_Z_COMPONENT` | Cartesian coordinate along Z axis.                            | Calculated                    |
 | `CONFIDENCE_IMAGE`      | 2D image containing information about each pixel status.      | Native                        |
-| `NORM_AMPLITUDE_IMAGE`  | The normalized amplitude image.                               | Native                        |
 | `RADIAL_DISTANCE_IMAGE` | 2D image containing the radial distance value for each pixel. | Native                        |
 | `RADIAL_DISTANCE_NOISE` | 2D image containing the distance noise value for each pixel.  | Native                        |
 | `XYZ`                   | The point cloud in Cartesian coordinates.                     | Calculated                    |
