@@ -1,6 +1,4 @@
 # Images and buffers manipulation
-```{include} content/news/news_release.md
-```
 
 :::{toctree}
 :titlesonly:
