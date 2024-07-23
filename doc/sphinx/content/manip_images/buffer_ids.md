@@ -1,11 +1,12 @@
 # Buffer types
 
-`ifm3d` supports multiple devices (O3R, O3D, O3X).
+`ifm3d` supports multiple device familes (O3R, O3D3xx, O3X1xx).
 
-Each device provides different types of data natively, and the `ifm3d` library add extra buffers for convenience.
+Each device natively provides different types of data, and the `ifm3d` library adds additional buffers for convenience.
 
 The tables below list all available buffer types and which device they apply to. 
-We also specify if the data is provided directly by the device or calculated by `ifm3d`. This is important information when trying to work around bandwidth limitations.
+We also specify if the data is provided directly by the device, meaning it is streamed from the embedded device, or calculated by `ifm3d` API on the receiver device. 
+This is important information to be considered when trying to work around bandwidth limitations and delays.
 
 In this tables, the NA abbreviation stands for "Not Applicable."
 
