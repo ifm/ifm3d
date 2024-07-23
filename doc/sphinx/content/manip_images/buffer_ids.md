@@ -1,6 +1,6 @@
 # Buffer types
 
-`ifm3d` supports multiple device familes (O3R, O3D3xx, O3X1xx).
+`ifm3d` supports multiple device families (O3R, O3D3xx, O3X1xx).
 
 Each device natively provides different types of data, and the `ifm3d` library adds additional buffers for convenience.
 
