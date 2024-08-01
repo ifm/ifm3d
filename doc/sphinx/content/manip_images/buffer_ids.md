@@ -36,24 +36,25 @@ In this tables, the NA abbreviation stands for "Not Applicable."
 
 ## O3D Available buffers
 
-| `buffer_id`                     | Description                                                                                                                       | Native or calculated in ifm3d |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
-| `AMPLITUDE_IMAGE`               | 2D image containing amplitude information for each pixel.                                                                         | Native                        |
-| `CARTESIAN_X_COMPONENT`         | Cartesian coordinate along X axis.                                                                                                | Calculated                    |
-| `CARTESIAN_Y_COMPONENT`         | Cartesian coordinate along Y axis.                                                                                                | Calculated                    |
-| `CARTESIAN_Z_COMPONENT`         | Cartesian coordinate along Z axis.                                                                                                | Calculated                    |
-| `CONFIDENCE_IMAGE`              | 2D image containing information about each pixel status.                                                                          | Native                        |
-| `DIAGNOSTIC`                    | Provides some diagnostic information. See [details below](#diagnostic-buffer).                                                    | Native                        |
-| `EXPOSURE_TIME`                 | Exposure times used for the last frame.                                                                                           | Calculated                    |
-| `EXTRINSIC_CALIB`               | Current values of the optical system to user coordinate transformation for the port currently targeted by the `FrameGrabber`.     | Calculated                    |
-| `INTRINSIC_CALIB`               | The intrinsic parameters for the port or camera currently targeted by the`FrameGrabber`.                                          | Native                        |
-| `INVERSE_INTRINSIC_CALIBRATION` | The inverse intrinsic parameters for the port or camera currently targeted by the`FrameGrabber`.                                  | Native                        |
-| `JSON_DIAGNOSTIC`               | Diagnostic information in JSON format.                                                                                            | Native                        |
-| `JSON_MODEL`                    | For internal use only.                                                                                                            | ??                            |
-| `NORM_AMPLITUDE_IMAGE`          | The normalized amplitude image.                                                                                                   | Native                        |
-| `RADIAL_DISTANCE_IMAGE`         | 2D image containing the radial distance value for each pixel.                                                                     | Native                        |
-| `UNIT_VECTOR_ALL`               | Unit vectors that can be used to calculate the point cloud directly from the distance image. | Native                        |
-| `XYZ`                           | The point cloud in Cartesian coordinates.                                                                                         | Calculated                    |
+| `buffer_id`                     | Description                                                                                                                   | Native or calculated in ifm3d |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| `AMPLITUDE_IMAGE`               | 2D image containing amplitude information for each pixel.                                                                     | Native                        |
+| `CARTESIAN_X_COMPONENT`         | Cartesian coordinate along X axis.                                                                                            | Calculated                    |
+| `CARTESIAN_Y_COMPONENT`         | Cartesian coordinate along Y axis.                                                                                            | Calculated                    |
+| `CARTESIAN_Z_COMPONENT`         | Cartesian coordinate along Z axis.                                                                                            | Calculated                    |
+| `CONFIDENCE_IMAGE`              | 2D image containing information about each pixel status.                                                                      | Native                        |
+| `DIAGNOSTIC`                    | Provides some diagnostic information. See [details below](#diagnostic-buffer).                                                | Native                        |
+| `EXPOSURE_TIME`                 | Exposure times used for the last frame.                                                                                       | Calculated                    |
+| `EXTRINSIC_CALIB`               | Current values of the optical system to user coordinate transformation for the port currently targeted by the `FrameGrabber`. | Calculated                    |
+| `ILLUMINATION_TEMP`             | The temperature of the illumination module                                                                                    | Native                        |
+| `INTRINSIC_CALIB`               | The intrinsic parameters for the port or camera currently targeted by the`FrameGrabber`.                                      | Native                        |
+| `INVERSE_INTRINSIC_CALIBRATION` | The inverse intrinsic parameters for the port or camera currently targeted by the`FrameGrabber`.                              | Native                        |
+| `JSON_DIAGNOSTIC`               | Diagnostic information in JSON format.                                                                                        | Native                        |
+| `JSON_MODEL`                    | For internal use only.                                                                                                        | ??                            |
+| `NORM_AMPLITUDE_IMAGE`          | The normalized amplitude image.                                                                                               | Native                        |
+| `RADIAL_DISTANCE_IMAGE`         | 2D image containing the radial distance value for each pixel.                                                                 | Native                        |
+| `UNIT_VECTOR_ALL`               | Unit vectors that can be used to calculate the point cloud directly from the distance image.                                  | Native                        |
+| `XYZ`                           | The point cloud in Cartesian coordinates.                                                                                     | Calculated                    |
 
 :::{note}
 The `CARTESIAN_ALL` buffer is deprecated, and the `XYZ` buffer should be used instead. 
