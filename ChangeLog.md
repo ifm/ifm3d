@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - The documentation about the different available `buffer_id` has been updated to provide the complete list for each compatible device.
+- add `O3R_ODS_RENDERED_ZONES` `buffer_id`
 
 ## 1.6.0 - 2024-06-10
 ### Changed
