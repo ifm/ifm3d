@@ -194,6 +194,7 @@ namespace ifm3d
     O3R_MCC_LIVE_IMAGE,
     O3R_MCC_MOTION_IMAGE,
     O3R_MCC_STATIC_IMAGE,
+    O3R_ODS_RENDERED_ZONES,
 
     // clang-format on
   };
