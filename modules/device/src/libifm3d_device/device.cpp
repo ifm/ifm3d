@@ -368,7 +368,6 @@ ifm3d::Device::FromJSONStr(const std::string& jstr)
       LOG_ERROR("JSON: {}", ex.what());
       throw ifm3d::Error(IFM3D_JSON_ERROR);
     }
-
   this->FromJSON(j);
 }
 
@@ -420,4 +419,10 @@ ifm3d::Device::SwUpdateVersion()
 {
   return isV1SWUpdate(this->IP()) ? ifm3d::Device::swu_version::SWU_V1 :
                                     ifm3d::Device::swu_version::SWU_V2;
+}
+
+ifm3d::json
+ifm3d::Device::GetSWVersion()
+{
+  return this->pImpl->GetSWVersion();
 }

@@ -1,5 +1,4 @@
-
-file(GLOB IFM3D_TOOLS_SOURCES CONFIGURE_DEPENDS *.cpp)
+file(GLOB IFM3D_TOOLS_SOURCES CONFIGURE_DEPENDS *.cpp common/*.cpp legacy/*.cpp ovp8xx/*.cpp)
 add_library(ifm3d_tools INTERFACE)
 target_sources(ifm3d_tools INTERFACE ${IFM3D_TOOLS_SOURCES})
 
@@ -12,7 +11,7 @@ target_include_directories(ifm3d_tools
 )
 
 if (BUILD_MODULE_FRAMEGRABBER)
-  file(GLOB IFM3D_TOOLS_FG_SOURCES CONFIGURE_DEPENDS fg/*.cpp)
+  file(GLOB IFM3D_TOOLS_FG_SOURCES CONFIGURE_DEPENDS common/fg/*.cpp)
   target_sources(ifm3d_tools INTERFACE ${IFM3D_TOOLS_FG_SOURCES})
   target_include_directories(ifm3d_tools
     INTERFACE
@@ -21,7 +20,7 @@ if (BUILD_MODULE_FRAMEGRABBER)
 endif()
 
 if (BUILD_MODULE_SWUPDATER)
-  file(GLOB IFM3D_TOOLS_SWUPDATER_SOURCES CONFIGURE_DEPENDS swupdater/*.cpp)
+  file(GLOB IFM3D_TOOLS_SWUPDATER_SOURCES CONFIGURE_DEPENDS common/swupdater/*.cpp)
   target_sources(ifm3d_tools INTERFACE ${IFM3D_TOOLS_SWUPDATER_SOURCES})
   target_include_directories(ifm3d_tools
     INTERFACE
@@ -35,7 +34,7 @@ target_link_libraries(
     ifm3d_common
     ifm3d_device
     CURL::libcurl
-    cxxopts
+    CLI11::CLI11
     $<BUILD_INTERFACE:fmt::fmt-header-only>
 )
 

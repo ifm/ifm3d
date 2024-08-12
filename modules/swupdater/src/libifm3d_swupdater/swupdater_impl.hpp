@@ -11,7 +11,7 @@
 #include <thread>
 #include <tuple>
 #include <vector>
-#include <curl/curl.h>
+#include <ifm3d/device/detail/curl_transaction.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/common/logging/log.h>
@@ -133,107 +133,6 @@ namespace ifm3d
         }
     }
 
-    /**
-     * RAII wrapper around libcurl's C API for performing a
-     * transaction
-     */
-    class CURLTransaction
-    {
-    public:
-      CURLTransaction()
-      {
-        this->header_list_ = nullptr;
-        this->mime_ = nullptr;
-        this->curl_ = curl_easy_init();
-        if (!this->curl_)
-          {
-            throw ifm3d::Error(IFM3D_CURL_ERROR);
-          }
-      }
-
-      ~CURLTransaction()
-      {
-        if (mime_ != nullptr)
-          {
-            curl_mime_free(mime_);
-          }
-        curl_slist_free_all(this->header_list_);
-        curl_easy_cleanup(this->curl_);
-      }
-
-      // disable copy/move semantics
-      CURLTransaction(CURLTransaction&&) = delete;
-      CURLTransaction& operator=(CURLTransaction&&) = delete;
-      CURLTransaction(CURLTransaction&) = delete;
-      CURLTransaction& operator=(const CURLTransaction&) = delete;
-
-      /**
-       * Wrapper for calling curl_easy_* APIs, and unified
-       * error handling of return codes.
-       */
-      template <typename F, typename... Args>
-      void
-      Call(F f, Args... args)
-      {
-        if ((void*)f == (void*)curl_easy_perform)
-          {
-            if (mime_ != nullptr)
-              {
-                Call(curl_easy_setopt, CURLOPT_MIMEPOST, mime_);
-              }
-          }
-
-        CURLcode retcode = f(this->curl_, args...);
-        if (retcode != CURLE_OK)
-          {
-            switch (retcode)
-              {
-              case CURLE_COULDNT_CONNECT:
-                throw ifm3d::Error(IFM3D_RECOVERY_CONNECTION_ERROR);
-              case CURLE_OPERATION_TIMEDOUT:
-                throw ifm3d::Error(IFM3D_CURL_TIMEOUT);
-              case CURLE_ABORTED_BY_CALLBACK:
-                throw ifm3d::Error(IFM3D_CURL_ABORTED);
-              default:
-                throw ifm3d::Error(IFM3D_CURL_ERROR,
-                                   curl_easy_strerror(retcode));
-              }
-          }
-      }
-
-      void
-      AddHeader(const char* str)
-      {
-        this->header_list_ = curl_slist_append(this->header_list_, str);
-        if (!this->header_list_)
-          {
-            throw ifm3d::Error(IFM3D_CURL_ERROR);
-          }
-      }
-
-      void
-      SetHeader()
-      {
-        this->Call(curl_easy_setopt, CURLOPT_HTTPHEADER, this->header_list_);
-      }
-
-      curl_mimepart*
-      AddMimePart()
-      {
-        if (mime_ == nullptr)
-          {
-            mime_ = curl_mime_init(curl_);
-          }
-
-        return curl_mime_addpart(mime_);
-      }
-
-    private:
-      CURL* curl_;
-      curl_mime* mime_;
-      struct curl_slist* header_list_;
-    };
-
   }; // end: class SWUpdater::Impl
 
 } // end: namespace ifm3d
@@ -298,7 +197,7 @@ ifm3d::SWUpdater::Impl::WaitForRecovery(long timeout_millis)
 void
 ifm3d::SWUpdater::Impl::RebootToProductive()
 {
-  auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();
+  auto c = std::make_unique<ifm3d::CURLTransaction>();
   c->Call(curl_easy_setopt, CURLOPT_URL, this->reboot_url_.c_str());
   c->Call(curl_easy_setopt, CURLOPT_POST, true);
   c->Call(curl_easy_setopt, CURLOPT_POSTFIELDSIZE, 0);
@@ -391,7 +290,7 @@ ifm3d::SWUpdater::Impl::FlashFirmware(const std::string& swu_file,
 bool
 ifm3d::SWUpdater::Impl::CheckRecovery()
 {
-  auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();
+  auto c = std::make_unique<ifm3d::CURLTransaction>();
   c->Call(curl_easy_setopt, CURLOPT_URL, this->check_recovery_url_.c_str());
   c->Call(curl_easy_setopt, CURLOPT_NOBODY, true);
   c->Call(curl_easy_setopt,
@@ -503,7 +402,7 @@ ifm3d::SWUpdater::Impl::UploadFirmware(const std::string& swu_file,
                SWUPDATER_CONTENT_TYPE_HEADER.c_str(),
                CURLFORM_END);
 
-  auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();
+  auto c = std::make_unique<ifm3d::CURLTransaction>();
 
   c->Call(curl_easy_setopt, CURLOPT_URL, this->upload_url_.c_str());
   c->Call(curl_easy_setopt, CURLOPT_HTTPPOST, httppost);
@@ -610,7 +509,7 @@ ifm3d::SWUpdater::Impl::GetUpdaterStatus()
   std::string status_message;
   int status_error;
 
-  auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();
+  auto c = std::make_unique<ifm3d::CURLTransaction>();
   c->Call(curl_easy_setopt, CURLOPT_URL, this->status_url_.c_str());
   c->Call(curl_easy_setopt,
           CURLOPT_WRITEFUNCTION,
