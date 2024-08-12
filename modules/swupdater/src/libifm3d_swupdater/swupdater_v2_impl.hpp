@@ -273,7 +273,7 @@ ifm3d::ImplV2::RebootToProductive()
 {
   try
     {
-      auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();
+      auto c = std::make_unique<ifm3d::CURLTransaction>();
       c->Call(curl_easy_setopt, CURLOPT_URL, this->reboot_url_.c_str());
       c->Call(curl_easy_setopt, CURLOPT_POST, true);
       c->Call(curl_easy_setopt, CURLOPT_POSTFIELDSIZE, 0);
@@ -339,7 +339,7 @@ ifm3d::ImplV2::FlashFirmware(const std::string& swu_file, long timeout_millis)
 bool
 ifm3d::ImplV2::CheckRecovery()
 {
-  auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();
+  auto c = std::make_unique<ifm3d::CURLTransaction>();
   c->Call(curl_easy_setopt, CURLOPT_URL, this->main_url_.c_str());
   c->Call(curl_easy_setopt, CURLOPT_NOBODY, true);
   c->Call(curl_easy_setopt,
@@ -396,7 +396,7 @@ void
 ifm3d::ImplV2::UploadFirmware(const std::string& swu_file, long timeout_millis)
 {
   curl_global_init(CURL_GLOBAL_ALL);
-  auto c = std::make_unique<ifm3d::SWUpdater::Impl::CURLTransaction>();
+  auto c = std::make_unique<ifm3d::CURLTransaction>();
 
   mime_ctx mime_ctx;
   mime_ctx.fp = fopen_read(swu_file);

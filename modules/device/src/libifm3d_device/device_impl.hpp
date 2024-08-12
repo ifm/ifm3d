@@ -41,6 +41,7 @@ namespace ifm3d
     std::string DeviceParameter(const std::string& param);
     std::vector<std::string> TraceLogs(int count);
     void Reboot(int mode);
+    json GetSWVersion();
 
   protected:
     std::shared_ptr<XMLRPCWrapper> xwrapper_;
@@ -148,6 +149,13 @@ void
 ifm3d::Device::Impl::Reboot(int mode)
 {
   this->xwrapper_->XCallMain("reboot", mode);
+}
+
+inline ifm3d::json
+ifm3d::Device::Impl::GetSWVersion()
+{
+  return this->xwrapper_->value_struct_to_map(
+    this->xwrapper_->XCallMain("getSWVersion"));
 }
 
 #endif // IFM3D_CAMERA_CAMERA_BASE_IMPL_HPP

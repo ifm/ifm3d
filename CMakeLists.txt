@@ -69,7 +69,7 @@ set(_include include CACHE STRING "Basename of the include-directory")
 set(GTEST_CMAKE_DIR "/usr/src/gtest" CACHE STRING "GTest cmake project dir")
 
 # Global compiler flags
-set(CMAKE_CXX_EXTENSIONS OFF) # OFF -> -std=c++17, ON -> -std=gnu++17
+set(CMAKE_CXX_EXTENSIONS ON) # OFF -> -std=c++17, ON -> -std=gnu++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 if(WIN32)

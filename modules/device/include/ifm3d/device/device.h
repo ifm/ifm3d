@@ -441,6 +441,8 @@ namespace ifm3d
      */
     virtual ifm3d::Device::swu_version SwUpdateVersion();
 
+    json GetSWVersion();
+
   protected:
     class Impl;
     std::unique_ptr<Impl> pImpl;
