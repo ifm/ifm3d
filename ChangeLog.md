@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Added
+- Add `ovp8xx`,`o3x1xx` and `o3d3xx` and `discover` commands as a primary level subcommands to ifm3d command line interface
+
+### Changed
+- Split CLI into device specific `ovp8xx`,`o3x1xx`,`o3x2xx`,`o3d3xx` subcommands
+
+### Changed
+- Use CLI11 library instead of cxxopts for ifm3d command line interface
+
 ### Added
 - The documentation about the different available `buffer_id` has been updated to provide the complete list for each compatible device.
 - add `O3R_ODS_RENDERED_ZONES` `buffer_id`

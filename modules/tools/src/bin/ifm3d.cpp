@@ -14,13 +14,47 @@
  * limitations under the License.
  */
 
-#include <ifm3d/tools.h>
 #include <ifm3d/device/err.h>
 #include <exception>
 #include <iostream>
+#include <ifm3d/tools/main_command.hpp>
 
 int
-main(int argc, const char** argv)
+main(int argc, char** argv)
 {
-  return ifm3d::CmdLineApp::Execute(argc, argv);
+  try
+    {
+      CLI::App app{"ifm3d Command Line Interface(CLI)"};
+
+      ifm3d::MainCommand cli;
+      cli.CreateCommand(&app);
+
+      argv = app.ensure_utf8(argv);
+
+      CLI11_PARSE(app, argc, argv);
+    }
+  catch (const ifm3d::Error& ex)
+    {
+      if (ex.code() == IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE)
+        {
+          std::cerr << ex.what() << std::endl;
+        }
+      else
+        {
+          std::cerr << "ifm3d error: " << ex.code() << std::endl
+                    << ex.what() << std::endl;
+        }
+      return 1;
+    }
+  catch (const std::exception& ex)
+    {
+      std::cerr << "ifm3d error: " << ex.what() << std::endl;
+      return 1;
+    }
+  catch (...)
+    {
+      std::cerr << "ifm3d failed - error unknown!" << std::endl;
+      return 1;
+    }
+  return 0;
 }

@@ -18,8 +18,10 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <fstream>
 #include <xmlrpc-c/client.hpp>
 #include <fmt/core.h>
+#include <ifm3d/device/detail/curl_transaction.h>
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/common/logging/log.h>
@@ -60,6 +62,7 @@ namespace ifm3d
     void FactoryReset(bool keepNetworkSettings);
     void Reboot();
     void RebootToRecovery();
+    void DownloadServiceReport();
 
   protected:
     std::shared_ptr<XMLRPCWrapper> xwrapper_;
@@ -323,6 +326,43 @@ void
 ifm3d::O3R::Impl::RebootToRecovery()
 {
   this->xwrapper_->XCallMain("rebootToRecovery");
+}
+
+size_t
+WriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
+{
+  std::ofstream* ofs = static_cast<std::ofstream*>(userp);
+  size_t totalSize = size * nmemb;
+  ofs->write(static_cast<char*>(contents), totalSize);
+  return totalSize;
+}
+
+void
+ifm3d::O3R::Impl::DownloadServiceReport()
+{
+  auto c = std::make_unique<ifm3d::CURLTransaction>();
+  std::ofstream ofs("service_report.zip", std::ios::binary);
+  curl_global_init(CURL_GLOBAL_ALL);
+
+  c->Call(curl_easy_setopt,
+          CURLOPT_URL,
+          "http://192.168.0.109/service_report/");
+  c->Call(curl_easy_setopt, CURLOPT_WRITEFUNCTION, WriteCallback);
+  c->Call(curl_easy_setopt, CURLOPT_WRITEDATA, &ofs);
+
+  try
+    {
+      c->Call(curl_easy_perform);
+    }
+  catch (const ifm3d::Error& e)
+    {
+      if (e.code() != IFM3D_CURL_ABORTED)
+        {
+          throw;
+        }
+    }
+  curl_global_cleanup();
+  ofs.close();
 }
 
 #endif // IFM3D_DEVICE_O3R_IMPL_HPP

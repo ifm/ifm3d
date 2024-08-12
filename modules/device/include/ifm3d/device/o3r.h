@@ -220,6 +220,8 @@ namespace ifm3d
      */
     void FromJSON(const json& j) override;
 
+    void DownloadServiceReport();
+
   private:
     class Impl;
     std::unique_ptr<Impl> pImpl;

@@ -111,7 +111,6 @@ void
 ifm3d::O3R::FromJSON(const json& j)
 {
   this->Set(j);
-  this->SaveInit();
 }
 
 ifm3d::json
@@ -163,4 +162,10 @@ ifm3d::Device::swu_version
 ifm3d::O3R::SwUpdateVersion()
 {
   return ifm3d::Device::swu_version::SWU_V2;
+}
+
+void
+ifm3d::O3R::DownloadServiceReport()
+{
+  this->pImpl->DownloadServiceReport();
 }

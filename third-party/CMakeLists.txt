@@ -100,15 +100,19 @@ target_include_directories(asio SYSTEM INTERFACE
     $<BUILD_INTERFACE:${asio_SOURCE_DIR}/asio/include>
 )
 
-#adding cxxopts
+#adding CLI11
 if(BUILD_MODULE_TOOLS)
   FetchContent_Declare(
-    cxxopts
-      GIT_REPOSITORY https://github.com/jarro2783/cxxopts
-      GIT_TAG v3.1.1
-      GIT_SHALLOW TRUE
+    CLI11
+    QUIET
+    GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
+    GIT_TAG v2.4.1
   )
-  FetchContent_MakeAvailable(cxxopts)
+  set(CLI11_BUILD_TESTS OFF CACHE INTERNAL "")
+  set(CLI11_EXAMPLES OFF CACHE INTERNAL "")
+
+  FetchContent_MakeAvailable(CLI11)
+
 endif(BUILD_MODULE_TOOLS)
 
 #adding websocketpp
