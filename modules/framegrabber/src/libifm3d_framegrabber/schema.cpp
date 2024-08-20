@@ -44,6 +44,8 @@ const std::map<ifm3d::buffer_id, const ifm3d::json> o3d_schema_map{
    {{"type", "blob"}, {"id", "confidence_image"}}},
   {ifm3d::buffer_id::DIAGNOSTIC,
    {{"type", "blob"}, {"id", "diagnostic_data"}}},
+  {ifm3d::buffer_id::JSON_DIAGNOSTIC,
+   {{"type", "blob"}, {"id", "json_diagnostic"}}},
   {ifm3d::buffer_id::EXTRINSIC_CALIB,
    {{"type", "blob"}, {"id", "extrinsic_calibration"}}},
   {ifm3d::buffer_id::EXPOSURE_TIME,
@@ -126,7 +128,8 @@ ifm3d::make_o3x_json_from_mask(const std::set<ifm3d::buffer_id>& buffer_ids)
   app_json_pointer["OutputDistanceImage"] =
     bool_to_string[buffer_ids.count(ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE)];
   app_json_pointer["OutputAmplitudeImage"] =
-    bool_to_string[buffer_ids.count(ifm3d::buffer_id::AMPLITUDE_IMAGE)];
+    bool_to_string[buffer_ids.count(ifm3d::buffer_id::AMPLITUDE_IMAGE) ||
+                   buffer_ids.count(ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE)];
   app_json_pointer["OutputGrayscaleImage"] =
     bool_to_string[buffer_ids.count(ifm3d::buffer_id::GRAYSCALE_IMAGE)];
   app_json_pointer["OutputXYZImage"] =
