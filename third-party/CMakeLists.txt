@@ -66,7 +66,7 @@ if(BUILD_MODULE_PYBIND11)
   FetchContent_Declare(
     pybind11
     GIT_REPOSITORY "https://github.com/pybind/pybind11"
-    GIT_TAG "tags/v2.10.1"
+    GIT_TAG "tags/v2.12.0"
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
   )
