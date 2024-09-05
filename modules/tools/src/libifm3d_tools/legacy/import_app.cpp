@@ -108,33 +108,27 @@ ifm3d::ImportApp::CreateCommand(CLI::App* parent)
       "Input file, defaults to `stdin' (good for reading off a pipeline)")
     ->default_val("-");
 
-  config =
-    command
-      ->add_flag(
-        "-c,--config",
-        "Flag indicating the input is an entire sensor config (app otherwise)")
-      ->default_str("flag");
+  config = command->add_flag(
+    "-c,--config",
+    "Flag indicating the input is an entire sensor config (app otherwise)");
 
   command
     ->add_flag("-g,--global",
                this->global_config,
                "If `-c', import the global configuration")
-    ->needs(config)
-    ->default_str("flag");
+    ->needs(config);
 
   command
     ->add_flag("-n,--net",
                this->network_config,
                "If `-c', import the network configuration")
-    ->needs(config)
-    ->default_str("flag");
+    ->needs(config);
 
   command
     ->add_flag("-a,--app",
                this->app_config,
                "If `-c', import the application configuration")
-    ->needs(config)
-    ->default_str("flag");
+    ->needs(config);
 
   return command;
 }

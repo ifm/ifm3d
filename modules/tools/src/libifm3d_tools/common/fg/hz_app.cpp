@@ -108,12 +108,9 @@ ifm3d::HzApp::CreateCommand(CLI::App* parent)
                  "Number of runs to compute summary statistics over")
     ->default_val(1);
 
-  command
-    ->add_flag("--sw",
-               this->sw_trigger,
-               "Software Trigger the FrameGrabber. Default: false")
-    ->default_val(false)
-    ->default_str("flag");
+  command->add_flag("--sw",
+                    this->sw_trigger,
+                    "Software Trigger the FrameGrabber. Default: false");
 
   return command;
 }

@@ -175,12 +175,9 @@ ifm3d::FlashSWApp::CreateCommand(CLI::App* parent)
                  "off a pipeline)")
     ->required();
 
-  command
-    ->add_flag("-q,--quiet",
-               this->quiet,
-               "Disable status output. Default: False")
-    ->default_val(false)
-    ->default_str("flag");
+  command->add_flag("-q,--quiet",
+                    this->quiet,
+                    "Disable status output. Default: False");
 
   command
     ->add_option("--timeout",

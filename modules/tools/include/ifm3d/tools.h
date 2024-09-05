@@ -16,7 +16,6 @@
 #include <ifm3d/tools/common/dump_app.h>
 #include <ifm3d/tools/legacy/export_app.h>
 #include <ifm3d/tools/ovp8xx/get_diagnostic_app.h>
-#include <ifm3d/tools/ovp8xx/get_filtered_app.h>
 #include <ifm3d/tools/ovp8xx/get_filter_schema_app.h>
 #include <ifm3d/tools/ovp8xx/get_init_app.h>
 #include <ifm3d/tools/ovp8xx/get_service_report_app.h>

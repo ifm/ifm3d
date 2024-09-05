@@ -34,6 +34,10 @@ ifm3d::PasswordApp::Execute(CLI::App* app)
       std::static_pointer_cast<ifm3d::LegacyDevice>(device)->SetPassword(
         password);
     }
+  else
+    {
+      throw CLI::CallForHelp();
+    }
 }
 
 CLI::App*
@@ -41,17 +45,16 @@ ifm3d::PasswordApp::CreateCommand(CLI::App* parent)
 {
   CLI::App* command =
     parent->add_subcommand("passwd", "Sets the password on the sensor.")
-      ->require_subcommand(0, 0);
+      ->require_subcommand(0, 0)
+      ->require_option();
 
   command->add_option("--new",
                       this->new_password,
                       "password to be set on sensor");
 
-  command
-    ->add_option("--disable",
-                 this->disable_password,
-                 "disable password on sensor")
-    ->default_val(false);
+  command->add_flag("--disable",
+                    this->disable_password,
+                    "disable password on sensor");
 
   return command;
 }

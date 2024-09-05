@@ -26,7 +26,8 @@ ifm3d::RmApp::CreateCommand(CLI::App* parent)
       ->require_subcommand(0, 0);
 
   command->add_option("--index", index, "Index of application to remove")
-    ->default_val(-1);
+    ->default_val(-1)
+    ->required();
 
   return command;
 }

@@ -44,21 +44,16 @@ ifm3d::ResetApp::CreateCommand(CLI::App* parent)
 
   if (!(Parent<ifm3d::OVP8xx>()))
     {
-      command
-        ->add_flag("-r,--reboot",
-                   this->reboot,
-                   "Reboot the sensor after reset. Default: False")
-        ->default_val(false)
-        ->default_str("flag");
+      command->add_flag("-r,--reboot",
+                        this->reboot,
+                        "Reboot the sensor after reset. Default: False");
     }
 
   if (Parent<ifm3d::OVP8xx>())
     {
-      command
-        ->add_option("--keepNetworkSettings",
-                     this->network_settings,
-                     "Keep the current network settings")
-        ->default_val(true);
+      command->add_flag("--keepNetworkSettings",
+                        this->network_settings,
+                        "Keep the current network settings");
     }
 
   return command;

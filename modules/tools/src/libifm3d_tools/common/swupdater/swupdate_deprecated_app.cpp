@@ -208,23 +208,17 @@ ifm3d::SWUpdateDeprecatedApp::CreateCommand(CLI::App* parent)
       "Input file, defaults to `stdin' (good for reading off a pipeline)")
     ->default_val("-");
 
-  command
-    ->add_flag("-c,--check", this->check, "Check the current mode of device")
-    ->default_val(false)
-    ->default_str("flag");
+  command->add_flag("-c,--check",
+                    this->check,
+                    "Check the current mode of device");
 
-  command
-    ->add_flag("-r,--reboot",
-               this->reboot,
-               "Reboot from recovery mode to productive mode")
-    ->default_val(false);
+  command->add_flag("-r,--reboot",
+                    this->reboot,
+                    "Reboot from recovery mode to productive mode");
 
-  command
-    ->add_flag("-q,--quiet",
-               this->quiet,
-               "Disable status output. Default: False")
-    ->default_val(false)
-    ->default_str("flag");
+  command->add_flag("-q,--quiet",
+                    this->quiet,
+                    "Disable status output. Default: False");
 
   command->add_option("--swupdate-port", this->sw_port, "port for swupdate")
     ->default_val(8080);
