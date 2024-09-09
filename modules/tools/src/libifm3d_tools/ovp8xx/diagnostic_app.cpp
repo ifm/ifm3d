@@ -45,7 +45,8 @@ ifm3d::DiagnosticApp::CreateCommand(CLI::App* parent)
   CLI::App* command =
     parent
       ->add_subcommand("diagnostic",
-                       "Access the device diagnostic information")
+                       "Access the device diagnostic information. By default, "
+                       "only the active diagnostic is shown.")
       ->require_subcommand(0);
 
   /*RegisterSubcommand<ifm3d::GetDiagnosticApp>(command);

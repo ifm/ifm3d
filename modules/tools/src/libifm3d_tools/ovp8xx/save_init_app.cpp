@@ -21,7 +21,10 @@ CLI::App*
 ifm3d::SaveInitApp::CreateCommand(CLI::App* parent)
 {
   CLI::App* command =
-    parent->add_subcommand("saveInit", "Save the current configuration")
+    parent
+      ->add_subcommand(
+        "saveInit",
+        "Save the current configuration as initial configuration")
       ->require_subcommand(0, 0);
 
   command

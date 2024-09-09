@@ -23,10 +23,10 @@ ifm3d::ConfigOvp8xxApp::CreateCommand(CLI::App* parent)
 {
   CLI::App* command =
     parent
-      ->add_subcommand("config",
-                       "Configure sensor settings from a JSON description of "
-                       "the desired sensor state.")
-      ->require_subcommand(0, 1);
+      ->add_subcommand(
+        "config",
+        "Commands for reading and setting device configurations using JSON.")
+      ->require_subcommand(1);
 
   RegisterSubcommand<ifm3d::ConfigSetApp>(command)->SetDetails(
     "set",
