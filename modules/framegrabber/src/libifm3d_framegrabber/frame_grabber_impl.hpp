@@ -879,7 +879,6 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(buffer_id id)
         return {id};
     case buffer_id::RADIAL_DISTANCE_IMAGE:
     case buffer_id::NORM_AMPLITUDE_IMAGE:
-    case buffer_id::EXPOSURE_TIME:
     case buffer_id::EXTRINSIC_CALIB:
     case buffer_id::INTRINSIC_CALIB:
     case buffer_id::INVERSE_INTRINSIC_CALIBRATION:

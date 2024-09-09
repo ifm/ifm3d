@@ -131,15 +131,20 @@ namespace ifm3d
         return image_to_array_<std::int8_t>(img);
         break;
       case ifm3d::pixel_format::FORMAT_16U:
+      case ifm3d::pixel_format::FORMAT_16U2:
         return image_to_array_<std::uint16_t>(img);
         break;
       case ifm3d::pixel_format::FORMAT_16S:
         return image_to_array_<std::int16_t>(img);
         break;
+      case ifm3d::pixel_format::FORMAT_32U:
+        return image_to_array_<std::uint32_t>(img);
+        break;
       case ifm3d::pixel_format::FORMAT_32S:
         return image_to_array_<std::int32_t>(img);
         break;
       case ifm3d::pixel_format::FORMAT_32F:
+      case ifm3d::pixel_format::FORMAT_32F3:
         return image_to_array_<float>(img);
         break;
       case ifm3d::pixel_format::FORMAT_64F:
