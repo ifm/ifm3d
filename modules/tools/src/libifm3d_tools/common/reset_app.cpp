@@ -52,11 +52,14 @@ ifm3d::ResetApp::CreateCommand(CLI::App* parent)
         ->default_str("flag");
     }
 
-  command
-    ->add_option("--keepNetworkSettings",
-                 this->network_settings,
-                 "Keep the current network settings")
-    ->default_val(true);
+  if (Parent<ifm3d::OVP8xx>())
+    {
+      command
+        ->add_option("--keepNetworkSettings",
+                     this->network_settings,
+                     "Keep the current network settings")
+        ->default_val(true);
+    }
 
   return command;
 }

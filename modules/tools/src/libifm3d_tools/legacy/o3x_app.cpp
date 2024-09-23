@@ -17,7 +17,6 @@ ifm3d::O3X1XX_O3X2XX::CreateCommand(CLI::App* parent)
 
   RegisterSubcommand<ifm3d::AppTypesApp>(command);
   RegisterSubcommand<ifm3d::ConfigSetApp>(command);
-  RegisterSubcommand<ifm3d::CpApp>(command);
   RegisterSubcommand<ifm3d::DiscoverApp>(command);
   RegisterSubcommand<ifm3d::DumpApp>(command);
   RegisterSubcommand<ifm3d::ExportApp>(command);
@@ -29,7 +28,6 @@ ifm3d::O3X1XX_O3X2XX::CreateCommand(CLI::App* parent)
   RegisterSubcommand<ifm3d::PasswordApp>(command);
   RegisterSubcommand<ifm3d::RebootApp>(command);
   RegisterSubcommand<ifm3d::ResetApp>(command);
-  RegisterSubcommand<ifm3d::RmApp>(command);
   RegisterSubcommand<ifm3d::SWUpdateApp>(command);
   RegisterSubcommand<ifm3d::TimeApp>(command);
   RegisterSubcommand<ifm3d::TraceApp>(command);
