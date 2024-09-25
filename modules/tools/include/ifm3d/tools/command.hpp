@@ -8,6 +8,7 @@
 
 #include <CLI/CLI.hpp>
 #include <optional>
+#include <ifm3d/device/err.h>
 
 namespace ifm3d
 {
@@ -50,11 +51,7 @@ namespace ifm3d
       command->_context->final_callback([command, this]() {
         if (!command->CheckCompatibility())
           {
-            std::cerr << std::endl
-                      << "ifm3d error: Incompatible subcommands: "
-                      << command->_context->get_parent()->get_name() << " and "
-                      << command->_context->get_name() << std::endl;
-            throw;
+            throw ifm3d::Error(IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE);
           }
         if (command->_deprecated.has_value())
           {
