@@ -962,7 +962,7 @@ std::string
 ifm3d::FrameGrabber::Impl::CalculateAsyncCommand()
 {
   uint8_t p = 0;
-
+  auto device_type = cam_->WhoAmI();
   // always enable async data
   p |= (1 << 0);
 
@@ -978,10 +978,13 @@ ifm3d::FrameGrabber::Impl::CalculateAsyncCommand()
       p |= (1 << 2);
     }
 
-  // enable algodebug
-  if (this->requested_images_.count(ifm3d::buffer_id::ALGO_DEBUG) > 0)
+  if (device_type == ifm3d::Device::device_family::O3R)
     {
-      p = this->requested_images_.size() == 1 && p == 0x1 ? 0x8 : 0xF;
+      // enable algodebug
+      if (this->requested_images_.count(ifm3d::buffer_id::ALGO_DEBUG) > 0)
+        {
+          p = this->requested_images_.size() == 1 && p == 0x1 ? 0x8 : 0xF;
+        }
     }
   return fmt::format("p{0:X}", p);
 }
