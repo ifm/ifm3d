@@ -93,6 +93,7 @@ ifm3d::O3DOrganizer::Organize(const std::vector<uint8_t>& data,
   if (chunks.find(image_chunk::CARTESIAN_ALL) != chunks.end())
     {
       size_t cart_all_idx = *(chunks[image_chunk::CARTESIAN_ALL].begin());
+
       size_t x_idx =
         cart_all_idx + get_chunk_pixeldata_offset(data, cart_all_idx);
 
@@ -102,7 +103,11 @@ ifm3d::O3DOrganizer::Organize(const std::vector<uint8_t>& data,
       chunks[image_chunk::CARTESIAN_X_COMPONENT] = {x_idx};
       chunks[image_chunk::CARTESIAN_Y_COMPONENT] = {y_idx};
       chunks[image_chunk::CARTESIAN_Z_COMPONENT] = {z_idx};
-      chunks.erase(image_chunk::CARTESIAN_ALL);
+      if (requested_images.count(
+            static_cast<buffer_id>(buffer_id::CARTESIAN_ALL)) == 0)
+        {
+          chunks.erase(image_chunk::CARTESIAN_ALL);
+        }
     }
 
   std::map<buffer_id, BufferList> data_blob, data_image;
