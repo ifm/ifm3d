@@ -172,3 +172,5 @@ FORMAT_32F3 = 10
 ```
 
 For instance, the format returned for `ifm3d::buffer_id::XYZ` is `2`, which corresponds to `FORMAT_32F` (32 bit float).
+
+See the full examples in the `ifm3d-examples` repository, [in Python](https://github.com/ifm/ifm3d-examples/blob/main/common/python/get_data_format.py), and [in C++](https://github.com/ifm/ifm3d-examples/blob/main/common/cpp/get_data_format.cpp).
