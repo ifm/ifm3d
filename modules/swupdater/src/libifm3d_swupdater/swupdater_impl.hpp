@@ -16,6 +16,7 @@
 #include <ifm3d/device/err.h>
 #include <ifm3d/common/logging/log.h>
 #include <ifm3d/common/json.hpp>
+#include <ifm3d/device/util.h>
 
 #ifdef _WIN32
 #  include <io.h>

@@ -40,3 +40,67 @@ ifm3d::split(const std::string& in, char delim)
     }
   return tokens;
 }
+
+bool
+ifm3d::IsStdinAvailable(int timeoutSeconds)
+{
+#ifdef _WIN32
+  if (!(_isatty(_fileno(stdin))))
+    {
+      HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+
+      if (hInput == INVALID_HANDLE_VALUE)
+        {
+          std::cerr << "Error getting standard input handle." << std::endl;
+          return false;
+        }
+
+      DWORD waitResult = WaitForSingleObject(hInput, timeoutSeconds * 1000);
+
+      if (waitResult == WAIT_OBJECT_0)
+        {
+          return true;
+        }
+      else
+        {
+          return false;
+        }
+    }
+  else
+    {
+      return false;
+    }
+
+#elif __unix__
+  if (!(isatty(fileno(stdin))))
+    {
+      fd_set set;
+
+      FD_ZERO(&set);
+      FD_SET(STDIN_FILENO, &set);
+
+      struct timeval timeout;
+
+      timeout.tv_sec = timeoutSeconds;
+      timeout.tv_usec = 0;
+
+      int result = select(STDIN_FILENO + 1, &set, NULL, NULL, &timeout);
+
+      if (result > 0)
+        {
+          return true;
+        }
+      else
+        {
+          return false;
+        }
+    }
+  else
+    {
+      return false;
+    }
+
+#else
+#  error Unsupported platform! Code may not behave as expected.
+#endif
+}
