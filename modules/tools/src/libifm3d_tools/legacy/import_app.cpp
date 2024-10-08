@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <ifm3d/device.h>
+#include <ifm3d/device/util.h>
 
 ifm3d::ImportApp::~ImportApp() {}
 
@@ -27,12 +28,19 @@ ifm3d::ImportApp::Execute(CLI::App* app)
 
   if (this->input_file == "-")
     {
-      ifs.reset(&std::cin, [](...) {});
-
-      char b;
-      while (ifs->get(b))
+      if (ifm3d::IsStdinAvailable())
         {
-          bytes.push_back(*(reinterpret_cast<std::uint8_t*>(&b)));
+          ifs.reset(&std::cin, [](...) {});
+
+          char b;
+          while (ifs->get(b))
+            {
+              bytes.push_back(*(reinterpret_cast<std::uint8_t*>(&b)));
+            }
+        }
+      else
+        {
+          throw ifm3d::Error(IFM3D_NO_INPUT_PROVIDED);
         }
     }
   else

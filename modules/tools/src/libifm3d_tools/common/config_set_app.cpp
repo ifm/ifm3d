@@ -11,6 +11,7 @@
 #include <string>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
+#include <ifm3d/device/util.h>
 
 ifm3d::ConfigSetApp::~ConfigSetApp() {}
 
@@ -28,11 +29,19 @@ ifm3d::ConfigSetApp::Execute(CLI::App* app)
     }
   else if (infile == "-")
     {
-      std::string line;
       std::ostringstream buff;
-      while (std::getline(std::cin, line))
+
+      if (ifm3d::IsStdinAvailable())
         {
-          buff << line << std::endl;
+          std::string line;
+          while (std::getline(std::cin, line))
+            {
+              buff << line << std::endl;
+            }
+        }
+      else
+        {
+          throw ifm3d::Error(IFM3D_NO_INPUT_PROVIDED);
         }
 
       jstr.assign(buff.str());

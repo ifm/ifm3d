@@ -178,7 +178,7 @@ namespace ifm3d
     /** @hideinitializer 
      * @brief The point cloud encoded as a 3 channel XYZ image
     */
-    XYZ = std::numeric_limits<std::uint32_t>::max(),
+    XYZ = (std::numeric_limits<std::uint32_t>::max)(),
     
     /** @hideinitializer 
      * @brief \c

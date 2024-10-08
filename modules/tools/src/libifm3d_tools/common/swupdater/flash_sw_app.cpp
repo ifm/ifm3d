@@ -168,12 +168,11 @@ ifm3d::FlashSWApp::CreateCommand(CLI::App* parent)
   swupdate_cmd->group("");
 #endif
 
-  command
-    ->add_option("file",
-                 this->swu_file,
-                 "Input file, use `-` to read from stdin (good for reading "
-                 "off a pipeline)")
-    ->required();
+  command->add_option(
+    "file",
+    this->swu_file,
+    "Input file, use `-` to read from stdin (good for reading "
+    "off a pipeline)");
 
   command
     ->add_flag("-q,--quiet",
