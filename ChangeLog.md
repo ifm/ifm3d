@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Added fix for `O3D` and `O3R` issues
 - Fixed a potential crash when requesting ALGO_DEBUG buffer on device which don't support it
+- Fixed behaviour of CARTESIAL buffers
 
 ## 1.6.0 - 2024-06-10
 ### Changed
