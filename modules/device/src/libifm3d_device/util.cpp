@@ -7,6 +7,18 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <iostream>
+#ifdef _WIN32
+#  ifndef WIN32_LEAN_AND_MEAN
+#    define WIN32_LEAN_AND_MEAN
+#  endif
+#  include <windows.h>
+#  include <io.h>
+#elif __unix__
+#  include <sys/select.h>
+#  include <unistd.h>
+#  include <cstdio>
+#endif
 
 std::string&
 ifm3d::ltrim(std::string& str, const std::string& chars)

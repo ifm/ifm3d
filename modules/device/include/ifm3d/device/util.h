@@ -10,18 +10,6 @@
 #include <string>
 #include <vector>
 #include <ifm3d/device/module_device.h>
-#include <iostream>
-#ifdef _WIN32
-#  ifndef WIN32_LEAN_AND_MEAN
-#    define WIN32_LEAN_AND_MEAN
-#  endif
-#  include <windows.h>
-#  include <io.h>
-#elif __unix__
-#  include <sys/select.h>
-#  include <unistd.h>
-#  include <cstdio>
-#endif
 
 namespace ifm3d
 {
