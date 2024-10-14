@@ -31,7 +31,8 @@ ifm3d::CpApp::CreateCommand(CLI::App* parent)
       ->require_subcommand(0, 0);
   command
     ->add_option("--index", this->index, "Index of source application to copy")
-    ->default_val(-1);
+    ->default_val(-1)
+    ->required();
 
   return command;
 }

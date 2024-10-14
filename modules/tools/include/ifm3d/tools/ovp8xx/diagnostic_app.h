@@ -25,8 +25,6 @@ namespace ifm3d
     virtual void Execute(CLI::App* app) override;
     virtual CLI::App* CreateCommand(CLI::App* parent) override;
 
-    std::string filter_expression{""};
-    bool filterSchema{false};
   }; // end: class DiagnosticApp
 } // end: namespace ifm3d
 

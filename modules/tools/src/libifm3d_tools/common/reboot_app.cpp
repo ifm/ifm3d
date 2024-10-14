@@ -45,9 +45,9 @@ ifm3d::RebootApp::CreateCommand(CLI::App* parent)
         "sensor into a state where it can be flashed with new firmware.")
       ->require_subcommand(0, 0);
 
-  command
-    ->add_option("-r,--recovery", this->recovery, "Reboot into recovery mode")
-    ->default_val(false);
+  command->add_flag("-r,--recovery",
+                    this->recovery,
+                    "Reboot into recovery mode");
 
   return command;
 }

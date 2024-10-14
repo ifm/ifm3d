@@ -47,6 +47,10 @@ ifm3d::SWUpdateApp::Execute(CLI::App* app)
         }
       return;
     }
+  else
+    {
+      throw CLI::CallForHelp();
+    }
 }
 
 CLI::App*
@@ -62,10 +66,9 @@ ifm3d::SWUpdateApp::CreateCommand(CLI::App* parent)
   swupdate_cmd->group("");
 #endif
 
-  command
-    ->add_flag("-d,--detect", this->detect, "Check the current mode of device")
-    ->default_val(false)
-    ->default_str("flag");
+  command->add_flag("-d,--detect",
+                    this->detect,
+                    "Check the current mode of device");
 
   RegisterSubcommand<ifm3d::FlashSWApp>(command);
   RegisterSubcommand<ifm3d::RestartApp>(command);

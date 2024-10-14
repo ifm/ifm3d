@@ -174,12 +174,9 @@ ifm3d::FlashSWApp::CreateCommand(CLI::App* parent)
     "Input file, use `-` to read from stdin (good for reading "
     "off a pipeline)");
 
-  command
-    ->add_flag("-q,--quiet",
-               this->quiet,
-               "Disable status output. Default: False")
-    ->default_val(false)
-    ->default_str("flag");
+  command->add_flag("-q,--quiet",
+                    this->quiet,
+                    "Disable status output. Default: False");
 
   command
     ->add_option("--timeout",
