@@ -17,6 +17,11 @@ namespace httplib
   class Result;
 }
 
+namespace httplib
+{
+  class Result;
+}
+
 namespace ifm3d
 {
   /**
