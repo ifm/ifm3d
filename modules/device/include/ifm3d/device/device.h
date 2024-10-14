@@ -118,7 +118,7 @@ namespace ifm3d
     O3R_ODS_EXTRINSIC_CALIBRATION_CORRECTION = 1007
   };
 
-  class XMLRPCWrapper;
+  class XMLRPC;
 
   /** @ingroup Device
    *
@@ -470,7 +470,7 @@ namespace ifm3d
     int DeviceID();
     bool checkDeviceID(int deviceID, int minID, int maxID);
 
-    std::shared_ptr<XMLRPCWrapper> XWrapper();
+    std::shared_ptr<XMLRPC> XWrapper();
 
   }; // end: class Device
 

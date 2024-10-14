@@ -19,19 +19,18 @@
 #include <unordered_map>
 #include <vector>
 #include <fstream>
-#include <xmlrpc-c/client.hpp>
 #include <fmt/core.h>
-#include <ifm3d/device/detail/curl_transaction.h>
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/common/logging/log.h>
-#include <xmlrpc_wrapper.hpp>
+#include <ifm3d/device/util.h>
+#include <xmlrpc.hpp>
 
 namespace ifm3d
 {
   const std::string XMLRPC_DIAGNOSTIC = "/api/rpc/v1/com.ifm.diagnostic/";
 
-  class XMLRPCWrapper;
+  class XMLRPC;
 
   //============================================================
   // Impl interface
@@ -39,7 +38,7 @@ namespace ifm3d
   class IFM3D_NO_EXPORT O3R::Impl
   {
   public:
-    explicit Impl(std::shared_ptr<XMLRPCWrapper> xwrapper);
+    explicit Impl(std::shared_ptr<XMLRPC> xwrapper);
     ~Impl();
 
     json Get(const std::vector<std::string>& path);
@@ -65,21 +64,20 @@ namespace ifm3d
     void DownloadServiceReport(std::string outFile);
 
   protected:
-    std::shared_ptr<XMLRPCWrapper> xwrapper_;
+    std::shared_ptr<XMLRPC> xwrapper_;
 
   private:
     template <typename... Args>
-    xmlrpc_c::value const
+    XMLRPCValue const
     _XCallDiagnostic(const std::string& method, Args... args)
     {
-      std::string url = this->xwrapper_->XPrefix() + ifm3d::XMLRPC_DIAGNOSTIC;
-      return this->xwrapper_->XCall(url, method, args...);
+      return this->xwrapper_->XCall(ifm3d::XMLRPC_DIAGNOSTIC, method, args...);
     }
   }; // end: class O3RCamera::Impl
 
 } // end: namespace ifm3d
 
-ifm3d::O3R::Impl::Impl(std::shared_ptr<XMLRPCWrapper> xwrapper)
+ifm3d::O3R::Impl::Impl(std::shared_ptr<XMLRPC> xwrapper)
   : xwrapper_(std::move(xwrapper))
 {}
 
@@ -88,8 +86,7 @@ ifm3d::O3R::Impl::~Impl() {}
 ifm3d::json
 ifm3d::O3R::Impl::Get(const std::vector<std::string>& path)
 {
-  return json::parse(
-    xmlrpc_c::value_string(this->xwrapper_->XCallMain("get", path)).cvalue());
+  return json::parse(this->xwrapper_->XCallMain("get", path).AsString());
 }
 
 ifm3d::json
@@ -119,8 +116,7 @@ ifm3d::O3R::Impl::Reset(const std::string& jsonPointer)
 ifm3d::json
 ifm3d::O3R::Impl::GetInit()
 {
-  return json::parse(
-    xmlrpc_c::value_string(this->xwrapper_->XCallMain("getInit")).cvalue());
+  return json::parse(this->xwrapper_->XCallMain("getInit").AsString());
 }
 
 void
@@ -139,17 +135,15 @@ ifm3d::O3R::Impl::SaveInit(const std::vector<std::string>& pointers)
 std::string
 ifm3d::O3R::Impl::GetInitStatus()
 {
-  return xmlrpc_c::value_string(
-           this->xwrapper_->XCallMain("getInitStatus",
-                                      std::vector<std::string>()))
-    .cvalue();
+  return this->xwrapper_
+    ->XCallMain("getInitStatus", std::vector<std::string>())
+    .AsString();
 }
 
 std::string
 ifm3d::O3R::Impl::GetSchema()
 {
-  return xmlrpc_c::value_string(this->xwrapper_->XCallMain("getSchema"))
-    .cvalue();
+  return this->xwrapper_->XCallMain("getSchema").AsString();
 }
 
 void
@@ -290,24 +284,20 @@ ifm3d::O3R::Impl::Ports()
 ifm3d::json
 ifm3d::O3R::Impl::GetDiagnostic()
 {
-  return json::parse(
-    xmlrpc_c::value_string(this->_XCallDiagnostic("get")).cvalue());
+  return json::parse(this->_XCallDiagnostic("get").AsString());
 }
 
 ifm3d::json
 ifm3d::O3R::Impl::GetDiagnosticFilterSchema()
 {
-  return json::parse(
-    xmlrpc_c::value_string(this->_XCallDiagnostic("getFilterSchema"))
-      .cvalue());
+  return json::parse(this->_XCallDiagnostic("getFilterSchema").AsString());
 }
 
 ifm3d::json
 ifm3d::O3R::Impl::GetDiagnosticFiltered(json filter)
 {
-  return json::parse(xmlrpc_c::value_string(
-                       this->_XCallDiagnostic("getFiltered", filter.dump()))
-                       .cvalue());
+  return json::parse(
+    this->_XCallDiagnostic("getFiltered", filter.dump()).AsString());
 }
 
 void
@@ -340,30 +330,15 @@ WriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
 void
 ifm3d::O3R::Impl::DownloadServiceReport(std::string outFile)
 {
+  httplib::Client cli(this->xwrapper_->IP(), 80);
+  std::ofstream ofs("service_report.zip", std::ios::binary);
+  auto res =
+    cli.Get("/service_report/", [&](const char* data, size_t data_length) {
+      ofs.write(data, data_length);
+      return true;
+    });
 
-  std::string download_url =
-    "http://" + this->xwrapper_->IP() + "/service_report/";
-  auto c = std::make_unique<ifm3d::CURLTransaction>();
-  std::ofstream ofs(outFile, std::ios::binary);
-  curl_global_init(CURL_GLOBAL_ALL);
-
-  c->Call(curl_easy_setopt, CURLOPT_URL, download_url.c_str());
-  c->Call(curl_easy_setopt, CURLOPT_WRITEFUNCTION, WriteCallback);
-  c->Call(curl_easy_setopt, CURLOPT_WRITEDATA, &ofs);
-
-  try
-    {
-      c->Call(curl_easy_perform);
-    }
-  catch (const ifm3d::Error& e)
-    {
-      if (e.code() != IFM3D_CURL_ABORTED)
-        {
-          throw;
-        }
-    }
-  curl_global_cleanup();
-  ofs.close();
+  ifm3d::check_http_result(res);
 }
 
 #endif // IFM3D_DEVICE_O3R_IMPL_HPP

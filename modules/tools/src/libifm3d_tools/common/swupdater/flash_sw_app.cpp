@@ -28,7 +28,7 @@ ifm3d::FlashSWApp::~FlashSWApp() {}
 void
 ifm3d::FlashSWApp::Execute(CLI::App* app)
 {
-  auto device = Parent<MainCommand>()->GetDevice();
+  auto device = Parent<MainCommand>()->GetDevice(false);
 
   auto const timeout_millisec =
     std::chrono::milliseconds(std::chrono::seconds(timeout));
@@ -45,47 +45,7 @@ ifm3d::FlashSWApp::Execute(CLI::App* app)
     return (timeout_millisec - utilized_time).count();
   };
 
-  ifm3d::SWUpdater::Ptr swupdater;
-  if (quiet)
-    {
-      swupdater = std::make_shared<ifm3d::SWUpdater>(
-        device,
-        [](float p, const std::string& msg) -> void {});
-    }
-  else
-    {
-      swupdater = std::make_shared<ifm3d::SWUpdater>(
-        device,
-        [](float p, const std::string& msg) {
-          if (p < 1.0f)
-            {
-              int width = 50;
-              std::cout << "Uploading Firmware: [";
-              int pos = int(width * p);
-              for (int i = 0; i < width; ++i)
-                {
-                  if (i < pos)
-                    {
-                      std::cout << "=";
-                    }
-                  else if (i == pos)
-                    {
-                      std::cout << ">";
-                    }
-                  else
-                    {
-                      std::cout << " ";
-                    }
-                }
-              std::cout << "] " << int(p * 100) << "%\r";
-              std::cout.flush();
-            }
-          else
-            {
-              std::cout << msg << std::endl;
-            }
-        });
-    }
+  auto swupdater = Parent<SWUpdateApp>()->CreateSWUpdater(quiet);
 
   auto validateSwuFileHeader = [](std::string& swu_file) -> bool {
     std::ifstream file(swu_file, std::ios::binary);

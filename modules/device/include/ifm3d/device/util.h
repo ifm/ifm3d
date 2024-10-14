@@ -10,6 +10,12 @@
 #include <string>
 #include <vector>
 #include <ifm3d/device/module_device.h>
+#include <cstdint>
+
+namespace httplib
+{
+  class Result;
+}
 
 namespace ifm3d
 {
@@ -36,6 +42,14 @@ namespace ifm3d
    */
   IFM3D_EXPORT std::vector<std::string> split(const std::string& in,
                                               char delim);
+
+  IFM3D_EXPORT std::string base64_encode(
+    const std::vector<std::uint8_t>& data);
+
+  IFM3D_EXPORT std::vector<std::uint8_t> base64_decode(
+    const std::string& base64);
+
+  IFM3D_EXPORT void check_http_result(httplib::Result const& res);
 
   IFM3D_EXPORT bool IsStdinAvailable(int timeoutSeconds = 2);
 

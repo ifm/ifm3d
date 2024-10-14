@@ -33,9 +33,10 @@ target_link_libraries(
   INTERFACE
     ifm3d_common
     ifm3d_device
-    CURL::libcurl
     CLI11::CLI11
     $<BUILD_INTERFACE:fmt::fmt-header-only>
+    $<BUILD_INTERFACE:tinyxml2>
+    $<BUILD_INTERFACE:httplib::httplib>
 )
 
 if (BUILD_MODULE_FRAMEGRABBER)

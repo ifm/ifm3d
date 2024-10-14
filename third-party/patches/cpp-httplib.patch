@@ -1,0 +1,26 @@
+diff --git a/httplib.h b/httplib.h
+index 121ce34..154adf8 100644
+--- a/httplib.h
++++ b/httplib.h
+@@ -4410,6 +4410,7 @@ inline bool write_content(Stream &strm, const ContentProvider &content_provider,
+   };
+ 
+   data_sink.is_writable = [&]() -> bool { return strm.is_writable(); };
++  data_sink.done = [](){};
+ 
+   while (offset < end_offset && !is_shutting_down()) {
+     if (!strm.is_writable()) {
+@@ -7798,11 +7799,10 @@ inline std::unique_ptr<Response> ClientImpl::send_with_content_provider(
+       req.content_provider_ = std::move(content_provider);
+       req.is_chunked_content_provider_ = false;
+     } else if (content_provider_without_length) {
+-      req.content_length_ = 0;
++      req.content_length_ = (std::numeric_limits<int32_t>::max)();
+       req.content_provider_ = detail::ContentProviderAdapter(
+           std::move(content_provider_without_length));
+-      req.is_chunked_content_provider_ = true;
+-      req.set_header("Transfer-Encoding", "chunked");
++      req.is_chunked_content_provider_ = false;
+     } else {
+       req.body.assign(body, content_length);
+     }

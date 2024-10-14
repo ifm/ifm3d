@@ -38,7 +38,6 @@ namespace ifm3d
   const std::string SWUPDATER_V2_UPLOAD_URL_SUFFIX = "/upload";
   const std::string SWUPDATER_V2_REBOOT_URL_SUFFIX = "/restart";
   const std::string SWUPDATER_V2_STATUS_URL_SUFFIX = "/ws";
-  const std::string SWUPATER_V2_FILENAME = "swupdate.swu";
 
   /* types */
   const std::string SWUPATER_V2_TYPE_STEP = "step";
@@ -114,7 +113,8 @@ namespace ifm3d
                             ec);
             if (ec)
               {
-                LOG_ERROR("> Error closing connection ");
+                // Ignore because the device will force close the connection
+                // after the update finished
               }
           }
         thread_->join();
@@ -224,7 +224,6 @@ namespace ifm3d
     std::mutex m_;
     std::condition_variable cv_;
     std::string sw_status_;
-    std::string main_url_;
     bool upload_error_;
   }; // end: class ImplV2
 
@@ -245,12 +244,7 @@ ifm3d::ImplV2::ImplV2(ifm3d::Device::Ptr cam,
     sw_status_(SWUPATER_V2_STATUS_IDLE),
     upload_error_(false)
 {
-  main_url_ = ("http://" + cam->IP() + ":" + swupdate_recovery_port);
-
-  upload_url_ = main_url_ + SWUPDATER_V2_UPLOAD_URL_SUFFIX;
-  reboot_url_ = main_url_ + SWUPDATER_V2_REBOOT_URL_SUFFIX;
-  status_url_ = ("ws://" + cam->IP() + ":" + swupdate_recovery_port +
-                 SWUPDATER_V2_STATUS_URL_SUFFIX);
+  this->client_.set_write_timeout(ifm3d::SWUPDATE_V2_TIMEOUT_FOR_UPLOAD);
 
   websocket_->RegisterOnDataRecv(
     std::bind(&ifm3d::ImplV2::OnWebSocketData, this, std::placeholders::_1));
@@ -273,20 +267,11 @@ ifm3d::ImplV2::RebootToProductive()
 {
   try
     {
-      auto c = std::make_unique<ifm3d::CURLTransaction>();
-      c->Call(curl_easy_setopt, CURLOPT_URL, this->reboot_url_.c_str());
-      c->Call(curl_easy_setopt, CURLOPT_POST, true);
-      c->Call(curl_easy_setopt, CURLOPT_POSTFIELDSIZE, 0);
-      c->Call(curl_easy_setopt,
-              CURLOPT_WRITEFUNCTION,
-              &ifm3d::SWUpdater::Impl::StatusWriteCallbackIgnore);
-      c->Call(curl_easy_setopt,
-              CURLOPT_CONNECTTIMEOUT,
-              ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
-      c->Call(curl_easy_setopt,
-              CURLOPT_TIMEOUT,
-              ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
-      c->Call(curl_easy_perform);
+      auto res = this->client_.Post(SWUPDATER_V2_REBOOT_URL_SUFFIX,
+                                    "",
+                                    "application/x-www-form-urlencoded");
+
+      ifm3d::check_http_result(res);
     }
   catch (const ifm3d::Error& e)
     {
@@ -312,7 +297,10 @@ ifm3d::ImplV2::FlashFirmware(const std::string& swu_file, long timeout_millis)
     return timeout_millis - static_cast<long>(elapsed.count());
   };
   /* connect to websocket */
-  websocket_->connect(status_url_);
+  websocket_->connect(fmt::format("ws://{}:{}{}",
+                                  client_.host(),
+                                  SWUPDATER_RECOVERY_PORT,
+                                  SWUPDATER_V2_STATUS_URL_SUFFIX));
   /*upload buffer */
   this->UploadFirmware(swu_file, remaining_time);
   std::unique_lock<std::mutex> lk(m_);
@@ -339,33 +327,19 @@ ifm3d::ImplV2::FlashFirmware(const std::string& swu_file, long timeout_millis)
 bool
 ifm3d::ImplV2::CheckRecovery()
 {
-  auto c = std::make_unique<ifm3d::CURLTransaction>();
-  c->Call(curl_easy_setopt, CURLOPT_URL, this->main_url_.c_str());
-  c->Call(curl_easy_setopt, CURLOPT_NOBODY, true);
-  c->Call(curl_easy_setopt,
-          CURLOPT_CONNECTTIMEOUT,
-          ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
-  c->Call(curl_easy_setopt,
-          CURLOPT_TIMEOUT,
-          ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
+  auto res = this->client_.Head("/");
 
-  long status_code;
-  try
+  if (!res)
     {
-      c->Call(curl_easy_perform);
-      c->Call(curl_easy_getinfo, CURLINFO_RESPONSE_CODE, &status_code);
-    }
-  catch (const ifm3d::Error& e)
-    {
-      if (e.code() == IFM3D_RECOVERY_CONNECTION_ERROR ||
-          e.code() == IFM3D_CURL_TIMEOUT)
+      if (res.error() == httplib::Error::Connection ||
+          res.error() == httplib::Error::ConnectionTimeout)
         {
           return false;
         }
-      throw;
+      throw ifm3d::Error(IFM3D_RECOVERY_CONNECTION_ERROR);
     }
 
-  return status_code == 200;
+  return res->status == 200;
 }
 
 bool
@@ -383,7 +357,8 @@ ifm3d::ImplV2::CheckProductive()
       // Rethrow unless the code is one that indicates the camera is not
       // currently reachable by XML-RPC (occurs during the reboot process)
       if (e.code() != IFM3D_XMLRPC_TIMEOUT &&
-          e.code() != IFM3D_XMLRPC_OBJ_NOT_FOUND)
+          e.code() != IFM3D_XMLRPC_OBJ_NOT_FOUND &&
+          e.code() != IFM3D_CURL_ERROR)
         {
           throw;
         }
@@ -395,49 +370,38 @@ ifm3d::ImplV2::CheckProductive()
 void
 ifm3d::ImplV2::UploadFirmware(const std::string& swu_file, long timeout_millis)
 {
-  curl_global_init(CURL_GLOBAL_ALL);
-  auto c = std::make_unique<ifm3d::CURLTransaction>();
+  std::FILE* input = fopen_read(swu_file);
 
-  mime_ctx mime_ctx;
-  mime_ctx.fp = fopen_read(swu_file);
+  char buffer[4096];
+  httplib::MultipartFormDataProviderItems items = {
+    {SWUPDATER_MIME_PART_NAME,
+     [&](size_t offset, httplib::DataSink& sink) -> bool {
+       auto c = fread(buffer, 1, sizeof(buffer), input);
 
-  if (!mime_ctx.fp)
+       if (c > 0)
+         {
+           return sink.write(buffer, c);
+         }
+
+       if (feof(input))
+         {
+           sink.done();
+         }
+
+       return ferror(input) == 0;
+     },
+     SWUPDATER_FILENAME,
+     SWUPDATER_CONTENT_TYPE_HEADER}};
+
+  auto res = this->client_.Post(SWUPDATER_V2_UPLOAD_URL_SUFFIX, {}, {}, items);
+
+  fclose_read(input);
+
+  // Ignore Error::Write because the device will force close the connection
+  // after the update finishes
+  if (res.error() != httplib::Error::Write)
     {
-      throw ifm3d::Error(IFM3D_UPDATE_ERROR,
-                         fmt::format("Unable to open file: {}", swu_file));
-    }
-
-  curl_mimepart* mimepart = c->AddMimePart();
-  curl_mime_data_cb(mimepart,
-                    (std::numeric_limits<int32_t>::max)(),
-                    mime_read,
-                    NULL,
-                    mime_free,
-                    &mime_ctx);
-  curl_mime_name(mimepart, SWUPDATER_MIME_PART_NAME.c_str());
-  curl_mime_filename(mimepart, SWUPATER_V2_FILENAME.c_str());
-  curl_mime_type(mimepart, SWUPDATER_CONTENT_TYPE_HEADER.c_str());
-
-  c->Call(curl_easy_setopt, CURLOPT_URL, this->upload_url_.c_str());
-  c->Call(curl_easy_setopt, CURLOPT_TIMEOUT, SWUPDATE_V2_TIMEOUT_FOR_UPLOAD);
-  c->Call(curl_easy_setopt, CURLOPT_TCP_KEEPALIVE, 1);
-  c->Call(curl_easy_setopt, CURLOPT_MAXREDIRS, CURL_MAX_REDIR);
-  c->Call(curl_easy_setopt,
-          CURLOPT_CONNECTTIMEOUT,
-          ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
-
-  // `curl_easy_perform` will return CURLE_ABORTED_BY_CALLBACK
-  // due to the above workaround. Handle and squash that error.
-  try
-    {
-      c->Call(curl_easy_perform);
-    }
-  catch (const ifm3d::Error& e)
-    {
-      if (e.code() != IFM3D_CURL_ABORTED)
-        {
-          throw;
-        }
+      ifm3d::check_http_result(res);
     }
 }
 
@@ -471,12 +435,6 @@ ifm3d::ImplV2::OnWebSocketData(const std::string json_string)
       if (type == SWUPATER_V2_TYPE_MESSAGE)
         {
           const auto level = std::stoi(json["level"].get<std::string>());
-          if (level == SWUPATER_V2_MESSAGE_LEVEL_ERROR)
-            {
-              // report error at this point
-              this->upload_error_ = true;
-              cv_.notify_all();
-            }
           const auto message = json["text"].get<std::string>();
           this->cb_(1.0f, "Message : " + message);
         }

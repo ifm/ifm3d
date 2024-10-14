@@ -32,17 +32,17 @@ namespace ifm3d
       return parent ? parent : _parent ? _parent->Parent<T>() : nullptr;
     }
 
-    template <typename T>
+    template <typename T, typename... Args>
     T*
-    RegisterSubcommand(CLI::App* parent)
+    RegisterSubcommand(CLI::App* parent, Args... args)
     {
-      static_assert(std::is_constructible<T>::value,
-                    "Subcommand must have a no-arg constructor");
+      static_assert(std::is_constructible<T, Args...>::value,
+                    "No matching constructor found for subcommand");
 
       static_assert(std::is_base_of<Command, T>::value,
                     "Subcommand must a subclass of Command");
 
-      auto command = std::make_shared<T>();
+      auto command = std::make_shared<T>(args...);
       command->_parent = this;
 
       _subcommands.push_back(command);

@@ -15,9 +15,8 @@
 #include <ifm3d/common/logging/log.h>
 #include <device_impl.hpp>
 #include <discovery.hpp>
-#include <xmlrpc_wrapper.hpp>
+#include <xmlrpc.hpp>
 #include <fmt/core.h>
-#include <curl/curl.h>
 
 //================================================
 // Public constants
@@ -182,23 +181,9 @@ ifm3d::Device::MakeShared(const std::string& ip,
     }
   catch (const ifm3d::Error& ex)
     {
-      if (ex.code() == IFM3D_XMLRPC_TIMEOUT)
+      LOG_WARNING("Could not probe device type: {}", ex.what());
+      if (throwIfUnavailable)
         {
-          LOG_WARNING("Could not probe device type: {}", ex.what());
-          if (throwIfUnavailable)
-            {
-              throw;
-            }
-        }
-      else
-        {
-          LOG_ERROR("While trying to instantiate camera: {}", ex.what());
-          //
-          // XXX: For now, we re-throw. I am not sure what else would
-          // go wrong here except for a network time out. To that end,
-          // I'd like this to "fail loudly" so I can get to the root
-          // of the issue
-          //
           throw;
         }
     }
@@ -216,7 +201,7 @@ ifm3d::Device::MakeShared(const std::string& ip,
 
 ifm3d::Device::Device(const std::string& ip, const std::uint16_t xmlrpc_port)
   : pImpl(std::make_unique<Device::Impl>(
-      std::make_shared<XMLRPCWrapper>(ip, xmlrpc_port))),
+      std::make_shared<XMLRPC>(ip, xmlrpc_port))),
     device_type_("")
 {}
 
@@ -382,7 +367,7 @@ ifm3d::Device::FromJSONStr(const std::string& jstr)
   this->FromJSON(j);
 }
 
-std::shared_ptr<ifm3d::XMLRPCWrapper>
+std::shared_ptr<ifm3d::XMLRPC>
 ifm3d::Device::XWrapper()
 {
   return pImpl->XWrapper();
@@ -391,37 +376,29 @@ ifm3d::Device::XWrapper()
 bool
 isV1SWUpdate(const std::string& ip)
 {
-  /* SWU_V1 device expose a /id.lp endpoint in recovery, so we check for it's
-   * existance to determine if this is a SWU_V1 device */
-  auto curl = curl_easy_init();
-  if (curl)
+  /* SWU_V1 device expose a /id.lp endpoint in recovery, so we check for its
+   * existence to determine if this is a SWU_V1 device */
+  httplib::Client cli(ip, 8080);
+  cli.set_connection_timeout(
+    std::chrono::seconds(ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT));
+  cli.set_read_timeout(
+    std::chrono::seconds(ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT));
+
+  auto res = cli.Head("/");
+
+  if (res && res->status >= 200 && res->status < 300)
     {
-      auto url = fmt::format("http://{}:8080/id.lp", ip);
-      curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-      curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
-
-      curl_easy_setopt(curl,
-                       CURLOPT_CONNECTTIMEOUT,
-                       ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
-      curl_easy_setopt(curl,
-                       CURLOPT_TIMEOUT,
-                       ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
-
-      if (curl_easy_perform(curl) == CURLE_OK)
-        {
-          int response_code;
-          curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
-
-          if ((response_code >= 200) && (response_code < 300))
-            {
-              return true;
-            }
-        }
-      curl_easy_cleanup(curl);
-
-      curl = NULL;
+      return true;
     }
-
+  else
+    {
+      auto dev = ifm3d::Device(ip);
+      if (dev.WhoAmI() == ifm3d::Device::device_family::O3D ||
+          dev.WhoAmI() == ifm3d::Device::device_family::O3X)
+        {
+          return true;
+        }
+    }
   return false;
 }
 

@@ -26,7 +26,7 @@ void
 ifm3d::RestartApp::Execute(CLI::App* app)
 {
   auto device = Parent<MainCommand>()->GetDevice(false);
-  ifm3d::SWUpdater::Ptr swupdater = std::make_shared<ifm3d::SWUpdater>(device);
+  auto swupdater = Parent<SWUpdateApp>()->CreateSWUpdater();
 
   if (swupdater->WaitForRecovery(-1))
     {

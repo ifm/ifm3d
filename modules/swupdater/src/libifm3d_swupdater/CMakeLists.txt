@@ -15,7 +15,6 @@ target_link_libraries(
   ifm3d_swupdater
   INTERFACE 
     ifm3d_device
-    CURL::libcurl
     $<BUILD_INTERFACE:asio>
     $<BUILD_INTERFACE:websocketpp_wrapper>
     $<BUILD_INTERFACE:fmt::fmt-header-only>
