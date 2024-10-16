@@ -10,13 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for accessing OVP8XX SealedBox
 
 ### Fixed
+- Parsing of multi-channel data (e.g. UNIT_VECTOR_ALL)
 - Fix issue when there was no applications configured in the device
+- Add fix to create a static library when `BUILD-SHARED_LIBS=OFF`
 
 ### Changed
 - Replace `curl` and `xmlrpc-c` with `cpp-httplib`, `tinyxml2` and a custom `xmlrpc` client
-
-### Fixed
-- Parsing of multi-channel data (e.g. UNIT_VECTOR_ALL)
 
 ## 1.6.8 - 2025-04-16
 ### Removed

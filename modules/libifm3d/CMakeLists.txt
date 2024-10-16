@@ -16,8 +16,8 @@ endif(WIN32)
 target_link_libraries(
   libifm3d
   PRIVATE
-    ifm3d_common
-    ifm3d_device
+    $<BUILD_INTERFACE:ifm3d_common>
+    $<BUILD_INTERFACE:ifm3d_device>
     $<BUILD_INTERFACE:fmt::fmt-header-only>
     $<BUILD_INTERFACE:asio>
 )
@@ -32,7 +32,7 @@ target_include_directories(libifm3d
 )
 
 if(BUILD_MODULE_FRAMEGRABBER)
-    target_link_libraries(libifm3d PRIVATE ifm3d_framegrabber)
+    target_link_libraries(libifm3d PRIVATE $<BUILD_INTERFACE:ifm3d_framegrabber>)
     target_include_directories(libifm3d
       INTERFACE
         $<BUILD_INTERFACE:${IFM3D_FG_SOURCE_DIR}/include>
@@ -40,7 +40,7 @@ if(BUILD_MODULE_FRAMEGRABBER)
 endif()
 
 if(BUILD_MODULE_SWUPDATER)
-    target_link_libraries(libifm3d PRIVATE ifm3d_swupdater)
+    target_link_libraries(libifm3d PRIVATE $<BUILD_INTERFACE:ifm3d_swupdater>)
     target_include_directories(libifm3d
       INTERFACE
         $<BUILD_INTERFACE:${IFM3D_SWUPDATER_SOURCE_DIR}/include>
@@ -48,7 +48,7 @@ if(BUILD_MODULE_SWUPDATER)
 endif()
 
 if(BUILD_MODULE_PCICCLIENT)
-    target_link_libraries(libifm3d PRIVATE ifm3d_pcicclient)
+    target_link_libraries(libifm3d PRIVATE $<BUILD_INTERFACE:ifm3d_pcicclient>)
     target_include_directories(libifm3d
       INTERFACE
         $<BUILD_INTERFACE:${IFM3D_PCICCLIENT_SOURCE_DIR}/include>
@@ -56,7 +56,7 @@ if(BUILD_MODULE_PCICCLIENT)
 endif()
 
 if(BUILD_MODULE_DESERIALIZE)
-    target_link_libraries(libifm3d PRIVATE ifm3d_deserialize)
+    target_link_libraries(libifm3d PRIVATE $<BUILD_INTERFACE:ifm3d_deserialize>)
     target_include_directories(libifm3d
       INTERFACE
         $<BUILD_INTERFACE:${IFM3D_DESERIALIZE_SOURCE_DIR}/include>

@@ -125,9 +125,7 @@ endif()
 add_subdirectory(modules/device)
 list(APPEND DOXYGEN_MODULES "device")
 
-if (BUILD_SHARED_LIBS)
-  add_subdirectory(modules/libifm3d)
-endif()
+add_subdirectory(modules/libifm3d)
 
 if(BUILD_MODULE_FRAMEGRABBER)
   add_subdirectory(modules/framegrabber)
