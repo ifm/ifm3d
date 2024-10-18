@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IFM3D_TOOLS_EXPORT_APP_H
-#define IFM3D_TOOLS_EXPORT_APP_H
+#ifndef IFM3D_TOOLS_IMPORT_APPLICATION_APP_H
+#define IFM3D_TOOLS_IMPORT_APPLICATION_APP_H
 
 #include <string>
 #include <ifm3d/tools/command.hpp>
@@ -15,22 +15,19 @@
 namespace ifm3d
 {
   /**
-   * Concrete implementation of the `export` subcommand to the `ifm3d`
+   * Concrete implementation of the `import app` subcommand to the `ifm3d`
    * command-line utility.
-   *
-   * `export` provides compatibility with Vision Assistant - it can produce
-   * exported applications/configurations that can be consumed by Vision
-   * Assistant.
    */
-  class ExportApp : public Command
+  class ImportApplicationApp : public Command
   {
   public:
-    ~ExportApp();
+    ~ImportApplicationApp();
     virtual void Execute(CLI::App* app) override;
     virtual CLI::App* CreateCommand(CLI::App* parent) override;
 
-  }; // end: class ExportApp
+    std::string input_file{"-"};
 
+  }; // end: class ImportApplicationApp
 } // end: namespace ifm3d
 
-#endif // IFM3D_TOOLS_EXPORT_APP_H
+#endif // IFM3D_TOOLS_IMPORT_APPLICATION_APP_H
