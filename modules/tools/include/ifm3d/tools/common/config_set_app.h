@@ -32,7 +32,7 @@ namespace ifm3d
     virtual CLI::App* CreateCommand(CLI::App* parent) override;
 
     std::string config_file{"-"};
-    std::string path = "";
+    bool save;
 
   }; // end: ConfigSetApp
 
