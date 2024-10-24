@@ -15,12 +15,16 @@
 #include <ifm3d/tools/common/discover_app.h>
 #include <ifm3d/tools/common/dump_app.h>
 #include <ifm3d/tools/legacy/export_app.h>
+#include <ifm3d/tools/legacy/export_application_app.h>
+#include <ifm3d/tools/legacy/export_device_app.h>
 #include <ifm3d/tools/ovp8xx/get_diagnostic_app.h>
 #include <ifm3d/tools/ovp8xx/get_filter_schema_app.h>
 #include <ifm3d/tools/ovp8xx/get_init_app.h>
 #include <ifm3d/tools/ovp8xx/get_service_report_app.h>
 #include <ifm3d/tools/legacy/imager_types_app.h>
 #include <ifm3d/tools/legacy/import_app.h>
+#include <ifm3d/tools/legacy/import_application_app.h>
+#include <ifm3d/tools/legacy/import_device_app.h>
 #include <ifm3d/tools/ovp8xx/jsonschema_app.h>
 #include <ifm3d/tools/legacy/ls_app.h>
 #include <ifm3d/tools/legacy/passwd_app.h>

@@ -28,12 +28,6 @@ namespace ifm3d
     virtual void Execute(CLI::App* app) override;
     virtual CLI::App* CreateCommand(CLI::App* parent) override;
 
-    std::string input_file{"-"};
-    CLI::Option* config;
-    bool global_config{false};
-    bool network_config{false};
-    bool app_config{false};
-
   }; // end: class ImportApp
 } // end: namespace ifm3d
 
