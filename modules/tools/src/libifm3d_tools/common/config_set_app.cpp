@@ -23,11 +23,7 @@ ifm3d::ConfigSetApp::Execute(CLI::App* app)
   std::string jstr;
   std::string infile = this->config_file;
 
-  if (!this->path.empty())
-    {
-      jstr.assign(this->path);
-    }
-  else if (infile == "-")
+  if (infile == "-")
     {
       std::ostringstream buff;
 
@@ -59,6 +55,11 @@ ifm3d::ConfigSetApp::Execute(CLI::App* app)
                   (std::istreambuf_iterator<char>()));
     }
   device->FromJSONStr(jstr);
+
+  if (this->save)
+    {
+      std::static_pointer_cast<ifm3d::O3R>(device)->SaveInit();
+    }
 }
 
 CLI::App*
@@ -80,11 +81,9 @@ ifm3d::ConfigSetApp::CreateCommand(CLI::App* parent)
 
   if (Parent<ifm3d::OVP8xx>())
     {
-      command->add_option(
-        "--path",
-        this->path,
-        "Limit which part of the current configuration should be saved as "
-        "initial JSON. ");
+      command->add_flag("--save",
+                        this->save,
+                        "Save the new configuration as initial JSON");
     }
 
   return command;
