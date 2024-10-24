@@ -36,18 +36,14 @@ ifm3d::RebootApp::Execute(CLI::App* app)
 CLI::App*
 ifm3d::RebootApp::CreateCommand(CLI::App* parent)
 {
-  CLI::App* command =
-    parent
-      ->add_subcommand(
-        "reboot",
-        "Reboot the sensor, potentially into recovery mode. \nRecovery mode "
-        "is useful for putting the "
-        "sensor into a state where it can be flashed with new firmware.")
-      ->require_subcommand(0, 0);
+  CLI::App* command = parent->add_subcommand("reboot", "Reboot the sensor")
+                        ->require_subcommand(0, 0);
 
-  command->add_flag("-r,--recovery",
-                    this->recovery,
-                    "Reboot into recovery mode");
+  command->add_flag(
+    "-r,--recovery",
+    this->recovery,
+    "Reboot into recovery mode.\nRecovery mode is useful for putting the "
+    "sensor into a state where it can be flashed with new firmware.");
 
   return command;
 }
