@@ -40,7 +40,7 @@ namespace ifm3d
 
     std::vector<std::uint16_t> u16_buffer(npts);
     idx += data_offset;
-    for (auto i = 0; i < npts; ++i)
+    for (std::uint32_t i = 0; i < npts; ++i)
       {
         u16_buffer[i] = ifm3d::mkval<std::uint16_t>(data_buffer.data() + idx);
         idx += UINT16_DATA_SIZE;
@@ -54,7 +54,7 @@ namespace ifm3d
   {
     std::uint32_t data_offset{};
     std::vector<T> t_vector(size);
-    for (auto i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
       {
         t_vector[i] = ifm3d::mkval<T>(data_buffer + data_offset);
         data_offset += sizeof(T);
@@ -67,7 +67,7 @@ namespace ifm3d
   {
     std::uint32_t data_offset{};
     std::vector<float> floatVector(size);
-    for (auto i = 0; i < size; i++)
+    for (std::size_t i = 0; i < size; i++)
       {
         floatVector[i] = ifm3d::mkval<float>(data_buffer + data_offset);
         data_offset += FLOAT_DATA_SIZE;
@@ -249,7 +249,7 @@ namespace ifm3d
     std::vector<uint16_t> dist_u16(npts);
     uint16_t* u16Dist = (uint16_t*)dist_u16.data();
 
-    for (auto i = 0; i < npts; ++i)
+    for (unsigned int i = 0; i < npts; ++i)
       {
         u16Dist[i] = u16_distance_buffer[i];
       }

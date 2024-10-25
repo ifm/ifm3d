@@ -105,7 +105,7 @@ mad(const std::vector<T>& arr, T center)
 {
   std::size_t n = arr.size();
   std::vector<T> arr_d(n);
-  for (int i = 0; i < n; ++i)
+  for (std::size_t i = 0; i < n; ++i)
     {
       arr_d[i] = std::abs(arr[i] - center);
     }
