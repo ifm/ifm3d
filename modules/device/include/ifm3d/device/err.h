@@ -122,7 +122,7 @@ namespace ifm3d
     /**
      * Exception message
      */
-    virtual const char* what() const noexcept;
+    const char* what() const noexcept override;
 
     /**
      * Accessor to the underlying error code
