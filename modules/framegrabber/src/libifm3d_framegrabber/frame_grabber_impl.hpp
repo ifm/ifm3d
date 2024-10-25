@@ -177,11 +177,11 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
     pcic_port_(pcic_port.value_or(ifm3d::DEFAULT_PCIC_PORT)),
     io_service_(),
     sock_(),
+    finish_future_(std::async(std::launch::async, []() {})),
+    is_ready_(false),
     wait_for_frame_future(wait_for_frame_promise.get_future()),
     trigger_feedback_future_(trigger_feedback_promise_.get_future()),
-    ready_future_(ready_promise_.get_future()),
-    finish_future_(std::async(std::launch::async, []() {})),
-    is_ready_(false)
+    ready_future_(ready_promise_.get_future())
 {
   auto device_type = this->cam_->WhoAmI();
   if (device_type == Device::device_family::O3D)
@@ -694,7 +694,7 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
               this->new_frame_callback_(frame);
             }
         }
-      catch (ifm3d::Error ex)
+      catch (const ifm3d::Error &ex)
         {
           // We might get empty frames when we requesting only algo debug but
           // also enable async notifications or async errors, so we just ignore
@@ -707,7 +707,7 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
               LOG_WARNING("Bad image: {}", ex.message());
             }
         }
-      catch (std::exception ex)
+      catch (const std::exception &ex)
         {
           LOG_WARNING("Bad image: {}", ex.what());
         }

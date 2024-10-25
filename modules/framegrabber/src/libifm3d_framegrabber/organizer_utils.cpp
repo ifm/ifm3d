@@ -154,7 +154,7 @@ create_xyz_buffer(const std::vector<std::uint8_t>& data,
   int row = -1;
   int xyz_col = 0;
 
-  T* xyz_ptr;
+  T* xyz_ptr = NULL;
   T x_, y_, z_;
 
   constexpr T bad_pixel = 0;

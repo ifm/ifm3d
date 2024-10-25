@@ -24,12 +24,12 @@ namespace ifm3d
              const char* file,
              const char* function,
              size_t line)
-      : message_(message),
+      : time_(logging_clock::now()),
         log_level_(log_level),
-        file_(file),
-        func_(function),
+        message_(message),
         line_(line),
-        time_(logging_clock::now())
+        func_(function),
+        file_(file)
     {}
 
     const logging_timepoint&

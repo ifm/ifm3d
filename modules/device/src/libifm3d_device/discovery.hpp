@@ -130,7 +130,7 @@ namespace ifm3d
         ss << std::hex << std::setfill('0') << std::setw(2) << int(value);
       };
 
-      for (int i = 0; i < size - 1; i++)
+      for (size_t i = 0; i + 1 < size; i++)
         {
           converttoHexandAppend(mac[i]);
           ss << "::";
@@ -365,7 +365,7 @@ namespace ifm3d
               {
                 shared_this->_CheckTimeout();
               }
-            catch (std::system_error err)
+            catch (const std::system_error &err)
               {
                 if (err.code().category() == asio::system_category() &&
                     err.code().value() == asio::error::bad_descriptor)
@@ -402,7 +402,7 @@ namespace ifm3d
   public:
     IFMDeviceDiscovery() : work_guard_(asio::make_work_guard(io_context_))
     {
-      for (auto i = 0; i < THREADS_FOR_IO_OPERATIONS; i++)
+      for (unsigned int i = 0; i < THREADS_FOR_IO_OPERATIONS; i++)
         {
           thread_pool_.push_back(
             std::thread(std::bind([&] { io_context_.run(); })));

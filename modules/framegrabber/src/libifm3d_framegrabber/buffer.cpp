@@ -84,8 +84,8 @@ namespace ifm3d
 
 ifm3d::Buffer::Buffer()
   : data_(nullptr),
-    rows_(0),
     cols_(0),
+    rows_(0),
     nchannel_(0),
     data_size_in_bytes_(0),
     size_(0),
