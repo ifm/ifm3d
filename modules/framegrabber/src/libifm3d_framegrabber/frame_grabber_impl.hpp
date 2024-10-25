@@ -694,7 +694,7 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
               this->new_frame_callback_(frame);
             }
         }
-      catch (ifm3d::Error ex)
+      catch (const ifm3d::Error &ex)
         {
           // We might get empty frames when we requesting only algo debug but
           // also enable async notifications or async errors, so we just ignore
@@ -707,7 +707,7 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
               LOG_WARNING("Bad image: {}", ex.message());
             }
         }
-      catch (std::exception ex)
+      catch (const std::exception &ex)
         {
           LOG_WARNING("Bad image: {}", ex.what());
         }

@@ -365,7 +365,7 @@ namespace ifm3d
               {
                 shared_this->_CheckTimeout();
               }
-            catch (std::system_error err)
+            catch (const std::system_error &err)
               {
                 if (err.code().category() == asio::system_category() &&
                     err.code().value() == asio::error::bad_descriptor)
