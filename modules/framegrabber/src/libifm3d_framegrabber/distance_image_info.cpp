@@ -228,10 +228,10 @@ namespace ifm3d
       inverse_intrinsic_calibration(inv_intr_calib),
       u16_distance_buffer(distance_buffer),
       u16_amplitude_buffer(amplitude_buffer),
-      timestamps_nsec(timestamps_nsec),
-      exposure_times_sec(exposure_times_sec),
       width(w),
-      height(h)
+      height(h),
+      timestamps_nsec(timestamps_nsec),
+      exposure_times_sec(exposure_times_sec)
   {}
 
   std::vector<std::uint8_t>
