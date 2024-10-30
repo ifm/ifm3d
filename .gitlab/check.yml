@@ -29,3 +29,18 @@ check:vale-linting:
     - cd ${CI_PROJECT_DIR}/formatting-tools
     - git reset --hard ${FORMATTING_TOOLS_REF}
     - vale --minAlertLevel error ../doc/sphinx/* ../README.md ../ChangeLog.md
+
+check:large-files:
+  stage: check
+  image: bitnami/git
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - |
+      large_files=$(git rev-list --objects HEAD | git cat-file --batch-check='%(objectname) %(objectsize) %(rest)' | awk '$2 >= 100*1024*1024 {print $3 " [" $1 "]"}')
+      if [ -n "$large_files" ]; then
+        echo "Large files found:"
+        echo "$large_files"
+        exit 1
+      fi
+  
