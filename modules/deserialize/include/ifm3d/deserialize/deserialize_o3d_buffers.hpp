@@ -51,14 +51,44 @@ namespace ifm3d
     constexpr auto O3D_ILLU_TEMP_VALUES = 1;
   }
 
+  /*! @ingroup Deserialize
+   * \class ifm3d::O3DInstrinsicCalibration
+   * using O3DInstrinsicCalibration = ifm3d::ArrayDeserialize<float,
+   * O3D_NUMBER_OF_INTRINSIC_CALIBRATION_PARAM> \see ifm3d::ArrayDeserialize
+   */
   using O3DInstrinsicCalibration =
     ArrayDeserialize<float, O3D_NUMBER_OF_INTRINSIC_CALIBRATION_PARAM>;
+
+  /*! @ingroup Deserialize
+   * \class ifm3d::O3DInverseInstrinsicCalibration
+   * using O3DInverseInstrinsicCalibration = ifm3d::ArrayDeserialize<float,
+   * O3D_NUMBER_OF_INVERSE_INTRINSIC_CALIBRATION_PARAM> \see
+   * ifm3d::ArrayDeserialize
+   */
   using O3DInverseInstrinsicCalibration =
     ArrayDeserialize<float, O3D_NUMBER_OF_INVERSE_INTRINSIC_CALIBRATION_PARAM>;
+
+  /*! @ingroup Deserialize
+   * \class ifm3d::O3DExtrinsicCalibration
+   * using O3DExtrinsicCalibration = ifm3d::ArrayDeserialize<float,
+   * O3D_NUMBER_OF_EXTRINSIC_PARAM> \see ifm3d::ArrayDeserialize
+   */
   using O3DExtrinsicCalibration =
     ArrayDeserialize<float, O3D_NUMBER_OF_EXTRINSIC_PARAM>;
+
+  /*! @ingroup Deserialize
+   * \class ifm3d::O3DExposureTimes
+   * using O3DExposureTimes = ifm3d::ArrayDeserialize<uint32_t,
+   * O3D_NUMBER_OF_EXPOSURE_TIMES> \see ifm3d::ArrayDeserialize
+   */
   using O3DExposureTimes =
     ArrayDeserialize<uint32_t, O3D_NUMBER_OF_EXPOSURE_TIMES>;
+
+  /*! @ingroup Deserialize
+   * \class ifm3d::O3DILLUTemperature
+   * using O3DILLUTemperature = ifm3d::ArrayDeserialize<float,
+   * O3D_ILLU_TEMP_VALUES> \see ifm3d::ArrayDeserialize
+   */
   using O3DILLUTemperature = ArrayDeserialize<float, O3D_ILLU_TEMP_VALUES>;
 
 } // end namespace ifm3d
