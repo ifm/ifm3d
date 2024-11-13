@@ -16,10 +16,6 @@ $ sudo apt-get update && sudo apt-get -y upgrade
 $ sudo apt-get update && sudo apt-get install -y
       jq \ 
       libssl-dev \
-      libcurl4-openssl-dev \
-      libgoogle-glog-dev  \
-      libxmlrpc-c++8-dev \ 
-      libproj-dev \
       build-essential \
       coreutils \
       cmake                         
