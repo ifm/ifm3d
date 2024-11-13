@@ -26,9 +26,12 @@ target_link_libraries(ifm3d-swupdater-tests
   gtest_main
   ifm3d_common
   ifm3d_device
-  ifm3d_swupdater
   $<BUILD_INTERFACE:fmt::fmt-header-only>
 )
+
+if(BUILD_MODULE_SWUPDATER)
+  target_link_libraries(ifm3d-swupdater-tests ifm3d_swupdater)
+endif()
 
 if(NOT CMAKE_CROSSCOMPILING)
   add_custom_target(check_swupdater

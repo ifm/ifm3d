@@ -55,14 +55,20 @@ target_link_libraries(
   ifm3dpy
   PRIVATE 
     ifm3d_common
-    ifm3d_framegrabber
     ifm3d_device
     ifm3d_tools
-    ifm3d_swupdater
     ifm3d_deserialize
     pybind11::module
     $<BUILD_INTERFACE:fmt::fmt-header-only>
 )
+
+if(BUILD_MODULE_FRAMEGRABBER)
+  target_link_libraries(ifm3dpy PRIVATE ifm3d_framegrabber)
+endif()
+
+if(BUILD_MODULE_SWUPDATER)
+  target_link_libraries(ifm3dpy PRIVATE ifm3d_swupdater)
+endif()
 
 #------------------
 # Properties

@@ -8,8 +8,9 @@ target_include_directories(ifm3d_deserialize
     $<BUILD_INTERFACE:${IFM3D_FG_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
-
-target_link_libraries(ifm3d_deserialize INTERFACE ifm3d_framegrabber)
+if(BUILD_MODULE_FRAMEGRABBER)
+  target_link_libraries(ifm3d_deserialize INTERFACE ifm3d_framegrabber)
+endif()
 
 if(BUILD_TESTS)
   add_subdirectory(test)

@@ -23,9 +23,13 @@ ifm3d::OVP8xx::CreateCommand(CLI::App* parent)
     "factoryReset",
     "Resets the device to its factory settings");
   RegisterSubcommand<ifm3d::GetServiceReportApp>(command);
+#if defined(BUILD_MODULE_FRAMEGRABBER)
   RegisterSubcommand<ifm3d::StatApp>(command);
+#endif
   RegisterSubcommand<ifm3d::RebootApp>(command);
+#if defined(BUILD_MODULE_SWUPDATER)
   RegisterSubcommand<ifm3d::SWUpdateApp>(command);
+#endif
   return command;
 }
 

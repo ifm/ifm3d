@@ -23,7 +23,9 @@
 #include "bindings/error.h"
 #include "bindings/frame.h"
 #include "bindings/framegrabber.h"
-#include "bindings/swupdater.h"
+#if defined(BUILD_MODULE_SWUPDATER)
+#  include "bindings/swupdater.h"
+#endif
 #include "bindings/semver.h"
 #include "bindings/deserialize/deserialize.h"
 
@@ -161,10 +163,12 @@ PYBIND11_MODULE(ifm3dpy, m)
     "Frame");
   bind_framegrabber(framegrabber_module);
 
+#if defined(BUILD_MODULE_SWUPDATER)
   auto swupdater_module = m.def_submodule(
     "swupdater",
     R"(Provides utilities for managing the SWUpdate subsystem of the camera.)");
   bind_swupdater(swupdater_module);
+#endif
 
   auto deserializer_module = m.def_submodule(
     "deserialize",
@@ -181,5 +185,7 @@ PYBIND11_MODULE(ifm3dpy, m)
   m.attr("FrameGrabber") = framegrabber_module.attr("FrameGrabber");
   m.attr("Frame") = framegrabber_module.attr("Frame");
   m.attr("buffer_id") = framegrabber_module.attr("buffer_id");
+#if defined(BUILD_MODULE_SWUPDATER)
   m.attr("SWUpdater") = swupdater_module.attr("SWUpdater");
+#endif
 }

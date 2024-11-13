@@ -33,10 +33,13 @@ target_link_libraries(ifm3d-deserialize-tests
                       gtest_main
                       ifm3d_common
                       ifm3d_deserialize
-                      ifm3d_framegrabber
                       ifm3d_device
                       $<BUILD_INTERFACE:fmt::fmt-header-only>
                       )
+
+if (BUILD_MODULE_FRAMEGRABBER)
+  target_link_libraries(ifm3d-deserialize-tests ifm3d_framegrabber)
+endif()
 
 if(NOT CMAKE_CROSSCOMPILING)
   add_custom_target(check_deserialize

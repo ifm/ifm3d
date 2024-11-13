@@ -102,14 +102,18 @@ ifm3d::MainCommand::CreateCommand(CLI::App* parent)
     globalCommandDeprecationMessage);
   RegisterSubcommand<ifm3d::ExportApp>(parent)->SetDeprecated(
     globalCommandDeprecationMessage);
+#if defined(BUILD_MODULE_FRAMEGRABBER)
   RegisterSubcommand<ifm3d::HzApp>(parent)->SetDeprecated(
     globalCommandDeprecationMessage);
+#endif
   RegisterSubcommand<ifm3d::ImagerApp>(parent)->SetDeprecated(
     globalCommandDeprecationMessage);
   RegisterSubcommand<ifm3d::ImportApp>(parent)->SetDeprecated(
     globalCommandDeprecationMessage);
+#if defined(BUILD_MODULE_FRAMEGRABBER)
   RegisterSubcommand<ifm3d::JitterApp>(parent)->SetDeprecated(
     globalCommandDeprecationMessage);
+#endif
   RegisterSubcommand<ifm3d::JSONSchemaApp>(parent)->SetDeprecated(
     globalCommandDeprecationMessage);
   RegisterSubcommand<ifm3d::LsApp>(parent)->SetDeprecated(
@@ -122,8 +126,10 @@ ifm3d::MainCommand::CreateCommand(CLI::App* parent)
     globalCommandDeprecationMessage);
   RegisterSubcommand<ifm3d::RmApp>(parent)->SetDeprecated(
     globalCommandDeprecationMessage);
+#if defined(BUILD_MODULE_SWUPDATER)
   RegisterSubcommand<ifm3d::SWUpdateDeprecatedApp>(parent)->SetDeprecated(
     globalCommandDeprecationMessage);
+#endif
   RegisterSubcommand<ifm3d::TimeApp>(parent)->SetDeprecated(
     globalCommandDeprecationMessage);
   RegisterSubcommand<ifm3d::TraceApp>(parent)->SetDeprecated(
