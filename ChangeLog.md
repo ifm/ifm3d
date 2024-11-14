@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The documentation about the different available `buffer_id` has been updated to provide the complete list for each compatible device.
 - add `O3R_ODS_RENDERED_ZONES` `buffer_id`
 - Add `ovp8xx`,`o3x1xx` and `o3d3xx` and `discover` commands as a primary level subcommands to ifm3d command line interface
+- Add colored log output support on windows to differentiate between different log levels 
 
 ### Changed
 - Use CLI11 library instead of cxxopts for ifm3d command line interface

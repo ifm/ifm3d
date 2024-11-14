@@ -8,6 +8,14 @@
 #define IFM3D_COMMON_LOGGING_LOG_WRITER_CONSOLE_COLORED_H
 
 #include <ifm3d/common/logging/log_writer_console.h>
+#ifdef _WIN32
+#  ifndef WIN32_LEAN_AND_MEAN
+#    define WIN32_LEAN_AND_MEAN
+#  endif
+#  define NOMINMAX
+#  include <windows.h>
+#  undef GetMessage
+#endif
 
 namespace ifm3d
 {
@@ -21,12 +29,19 @@ namespace ifm3d
   public:
     LogWriterConsoleColored(Output out = Output::StdErr)
       : LogWriterConsole<Formatter>(out)
-    {}
+    {
+#ifdef _WIN32
+      colored_output_available_ =
+        this->is_a_tty_ && EnableVirtualTerminalProcessing();
+#else
+      colored_output_available_ = this->is_a_tty_;
+#endif
+    }
 
     void
     Write(const LogEntry& entry) override
     {
-      if (this->is_a_tty_)
+      if (this->colored_output_available_)
         {
           const auto str = Formatter::format(entry);
           const std::lock_guard<std::mutex> lock(this->mutex_);
@@ -42,6 +57,32 @@ namespace ifm3d
     }
 
   protected:
+    bool colored_output_available_ = false;
+#ifdef _WIN32
+    bool
+    EnableVirtualTerminalProcessing()
+    {
+      HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+      if (hOut == INVALID_HANDLE_VALUE)
+        {
+          return false;
+        }
+
+      DWORD dwMode = 0;
+      if (!GetConsoleMode(hOut, &dwMode))
+        {
+          return false;
+        }
+
+      dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+      if (!SetConsoleMode(hOut, dwMode))
+        {
+          return false;
+        }
+      return true;
+    }
+#endif
+
     void
     SetColor(LogLevel log_level)
     {
