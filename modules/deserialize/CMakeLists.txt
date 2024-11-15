@@ -16,3 +16,16 @@ if(BUILD_TESTS)
 else()
   message(WARNING "Skipping ${IFM3D_DESERIALIZE_MODULE_NAME} unit tests!")
 endif()
+
+################################################
+## Manage installation process
+################################################
+if(BUILD_SDK_PKG)
+  install(DIRECTORY ${IFM3D_DESERIALIZE_SOURCE_DIR}/include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    COMPONENT ifm3d
+    PATTERN "*.in" EXCLUDE
+    PATTERN ".git" EXCLUDE
+    PATTERN "*~" EXCLUDE
+  )
+endif()
