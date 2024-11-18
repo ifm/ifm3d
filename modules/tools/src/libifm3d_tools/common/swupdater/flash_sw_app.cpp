@@ -20,6 +20,9 @@
 #  include <fcntl.h>
 #endif
 
+const std::string ASCII_FORMAT_MAGIC_NUMBER = "070701";
+const std::string CRC_FORMAT_MAGIC_NUMBER = "070702";
+
 ifm3d::FlashSWApp::~FlashSWApp() {}
 
 void
@@ -84,72 +87,85 @@ ifm3d::FlashSWApp::Execute(CLI::App* app)
         });
     }
 
-  {
-    // Read the file in
-    if (!swu_file.empty())
+  auto validateSwuFileHeader = [](std::string& swu_file) -> bool {
+    std::ifstream file(swu_file, std::ios::binary);
+
+    if (file.good())
       {
-        //// Check if provided swu_file exists
-        // const std::filesystem::path infile =
-        // std::filesystem::u8path(swu_file);
+        char magic[6];
+        file.read(magic, 6);
+        std::string magicStr(magic, 6);
 
-        // if (!std::filesystem::exists(infile) ||
-        //    infile.extension().wstring() != L".swu")
-        //  {
-        //    std::cerr << "ifm3d error: File not found or invalid file.\n";
-        //    return;
-        //  }
-
-        // Reboot to recovery if not already in recovery
-        if (!swupdater->WaitForRecovery(-1))
-          {
-            if (!quiet)
-              {
-                std::cout << "Rebooting device to recovery mode..."
-                          << std::endl;
-              }
-            swupdater->RebootToRecovery();
-            if (!swupdater->WaitForRecovery(get_remaining_timeout()))
-              {
-                if (!quiet)
-                  {
-                    std::cout << "Timed out waiting for recovery mode"
-                              << std::endl;
-                  }
-                return;
-              }
-          }
-
-        if (!swupdater->FlashFirmware(swu_file, get_remaining_timeout()))
-          {
-            if (!quiet)
-              {
-                std::cout << "Timed out waiting for flashing to complete"
-                          << std::endl;
-              }
-            return;
-          }
-
-        swupdater->RebootToProductive();
-        if (!quiet)
-          {
-            std::cout << "Update successful, waiting for device to reboot..."
-                      << std::endl;
-          }
-        if (!swupdater->WaitForProductive(get_remaining_timeout()))
-          {
-            if (!quiet)
-              {
-                std::cout << "Timed out waiting for productive mode"
-                          << std::endl;
-              }
-            return;
-          }
-        if (!quiet)
-          {
-            std::cout << "SWUpdate Complete." << std::endl;
-          }
+        return (magicStr == ASCII_FORMAT_MAGIC_NUMBER ||
+                magicStr == CRC_FORMAT_MAGIC_NUMBER);
       }
-  }
+    else
+      {
+        return false;
+      }
+  };
+
+  // Read the file in
+  if (!swu_file.empty())
+    {
+      // Check if provided swu_file exists
+      const std::fstream infile{swu_file};
+
+      if ((swu_file != "-") && !validateSwuFileHeader(swu_file))
+        {
+          std::cerr << "ifm3d error: File not found or invalid file.\n";
+          return;
+        }
+
+      // Reboot to recovery if not already in recovery
+      if (!swupdater->WaitForRecovery(-1))
+        {
+          if (!quiet)
+            {
+              std::cout << "Rebooting device to recovery mode..." << std::endl;
+            }
+          swupdater->RebootToRecovery();
+          if (!swupdater->WaitForRecovery(get_remaining_timeout()))
+            {
+              if (!quiet)
+                {
+                  std::cout << "Timed out waiting for recovery mode"
+                            << std::endl;
+                }
+              return;
+            }
+        }
+
+      if (!swupdater->FlashFirmware(swu_file, get_remaining_timeout()))
+        {
+          if (!quiet)
+            {
+              std::cout << "Timed out waiting for flashing to complete"
+                        << std::endl;
+            }
+          return;
+        }
+
+      swupdater->RebootToProductive();
+      if (!quiet)
+        {
+          std::cout << "Update successful, waiting for device to reboot..."
+                    << std::endl;
+        }
+      if (!swupdater->WaitForProductive(get_remaining_timeout()))
+        {
+          if (!quiet)
+            {
+              std::cout << "Timed out waiting for productive mode"
+                        << std::endl;
+            }
+          return;
+        }
+      if (!quiet)
+        {
+          std::cout << "SWUpdate Complete." << std::endl;
+        }
+    }
 }
 
 CLI::App*
