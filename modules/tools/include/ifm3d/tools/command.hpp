@@ -87,6 +87,12 @@ namespace ifm3d
       return parent ? parent->CheckCompatibility() : true;
     }
 
+    CLI::App*
+    GetSubcommandApp()
+    {
+      return this->_context;
+    }
+
   private:
     Command* _parent = nullptr;
     std::vector<std::shared_ptr<Command>> _subcommands;

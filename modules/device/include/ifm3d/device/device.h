@@ -227,6 +227,13 @@ namespace ifm3d
     static std::vector<ifm3d::IFMNetworkDevice> DeviceDiscovery();
 
     /**
+     * @brief This function Provides a way to set temporary IP.
+     * @param[in] mac The MAC address of the device
+     * @param[in] temp_ip The temporary IP to be set to device
+     */
+    static void SetTempIPAddress(std::string mac, std::string temp_ip);
+
+    /**
      * Factory function for instantiating the proper subclass based on h/w
      * probing.
      *

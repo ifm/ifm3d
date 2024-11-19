@@ -6,6 +6,8 @@
 #include <ifm3d/tools/common/discover_app.h>
 #include <iostream>
 
+constexpr uint32_t BCAST_FLAG_WRONGSUBNET = 0x0001;
+
 ifm3d::DiscoverApp::~DiscoverApp() {}
 
 std::string
@@ -23,69 +25,89 @@ ifm3d::DiscoverApp::GetDeviceType(const ifm3d::Device::Ptr& cam)
 void
 ifm3d::DiscoverApp::Execute(CLI::App* app)
 {
-  auto devices = ifm3d::Device::DeviceDiscovery();
-  std::string parent_app = app->get_parent()->get_name();
-  std::stringstream ss;
-
-  if (!devices.empty())
+  if (!(this->subcmd_set_temp_ip->parsed()))
     {
-      for (const auto& device : devices)
+      auto devices = ifm3d::Device::DeviceDiscovery();
+      std::stringstream ss;
+
+      if (!devices.empty())
         {
-          auto ip_address = device.GetIPAddress();
-          try
+          for (const auto& device : devices)
             {
-              auto cam = ifm3d::Device::MakeShared(ip_address);
-              auto device_type = GetDeviceType(cam);
-              bool display_device = false;
-
-              if (device_type.empty())
+              auto ip_address = device.GetIPAddress();
+              try
                 {
-                  ss << ip_address << " (Unsupported device)" << std::endl;
-                }
-              else
-                {
-                  if ((device_type == "O3D") && (Parent<ifm3d::O3D3XX>()))
+                  if (device.GetFlag() == BCAST_FLAG_WRONGSUBNET)
                     {
-                      display_device = true;
+                      ss << ip_address << " [" << device.GetMACAddress()
+                         << "] (Device is in different "
+                            "subnet, set temporary IP to connect. Use "
+                            "'set-temporary-ip' subcommand) "
+                         << std::endl;
                     }
-                  else if ((device_type == "O3X") &&
-                           (Parent<ifm3d::O3X1XX_O3X2XX>()))
+                  else
                     {
-                      display_device = true;
-                    }
-                  else if ((device_type == "O3R") && (Parent<ifm3d::OVP8xx>()))
-                    {
-                      display_device = true;
-                    }
-                  else if (Parent<ifm3d::MainCommand>() &&
-                           !(Parent<ifm3d::OVP8xx>()) &&
-                           !(Parent<ifm3d::O3X1XX_O3X2XX>()) &&
-                           !(Parent<ifm3d::O3D3XX>()))
-                    {
-                      display_device = true;
-                    }
+                      auto cam = ifm3d::Device::MakeShared(ip_address);
+                      auto device_type = GetDeviceType(cam);
+                      bool display_device = false;
+                      if (device_type.empty())
+                        {
+                          ss << ip_address << " (Unsupported device)"
+                             << std::endl;
+                        }
+                      else
+                        {
+                          if ((device_type == "O3D") &&
+                              (Parent<ifm3d::O3D3XX>()))
+                            {
+                              display_device = true;
+                            }
+                          else if ((device_type == "O3X") &&
+                                   (Parent<ifm3d::O3X1XX_O3X2XX>()))
+                            {
+                              display_device = true;
+                            }
+                          else if ((device_type == "O3R") &&
+                                   (Parent<ifm3d::OVP8xx>()))
+                            {
+                              display_device = true;
+                            }
+                          else if (Parent<ifm3d::MainCommand>() &&
+                                   !(Parent<ifm3d::OVP8xx>()) &&
+                                   !(Parent<ifm3d::O3X1XX_O3X2XX>()) &&
+                                   !(Parent<ifm3d::O3D3XX>()))
+                            {
+                              display_device = true;
+                            }
 
-                  if (display_device)
-                    {
-                      ss << ip_address << " (" << device_type << ")"
-                         << " [" << device.GetMACAddress() << "]" << std::endl;
+                          if (display_device)
+                            {
+                              ss << ip_address << " (" << device_type << ")"
+                                 << " [" << device.GetMACAddress() << "]"
+                                 << std::endl;
+                            }
+                        }
                     }
                 }
+              catch (ifm3d::Error& e)
+                {
+                  if (e.code() == ifm3d::Error(IFM3D_XMLRPC_TIMEOUT).code())
+                    {
+                      ss << ip_address << " (Unable to identify) "
+                         << std::endl;
+                    }
+                }
+              catch (std::exception& exp)
+                {
+                  // ignore this device and search for next devices..
+                }
             }
-          catch (ifm3d::Error& e)
-            {
-              ss << ip_address << " (Unable to identify)" << std::endl;
-            }
-          catch (std::exception& exp)
-            {
-              // ignore this device and search for next devices..
-            }
+          std::cout << ss.str();
         }
-      std::cout << ss.str();
-    }
-  if (devices.empty() || ss.str().empty())
-    {
-      std::cout << "Info: No devices available" << std::endl;
+      if (devices.empty() || ss.str().empty())
+        {
+          std::cout << "Info: No devices available" << std::endl;
+        }
     }
 }
 
@@ -94,7 +116,10 @@ ifm3d::DiscoverApp::CreateCommand(CLI::App* parent)
 {
   CLI::App* command =
     parent->add_subcommand("discover", "Discover ifm devices on the network.")
-      ->require_subcommand(0, 0);
+      ->require_subcommand(0, 1);
+
+  subcmd_set_temp_ip =
+    RegisterSubcommand<ifm3d::SetTemporaryIPApp>(command)->GetSubcommandApp();
 
   return command;
 }

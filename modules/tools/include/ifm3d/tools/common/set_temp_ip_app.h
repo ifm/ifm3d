@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IFM3D_TOOLS_DISCOVER_APP_H
-#define IFM3D_TOOLS_DISCOVER_APP_H
+#ifndef IFM3D_TOOLS_SET_TEMP_IP_APP_H
+#define IFM3D_TOOLS_SET_TEMP_IP_APP_H
 
 #include <string>
 #include <ifm3d/tools/command.hpp>
@@ -16,20 +16,21 @@
 namespace ifm3d
 {
   /**
-   * Concrete implementation of the `discover` subcommand to the `ifm3d`
-   * command-line utility.
+   * Concrete implementation of the `discover set-temporary-ip` subcommand to
+   * the `ifm3d` command-line utility.
    */
-  class DiscoverApp : public Command
+  class SetTemporaryIPApp : public Command
   {
   public:
-    ~DiscoverApp();
+    ~SetTemporaryIPApp();
     virtual void Execute(CLI::App* app) override;
-    std::string GetDeviceType(const ifm3d::Device::Ptr& cam);
     virtual CLI::App* CreateCommand(CLI::App* parent) override;
 
-    CLI::App* subcmd_set_temp_ip;
-  }; // end: class
+    std::string mac{""};
+    std::string temp_ip{""};
+
+  }; // end: class SetTemporaryIPApp
 
 } // end: namespace ifm3d
 
-#endif // IFM3D_TOOLS_DISCOVER_APP_H
+#endif // IFM3D_TOOLS_SET_TEMP_IP_APP_H

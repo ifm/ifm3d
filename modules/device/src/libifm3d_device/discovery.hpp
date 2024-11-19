@@ -16,6 +16,7 @@
 #include <thread>
 #include <system_error>
 #include <ifm3d/device/ifm_network_device.h>
+#include <cstddef>
 #ifdef __unix__
 #  include <arpa/inet.h>
 #  include <sys/socket.h>
@@ -32,6 +33,9 @@ namespace ifm3d
 
   /** Broadcast request magic number. */
   constexpr uint32_t BCAST_MAGIC_REQUEST = 0x1020efcf;
+
+  /** Broadcast ipchange magic number. */
+  constexpr uint32_t BCAST_MAGIC_IPCHANGE = 0x1020efce;
 
   /** It signalize that network device is not in same subnet. */
   constexpr uint32_t BCAST_FLAG_WRONGSUBNET = 0x0001;
@@ -111,6 +115,28 @@ namespace ifm3d
     char devicename[256];
   };
 
+  /** Broadcast ipchange packet structure. */
+  struct BcastIPChange
+  {
+    /** Default magic number 0x1020efce. */
+    uint32_t magic;
+
+    /** Port to send reply to. */
+    uint16_t replyPort;
+
+    /** Unused. */
+    uint16_t reserved1;
+
+    /** Temporary ip address that should be set. */
+    uint32_t tempIP;
+
+    /** Unused. */
+    uint16_t reserved2;
+
+    /** Mac address of interface to change. */
+    uint8_t mac[6];
+  };
+
   namespace
   {
     inline const std::string
@@ -120,6 +146,24 @@ namespace ifm3d
       ss << ((addr >> 24) & 0xff) << "." << ((addr >> 16) & 0xff) << "."
          << ((addr >> 8) & 0xff) << "." << ((addr >> 0) & 0xff);
       return ss.str();
+    }
+
+    inline const uint32_t
+    str2Address(const std::string addr)
+    {
+      uint32_t str_addr = 0;
+      std::stringstream ss(addr);
+      std::string octet;
+      int shift = 24;
+
+      while (std::getline(ss, octet, '.'))
+        {
+          uint32_t num = std::stoi(octet);
+          str_addr |= (num << shift);
+          shift -= 8;
+        }
+
+      return str_addr;
     }
 
     inline const std::string
@@ -133,10 +177,26 @@ namespace ifm3d
       for (size_t i = 0; i + 1 < size; i++)
         {
           converttoHexandAppend(mac[i]);
-          ss << "::";
+          ss << ":";
         }
       converttoHexandAppend(mac[size - 1]);
       return ss.str();
+    }
+
+    inline std::array<uint8_t, 6>
+    macStr2MacUint8(const std::string& mac_str)
+    {
+      std::array<uint8_t, 6> mac;
+      std::stringstream ss(mac_str);
+      std::string byte_str;
+      int i = 0;
+
+      while (std::getline(ss, byte_str, ':') && i < 6)
+        {
+          mac[i] = static_cast<uint8_t>(std::stoul(byte_str, nullptr, 16));
+          ++i;
+        }
+      return mac;
     }
   }
 
@@ -254,6 +314,30 @@ namespace ifm3d
     void
     Send(const Data& data, asio::ip::udp::endpoint& remote_endpoint)
     {
+      socket_.async_send_to(asio::buffer((char*)data.data(), data.size()),
+                            remote_endpoint,
+                            std::bind(&UDPConnection::_HandleSend,
+                                      this,
+                                      std::placeholders::_1,
+                                      std::placeholders::_2));
+    }
+
+    /*Sends the data on the endpoint
+     *@param data Data to be send on endpoint
+     *@param Endpoint to send the data.
+     **/
+    void
+    SendIPChangeCall(Data& data, asio::ip::udp::endpoint& remote_endpoint)
+    {
+      int offsetPortInData = offsetof(BcastIPChange, replyPort);
+
+      if (offsetPortInData > 0 && offsetPortInData < data.size())
+        {
+          unsigned short local_port = ntohs(socket_.local_endpoint().port());
+          data[offsetPortInData] = (local_port & 0xFF);
+          data[offsetPortInData + 1] = ((local_port >> 8) & 0xFF);
+        }
+
       socket_.async_send_to(asio::buffer((char*)data.data(), data.size()),
                             remote_endpoint,
                             std::bind(&UDPConnection::_HandleSend,
@@ -393,7 +477,9 @@ namespace ifm3d
     {BCAST_MAGIC_REQUEST,
      [](size_t size) -> size_t { return sizeof(BcastRequest) - size; }},
     {BCAST_MAGIC_REPLY,
-     [](size_t size) -> size_t { return sizeof(BcastReply) - size; }}};
+     [](size_t size) -> size_t { return sizeof(BcastReply) - size; }},
+    {BCAST_MAGIC_IPCHANGE,
+     [](size_t size) -> size_t { return sizeof(BcastIPChange) - size; }}};
 
   const unsigned int THREADS_FOR_IO_OPERATIONS = 3;
 
@@ -408,6 +494,22 @@ namespace ifm3d
             std::thread(std::bind([&] { io_context_.run(); })));
         }
     }
+
+    ~IFMDeviceDiscovery()
+    {
+      /* stop the io_context */
+      io_context_.stop();
+
+      // wait for all threads to complete
+      for (std::thread& thread : thread_pool_)
+        {
+          if (thread.joinable())
+            {
+              thread.join();
+            }
+        }
+    }
+
     IFMDeviceDiscovery(IFMDeviceDiscovery&&) = delete;
     IFMDeviceDiscovery& operator=(IFMDeviceDiscovery&&) = delete;
     IFMDeviceDiscovery(IFMDeviceDiscovery&) = delete;
@@ -449,24 +551,24 @@ namespace ifm3d
           /* get the device list  this will block the thread
              till all NIC are scanned for devices */
           auto devices = _GetDeviceList();
-
-          /* stop the io_context after getting list */
-          io_context_.stop();
-
-          // wait for all threads to complete
-          for (std::thread& thread : thread_pool_)
-            {
-              if (thread.joinable())
-                {
-                  thread.join();
-                }
-            }
         }
       catch (std::exception& e)
         {
           std::cerr << e.what() << std::endl;
         }
       return device_list_;
+    }
+
+    void
+    SetTemporaryIP(std::string mac_address, std::string temp_ip)
+    {
+      auto addresses = _GetAllInterfaceAddress();
+
+      /* broadcast IP change request on all interfaces */
+      for (const auto& address : addresses)
+        {
+          _SendIPChangeBCast(mac_address, temp_ip, address);
+        }
     }
 
   private:
@@ -597,6 +699,10 @@ namespace ifm3d
               std::lock_guard<std::mutex> lock(device_list_lock_);
               device_list_.push_back(ifm_device);
             }
+          if (magic_value == BCAST_MAGIC_IPCHANGE)
+            {
+              std::cout << std::endl << "BCAST_IPCHANGE Packet received";
+            }
         }
     }
     /* return the discovered device list*/
@@ -631,6 +737,68 @@ namespace ifm3d
         }
       connection_list_.resize(0);
       cv_.notify_one();
+    }
+
+    /* Broadcast the IP change request */
+    void
+    _SendIPChangeBCast(std::string mac_address,
+                       std::string temp_ip,
+                       std::string interface_ip)
+    {
+      try
+        {
+          BcastIPChange ipc;
+          Data data;
+          data.resize(sizeof(BcastIPChange));
+          ipc.magic = htonl(BCAST_MAGIC_IPCHANGE);
+          ipc.tempIP = htonl(str2Address(temp_ip));
+          std::array<uint8_t, 6> mac_array = macStr2MacUint8(mac_address);
+          uint8_t* mac = mac_array.data();
+          memcpy(ipc.mac, mac, sizeof(ipc.mac));
+          std::memcpy(data.data(), &ipc, sizeof(BcastIPChange));
+
+          /** getting the netmask of the interface */
+          auto netmask = asio::ip::address_v4::netmask(
+            asio::ip::address_v4::from_string(interface_ip));
+
+          /**broadcast of the interface */
+          auto broadcast_address_of_interface =
+            asio::ip::address_v4::broadcast(
+              asio::ip::address_v4::from_string(interface_ip),
+              netmask)
+              .to_string();
+
+          /* create a local broadcast endpoint */
+          asio::ip::udp::endpoint broadcast_endpoint = asio::ip::udp::endpoint(
+            asio::ip::address::from_string(broadcast_address_of_interface),
+            BCAST_DEFAULT_PORT);
+
+          /* create a local endpoint */
+          asio::ip::udp::endpoint local_endpoint =
+            asio::ip::udp::endpoint(asio::ip::udp::v4(), BCAST_DEFAULT_PORT);
+
+          auto con =
+            std::make_shared<UDPConnection>(io_context_, local_endpoint);
+          con->RegisterOnReceive(std::bind(&IFMDeviceDiscovery::_OnReceive,
+                                           this,
+                                           std::placeholders::_1,
+                                           std::placeholders::_2,
+                                           std::placeholders::_3));
+          con->RegisterOnClose(
+            std::bind(&IFMDeviceDiscovery::_RemoveConnection,
+                      this,
+                      std::placeholders::_1));
+
+          /* send BcastIPChange to device */
+          con->SendIPChangeCall(data, broadcast_endpoint);
+
+          connection_list_.push_back(con);
+        }
+      catch (std::exception& e)
+        {
+          std::cerr << std::endl
+                    << "ifm3d exception: " << e.what() << std::endl;
+        }
     }
 
     asio::io_context io_context_;
