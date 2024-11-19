@@ -12,3 +12,6 @@ test:windows_2019:
     - cmake.exe -B build -G "Visual Studio 16 2019" -Ax64 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON -DBUILD_TESTS=ON -DGTEST_CMAKE_DIR=C:/googletest -Dgtest_force_shared_crt=TRUE -DBUILD_MODULE_TOOLS=OFF -DCMAKE_BUILD_TYPE=Release .
     - cd build
     - cmake.exe --build . --config Release --clean-first --target check
+  needs:
+    - job: build:windows_2019
+      artifacts: false
