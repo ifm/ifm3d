@@ -119,6 +119,17 @@ ifm3d::Device::DeviceDiscovery()
 }
 
 //================================================
+// Function for Setting Temporary IP Address
+//================================================
+
+void
+ifm3d::Device::SetTempIPAddress(std::string mac, std::string temp_ip)
+{
+  ifm3d::IFMDeviceDiscovery ifm_discovery;
+  ifm_discovery.SetTemporaryIP(mac, temp_ip);
+}
+
+//================================================
 // Factory function for making cameras
 //================================================
 ifm3d::Device::Ptr
