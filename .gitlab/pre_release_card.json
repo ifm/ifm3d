@@ -18,9 +18,9 @@
                                 "items": [
                                     {
                                         "type": "Image",
-                                        "width": "16px",
+                                        "width": "32px",
                                         "horizontalAlignment": "Center",
-                                        "url": "https://avatars.githubusercontent.com/u/43432334",
+                                        "url": "https://media.ifm.com/CIP/mediadelivery/asset/bb648c785ba2e740819ffc849db11e06/ifm-logo_standard_2000x2000px_rgb.png",
                                         "altText": "ifm Logo"
                                     }
                                 ],
