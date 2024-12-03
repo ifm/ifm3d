@@ -74,6 +74,10 @@ build:linux:docker:
     - job: build:linux:deb
       parallel:
         matrix: !reference [.configs, support-matrix]
+  rules:
+    - !reference [.tagged, rules]
+    - !reference [.nightly, rules]
+    - !reference [.manual, rules]
 
 # Python wheels
 build:linux:python_wheel:

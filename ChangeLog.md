@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.6.1 - 2024-11-27
 ### Added
-- Add `set-temporary-ip` subcommand under `discover` command to set temporary IP to device which is in wrong sub-net
+- Add `set-temporary-ip` subcommand under `discover` command to set temporary IP to device which is in wrong sub-net.
 
 ### Added
 - Add new subcommands `app` and `device` under import and export subcommands
