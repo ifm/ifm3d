@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Added missing Python binding methods
 - Added support for Python 3.13 and dropped support for Python 3.8.10
 - Added support for Ubuntu `24.04` and dropped support for Ubuntu `18.04`
 

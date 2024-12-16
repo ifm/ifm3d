@@ -9,8 +9,33 @@
 #include <pybind11/pybind11.h>
 
 void
+bind_ifmnetworkdevice(pybind11::module_& m)
+{
+  py::class_<ifm3d::IFMNetworkDevice>(m, "IFMNetworkDevice")
+    .def(py::init<std::vector<unsigned char>&, const std::string&>(),
+         py::arg("data"),
+         py::arg("ip_address_via_interface"))
+
+    .def_property_readonly("ip_address",
+                           &ifm3d::IFMNetworkDevice::GetIPAddress)
+    .def_property_readonly("mac_address",
+                           &ifm3d::IFMNetworkDevice::GetMACAddress)
+    .def_property_readonly("netmask", &ifm3d::IFMNetworkDevice::GetNetmask)
+    .def_property_readonly("gateway", &ifm3d::IFMNetworkDevice::GetGateway)
+    .def_property_readonly("port", &ifm3d::IFMNetworkDevice::GetPort)
+    .def_property_readonly("flag", &ifm3d::IFMNetworkDevice::GetFlag)
+    .def_property_readonly("host_name", &ifm3d::IFMNetworkDevice::GetHostName)
+    .def_property_readonly("device_name",
+                           &ifm3d::IFMNetworkDevice::GetDeviceName)
+    .def_property_readonly("vendor_id", &ifm3d::IFMNetworkDevice::GetVendorId)
+    .def_property_readonly("device_id", &ifm3d::IFMNetworkDevice::GetDeviceId)
+    .def_property_readonly("found_via", &ifm3d::IFMNetworkDevice::GetFoundVia);
+}
+
+void
 bind_device(pybind11::module_& m)
 {
+  bind_ifmnetworkdevice(m);
   // clang-format off
   py::class_<ifm3d::Device, ifm3d::Device::Ptr> device(
     m, "Device",
@@ -328,6 +353,31 @@ bind_device(pybind11::module_& m)
           encouraged to check the log file as a best effort is made to be
           as descriptive as possible as to the specific error that has
           occured.
+    )");
+
+  device.def(
+    "device_discovery", &ifm3d::Device::DeviceDiscovery,
+     R"(
+      Discover the list of devices in the network.
+
+      Returns:
+        list[dict]: A list of dictionaries, each containing the device's 
+                    IP address, MAC address and type.
+    )");
+
+  device.def(
+    "set_temp_ip_address",
+    &ifm3d::Device::SetTempIPAddress,
+     R"(
+      Set temporary IP address
+
+      Parameters
+      ----------
+      mac : string
+          MAC address of the device
+
+      temp_ip : string
+          Temporary IP addres of the device
     )");
   // clang-format on
 }
