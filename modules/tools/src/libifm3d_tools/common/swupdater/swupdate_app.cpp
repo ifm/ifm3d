@@ -25,31 +25,34 @@ ifm3d::SWUpdateApp::~SWUpdateApp() {}
 void
 ifm3d::SWUpdateApp::Execute(CLI::App* app)
 {
-  auto device = Parent<MainCommand>()->GetDevice(false);
-
-  ifm3d::SWUpdater::Ptr swupdater = std::make_shared<ifm3d::SWUpdater>(
-    device,
-    [](float p, const std::string& msg) -> void {});
-
-  if (detect)
+  if (!this->subcmd_flash->parsed() && !this->subcmd_restart->parsed())
     {
-      if (swupdater->WaitForRecovery(-1))
+      auto device = Parent<MainCommand>()->GetDevice(false);
+
+      ifm3d::SWUpdater::Ptr swupdater = std::make_shared<ifm3d::SWUpdater>(
+        device,
+        [](float p, const std::string& msg) -> void {});
+
+      if (detect)
         {
-          std::cout << "Device is in recovery mode." << std::endl;
-        }
-      else if (swupdater->WaitForProductive(-1))
-        {
-          std::cout << "Device is in productive mode." << std::endl;
+          if (swupdater->WaitForRecovery(-1))
+            {
+              std::cout << "Device is in recovery mode." << std::endl;
+            }
+          else if (swupdater->WaitForProductive(-1))
+            {
+              std::cout << "Device is in productive mode." << std::endl;
+            }
+          else
+            {
+              std::cout << "Unable to communicate with device." << std::endl;
+            }
+          return;
         }
       else
         {
-          std::cout << "Unable to communicate with device." << std::endl;
+          throw CLI::CallForHelp();
         }
-      return;
-    }
-  else
-    {
-      throw CLI::CallForHelp();
     }
 }
 
@@ -70,8 +73,10 @@ ifm3d::SWUpdateApp::CreateCommand(CLI::App* parent)
                     this->detect,
                     "Check the current mode of device");
 
-  RegisterSubcommand<ifm3d::FlashSWApp>(command);
-  RegisterSubcommand<ifm3d::RestartApp>(command);
+  subcmd_flash =
+    RegisterSubcommand<ifm3d::FlashSWApp>(command)->GetSubcommandApp();
+  subcmd_restart =
+    RegisterSubcommand<ifm3d::RestartApp>(command)->GetSubcommandApp();
 
   return command;
 }
