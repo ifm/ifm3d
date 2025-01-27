@@ -21,16 +21,22 @@ ifm3d::O3D3XX::CreateCommand(CLI::App* parent)
   RegisterSubcommand<ifm3d::DiscoverApp>(command);
   RegisterSubcommand<ifm3d::DumpApp>(command);
   RegisterSubcommand<ifm3d::ExportApp>(command);
+#if defined(BUILD_MODULE_FRAMEGRABBER)
   RegisterSubcommand<ifm3d::HzApp>(command);
+#endif
   RegisterSubcommand<ifm3d::ImagerApp>(command);
   RegisterSubcommand<ifm3d::ImportApp>(command);
+#if defined(BUILD_MODULE_FRAMEGRABBER)
   RegisterSubcommand<ifm3d::JitterApp>(command);
+#endif
   RegisterSubcommand<ifm3d::LsApp>(command);
   RegisterSubcommand<ifm3d::PasswordApp>(command);
   RegisterSubcommand<ifm3d::RebootApp>(command);
   RegisterSubcommand<ifm3d::ResetApp>(command);
   RegisterSubcommand<ifm3d::RmApp>(command);
+#if defined(BUILD_MODULE_SWUPDATER)
   RegisterSubcommand<ifm3d::SWUpdateApp>(command);
+#endif
   RegisterSubcommand<ifm3d::TimeApp>(command);
   RegisterSubcommand<ifm3d::TraceApp>(command);
 

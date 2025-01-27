@@ -7,7 +7,9 @@
 #include <ifm3d/tools/common/reboot_app.h>
 #include <iostream>
 #include <ifm3d/device/device.h>
-#include <ifm3d/swupdater.h>
+#if defined(BUILD_MODULE_SWUPDATER)
+#  include <ifm3d/swupdater.h>
+#endif
 
 ifm3d::RebootApp::~RebootApp() {}
 
@@ -20,6 +22,7 @@ ifm3d::RebootApp::Execute(CLI::App* app)
                                     ifm3d::Device::boot_mode::RECOVERY :
                                     ifm3d::Device::boot_mode::PRODUCTIVE;
 
+#if defined(BUILD_MODULE_SWUPDATER)
   ifm3d::SWUpdater::Ptr swupdater;
   swupdater = std::make_shared<ifm3d::SWUpdater>(device);
 
@@ -31,6 +34,9 @@ ifm3d::RebootApp::Execute(CLI::App* app)
     {
       device->Reboot(mode);
     }
+#else
+  device->Reboot();
+#endif
 }
 
 CLI::App*
