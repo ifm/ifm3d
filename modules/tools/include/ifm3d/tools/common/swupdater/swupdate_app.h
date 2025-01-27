@@ -25,6 +25,8 @@ namespace ifm3d
     virtual bool CheckCompatibility() override;
 
     bool detect{false};
+    CLI::App* subcmd_flash;
+    CLI::App* subcmd_restart;
 
   }; // end: class SWUpdateApp
 
