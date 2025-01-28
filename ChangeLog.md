@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the ifm3dpy .deb install location
 ### Added
 - Add `timestamp_ns` to `ODSPolarOccupancyGridV1`
+- Switch from the system Python version to Python 3.13 for all docker images
 
 ## 1.6.6 - 2025-02-19
 

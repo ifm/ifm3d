@@ -1,6 +1,9 @@
 # Set the base image
 ARG BASE_IMAGE=ubuntu:20.04
 
+# Set the Python version to use
+ARG PYTHON_VERSION=3.13
+
 # the cmake version to use for building
 ARG CMAKE_VERSION=3.20.6
 
@@ -15,15 +18,31 @@ ARG BASE_IMAGE
 # install python
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        build-essential \
         gnupg2 \
         wget \
+        curl \
         libssl-dev \
-        python3 \
-        python3-pip \
-        python3-venv \
-        python3-dev \
-        python3-numpy \
     && rm -rf /var/lib/apt/lists/*
+
+RUN echo "Setting up Uv package manager"
+# Install Uv package manager
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Ensure Uv's bin directory is in PATH
+ENV PATH="/root/.local/bin:$PATH"
+
+# Install Python 3.13 using uv
+RUN uv python install ${PYTHON_VERSION}
+
+# Create a virtual environment with python 3.13
+RUN uv venv --python="$(echo ${PYTHON_VERSION})" --seed /home/ifm/venv
+
+# Upgrade pip, setuptools, and wheel
+RUN /home/ifm/venv/bin/python -m pip install --upgrade pip setuptools wheel
+
+# Add the virtual environment's bin directory to PATH
+ENV PATH="/home/ifm/venv/bin:$PATH"
 
 # Create the ifm user
 RUN id ifm 2>/dev/null || useradd --uid 30000 --create-home -s /bin/bash -U ifm
@@ -47,8 +66,15 @@ RUN BASE_IMAGE_NAME=$(echo "${BASE_IMAGE}" | grep -o '[^/]*$' | cut -d":" -f1) \
     && ARCH=$(dpkg --print-architecture) \
     && cd /home/ifm/tmp/ \
     && dpkg -i ifm3d-${BASE_IMAGE_NAME}-${BASE_IMAGE_VERSION}-${ARCH}-*.deb \
-    && dpkg -i ifm3dpy-${BASE_IMAGE_NAME}-${BASE_IMAGE_VERSION}-${ARCH}-*.deb \
+    # && dpkg -i ifm3dpy-${BASE_IMAGE_NAME}-${BASE_IMAGE_VERSION}-${ARCH}-*.deb \
     && rm -rf /home/ifm/tmp
+
+# Copy wheels from the build context to the Docker image
+RUN echo "Copying wheels from ./filtered_wheels"
+COPY ./filtered_wheels /filtered_wheels
+
+# Install wheel
+RUN /home/ifm/venv/bin/pip install /filtered_wheels/*.whl 
 
 # Setup localisation
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
