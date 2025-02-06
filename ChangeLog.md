@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Deserialize module
   - Add struct `ODSPolarOccupancyGridV1`
 
+### Fixed
+- Added a fix in the Python binding to retrieve the application list correctly
+
 ## 1.6.3 - 2024-11-29
 
 ## 1.6.2 - 2024-11-28

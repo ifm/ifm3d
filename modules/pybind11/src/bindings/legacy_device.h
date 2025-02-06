@@ -195,7 +195,7 @@ bind_legacy_device(pybind11::module_& m)
 
   legacy_device.def(
     "application_list",
-    [](const ifm3d::LegacyDevice::Ptr& c) -> py::dict
+    [](const ifm3d::LegacyDevice::Ptr& c) -> py::list
     {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
@@ -215,8 +215,8 @@ bind_legacy_device(pybind11::module_& m)
 
       Returns
       -------
-      dict
-          A JSON encoding of the application information
+      list
+          A list of dictionaries representing JSON encoding of the application information
 
       Raises
       ------
