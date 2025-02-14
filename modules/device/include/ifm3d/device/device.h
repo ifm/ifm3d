@@ -114,6 +114,7 @@ namespace ifm3d
     O3R_RESULT_JSON = 1002,
     O3R_RESULT_ARRAY2D = 1003,
     O3R_RESULT_IMU = 1004,
+    O3R_ODS_POLAR_OCC_GRID = 1006,
   };
 
   class XMLRPCWrapper;

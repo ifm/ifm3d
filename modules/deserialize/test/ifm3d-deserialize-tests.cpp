@@ -14,6 +14,7 @@
 #include <ifm3d/deserialize/struct_rgb_info_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_info_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_occupancy_grid_v1.hpp>
+#include <ifm3d/deserialize/struct_o3r_ods_polar_occupancy_grid_v1.hpp>
 #include <ifm3d/deserialize/deserialize_o3d_buffers.hpp>
 #include <algorithm>
 #include <fstream>
@@ -21,6 +22,7 @@
 #include "rgb_info_test_data.hpp"
 #include "ods_info_test_data.hpp"
 #include "ods_occupancy_grid.hpp"
+#include "ods_polar_occupancy_grid.hpp"
 #include "o3d_parameters.hpp"
 #include "test_utils.hpp"
 #include <limits>
@@ -436,4 +438,28 @@ TEST(DeserializeTestWithO3D, struct_o3d_illu_temp_parameter)
   auto buffer = frame->GetBuffer(ifm3d::buffer_id::ILLUMINATION_TEMP);
 
   EXPECT_NO_THROW(ifm3d::O3DILLUTemperature::Deserialize(buffer));
+}
+
+TEST(DeserializeTestWithFile,
+     struct_ods_polar_occupancy_grid_v1_size_exception)
+{
+  auto buffer = ifm3d::Buffer(1, 5, 1, ifm3d::pixel_format::FORMAT_8U);
+
+  EXPECT_THROW(ifm3d::ODSPolarOccupancyGridV1::Deserialize(buffer),
+               ifm3d::Error);
+}
+
+TEST(DeserializeTestWithFile, struct_ods_polar_occupancy_grid_info_v1)
+{
+  auto buffer =
+    ifm3d::read_buffer_from_file("o3r_ods_polar_occupancy_grid.data");
+  auto ods_polar_occupancy_grid_v1 =
+    ifm3d::ODSPolarOccupancyGridV1::Deserialize(buffer);
+
+  EXPECT_EQ(ods_polar_occupancy_grid_v1.version,
+            ifm3d::ods_polar_occupancy_grid::version);
+
+  ifm3d::compare_array<uint16_t, 675>(
+    ods_polar_occupancy_grid_v1.polarOccGrid,
+    ifm3d::ods_polar_occupancy_grid::polarOccGrid);
 }
