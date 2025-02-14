@@ -58,7 +58,8 @@ bind_frame(pybind11::module_& m, pybind11::module_& ifm3dpy)
     .value("O3R_ODS_RENDERED_ZONES", ifm3d::buffer_id::O3R_ODS_RENDERED_ZONES)
     .value("XYZ", ifm3d::buffer_id::XYZ)      
     .value("EXPOSURE_TIME", ifm3d::buffer_id::EXPOSURE_TIME)      
-    .value("ILLUMINATION_TEMP", ifm3d::buffer_id::ILLUMINATION_TEMP);
+    .value("ILLUMINATION_TEMP", ifm3d::buffer_id::ILLUMINATION_TEMP)
+    .value("O3R_ODS_POLAR_OCC_GRID", ifm3d::buffer_id::O3R_ODS_POLAR_OCC_GRID);
 
   frame.def(
     "timestamps",

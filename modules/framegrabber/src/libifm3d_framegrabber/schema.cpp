@@ -114,6 +114,8 @@ const std::map<ifm3d::buffer_id, const ifm3d::json> o3r_schema_map{
    {{"type", "records"},
     {"id", "O3R_ODS_RENDERED_ZONES"},
     {"elements", {{{"type", "blob"}, {"id", "O3R_RESULT_ARRAY2D"}}}}}},
+  {ifm3d::buffer_id::O3R_ODS_POLAR_OCC_GRID,
+   {{"type", "blob"}, {"id", "O3R_ODS_POLAR_OCC_GRID"}}},
 };
 
 ifm3d::json
