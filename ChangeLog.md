@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.6.5 - 2025-02-18
+
 ## 1.6.4 - 2025-02-14
 ### Added
 - Added missing Python binding methods
