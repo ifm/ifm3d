@@ -5,7 +5,7 @@
     - shared_docker
   script:
     - |
-      pip install --no-cache-dir twine
+      pip install --no-cache-dir git+https://github.com/pypa/twine.git@239ffd2f67618bda8eefd2b45913fbcb8eee3866
       twine upload --skip-existing --non-interactive wheelhouse/*
 
 deploy:python_wheels_tagged:
