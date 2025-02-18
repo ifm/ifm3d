@@ -5,108 +5,51 @@
 
 `ifm3d` ships with a command line tool of the same name. The `ifm3d` command
 line tool is used to both introspect the state of a camera as well as mutate
-parameters. To carry out a particular task, you evoke one of the `ifm3d`
+parameters. 
+To carry out a particular task, you evoke one of the `ifm3d`
 *subcommands*. To get a listing of available subcommands, you can pass the
 `--help` option.
 
 ```
 $ ifm3d --help
-ifm3d: version=0.20.0
+ifm3d: version=1.6.6
 
-
-Usage:
-  ifm3d [<global options>] <command> [<args>]
-
- global options:
-  -h, --help             Produce this help message and exit
-      --ip arg           IP address of the sensor (default: 192.168.0.69)
-      --xmlrpc-port arg  XMLRPC port of the sensor (default: 80)
-      --password arg     Password for establishing an edit-session with the
-                         sensor (default: )
-
-These are common commands used in various situations:
-
-    app-types     List the application types supported by the sensor.
-
-    config        Configure sensor settings from a JSON description of
-                  the desired sensor state. See also `dump'.
-
-    cp            Create a new application on the sensor,
-                  bootstrapped from a copy of an existing one.
-
-    discover      Discover ifm devices on the network.
-
-    dump          Serialize the sensor state to JSON.
-
-    export        Export an application or whole sensor configuration
-                  into a format compatible with ifm Vision Assistant.
-
-    hz            Compute the actual frequency at which the FrameGrabber
-                  is running.
-
-    imager-types  List the imager types supported by the sensor.
-
-    import        Import an application or whole sensor configuration
-                  that is compatible with ifm Vision Assistant's export
-                  format.
-
-    jitter        Collects statistics on framegrabber (and optionally, image
-                  construction) jitter.
-
-    ls            Lists the applications currently installed on
-                  the sensor.
-
-    passwd        Sets the password on the sensor.
-
-    reboot        Reboot the sensor, potentially into recovery
-                  mode (no recovery mode for O3R).
-                  Recovery mode is useful for putting the
-                  sensor into a state where it can be flashed
-                  with new firmware.
-
-    reset         Reset the sensor to factory defaults.
-
-    rm            Deletes an application from the sensor.
-
-    schema        Construct and analyze image acquisition schema masks.
-
-    swupdate      Perform a firmware update on the camera. Please ensure
-                  that the camera is booted to recovery beforehand.
-
-    time          Get/set the current time on the camera.
-
-    trace         Get trace messages from the internal camera trace buffer.
-
-For bug reports, please see:
-https://github.com/ifm/ifm3d/issues
-
+TODO FILL OUT HERE
 ```
 
-As it is reported in the help output above, the `ifm3d` command line program
-accepts 1) a set of *global arguments* which control the particular platform you
-wish to communicate with; 2) a subcommand; and 3) arguments to the
-subcommand. To get a listing of the particular arguments accepted by a
-subcommand, you can pass the `--help` option to the subcommand. For exemplary
-purposes, let's list the options accepted by the `cp` subcommand.
+Each of the supported family of cameras, O3X1xx, O3D3xx and OVP8xx, provides specific subcommands that cater to their specific features. 
+To access these, the name of the camera family will be used as the first subcommand, followed by the command of interest. 
 
+For example, to read out the current configuration on a connected OVP8xx, one would use:
 ```
-$ ifm3d cp --help
-Usage:
-  ifm3d [<global options>] cp [<cp options>]
+ifm3d ovp8xx config get
 
- global options:
-  -h, --help             Produce this help message and exit
-      --ip arg           IP address of the sensor (default: 192.168.0.69)
-      --xmlrpc-port arg  XMLRPC port of the sensor (default: 80)
-      --password arg     Password for establishing an edit-session with the
-                         sensor (default: )
-
- cp options:
-      --index arg  Index of source application to copy (default: -1)
+TODO FILL OUT HERE
 ```
 
-As is shown above, `cp` takes a source application index to copy from. Note that the concept of applications is deprecated for the O3R platform.
+When accessing a device using non-default parameters, one can add global arguments to the command. 
+For example, to read out the current configuration of a connected VPU, at IP 192.168.0.70, one would use:
+```
+ifm3d ovp8xx config get --ip=192.168.0.70
 
-We now walk through a couple of simple examples of using `ifm3d`. This is not an
-exhaustive tutorial on `ifm3d` but rather intended to give a sense of how to
-use the tool. The concepts apply broadly to all of the subcommands.
+TODO FILL OUT HERE
+```
+
+The documentation for each command and subcommand is available using the `--help` argument. 
+For example, to display the documentation for the O3D3xx TODO TODO
+
+## Configuring
+
+Using the ifm3d CLI can be a quick way to configure or read out parts of the device configuration.
+The configuration uses the JSON format, which means that the command-line JSON processor `jq` can be used to further process the results (TODO is this still needed now?).
+
+For example, to change the name of an OVP8xx device, one can use:
+```
+ifm3d ovp8xx config set TODO
+```
+
+Alternatively, a configuration file can be used, by providing its path in the `--file` argument.
+For example:
+```
+ifm3d ovp8xx config set --file=TODO
+```
