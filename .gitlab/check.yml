@@ -43,24 +43,4 @@ check:large-files:
         echo "$large_files"
         exit 1
       fi
-
-check:check-change-log:
-  stage: check
-  image: bitnami/git
-  before_script:
-    - apk update && apk add git
-  script:
-    - |
-      git fetch
-      FILES_CHANGED=$(git diff --name-only $CI_MERGE_REQUEST_DIFF_BASE_SHA...HEAD)
-      for i in $FILES_CHANGED
-      do
-        if [[ "$i" == "ChangeLog.md" ]]
-        then
-          exit 0
-        fi
-      done
-      echo "Error: ChangeLog.md has not been modified."
-      exit 1
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  
