@@ -33,10 +33,20 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<ODSOccupancyGridV1>;
 
+    bool
+    IsValid(const uint8_t* data, size_t size)
+    {
+      if (size < ods_occupancy_grid_v1_minimum_size)
+        {
+          return false;
+        }
+      return true;
+    }
+
     void
     Read(const uint8_t* data, size_t size)
     {
-      if (size < ods_occupancy_grid_v1_minimum_size)
+      if (!IsValid(data, size))
         {
           throw ifm3d::Error(IFM3D_CORRUPTED_STRUCT);
         }
@@ -51,7 +61,7 @@ namespace ifm3d
         transform_cell_center_to_user);
       ods_occupancy_grid_v1_size =
         ods_occupancy_grid_v1_minimum_size + width * height;
-      if (size < ods_occupancy_grid_v1_size)
+      if (!IsValid(data, size))
         {
           throw ifm3d::Error(IFM3D_CORRUPTED_STRUCT);
         }
@@ -79,7 +89,7 @@ namespace ifm3d
     size_t ods_occupancy_grid_v1_size;
 
   private:
-    const size_t ods_occupancy_grid_v1_minimum_size = 40;
+    static constexpr size_t ods_occupancy_grid_v1_minimum_size = 40;
 
   public:
     static ODSOccupancyGridV1

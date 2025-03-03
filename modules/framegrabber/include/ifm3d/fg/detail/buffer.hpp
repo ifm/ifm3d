@@ -355,7 +355,8 @@ ifm3d::Buffer_<Tp>::create(const std::uint32_t cols, const std::uint32_t rows)
     cols,
     rows,
     static_cast<uint32_t>(ifm3d::FormatType<Tp>::nchannel),
-    static_cast<ifm3d::pixel_format>(ifm3d::FormatType<Tp>::format));
+    static_cast<ifm3d::pixel_format>(ifm3d::FormatType<Tp>::format),
+    static_cast<ifm3d::buffer_id>(bufferId_));
 }
 
 template <typename Tp>
