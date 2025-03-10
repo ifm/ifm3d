@@ -105,10 +105,11 @@ Subcommands:
 ## Configuring
 
 Using the ifm3d CLI can be a quick way to configure or read out parts of the device configuration.
+It can be used in conjunction with the tool [jq](https://jqlang.org/) to set portions of the configuration, or alternatively a configuration file in JSON format can be used.
 
 For example, to change the name of an OVP8xx device, one can use:
 ```
-ifm3d ovp8xx config set TODO
+$ echo {} | jq '.device.info.name="My favorite O3R"' | ifm3d ovp8xx config set
 ```
 
 Alternatively, a configuration file can be used, by providing its path in the `--file` argument.
