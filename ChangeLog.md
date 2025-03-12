@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed service report download issue
+
 ## 1.6.6 - 2025-02-19
 
 ## 1.6.5 - 2025-02-18

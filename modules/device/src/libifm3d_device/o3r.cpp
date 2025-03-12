@@ -165,7 +165,7 @@ ifm3d::O3R::SwUpdateVersion()
 }
 
 void
-ifm3d::O3R::DownloadServiceReport()
+ifm3d::O3R::DownloadServiceReport(std::string outFile)
 {
-  this->pImpl->DownloadServiceReport();
+  this->pImpl->DownloadServiceReport(outFile);
 }

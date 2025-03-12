@@ -62,7 +62,7 @@ namespace ifm3d
     void FactoryReset(bool keepNetworkSettings);
     void Reboot();
     void RebootToRecovery();
-    void DownloadServiceReport();
+    void DownloadServiceReport(std::string outFile);
 
   protected:
     std::shared_ptr<XMLRPCWrapper> xwrapper_;
@@ -338,15 +338,16 @@ WriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
 }
 
 void
-ifm3d::O3R::Impl::DownloadServiceReport()
+ifm3d::O3R::Impl::DownloadServiceReport(std::string outFile)
 {
+
+  std::string download_url =
+    "http://" + this->xwrapper_->IP() + "/service_report/";
   auto c = std::make_unique<ifm3d::CURLTransaction>();
-  std::ofstream ofs("service_report.zip", std::ios::binary);
+  std::ofstream ofs(outFile, std::ios::binary);
   curl_global_init(CURL_GLOBAL_ALL);
 
-  c->Call(curl_easy_setopt,
-          CURLOPT_URL,
-          "http://192.168.0.109/service_report/");
+  c->Call(curl_easy_setopt, CURLOPT_URL, download_url.c_str());
   c->Call(curl_easy_setopt, CURLOPT_WRITEFUNCTION, WriteCallback);
   c->Call(curl_easy_setopt, CURLOPT_WRITEDATA, &ofs);
 

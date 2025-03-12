@@ -14,7 +14,8 @@ void
 ifm3d::GetServiceReportApp::Execute(CLI::App* app)
 {
   auto device = Parent<MainCommand>()->GetDevice();
-  std::static_pointer_cast<ifm3d::O3R>(device)->DownloadServiceReport();
+  std::static_pointer_cast<ifm3d::O3R>(device)->DownloadServiceReport(
+    this->outfile);
 }
 
 CLI::App*
@@ -26,6 +27,12 @@ ifm3d::GetServiceReportApp::CreateCommand(CLI::App* parent)
                        "Get the service report of O3R VPU (only available for "
                        "firmware version 1.4.x and above)")
       ->require_subcommand(0, 0);
+
+  command
+    ->add_option("--outfile",
+                 this->outfile,
+                 "Save the serviceReport into outfile with .zip extension")
+    ->default_str("{service_report.zip}");
 
   return command;
 }

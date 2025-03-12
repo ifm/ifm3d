@@ -25,6 +25,8 @@ namespace ifm3d
     virtual void Execute(CLI::App* app) override;
     virtual CLI::App* CreateCommand(CLI::App* parent) override;
 
+    std::string outfile = "service_report.zip";
+
   }; // end: class GetServiceReportApp
 } // end: namespace ifm3d
 
