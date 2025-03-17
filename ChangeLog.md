@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed service report download issue
+### Added
+- Add `timestamp_ns` to `ODSPolarOccupancyGridV1`
 
 ## 1.6.6 - 2025-02-19
 

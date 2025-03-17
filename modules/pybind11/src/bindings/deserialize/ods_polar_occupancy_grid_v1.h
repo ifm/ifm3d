@@ -47,6 +47,13 @@ bind_struct_odspolaroccupancygridv1(pybind11::module_& m)
         given in [mm]. In case there are no occupied cells on the ray, the value 65535 is set.
       )");
 
+    ods_polar_occupancy_grid_v1.def_readonly(
+    "timestamp_ns",
+    &ifm3d::ODSPolarOccupancyGridV1::timestamp_ns,
+    R"(
+        timestamp of the grid
+      )");
+
     ods_polar_occupancy_grid_v1.def_static(
     "deserialize",
     [](py::array_t<uint8_t, py::array::c_style | py::array::forcecast> in)

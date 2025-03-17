@@ -22,6 +22,7 @@ namespace ifm3d
     constexpr auto ODS_POLAR_OCCUPANCY_GRID_VERSION_INDEX = 0x0000;
     constexpr auto ODS_POLAR_OCCUPANCY_GRID_POLAR_OCC_GRID_INDEX = 0x0004;
     constexpr auto ARRAY_SIZE = 675;
+    constexpr auto ODS_POLAR_OCCUPANCY_GRID_TIMESTAMP_NS_INDEX = 0x054A;
   };
 
   /** @ingroup Deserialize */
@@ -43,6 +44,8 @@ namespace ifm3d
       mkarray<uint16_t, ARRAY_SIZE>(
         start_ptr + ODS_POLAR_OCCUPANCY_GRID_POLAR_OCC_GRID_INDEX,
         polarOccGrid);
+      timestamp_ns = mkval<std::uint64_t>(
+        start_ptr + ODS_POLAR_OCCUPANCY_GRID_TIMESTAMP_NS_INDEX);
     };
 
     /*@brief Version number(current 1) of polar occupancy grid*/
@@ -54,6 +57,8 @@ namespace ifm3d
      * are no occupied cells on the ray, the value 65535 is set.
      */
     std::array<uint16_t, ARRAY_SIZE> polarOccGrid;
+    /*@brief Timestamp of polar occupany grid in [ns]*/
+    uint64_t timestamp_ns;
 
   private:
     static constexpr size_t ods_polar_occupancy_grid_v1_minimum_size = 1354;
