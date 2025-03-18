@@ -462,4 +462,7 @@ TEST(DeserializeTestWithFile, struct_ods_polar_occupancy_grid_info_v1)
   ifm3d::compare_array<uint16_t, 675>(
     ods_polar_occupancy_grid_v1.polarOccGrid,
     ifm3d::ods_polar_occupancy_grid::polarOccGrid);
+
+  EXPECT_EQ(ods_polar_occupancy_grid_v1.timestamp_ns,
+            ifm3d::ods_polar_occupancy_grid::timestamp_ns);
 }
