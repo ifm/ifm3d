@@ -168,9 +168,12 @@ TODO
 ```
 ### Service report
 In addition to the diagnostic, a service report can be downloaded. 
-It should be shared with ifm support team when requesting troubleshooting help, as it contains detailed information about the state and configuration of the system.
+The generated ZIP file should be shared with ifm support team when requesting troubleshooting help, as it contains detailed information about the state and configuration of the system.
+
 To download it, use:
 ```
-$ ifm3d ovp8xx getServiceReport
-TODO
+$ ifm3d ovp8xx getServiceReport > service_report.zip
+$ unzip service_report.zip
+$ ls
+configuration.json  deserializer_info.json  diagnostics.json  emmc_devices_health.json  filesystem_info.txt  journalctl.log  manifest.json  schema.json  service_report.zip
 ```
