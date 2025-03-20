@@ -160,12 +160,78 @@ $ ifm3d ovp8xx diagnostic get
 ```
 In the example above, there is no active diagnostics.
 
-By default, only the active diagnostic is displayed. To filter the diagnostic messages, for example to retrieve all active diagnostics related to the application `app0`, use:
+By default, only the active diagnostic is displayed. To filter the diagnostic messages, for example to retrieve all active diagnostics from the "/applications/instances/app0/type" source, use:
 ```
-$ ifm3d ovp8xx diagnostic get --filter '{"source":"/applications/instances/app0", "state": "active"}'
+$ ifm3d ovp8xx diagnostic get --filter '{"source": "/applications/instances/app0/type", "state": "active"}'
+{
+  "bootid": "7a4ea1e6-1869-4500-bd2d-c32aad956ca9",
+  "events": [
+    {
+      "description": "Short term unstable framerate of ODS input streams. This may happen sporadically (especially after changing the activePorts parameter). This might be caused by an overloaded system (please consider the potential influence of OEM Docker containers).",
+      "id": 105006,
+      "name": "ERROR_ODSAPP_UNSTABLE_FRAMERATES",
+      "severity": "minor",
+      "source": "/applications/instances/app0/type",
+      "state": "active",
+      "stats": {
+        "count": 1,
+        "lastActivated": {
+          "bootid": "7a4ea1e6-1869-4500-bd2d-c32aad956ca9",
+          "timestamp": "1703415152874733952"
+        },
+        "lastDeactivated": {
+          "bootid": "",
+          "timestamp": "0"
+        }
+      },
+      "targets": [
+        {
+          "description": "Targets one application",
+          "name": "app",
+          "node": "/applications/instances/app0"
+        }
+      ]
+    },
+  ],
+  "groups": {
+    "app0": "minor",
+    "app1": "not_available",
+    "app10": "not_available",
+    "app11": "not_available",
+    "app12": "not_available",
+    "app13": "not_available",
+    "app14": "not_available",
+    "app15": "not_available",
+    "app16": "not_available",
+    "app17": "not_available",
+    "app18": "not_available",
+    "app19": "not_available",
+    "app2": "not_available",
+    "app3": "not_available",
+    "app4": "not_available",
+    "app5": "not_available",
+    "app6": "not_available",
+    "app7": "not_available",
+    "app8": "not_available",
+    "app9": "not_available",
+    "port0": "no_incident",
+    "port1": "no_incident",
+    "port2": "no_incident",
+    "port3": "no_incident",
+    "port4": "not_available",
+    "port5": "not_available",
+    "port6": "no_incident"
+  },
+  "timestamp": "1703415367567905984",
+  "version": {
+    "diagnostics": "1.0.4",
+    "euphrates": "1.42.16",
+    "firmware": "1.20.19.6210"
+  }
+}
 
-TODO
 ```
+
 ### Service report
 In addition to the diagnostic, a service report can be downloaded. 
 The generated ZIP file should be shared with ifm support team when requesting troubleshooting help, as it contains detailed information about the state and configuration of the system.
