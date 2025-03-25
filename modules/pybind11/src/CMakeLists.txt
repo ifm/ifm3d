@@ -7,7 +7,7 @@ if(DEFINED PYTHON_PACKAGES_PATH)
   set(_python_install_path ${PYTHON_PACKAGES_PATH})
 else()
   execute_process(
-    COMMAND ${PYTHON_EXECUTABLE} -c "from sysconfig import get_paths; print(get_paths()['stdlib'].removeprefix('/usr'))"
+    COMMAND ${PYTHON_EXECUTABLE} -c "from sysconfig import get_paths; print(get_paths()['purelib'].removeprefix('/usr'))"
     OUTPUT_VARIABLE _site_packages
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
