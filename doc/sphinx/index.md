@@ -8,7 +8,7 @@ Overview <content/README>
 Installation instructions <content/installation_instructions/index>
 Migration Guide <content/migration_guide/index>
 Basic library usage <content/basic_lib_usage/index>
-Command Line tool <cli_link>
+Command Line tool <content/cmdline_overview>
 Manipulating images <content/manip_images/index>
 Python API <python_api>
 C++ API <cpp_api/annotated>

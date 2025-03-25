@@ -11,8 +11,8 @@ Comprehensive documentation is available on [ifm3d.com](https://ifm3d.com/).
 ![Build (Ubuntu)](https://github.com/ifm/ifm3d/workflows/Build%20(Ubuntu)/badge.svg?branch=master)
 ![Build (Windows)](https://github.com/ifm/ifm3d/workflows/Build%20(Windows)/badge.svg?branch=master)
 
-| 3D cloud | Distance | RGB |
-| -- | -- | -- |
+| 3D cloud                                 | Distance                                            | RGB                                        |
+| ---------------------------------------- | --------------------------------------------------- | ------------------------------------------ |
 | ![3D cloud of a stack of boxes](xyz.png) | ![Distance image of a stack of boxes](distance.png) | ![RGB image of a stack of boxes](jpeg.png) |
 
 ## Released Versions
@@ -28,25 +28,32 @@ For a full compatibility matrix between the ifm3d library, the O3R firmware and 
 
 ifm3d is a C++ based library, with a Python wrapper mirroring the available features. We support the following versions of these two languages:
 
-| Name      | Versions              |
-| --------- | --------------------- |
-| Python    | 3.8, 3.9, 3.10, 3.11  |
-| C++       | GCC 7.5+, MSVC 2019+  |
+| Name   | Versions                    |
+| ------ | --------------------------- |
+| Python | 3.9, 3.10, 3.11, 3.12, 3.13 |
+| C++    | GCC 7.5+, MSVC 2019+        |
 
+## Supported operating systems
+
+ifm3d currently support the following OS:
+| Name    | Versions            | Comment                                                                              |
+| ------- | ------------------- | ------------------------------------------------------------------------------------ |
+| Ubuntu  | 20.04, 22.04, 24.04 |                                                                                      |
+| Windows | Windows server 2019 | ifm3d is known to work for other Windows distributions but is not explicitly tested. |
 
 ## Organization of the Software
 
 The ifm3d software is organized into modules, they are:
 
-| Module name | Description |
-| ----------- | ----------- |
-| `device`      | Provides an implementation of the XMLRPC protocol for configuring the camera and pmd imager settings. |
-| `framegrabber` | Provides an implementation of the PCIC protocol for streaming pixel data and triggered image acquisition.|
-| `swupdater`  | Provides utilities for managing the `SWUpdate` subsystem of the camera. |
-| `pcicclient` | Direct access to PCIC to, for example, actuate digital IO.|
-| `tools` | Provides the ifm3d command line tool for manipulating and introspecting the hardware interactively. It is also suitable for usage within shell scripts to, for example, manage fleets of cameras.|
-| `pybind11` | Provides Python bindings through <a href="https://github.com/pybind/pybind11">pybind11</a> to the native C++ API. Supports all general camera functionality as well as a zero-copy interface to image data, exposed as NumPy arrays. |
-| `deserialize` | Provides definitions and functions for deserializing structs sent over PCIC. |
+| Module name    | Description                                                                                                                                                                                                                          |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `device`       | Provides an implementation of the XMLRPC protocol for configuring the camera and pmd imager settings.                                                                                                                                |
+| `framegrabber` | Provides an implementation of the PCIC protocol for streaming pixel data and triggered image acquisition.                                                                                                                            |
+| `swupdater`    | Provides utilities for managing the `SWUpdate` subsystem of the camera.                                                                                                                                                              |
+| `pcicclient`   | Direct access to PCIC to, for example, actuate digital IO.                                                                                                                                                                           |
+| `tools`        | Provides the ifm3d command line tool for manipulating and introspecting the hardware interactively. It is also suitable for usage within shell scripts to, for example, manage fleets of cameras.                                    |
+| `pybind11`     | Provides Python bindings through <a href="https://github.com/pybind/pybind11">pybind11</a> to the native C++ API. Supports all general camera functionality as well as a zero-copy interface to image data, exposed as NumPy arrays. |
+| `deserialize`  | Provides definitions and functions for deserializing structs sent over PCIC.                                                                                                                                                         |
 
 ## Installation instructions
 Please refer to the corresponding section on [ifm3d.com](https://ifm3d.com/).
