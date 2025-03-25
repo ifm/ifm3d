@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed service report download issue
+- Fixed the ifm3dpy .deb install location
 ### Added
 - Add `timestamp_ns` to `ODSPolarOccupancyGridV1`
 
