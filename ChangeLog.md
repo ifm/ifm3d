@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Add struct `ODSExtrinsicCalibrationCorrectionV1` in Deserialize module
+
 ## 1.6.7 - 2025-03-28
 - Update the CLI documentation 
 
