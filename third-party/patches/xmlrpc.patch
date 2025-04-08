@@ -1,7 +1,16 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index fe89c23..622575d 100644
+index fe89c23..f691fcf 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
+@@ -4,7 +4,7 @@ include(FindPkgConfig)
+ include(CheckIncludeFile)
+ include(CheckFunctionExists)
+ 
+-cmake_minimum_required(VERSION 2.8.8)
++cmake_minimum_required(VERSION 3.11)
+ 
+ if(COMMAND cmake_policy)
+   cmake_policy(SET CMP0003 NEW)
 @@ -89,9 +89,9 @@ else(DEFINED MUST_BUILD_CURL_CLIENT)
    set(tmp)
  endif(DEFINED MUST_BUILD_CURL_CLIENT)
