@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.11)
-cmake_policy(SET CMP0048 NEW)
+
+# We can't replace FetchContent_Populate due to the minimum cmake version
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.30.0") 
+  cmake_policy(SET CMP0169 OLD)
+endif()
+
 
 # Some generic settings
 include(cmake/StandardProjectSettings.cmake)

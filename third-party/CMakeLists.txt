@@ -38,7 +38,7 @@ FetchContent_Declare(
   GIT_TAG "31b26e833bf00265a500ae0afe58775703670654"
   GIT_PROGRESS ON
   GIT_SHALLOW ON
-  PATCH_COMMAND git apply  --ignore-space-change --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/patches/xmlrpc.patch
+  PATCH_COMMAND git checkout -q . && git apply  --ignore-space-change --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/patches/xmlrpc.patch
 )
 
 if(NOT xmlrpc-c_POPULATED)
