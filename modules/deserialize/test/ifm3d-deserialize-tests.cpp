@@ -15,6 +15,7 @@
 #include <ifm3d/deserialize/struct_o3r_ods_info_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_occupancy_grid_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_polar_occupancy_grid_v1.hpp>
+#include <ifm3d/deserialize/struct_o3r_ods_extrinsic_calibration_correction_v1.hpp>
 #include <ifm3d/deserialize/deserialize_o3d_buffers.hpp>
 #include <algorithm>
 #include <fstream>
@@ -23,6 +24,7 @@
 #include "ods_info_test_data.hpp"
 #include "ods_occupancy_grid.hpp"
 #include "ods_polar_occupancy_grid.hpp"
+#include "ods_extrinsic_calibration_correction.hpp"
 #include "o3d_parameters.hpp"
 #include "test_utils.hpp"
 #include <limits>
@@ -465,4 +467,54 @@ TEST(DeserializeTestWithFile, struct_ods_polar_occupancy_grid_info_v1)
 
   EXPECT_EQ(ods_polar_occupancy_grid_v1.timestamp_ns,
             ifm3d::ods_polar_occupancy_grid::timestamp_ns);
+}
+
+TEST(DeserializeTestWithFile,
+     struct_ods_extrinsic_calibration_correction_v1_size_exception)
+{
+  auto buffer = ifm3d::Buffer(1, 5, 1, ifm3d::pixel_format::FORMAT_8U);
+
+  EXPECT_THROW(ifm3d::ODSExtrinsicCalibrationCorrectionV1::Deserialize(buffer),
+               ifm3d::Error);
+}
+
+TEST(DeserializeTestWithDevice, struct_ods_extrinsic_calibration_correction_v1)
+{
+  auto dev = std::make_shared<ifm3d::O3R>();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(dev, 51010);
+
+  fg->Start({ifm3d::buffer_id::O3R_ODS_EXTRINSIC_CALIBRATION_CORRECTION});
+  auto frame = fg->WaitForFrame().get();
+
+  auto buffer = frame->GetBuffer(
+    ifm3d::buffer_id::O3R_ODS_EXTRINSIC_CALIBRATION_CORRECTION);
+
+  EXPECT_NO_THROW(
+    ifm3d::ODSExtrinsicCalibrationCorrectionV1::Deserialize(buffer));
+}
+
+TEST(DeserializeTestWithFile, struct_ods_extrinsic_calibration_correction_v1)
+{
+  auto buffer = ifm3d::read_buffer_from_file(
+    "o3r_ods_extrinsic_calibration_correction.data");
+  auto ods_extrinsic_calibration_correction_v1 =
+    ifm3d::ODSExtrinsicCalibrationCorrectionV1::Deserialize(buffer);
+
+  EXPECT_EQ(ods_extrinsic_calibration_correction_v1.version,
+            ifm3d::ods_extrinsic_calibration_correction::version);
+
+  EXPECT_EQ(ods_extrinsic_calibration_correction_v1.completion_rate,
+            ifm3d::ods_extrinsic_calibration_correction::completion_rate);
+
+  ifm3d::compare_array<float, 3>(
+    ods_extrinsic_calibration_correction_v1.rot_delta_value,
+    ifm3d::ods_extrinsic_calibration_correction::rot_delta_value);
+
+  ifm3d::compare_array<uint8_t, 3>(
+    ods_extrinsic_calibration_correction_v1.rot_delta_valid,
+    ifm3d::ods_extrinsic_calibration_correction::rot_delta_valid);
+
+  ifm3d::compare_array<float, 3>(
+    ods_extrinsic_calibration_correction_v1.rot_head_to_user,
+    ifm3d::ods_extrinsic_calibration_correction::rot_head_to_user);
 }

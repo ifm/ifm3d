@@ -116,6 +116,12 @@ const std::map<ifm3d::buffer_id, const ifm3d::json> o3r_schema_map{
     {"elements", {{{"type", "blob"}, {"id", "O3R_RESULT_ARRAY2D"}}}}}},
   {ifm3d::buffer_id::O3R_ODS_POLAR_OCC_GRID,
    {{"type", "blob"}, {"id", "O3R_ODS_POLAR_OCC_GRID"}}},
+  {ifm3d::buffer_id::O3R_ODS_EXTRINSIC_CALIBRATION_CORRECTION,
+   {{"type", "records"},
+    {"id", "O3R_ODS_EXTRINSIC_CALIBRATION_CORRECTION"},
+    {"elements",
+     {{{"type", "blob"},
+       {"id", "O3R_ODS_EXTRINSIC_CALIBRATION_CORRECTION"}}}}}},
 };
 
 ifm3d::json
