@@ -8,3 +8,4 @@ examples/o3r/oem/ssh/.*
 *.h5
 .cache
 doc/sphinx/_autosummary
+/local/
