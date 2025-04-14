@@ -51,7 +51,7 @@ if(BUILD_MODULE_PCICCLIENT)
     target_link_libraries(libifm3d PRIVATE ifm3d_pcicclient)
     target_include_directories(libifm3d
       INTERFACE
-        $<BUILD_INTERFACE:${IFM3D_FRAMEGRABBER_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${IFM3D_PCICCLIENT_SOURCE_DIR}/include>
     )
 endif()
 
