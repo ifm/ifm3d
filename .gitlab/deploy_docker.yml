@@ -69,7 +69,7 @@ deploy:linux:docker_tagged:
   rules:
     - !reference [.tagged, rules]
 
-deploy:linux:docker_nightly:
+deploy:linux:docker_latest:
   extends: .docker_manifest
   needs:
     - job: build:linux:docker
@@ -77,4 +77,18 @@ deploy:linux:docker_nightly:
   script:
     - !reference [.docker_deploy, latest]
   rules:
+    - !reference [.tagged, rules]
     - !reference [.nightly, rules]
+
+deploy:linux:docker_stable:
+  extends: .docker_manifest
+  needs:
+    - job: deploy:start
+      artifacts: false
+    - job: build:linux:docker
+      artifacts: false
+  script:
+    - !reference [.docker_deploy, stable]
+  rules:
+    - !reference [.tagged, rules]
+
