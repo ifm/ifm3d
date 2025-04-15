@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Retrieval of `Buffer`s with multiple channels from Python
+- Fixed Python issues on docker container
 
 ## 1.6.7 - 2025-03-28
 - Update the CLI documentation 
