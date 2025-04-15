@@ -587,7 +587,7 @@ TEST_F(FrameGrabberTest, metadata)
 
   // setup device for PDS application
   ifm3d::json json_command_extrinsic =
-    "{ \"ports\":{\"port2\":{\"processing\":{\"extrinsicHeadToUser\":{\"rotX\":1.57,\"rotY\" : -1.57,\"rotZ\" : 0,\"transX\" : 0,\"transY\" : 0,\"transZ\" : 0}}}} }"_json;
+    "{ \"ports\":{\"port2\":{\"processing\":{\"extrinsicHeadToUser\":{\"rotX\":0.0047429079134991,\"rotY\" :2.110169438134602,\"rotZ\" :-1.5899949128649966 ,\"transX\" : 0.269,\"transY\" : -0.163,\"transZ\" : 0.514}}}} }"_json;
 
   o3r->Set(json_command_extrinsic);
 
@@ -601,15 +601,26 @@ TEST_F(FrameGrabberTest, metadata)
   auto fg = std::make_shared<ifm3d::FrameGrabber>(o3r, FG_PCIC_PORT);
 
   // Set Schema and start the grabber
-  fg->Start(
-    {ifm3d::buffer_id::O3R_RESULT_JSON, ifm3d::buffer_id::O3R_RESULT_ARRAY2D});
+  fg->Start({ifm3d::buffer_id::O3R_RESULT_JSON,
+             ifm3d::buffer_id::O3R_RESULT_ARRAY2D})
+    .wait();
 
-  ifm3d::json json_command =
-    "{ \"applications\":{\"instances\":{\"app0\":{\"configuration\":{\"customization\":{\"command\":\"getPallet\"}}}}} }"_json;
+  auto current_config = o3r->Get();
+  std::string current_command = current_config
+    ["/applications/instances/app0/configuration/customization/command"_json_pointer];
 
-  o3r->Set(json_command);
+  auto future = fg->WaitForFrame();
 
-  auto frame = fg->WaitForFrame().get();
+  if (current_command == "nop")
+    {
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      ifm3d::json json_command_getPallet =
+        "{ \"applications\":{\"instances\":{\"app0\":{\"configuration\":{\"customization\":{\"command\":\"getPallet\"}}}}} }"_json;
+
+      o3r->Set(json_command_getPallet);
+    }
+
+  auto frame = future.get();
 
   EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::O3R_RESULT_JSON));
 
