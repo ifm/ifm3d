@@ -156,6 +156,10 @@ if(BUILD_MODULE_TOOLS)
   add_subdirectory(modules/tools)
 endif()
 
+if(IS_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/local)
+  add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/local)
+endif()
+
 #################################################
 # Documentation
 #################################################

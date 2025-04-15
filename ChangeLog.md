@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add struct `ODSExtrinsicCalibrationCorrectionV1` in Deserialize module
 - Support for CMake 4.0
 
+### Fixed
+- Retrieval of `Buffer`s with multiple channels from Python
+
 ## 1.6.7 - 2025-03-28
 - Update the CLI documentation 
 

@@ -328,17 +328,15 @@ ifm3d::Buffer_<Tp>::Buffer_(const std::uint32_t cols,
 template <typename Tp>
 ifm3d::Buffer_<Tp>::Buffer_(const Buffer& img) : Buffer()
 {
-  *this = img;
+  Buffer::operator=(img);
 }
 
 template <typename Tp>
 ifm3d::Buffer_<Tp>&
 ifm3d::Buffer_<Tp>::operator=(const Buffer& img)
 {
-  if (static_cast<ifm3d::pixel_format>(ifm3d::FormatType<Tp>::format) ==
-        img.dataFormat() &&
-      static_cast<uint32_t>(ifm3d::FormatType<Tp>::nchannel) ==
-        img.nchannels())
+  if (this->dataFormat() == img.dataFormat() &&
+      this->nchannels() == img.nchannels())
     {
       Buffer::operator=(img);
       return *this;
