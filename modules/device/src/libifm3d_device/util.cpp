@@ -8,7 +8,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <iostream>
 #include <httplib.h>
 #include <fmt/format.h>
 #ifdef _WIN32

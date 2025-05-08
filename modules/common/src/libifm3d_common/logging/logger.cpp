@@ -5,8 +5,8 @@
 ifm3d::Logger&
 ifm3d::Logger::Get()
 {
-  static Logger instance;
-  return instance;
+  static Logger INSTANCE;
+  return INSTANCE;
 }
 std::string
 ifm3d::LogFormatterText::format(const LogEntry& entry)

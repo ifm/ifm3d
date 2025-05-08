@@ -5,7 +5,6 @@
  */
 
 #include <ifm3d/tools/common/reset_app.h>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <ifm3d/device.h>

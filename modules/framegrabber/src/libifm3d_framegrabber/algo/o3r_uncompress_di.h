@@ -7,12 +7,10 @@
 #ifndef O3R_UNCOMPRESS_DI_H
 #define O3R_UNCOMPRESS_DI_H
 
+#include <cstdint>
+
 namespace ifm3d
 {
-// extern "C" {
-#include <cstddef>
-#include <stdint.h>
-#include <cstdint>
 
   /**
    @brief c code example for converting the distance matrix to cartesian

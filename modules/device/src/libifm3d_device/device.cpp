@@ -6,7 +6,6 @@
 
 #include <ifm3d/device/device.h>
 #include <string>
-#include <sstream>
 #include <vector>
 #include <ifm3d/device/o3d.h>
 #include <ifm3d/device/o3r.h>

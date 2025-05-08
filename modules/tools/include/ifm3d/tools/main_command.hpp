@@ -5,6 +5,7 @@
 
 #ifndef IFM3D_TOOLS_COMMANDS_MAIN_HPP
 #define IFM3D_TOOLS_COMMANDS_MAIN_HPP
+#pragma once
 
 #include <ifm3d/tools/command.hpp>
 #include <ifm3d/tools.h>

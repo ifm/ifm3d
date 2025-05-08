@@ -5,8 +5,8 @@
 
 #ifndef IFM3D_TOOLS_SWUPDATER_SWUPDATE_APP_H
 #define IFM3D_TOOLS_SWUPDATER_SWUPDATE_APP_H
+#pragma once
 
-#include <string>
 #include <ifm3d/tools/command.hpp>
 #include <ifm3d/tools/main_command.hpp>
 #include <ifm3d/swupdater.h>

@@ -5,14 +5,9 @@
 
 #include <ifm3d/common/features.h>
 #include <ifm3d/tools/common/swupdater/flash_sw_app.h>
-#include <exception>
 #include <iostream>
-#include <istream>
 #include <fstream>
-#include <memory>
-#include <vector>
 #include <chrono>
-#include <filesystem>
 #include <ifm3d/device.h>
 #include <ifm3d/swupdater.h>
 

@@ -7,7 +7,6 @@
 #include <math.h>
 #include <memory.h>
 
-#include <cstddef>
 #include <cstdint>
 
 #ifndef M_PI

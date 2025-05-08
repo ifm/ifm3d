@@ -4,10 +4,10 @@
  */
 
 #ifndef IFM3D_FG_O3R_ORGANIZER_3D_H
-#  define IFM3D_FG_O3D_ORGANIZER_3D_H
+#define IFM3D_FG_O3R_ORGANIZER_3D_H
 
-#  include <optional>
-#  include <ifm3d/fg/organizer.h>
+#include <optional>
+#include <ifm3d/fg/organizer.h>
 
 namespace ifm3d
 {
@@ -35,4 +35,4 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
-#endif // IFM3D_FG_O3D_ORGANIZER_H
+#endif // IFM3D_FG_O3R_ORGANIZER_3D_H

@@ -1,9 +1,4 @@
-#include <chrono>
-#include <cstdint>
 #include <memory>
-#include <string>
-#include <thread>
-#include <vector>
 #include <ifm3d/device/o3d.h>
 #include <gtest/gtest.h>
 

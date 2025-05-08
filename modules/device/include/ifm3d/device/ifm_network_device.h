@@ -7,7 +7,7 @@
 #ifndef IFM3D_IFM_NETWORK_DEVICE_H
 #define IFM3D_IFM_NETWORK_DEVICE_H
 
-#include <memory>
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <ifm3d/device/module_device.h>

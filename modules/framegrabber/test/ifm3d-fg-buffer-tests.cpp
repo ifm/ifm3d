@@ -1,8 +1,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <memory>
-#include <vector>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/device/err.h>
 #include <gtest/gtest.h>

@@ -1,35 +1,62 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
-// https://github.com/microsoft/vscode-dev-containers/tree/v0.191.0/containers/cpp
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/cpp
 {
 	"name": "C++",
-	"build": {
-		"dockerfile": "Dockerfile",
-		// Update 'VARIANT' to pick an Debian / Ubuntu OS version: debian-11, debian-10, debian-9, ubuntu-20.04, ubuntu-18.04
-		"args": { "VARIANT": "ubuntu-20.04" }
+	"image": "mcr.microsoft.com/devcontainers/cpp:1-ubuntu-24.04",
+	"features": {
+		"ghcr.io/devcontainers/features/rust:1": {},
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
 	},
-	"runArgs": [ "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"],
-
-	// Set *default* container specific settings.json values on container create.
-	"settings": {},
-
-	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [
-		"ms-vscode.cpptools",
-		"ms-vscode.cmake-tools",
-		"streetsidesoftware.code-spell-checker",
-		"xaver.clang-format"
+	"runArgs": [
+		"--network=host",
+		"--cap-add=SYS_PTRACE",
+		"--security-opt",
+		"seccomp=unconfined"
 	],
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "bash scripts/install-dev-tools.sh",
-
-	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cpptools",
+				"ms-vscode.cmake-tools",
+				"xaver.clang-format",
+				"ms-python.python",
+				"llvm-vs-code-extensions.vscode-clangd"
+			],
+			"settings": {
+				// Disable the CPPTools formatting and auto-completion because we're using clangd
+				"C_Cpp.formatting": "disabled",
+				"C_Cpp.intelliSenseEngine": "default",
+				// Clangd settings
+				"clangd.checkUpdates": true,
+				"clangd.onConfigChanged": "restart",
+				"clangd.arguments": [
+					"-background-index",
+					"--inlay-hints",
+					"--function-arg-placeholders"
+				],
+				// Setup the python env
+				"python.terminal.activateEnvInCurrentTerminal": true,
+				"python.defaultInterpreterPath": "/opt/venv/bin/python"
+			}
+		}
+	},
+	"containerEnv": {
+		"CMAKE_GENERATOR": "Ninja",
+		"SCCACHE_DIR": "/host/.cache/sccache"
+	},
+	"remoteEnv": {
+		"CMAKE_C_COMPILER_LAUNCHER": "/opt/cargo/bin/sccache",
+		"CMAKE_CXX_COMPILER_LAUNCHER": "/opt/cargo/bin/sccache",
+		"CARGO_HOME": "/opt/cargo",
+		"PATH": "/opt/cargo/bin:${containerEnv:PATH}"
+	},
+	"workspaceFolder": "/workspace",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+	"postCreateCommand": "bash scripts/setup-dev-container.sh",
 	"remoteUser": "vscode",
 	// Mount points in the container
 	"mounts": [
-		    "source=${localEnv:HOME}${localEnv:USERPROFILE},target=/host-home-folder,type=bind,consistency=cached"
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind,readonly",
+		"source=${localEnv:HOME}${localEnv:USERPROFILE},target=/host,type=bind,consistency=cached"
 	]
 }

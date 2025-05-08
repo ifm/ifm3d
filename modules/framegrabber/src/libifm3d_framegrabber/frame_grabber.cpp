@@ -5,7 +5,6 @@
 
 #include <ifm3d/fg/frame_grabber.h>
 #include <cstdint>
-#include <functional>
 #include <vector>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>

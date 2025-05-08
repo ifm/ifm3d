@@ -6,6 +6,15 @@
 #ifndef IFM3D_DESERIALIZE_TEST_UTILS_HPP
 #define IFM3D_DESERIALIZE_TEST_UTILS_HPP
 
+#include "ifm3d/device/device.h"
+#include "ifm3d/fg/buffer.h"
+#include "ifm3d/fg/organizer_utils.h"
+#include <cmath>
+#include <cstdint>
+#include <iomanip>
+#include <iostream>
+#include <fstream>
+
 namespace ifm3d
 {
   constexpr auto epsilon = 1e-6;

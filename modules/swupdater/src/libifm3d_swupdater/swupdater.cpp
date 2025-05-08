@@ -4,7 +4,6 @@
  */
 
 #include <ifm3d/swupdater/swupdater.h>
-#include <vector>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
 #include <swupdater_impl.hpp>

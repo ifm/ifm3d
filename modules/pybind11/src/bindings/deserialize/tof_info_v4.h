@@ -6,10 +6,13 @@
 #ifndef IFM3D_PYBIND_BINDING_DESERIALIZE_TOF_INFO_V4_H
 #define IFM3D_PYBIND_BINDING_DESERIALIZE_TOF_INFO_V4_H
 
+#include "util.hpp"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/chrono.h>
 #include <ifm3d/deserialize/struct_tof_info_v4.hpp>
+
+namespace py = pybind11;
 
 void
 bind_struct_tofinfov4(pybind11::module_& m)

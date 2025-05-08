@@ -1,9 +1,6 @@
 #include <chrono>
-#include <cstdint>
-#include <memory>
 #include <string>
 #include <thread>
-#include <vector>
 #include <ifm3d/device/device.h>
 #include <gtest/gtest.h>
 

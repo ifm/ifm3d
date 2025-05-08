@@ -1,8 +1,4 @@
-#include <chrono>
-#include <cstdint>
 #include <memory>
-#include <thread>
-#include <algorithm>
 #include "gtest/gtest.h"
 #include <ifm3d/common/logging/logger.h>
 #include <ifm3d/common/logging/log.h>

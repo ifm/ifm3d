@@ -5,9 +5,7 @@
  */
 
 #include <ifm3d/tools/legacy/time_app.h>
-#include <chrono>
 #include <ctime>
-#include <iomanip>
 #include <iostream>
 #include <ifm3d/device.h>
 

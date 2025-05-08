@@ -6,9 +6,7 @@
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/device/err.h>
 #include <cstdint>
-#include <vector>
 #include <unordered_map>
-#include <limits>
 #include <stdexcept>
 
 namespace ifm3d

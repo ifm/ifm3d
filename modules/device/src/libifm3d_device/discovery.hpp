@@ -7,6 +7,7 @@
 #define IFM3D_CAMERA_DISCOVERY_HPP
 
 #include <asio.hpp>
+#include <map>
 #include <vector>
 #include <string>
 #include <tuple>

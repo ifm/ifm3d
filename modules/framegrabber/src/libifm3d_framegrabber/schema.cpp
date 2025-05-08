@@ -5,11 +5,9 @@
  */
 
 #include <ifm3d/fg/schema.h>
-#include <cstdint>
 #include <cstdlib>
 #include <map>
 #include <string>
-#include <vector>
 #include <set>
 #include <ifm3d/device/util.h>
 #include <ifm3d/device/err.h>

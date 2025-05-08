@@ -1,5 +1,4 @@
 #include <chrono>
-#include <cstdint>
 #include <memory>
 #include <thread>
 #include <ifm3d/swupdater.h>

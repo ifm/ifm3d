@@ -7,10 +7,8 @@
 #ifndef IFM3D_CAMERA_XMLRPC_HPP
 #define IFM3D_CAMERA_XMLRPC_HPP
 
-#include <chrono>
 #include <cstdint>
 #include <ctime>
-#include <functional>
 #include <string>
 #include <unordered_map>
 #include <vector>

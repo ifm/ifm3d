@@ -6,7 +6,6 @@
 #ifndef IFM3D_FG_O3D_ORGANIZER_H
 #define IFM3D_FG_O3D_ORGANIZER_H
 
-#include <optional>
 #include <ifm3d/fg/organizer.h>
 
 namespace ifm3d

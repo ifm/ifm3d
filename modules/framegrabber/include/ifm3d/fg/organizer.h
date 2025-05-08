@@ -7,7 +7,6 @@
 #define IFM3D_FG_ORGANIZER_H
 
 #include <cstdint>
-#include <memory>
 #include <vector>
 #include <set>
 #include <ifm3d/fg/buffer.h>

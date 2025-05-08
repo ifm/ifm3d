@@ -8,7 +8,6 @@
 #define IFM3D_DESERIALIZE_STRUCT_O3R_ODS_POLAR_OCCUPANCY_GRID_V1_HPP
 
 #include <array>
-#include <chrono>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/fg/organizer_utils.h>

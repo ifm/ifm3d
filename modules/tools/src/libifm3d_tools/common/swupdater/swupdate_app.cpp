@@ -5,14 +5,8 @@
 
 #include <ifm3d/tools/common/swupdater/swupdate_app.h>
 #include <ifm3d/common/features.h>
-#include <exception>
 #include <iostream>
-#include <istream>
-#include <fstream>
 #include <memory>
-#include <vector>
-#include <chrono>
-#include <filesystem>
 #include <ifm3d/device.h>
 
 #ifdef _WIN32

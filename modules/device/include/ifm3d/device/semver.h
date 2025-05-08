@@ -10,7 +10,6 @@
 #include <iostream>
 #include <optional>
 #include <string>
-#include <vector>
 #include <ifm3d/device/module_device.h>
 
 namespace ifm3d

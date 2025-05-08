@@ -4,7 +4,6 @@
  */
 
 #include <ifm3d/tools/ovp8xx/save_init_app.h>
-#include <iostream>
 #include <string>
 #include <ifm3d/device.h>
 

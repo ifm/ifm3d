@@ -5,6 +5,7 @@
  */
 #ifndef IFM3D_TOOLS_JITTER_APP_H
 #define IFM3D_TOOLS_JITTER_APP_H
+#pragma once
 
 #include <string>
 #include <CLI/CLI.hpp>

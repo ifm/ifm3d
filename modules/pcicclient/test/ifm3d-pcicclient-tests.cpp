@@ -1,5 +1,4 @@
 #include <chrono>
-#include <cstdint>
 #include <memory>
 #include <thread>
 #include "gtest/gtest.h"

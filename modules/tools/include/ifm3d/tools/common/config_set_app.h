@@ -7,6 +7,7 @@
 
 #ifndef IFM3D_TOOLS_CONFIG_SET_APP_H
 #define IFM3D_TOOLS_CONFIG_SET_APP_H
+#pragma once
 
 #include <string>
 #include <ifm3d/tools/command.hpp>

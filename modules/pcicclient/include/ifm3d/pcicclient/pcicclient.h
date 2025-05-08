@@ -7,12 +7,7 @@
 #define IFM3D_PCICCLIENT_PCICCLIENT_H
 
 #include <ifm3d/pcicclient/module_pcicclient.h>
-#include <atomic>
-#include <condition_variable>
-#include <map>
-#include <mutex>
 #include <string>
-#include <thread>
 #include <ifm3d/device.h>
 
 namespace ifm3d

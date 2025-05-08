@@ -5,8 +5,6 @@
  */
 #include <ifm3d/pcicclient/pcicclient.h>
 #include <functional>
-#include <iomanip>
-#include <sstream>
 #include <string>
 #include <ifm3d/device/err.h>
 #include <pcicclient_impl.hpp>

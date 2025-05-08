@@ -14,7 +14,6 @@
 #include <ifm3d/common/logging/log_formatter_text.h>
 #include <ifm3d/common/module_common.h>
 
-#include <vector>
 #include <memory>
 
 namespace ifm3d

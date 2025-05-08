@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IFM3D_CAMERA_IMAGE_INL_HPP
-#define IFM3D_CAMERA_IMAGE_INL_HPP
+#ifndef IFM3D_FG_BUFFER_IMPL_HPP
+#define IFM3D_FG_BUFFER_IMPL_HPP
+#pragma once
 
 #include <ifm3d/fg/buffer.h>
 #include <cstdint>
-#include <memory>
-#include <vector>
 
 ///////////////////////////Image //////////////////
 

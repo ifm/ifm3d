@@ -2,11 +2,6 @@
  * Copyright 2020 ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
-#include <iostream>
-#include <memory>
-#include <fstream>
-#include <iterator>
-#include <vector>
 #include <set>
 #include <gtest/gtest.h>
 #include <ifm3d/device/device.h>

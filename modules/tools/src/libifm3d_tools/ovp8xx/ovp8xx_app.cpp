@@ -5,7 +5,6 @@
 
 #include <ifm3d/tools/ovp8xx/ovp8xx_app.h>
 #include <ifm3d/common/features.h>
-#include <iostream>
 
 ifm3d::OVP8xx::~OVP8xx() {}
 

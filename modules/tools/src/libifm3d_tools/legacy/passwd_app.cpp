@@ -4,7 +4,6 @@
  */
 
 #include <ifm3d/tools/legacy/passwd_app.h>
-#include <iostream>
 #include <string>
 #include <ifm3d/device.h>
 

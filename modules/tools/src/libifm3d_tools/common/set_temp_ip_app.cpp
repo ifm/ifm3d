@@ -4,7 +4,6 @@
  */
 
 #include <ifm3d/tools/common/set_temp_ip_app.h>
-#include <iostream>
 #include <regex>
 
 ifm3d::SetTemporaryIPApp::~SetTemporaryIPApp() {}

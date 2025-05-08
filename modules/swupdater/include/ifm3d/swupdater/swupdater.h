@@ -5,9 +5,9 @@
 
 #ifndef IFM3D_SWUPDATER_SWUPDATER_H
 #define IFM3D_SWUPDATER_SWUPDATER_H
+#pragma once
 
 #include <memory>
-#include <vector>
 #include <ifm3d/device/legacy_device.h>
 #include <ifm3d/swupdater/module_swupdater.h>
 

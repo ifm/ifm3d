@@ -5,22 +5,16 @@
 
 #ifndef IFM3D_FG_FRAMEGRABBER_IMPL_H
 #define IFM3D_FG_FRAMEGRABBER_IMPL_H
+#pragma once
 
-#include <algorithm>
-#include <chrono>
-#include <condition_variable>
 #include <cstdint>
 #include <cstdlib>
 #include <exception>
 #include <functional>
-#include <iomanip>
 #include <memory>
 #include <mutex>
-#include <sstream>
-#include <stdexcept>
 #include <string>
 #include <system_error>
-#include <thread>
 #include <vector>
 #include <mutex>
 #include <asio/use_future.hpp>
@@ -34,6 +28,7 @@
 #include <o3r_organizer3D.hpp>
 #include <o3r_organizer.hpp>
 #include <fmt/core.h>
+#include <ifm3d/fg/frame_grabber.h>
 
 namespace ifm3d
 {
@@ -489,7 +484,8 @@ ifm3d::FrameGrabber::Impl::SendCommand(
 }
 
 void
-ifm3d::FrameGrabber::Impl::ConnectHandler(const std::optional<json>& schema)
+ifm3d::FrameGrabber::Impl::ConnectHandler(
+  const std::optional<ifm3d::json>& schema)
 {
   // Set the schema
   if (schema.has_value())

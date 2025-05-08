@@ -1,12 +1,9 @@
-
-#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <future>
 #include <memory>
 #include <string>
 #include <thread>
-#include <vector>
 #include <ifm3d/fg.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
@@ -16,8 +13,6 @@
 #include <ifm3d/device/o3x.h>
 
 #include <gtest/gtest.h>
-
-#include <iostream>
 
 uint16_t o3r_port = 50012;
 

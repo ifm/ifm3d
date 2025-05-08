@@ -5,9 +5,6 @@
  */
 
 #include <ifm3d/tools/ovp8xx/config_ovp8xx_app.h>
-#include <fstream>
-#include <iostream>
-#include <sstream>
 #include <string>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>

@@ -8,8 +8,8 @@
 #define IFM3D_COMMON_LOGGING_LOG_ENTRY_H
 
 #include <cstdarg>
-#include <thread>
 #include <string>
+#include <utility>
 
 #include <ifm3d/common/logging/log_level.h>
 #include <ifm3d/common/logging/time.h>
@@ -24,57 +24,57 @@ namespace ifm3d
              const char* file,
              const char* function,
              size_t line)
-      : time_(logging_clock::now()),
-        log_level_(log_level),
-        message_(message),
-        line_(line),
-        func_(function),
-        file_(file)
+      : _time(logging_clock::now()),
+        _log_level(log_level),
+        _message(std::move(message)),
+        _line(line),
+        _func(function),
+        _file(file)
     {}
 
-    const logging_timepoint&
+    [[nodiscard]] const logging_timepoint&
     GetTime() const
     {
-      return time_;
+      return _time;
     }
 
-    LogLevel
+    [[nodiscard]] LogLevel
     GetLogLevel() const
     {
-      return log_level_;
+      return _log_level;
     }
 
-    size_t
+    [[nodiscard]] size_t
     GetLine() const
     {
-      return line_;
+      return _line;
     }
 
-    const char*
+    [[nodiscard]] const char*
     GetMessage() const
     {
-      return message_.c_str();
+      return _message.c_str();
     }
 
-    const char*
+    [[nodiscard]] const char*
     GetFunc() const
     {
-      return func_;
+      return _func;
     }
 
-    const char*
+    [[nodiscard]] const char*
     GetFile() const
     {
-      return file_;
+      return _file;
     }
 
   private:
-    logging_timepoint time_;
-    const LogLevel log_level_;
-    std::string message_;
-    const size_t line_;
-    const char* const func_;
-    const char* const file_;
+    logging_timepoint _time;
+    LogLevel _log_level;
+    std::string _message;
+    size_t _line;
+    const char* _func;
+    const char* _file;
   };
 }
 

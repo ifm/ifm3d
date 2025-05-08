@@ -56,6 +56,8 @@ option(BUILD_DOC "Build documentation" OFF)
 option(CREATE_WIN_INSTALLER "Create windows installer" OFF)
 option(CREATE_PYTHON_STUBS "Create the Python stubs" OFF)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Installation root
 if(NOT WIN32)
   set(CPACK_SET_DESTDIR true)

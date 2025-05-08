@@ -1,17 +1,14 @@
-ARG BASE_IMAGE=ubuntu:20.04
-ARG CLANG_FORMAT_VERSION=10
+ARG BASE_IMAGE=ubuntu:24.04
+ARG COMMAND=clang-format
 
 FROM ${BASE_IMAGE}
 ARG BASE_IMAGE
-ARG CLANG_FORMAT_VERSION
 
-RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        clang-format-${CLANG_FORMAT_VERSION} \
-        python3 \
-    && rm -rf /var/lib/apt/lists/*
+COPY scripts /tmp/setup/
 
-COPY . /ifm3d
+RUN bash /tmp/setup/setup-dev-container.sh && rm -rf /tmp/setup
 
+RUN mkdir -p /ifm3d
 WORKDIR /ifm3d
-RUN python3 clang_format.py check
+
+ENTRYPOINT [ "/bin/bash" ]

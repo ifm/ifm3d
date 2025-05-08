@@ -9,7 +9,6 @@
 #include <chrono>
 #include <cstdint>
 #include <memory>
-#include <type_traits>
 #include <vector>
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/buffer.h>

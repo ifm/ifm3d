@@ -6,12 +6,18 @@
 #ifndef IFM3D_DESERIALIZE_UTILS_HPP
 #define IFM3D_DESERIALIZE_UTILS_HPP
 
+#include <cstdint>
+#include <array>
+#include <ifm3d/device/err.h>
+#include <ifm3d/fg/buffer.h>
+#include <ifm3d/fg/organizer_utils.h>
+
 namespace ifm3d
 {
 
-  template <typename T, size_t n>
+  template <typename T, std::size_t n>
   void
-  mkarray(const uint8_t* data, std::array<T, n>& arr)
+  mkarray(const std::uint8_t* data, std::array<T, n>& arr)
   {
     int element_index = 0;
     for (auto& val : arr)
@@ -21,18 +27,18 @@ namespace ifm3d
       }
   }
 
-  template <typename T, size_t num_of_parameter>
+  template <typename T, std::size_t num_of_parameter>
   class ArrayDeserialize
   {
   public:
     void
-    Read(const uint8_t* data, size_t size)
+    Read(const std::uint8_t* data, std::size_t size)
     {
       if (size < (num_of_parameter * sizeof(T)))
         {
           throw ifm3d::Error(IFM3D_CORRUPTED_STRUCT);
         }
-      const uint8_t* start_ptr = data;
+      const std::uint8_t* start_ptr = data;
       mkarray<T, num_of_parameter>(start_ptr, this->data);
     };
 

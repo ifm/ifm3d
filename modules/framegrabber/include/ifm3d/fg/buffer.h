@@ -7,9 +7,10 @@
 #ifndef IFM3D_FG_Buffer_H
 #define IFM3D_FG_Buffer_H
 
+#pragma once
+
 #include <cstdint>
 #include <memory>
-#include <vector>
 #include <optional>
 #include <ifm3d/common/json.hpp>
 #include <limits.h>

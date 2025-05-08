@@ -7,6 +7,9 @@
 #define IFM3D_PYBIND_BINDING_CAMERA
 
 #include <pybind11/pybind11.h>
+#include <ifm3d/device/legacy_device.h>
+
+namespace py = pybind11;
 
 void
 bind_legacy_device(pybind11::module_& m)

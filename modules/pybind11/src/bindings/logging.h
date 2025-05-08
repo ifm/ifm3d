@@ -14,6 +14,8 @@
 
 #include <ifm3d/common/logging/logging.h>
 
+namespace py = pybind11;
+
 class PyLogWriter : public ifm3d::LogWriter
 {
 public:

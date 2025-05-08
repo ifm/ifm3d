@@ -5,6 +5,7 @@
 
 #ifndef IFM3D_TOOLS_SWUPDATER_SWUPDATE_DEPRECATED_APP_H
 #define IFM3D_TOOLS_SWUPDATER_SWUPDATE_DEPRECATED_APP_H
+#pragma once
 
 #include <string>
 #include <ifm3d/tools/command.hpp>

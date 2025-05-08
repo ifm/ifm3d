@@ -5,7 +5,6 @@
  */
 
 #include <ifm3d/tools/legacy/rm_app.h>
-#include <iostream>
 #include <ifm3d/device.h>
 
 ifm3d::RmApp::~RmApp() {}

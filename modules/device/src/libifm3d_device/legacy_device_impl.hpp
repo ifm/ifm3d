@@ -12,7 +12,6 @@
 #include <cstdint>
 #include <ctime>
 #include <functional>
-#include <map>
 #include <mutex>
 #include <regex>
 #include <string>

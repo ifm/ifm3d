@@ -8,15 +8,8 @@
 #ifndef IFM3D_DEVICE_O3R_IMPL_HPP
 #define IFM3D_DEVICE_O3R_IMPL_HPP
 
-#include <chrono>
-#include <cstdint>
 #include <ctime>
-#include <functional>
-#include <map>
-#include <mutex>
-#include <regex>
 #include <string>
-#include <unordered_map>
 #include <vector>
 #include <fstream>
 #include <fmt/core.h>

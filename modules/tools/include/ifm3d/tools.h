@@ -7,6 +7,7 @@
 
 #ifndef IFM3D_TOOLS_H
 #define IFM3D_TOOLS_H
+#pragma once
 
 #include <ifm3d/tools/legacy/app_types_app.h>
 #include <ifm3d/tools/common/config_set_app.h>

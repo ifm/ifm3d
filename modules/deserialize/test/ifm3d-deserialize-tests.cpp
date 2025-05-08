@@ -1,7 +1,5 @@
-#include <chrono>
 #include <cstdint>
 #include <memory>
-#include <thread>
 #include "gtest/gtest.h"
 #include <ifm3d/deserialize.h>
 #include <ifm3d/fg/buffer.h>
@@ -17,8 +15,6 @@
 #include <ifm3d/deserialize/struct_o3r_ods_polar_occupancy_grid_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_extrinsic_calibration_correction_v1.hpp>
 #include <ifm3d/deserialize/deserialize_o3d_buffers.hpp>
-#include <algorithm>
-#include <fstream>
 #include "tof_info_test_data.hpp"
 #include "rgb_info_test_data.hpp"
 #include "ods_info_test_data.hpp"
@@ -27,7 +23,6 @@
 #include "ods_extrinsic_calibration_correction.hpp"
 #include "o3d_parameters.hpp"
 #include "test_utils.hpp"
-#include <limits>
 
 TEST(DeserializeTestWithFile, struct_tof_info_v3_size_exception)
 {

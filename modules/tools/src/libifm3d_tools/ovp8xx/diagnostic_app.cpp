@@ -4,7 +4,6 @@
  */
 
 #include <ifm3d/tools/ovp8xx/diagnostic_app.h>
-#include <iostream>
 #include <string>
 #include <ifm3d/device/o3r.h>
 

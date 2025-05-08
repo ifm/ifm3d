@@ -6,8 +6,8 @@
 
 #ifndef IFM3D_PCICCLIENT_PCICCLIENT_IMPL_H
 #define IFM3D_PCICCLIENT_PCICCLIENT_IMPL_H
+#pragma once
 
-#include <algorithm>
 #include <chrono>
 #include <condition_variable>
 #include <cstdint>
@@ -22,11 +22,11 @@
 #include <string>
 #include <system_error>
 #include <thread>
-#include <vector>
 #include <asio.hpp>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/common/logging/log.h>
+#include <ifm3d/pcicclient/pcicclient.h>
 
 namespace ifm3d
 {
@@ -689,7 +689,8 @@ ifm3d::PCICClient::Impl::ConnectHandler(const asio::error_code& ec)
 }
 
 void
-ifm3d::PCICClient::Impl::DoRead(State state, std::size_t bytes_remaining)
+ifm3d::PCICClient::Impl::DoRead(ifm3d::PCICClient::Impl::State state,
+                                std::size_t bytes_remaining)
 {
   std::string& buffer = this->InBufferByState(state);
   if (bytes_remaining == UNSET)
