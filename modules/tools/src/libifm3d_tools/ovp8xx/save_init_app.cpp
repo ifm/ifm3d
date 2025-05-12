@@ -3,14 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/device/o3r.h"
 #include <ifm3d/tools/ovp8xx/save_init_app.h>
+#include <memory>
 #include <string>
-#include <ifm3d/device.h>
 
-ifm3d::SaveInitApp::~SaveInitApp() {}
+ifm3d::SaveInitApp::~SaveInitApp() = default;
 
 void
-ifm3d::SaveInitApp::Execute(CLI::App* app)
+ifm3d::SaveInitApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
   std::static_pointer_cast<ifm3d::O3R>(device)->SaveInit(this->paths);

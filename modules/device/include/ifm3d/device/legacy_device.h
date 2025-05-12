@@ -316,7 +316,7 @@ namespace ifm3d
      *
      * @throw ifm3d::Error upon error
      */
-    virtual void SetPassword(std::string password = "");
+    virtual void SetPassword(const std::string& password = "");
 
     json ToJSON() override;
     void FromJSON(const json& j) override;
@@ -340,13 +340,13 @@ namespace ifm3d
      * @param[in] idx An application index to put into edit mode prior to
      *                setting parameters.
      */
-    void FromJSON_(
-      const json& j_curr,
-      const json& j_new,
-      std::function<void(const std::string&, const std::string&)> SetFunc,
-      std::function<void()> SaveFunc,
-      const std::string& name,
-      int idx = -1);
+    void FromJSON_(const json& j_curr,
+                   const json& j_new,
+                   const std::function<void(const std::string&,
+                                            const std::string&)>& set_func,
+                   const std::function<void()>& save_func,
+                   const std::string& name,
+                   int idx = -1);
 
     /**
      * Return json of an app with given index from device configuration json.

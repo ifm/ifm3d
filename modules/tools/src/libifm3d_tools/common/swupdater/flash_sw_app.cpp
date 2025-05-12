@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <ifm3d/common/features.h>
+#include <CLI/App.hpp>
 #include <ifm3d/tools/common/swupdater/flash_sw_app.h>
 #include <iostream>
 #include <fstream>
 #include <chrono>
-#include <ifm3d/device.h>
-#include <ifm3d/swupdater.h>
+#include <string>
+#include <array>
 
 #ifdef _WIN32
 #  include <io.h>
@@ -19,10 +19,10 @@
 const std::string ASCII_FORMAT_MAGIC_NUMBER = "070701";
 const std::string CRC_FORMAT_MAGIC_NUMBER = "070702";
 
-ifm3d::FlashSWApp::~FlashSWApp() {}
+ifm3d::FlashSWApp::~FlashSWApp() = default;
 
 void
-ifm3d::FlashSWApp::Execute(CLI::App* app)
+ifm3d::FlashSWApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice(false);
 
@@ -43,22 +43,20 @@ ifm3d::FlashSWApp::Execute(CLI::App* app)
 
   auto swupdater = Parent<SWUpdateApp>()->CreateSWUpdater(quiet);
 
-  auto validateSwuFileHeader = [](std::string& swu_file) -> bool {
+  auto validate_swu_file_header = [](std::string& swu_file) -> bool {
     std::ifstream file(swu_file, std::ios::binary);
 
     if (file.good())
       {
-        char magic[6];
-        file.read(magic, 6);
-        std::string magicStr(magic, 6);
+        std::array<char, 6> magic{};
+        file.read(magic.data(), magic.size());
+        std::string const magic_str(magic.data(), magic.size());
 
-        return (magicStr == ASCII_FORMAT_MAGIC_NUMBER ||
-                magicStr == CRC_FORMAT_MAGIC_NUMBER);
+        return (magic_str == ASCII_FORMAT_MAGIC_NUMBER ||
+                magic_str == CRC_FORMAT_MAGIC_NUMBER);
       }
-    else
-      {
-        return false;
-      }
+
+    return false;
   };
 
   // Read the file in
@@ -67,7 +65,7 @@ ifm3d::FlashSWApp::Execute(CLI::App* app)
       // Check if provided swu_file exists
       const std::fstream infile{swu_file};
 
-      if ((swu_file != "-") && !validateSwuFileHeader(swu_file))
+      if ((swu_file != "-") && !validate_swu_file_header(swu_file))
         {
           std::cerr << "ifm3d error: File not found or invalid file.\n";
           return;
@@ -78,15 +76,14 @@ ifm3d::FlashSWApp::Execute(CLI::App* app)
         {
           if (!quiet)
             {
-              std::cout << "Rebooting device to recovery mode..." << std::endl;
+              std::cout << "Rebooting device to recovery mode..." << '\n';
             }
           swupdater->RebootToRecovery();
           if (!swupdater->WaitForRecovery(get_remaining_timeout()))
             {
               if (!quiet)
                 {
-                  std::cout << "Timed out waiting for recovery mode"
-                            << std::endl;
+                  std::cout << "Timed out waiting for recovery mode" << '\n';
                 }
               return;
             }
@@ -97,7 +94,7 @@ ifm3d::FlashSWApp::Execute(CLI::App* app)
           if (!quiet)
             {
               std::cout << "Timed out waiting for flashing to complete"
-                        << std::endl;
+                        << '\n';
             }
           return;
         }
@@ -106,20 +103,19 @@ ifm3d::FlashSWApp::Execute(CLI::App* app)
       if (!quiet)
         {
           std::cout << "Update successful, waiting for device to reboot..."
-                    << std::endl;
+                    << '\n';
         }
       if (!swupdater->WaitForProductive(get_remaining_timeout()))
         {
           if (!quiet)
             {
-              std::cout << "Timed out waiting for productive mode"
-                        << std::endl;
+              std::cout << "Timed out waiting for productive mode" << '\n';
             }
           return;
         }
       if (!quiet)
         {
-          std::cout << "SWUpdate Complete." << std::endl;
+          std::cout << "SWUpdate Complete." << '\n';
         }
     }
 }

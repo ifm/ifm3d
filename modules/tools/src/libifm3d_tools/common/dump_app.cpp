@@ -4,33 +4,38 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/device/device.h"
+#include "ifm3d/device/o3r.h"
+#include "ifm3d/tools/ovp8xx/ovp8xx_app.h"
 #include <ifm3d/tools/common/dump_app.h>
 #include <iostream>
+#include <memory>
 #include <string>
 
-ifm3d::DumpApp::~DumpApp() {}
+ifm3d::DumpApp::~DumpApp() = default;
 
 void
-ifm3d::DumpApp::Execute(CLI::App* app)
+ifm3d::DumpApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
   if (device->AmI(Device::device_family::O3R))
     {
       if (this->paths.empty())
         {
-          std::cout << device->ToJSONStr() << std::endl;
+          std::cout << device->ToJSONStr() << '\n';
         }
       else
         {
           std::cout << std::static_pointer_cast<ifm3d::O3R>(device)
                          ->Get(this->paths)
                          .dump(2)
-                    << std::endl;
+                    << '\n';
         }
     }
   else
     {
-      std::cout << device->ToJSONStr() << std::endl;
+      std::cout << device->ToJSONStr() << '\n';
     }
 }
 

@@ -51,7 +51,7 @@ namespace ifm3d
 
   IFM3D_EXPORT void check_http_result(httplib::Result const& res);
 
-  IFM3D_EXPORT bool IsStdinAvailable(int timeoutSeconds = 2);
+  IFM3D_EXPORT bool IsStdinAvailable(int timeout_seconds = 2);
 
 } // end: namespace ifm3d
 

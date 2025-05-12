@@ -3,9 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <cstdint>
 #include <ifm3d/swupdater/swupdater.h>
 #include <ifm3d/device/device.h>
-#include <ifm3d/device/err.h>
+#include <optional>
+#include <string>
+#include <stdexcept>
 #include <swupdater_impl.hpp>
 #include <swupdater_v2_impl.hpp>
 
@@ -13,8 +16,8 @@ const std::uint16_t ifm3d::SWUPDATER_RECOVERY_PORT = 8080;
 
 namespace ifm3d
 {
-  auto make_swu_implementor =
-    [](ifm3d::Device::Ptr cam,
+  static auto make_swu_implementor =
+    [](const ifm3d::Device::Ptr& cam,
        const ifm3d::SWUpdater::FlashStatusCb& cb,
        const std::uint16_t swupdate_recovery_port,
        std::optional<ifm3d::Device::swu_version> force_swu_version =
@@ -39,7 +42,7 @@ namespace ifm3d
 }
 
 ifm3d::SWUpdater::SWUpdater(
-  ifm3d::Device::Ptr cam,
+  const ifm3d::Device::Ptr& cam,
   const ifm3d::SWUpdater::FlashStatusCb& cb,
   const std::uint16_t swupdate_recovery_port,
   std::optional<ifm3d::Device::swu_version> force_swu_version)

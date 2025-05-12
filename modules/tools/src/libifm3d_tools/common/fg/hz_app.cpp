@@ -4,6 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/fg/frame_grabber.h"
+#include <future>
+#include <cstddef>
+#include "ifm3d/device/device.h"
 #include <ifm3d/tools/common/fg/hz_app.h>
 #include <algorithm>
 #include <chrono>
@@ -11,19 +16,17 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <ifm3d/device.h>
-#include <ifm3d/fg.h>
 
 const int ifm3d::FG_TIMEOUT = 10000;
 
-ifm3d::HzApp::~HzApp() {}
+ifm3d::HzApp::~HzApp() = default;
 
 void
-ifm3d::HzApp::Execute(CLI::App* app)
+ifm3d::HzApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
 
-  ifm3d::FrameGrabber::Ptr fg =
+  ifm3d::FrameGrabber::Ptr const fg =
     std::make_shared<ifm3d::FrameGrabber>(device, pcic_port);
 
   double median = 0.0;
@@ -50,7 +53,7 @@ ifm3d::HzApp::Execute(CLI::App* app)
           if (future.wait_for(std::chrono::milliseconds(FG_TIMEOUT)) !=
               std::future_status::ready)
             {
-              std::cerr << "Timeout waiting for camera!" << std::endl;
+              std::cerr << "Timeout waiting for camera!" << '\n';
               // return -1;
             }
           future.get()->TimeStamps();
@@ -62,12 +65,12 @@ ifm3d::HzApp::Execute(CLI::App* app)
 
   if (nruns >= 1)
     {
-      std::size_t sz = stats.size();
+      std::size_t const sz = stats.size();
       std::sort(stats.begin(), stats.end());
 
       if (sz % 2 == 0)
         {
-          median = (stats.at(sz / 2 - 1) + stats.at(sz / 2)) / 2;
+          median = (stats.at((sz / 2) - 1) + stats.at(sz / 2)) / 2;
         }
       else
         {
@@ -75,9 +78,9 @@ ifm3d::HzApp::Execute(CLI::App* app)
         }
 
       std::cout << "FrameGrabber running at: " << this->nframes / median
-                << " Hz" << std::endl
+                << " Hz" << '\n'
                 << this->nframes << " frames captured, over " << this->nruns
-                << " runs" << std::endl;
+                << " runs" << '\n';
     }
 }
 

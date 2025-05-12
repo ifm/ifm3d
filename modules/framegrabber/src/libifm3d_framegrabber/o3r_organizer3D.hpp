@@ -22,13 +22,13 @@ namespace ifm3d
     ~O3ROrganizer3D() = default;
 
     Result Organize(const std::vector<uint8_t>& data,
-                    const std::set<buffer_id>& requestedImages,
+                    const std::set<buffer_id>& requested_images,
                     const bool masking = false) override;
 
   private:
     bool ShouldMask(buffer_id id);
     std::map<ifm3d::buffer_id, ifm3d::Buffer> ExtractDistanceImageInfo(
-      std::shared_ptr<DistanceImageInfo> distance_image_info,
+      const std::shared_ptr<DistanceImageInfo>& distance_image_info,
       const std::optional<Buffer>& mask);
 
   }; // end: class O3ROrganizer

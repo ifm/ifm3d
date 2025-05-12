@@ -3,9 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <cstddef>
 #include <ifm3d/device/semver.h>
 
+#include <optional>
 #include <regex>
+#include <string>
 
 // https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
 const std::regex SEMVER_REGEX(

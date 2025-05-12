@@ -1,6 +1,11 @@
-#include <fmt/format.h>
-#include <fmt/chrono.h>
+#include "ifm3d/common/logging/log_formatter_text.h"
+#include "ifm3d/common/logging/log_entry.h"
+#include "fmt/core.h"
+#include "ifm3d/common/logging/log_level.h"
 #include <ifm3d/common/logging/logger.h>
+#include <string>
+#include <ctime>
+#include <fmt/chrono.h> // NOLINT(*)
 
 ifm3d::Logger&
 ifm3d::Logger::Get()

@@ -2,15 +2,19 @@
  * Copyright 2020 ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
+#include <cstddef>
+#include <cstdint>
+#include <algorithm>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <fstream>
 #include <iterator>
+#include <string>
 #include <vector>
 #include <ifm3d/common/logging/log.h>
 #include <gtest/gtest.h>
 #include <ifm3d/fg/organizer_utils.h>
-#include <ifm3d/fg/frame_grabber.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/distance_image_info.h>
 #include "ifm3d-dist_image_info_test_data.h"
@@ -22,13 +26,13 @@ namespace ifm3d
   constexpr auto UINT32_DATA_SIZE = sizeof(std::uint32_t);
   constexpr auto UINT16_DATA_SIZE = sizeof(std::uint16_t);
 
-  std::size_t
+  static std::size_t
   get_chunk_index(const std::vector<std::uint8_t>& buff,
                   ifm3d::image_chunk chunk_type,
                   std::size_t start_idx = ifm3d::IMG_BUFF_START)
   {
     std::size_t idx = start_idx; // start of first chunk
-    std::size_t size = buff.size() - 6;
+    std::size_t const size = buff.size() - 6;
 
     while (idx < size)
       {
@@ -39,8 +43,7 @@ namespace ifm3d
           }
 
         // move to the beginning of the next chunk
-        std::uint32_t incr =
-          ifm3d::mkval<std::uint32_t>(buff.data() + idx + 4);
+        auto const incr = ifm3d::mkval<std::uint32_t>(buff.data() + idx + 4);
         if (incr <= 0)
           {
             LOG_WARNING("Next chunk is supposedly {} bytes from the current "
@@ -55,41 +58,41 @@ namespace ifm3d
   }
 };
 
-ifm3d::DistanceImageInfoPtr
-readO3RByteBufferFromFile(std::string sFile,
-                          std::uint32_t width = 0,
-                          std::uint32_t height = 0)
+static ifm3d::DistanceImageInfoPtr
+read_o3r_byte_buffer_from_file(const std::string& s_file,
+                               std::uint32_t width = 0,
+                               std::uint32_t height = 0)
 {
-  std::vector<std::uint8_t> fileBuffer;
-  std::ifstream inFile(sFile, std::ios_base::binary);
-  EXPECT_TRUE(inFile.is_open());
-  std::istreambuf_iterator<char> iter(inFile);
+  std::vector<std::uint8_t> file_buffer;
+  std::ifstream in_file(s_file, std::ios_base::binary);
+  EXPECT_TRUE(in_file.is_open());
+  std::istreambuf_iterator<char> const iter(in_file);
   std::copy(iter,
             std::istreambuf_iterator<char>(),
-            std::back_inserter(fileBuffer));
-  inFile.close();
+            std::back_inserter(file_buffer));
+  in_file.close();
 
   auto didx =
-    ifm3d::get_chunk_index(fileBuffer,
+    ifm3d::get_chunk_index(file_buffer,
                            ifm3d::image_chunk::RADIAL_DISTANCE_IMAGE);
-  auto aidx = ifm3d::get_chunk_index(fileBuffer,
+  auto aidx = ifm3d::get_chunk_index(file_buffer,
                                      ifm3d::image_chunk::NORM_AMPLITUDE_IMAGE);
   auto distimageidx =
-    ifm3d::get_chunk_index(fileBuffer, ifm3d::image_chunk::TOF_INFO);
+    ifm3d::get_chunk_index(file_buffer, ifm3d::image_chunk::TOF_INFO);
 
   // get the image dimensions
   if (!width)
     {
-      width = ifm3d::mkval<std::uint32_t>(fileBuffer.data() + didx + 16);
+      width = ifm3d::mkval<std::uint32_t>(file_buffer.data() + didx + 16);
     }
   if (!height)
     {
-      height = ifm3d::mkval<std::uint32_t>(fileBuffer.data() + didx + 20);
+      height = ifm3d::mkval<std::uint32_t>(file_buffer.data() + didx + 20);
     }
 
-  std::cout << "file buffer size: " << fileBuffer.size()
-            << " distancd image idx: " << distimageidx << std::endl;
-  std::cout << " - with: " << width << " height: " << height << std::endl;
+  std::cout << "file buffer size: " << file_buffer.size()
+            << " distancd image idx: " << distimageidx << '\n';
+  std::cout << " - with: " << width << " height: " << height << '\n';
 
   if (distimageidx == ifm3d::INVALID_IDX || didx == ifm3d::INVALID_IDX ||
       aidx == ifm3d::INVALID_IDX)
@@ -97,7 +100,7 @@ readO3RByteBufferFromFile(std::string sFile,
       return {};
     }
 
-  return ifm3d::CreateDistanceImageInfo(fileBuffer,
+  return ifm3d::CreateDistanceImageInfo(file_buffer,
                                         distimageidx,
                                         didx,
                                         aidx,
@@ -115,22 +118,22 @@ TEST(DistanceImageInfo, AmplitudeImageConversion)
               sizeof(intr_calibration.model_parameters[0]),
             32);
 
-  std::vector<float> amp_norm_fctrs;
-  ifm3d::IntrinsicCalibration inv_intr_calib;
-  ifm3d::DistanceImageInfo distanceImageInfo{distance_resolution,
-                                             amplitude_resolution,
-                                             {},
-                                             extrinsic_optic_to_user,
-                                             intr_calibration,
-                                             {},
-                                             distance_buffer,
-                                             amplitude_buffer,
-                                             {},
-                                             {},
-                                             image_width,
-                                             image_height};
+  std::vector<float> const amp_norm_fctrs;
+  ifm3d::IntrinsicCalibration const inv_intr_calib{};
+  ifm3d::DistanceImageInfo distance_image_info{distance_resolution,
+                                               amplitude_resolution,
+                                               {},
+                                               extrinsic_optic_to_user,
+                                               intr_calibration,
+                                               {},
+                                               distance_buffer,
+                                               amplitude_buffer,
+                                               {},
+                                               {},
+                                               image_width,
+                                               image_height};
 
-  auto amplitude_vector = distanceImageInfo.getAmplitudeVector();
+  auto amplitude_vector = distance_image_info.getAmplitudeVector();
   EXPECT_EQ(amplitude_vector.size(), npts * ifm3d::FLOAT_DATA_SIZE);
   EXPECT_EQ(amplitude_buffer_calc.size(), npts);
 
@@ -138,7 +141,7 @@ TEST(DistanceImageInfo, AmplitudeImageConversion)
     {
       EXPECT_NEAR(amplitude_buffer_calc[i],
                   ifm3d::mkval<float>(amplitude_vector.data() +
-                                      i * ifm3d::FLOAT_DATA_SIZE),
+                                      (i * ifm3d::FLOAT_DATA_SIZE)),
                   1e-4);
     }
 }
@@ -153,23 +156,24 @@ TEST(DistanceImageInfo, DistanceImageConversion)
               sizeof(intr_calibration.model_parameters[0]),
             32);
 
-  std::vector<float> amp_norm_fctrs;
-  ifm3d::IntrinsicCalibration inv_intr_calib;
-  ifm3d::DistanceImageInfo distanceImageInfo(distance_resolution,
-                                             amplitude_resolution,
-                                             {},
-                                             extrinsic_optic_to_user,
-                                             intr_calibration,
-                                             {},
-                                             distance_buffer,
-                                             amplitude_buffer,
-                                             {},
-                                             {},
-                                             image_width,
-                                             image_height);
+  std::vector<float> const amp_norm_fctrs;
+  ifm3d::IntrinsicCalibration const inv_intr_calib{};
+  ifm3d::DistanceImageInfo distance_image_info(distance_resolution,
+                                               amplitude_resolution,
+                                               {},
+                                               extrinsic_optic_to_user,
+                                               intr_calibration,
+                                               {},
+                                               distance_buffer,
+                                               amplitude_buffer,
+                                               {},
+                                               {},
+                                               image_width,
+                                               image_height);
 
-  auto xyzd_vector = distanceImageInfo.getXYZDVector();
-  EXPECT_EQ(xyzd_vector.size(), npts * 4 * ifm3d::FLOAT_DATA_SIZE);
+  auto xyzd_vector = distance_image_info.getXYZDVector();
+  EXPECT_EQ(xyzd_vector.size(),
+            static_cast<std::size_t>(npts) * 4 * ifm3d::FLOAT_DATA_SIZE);
 
   EXPECT_EQ(x_calc.size(), npts);
   for (int i = 0; i < x_calc.size(); ++i)
@@ -191,7 +195,8 @@ TEST(DistanceImageInfo, DistanceImageConversion)
                   1e-10);
     }
 
-  auto z_vector_offset = (2 * npts * ifm3d::FLOAT_DATA_SIZE);
+  auto z_vector_offset =
+    (2 * static_cast<std::size_t>(npts) * ifm3d::FLOAT_DATA_SIZE);
   EXPECT_EQ(z_calc.size(), npts);
 
   for (int i = 0; i < z_calc.size(); ++i)
@@ -202,13 +207,14 @@ TEST(DistanceImageInfo, DistanceImageConversion)
                   1e-10);
     }
 
-  auto distVectorOffset = (3 * npts * ifm3d::FLOAT_DATA_SIZE);
+  auto dist_vector_offset =
+    (3 * static_cast<std::size_t>(npts) * ifm3d::FLOAT_DATA_SIZE);
   EXPECT_EQ(distance_buffer_calc.size(), npts);
 
   for (int i = 0; i < distance_buffer_calc.size(); ++i)
     {
       EXPECT_NEAR(distance_buffer_calc[i],
-                  ifm3d::mkval<float>(xyzd_vector.data() + distVectorOffset +
+                  ifm3d::mkval<float>(xyzd_vector.data() + dist_vector_offset +
                                       (ifm3d::FLOAT_DATA_SIZE * i)),
                   1e-10);
     }
@@ -229,7 +235,7 @@ TEST(DistanceImageInfo, InvalidDistImageSize)
 {
   // image size to big
   auto distance_image_info =
-    readO3RByteBufferFromFile(buffer_data_file, 500, 100);
+    read_o3r_byte_buffer_from_file(buffer_data_file, 500, 100);
   EXPECT_NE(distance_image_info, nullptr);
   EXPECT_EQ(distance_image_info->getAmplitudeVector().size(), 0);
   EXPECT_EQ(distance_image_info->getXYZDVector().size(), 0);
@@ -237,7 +243,7 @@ TEST(DistanceImageInfo, InvalidDistImageSize)
 
 TEST(DistanceImageInfo, AmplitudeImageConversionFromBuffer)
 {
-  auto distance_image_info = readO3RByteBufferFromFile(buffer_data_file);
+  auto distance_image_info = read_o3r_byte_buffer_from_file(buffer_data_file);
   EXPECT_NE(distance_image_info, nullptr);
   auto npts = distance_image_info->getNPTS();
   auto amplitude_vector = distance_image_info->getAmplitudeVector();
@@ -247,46 +253,48 @@ TEST(DistanceImageInfo, AmplitudeImageConversionFromBuffer)
     {
       EXPECT_NEAR(Amplitude[i],
                   ifm3d::mkval<float>(amplitude_vector.data() +
-                                      i * ifm3d::FLOAT_DATA_SIZE),
+                                      (i * ifm3d::FLOAT_DATA_SIZE)),
                   1e-6);
     }
 }
 
 TEST(DistanceImageInfo, DistanceImageConversionFromBuffer)
 {
-  auto distance_image_info = readO3RByteBufferFromFile(buffer_data_file);
+  auto distance_image_info = read_o3r_byte_buffer_from_file(buffer_data_file);
   EXPECT_NE(distance_image_info, nullptr);
   auto npts = distance_image_info->getNPTS();
   auto xyzd_vector = distance_image_info->getXYZDVector();
 
-  EXPECT_EQ(xyzd_vector.size(), npts * 4 * ifm3d::FLOAT_DATA_SIZE);
+  EXPECT_EQ(xyzd_vector.size(),
+            static_cast<std::size_t>(npts) * 4 * ifm3d::FLOAT_DATA_SIZE);
 
   auto x_offset = compare_buffer_data_offset * ifm3d::FLOAT_DATA_SIZE;
   for (int i = 0; i < XVector.size(); ++i)
     {
       EXPECT_NEAR(XVector[i],
                   ifm3d::mkval<float>(xyzd_vector.data() + x_offset +
-                                      i * ifm3d::FLOAT_DATA_SIZE),
+                                      (i * ifm3d::FLOAT_DATA_SIZE)),
                   1e-6);
     }
 
-  auto y_offset = npts * ifm3d::FLOAT_DATA_SIZE +
-                  compare_buffer_data_offset * ifm3d::FLOAT_DATA_SIZE;
+  auto y_offset = (npts * ifm3d::FLOAT_DATA_SIZE) +
+                  (compare_buffer_data_offset * ifm3d::FLOAT_DATA_SIZE);
   for (int i = 0; i < YVector.size(); ++i)
     {
       EXPECT_NEAR(YVector[i],
                   ifm3d::mkval<float>(xyzd_vector.data() + y_offset +
-                                      i * ifm3d::FLOAT_DATA_SIZE),
+                                      (i * ifm3d::FLOAT_DATA_SIZE)),
                   1e-6);
     }
 
-  auto z_offset = 2 * npts * ifm3d::FLOAT_DATA_SIZE +
-                  compare_buffer_data_offset * ifm3d::FLOAT_DATA_SIZE;
+  auto z_offset =
+    (2 * static_cast<std::size_t>(npts) * ifm3d::FLOAT_DATA_SIZE) +
+    (compare_buffer_data_offset * ifm3d::FLOAT_DATA_SIZE);
   for (int i = 0; i < ZVector.size(); ++i)
     {
       EXPECT_NEAR(ZVector[i],
                   ifm3d::mkval<float>(xyzd_vector.data() + z_offset +
-                                      i * ifm3d::FLOAT_DATA_SIZE),
+                                      (i * ifm3d::FLOAT_DATA_SIZE)),
                   1e-6);
     }
 }

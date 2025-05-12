@@ -1,8 +1,11 @@
+#include "ifm3d/common/err.h"
+#include "ifm3d/device/device.h"
+#include "ifm3d/fg/buffer_id.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <ifm3d/fg/buffer.h>
-#include <ifm3d/device/err.h>
 #include <gtest/gtest.h>
 
 namespace
@@ -15,10 +18,8 @@ namespace
       {
         return (std::isnan(a) && std::isnan(b));
       }
-    else
-      {
-        return a == b;
-      }
+
+    return a == b;
   }
 
   template <typename T>
@@ -36,7 +37,7 @@ namespace
 
 TEST(Buffer, Construct)
 {
-  ifm3d::Buffer img;
+  ifm3d::Buffer const img;
 
   EXPECT_TRUE(img.width() == 0);
   EXPECT_TRUE(img.height() == 0);
@@ -105,9 +106,9 @@ TEST(Buffer, Create)
   const int height = 100;
   const int width = 100;
   const int nchannel = 1;
-  ifm3d::buffer_id bufferId = static_cast<ifm3d::buffer_id>(img.bufferId());
 
-  img.create(width, height, 1, ifm3d::pixel_format::FORMAT_8U, bufferId);
+  auto const buffer_id = static_cast<ifm3d::buffer_id>(img.bufferId());
+  img.create(width, height, 1, ifm3d::pixel_format::FORMAT_8U, buffer_id);
 
   EXPECT_TRUE(img.ptr(0) != nullptr);
   EXPECT_TRUE(img.width() == width);
@@ -194,7 +195,7 @@ TEST(Buffer, setTo)
   ifm3d::Buffer mask(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
 
   add<uint8_t>(mask, 1);
-  uint16_t val = 255;
+  uint16_t const val = 255;
 
   img.setTo<uint16_t>(val, mask);
   auto mask_itr = mask.begin<uint8_t>();
@@ -264,8 +265,8 @@ TEST(Buffer, ptr_comparision)
     {
       for (int j = 0; j < img.width(); j++)
         {
-          auto ptr = img.ptr<float>(i, j);
-          auto ptr_struct = img.ptr<ifm3d::Point3D_32F>(i, j);
+          auto* ptr = img.ptr<float>(i, j);
+          auto* ptr_struct = img.ptr<ifm3d::Point3D_32F>(i, j);
           EXPECT_TRUE(ptr[0] == ptr_struct->val[0]);
           EXPECT_TRUE(ptr[1] == ptr_struct->val[1]);
           EXPECT_TRUE(ptr[2] == ptr_struct->val[2]);
@@ -276,7 +277,10 @@ TEST(Buffer, ptr_comparision)
 TEST(Buffer, invalid_data_type)
 {
   EXPECT_NO_THROW(ifm3d::Buffer(100, 100, 3, ifm3d::pixel_format::FORMAT_32F));
-  EXPECT_THROW(
-    ifm3d::Buffer img(100, 100, 3, static_cast<ifm3d::pixel_format>(1000)),
-    ifm3d::Error);
+  // NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange)
+  EXPECT_THROW(const ifm3d::Buffer img(100,
+                                       100,
+                                       3,
+                                       static_cast<ifm3d::pixel_format>(1000)),
+               ifm3d::Error);
 }

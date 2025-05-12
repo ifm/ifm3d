@@ -106,7 +106,7 @@ namespace ifm3d
      */
     std::shared_future<void> Start(
       const BufferList& buffers,
-      const std::optional<json>& pcicFormat = std::nullopt);
+      const std::optional<json>& schema = std::nullopt);
 
     /**
      * Stops the worker thread for streaming in pixel data from the device

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#include <ifm3d/device/err.h>
+#include "ifm3d/common/err.h"
+#include <CLI/App.hpp>
 #include <exception>
 #include <iostream>
 #include <ifm3d/tools/main_command.hpp>
@@ -37,23 +38,23 @@ main(int argc, char** argv)
     {
       if (ex.code() == IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE)
         {
-          std::cerr << ex.what() << std::endl;
+          std::cerr << ex.what() << '\n';
         }
       else
         {
-          std::cerr << "ifm3d error: " << ex.code() << std::endl
-                    << ex.what() << std::endl;
+          std::cerr << "ifm3d error: " << ex.code() << '\n'
+                    << ex.what() << '\n';
         }
       return 1;
     }
   catch (const std::exception& ex)
     {
-      std::cerr << "ifm3d error: " << ex.what() << std::endl;
+      std::cerr << "ifm3d error: " << ex.what() << '\n';
       return 1;
     }
   catch (...)
     {
-      std::cerr << "ifm3d failed - error unknown!" << std::endl;
+      std::cerr << "ifm3d failed - error unknown!" << '\n';
       return 1;
     }
   return 0;

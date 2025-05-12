@@ -4,20 +4,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/common/json_impl.hpp"
+#include "ifm3d/device/legacy_device.h"
 #include <ifm3d/tools/legacy/imager_types_app.h>
 #include <iostream>
-#include <ifm3d/device.h>
+#include <memory>
 
-ifm3d::ImagerApp::~ImagerApp() {}
+ifm3d::ImagerApp::~ImagerApp() = default;
 
 void
-ifm3d::ImagerApp::Execute(CLI::App* app)
+ifm3d::ImagerApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
 
-  json im_types(
+  json const im_types(
     std::static_pointer_cast<ifm3d::LegacyDevice>(device)->ImagerTypes());
-  std::cout << im_types.dump(2) << std::endl;
+  std::cout << im_types.dump(2) << '\n';
 }
 
 CLI::App*

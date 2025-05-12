@@ -1,7 +1,12 @@
+#include "ifm3d/common/logging/log_writer.h"
+#include "ifm3d/common/logging/log_entry.h"
+#include "ifm3d/common/logging/log_level.h"
+#include "ifm3d/common/logging/log_formatter_text.h"
 #include <memory>
 #include "gtest/gtest.h"
 #include <ifm3d/common/logging/logger.h>
 #include <ifm3d/common/logging/log.h>
+#include <string>
 
 template <typename Formatter>
 class Stringwriter : public ifm3d::LogWriter

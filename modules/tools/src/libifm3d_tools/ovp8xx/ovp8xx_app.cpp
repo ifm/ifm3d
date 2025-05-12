@@ -3,10 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/tools/ovp8xx/config_ovp8xx_app.h"
+#include "ifm3d/tools/ovp8xx/diagnostic_app.h"
+#include "ifm3d/tools/common/discover_app.h"
+#include "ifm3d/tools/ovp8xx/get_service_report_app.h"
+#include "ifm3d/tools/common/fg/stat_app.h"
+#include "ifm3d/tools/common/reboot_app.h"
+#include "ifm3d/tools/common/swupdater/swupdate_app.h"
+#include "ifm3d/device/device.h"
+#include "ifm3d/tools/command.hpp"
 #include <ifm3d/tools/ovp8xx/ovp8xx_app.h>
 #include <ifm3d/common/features.h>
 
-ifm3d::OVP8xx::~OVP8xx() {}
+ifm3d::OVP8xx::~OVP8xx() = default;
 
 CLI::App*
 ifm3d::OVP8xx::CreateCommand(CLI::App* parent)

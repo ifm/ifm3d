@@ -96,7 +96,7 @@ namespace ifm3d
   class XMLRPC
   {
   public:
-    XMLRPC(const std::string& ip, const std::uint16_t xmlrpc_port);
+    XMLRPC(std::string ip, const std::uint16_t xmlrpc_port);
 
     // ---------------------------------------------
     // Terminates recursion over the parameter pack
@@ -153,13 +153,13 @@ namespace ifm3d
     }
 
     std::string IP();
-    std::uint16_t XMLRPCPort();
+    std::uint16_t XMLRPCPort() const;
 
   private:
-    XMLRPCValue const DoXMLRPCCall(const std::string& path,
-                                   const std::string& method,
-                                   int timeout,
-                                   std::vector<XMLRPCValue>& params);
+    XMLRPCValue DoXMLRPCCall(const std::string& path,
+                             const std::string& method,
+                             int timeout,
+                             std::vector<XMLRPCValue>& params);
     std::string CreateXMLRPCRequest(const std::string& method_name,
                                     const std::vector<XMLRPCValue>& params);
     XMLRPCValue ParseXMLRPCResponse(const std::string& xml_response);

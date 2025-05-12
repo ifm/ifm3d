@@ -36,7 +36,7 @@ namespace ifm3d
    * @return A json-string comaptible with o3x xmlrpc
    */
   IFM3D_EXPORT json
-  make_o3x_json_from_mask(const std::set<ifm3d::buffer_id>& chunk_ids);
+  make_o3x_json_from_mask(const std::set<ifm3d::buffer_id>& buffer_ids);
 
   /**
    * Utility function makes the schema compatiable with O3R firmware version,

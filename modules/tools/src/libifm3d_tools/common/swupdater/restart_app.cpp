@@ -3,21 +3,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <ifm3d/common/features.h>
+#include <CLI/App.hpp>
 #include <ifm3d/tools/common/swupdater/restart_app.h>
-#include <ifm3d/common/features.h>
-#include <ifm3d/device.h>
-#include <ifm3d/swupdater.h>
 
 #ifdef _WIN32
 #  include <io.h>
 #  include <fcntl.h>
 #endif
 
-ifm3d::RestartApp::~RestartApp() {}
+ifm3d::RestartApp::~RestartApp() = default;
 
 void
-ifm3d::RestartApp::Execute(CLI::App* app)
+ifm3d::RestartApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice(false);
   auto swupdater = Parent<SWUpdateApp>()->CreateSWUpdater();

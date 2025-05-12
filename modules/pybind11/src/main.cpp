@@ -3,16 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <ifm3d/common/features.h>
-#include <ifm3d/device.h>
-#include <ifm3d/fg.h>
 // Pybind must come after ifm3d because the pybind includes
 // set some macros that conflict with the nlohmann json.hpp
 // implementation on Windows builds
-#include <pybind11/pybind11.h>
-#include <pybind11/iostream.h>
-#include <pybind11/functional.h>
+#include <string>
 
+#include "ifm3d/device/version.h"
+#include "ifm3d/device/device.h"
+#include "bindings/future.h"
+#include "ifm3d/fg/frame.h"
 #include "util.hpp"
 
 #include "bindings/device.h"
@@ -29,8 +28,8 @@
 #endif
 #include "bindings/semver.h"
 #include "bindings/deserialize/deserialize.h"
-
-namespace py = pybind11;
+#include <pybind11/detail/common.h>
+#include <pybind11/pybind11.h>
 
 PYBIND11_MODULE(ifm3dpy, m)
 {

@@ -4,13 +4,25 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <cstdint>
+#include <cstdlib>
+#include <cstddef>
+#include <exception>
+#include "ifm3d/common/err.h"
+#include "ifm3d/device/semver.h"
+#include "ifm3d/device/ifm_network_device.h"
+#include "ifm3d/common/json_impl.hpp"
+#include <httplib.h>
+#include <chrono>
 #include <ifm3d/device/device.h>
+#include <memory>
+#include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 #include <ifm3d/device/o3d.h>
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/device/o3x.h>
-#include <ifm3d/device/err.h>
 #include <ifm3d/common/logging/log.h>
 #include <device_impl.hpp>
 #include <discovery.hpp>
@@ -34,7 +46,7 @@ const std::string ifm3d::DEFAULT_APPLICATION_TYPE = "Camera";
 const long ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT = 10;     // seconds
 const long ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT = 30; // seconds
 
-auto ifm3d_session_id__ = []() -> std::string {
+static auto IFM3D_SESSION_ID = []() -> std::string {
   std::string sid;
 
   try
@@ -46,9 +58,9 @@ auto ifm3d_session_id__ = []() -> std::string {
       else
         {
           sid = std::string(std::getenv("IFM3D_SESSION_ID"));
-          if (!((sid.size() == ifm3d::SESSION_ID_SZ) &&
-                (sid.find_first_not_of("0123456789abcdefABCDEF") ==
-                 std::string::npos)))
+          if ((sid.size() != ifm3d::SESSION_ID_SZ) ||
+              (sid.find_first_not_of("0123456789abcdefABCDEF") !=
+               std::string::npos))
             {
               LOG_WARNING("Invalid session id: {}", sid);
               sid = "";
@@ -69,7 +81,7 @@ auto ifm3d_session_id__ = []() -> std::string {
   return sid;
 };
 
-const std::string ifm3d::DEFAULT_SESSION_ID = ifm3d_session_id__();
+const std::string ifm3d::DEFAULT_SESSION_ID = IFM3D_SESSION_ID();
 
 const int ifm3d::DEV_O3D_MIN = 1;
 const int ifm3d::DEV_O3D_MAX = 255;
@@ -124,7 +136,7 @@ void
 ifm3d::Device::SetTempIPAddress(std::string mac, std::string temp_ip)
 {
   ifm3d::IFMDeviceDiscovery ifm_discovery;
-  ifm_discovery.SetTemporaryIP(mac, temp_ip);
+  ifm_discovery.SetTemporaryIP(std::move(mac), std::move(temp_ip));
 }
 
 //================================================
@@ -134,7 +146,7 @@ ifm3d::Device::Ptr
 ifm3d::Device::MakeShared(const std::string& ip,
                           const std::uint16_t xmlrpc_port,
                           const std::string& password,
-                          bool throwIfUnavailable)
+                          bool throw_if_unavailable)
 {
   auto base = std::make_shared<ifm3d::Device>(ip, xmlrpc_port);
   try
@@ -152,36 +164,32 @@ ifm3d::Device::MakeShared(const std::string& ip,
               LOG_VERBOSE("Instantiating O3R...");
               return std::make_shared<ifm3d::O3R>(ip, xmlrpc_port);
             }
-          else
-            {
-              const std::string error_msg =
-                fmt::format("Please update the firmware, minimum firmware "
-                            "version required is {}",
-                            O3R_MINIMUM_FIRWARE_SUPPORTED);
 
-              LOG_VERBOSE(error_msg);
-              throw Error(IFM3D_INVALID_FIRMWARE_VERSION, error_msg);
-            }
+          const std::string error_msg =
+            fmt::format("Please update the firmware, minimum firmware "
+                        "version required is {}",
+                        O3R_MINIMUM_FIRWARE_SUPPORTED);
+
+          LOG_VERBOSE(error_msg);
+          throw Error(IFM3D_INVALID_FIRMWARE_VERSION, error_msg);
         }
       if (base->AmI(device_family::O3X))
         {
           LOG_VERBOSE("Instantiating O3X...");
           return std::make_shared<ifm3d::O3X>(ip, xmlrpc_port, password);
         }
-      else if (base->AmI(device_family::O3D))
+      if (base->AmI(device_family::O3D))
         {
           LOG_VERBOSE("Instantiating O3D...");
           return std::make_shared<ifm3d::O3D>(ip, xmlrpc_port, password);
         }
-      else
-        {
-          LOG_WARNING("Unexpected camera device type: {}", base->DeviceType());
-        }
+
+      LOG_WARNING("Unexpected camera device type: {}", base->DeviceType());
     }
   catch (const ifm3d::Error& ex)
     {
       LOG_WARNING("Could not probe device type: {}", ex.what());
-      if (throwIfUnavailable)
+      if (throw_if_unavailable)
         {
           throw;
         }
@@ -200,8 +208,7 @@ ifm3d::Device::MakeShared(const std::string& ip,
 
 ifm3d::Device::Device(const std::string& ip, const std::uint16_t xmlrpc_port)
   : pImpl(std::make_unique<Device::Impl>(
-      std::make_shared<XMLRPC>(ip, xmlrpc_port))),
-    device_type_("")
+      std::make_shared<XMLRPC>(ip, xmlrpc_port)))
 {}
 
 ifm3d::Device::~Device() = default;
@@ -260,13 +267,13 @@ ifm3d::Device::DeviceType(bool use_cached)
 int
 ifm3d::Device::DeviceID()
 {
-  auto devType = this->DeviceType();
-  auto pos = devType.find(':');
+  auto dev_type = this->DeviceType();
+  auto pos = dev_type.find(':');
   if (pos != std::string::npos)
     {
       try
         {
-          return std::atoi(devType.substr(pos + 1).c_str());
+          return std::atoi(dev_type.substr(pos + 1).c_str());
         }
       catch (std::out_of_range& ex)
         {
@@ -277,13 +284,9 @@ ifm3d::Device::DeviceID()
 }
 
 bool
-ifm3d::Device::checkDeviceID(int deviceID, int minID, int maxID)
+ifm3d::Device::checkDeviceID(int device_id, int min_id, int max_id)
 {
-  if ((deviceID >= minID) && (deviceID <= maxID))
-    {
-      return true;
-    }
-  return false;
+  return (device_id >= min_id) && (device_id <= max_id);
 }
 
 ifm3d::Device::device_family
@@ -337,7 +340,7 @@ ifm3d::Device::ToJSON()
 }
 
 void
-ifm3d::Device::FromJSON(const json& j)
+ifm3d::Device::FromJSON(const json& /*j*/)
 {
   throw ifm3d::Error(IFM3D_UNSUPPORTED_OP);
 }
@@ -372,8 +375,8 @@ ifm3d::Device::XWrapper()
   return pImpl->XWrapper();
 }
 
-bool
-isV1SWUpdate(const std::string& ip)
+static bool
+is_v1_sw_update(const std::string& ip)
 {
   /* SWU_V1 device expose a /id.lp endpoint in recovery, so we check for its
    * existence to determine if this is a SWU_V1 device */
@@ -389,23 +392,17 @@ isV1SWUpdate(const std::string& ip)
     {
       return true;
     }
-  else
-    {
-      auto dev = ifm3d::Device(ip);
-      if (dev.WhoAmI() == ifm3d::Device::device_family::O3D ||
-          dev.WhoAmI() == ifm3d::Device::device_family::O3X)
-        {
-          return true;
-        }
-    }
-  return false;
+
+  auto dev = ifm3d::Device(ip);
+  return dev.WhoAmI() == ifm3d::Device::device_family::O3D ||
+         dev.WhoAmI() == ifm3d::Device::device_family::O3X;
 }
 
 ifm3d::Device::swu_version
 ifm3d::Device::SwUpdateVersion()
 {
-  return isV1SWUpdate(this->IP()) ? ifm3d::Device::swu_version::SWU_V1 :
-                                    ifm3d::Device::swu_version::SWU_V2;
+  return is_v1_sw_update(this->IP()) ? ifm3d::Device::swu_version::SWU_V1 :
+                                       ifm3d::Device::swu_version::SWU_V2;
 }
 
 ifm3d::json

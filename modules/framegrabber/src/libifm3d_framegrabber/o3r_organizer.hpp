@@ -21,7 +21,7 @@ namespace ifm3d
     ~O3ROrganizer() = default;
 
     Result Organize(const std::vector<uint8_t>& data,
-                    const std::set<buffer_id>& requestedImages,
+                    const std::set<buffer_id>& requested_images,
                     const bool masking = false) override;
 
   }; // end: class O3ROrganizer

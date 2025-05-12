@@ -4,15 +4,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/device/device.h"
+#include "ifm3d/device/o3r.h"
+#include "ifm3d/device/legacy_device.h"
+#include "ifm3d/tools/ovp8xx/ovp8xx_app.h"
 #include <ifm3d/tools/common/reset_app.h>
 #include <memory>
 #include <string>
-#include <ifm3d/device.h>
 
-ifm3d::ResetApp::~ResetApp() {}
+ifm3d::ResetApp::~ResetApp() = default;
 
 void
-ifm3d::ResetApp::Execute(CLI::App* app)
+ifm3d::ResetApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
 

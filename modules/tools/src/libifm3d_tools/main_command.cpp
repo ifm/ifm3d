@@ -3,11 +3,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include <CLI/Validators.hpp>
+#include <functional>
+#include "ifm3d/common/logging/log_level.h"
+#include "ifm3d/common/logging/log_formatter_text.h"
+#include "ifm3d/tools/legacy/o3d3xx_app.h"
+#include "ifm3d/tools/ovp8xx/ovp8xx_app.h"
+#include "ifm3d/tools/common/discover_app.h"
+#include "ifm3d/device/version.h"
+#include "fmt/core.h"
 #include <ifm3d/tools/main_command.hpp>
 #include <ifm3d/device/device.h>
 #include <ifm3d/common/features.h>
 #include <ifm3d/common/logging/logger.h>
 #include <ifm3d/common/logging/log_writer_file.h>
+#include <memory>
 
 ifm3d::MainCommand::MainCommand()
   : ip{ifm3d::DEFAULT_IP},
@@ -44,7 +55,7 @@ ifm3d::MainCommand::CreateCommand(CLI::App* parent)
                  "Password for establishing an edit-session with the sensor")
     ->default_val(ifm3d::DEFAULT_PASSWORD);
 
-  std::function<void(const std::string&)> log_level_cb =
+  std::function<void(const std::string&)> const log_level_cb =
     [&](const std::string& value) {
       ifm3d::Logger::Get().SetLogLevel(
         ifm3d::LogLevelFromString(value.c_str()));
@@ -60,7 +71,7 @@ ifm3d::MainCommand::CreateCommand(CLI::App* parent)
       CLI::ignore_case))
     ->default_val("WARN");
 
-  std::function<void(const std::string&)> log_file_cb =
+  std::function<void(const std::string&)> const log_file_cb =
     [&](const std::string& value) {
       ifm3d::Logger::Get().SetWriter(
         std::make_shared<ifm3d::LogWriterFile<ifm3d::LogFormatterText>>(
@@ -86,55 +97,55 @@ ifm3d::MainCommand::CreateCommand(CLI::App* parent)
 
   RegisterSubcommand<ifm3d::OVP8xx>(parent);
 
-  std::string globalCommandDeprecationMessage =
+  std::string const global_command_deprecation_message =
     "The global commands have been deprecated, please use the device specific "
     "commands instead.";
 
   RegisterSubcommand<ifm3d::AppTypesApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
   RegisterSubcommand<ifm3d::ConfigSetApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
   RegisterSubcommand<ifm3d::CpApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
   RegisterSubcommand<ifm3d::DiagnosticApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
   RegisterSubcommand<ifm3d::DiscoverApp>(parent);
   RegisterSubcommand<ifm3d::DumpApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
   RegisterSubcommand<ifm3d::ExportApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
 #if defined(BUILD_MODULE_FRAMEGRABBER)
   RegisterSubcommand<ifm3d::HzApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
 #endif
   RegisterSubcommand<ifm3d::ImagerApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
   RegisterSubcommand<ifm3d::ImportApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
 #if defined(BUILD_MODULE_FRAMEGRABBER)
   RegisterSubcommand<ifm3d::JitterApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
 #endif
   RegisterSubcommand<ifm3d::JSONSchemaApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
   RegisterSubcommand<ifm3d::LsApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
   RegisterSubcommand<ifm3d::PasswordApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
   RegisterSubcommand<ifm3d::RebootApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
   RegisterSubcommand<ifm3d::ResetApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
   RegisterSubcommand<ifm3d::RmApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
 #if defined(BUILD_MODULE_SWUPDATER)
   RegisterSubcommand<ifm3d::SWUpdateDeprecatedApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
 #endif
   RegisterSubcommand<ifm3d::TimeApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
   RegisterSubcommand<ifm3d::TraceApp>(parent)->SetDeprecated(
-    globalCommandDeprecationMessage);
+    global_command_deprecation_message);
 
   parent->failure_message(CLI::FailureMessage::help);
 
@@ -144,7 +155,9 @@ ifm3d::MainCommand::CreateCommand(CLI::App* parent)
 std::string
 ifm3d::MainCommand::GetAppVersion()
 {
-  int major, minor, patch;
+  int major = 0;
+  int minor = 0;
+  int patch = 0;
   ifm3d::version(&major, &minor, &patch);
   return std::string(fmt::format("{}: version={}.{}.{}{}{}",
                                  IFM3D_LIBRARY_NAME,
@@ -156,10 +169,10 @@ ifm3d::MainCommand::GetAppVersion()
 }
 
 ifm3d::Device::Ptr
-ifm3d::MainCommand::GetDevice(bool throwIfUnavailable)
+ifm3d::MainCommand::GetDevice(bool throw_if_unavailable) const
 {
   return ifm3d::Device::MakeShared(this->ip,
                                    this->xmlrpc_port,
                                    this->password,
-                                   throwIfUnavailable);
+                                   throw_if_unavailable);
 }

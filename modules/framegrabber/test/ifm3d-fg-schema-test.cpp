@@ -2,30 +2,30 @@
  * Copyright 2020 ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
+#include "ifm3d/common/json_impl.hpp"
+#include "ifm3d/fg/buffer_id.h"
 #include <set>
 #include <gtest/gtest.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/schema.h>
+#include <string>
+#include <algorithm>
 
 namespace ifm3d
 {
-  bool
-  check_for_id(const json& elements, std::string id)
+  static bool
+  check_for_id(const json& elements, const std::string& id)
   {
-    for (auto& element : elements)
-      {
-        if (element["id"] == id)
-          {
-            return true;
-          }
-      }
-    return false;
+    return std::any_of(
+      elements.begin(),
+      elements.end(),
+      [&id](const auto& element) { return element["id"] == id; });
   }
 };
 
 TEST(Schema, MakeSchema_O3R)
 {
-  std::set<ifm3d::buffer_id> buffer_ids = {
+  std::set<ifm3d::buffer_id> const buffer_ids = {
     ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE,
     ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE};
 
@@ -44,7 +44,7 @@ TEST(Schema, o3r_firmware_compatibility_rgb_info)
 {
 
   auto check_buffer_id_and_id = [&](ifm3d::buffer_id buffer_id) {
-    std::set<ifm3d::buffer_id> buffer_ids = {buffer_id};
+    std::set<ifm3d::buffer_id> const buffer_ids = {buffer_id};
 
     auto schema =
       ifm3d::make_schema(buffer_ids, ifm3d::Device::device_family::O3R);
@@ -79,7 +79,7 @@ TEST(Schema, o3r_firmware_compatibility_rgb_info)
 TEST(Schema, o3r_firmware_compatibility_tof_info)
 {
   auto check_buffer_id_and_id = [&](ifm3d::buffer_id buffer_id) {
-    std::set<ifm3d::buffer_id> buffer_ids = {buffer_id};
+    std::set<ifm3d::buffer_id> const buffer_ids = {buffer_id};
 
     auto schema =
       ifm3d::make_schema(buffer_ids, ifm3d::Device::device_family::O3R);

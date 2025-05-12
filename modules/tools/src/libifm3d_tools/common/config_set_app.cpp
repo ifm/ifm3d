@@ -4,24 +4,28 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/common/err.h"
+#include "ifm3d/device/o3r.h"
+#include "ifm3d/tools/ovp8xx/ovp8xx_app.h"
 #include <ifm3d/tools/common/config_set_app.h>
 #include <fstream>
 #include <iostream>
+#include <iterator>
+#include <memory>
 #include <sstream>
 #include <string>
-#include <ifm3d/device/device.h>
-#include <ifm3d/device/err.h>
 #include <ifm3d/device/util.h>
 
-ifm3d::ConfigSetApp::~ConfigSetApp() {}
+ifm3d::ConfigSetApp::~ConfigSetApp() = default;
 
 void
-ifm3d::ConfigSetApp::Execute(CLI::App* app)
+ifm3d::ConfigSetApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
 
   std::string jstr;
-  std::string infile = this->config_file;
+  std::string const infile = this->config_file;
 
   if (infile == "-")
     {
@@ -32,7 +36,7 @@ ifm3d::ConfigSetApp::Execute(CLI::App* app)
           std::string line;
           while (std::getline(std::cin, line))
             {
-              buff << line << std::endl;
+              buff << line << '\n';
             }
         }
       else
@@ -47,7 +51,7 @@ ifm3d::ConfigSetApp::Execute(CLI::App* app)
       std::ifstream ifs(infile, std::ios::in);
       if (!ifs)
         {
-          std::cerr << "Could not parse file: " << infile << std::endl;
+          std::cerr << "Could not parse file: " << infile << '\n';
           throw ifm3d::Error(IFM3D_IO_ERROR);
         }
 

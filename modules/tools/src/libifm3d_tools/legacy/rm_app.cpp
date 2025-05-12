@@ -4,13 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/device/legacy_device.h"
 #include <ifm3d/tools/legacy/rm_app.h>
-#include <ifm3d/device.h>
+#include <memory>
 
-ifm3d::RmApp::~RmApp() {}
+ifm3d::RmApp::~RmApp() = default;
 
 void
-ifm3d::RmApp::Execute(CLI::App* app)
+ifm3d::RmApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
   std::static_pointer_cast<ifm3d::LegacyDevice>(device)->DeleteApplication(

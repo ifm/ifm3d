@@ -21,7 +21,7 @@ namespace ifm3d
 
     virtual CLI::App* CreateCommand(CLI::App* parent) override;
     std::string GetAppVersion();
-    ifm3d::Device::Ptr GetDevice(bool throwIfUnavailable = true);
+    ifm3d::Device::Ptr GetDevice(bool throw_if_unavailable = true) const;
 
     std::string ip;
     std::uint16_t xmlrpc_port;

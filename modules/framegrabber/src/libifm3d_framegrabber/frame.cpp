@@ -3,11 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <cstdint>
+#include "ifm3d/fg/buffer.h"
+#include "ifm3d/fg/buffer_id.h"
+#include <cstddef>
 #include <ifm3d/fg/frame.h>
 #include <frame_impl.hpp>
+#include <vector>
+#include <memory>
+#include <optional>
+#include <utility>
+#include <map>
 
 ifm3d::Frame::Frame(const BufferDataListMap& images,
-                    const std::vector<TimePointT> timestamps,
+                    const std::vector<TimePointT>& timestamps,
                     uint64_t frame_count)
   : pImpl(std::make_unique<Impl>(images, timestamps, frame_count))
 {}
@@ -20,6 +29,11 @@ ifm3d::Frame::Frame(const Frame& t) : pImpl(std::make_unique<Impl>(*t.pImpl))
 ifm3d::Frame&
 ifm3d::Frame::operator=(const Frame& t)
 {
+  if (this == &t)
+    {
+      return *this;
+    }
+
   *pImpl = *t.pImpl;
   return *this;
 }

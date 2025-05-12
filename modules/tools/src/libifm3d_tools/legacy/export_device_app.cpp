@@ -4,18 +4,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/device/legacy_device.h"
 #include <ifm3d/tools/legacy/export_device_app.h>
 #include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
-#include <ifm3d/device.h>
 
-ifm3d::ExportDeviceApp::~ExportDeviceApp() {}
+ifm3d::ExportDeviceApp::~ExportDeviceApp() = default;
 
 void
-ifm3d::ExportDeviceApp::Execute(CLI::App* app)
+ifm3d::ExportDeviceApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
 
@@ -26,12 +28,14 @@ ifm3d::ExportDeviceApp::Execute(CLI::App* app)
 
   if (this->output_file == "-")
     {
-      std::cout.write(reinterpret_cast<char*>(bytes.data()), bytes.size());
+      std::cout.write(reinterpret_cast<char*>(bytes.data()),
+                      static_cast<std::streamsize>(bytes.size()));
     }
   else
     {
       std::ofstream(this->output_file, std::ios::binary)
-        .write(reinterpret_cast<char*>(bytes.data()), bytes.size());
+        .write(reinterpret_cast<char*>(bytes.data()),
+               static_cast<std::streamsize>(bytes.size()));
     }
 }
 

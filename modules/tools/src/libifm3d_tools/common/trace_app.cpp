@@ -3,19 +3,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include <algorithm>
+#include "fmt/core.h"
 #include <iostream>
 #include <ifm3d/tools/common/trace_app.h>
-#include <ifm3d/device/device.h>
+#include <vector>
+#include <string>
 
 namespace
 {
   constexpr auto DEFAULT_TRACE_LIMIT{100};
 }
 
-ifm3d::TraceApp::~TraceApp() {}
+ifm3d::TraceApp::~TraceApp() = default;
 
 void
-ifm3d::TraceApp::Execute(CLI::App* app)
+ifm3d::TraceApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
 
@@ -30,11 +34,11 @@ ifm3d::TraceApp::Execute(CLI::App* app)
       limit = std::max(1, this->limit);
     }
 
-  std::vector<std::string> logs = device->TraceLogs(limit);
+  std::vector<std::string> const logs = device->TraceLogs(limit);
 
-  for (auto& log : logs)
+  for (const auto& log : logs)
     {
-      std::cout << log << std::endl << std::flush;
+      std::cout << log << '\n' << std::flush;
     }
 }
 

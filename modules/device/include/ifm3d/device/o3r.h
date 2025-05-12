@@ -55,7 +55,7 @@ namespace ifm3d
      * @param[in] keepNetworkSettings a bool indicating wether to keep the
      * current network settings
      */
-    virtual void FactoryReset(bool keepNetworkSettings);
+    virtual void FactoryReset(bool keep_network_settings);
 
     /**
      * Return the current JSON schema configuration
@@ -104,7 +104,7 @@ namespace ifm3d
      *
      * @param[in] jsonPointer A JSON Pointer to the object to be removed.
      */
-    void Remove(const std::string& jsonPointer);
+    void Remove(const std::string& json_pointer);
 
     /**
      * Sets the default value of an object inside the JSON. The object is
@@ -115,7 +115,7 @@ namespace ifm3d
      * @param[in] jsonPointer A JSON Pointer to the object to be set to
      * default.
      */
-    void Reset(const std::string& jsonPointer);
+    void Reset(const std::string& json_pointer);
 
     /**
      * Return the initial JSON configuration.
@@ -228,7 +228,7 @@ namespace ifm3d
      */
     void FromJSON(const json& j) override;
 
-    void DownloadServiceReport(std::string outFile);
+    void DownloadServiceReport(std::string out_file);
 
 #ifdef BUILD_MODULE_CRYPTO
     /**
@@ -260,7 +260,7 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<O3RSealedBox>;
 
-    O3RSealedBox(std::shared_ptr<O3R::Impl> pImpl);
+    O3RSealedBox(std::shared_ptr<O3R::Impl> p_impl);
     ~O3RSealedBox();
 
     /**

@@ -1,10 +1,13 @@
+#include "ifm3d/device/device.h"
+#include "ifm3d/fg/buffer_id.h"
+#include "ifm3d/fg/frame_grabber.h"
+#include "ifm3d/fg/frame.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <memory>
+#include <utility>
 #include <vector>
-#include <ifm3d/device.h>
-#include <ifm3d/fg.h>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/common/logging/log.h>
 #include <gtest/gtest.h>
@@ -19,10 +22,8 @@ namespace
       {
         return (std::isnan(a) && std::isnan(b));
       }
-    else
-      {
-        return a == b;
-      }
+
+    return a == b;
   }
 
   template <typename T>
@@ -67,7 +68,7 @@ namespace
     // split_this will have three channel and to_this vector will have
     // 3 ifm3d::Buffer images
 
-    using p3d = ifm3d::Point3D<T>;
+    using P3d = ifm3d::Point3D<T>;
 
     for (auto& image : to_this)
       {
@@ -82,7 +83,7 @@ namespace
     auto it2 = to_this[1].begin<T>();
     auto it3 = to_this[2].begin<T>();
 
-    for (auto value : ifm3d::IteratorAdapter<p3d>(split_this))
+    for (auto value : ifm3d::IteratorAdapter<P3d>(split_this))
       {
         *it1 = value.val[0];
         *it2 = value.val[1];
@@ -116,16 +117,17 @@ TEST(Frame, MoveCtor)
 {
   LOG_INFO("Frame.MoveCtor test");
   auto cam = ifm3d::Device::MakeShared();
-  auto fg_ = std::make_shared<ifm3d::FrameGrabber>(cam);
-  fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
-              ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
-              ifm3d::buffer_id::XYZ});
-  auto frame = fg_->WaitForFrame().get();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
+  fg->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
+             ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
+             ifm3d::buffer_id::XYZ});
+  auto frame = fg->WaitForFrame().get();
 
-  ifm3d::Buffer amp = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
+  ifm3d::Buffer const amp =
+    frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
   ifm3d::Buffer copy_of_amp = amp.clone();
 
-  auto frame2 = std::make_shared<ifm3d::Frame>(std::move(*(frame.get())));
+  auto frame2 = std::make_shared<ifm3d::Frame>(std::move(*(frame)));
   ifm3d::Buffer amp2 = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
 
   if (cam->AmI(ifm3d::Device::device_family::O3X) ||
@@ -156,13 +158,14 @@ TEST(Frame, MoveAssignmentOperator)
 {
   LOG_INFO("Frame.MoveAssignmentOperator test");
   auto cam = ifm3d::Device::MakeShared();
-  auto fg_ = std::make_shared<ifm3d::FrameGrabber>(cam);
-  fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
-              ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
-              ifm3d::buffer_id::XYZ});
-  auto frame = fg_->WaitForFrame().get();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
+  fg->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
+             ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
+             ifm3d::buffer_id::XYZ});
+  auto frame = fg->WaitForFrame().get();
 
-  ifm3d::Buffer amp = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
+  ifm3d::Buffer const amp =
+    frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
   ifm3d::Buffer copy_of_amp = amp.clone();
 
   auto frame2 = std::move(frame);
@@ -196,20 +199,20 @@ TEST(Frame, CopyCtor)
 {
   LOG_INFO("frame.CopyCtor test");
   auto cam = ifm3d::Device::MakeShared();
-  auto fg_ = std::make_shared<ifm3d::FrameGrabber>(cam);
-  fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
-              ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
-              ifm3d::buffer_id::XYZ});
-  auto frame = fg_->WaitForFrame().get();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
+  fg->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
+             ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
+             ifm3d::buffer_id::XYZ});
+  auto frame = fg->WaitForFrame().get();
 
   ifm3d::Buffer amp = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
 
-  auto im2 = fg_->WaitForFrame().get();
+  auto im2 = fg->WaitForFrame().get();
   ifm3d::Buffer amp2 = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
 
   EXPECT_FALSE((amp.height() * amp.width()) == (amp2.height() * amp2.width()));
 
-  im2 = std::make_shared<ifm3d::Frame>(*(frame.get()));
+  im2 = std::make_shared<ifm3d::Frame>(*(frame));
   amp2 = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
   EXPECT_TRUE((amp.height() * amp.width()) == (amp2.height() * amp2.width()));
 
@@ -239,7 +242,7 @@ TEST(Frame, CopyCtor)
   if (cam->AmI(ifm3d::Device::device_family::O3X) ||
       cam->AmI(ifm3d::Device::device_family::O3R))
     {
-      add<float>(amp2, 1.0f);
+      add<float>(amp2, 1.0F);
       EXPECT_FALSE(std::equal(amp.begin<float>(),
                               amp.end<float>(),
                               amp2.begin<float>(),
@@ -259,13 +262,12 @@ TEST(Frame, CopyAssignmentOperator)
   LOG_INFO("Frame.CopyAssignmentOperator test");
 
   auto cam = ifm3d::Device::MakeShared();
-  auto fg_ = std::make_shared<ifm3d::FrameGrabber>(cam);
-  fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
-              ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
-              ifm3d::buffer_id::XYZ});
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
+  fg->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
+             ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
+             ifm3d::buffer_id::XYZ});
 
-  auto frame = fg_->WaitForFrame().get();
-  auto frame2 = frame;
+  auto frame = fg->WaitForFrame().get();
 
   auto amp = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
   auto amp2 = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
@@ -296,7 +298,7 @@ TEST(Frame, CopyAssignmentOperator)
   if (cam->AmI(ifm3d::Device::device_family::O3X) ||
       cam->AmI(ifm3d::Device::device_family::O3R))
     {
-      add<float>(amp2, 1.0f);
+      add<float>(amp2, 1.0F);
       EXPECT_FALSE(std::equal(amp.begin<float>(),
                               amp.end<float>(),
                               amp2.begin<float>(),
@@ -316,12 +318,12 @@ TEST(Frame, References)
   LOG_INFO("Image.References test");
 
   auto cam = ifm3d::Device::MakeShared();
-  auto fg_ = std::make_shared<ifm3d::FrameGrabber>(cam);
-  fg_->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
-              ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
-              ifm3d::buffer_id::XYZ});
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(cam);
+  fg->Start({ifm3d::buffer_id::AMPLITUDE_IMAGE,
+             ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
+             ifm3d::buffer_id::XYZ});
 
-  auto frame = fg_->WaitForFrame().get();
+  auto frame = fg->WaitForFrame().get();
 
   auto amp = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
   auto amp2 = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
@@ -352,7 +354,7 @@ TEST(Frame, References)
   if (cam->AmI(ifm3d::Device::device_family::O3X) ||
       cam->AmI(ifm3d::Device::device_family::O3R))
     {
-      add<float>(amp2, 1.0f);
+      add<float>(amp2, 1.0F);
       EXPECT_TRUE(std::equal(amp.begin<float>(),
                              amp.end<float>(),
                              amp2.begin<float>(),
@@ -367,7 +369,7 @@ TEST(Frame, References)
     }
 }
 // currently extrinsic parameter is not avalaible with fg
-#if 0 
+#if 0 // NOLINT(readability-avoid-unconditional-preprocessor-if)
 TEST(Frame, ComputeCartesian)
 {
   //

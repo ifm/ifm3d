@@ -4,23 +4,24 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/swupdater/swupdater.h"
 #include <ifm3d/tools/common/reboot_app.h>
 #include <ifm3d/device/device.h>
-#include <ifm3d/common/features.h>
+#include <memory>
 #if defined(BUILD_MODULE_SWUPDATER)
-#  include <ifm3d/swupdater.h>
 #endif
 
-ifm3d::RebootApp::~RebootApp() {}
+ifm3d::RebootApp::~RebootApp() = default;
 
 void
-ifm3d::RebootApp::Execute(CLI::App* app)
+ifm3d::RebootApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice(false);
 
-  ifm3d::Device::boot_mode mode = recovery ?
-                                    ifm3d::Device::boot_mode::RECOVERY :
-                                    ifm3d::Device::boot_mode::PRODUCTIVE;
+  ifm3d::Device::boot_mode const mode = recovery ?
+                                          ifm3d::Device::boot_mode::RECOVERY :
+                                          ifm3d::Device::boot_mode::PRODUCTIVE;
 
 #if defined(BUILD_MODULE_SWUPDATER)
   ifm3d::SWUpdater::Ptr swupdater;

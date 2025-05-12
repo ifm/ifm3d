@@ -3,26 +3,29 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include <CLI/Error.hpp>
+#include "ifm3d/device/legacy_device.h"
 #include <ifm3d/tools/legacy/passwd_app.h>
+#include <memory>
 #include <string>
-#include <ifm3d/device.h>
 
-ifm3d::PasswordApp::~PasswordApp() {}
+ifm3d::PasswordApp::~PasswordApp() = default;
 
 void
-ifm3d::PasswordApp::Execute(CLI::App* app)
+ifm3d::PasswordApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
 
-  auto const new_password_status = !new_password.empty() ? true : false;
-  std::string password = "";
+  auto const new_password_status = !new_password.empty();
+  std::string password;
 
   if (new_password_status && disable_password)
     {
       throw CLI::ArgumentMismatch("Error, Invalid options combination.",
                                   CLI::ExitCodes::ArgumentMismatch);
     }
-  else if (new_password_status)
+  if (new_password_status)
     {
       password = new_password;
       std::static_pointer_cast<ifm3d::LegacyDevice>(device)->SetPassword(

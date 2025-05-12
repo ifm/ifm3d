@@ -7,6 +7,7 @@
 #include <ifm3d/common/err.h>
 #include <cstring>
 #include <fmt/core.h>
+#include <string>
 
 // library errors
 const int IFM3D_NO_ERRORS = 0;
@@ -270,7 +271,8 @@ ifm3d::Error::format_error(int errnum, const std::string& msg)
       return fmt::format("[{}] {}", errnum, msg);
     }
 
-  if (auto description = ifm3d::strerror(errnum); description != nullptr)
+  if (const auto* description = ifm3d::strerror(errnum);
+      description != nullptr)
     {
       return fmt::format("[{}] {}", errnum, description);
     }

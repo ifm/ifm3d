@@ -259,7 +259,7 @@ namespace ifm3d
       const std::string& ip = ifm3d::DEFAULT_IP,
       const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
       const std::string& password = ifm3d::DEFAULT_PASSWORD,
-      bool throwIfUnavailable = true);
+      bool throw_if_unavailable = true);
 
     /**
      * Initializes the device interface utilizing library defaults
@@ -468,7 +468,7 @@ namespace ifm3d
      *  @return A JSON object representation of the current device state.
      */
     int DeviceID();
-    bool checkDeviceID(int deviceID, int minID, int maxID);
+    bool checkDeviceID(int device_id, int min_id, int max_id);
 
     std::shared_ptr<XMLRPC> XWrapper();
 
