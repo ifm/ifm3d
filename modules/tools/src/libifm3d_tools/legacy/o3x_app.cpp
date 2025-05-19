@@ -33,7 +33,8 @@ ifm3d::O3X1XX_O3X2XX::CreateCommand(CLI::App* parent)
   RegisterSubcommand<ifm3d::RebootApp>(command);
   RegisterSubcommand<ifm3d::ResetApp>(command);
 #if defined(BUILD_MODULE_SWUPDATER)
-  RegisterSubcommand<ifm3d::SWUpdateApp>(command);
+  RegisterSubcommand<ifm3d::SWUpdateApp>(command,
+                                         ifm3d::Device::swu_version::SWU_V1);
 #endif
   RegisterSubcommand<ifm3d::TimeApp>(command);
   RegisterSubcommand<ifm3d::TraceApp>(command);

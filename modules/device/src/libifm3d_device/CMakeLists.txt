@@ -9,21 +9,13 @@ target_include_directories(ifm3d_device
     $<BUILD_INTERFACE:${IFM3D_DEVICE_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   )
-    
-target_include_directories(ifm3d_device SYSTEM
-  INTERFACE
-    ${XMLRPC_INCLUDE_DIRS}
-)
   
 target_link_libraries(
   ifm3d_device
   INTERFACE
     ifm3d_common
-    CURL::libcurl
-    xmlrpc++
-    xmlrpc
-    xmlrpc_client++
-    xmlrpc_client
+    tinyxml2
     $<BUILD_INTERFACE:asio>
     $<BUILD_INTERFACE:fmt::fmt-header-only>
+    $<BUILD_INTERFACE:httplib::httplib>
 )

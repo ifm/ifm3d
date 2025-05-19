@@ -17,8 +17,10 @@ namespace ifm3d
   auto make_swu_implementor =
     [](ifm3d::Device::Ptr cam,
        const ifm3d::SWUpdater::FlashStatusCb& cb,
-       const std::uint16_t swupdate_recovery_port) -> ifm3d::SWUpdater::Impl* {
-    switch (cam->SwUpdateVersion())
+       const std::uint16_t swupdate_recovery_port,
+       std::optional<ifm3d::Device::swu_version> force_swu_version =
+         std::nullopt) -> ifm3d::SWUpdater::Impl* {
+    switch (force_swu_version.value_or(cam->SwUpdateVersion()))
       {
       case ifm3d::Device::swu_version::SWU_V1:
         return new ifm3d::SWUpdater::Impl(
@@ -37,10 +39,15 @@ namespace ifm3d
   };
 }
 
-ifm3d::SWUpdater::SWUpdater(ifm3d::Device::Ptr cam,
-                            const ifm3d::SWUpdater::FlashStatusCb& cb,
-                            const std::uint16_t swupdate_recovery_port)
-  : pImpl(ifm3d::make_swu_implementor(cam, cb, swupdate_recovery_port))
+ifm3d::SWUpdater::SWUpdater(
+  ifm3d::Device::Ptr cam,
+  const ifm3d::SWUpdater::FlashStatusCb& cb,
+  const std::uint16_t swupdate_recovery_port,
+  std::optional<ifm3d::Device::swu_version> force_swu_version)
+  : pImpl(ifm3d::make_swu_implementor(cam,
+                                      cb,
+                                      swupdate_recovery_port,
+                                      force_swu_version))
 {}
 
 ifm3d::SWUpdater::~SWUpdater() = default;

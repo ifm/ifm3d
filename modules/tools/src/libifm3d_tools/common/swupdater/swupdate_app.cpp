@@ -13,13 +13,16 @@
 #include <chrono>
 #include <filesystem>
 #include <ifm3d/device.h>
-#include <ifm3d/swupdater.h>
 
 #ifdef _WIN32
 #  include <io.h>
 #  include <fcntl.h>
 #endif
 
+ifm3d::SWUpdateApp::SWUpdateApp(
+  std::optional<ifm3d::Device::swu_version> force_swu_version)
+  : force_swu_version(force_swu_version)
+{}
 ifm3d::SWUpdateApp::~SWUpdateApp() {}
 
 void
@@ -27,11 +30,7 @@ ifm3d::SWUpdateApp::Execute(CLI::App* app)
 {
   if (!this->subcmd_flash->parsed() && !this->subcmd_restart->parsed())
     {
-      auto device = Parent<MainCommand>()->GetDevice(false);
-
-      ifm3d::SWUpdater::Ptr swupdater = std::make_shared<ifm3d::SWUpdater>(
-        device,
-        [](float p, const std::string& msg) -> void {});
+      auto swupdater = Parent<SWUpdateApp>()->CreateSWUpdater();
 
       if (detect)
         {
@@ -54,6 +53,50 @@ ifm3d::SWUpdateApp::Execute(CLI::App* app)
           throw CLI::CallForHelp();
         }
     }
+}
+
+std::shared_ptr<ifm3d::SWUpdater>
+ifm3d::SWUpdateApp::CreateSWUpdater(bool quiet,
+                                    const std::uint16_t swupdate_recovery_port)
+{
+  auto device = Parent<MainCommand>()->GetDevice(false);
+
+  return std::make_shared<ifm3d::SWUpdater>(
+    device,
+    quiet ? static_cast<SWUpdater::FlashStatusCb>(
+              [](float p, const std::string& msg) {}) :
+            static_cast<SWUpdater::FlashStatusCb>(
+              [](float p, const std::string& msg) {
+                if (p < 1.0f)
+                  {
+                    int width = 50;
+                    std::cout << "Uploading Firmware: [";
+                    int pos = int(width * p);
+                    for (int i = 0; i < width; ++i)
+                      {
+                        if (i < pos)
+                          {
+                            std::cout << "=";
+                          }
+                        else if (i == pos)
+                          {
+                            std::cout << ">";
+                          }
+                        else
+                          {
+                            std::cout << " ";
+                          }
+                      }
+                    std::cout << "] " << int(p * 100) << "%\r";
+                    std::cout.flush();
+                  }
+                else
+                  {
+                    std::cout << msg << std::endl;
+                  }
+              }),
+    swupdate_recovery_port,
+    this->force_swu_version);
 }
 
 CLI::App*

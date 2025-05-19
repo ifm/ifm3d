@@ -11,22 +11,22 @@
 #include <ifm3d/device/legacy_device.h>
 #include <ifm3d/common/logging/log.h>
 #include <ifm3d/device/semver.h>
-#include <xmlrpc_wrapper.hpp>
+#include <xmlrpc.hpp>
 
 namespace ifm3d
 {
-  class XMLRPCWrapper;
+  class XMLRPC;
   //============================================================
   // Impl interface
   //============================================================
   class IFM3D_NO_EXPORT Device::Impl
   {
   public:
-    explicit Impl(std::shared_ptr<XMLRPCWrapper> xwrapper);
+    explicit Impl(std::shared_ptr<XMLRPC> xwrapper);
     ~Impl();
 
     // accessor/mutators
-    std::shared_ptr<XMLRPCWrapper> XWrapper();
+    std::shared_ptr<XMLRPC> XWrapper();
     std::string XPrefix();
     std::string IP();
     std::uint16_t XMLRPCPort();
@@ -44,7 +44,7 @@ namespace ifm3d
     json GetSWVersion();
 
   protected:
-    std::shared_ptr<XMLRPCWrapper> xwrapper_;
+    std::shared_ptr<XMLRPC> xwrapper_;
   }; // end: class Camera::Impl
 } // end: namespace ifm3d
 
@@ -56,15 +56,12 @@ namespace ifm3d
 // ctor/dtor
 //-------------------------------------
 
-ifm3d::Device::Impl::Impl(std::shared_ptr<XMLRPCWrapper> xwrapper)
+ifm3d::Device::Impl::Impl(std::shared_ptr<XMLRPC> xwrapper)
   : xwrapper_(std::move(xwrapper))
 {
-  LOG_VERBOSE(
-    "Initializing Camera: ip={}, xmlrpc_port={}, XMLRPC URL Prefix={}",
-    this->IP(),
-    this->XMLRPCPort(),
-    this->XPrefix());
-  LOG_VERBOSE("XMLRPC URL Prefix={}", this->XPrefix());
+  LOG_VERBOSE("Initializing Camera: ip={}, xmlrpc_port={}",
+              this->IP(),
+              this->XMLRPCPort());
 }
 
 ifm3d::Device::Impl::~Impl() { LOG_VERBOSE("Dtor..."); }
@@ -73,16 +70,10 @@ ifm3d::Device::Impl::~Impl() { LOG_VERBOSE("Dtor..."); }
 // Accessor/mutators
 //-------------------------------------
 
-std::shared_ptr<ifm3d::XMLRPCWrapper>
+std::shared_ptr<ifm3d::XMLRPC>
 ifm3d::Device::Impl::XWrapper()
 {
   return this->xwrapper_;
-}
-
-std::string
-ifm3d::Device::Impl::XPrefix()
-{
-  return this->xwrapper_->XPrefix();
 }
 
 std::string
@@ -108,9 +99,7 @@ ifm3d::Device::Impl::XMLRPCPort()
 std::string
 ifm3d::Device::Impl::DeviceParameter(const std::string& param)
 {
-  return xmlrpc_c::value_string(
-           this->xwrapper_->XCallMain("getParameter", param.c_str()))
-    .cvalue();
+  return this->xwrapper_->XCallMain("getParameter", param.c_str()).AsString();
 }
 
 bool
@@ -123,24 +112,20 @@ ifm3d::Device::Impl::CheckMinimumFirmwareVersion(
 ifm3d::SemVer
 ifm3d::Device::Impl::FirmwareVersion()
 {
-  auto data = this->xwrapper_->value_struct_to_map(
-    this->xwrapper_->XCallMain("getSWVersion"));
-  auto swversion = ifm3d::SemVer::Parse(data["IFM_Software"]);
+  auto data = this->xwrapper_->XCallMain("getSWVersion").AsMap();
+  auto swversion = ifm3d::SemVer::Parse(data["IFM_Software"].AsString());
   return swversion.value_or(ifm3d::SemVer(0, 0, 0));
 }
 
 std::vector<std::string>
 ifm3d::Device::Impl::TraceLogs(int count)
 {
-  xmlrpc_c::value_array result(
-    this->xwrapper_->XCallMain("getTraceLogs", count));
-  std::vector<xmlrpc_c::value> const res_vec(result.vectorValueValue());
+  auto result = this->xwrapper_->XCallMain("getTraceLogs", count).AsArray();
 
   std::vector<std::string> retval;
-  for (auto& entry : res_vec)
+  for (auto& entry : result)
     {
-      xmlrpc_c::value_string const entry_str(entry);
-      retval.push_back(static_cast<std::string>(entry_str));
+      retval.push_back(entry.AsString());
     }
   return retval;
 }
@@ -154,8 +139,7 @@ ifm3d::Device::Impl::Reboot(int mode)
 inline ifm3d::json
 ifm3d::Device::Impl::GetSWVersion()
 {
-  return this->xwrapper_->value_struct_to_map(
-    this->xwrapper_->XCallMain("getSWVersion"));
+  return this->xwrapper_->XCallMain("getSWVersion").ToJson();
 }
 
 #endif // IFM3D_CAMERA_CAMERA_BASE_IMPL_HPP

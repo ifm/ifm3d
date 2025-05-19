@@ -11,12 +11,12 @@
 #include <thread>
 #include <tuple>
 #include <vector>
-#include <ifm3d/device/detail/curl_transaction.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/common/logging/log.h>
 #include <ifm3d/common/json.hpp>
 #include <ifm3d/device/util.h>
+#include <httplib.h>
 
 #ifdef _WIN32
 #  include <io.h>
@@ -29,7 +29,7 @@ namespace ifm3d
   const std::string SWUPDATER_REBOOT_URL_SUFFIX = "/reboot_to_live";
   const std::string SWUPDATER_STATUS_URL_SUFFIX = "/getstatus.json";
   const std::string SWUPDATER_CHECK_RECOVERY_URL_SUFFIX = "/id.lp";
-  const std::string SWUPDATER_FILENAME_HEADER = "X_FILENAME: swupdate.swu";
+  const std::string SWUPDATER_FILENAME = "swupdate.swu";
   const std::string SWUPDATER_CONTENT_TYPE_HEADER =
     "Content-Type: application/octet-stream";
   const std::string SWUPDATER_MIME_PART_NAME = "upload";
@@ -43,7 +43,7 @@ namespace ifm3d
   //============================================================
   // Impl interface
   //============================================================
-  class IFM3D_NO_EXPORT SWUpdater::Impl
+  class IFM3D_EXPORT SWUpdater::Impl
   {
   public:
     Impl(ifm3d::Device::Ptr cam,
@@ -62,10 +62,7 @@ namespace ifm3d
     ifm3d::Device::Ptr cam_;
     ifm3d::SWUpdater::FlashStatusCb cb_;
 
-    std::string upload_url_;
-    std::string reboot_url_;
-    std::string status_url_;
-    std::string check_recovery_url_;
+    httplib::Client client_;
 
     virtual bool CheckRecovery();
 
@@ -77,62 +74,6 @@ namespace ifm3d
     virtual bool WaitForUpdaterStatus(int desired_state, long timeout_millis);
 
     virtual std::tuple<int, std::string, int> GetUpdaterStatus();
-
-    /**
-     * C-style static callbacks for libcurl
-     */
-    static size_t
-    StatusWriteCallbackIgnore(char* ptr,
-                              size_t size,
-                              size_t nmemb,
-                              void* userdata)
-    {
-      return size * nmemb;
-    }
-
-    static size_t
-    StatusWriteCallback(char* ptr, size_t size, size_t nmemb, void* userdata)
-    {
-      std::string* body = static_cast<std::string*>(userdata);
-      body->append(ptr, size * nmemb);
-      return size * nmemb;
-    }
-
-    static int
-    XferInfoCallback(void* clientp,
-                     curl_off_t dltotal,
-                     curl_off_t dlnow,
-                     curl_off_t ultotal,
-                     curl_off_t ulnow)
-    {
-      ifm3d::SWUpdater::Impl* swu =
-        static_cast<ifm3d::SWUpdater::Impl*>(clientp);
-      if (swu->cb_)
-        {
-          if (ultotal <= 0)
-            {
-              swu->cb_(0.0, "");
-            }
-          else
-            {
-              float percentage_complete =
-                (static_cast<float>(ulnow) / static_cast<float>(ultotal));
-              swu->cb_(percentage_complete, "");
-            }
-        }
-
-      if (ultotal > 0 && ulnow >= ultotal)
-        {
-          // Signal to 'abort' the transfer once all the data has been
-          // transferred. This is a workaround to 'complete' the curl
-          // transaction because the camera does not terminate the connection.
-          return 1;
-        }
-      else
-        {
-          return 0;
-        }
-    }
 
   }; // end: class SWUpdater::Impl
 
@@ -150,15 +91,12 @@ ifm3d::SWUpdater::Impl::Impl(ifm3d::Device::Ptr cam,
                              const std::string& swupdate_recovery_port)
   : cam_(cam),
     cb_(cb),
-    upload_url_("http://" + cam->IP() + ":" + swupdate_recovery_port +
-                SWUPDATER_UPLOAD_URL_SUFFIX),
-    reboot_url_("http://" + cam->IP() + ":" + swupdate_recovery_port +
-                SWUPDATER_REBOOT_URL_SUFFIX),
-    status_url_("http://" + cam->IP() + ":" + swupdate_recovery_port +
-                SWUPDATER_STATUS_URL_SUFFIX),
-    check_recovery_url_("http://" + cam->IP() + ":" + swupdate_recovery_port +
-                        SWUPDATER_CHECK_RECOVERY_URL_SUFFIX)
-{}
+    client_(cam->IP().c_str(), std::stoi(swupdate_recovery_port))
+{
+  this->client_.set_connection_timeout(ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
+  this->client_.set_read_timeout(ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
+  this->client_.set_write_timeout(ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
+}
 
 //-------------------------------------
 // "Public" interface
@@ -198,20 +136,10 @@ ifm3d::SWUpdater::Impl::WaitForRecovery(long timeout_millis)
 void
 ifm3d::SWUpdater::Impl::RebootToProductive()
 {
-  auto c = std::make_unique<ifm3d::CURLTransaction>();
-  c->Call(curl_easy_setopt, CURLOPT_URL, this->reboot_url_.c_str());
-  c->Call(curl_easy_setopt, CURLOPT_POST, true);
-  c->Call(curl_easy_setopt, CURLOPT_POSTFIELDSIZE, 0);
-  c->Call(curl_easy_setopt,
-          CURLOPT_WRITEFUNCTION,
-          &ifm3d::SWUpdater::Impl::StatusWriteCallbackIgnore);
-  c->Call(curl_easy_setopt,
-          CURLOPT_CONNECTTIMEOUT,
-          ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
-  c->Call(curl_easy_setopt,
-          CURLOPT_TIMEOUT,
-          ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
-  c->Call(curl_easy_perform);
+  auto res = this->client_.Post(SWUPDATER_REBOOT_URL_SUFFIX,
+                                "",
+                                "application/x-www-form-urlencoded");
+  ifm3d::check_http_result(res);
 }
 
 bool
@@ -291,33 +219,21 @@ ifm3d::SWUpdater::Impl::FlashFirmware(const std::string& swu_file,
 bool
 ifm3d::SWUpdater::Impl::CheckRecovery()
 {
-  auto c = std::make_unique<ifm3d::CURLTransaction>();
-  c->Call(curl_easy_setopt, CURLOPT_URL, this->check_recovery_url_.c_str());
-  c->Call(curl_easy_setopt, CURLOPT_NOBODY, true);
-  c->Call(curl_easy_setopt,
-          CURLOPT_CONNECTTIMEOUT,
-          ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
-  c->Call(curl_easy_setopt,
-          CURLOPT_TIMEOUT,
-          ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
+  auto res = this->client_.Head("/");
 
-  long status_code;
-  try
+  if (!res)
     {
-      c->Call(curl_easy_perform);
-      c->Call(curl_easy_getinfo, CURLINFO_RESPONSE_CODE, &status_code);
-    }
-  catch (const ifm3d::Error& e)
-    {
-      if (e.code() == IFM3D_RECOVERY_CONNECTION_ERROR ||
-          e.code() == IFM3D_CURL_TIMEOUT)
+      if (res.error() == httplib::Error::Connection ||
+          res.error() == httplib::Error::ConnectionTimeout)
         {
           return false;
         }
-      throw;
+
+      LOG_WARNING("{}", res.error());
+      throw ifm3d::Error(IFM3D_RECOVERY_CONNECTION_ERROR);
     }
 
-  return status_code == 200;
+  return res->status == 200;
 }
 
 bool
@@ -337,7 +253,7 @@ ifm3d::SWUpdater::Impl::CheckProductive()
       if (e.code() != IFM3D_XMLRPC_TIMEOUT &&
           e.code() != IFM3D_XMLRPC_OBJ_NOT_FOUND)
         {
-          throw;
+          // throw;
         }
     }
 
@@ -382,62 +298,59 @@ fopen_read(const std::string& file)
       return stdin;
     }
 
-  return fopen(file.c_str(), "rb");
+  FILE* res = fopen(file.c_str(), "rb");
+  if (!res)
+    {
+      throw ifm3d::Error(IFM3D_IO_ERROR);
+    }
+
+  return res;
+}
+
+void
+fclose_read(std::FILE* file)
+{
+  if (file != stdin)
+    {
+      fclose(file);
+    }
 }
 
 void
 ifm3d::SWUpdater::Impl::UploadFirmware(const std::string& swu_file,
                                        long timeout_millis)
 {
-  curl_global_init(CURL_GLOBAL_ALL);
-  struct curl_httppost* httppost = NULL;
-  struct curl_httppost* last_post = NULL;
+  std::FILE* input = fopen_read(swu_file);
 
-  curl_formadd(&httppost,
-               &last_post,
-               CURLFORM_COPYNAME,
-               "upload",
-               CURLFORM_FILE,
-               swu_file.c_str(),
-               CURLFORM_CONTENTTYPE,
-               SWUPDATER_CONTENT_TYPE_HEADER.c_str(),
-               CURLFORM_END);
+  char buffer[4096];
+  httplib::MultipartFormDataProviderItems items = {
+    {SWUPDATER_MIME_PART_NAME,
+     [&](size_t offset, httplib::DataSink& sink) -> bool {
+       auto c = fread(buffer, 1, sizeof(buffer), input);
 
-  auto c = std::make_unique<ifm3d::CURLTransaction>();
+       if (c > 0)
+         {
+           return sink.write(buffer, c);
+         }
 
-  c->Call(curl_easy_setopt, CURLOPT_URL, this->upload_url_.c_str());
-  c->Call(curl_easy_setopt, CURLOPT_HTTPPOST, httppost);
-  c->Call(curl_easy_setopt, CURLOPT_TIMEOUT, 80);
-  c->Call(curl_easy_setopt, CURLOPT_TCP_KEEPALIVE, 1);
-  c->Call(curl_easy_setopt, CURLOPT_MAXREDIRS, 50);
-  c->Call(curl_easy_setopt,
-          CURLOPT_CONNECTTIMEOUT,
-          ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
-  c->Call(curl_easy_setopt,
-          CURLOPT_WRITEFUNCTION,
-          &ifm3d::SWUpdater::Impl::StatusWriteCallbackIgnore);
+       if (feof(input))
+         {
+           sink.done();
+         }
 
-  // Workaround -- device does not close the connection after the firmware has
-  // been transferred. Register an xfer callback and terminate the transaction
-  // after all the data has been sent.
-  c->Call(curl_easy_setopt,
-          CURLOPT_XFERINFOFUNCTION,
-          &ifm3d::SWUpdater::Impl::XferInfoCallback);
-  c->Call(curl_easy_setopt, CURLOPT_XFERINFODATA, this);
-  c->Call(curl_easy_setopt, CURLOPT_NOPROGRESS, 0);
+       return ferror(input) == 0;
+     },
+     SWUPDATER_FILENAME,
+     SWUPDATER_CONTENT_TYPE_HEADER}};
 
-  // `curl_easy_perform` will return CURLE_ABORTED_BY_CALLBACK
-  // due to the above workaround. Handle and squash that error.
-  try
+  auto res = this->client_.Post(SWUPDATER_UPLOAD_URL_SUFFIX, {}, {}, items);
+
+  fclose_read(input);
+  // Ignore Error::Write because the device will force close the connection
+  // after the update finishes
+  if (res.error() != httplib::Error::Write)
     {
-      c->Call(curl_easy_perform);
-    }
-  catch (const ifm3d::Error& e)
-    {
-      if (e.code() != IFM3D_CURL_ABORTED)
-        {
-          throw;
-        }
+      ifm3d::check_http_result(res);
     }
 }
 
@@ -504,31 +417,15 @@ ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
 std::tuple<int, std::string, int>
 ifm3d::SWUpdater::Impl::GetUpdaterStatus()
 {
-  std::string status_string;
+  auto res = this->client_.Get(SWUPDATER_STATUS_URL_SUFFIX);
 
-  int status_id;
-  std::string status_message;
-  int status_error;
-
-  auto c = std::make_unique<ifm3d::CURLTransaction>();
-  c->Call(curl_easy_setopt, CURLOPT_URL, this->status_url_.c_str());
-  c->Call(curl_easy_setopt,
-          CURLOPT_WRITEFUNCTION,
-          &ifm3d::SWUpdater::Impl::StatusWriteCallback);
-  c->Call(curl_easy_setopt, CURLOPT_WRITEDATA, &status_string);
-  c->Call(curl_easy_setopt,
-          CURLOPT_CONNECTTIMEOUT,
-          ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
-  c->Call(curl_easy_setopt,
-          CURLOPT_TIMEOUT,
-          ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
-  c->Call(curl_easy_perform);
+  ifm3d::check_http_result(res);
 
   // Parse status
-  auto json = ifm3d::json::parse(status_string.c_str());
-  status_id = std::stoi(json["Status"].get<std::string>());
-  status_error = std::stoi(json["Error"].get<std::string>());
-  status_message = json["Msg"].get<std::string>();
+  auto json = ifm3d::json::parse(res->body.c_str());
+  auto status_id = std::stoi(json["Status"].get<std::string>());
+  auto status_error = std::stoi(json["Error"].get<std::string>());
+  auto status_message = json["Msg"].get<std::string>();
 
   return std::make_tuple(status_id, status_message, status_error);
 }

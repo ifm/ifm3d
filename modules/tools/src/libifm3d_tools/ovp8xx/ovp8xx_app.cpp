@@ -28,7 +28,8 @@ ifm3d::OVP8xx::CreateCommand(CLI::App* parent)
 #endif
   RegisterSubcommand<ifm3d::RebootApp>(command);
 #if defined(BUILD_MODULE_SWUPDATER)
-  RegisterSubcommand<ifm3d::SWUpdateApp>(command);
+  RegisterSubcommand<ifm3d::SWUpdateApp>(command,
+                                         ifm3d::Device::swu_version::SWU_V2);
 #endif
   return command;
 }

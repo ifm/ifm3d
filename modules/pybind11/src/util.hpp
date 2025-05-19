@@ -7,6 +7,7 @@
 #define IFM3D_PY_UTIL_HPP
 
 #include <stdexcept>
+#include <stdint.h>
 #include <ifm3d/fg/buffer.h>
 
 #include <pybind11/pybind11.h>

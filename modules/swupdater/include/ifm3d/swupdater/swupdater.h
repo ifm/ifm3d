@@ -42,10 +42,12 @@ namespace ifm3d
      *
      * @param swupdate_recovery_port swupate recovery port for the device
      */
-    SWUpdater(ifm3d::Device::Ptr cam,
-              const ifm3d::SWUpdater::FlashStatusCb& cb = {},
-              const std::uint16_t swupdate_recovery_port =
-                ifm3d::SWUPDATER_RECOVERY_PORT);
+    SWUpdater(
+      ifm3d::Device::Ptr cam,
+      const ifm3d::SWUpdater::FlashStatusCb& cb = {},
+      std::uint16_t swupdate_recovery_port = ifm3d::SWUPDATER_RECOVERY_PORT,
+      std::optional<ifm3d::Device::swu_version> force_swu_version =
+        std::nullopt);
 
     virtual ~SWUpdater();
 
@@ -132,7 +134,7 @@ namespace ifm3d
      */
     bool FlashFirmware(const std::string& swu_file, long timeout_millis = 0);
 
-    class IFM3D_NO_EXPORT Impl;
+    class IFM3D_EXPORT Impl;
 
   private:
     std::unique_ptr<Impl> pImpl;
