@@ -15,6 +15,7 @@
 #include <limits.h>
 #include <ifm3d/fg/module_frame_grabber.h>
 #include <ifm3d/device/device.h>
+#include <ifm3d/fg/buffer_id.h>
 
 namespace ifm3d
 {
@@ -118,6 +119,8 @@ namespace ifm3d
     size_t bytes_per_row;
     /* @brief json formatted metadata of the chunk obtain from device*/
     json metadata_;
+    /* @brief buffer id of Buffer */
+    ifm3d::buffer_id bufferId_;
 
     class BufferAllocator;
     std::shared_ptr<BufferAllocator> buffer_allocator_;
@@ -144,7 +147,8 @@ namespace ifm3d
            const std::uint32_t rows,
            const std::uint32_t nchannel,
            ifm3d::pixel_format format,
-           std::optional<ifm3d::json> metadata = std::nullopt);
+           std::optional<ifm3d::json> metadata = std::nullopt,
+           ifm3d::buffer_id bufferId_ = static_cast<ifm3d::buffer_id>(0));
 
     virtual ~Buffer() = default;
 
@@ -167,7 +171,8 @@ namespace ifm3d
     void create(const std::uint32_t cols,
                 const std::uint32_t rows,
                 const std::uint32_t nchannel,
-                ifm3d::pixel_format format);
+                ifm3d::pixel_format format,
+                ifm3d::buffer_id bufferId);
 
     /** @brief Creates a full copy of the array and the underlying data.
      */
@@ -179,6 +184,7 @@ namespace ifm3d
     std::uint32_t nchannels() const;
     ifm3d::pixel_format dataFormat() const;
     ifm3d::json metadata() const;
+    ifm3d::buffer_id bufferId() const;
 
     /**
      * @brief Return the size of the buffer in bytes

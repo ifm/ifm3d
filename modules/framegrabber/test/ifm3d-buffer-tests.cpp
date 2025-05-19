@@ -74,7 +74,8 @@ namespace
         image.create(split_this.width(),
                      split_this.height(),
                      1,
-                     split_this.dataFormat());
+                     split_this.dataFormat(),
+                     static_cast<ifm3d::buffer_id>(split_this.bufferId()));
       }
 
     auto it1 = to_this[0].begin<T>();
@@ -98,7 +99,11 @@ namespace
              ifm3d::Buffer& to_this,
              ifm3d::pixel_format this_type)
   {
-    to_this.create(convert_this.width(), convert_this.height(), 1, this_type);
+    to_this.create(convert_this.width(),
+                   convert_this.height(),
+                   1,
+                   this_type,
+                   static_cast<ifm3d::buffer_id>(convert_this.bufferId()));
     auto it = to_this.begin<T2>();
     for (auto& value : ifm3d::IteratorAdapter<T1>(convert_this))
       {

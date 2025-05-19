@@ -107,8 +107,9 @@ TEST(Buffer, Create)
   const int height = 100;
   const int width = 100;
   const int nchannel = 1;
+  ifm3d::buffer_id bufferId = static_cast<ifm3d::buffer_id>(img.bufferId());
 
-  img.create(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
+  img.create(width, height, 1, ifm3d::pixel_format::FORMAT_8U, bufferId);
 
   EXPECT_TRUE(img.ptr(0) != nullptr);
   EXPECT_TRUE(img.width() == width);

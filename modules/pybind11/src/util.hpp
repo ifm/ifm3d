@@ -37,30 +37,33 @@ bind_numpy(pybind11::module_& m)
     [parent_class, view_class](py::object self,
                                const py::array& data,
                                const std::optional<py::dict>& metadata,
+                               const std::optional<py::object>& buffer_id,
                                py::args args,
                                py::kwargs kwargs
 
     ) {
       auto obj = view_class(data, self);
-      obj.attr("metadata") = metadata;
-
+      obj.attr("metadata") = metadata.value_or(py::dict());
+      if (buffer_id.has_value())
+        {
+          obj.attr("buffer_id") = *buffer_id;
+        }
       return obj;
     },
-    //  py::arg("data"),
-    //  py::arg("metadada"),
     py::is_method(wrapper_class),
     py::doc(R"(
-        __new__(self, data: ndarray, metada: dict) -> ndarray
-        Create a buffer as numpy.ndarray with metadata.
+        __new__(self, data: ndarray, metadata: dict, buffer_id: Any) -> ndarray
+        Create a buffer as numpy.ndarray with metadata and buffer_id.
       )"));
 
   attributes["__array_finalize__"] = py::cpp_function(
     [](py::object self, py::object obj) {
       if (obj == Py_None)
-        {
-          return;
-        }
-      self.attr("metadata") = obj.attr("metadata");
+        return;
+      if (py::hasattr(obj, "metadata"))
+        self.attr("metadata") = obj.attr("metadata");
+      if (py::hasattr(obj, "buffer_id"))
+        self.attr("buffer_id") = obj.attr("buffer_id");
     },
     py::is_method(wrapper_class));
   m.attr("buffer") = wrapper_class;

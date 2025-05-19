@@ -42,10 +42,22 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<TOFInfoV3>;
 
+    static bool
+    IsValid(const uint8_t* data, size_t size)
+    {
+      uint32_t version = mkval<std::uint32_t>(data + TOF_INFO_VERSION_INDEX);
+
+      if (size < tof_info_v3_size || version < 3)
+        {
+          return false;
+        }
+      return true;
+    }
+
     void
     Read(const uint8_t* data, size_t size)
     {
-      if (size < tof_info_v3_size)
+      if (!IsValid(data, size))
         {
           throw ifm3d::Error(IFM3D_CORRUPTED_STRUCT);
         }
@@ -103,7 +115,7 @@ namespace ifm3d
     /*@brief Imager type*/
     std::string imager;
     /*@brief TOF_INFO data size in bytes*/
-    const size_t tof_info_v3_size = 416;
+    static constexpr size_t tof_info_v3_size = 416;
 
     static TOFInfoV3
     Deserialize(const Buffer& tof_info_buffer)

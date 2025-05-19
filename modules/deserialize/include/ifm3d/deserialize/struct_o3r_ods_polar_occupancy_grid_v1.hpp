@@ -31,10 +31,23 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<ODSPolarOccupancyGridV1>;
 
+    static bool
+    IsValid(const uint8_t* data, size_t size)
+    {
+      uint32_t version =
+        mkval<std::uint32_t>(data + ODS_POLAR_OCCUPANCY_GRID_VERSION_INDEX);
+
+      if (size < ods_polar_occupancy_grid_v1_minimum_size || version < 1)
+        {
+          return false;
+        }
+      return true;
+    }
+
     void
     Read(const uint8_t* start_ptr, size_t size)
     {
-      if (size < ods_polar_occupancy_grid_v1_minimum_size)
+      if (!IsValid(start_ptr, size))
         {
           throw ifm3d::Error(IFM3D_CORRUPTED_STRUCT);
         }

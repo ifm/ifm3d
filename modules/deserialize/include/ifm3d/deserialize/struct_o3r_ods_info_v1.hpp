@@ -30,10 +30,20 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<ODSInfoV1>;
 
+    bool
+    IsValid(const uint8_t* data, size_t size)
+    {
+      if (size < ods_info_v1_size)
+        {
+          return false;
+        }
+      return true;
+    }
+
     void
     Read(const uint8_t* data, size_t size)
     {
-      if (size < ods_info_v1_size)
+      if (!IsValid(data, size))
         {
           throw ifm3d::Error(IFM3D_CORRUPTED_STRUCT);
         }
@@ -60,7 +70,7 @@ namespace ifm3d
     /*
      *@brief size ofthe ODS_INFO_V1 in bytes
      * */
-    const size_t ods_info_v1_size = 15;
+    static constexpr size_t ods_info_v1_size = 15;
 
     static ODSInfoV1
     Deserialize(const Buffer& tof_info_buffer)

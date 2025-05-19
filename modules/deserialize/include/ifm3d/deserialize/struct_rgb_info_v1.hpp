@@ -36,10 +36,22 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<RGBInfoV1>;
 
+    static bool
+    IsValid(const uint8_t* data, size_t size)
+    {
+      uint32_t version = mkval<std::uint32_t>(data + RGB_INFO_VERSION_INDEX);
+
+      if (size < rgb_info_v1_size || version < 1)
+        {
+          return false;
+        }
+      return true;
+    }
+
     void
     Read(const uint8_t* data, size_t size)
     {
-      if (size < rgb_info_v1_size)
+      if (!IsValid(data, size))
         {
           throw ifm3d::Error(IFM3D_CORRUPTED_STRUCT);
         }
@@ -73,7 +85,7 @@ namespace ifm3d
     /*@brief Inverse intrinsic Calibration parameters*/
     calibration::InverseIntrinsicCalibration inverse_intrinsic_calibration;
     /*@brief Size of RGB_INFO in bytes*/
-    const size_t rgb_info_v1_size = 308;
+    static constexpr size_t rgb_info_v1_size = 308;
 
     static RGBInfoV1
     Deserialize(const Buffer& rgb_info_buffer)

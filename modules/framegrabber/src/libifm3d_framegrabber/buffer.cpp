@@ -91,29 +91,33 @@ ifm3d::Buffer::Buffer()
     size_(0),
     bytes_per_pixel(0),
     bytes_per_row(0),
-    metadata_(ifm3d::json())
+    metadata_(ifm3d::json()),
+    bufferId_(static_cast<ifm3d::buffer_id>(0))
 {}
 
 ifm3d::Buffer::Buffer(const std::uint32_t cols,
                       const std::uint32_t rows,
                       const std::uint32_t nchannel,
                       ifm3d::pixel_format format,
-                      std::optional<ifm3d::json> metadata)
+                      std::optional<ifm3d::json> metadata,
+                      ifm3d::buffer_id bufferId_)
   : metadata_(metadata.value_or(ifm3d::json()))
 {
-  create(cols, rows, nchannel, format);
+  create(cols, rows, nchannel, format, bufferId_);
 }
 
 void
 ifm3d::Buffer::create(const std::uint32_t cols,
                       const std::uint32_t rows,
                       const std::uint32_t nchannel,
-                      ifm3d::pixel_format format)
+                      ifm3d::pixel_format format,
+                      ifm3d::buffer_id bufferId)
 {
   cols_ = cols;
   rows_ = rows;
   nchannel_ = nchannel;
   data_format_ = format;
+  bufferId_ = bufferId;
   if (PIX_SZ.find(static_cast<std::uint32_t>(format)) != PIX_SZ.end())
     {
       data_size_in_bytes_ = PIX_SZ[static_cast<std::uint32_t>(format)];
@@ -171,4 +175,10 @@ ifm3d::json
 ifm3d::Buffer::metadata() const
 {
   return metadata_;
+}
+
+ifm3d::buffer_id
+ifm3d::Buffer::bufferId() const
+{
+  return bufferId_;
 }
