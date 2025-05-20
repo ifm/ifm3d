@@ -205,12 +205,11 @@ ifm3d::check_http_result(httplib::Result const& res)
     {
       if (res.error() == httplib::Error::ConnectionTimeout)
         {
-          throw ifm3d::Error(IFM3D_CURL_TIMEOUT, "Error: Connection timeout.");
+          throw ifm3d::Error(IFM3D_CURL_TIMEOUT, "Connection timeout.");
         }
 
-      throw ifm3d::Error(
-        IFM3D_CURL_ERROR,
-        fmt::format("Error: {}", httplib::to_string(res.error())));
+      throw ifm3d::Error(IFM3D_CURL_ERROR,
+                         fmt::format("{}", httplib::to_string(res.error())));
     }
 
   if (res->status != 200)

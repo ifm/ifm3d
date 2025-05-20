@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Improve Deserialize usages by adding global `Deserialize`
+- Support for accessing OVP8XX SealedBox
 
 ### Changed
 - Replace `curl` and `xmlrpc-c` with `cpp-httplib`, `tinyxml2` and a custom `xmlrpc` client

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <ifm3d/device/err.h>
+#include <ifm3d/common/err.h>
 #include <cstring>
 #include <fmt/core.h>
 
@@ -50,6 +50,7 @@ const int IFM3D_DEVICE_PORT_INCOMPATIBLE_WITH_ORGANIZER = -100036;
 const int IFM3D_DEVICE_PORT_NOT_SUPPORTED = -100037;
 const int IFM3D_INDEX_OUT_OF_RANGE = -100038;
 const int IFM3D_NO_INPUT_PROVIDED = -100039;
+const int IFM3D_CRYPTO_ERROR = -100040;
 // sensor errors
 const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
 const int IFM3D_INVALID_PARAM = 101000;
@@ -88,155 +89,154 @@ ifm3d::strerror(int errnum)
     case IFM3D_NO_ERRORS:
       return "OK";
     case IFM3D_XMLRPC_FAILURE:
-      return "Lib: Unknown XMLRPC failure";
+      return "Unknown XMLRPC failure";
     case IFM3D_XMLRPC_TIMEOUT:
-      return "Lib: XMLRPC Timeout - can you `ping' the sensor?";
+      return "XMLRPC Timeout - can you `ping' the sensor?";
     case IFM3D_JSON_ERROR:
-      return "Lib: Error processing JSON";
+      return "Error processing JSON";
     case IFM3D_NO_ACTIVE_APPLICATION:
-      return "Lib: No application is marked active";
+      return "No application is marked active";
     case IFM3D_SUBCOMMAND_ERROR:
-      return "Lib: Missing or invalid sub-command";
+      return "Missing or invalid sub-command";
     case IFM3D_IO_ERROR:
-      return "Lib: I/O error";
+      return "I/O error";
     case IFM3D_THREAD_INTERRUPTED:
-      return "Lib: Thread interrupted";
+      return "Thread interrupted";
     case IFM3D_PCIC_BAD_REPLY:
-      return "Lib: Bad or unexpected data from PCIC";
+      return "Bad or unexpected data from PCIC";
     case IFM3D_UNSUPPORTED_OP:
-      return "Lib: An attempted operation is not supported by the device";
+      return "An attempted operation is not supported by the device";
     case IFM3D_IMG_CHUNK_NOT_FOUND:
-      return "Lib: Image chunk not found";
+      return "Image chunk not found";
     case IFM3D_PIXEL_FORMAT_ERROR:
-      return "Lib: Pixel format error - didn't expect a particular pixel type";
+      return "Pixel format error - didn't expect a particular pixel type";
     case IFM3D_UNSUPPORTED_DEVICE:
-      return "Lib: The detected device is not supported by the library";
+      return "The detected device is not supported by the library";
     case IFM3D_UPDATE_ERROR:
-      return "Lib: An error occured while performing the update";
+      return "An error occured while performing the update";
     case IFM3D_RECOVERY_CONNECTION_ERROR:
-      return "Lib: Couldn't connect to the device (make sure the device is in "
+      return "Couldn't connect to the device (make sure the device is in "
              "Recovery Mode)";
     case IFM3D_PCICCLIENT_UNSUPPORTED_DEVICE:
-      return "Lib: PCICClient is not supported for this device";
+      return "PCICClient is not supported for this device";
     case IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_DEVICE:
-      return "Lib: Intrinsic parameter is not supported by Device";
+      return "Intrinsic parameter is not supported by Device";
     case IFM3D_INTRINSIC_CALIBRATION_UNSUPPORTED_FIRMWARE:
-      return "Lib:  Intrinsic parameter is not supported by Firmware";
+      return "Intrinsic parameter is not supported by Firmware";
     case IFM3D_CURL_ERROR:
-      return "Lib: Encountered an unexpected error in the CURL library";
+      return "Encountered an unexpected error in the CURL library";
     case IFM3D_CURL_TIMEOUT:
-      return "Lib: An HTTP operation with CURL timed out. Can you 'ping' the "
+      return "An HTTP operation with CURL timed out. Can you 'ping' the "
              "camera?";
     case IFM3D_CURL_ABORTED:
-      return "Lib: An HTTP operation with CURL was aborted.";
+      return "An HTTP operation with CURL was aborted.";
     case IFM3D_SWUPDATE_BAD_STATE:
-      return "Lib: SWUpdater process on camera is in invalid state. Reboot "
+      return "SWUpdater process on camera is in invalid state. Reboot "
              "the camera and try again.";
     case IFM3D_CONFIDENCE_IMAGE_FORMAT_NOT_SUPPORTED:
       return "Confidence image format not supported by ifm3d";
     case IFM3D_PROXY_AUTH_REQUIRED:
-      return "Lib: Server returned HTTP 407 Proxy authentication required. "
+      return "Server returned HTTP 407 Proxy authentication required. "
              "Disable proxy and try again.";
     case IFM3D_PIXEL_FORMAT_NOT_SUPPORTED:
-      return "Lib: unknown size of the pixel format";
+      return "unknown size of the pixel format";
     case IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_DEVICE:
-      return "Lib: Current device does not support distance noise image";
+      return "Current device does not support distance noise image";
     case IFM3D_DISTANCE_NOISE_IMAGE_UNSUPPORTED_FIRMWARE:
-      return "Lib: Firmware does not support distance noise image";
+      return "Firmware does not support distance noise image";
     case IFM3D_INVALID_PORT:
       return "The given port is invalid or not connected. Please make sure "
              "the port is connected and try again.";
     case IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE:
-      return "Lib: This command is not supported by the connected device";
+      return "This command is not supported by the connected device";
     case IFM3D_UNSUPPORTED_SCHEMA_ON_DEVICE:
-      return "Lib: One or multiple schema values are not supported by device";
+      return "One or multiple schema values are not supported by device";
     case IFM3D_BUFFER_ID_NOT_AVAILABLE:
-      return "Lib: A buffer with the requested buffer_id is not available.";
+      return "A buffer with the requested buffer_id is not available.";
     case IFM3D_NETWORK_ERROR:
-      return "Lib: Network error";
+      return "Network error";
     case IFM3D_SYSTEM_ERROR:
-      return "Lib: System error";
+      return "System error";
     case IFM3D_CORRUPTED_STRUCT:
-      return "Lib: The given Buffer does not contain the expected struct or "
+      return "The given Buffer does not contain the expected struct or "
              "the data is corrupted.";
     case IFM3D_DEVICE_PORT_INCOMPATIBLE_WITH_ORGANIZER:
-      return "Lib: The device's PCIC port does not match any compatible "
+      return "The device's PCIC port does not match any compatible "
              "organizers";
     case IFM3D_DEVICE_PORT_NOT_SUPPORTED:
-      return "Lib: Port is not supported by the device";
+      return "Port is not supported by the device";
     case IFM3D_NO_INPUT_PROVIDED:
-      return "Lib: No input provided. Please provide input via stdin, or use "
+      return "No input provided. Please provide input via stdin, or use "
              "the correct flags/options to specify an input.";
     case IFM3D_INDEX_OUT_OF_RANGE:
-      return "Lib:  index is out of range";
+      return "index is out of range";
     case IFM3D_XMLRPC_OBJ_NOT_FOUND:
-      return "Sensor: XMLRPC obj not found - trying to access dead session?";
+      return "XMLRPC obj not found - trying to access dead session?";
     case IFM3D_INVALID_PARAM:
-      return "Sensor: The parameter name is invalid";
+      return "The parameter name is invalid";
     case IFM3D_INVALID_VALUE_TYPE:
-      return "Sensor: Parameter value data type is invalid";
+      return "Parameter value data type is invalid";
     case IFM3D_VALUE_OUT_OF_RANGE:
-      return "Sensor: Value out of range";
+      return "Value out of range";
     case IFM3D_READONLY_PARAM:
-      return "Sensor: Cannot mutate a read-only parameter";
+      return "Cannot mutate a read-only parameter";
     case IFM3D_SESSION_ALREADY_ACTIVE:
-      return "Sensor: Device already has an edit-session active";
+      return "Device already has an edit-session active";
     case IFM3D_INVALID_PASSWORD:
-      return "Sensor: Invalid password";
+      return "Invalid password";
     case IFM3D_INVALID_SESSIONID:
-      return "Sensor: Invalid session id";
+      return "Invalid session id";
     case IFM3D_COULD_NOT_REBOOT:
-      return "Sensor: Could not execute reboot command";
+      return "Could not execute reboot command";
     case IFM3D_INVALID_FORMAT:
-      return "Sensor: Data format is invalid";
+      return "Data format is invalid";
     case IFM3D_INVALID_DEVICE_TYPE:
-      return "Sensor: Invalid device type";
+      return "Invalid device type";
     case IFM3D_INVALID_IMPORT_FLAGS:
-      return "Sensor: Invalid import flags";
+      return "Invalid import flags";
     case IFM3D_INVALID_APP_INDEX:
-      return "Sensor: There is no application at the supplied index";
+      return "There is no application at the supplied index";
     case IFM3D_APP_IN_EDIT_MODE:
-      return "Sensor: Operation not allowed while an app is in edit mode";
+      return "Operation not allowed while an app is in edit mode";
     case IFM3D_MAX_APP_LIMIT:
-      return "Sensor: Maximum number of applications has been reached";
+      return "Maximum number of applications has been reached";
     case IFM3D_NO_APP_IN_EDIT_MODE:
-      return "Sensor: There is no application in edit-mode";
+      return "There is no application in edit-mode";
     case IFM3D_EEPROM_FAIL:
-      return "Sensor: Failed to read EEPROM";
+      return "Failed to read EEPROM";
     case IFM3D_CANNOT_SW_TRIGGER:
-      return "Sensor: Operation mode does not allow S/W trigger";
+      return "Operation mode does not allow S/W trigger";
     case IFM3D_INVALID_IMAGER_TYPE:
-      return "Sensor: Unsupported imager type";
+      return "Unsupported imager type";
     case IFM3D_UNSUPPORTED_APP_TYPE:
-      return "Sensor: Unsupported application type";
+      return "Unsupported application type";
     case IFM3D_PIN_ALREADY_IN_USE:
-      return "Sensor: App requires a pin that is already in use";
+      return "App requires a pin that is already in use";
     case IFM3D_NO_SUCH_MODEL_OR_ROI:
-      return "Sensor: Logic layer contains model-roi which does not exist";
+      return "Logic layer contains model-roi which does not exist";
     case IFM3D_TEMPORAL_FILTER_TRIGGER_CONFLICT:
-      return "Sensor: Temporal filter conflicts with trigger mode";
+      return "Temporal filter conflicts with trigger mode";
     case IFM3D_IMPORT_EXPORT_IN_PROGRESS:
-      return "Sensor: Device busy, import/export in progress";
+      return "Device busy, import/export in progress";
     case IFM3D_INVALID_NET_CONFIG:
-      return "Sensor: Invalid network config";
+      return "Invalid network config";
     case IFM3D_LED_DUTY_CYCLE_VIOLATION:
-      return "Sensor: LED duty cycle violation";
+      return "LED duty cycle violation";
     case IFM3D_AUTO_EXPOSURE_NOT_SUPPORTED:
-      return "Sensor: Auto-exposure not supported";
+      return "Auto-exposure not supported";
     case IFM3D_INVALID_FIRMWARE_VERSION:
-      return "Sensor: Invalid firmware version";
+      return "Invalid firmware version";
     case IFM3D_HEADER_VERSION_MISMATCH:
-      return "Sensor: Header version mismatch while parsing data";
+      return "Header version mismatch while parsing data";
     default:
-      return ::strerror(errnum);
+      return nullptr;
     }
 }
 
 ifm3d::Error::Error(int errnum, const std::string& msg)
   : errnum_(errnum),
     errmsg_(msg),
-    what_(msg.empty() ? ifm3d::strerror(errnum) :
-                        fmt::format("{0}: {1}", ifm3d::strerror(errnum), msg))
+    what_(format_error(errnum, msg))
 {}
 
 int
@@ -255,4 +255,25 @@ const char*
 ifm3d::Error::message() const noexcept
 {
   return this->errmsg_.c_str();
+}
+
+std::string
+ifm3d::Error::format_error(int errnum, const std::string& msg)
+{
+  if (errnum == IFM3D_NO_ERRORS)
+    {
+      return "OK";
+    }
+
+  if (!msg.empty())
+    {
+      return fmt::format("[{}] {}", errnum, msg);
+    }
+
+  if (auto description = ifm3d::strerror(errnum); description != nullptr)
+    {
+      return fmt::format("[{}] {}", errnum, description);
+    }
+
+  return fmt::format("[{}] Unknown error", errnum);
 }

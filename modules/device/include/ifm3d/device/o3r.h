@@ -7,6 +7,9 @@
 #define IFM3D_DEVICE_O3R_H
 
 #include <ifm3d/device/device.h>
+#ifdef BUILD_MODULE_CRYPTO
+#  include <ifm3d/crypto/crypto.h>
+#endif
 
 namespace ifm3d
 {
@@ -22,6 +25,10 @@ namespace ifm3d
     uint16_t pcic_port;
     std::string type;
   };
+
+#ifdef BUILD_MODULE_CRYPTO
+  class O3RSealedBox;
+#endif
 
   /** @ingroup Device
    *
@@ -222,9 +229,84 @@ namespace ifm3d
 
     void DownloadServiceReport(std::string outFile);
 
+#ifdef BUILD_MODULE_CRYPTO
+    /**
+     * @brief Provides access to the SealedBox. The SealedBox is used to for
+     * accessing the password protected features of the device
+     */
+    std::shared_ptr<O3RSealedBox> SealedBox();
+#endif
+
   private:
     class Impl;
-    std::unique_ptr<Impl> pImpl;
+    std::shared_ptr<Impl> pImpl;
+
+#ifdef BUILD_MODULE_CRYPTO
+    friend class O3RSealedBox;
+#endif
   }; // end: class O3R
+
+#ifdef BUILD_MODULE_CRYPTO
+  /**
+   * @ingroup Device
+   *
+   * @brief Provides access to the O3R's SealedBox.
+   * The SealedBox is used to for accessing the password protected features of
+   * the device
+   */
+  class IFM3D_EXPORT O3RSealedBox
+  {
+  public:
+    using Ptr = std::shared_ptr<O3RSealedBox>;
+
+    O3RSealedBox(std::shared_ptr<O3R::Impl> pImpl);
+    ~O3RSealedBox();
+
+    /**
+     * @brief Sets the password for the device
+     *
+     * @param new_password The new password for the device
+     * @param old_password The old password for the device. Required if the
+     * device is currently locked
+     */
+    void SetPassword(const std::string& new_password,
+                     std::optional<std::string> old_password = std::nullopt);
+
+    /**
+     * @brief Returns whether the device is password protected
+     *
+     * @return true if the device is password protected
+     */
+    bool IsPasswordProtected();
+
+    /**
+     * @brief Removes the password protection from the device
+     *
+     * @param password The current password for the device
+     */
+    void RemovePassword(std::string password);
+
+    /**
+     * @brief Sets the configuration of the device. This allows setting
+     * password protected parameters.
+     *
+     * @param password The current password for the device
+     * @param configuration The new configuration for the device
+     */
+    void Set(const std::string& password, const json& configuration);
+
+    /**
+     * @brief Get the public key of the device used for sending encrypted
+     * messages
+     *
+     * @return The encrypted message
+     */
+    std::vector<uint8_t> GetPublicKey();
+
+  private:
+    std::shared_ptr<O3R::Impl> pImpl;
+  };
+#endif
 }
+
 #endif // IFM3D_DEVICE_O3R_H

@@ -392,6 +392,119 @@ bind_o3r(pybind11::module_& m)
       ------
       RuntimeError
     )");
+
+#ifdef BUILD_MODULE_CRYPTO
+  py::class_<ifm3d::O3RSealedBox, ifm3d::O3RSealedBox::Ptr> o3r_sealed_box(
+    m, "O3RSealedBox",
+    R"(
+      The O3RSealedBox class provides access to the SealedBox. The
+      SealedBox is used to for accessing the password protected features of the
+      device
+    )"
+  );
+
+  o3r_sealed_box.def(
+    "set_password",
+    &ifm3d::O3RSealedBox::SetPassword,
+    py::call_guard<py::gil_scoped_release>(),
+    py::arg("new_password"),
+    py::arg("old_password") = std::nullopt,
+    R"(
+      Locks the password for the device. If the device is currently 
+      locked, requires the correct old password.
+
+      Parameters
+      ----------
+      new_password : str
+          The new password for the device
+      old_password : str, optional
+          The old password for the device. Required if the 
+          device is currently locked.
+    )"
+  );
+
+  o3r_sealed_box.def(
+    "is_password_protected",
+    &ifm3d::O3RSealedBox::IsPasswordProtected,
+    py::call_guard<py::gil_scoped_release>(),
+    R"(
+      Returns whether the device is password protected
+    )"
+  );
+
+  o3r_sealed_box.def( 
+    "remove_password",
+    &ifm3d::O3RSealedBox::RemovePassword,
+    py::call_guard<py::gil_scoped_release>(),
+    py::arg("password"),
+    R"(
+      Removes the password protection from the device
+
+      Parameters
+      ----------
+      password : str
+          The current password for the device
+    )"
+  );
+
+  o3r_sealed_box.def(
+    "set",
+    [](const ifm3d::O3RSealedBox::Ptr& c, const std::string& password, const py::dict& json)
+    {
+      // Convert the input JSON to string and load it
+      py::object json_dumps = py::module::import("json").attr("dumps");
+      auto json_string =  json_dumps(json).cast<std::string>();
+      py::gil_scoped_release release;
+      c->Set(password, ifm3d::json::parse(json_string));
+    },
+    py::arg("password"),
+    py::arg("configuration"),
+    R"(
+      Sets the configuration of the device. This allows setting password protected parameters.
+
+      Parameters
+      ----------
+      password : str
+          The current password for the device
+      configuration : dict
+          The new configuration for the device
+    )"
+  );
+
+  o3r_sealed_box.def(
+    "get_public_key",
+    [](ifm3d::O3RSealedBox::Ptr self) -> py::array {
+      auto public_key = self->GetPublicKey();
+      py::gil_scoped_acquire acquire;
+      return py::array(public_key.size(), public_key.data());
+    },
+    py::call_guard<py::gil_scoped_release>(),
+    R"(
+      Get the public key of the device used for sending encrypted messages
+
+      Returns
+      -------
+      numpy.ndarray
+          The public key of the device
+    )"
+  );
+
+  o3r.def(
+    "sealed_box",
+    &ifm3d::O3R::SealedBox,
+    py::call_guard<py::gil_scoped_release>(),
+    R"(
+      Provides access to the SealedBox. The SealedBox is used to for 
+      accessing the password protected features of the device
+
+      Returns
+      -------
+      O3RSealedBox
+          The sealed box object for the O3R camera
+    )"
+  );
+#endif
+
   // clang-format on
 }
 
