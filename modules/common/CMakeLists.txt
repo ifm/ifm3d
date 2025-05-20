@@ -16,7 +16,7 @@ file(GENERATE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/include/ifm3d/common/json_impl.
 add_subdirectory(src)
 
  if(BUILD_TESTS)
-   add_subdirectory(test/logging)
+   add_subdirectory(test)
  else()
    message(WARNING "Skipping ${IFM3D_COMMON_MODULE_NAME} unit tests!")
  endif()

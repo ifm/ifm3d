@@ -60,3 +60,89 @@ TEST_F(O3RTest, port)
   EXPECT_THROW(dev_->Port("port7"), ifm3d::Error);
   EXPECT_THROW(dev_->Port("random"), ifm3d::Error);
 }
+
+#ifdef BUILD_MODULE_CRYPTO
+
+class RevertGuard
+{
+public:
+  explicit RevertGuard(std::function<void()> fn) : fn_(fn) {}
+  ~RevertGuard()
+  {
+    try
+      {
+        fn_();
+      }
+    catch (...)
+      {
+        // Ignore any exceptions thrown during the revert process
+      }
+  }
+
+private:
+  std::function<void()> fn_;
+};
+
+TEST_F(O3RTest, SealedBox_IsPasswordProtected)
+{
+  EXPECT_NO_THROW(dev_->SealedBox()->IsPasswordProtected());
+}
+
+TEST_F(O3RTest, SealedBox_GetPublicKey)
+{
+  EXPECT_NO_THROW(dev_->SealedBox()->GetPublicKey());
+}
+
+TEST_F(O3RTest, SealedBox_SetPassword)
+{
+  EXPECT_FALSE(dev_->SealedBox()->IsPasswordProtected())
+    << "Device is already password protected, make sure device is not "
+       "password protected before running the tests";
+
+  auto revert_password =
+    RevertGuard([this]() { dev_->SealedBox()->RemovePassword("foo"); });
+  EXPECT_NO_THROW(dev_->SealedBox()->SetPassword("foo"));
+}
+
+TEST_F(O3RTest, SealedBox_ChangePassword)
+{
+  EXPECT_FALSE(dev_->SealedBox()->IsPasswordProtected())
+    << "Device is already password protected, make sure device is not "
+       "password protected before running the tests";
+
+  auto revert_password =
+    RevertGuard([this]() { dev_->SealedBox()->RemovePassword("foo"); });
+  EXPECT_NO_THROW(dev_->SealedBox()->SetPassword("foo"));
+
+  auto revert_password2 =
+    RevertGuard([this]() { dev_->SealedBox()->RemovePassword("bar"); });
+  EXPECT_NO_THROW(dev_->SealedBox()->SetPassword("bar", "foo"));
+}
+
+TEST_F(O3RTest, SealedBox_SetConfig)
+{
+  EXPECT_FALSE(dev_->SealedBox()->IsPasswordProtected())
+    << "Device is already password protected, make sure device is not "
+       "password protected before running the tests";
+
+  auto authorized_keys = dev_->ResolveConfig(
+    ifm3d::json::json_pointer("/device/network/authorized_keys"));
+  auto revert_authorized_keys = RevertGuard([this, authorized_keys]() {
+    dev_->Set(
+      {{"device", {{"network", {{"authorized_keys", authorized_keys}}}}}});
+  });
+
+  auto revert_password =
+    RevertGuard([this]() { dev_->SealedBox()->RemovePassword("foo"); });
+  EXPECT_NO_THROW(dev_->SealedBox()->SetPassword("foo"));
+
+  EXPECT_NO_THROW(dev_->SealedBox()->Set(
+    "foo",
+    {{"device", {{"network", {{"authorized_keys", "baz"}}}}}}));
+
+  EXPECT_EQ(dev_->ResolveConfig(
+              ifm3d::json::json_pointer("/device/network/authorized_keys")),
+            "baz");
+}
+
+#endif

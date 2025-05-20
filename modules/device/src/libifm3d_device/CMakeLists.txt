@@ -27,3 +27,7 @@ target_link_libraries(
     $<BUILD_INTERFACE:asio>
     $<BUILD_INTERFACE:fmt::fmt-header-only>
 )
+
+if(BUILD_MODULE_CRYPTO)
+  target_link_libraries(ifm3d_device INTERFACE ifm3d_crypto)
+endif()

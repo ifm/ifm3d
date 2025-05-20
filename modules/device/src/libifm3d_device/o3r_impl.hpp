@@ -24,6 +24,7 @@
 #include <ifm3d/device/detail/curl_transaction.h>
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/device/err.h>
+#include <ifm3d/device/util.h>
 #include <ifm3d/common/logging/log.h>
 #include <xmlrpc_wrapper.hpp>
 
@@ -63,6 +64,21 @@ namespace ifm3d
     void Reboot();
     void RebootToRecovery();
     void DownloadServiceReport(std::string outFile);
+
+#ifdef BUILD_MODULE_CRYPTO
+    // SealedBoxImpl
+    void SealedBoxSetPassword(
+      const std::string& new_password,
+      std::optional<std::string> old_password = std::nullopt);
+    bool SealedBoxIsPasswordProtected();
+    void SealedBoxRemovePassword(std::string password);
+    void SealedBoxSet(const std::string& password, const json& configuration);
+    std::vector<uint8_t> SealedBoxGetPublicKey();
+
+    std::vector<uint8_t> SealedBoxEncryptMessage(const json& message);
+    void SealedBoxSendCommand(const std::string& command,
+                              const json& data = json::object());
+#endif
 
   protected:
     std::shared_ptr<XMLRPCWrapper> xwrapper_;
@@ -365,5 +381,78 @@ ifm3d::O3R::Impl::DownloadServiceReport(std::string outFile)
   curl_global_cleanup();
   ofs.close();
 }
+
+#ifdef BUILD_MODULE_CRYPTO
+
+void
+ifm3d::O3R::Impl::SealedBoxSetPassword(const std::string& new_password,
+                                       std::optional<std::string> old_password)
+{
+  if (old_password)
+    {
+      SealedBoxSendCommand(
+        "set_password",
+        {{"new_password", new_password}, {"password", old_password.value()}});
+    }
+  else
+    {
+      SealedBoxSendCommand("set_password", {{"new_password", new_password}});
+    }
+}
+
+bool
+ifm3d::O3R::Impl::SealedBoxIsPasswordProtected()
+{
+  return this->ResolveConfig(
+    "/device/crypto/sealedbox/passwordProtected"_json_pointer);
+}
+
+void
+ifm3d::O3R::Impl::SealedBoxRemovePassword(std::string password)
+{
+  SealedBoxSendCommand("remove_password", {{"password", password}});
+}
+
+inline std::vector<uint8_t>
+ifm3d::O3R::Impl::SealedBoxGetPublicKey()
+{
+  return base64_decode(
+    this->ResolveConfig("/device/crypto/sealedbox/public_key"_json_pointer)
+      .get<std::string>());
+}
+
+std::vector<uint8_t>
+ifm3d::O3R::Impl::SealedBoxEncryptMessage(const json& message)
+{
+  return ifm3d::SealedBox(SealedBoxGetPublicKey()).Encrypt(message.dump());
+}
+
+void
+ifm3d::O3R::Impl::SealedBoxSet(const std::string& password,
+                               const json& configuration)
+{
+  SealedBoxSendCommand(
+    "set_configuration",
+    {{"password", password}, {"configuration", configuration}});
+}
+
+void
+ifm3d::O3R::Impl::SealedBoxSendCommand(const std::string& command,
+                                       const json& additional_data)
+{
+  json message = additional_data;
+  message.update(
+    {{"nonce", base64_encode(RandomNonce())}, {"request", command}});
+
+  this->Set(
+    json({{"device",
+           {{"crypto",
+             {{"sealedbox",
+               {{"message",
+                 base64_encode(SealedBoxEncryptMessage(message))}}}}}}}})
+      .dump());
+}
+
+#endif
 
 #endif // IFM3D_DEVICE_O3R_IMPL_HPP

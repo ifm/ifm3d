@@ -146,6 +146,15 @@ if(BUILD_MODULE_SWUPDATER)
 
 endif(BUILD_MODULE_SWUPDATER)
 
+if(BUILD_MODULE_CRYPTO)
+  FetchContent_Declare(Sodium
+      GIT_REPOSITORY https://github.com/robinlinden/libsodium-cmake.git
+      GIT_TAG 24f829c6d1bf88adb05ff3ee594abc367ffc0590 # libsodium 1.0.20
+  )
+  set(SODIUM_DISABLE_TESTS ON)
+  FetchContent_MakeAvailable(Sodium)
+endif()
+
 unset(BUILD_STATIC_LIBS)
 unset(BUILD_SHARED_LIBS)
 unset(CMAKE_POSITION_INDEPENDENT_CODE)

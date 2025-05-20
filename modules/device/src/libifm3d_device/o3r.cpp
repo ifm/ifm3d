@@ -169,3 +169,51 @@ ifm3d::O3R::DownloadServiceReport(std::string outFile)
 {
   this->pImpl->DownloadServiceReport(outFile);
 }
+
+#ifdef BUILD_MODULE_CRYPTO
+
+std::shared_ptr<ifm3d::O3RSealedBox>
+ifm3d::O3R::SealedBox()
+{
+  return std::make_shared<O3RSealedBox>(this->pImpl);
+}
+
+ifm3d::O3RSealedBox::O3RSealedBox(std::shared_ptr<O3R::Impl> pImpl)
+  : pImpl(pImpl)
+{}
+
+ifm3d::O3RSealedBox::~O3RSealedBox() {}
+
+void
+ifm3d::O3RSealedBox::SetPassword(const std::string& new_password,
+                                 std::optional<std::string> old_password)
+{
+  this->pImpl->SealedBoxSetPassword(new_password, old_password);
+}
+
+bool
+ifm3d::O3RSealedBox::IsPasswordProtected()
+{
+  return this->pImpl->SealedBoxIsPasswordProtected();
+}
+
+void
+ifm3d::O3RSealedBox::RemovePassword(std::string password)
+{
+  this->pImpl->SealedBoxRemovePassword(password);
+}
+
+std::vector<uint8_t>
+ifm3d::O3RSealedBox::GetPublicKey()
+{
+  return this->pImpl->SealedBoxGetPublicKey();
+}
+
+void
+ifm3d::O3RSealedBox::Set(const std::string& password,
+                         const json& configuration)
+{
+  this->pImpl->SealedBoxSet(password, configuration);
+}
+
+#endif

@@ -70,6 +70,10 @@ if(BUILD_MODULE_SWUPDATER)
   target_link_libraries(ifm3dpy PRIVATE ifm3d_swupdater)
 endif()
 
+if(BUILD_MODULE_CRYPTO)
+  target_link_libraries(ifm3dpy PRIVATE ifm3d_crypto)
+endif()
+
 #------------------
 # Properties
 #------------------
