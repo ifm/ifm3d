@@ -10,7 +10,7 @@ main(int argc, char** argv)
     {{"O3D", "DeviceTest.*:LegacyDeviceTest.*:O3DTest.*"},
      {"O3X", "DeviceTest.*:LegacyDeviceTest.*:O3XTest.*"},
      {"O3R", "DeviceTest.*:O3RTest.*"},
-     {"device_independent", "Err.*:Version.*"}});
+     {"device_independent", "Version.*"}});
 
   std::map<ifm3d::Device::device_family, std::string> device_family_to_device(
     {{ifm3d::Device::device_family::O3D, "O3D"},

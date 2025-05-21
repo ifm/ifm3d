@@ -11,9 +11,41 @@ if(NOT EXISTS ${PROJECT_SOURCE_DIR}/doc/sphinx/content/ifm3d-examples)
         COMMAND git clone https://github.com/ifm/ifm3d-examples ${PROJECT_SOURCE_DIR}/doc/sphinx/content/ifm3d-examples
     )
 else()
-execute_process(COMMAND git -C ${PROJECT_SOURCE_DIR}/doc/sphinx/content/ifm3d-examples checkout -q .)
-execute_process(COMMAND git -C ${PROJECT_SOURCE_DIR}/doc/sphinx/content/ifm3d-examples pull)
+    execute_process(COMMAND git -C ${PROJECT_SOURCE_DIR}/doc/sphinx/content/ifm3d-examples checkout -q .)
+    execute_process(COMMAND git -C ${PROJECT_SOURCE_DIR}/doc/sphinx/content/ifm3d-examples pull)
 endif()
+
+
+# Create a venv
+set(venv ${CMAKE_CURRENT_BINARY_DIR}/docs-venv)
+if(NOT IS_DIRECTORY ${venv})
+    execute_process(
+        COMMAND ${PYTHON_EXECUTABLE} -m venv ${venv}
+        RESULT_VARIABLE status
+        OUTPUT_VARIABLE output
+        ERROR_VARIABLE output
+    )
+    if(status AND NOT status EQUAL 0)
+        message(
+        FATAL_ERROR
+            "Error while creating venv in ${venv}:\n${output}"
+    )
+    endif()
+endif()
+
+find_program(venv_python python PATHS ${venv}/bin/ ${venv}/Scripts REQUIRED NO_DEFAULT_PATH)
+
+# Install requirements in the venv
+execute_process(
+    COMMAND ${venv_python} -m pip install -r ${ROOT_PROJECT_DIR}/requirements.txt -r ${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt
+    RESULT_VARIABLE status
+    OUTPUT_VARIABLE output
+    ERROR_VARIABLE output
+)
+if(status AND NOT status EQUAL 0)
+    message(FATAL_ERROR "Error while installing requirements in ${venv}:\n${output}")
+endif()
+
 add_custom_target(ifm3d_sphinx
     DEPENDS ifm3d_doxygen
     DEPENDS ifm3dpy
@@ -25,7 +57,7 @@ add_custom_target(ifm3d_sphinx
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/jpeg.png ${CMAKE_CURRENT_BINARY_DIR}/content/jpeg.png
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ChangeLog.md ${CMAKE_CURRENT_BINARY_DIR}/content/ChangeLog.md       
     COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${IFM3DPY_DIR}"
-        ${PYTHON_EXECUTABLE} -m sphinx.cmd.build -b html -D html_extra_path=${DOXYGEN_DIR}/html "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/html"
+        ${venv_python} -m sphinx.cmd.build -b html -D html_extra_path=${DOXYGEN_DIR}/html "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/html"
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generating python documentation with Sphinx"
     VERBATIM)

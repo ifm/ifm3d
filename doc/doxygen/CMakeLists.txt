@@ -4,6 +4,9 @@
 find_package(Doxygen)
 
 if (DOXYGEN_FOUND)
+    get_directory_property(DOXYGEN_DEFINES COMPILE_DEFINITIONS)
+    string(REPLACE ";" " " DOXYGEN_DEFINES "${DOXYGEN_DEFINES}")
+
     foreach(DOXYGEN_MODULE IN LISTS DOXYGEN_MODULES)
       string(APPEND DOXYGEN_INPUTS "${PROJECT_SOURCE_DIR}/modules/${DOXYGEN_MODULE}/include ")
     endforeach(DOXYGEN_MODULE)

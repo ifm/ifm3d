@@ -251,7 +251,7 @@ namespace ifm3d
     if (result != tinyxml2::XML_SUCCESS)
       {
         throw ifm3d::Error(IFM3D_XMLRPC_FAILURE,
-                           "Error: Malformed XML received from server.");
+                           "Malformed XML received from server.");
       }
 
     tinyxml2::XMLElement* methodResponse =
@@ -260,7 +260,7 @@ namespace ifm3d
       {
         throw ifm3d::Error(
           IFM3D_XMLRPC_FAILURE,
-          "Error: Invalid XML-RPC response. <methodResponse> not found.");
+          "Invalid XML-RPC response. <methodResponse> not found.");
       }
 
     tinyxml2::XMLElement* fault = methodResponse->FirstChildElement("fault");
@@ -279,7 +279,7 @@ namespace ifm3d
 
             throw ifm3d::Error(
               IFM3D_XMLRPC_FAILURE,
-              "Error: Invalid XML-RPC response. Invalid fault structure.");
+              "Invalid XML-RPC response. Invalid fault structure.");
           }
       }
 
@@ -298,7 +298,7 @@ namespace ifm3d
       }
 
     throw ifm3d::Error(IFM3D_XMLRPC_FAILURE,
-                       "Error: No valid result found in the response.");
+                       "No valid result found in the response.");
   }
 
   std::string
