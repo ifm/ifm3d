@@ -114,21 +114,23 @@ ifm3d::create_buffer(const std::vector<std::uint8_t>& data,
 {
   uint32_t nchan = get_format_channels(fmt);
   std::size_t fsize = get_format_size(fmt);
-  ifm3d::Buffer image(width, height, nchan, fmt, metadata);
-
-  std::size_t incr = fsize * nchan;
+  std::size_t pixel_stride = fsize * nchan;
   std::size_t npts = width * height;
-  uint8_t* ptr = image.ptr<uint8_t>(0);
 
-  const auto start = data.data() + idx;
+  ifm3d::Buffer image(width, height, nchan, fmt, metadata);
+  uint8_t* dst = image.ptr<uint8_t>(0);
+
+  const uint8_t* start = data.data() + idx;
 
 #if !defined(_WIN32) && __BYTE_ORDER == __BIG_ENDIAN
-  for (std::size_t i = 0; i < npts; ++i, idx += incr)
+  for (std::size_t i = 0; i < npts * nchan; ++i)
     {
-      std::reverse_copy(start + i * fsize, start + (i + 1) * fsize, ptr + i);
+      const uint8_t* src_pixel = start + i * fsize;
+      uint8_t* dst_pixel = dst + i * fsize;
+      std::reverse_copy(src_pixel, src_pixel + fsize, dst_pixel);
     }
 #else
-  std::copy(start, start + npts * fsize, ptr);
+  std::copy(start, start + (npts * pixel_stride), dst);
 #endif
 
   return image;
