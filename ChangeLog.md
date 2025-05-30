@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Parsing of multi-channel data (e.g. UNIT_VECTOR_ALL)
+- Fix issue when there was no applications configured in the device
 
 ## 1.6.8 - 2025-04-16
 ### Removed
