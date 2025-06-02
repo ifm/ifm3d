@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Replace `curl` and `xmlrpc-c` with `cpp-httplib`, `tinyxml2` and a custom `xmlrpc` client
 
+### Fixed
+- Parsing of multi-channel data (e.g. UNIT_VECTOR_ALL)
+
 ## 1.6.8 - 2025-04-16
 ### Removed
 - l4t based .deb packages
