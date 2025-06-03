@@ -20,6 +20,22 @@ namespace ifm3d
 
     virtual CLI::App* CreateCommand(CLI::App* parent) override;
     std::string GetAppVersion();
+
+    template <typename T>
+    typename T::Ptr
+    GetDevice(bool throwIfUnavailable = true)
+    {
+      auto device =
+        std::dynamic_pointer_cast<T>(this->GetDevice(throwIfUnavailable));
+
+      if (!device)
+        {
+          throw ifm3d::Error(IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE);
+        }
+
+      return device;
+    }
+
     ifm3d::Device::Ptr GetDevice(bool throwIfUnavailable = true);
 
     std::string ip;
