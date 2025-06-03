@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.6.10 - 2025-06-03
+
 ## 1.6.9 - 2025-05-21
 ### Added
 - Support for accessing OVP8XX SealedBox
