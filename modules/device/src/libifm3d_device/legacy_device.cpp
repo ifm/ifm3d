@@ -215,7 +215,10 @@ ifm3d::LegacyDevice::ApplicationList()
 
   int active = this->ActiveApplication();
   std::vector<ifm3d::app_entry_t> apps = this->pImpl->ApplicationList();
-
+  if (apps.empty())
+    {
+      return ifm3d::json::array();
+    }
   for (auto& app : apps)
     {
       json dict = {{"Index", app.index},
