@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 1.6.9 - 2025-05-21
 ### Added
 - Support for accessing OVP8XX SealedBox
+- [CLI] `ovp8xx sealebox` command
 
 ### Fixed
 - Parsing of multi-channel data (e.g. UNIT_VECTOR_ALL)

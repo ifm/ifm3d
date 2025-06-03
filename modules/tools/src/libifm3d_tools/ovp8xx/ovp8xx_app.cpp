@@ -30,6 +30,9 @@ ifm3d::OVP8xx::CreateCommand(CLI::App* parent)
 #if defined(BUILD_MODULE_SWUPDATER)
   RegisterSubcommand<ifm3d::SWUpdateApp>(command);
 #endif
+#if defined(BUILD_MODULE_CRYPTO)
+  RegisterSubcommand<tools::ovp8xx::sealedbox::SealedBox>(command);
+#endif
   return command;
 }
 
