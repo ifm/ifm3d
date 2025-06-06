@@ -7,11 +7,12 @@
 #ifndef IFM3D_TOOLS_SEALEDBOX_APP_H
 #define IFM3D_TOOLS_SEALEDBOX_APP_H
 
-#ifdef BUILD_MODULE_CRYPTO
+#include <string>
+#include <ifm3d/common/features.h>
+#include <ifm3d/tools/command.hpp>
+#include <ifm3d/tools/main_command.hpp>
 
-#  include <string>
-#  include <ifm3d/tools/command.hpp>
-#  include <ifm3d/tools/main_command.hpp>
+#ifdef BUILD_MODULE_CRYPTO
 
 namespace ifm3d::tools::ovp8xx::sealedbox
 {

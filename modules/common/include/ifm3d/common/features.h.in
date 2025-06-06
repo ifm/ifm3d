@@ -1,0 +1,24 @@
+// -*- c++ -*-
+/*
+ * Copyright 2025-present ifm electronic, gmbh
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#ifndef IFM3D_COMMON_FEATURES_H
+#define IFM3D_COMMON_FEATURES_H
+
+#cmakedefine BUILD_TESTS
+#cmakedefine BUILD_MODULE_FRAMEGRABBER
+#cmakedefine BUILD_MODULE_DESERIALIZE
+#cmakedefine BUILD_MODULE_SWUPDATER
+#cmakedefine BUILD_MODULE_PCICCLIENT
+#cmakedefine BUILD_MODULE_TOOLS
+#cmakedefine BUILD_MODULE_PYBIND11
+#cmakedefine BUILD_MODULE_CRYPTO
+#cmakedefine BUILD_SDK_PKG
+#cmakedefine BUILD_SHARED_LIBS
+#cmakedefine BUILD_DOC
+#cmakedefine CREATE_WIN_INSTALLER
+#cmakedefine CREATE_PYTHON_STUBS
+
+#endif

@@ -5,6 +5,7 @@
 
 #include <ifm3d/tools/main_command.hpp>
 #include <ifm3d/device/device.h>
+#include <ifm3d/common/features.h>
 #include <ifm3d/common/logging/logger.h>
 #include <ifm3d/common/logging/log_writer_file.h>
 
