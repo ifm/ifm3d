@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <ifm3d/common/features.h>
 #include <ifm3d/tools/common/swupdater/flash_sw_app.h>
 #include <exception>
 #include <iostream>

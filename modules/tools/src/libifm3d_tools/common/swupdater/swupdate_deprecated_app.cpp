@@ -4,6 +4,7 @@
  */
 
 #include <ifm3d/tools/common/swupdater/swupdate_deprecated_app.h>
+#include <ifm3d/common/features.h>
 #include <exception>
 #include <iostream>
 #include <istream>

@@ -6,6 +6,7 @@
 #ifndef IFM3D_DEVICE_O3R_H
 #define IFM3D_DEVICE_O3R_H
 
+#include <ifm3d/common/features.h>
 #include <ifm3d/device/device.h>
 #ifdef BUILD_MODULE_CRYPTO
 #  include <ifm3d/crypto/crypto.h>
