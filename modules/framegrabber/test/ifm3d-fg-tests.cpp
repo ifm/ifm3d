@@ -631,3 +631,15 @@ TEST_F(FrameGrabberTest, metadata)
   EXPECT_TRUE(frame->GetBufferCount(static_cast<ifm3d::buffer_id>(
                 ifm3d::buffer_id::O3R_RESULT_JSON)) > 0);
 }
+
+TEST_F(FrameGrabberTest, buffer_mapping)
+{
+  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev);
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(o3r, 51010);
+  fg->Start({
+    ifm3d::buffer_id::O3R_ODS_RENDERED_ZONES,
+  });
+  auto frame = fg->WaitForFrame().get();
+  auto& buffer = frame->GetBuffer(ifm3d::buffer_id::O3R_ODS_RENDERED_ZONES);
+  EXPECT_TRUE(buffer.metadata()["result"]["type"] == "ods_rendered_zones");
+}
