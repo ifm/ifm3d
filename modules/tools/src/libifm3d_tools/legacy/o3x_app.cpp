@@ -4,6 +4,7 @@
  */
 
 #include <ifm3d/tools/legacy/o3x_app.h>
+#include <ifm3d/common/features.h>
 #include <iostream>
 
 ifm3d::O3X1XX_O3X2XX::~O3X1XX_O3X2XX() {}

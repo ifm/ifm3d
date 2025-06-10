@@ -10,6 +10,12 @@ string(REPLACE nlohmann:: ifm3d:: IFM_JSON_HPP "${IFM_JSON_HPP}")
 string(REPLACE "namespace nlohmann" "namespace ifm3d" IFM_JSON_HPP "${IFM_JSON_HPP}")
 file(GENERATE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/include/ifm3d/common/json_impl.hpp CONTENT "${IFM_JSON_HPP}")
 
+configure_file(
+  ${IFM3D_COMMON_SOURCE_DIR}/include/ifm3d/common/features.h.in
+  ${IFM3D_COMMON_BINARY_DIR}/include/ifm3d/common/features.h
+  @ONLY
+)
+
 ################################################
 ## Process child CMakeLists.txt files
 ################################################

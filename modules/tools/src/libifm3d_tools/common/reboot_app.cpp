@@ -7,6 +7,7 @@
 #include <ifm3d/tools/common/reboot_app.h>
 #include <iostream>
 #include <ifm3d/device/device.h>
+#include <ifm3d/common/features.h>
 #if defined(BUILD_MODULE_SWUPDATER)
 #  include <ifm3d/swupdater.h>
 #endif
