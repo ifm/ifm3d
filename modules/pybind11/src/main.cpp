@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <ifm3d/common/features.h>
 #include <ifm3d/device.h>
 #include <ifm3d/fg.h>
 // Pybind must come after ifm3d because the pybind includes

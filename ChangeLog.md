@@ -5,10 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Inability to access SealedBox in C++ interface due to missing define
 
 ## 1.6.10 - 2025-06-03
-
-## 1.6.9 - 2025-05-21
 ### Added
 - Support for accessing OVP8XX SealedBox
 - [CLI] `ovp8xx sealebox` command
@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Parsing of multi-channel data (e.g. UNIT_VECTOR_ALL)
 - Fix issue when there was no applications configured in the device
+
+## 1.6.9 - 2025-05-21
+### Added
+- Support for accessing OVP8XX SealedBox
+
 
 ## 1.6.8 - 2025-04-16
 ### Removed
