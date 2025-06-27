@@ -94,7 +94,7 @@ RUN BASE_IMAGE_NAME=$(echo "${BASE_IMAGE}" | grep -o '[^/]*$' | cut -d":" -f1) \
 # Install .whl packages
 # ---------------------------
 COPY ./filtered_wheels /filtered_wheels
-RUN  /home/ifm/venv/bin/pip install /filtered_wheels/*.whl
+RUN  /home/ifm/venv/bin/pip install --no-deps /filtered_wheels/*.whl
 
 USER ifm
 WORKDIR /home/ifm
