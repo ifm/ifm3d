@@ -26,6 +26,26 @@ public:
   };
 };
 
+class PyLogWriterGuard : public ifm3d::LogWriter
+{
+public:
+  PyLogWriterGuard(std::shared_ptr<ifm3d::LogWriter> inner)
+    : LogWriter(),
+      inner_(std::move(inner)),
+      py_guard_(py::cast(inner_))
+  {}
+
+  void
+  Write(const ifm3d::LogEntry& entry) override
+  {
+    inner_->Write(entry);
+  };
+
+private:
+  std::shared_ptr<ifm3d::LogWriter> inner_;
+  py::object py_guard_;
+};
+
 void
 bind_logging(pybind11::module_& m)
 {
@@ -163,7 +183,9 @@ bind_logging(pybind11::module_& m)
 
   logger.def_static(
     "set_writer",
-    [](std::shared_ptr<ifm3d::LogWriter> writer) { ifm3d::Logger::Get().SetWriter(writer); },
+    [](std::shared_ptr<ifm3d::LogWriter> writer) { 
+      ifm3d::Logger::Get().SetWriter(std::make_shared<PyLogWriterGuard>(writer)); 
+    },
     R"(
       Set the log writer.
     )");
