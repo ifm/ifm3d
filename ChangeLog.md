@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## 1.6.12 - 2025-06-30
+### Fixed
+- Docker builds for `aarch64 `
+
 ## 1.6.11 - 2025-06-10
 ### Fixed
 - Inability to access SealedBox in C++ interface due to missing define
