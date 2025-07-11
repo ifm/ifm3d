@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed an issue in the Python bindings where log entry attributes were not exposed correctly due to repeated property names.
+
 ## 1.7.0 - 2025-06-23
 ### Added
 - Improve Deserialize usages by adding global `Deserialize`
