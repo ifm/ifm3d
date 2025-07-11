@@ -76,38 +76,38 @@ bind_logging(pybind11::module_& m)
     )");
 
   logEntry.def_property_readonly(
-    "file",
+    "func",
     &ifm3d::LogEntry::GetFunc,
     R"(
       The name of the function from which this log entry originates
     )");
 
   logEntry.def_property_readonly(
-    "file",
+    "line",
     &ifm3d::LogEntry::GetLine,
     R"(
       The line number from which this log entry originates
     )");
 
   logEntry.def_property_readonly(
-    "file",
+    "log_level",
     &ifm3d::LogEntry::GetLogLevel,
     R"(
       The log level of this log entry
     )");
 
   logEntry.def_property_readonly(
-    "file",
+    "message",
     &ifm3d::LogEntry::GetMessage,
     R"(
       The message of this log entry
     )");
 
   logEntry.def_property_readonly(
-    "file",
+    "time",
     &ifm3d::LogEntry::GetTime,
     R"(
-      The time this log entry occured
+      The time this log entry occurred
     )");
 
   py::class_<ifm3d::LogWriter, PyLogWriter, std::shared_ptr<ifm3d::LogWriter>> logWriter(
@@ -176,7 +176,7 @@ bind_logging(pybind11::module_& m)
 
   logger.def_static(
     "log_level",
-    [](){ ifm3d::Logger::Get().GetLogLevel(); },
+    [](){ return ifm3d::Logger::Get().GetLogLevel(); },
     R"(
       Get the active log level, messages below this level will be discarded
     )");
