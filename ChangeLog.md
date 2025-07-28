@@ -5,8 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Removed
+-[ifm3dpy] Remove `_run_cmdtool` entry point from metadata
 
 ### Fixed
+- Fix in device discovery, device showing multiple times
 - Fixed an issue in the Python bindings where log entry attributes were not exposed correctly due to repeated property names.
 
 ## 1.7.0 - 2025-06-23
