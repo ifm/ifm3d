@@ -30,9 +30,24 @@ ifm3d::DiscoverApp::Execute(CLI::App* app)
       auto devices = ifm3d::Device::DeviceDiscovery();
       std::stringstream ss;
 
-      if (!devices.empty())
+      std::unordered_map<std::string, decltype(devices)::value_type>
+        unique_devices;
+      for (const auto& device : devices)
         {
-          for (const auto& device : devices)
+          auto mac = device.GetMACAddress();
+          auto existing = unique_devices.find(mac);
+
+          if (existing == unique_devices.end() ||
+              (existing->second.GetFlag() == BCAST_FLAG_WRONGSUBNET &&
+               device.GetFlag() != BCAST_FLAG_WRONGSUBNET))
+            {
+              unique_devices.emplace(mac, device);
+            }
+        }
+
+      if (!unique_devices.empty())
+        {
+          for (const auto& [mac, device] : unique_devices)
             {
               auto ip_address = device.GetIPAddress();
               try

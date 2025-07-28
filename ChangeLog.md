@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 -[ifm3dpy] Remove `_run_cmdtool` entry point from metadata
 
+### Fixed
+- Fix in device discovery, device showing multiple times
+
 ## 1.6.12 - 2025-06-30
 ### Fixed
 - Docker builds for `aarch64 `
