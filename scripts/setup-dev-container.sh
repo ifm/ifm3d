@@ -6,7 +6,7 @@ set -e
 
 UBUNTU_CODENAME="noble"
 CMAKE_VERSION="4.0.2"
-LLVM_VERSION="20.1.0"
+LLVM_VERSION="20.1.8"
 
 ################################################################################
 

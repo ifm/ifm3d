@@ -25,24 +25,27 @@
 			"settings": {
 				// Disable the CPPTools formatting and auto-completion because we're using clangd
 				"C_Cpp.formatting": "disabled",
-				"C_Cpp.intelliSenseEngine": "default",
+				"C_Cpp.intelliSenseEngine": "disabled",
 				// Clangd settings
-				"clangd.checkUpdates": true,
+				"clangd.checkUpdates": false,
 				"clangd.onConfigChanged": "restart",
 				"clangd.arguments": [
 					"-background-index",
-					"--inlay-hints",
-					"--function-arg-placeholders"
+					"--function-arg-placeholders=1"
 				],
 				// Setup the python env
 				"python.terminal.activateEnvInCurrentTerminal": true,
-				"python.defaultInterpreterPath": "/opt/venv/bin/python"
+				"python.defaultInterpreterPath": "/opt/venv/bin/python",
+				"[cpp]": {
+					"editor.defaultFormatter": "xaver.clang-format"
+				}
 			}
 		}
 	},
 	"containerEnv": {
 		"CMAKE_GENERATOR": "Ninja",
-		"SCCACHE_DIR": "/host/.cache/sccache"
+		"SCCACHE_DIR": "/host/.cache/sccache",
+		"SCCACHE_SERVER_UDS": "/tmp/sccache.sock"
 	},
 	"remoteEnv": {
 		"CMAKE_C_COMPILER_LAUNCHER": "/opt/cargo/bin/sccache",
@@ -58,5 +61,6 @@
 	"mounts": [
 		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind,readonly",
 		"source=${localEnv:HOME}${localEnv:USERPROFILE},target=/host,type=bind,consistency=cached"
-	]
+	],
+	"waitFor": "postCreateCommand"
 }

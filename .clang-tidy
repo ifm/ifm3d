@@ -1,4 +1,4 @@
- Checks: >
+Checks: >
    -*,
 
    bugprone-*,
@@ -37,17 +37,6 @@
    -readability-container-contains,
    -readability-magic-numbers,
 
-# Selection of reasoning behind various disabled diagnostics:
-#
-# -modernize-use-trailing-return-type: Disabled for coding-style.
-#
-# -bugprone-exception-escape: Too noisy. It is often very difficult to figure
-#                             out which exceptions to catch in which places to
-#                             silence the warning.
-#
-# -cppcoreguidelines-*: Many of these are already covered by other diagnostics.
-#
-
 WarningsAsErrors: >
   *,
   -clang-analyzer-core.NonNullParamChecker,
@@ -78,7 +67,7 @@ CheckOptions:
   - key: readability-identifier-length.IgnoredVariableNames
     value: ^id$|^it$|^ok$|^i$
   - key: readability-identifier-length.IgnoredParameterNames
-    value: ^id$|^ok$
+    value: ^id$|^ok$|^a$|^b$
   - key: readability-identifier-naming.ClassCase
     value: CamelCase
   - key: readability-identifier-naming.ConstantCase

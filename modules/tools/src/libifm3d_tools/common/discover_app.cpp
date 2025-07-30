@@ -16,6 +16,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <unordered_map>
 
 constexpr uint32_t BCAST_FLAG_WRONGSUBNET = 0x0001;
 

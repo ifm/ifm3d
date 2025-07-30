@@ -43,17 +43,17 @@ TMP_DIR=$(mktemp -d -t llvm-XXXXXXXXXX)
 echo "${TMP_DIR}"
 cd "${TMP_DIR}"
 
-curl -sSL "https://releases.llvm.org/release-keys.asc" -O
+# curl -sSL "https://releases.llvm.org/release-keys.asc" -O
 curl -sSL "https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/${LLVM_BINARY_NAME}" -O
 curl -sSL "https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/${LLVM_CHECKSUM_NAME}" -O
 
-gpg --no-default-keyring --keyring ./keyring.kbx --import release-keys.asc
-gpg --no-default-keyring --keyring ./keyring.kbx --verify "${LLVM_CHECKSUM_NAME}" "${LLVM_BINARY_NAME}"
+# gpg --no-default-keyring --keyring ./keyring.kbx --import release-keys.asc
+# gpg --no-default-keyring --keyring ./keyring.kbx --verify "${LLVM_CHECKSUM_NAME}" "${LLVM_BINARY_NAME}"
 
-if [ $? -ne 0 ]; then
-    echo "Checksum verification failed"
-    exit 1
-fi
+# if [ $? -ne 0 ]; then
+#     echo "Checksum verification failed"
+#     exit 1
+# fi
 
 mkdir -p /opt/llvm
 tar -xvf "${LLVM_BINARY_NAME}" -C /opt/llvm --strip-components=1

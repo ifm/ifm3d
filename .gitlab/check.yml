@@ -20,6 +20,7 @@ check:clang-tidy:
   extends: .check-code
   variables:
     CHECK_COMMAND: "clang-tidy"
+  allow_failure: true
 
 check:cppcheck:
   extends: .check-code

@@ -352,8 +352,10 @@ namespace ifm3d
     Buffer_& operator=(const Buffer&);
 
     /* Similar to Buffer::create(cols,rows,ifm3d::formatType<Tp>::nchannel,
-     * ifm3d::formatType<Tp>::format ) */
-    void create(const std::uint32_t cols, const std::uint32_t rows);
+     * ifm3d::formatType<Tp>::format, ifm3d::buffer_id buffer_id ) */
+    void create(const std::uint32_t cols,
+                const std::uint32_t rows,
+                ifm3d::buffer_id buffer_id);
 
     /** @brief Creates a full copy of the array and the underlying data.
      */
