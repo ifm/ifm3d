@@ -8,6 +8,8 @@
 #define IFM3D_COMMON_LOGGING_LOG_WRITER_COMPOSITE_H
 
 #include <ifm3d/common/logging/log_writer.h>
+#include <memory>
+#include <vector>
 
 namespace ifm3d
 {

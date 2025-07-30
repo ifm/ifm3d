@@ -3,27 +3,24 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/swupdater/swupdater.h"
 #include <ifm3d/tools/common/swupdater/swupdate_deprecated_app.h>
 #include <ifm3d/common/features.h>
-#include <exception>
 #include <iostream>
-#include <istream>
-#include <fstream>
 #include <memory>
-#include <vector>
 #include <chrono>
-#include <ifm3d/device.h>
-#include <ifm3d/swupdater.h>
+#include <string>
 
 #ifdef _WIN32
 #  include <io.h>
 #  include <fcntl.h>
 #endif
 
-ifm3d::SWUpdateDeprecatedApp::~SWUpdateDeprecatedApp() {}
+ifm3d::SWUpdateDeprecatedApp::~SWUpdateDeprecatedApp() = default;
 
 void
-ifm3d::SWUpdateDeprecatedApp::Execute(CLI::App* app)
+ifm3d::SWUpdateDeprecatedApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice(false);
   auto const timeout_millisec =
@@ -54,11 +51,11 @@ ifm3d::SWUpdateDeprecatedApp::Execute(CLI::App* app)
       swupdater = std::make_shared<ifm3d::SWUpdater>(
         device,
         [](float p, const std::string& msg) {
-          if (p < 1.0f)
+          if (p < 1.0F)
             {
-              int width = 50;
+              int const width = 50;
               std::cout << "Uploading Firmware: [";
-              int pos = int(width * p);
+              int const pos = static_cast<int>(static_cast<float>(width) * p);
               for (int i = 0; i < width; ++i)
                 {
                   if (i < pos)
@@ -79,7 +76,7 @@ ifm3d::SWUpdateDeprecatedApp::Execute(CLI::App* app)
             }
           else
             {
-              std::cout << msg << std::endl;
+              std::cout << msg << '\n';
             }
         },
         sw_port);
@@ -91,97 +88,91 @@ ifm3d::SWUpdateDeprecatedApp::Execute(CLI::App* app)
         {
           if (!quiet)
             {
-              std::cout << "Device is in recovery mode." << std::endl;
+              std::cout << "Device is in recovery mode." << '\n';
             }
         }
       else if (swupdater->WaitForProductive(-1))
         {
           if (!quiet)
             {
-              std::cout << "Device is in productive mode." << std::endl;
+              std::cout << "Device is in productive mode." << '\n';
             }
         }
       else
         {
           if (!quiet)
             {
-              std::cout << "Unable to communicate with device." << std::endl;
+              std::cout << "Unable to communicate with device." << '\n';
             }
         }
       return;
     }
-  else if (reboot)
+  if (reboot)
     {
       if (!quiet)
         {
-          std::cout << "Rebooting device to productive mode..." << std::endl;
+          std::cout << "Rebooting device to productive mode..." << '\n';
         }
       swupdater->RebootToProductive();
       if (!swupdater->WaitForProductive(get_remaining_timeout()))
         {
           if (!quiet)
             {
-              std::cout << "Timed out waiting for producitve mode"
-                        << std::endl;
+              std::cout << "Timed out waiting for producitve mode" << '\n';
             }
           return;
         }
       return;
     }
-  else
+
+  // Read the file in
+  if (!swu_file.empty())
     {
-      // Read the file in
-      if (!swu_file.empty())
+      // Reboot to recovery if not already in recovery
+      if (!swupdater->WaitForRecovery(-1))
         {
-          // Reboot to recovery if not already in recovery
-          if (!swupdater->WaitForRecovery(-1))
+          if (!quiet)
             {
-              if (!quiet)
-                {
-                  std::cout << "Rebooting device to recovery mode..."
-                            << std::endl;
-                }
-              swupdater->RebootToRecovery();
-              if (!swupdater->WaitForRecovery(get_remaining_timeout()))
-                {
-                  if (!quiet)
-                    {
-                      std::cout << "Timed out waiting for recovery mode"
-                                << std::endl;
-                    }
-                  return;
-                }
+              std::cout << "Rebooting device to recovery mode..." << '\n';
             }
-
-          if (!swupdater->FlashFirmware(swu_file, get_remaining_timeout()))
+          swupdater->RebootToRecovery();
+          if (!swupdater->WaitForRecovery(get_remaining_timeout()))
             {
               if (!quiet)
                 {
-                  std::cout << "Timed out waiting for flashing to complete"
-                            << std::endl;
+                  std::cout << "Timed out waiting for recovery mode" << '\n';
                 }
               return;
             }
+        }
 
-          swupdater->RebootToProductive();
+      if (!swupdater->FlashFirmware(swu_file, get_remaining_timeout()))
+        {
           if (!quiet)
             {
-              std::cout << "Update successful, waiting for device to reboot..."
-                        << std::endl;
+              std::cout << "Timed out waiting for flashing to complete"
+                        << '\n';
             }
-          if (!swupdater->WaitForProductive(get_remaining_timeout()))
-            {
-              if (!quiet)
-                {
-                  std::cout << "Timed out waiting for productive mode"
-                            << std::endl;
-                }
-              return;
-            }
+          return;
+        }
+
+      swupdater->RebootToProductive();
+      if (!quiet)
+        {
+          std::cout << "Update successful, waiting for device to reboot..."
+                    << '\n';
+        }
+      if (!swupdater->WaitForProductive(get_remaining_timeout()))
+        {
           if (!quiet)
             {
-              std::cout << "SWUpdate Complete." << std::endl;
+              std::cout << "Timed out waiting for productive mode" << '\n';
             }
+          return;
+        }
+      if (!quiet)
+        {
+          std::cout << "SWUpdate Complete." << '\n';
         }
     }
 }

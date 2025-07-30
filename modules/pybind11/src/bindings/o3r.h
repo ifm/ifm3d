@@ -6,9 +6,12 @@
 #ifndef IFM3D_PYBIND_BINDING_CAMERA_O3R
 #define IFM3D_PYBIND_BINDING_CAMERA_O3R
 
+#include <ifm3d/device/o3r.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <fmt/core.h>
+
+namespace py = pybind11;
 
 void
 bind_o3r(pybind11::module_& m)

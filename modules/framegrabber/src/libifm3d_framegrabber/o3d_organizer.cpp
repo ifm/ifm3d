@@ -2,13 +2,21 @@
  * Copyright 2023-present ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
+#include <cstddef>
+#include "ifm3d/fg/buffer_id.h"
+#include "ifm3d/common/err.h"
+#include "ifm3d/fg/organizer.h"
+#include <cstdint>
+#include "ifm3d/fg/frame.h"
+#include "ifm3d/device/device.h"
 #include <functional>
-#include <ifm3d/common/logging/log.h>
-#include <ifm3d/device/err.h>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/organizer_utils.h>
-#include <ifm3d/fg/distance_image_info.h>
+#include <map>
 #include <o3d_organizer.hpp>
+#include <vector>
+#include <set>
+#include <optional>
 
 namespace ifm3d
 {
@@ -16,14 +24,15 @@ namespace ifm3d
   {
     // exposure time
     constexpr size_t SIZE_OF_O3D_EXPOSURE_TIME_KEY_STRING = 5;
-    constexpr size_t SIZE_OF_O3D_EXPOSURE_TIME_VALUES = 3 * 4;
-    constexpr size_t SiZE_OF_O3D_EXPOSURE_TIME_DATA =
+    constexpr size_t SIZE_OF_O3D_EXPOSURE_TIME_VALUES =
+      static_cast<size_t>(3 * 4);
+    constexpr size_t SIZE_OF_O3D_EXPOSURE_TIME_DATA =
       SIZE_OF_O3D_EXPOSURE_TIME_KEY_STRING + SIZE_OF_O3D_EXPOSURE_TIME_VALUES;
 
     // illumination temperature
     constexpr size_t SIZE_OF_O3D_ILLUMINATION_TEMPRATURE_KEY_STRING = 9;
     constexpr size_t SIZE_OF_O3D_ILLUMINATION_TEMPERATURE_VALUE = 4;
-    constexpr size_t SiZE_OF_O3D_ILLUNIMATION_TEMPERATURE_DATA =
+    constexpr size_t SIZE_OF_O3D_ILLUNIMATION_TEMPERATURE_DATA =
       SIZE_OF_O3D_ILLUMINATION_TEMPRATURE_KEY_STRING +
       SIZE_OF_O3D_ILLUMINATION_TEMPERATURE_VALUE;
   };
@@ -42,9 +51,9 @@ ifm3d::O3DOrganizer::Organize(const std::vector<uint8_t>& data,
   if (requested_images.count(ifm3d::buffer_id::ILLUMINATION_TEMP) == 1)
     {
 
-      size_t illumination_temp_idx =
-        end_idx - ifm3d::SiZE_OF_O3D_ILLUNIMATION_TEMPERATURE_DATA;
-      ifm3d::Buffer illumination_temp_buffer = ifm3d::create_buffer(
+      size_t const illumination_temp_idx =
+        end_idx - ifm3d::SIZE_OF_O3D_ILLUNIMATION_TEMPERATURE_DATA;
+      ifm3d::Buffer const illumination_temp_buffer = ifm3d::create_buffer(
         data,
         illumination_temp_idx +
           ifm3d::SIZE_OF_O3D_ILLUMINATION_TEMPRATURE_KEY_STRING,
@@ -60,9 +69,9 @@ ifm3d::O3DOrganizer::Organize(const std::vector<uint8_t>& data,
   if (requested_images.count(ifm3d::buffer_id::EXPOSURE_TIME) == 1)
     {
 
-      size_t exposure_time_idx =
-        end_idx - ifm3d::SiZE_OF_O3D_EXPOSURE_TIME_DATA;
-      ifm3d::Buffer exposure_time_buffer = ifm3d::create_buffer(
+      size_t const exposure_time_idx =
+        end_idx - ifm3d::SIZE_OF_O3D_EXPOSURE_TIME_DATA;
+      ifm3d::Buffer const exposure_time_buffer = ifm3d::create_buffer(
         data,
         exposure_time_idx + ifm3d::SIZE_OF_O3D_EXPOSURE_TIME_KEY_STRING,
         ifm3d::SIZE_OF_O3D_EXPOSURE_TIME_VALUES,
@@ -85,20 +94,20 @@ ifm3d::O3DOrganizer::Organize(const std::vector<uint8_t>& data,
 
   // get the image dimensions
   auto [width, height] = get_image_size(data, *(metachunk->second.begin()));
-  std::uint32_t npts = width * height;
 
   auto timestamps = get_chunk_timestamps(data, *(metachunk->second.begin()));
   auto frame_count = get_chunk_frame_count(data, *(metachunk->second.begin()));
 
   if (chunks.find(image_chunk::CARTESIAN_ALL) != chunks.end())
     {
-      size_t cart_all_idx = *(chunks[image_chunk::CARTESIAN_ALL].begin());
+      size_t const cart_all_idx =
+        *(chunks[image_chunk::CARTESIAN_ALL].begin());
 
-      size_t x_idx =
+      size_t const x_idx =
         cart_all_idx + get_chunk_pixeldata_offset(data, cart_all_idx);
 
-      size_t y_idx = x_idx + get_chunk_size(data, x_idx);
-      size_t z_idx = y_idx + get_chunk_size(data, y_idx);
+      size_t const y_idx = x_idx + get_chunk_size(data, x_idx);
+      size_t const z_idx = y_idx + get_chunk_size(data, y_idx);
 
       chunks[image_chunk::CARTESIAN_X_COMPONENT] = {x_idx};
       chunks[image_chunk::CARTESIAN_Y_COMPONENT] = {y_idx};
@@ -110,7 +119,8 @@ ifm3d::O3DOrganizer::Organize(const std::vector<uint8_t>& data,
         }
     }
 
-  std::map<buffer_id, BufferList> data_blob, data_image;
+  std::map<buffer_id, BufferList> data_blob;
+  std::map<buffer_id, BufferList> data_image;
   ifm3d::parse_data(data,
                     requested_images,
                     chunks,
@@ -127,11 +137,9 @@ ifm3d::O3DOrganizer::Organize(const std::vector<uint8_t>& data,
         {
           mask =
             create_pixel_mask(images[ifm3d::buffer_id::CONFIDENCE_IMAGE][0]);
-          mask_images(data_image,
-                      mask.value(),
-                      std::bind(&ifm3d::O3DOrganizer::ShouldMask,
-                                this,
-                                std::placeholders::_1));
+          mask_images(data_image, mask.value(), [this](auto&& p_h1) {
+            return ShouldMask(std::forward<decltype(p_h1)>(p_h1));
+          });
         }
     }
 

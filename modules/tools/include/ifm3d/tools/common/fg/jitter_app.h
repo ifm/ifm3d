@@ -5,6 +5,7 @@
  */
 #ifndef IFM3D_TOOLS_JITTER_APP_H
 #define IFM3D_TOOLS_JITTER_APP_H
+#pragma once
 
 #include <string>
 #include <CLI/CLI.hpp>
@@ -27,7 +28,7 @@ namespace ifm3d
     virtual void Execute(CLI::App* app) override;
     virtual CLI::App* CreateCommand(CLI::App* parent) override;
 
-    void capture_frames(ifm3d::FrameGrabber::Ptr fg,
+    void capture_frames(const ifm3d::FrameGrabber::Ptr& fg,
                         std::vector<float>& results);
 
     unsigned short pcic_port{(unsigned short)ifm3d::DEFAULT_PCIC_PORT};

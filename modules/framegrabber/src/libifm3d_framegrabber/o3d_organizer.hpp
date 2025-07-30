@@ -6,7 +6,6 @@
 #ifndef IFM3D_FG_O3D_ORGANIZER_H
 #define IFM3D_FG_O3D_ORGANIZER_H
 
-#include <optional>
 #include <ifm3d/fg/organizer.h>
 
 namespace ifm3d
@@ -22,7 +21,7 @@ namespace ifm3d
     ~O3DOrganizer() = default;
 
     Result Organize(const std::vector<uint8_t>& data,
-                    const std::set<buffer_id>& requestedImages,
+                    const std::set<buffer_id>& requested_images,
                     const bool masking = true) override;
 
   private:

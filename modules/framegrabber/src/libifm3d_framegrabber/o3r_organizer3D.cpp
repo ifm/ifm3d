@@ -3,12 +3,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include "ifm3d/fg/buffer_id.h"
+#include "ifm3d/common/err.h"
+#include "ifm3d/fg/organizer.h"
+#include <cstdint>
+#include "ifm3d/fg/frame.h"
+#include <map>
+#include <memory>
+#include "ifm3d/device/device.h"
+#include <functional>
+#include <cstddef>
 #include <o3r_organizer3D.hpp>
-#include <ifm3d/common/logging/log.h>
-#include <ifm3d/device/err.h>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/fg/distance_image_info.h>
+#include <vector>
+#include <set>
+#include <optional>
 
 ifm3d::Organizer::Result
 ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
@@ -29,7 +40,6 @@ ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
 
   // get the image dimensions
   auto [width, height] = get_image_size(data, *(metachunk->second.begin()));
-  std::uint32_t npts = width * height;
 
   auto timestamps = get_chunk_timestamps(data, *(metachunk->second.begin()));
   auto frame_count = get_chunk_frame_count(data, *(metachunk->second.begin()));
@@ -53,7 +63,8 @@ ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
       chunks.erase(image_chunk::RADIAL_DISTANCE_IMAGE);
     }
 
-  std::map<buffer_id, BufferList> data_blob, data_image;
+  std::map<buffer_id, BufferList> data_blob;
+  std::map<buffer_id, BufferList> data_image;
   ifm3d::parse_data(data,
                     requested_images,
                     chunks,
@@ -72,11 +83,9 @@ ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
         {
           mask =
             create_pixel_mask(images[ifm3d::buffer_id::CONFIDENCE_IMAGE][0]);
-          mask_images(data_image,
-                      mask.value(),
-                      std::bind(&ifm3d::O3ROrganizer3D::ShouldMask,
-                                this,
-                                std::placeholders::_1));
+          mask_images(data_image, mask.value(), [this](auto&& p_h1) {
+            return ShouldMask(std::forward<decltype(p_h1)>(p_h1));
+          });
         }
     }
 
@@ -128,23 +137,25 @@ ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
 
 std::map<ifm3d::buffer_id, ifm3d::Buffer>
 ifm3d::O3ROrganizer3D::ExtractDistanceImageInfo(
-  std::shared_ptr<DistanceImageInfo> distance_image_info,
+  const std::shared_ptr<DistanceImageInfo>& distance_image_info,
   const std::optional<Buffer>& mask)
 {
   auto width = distance_image_info->getWidth();
   auto height = distance_image_info->getHeight();
   auto npts = distance_image_info->getNPTS();
 
-  std::vector<std::uint8_t> xyzd_bytes = distance_image_info->getXYZDVector();
+  std::vector<std::uint8_t> const xyzd_bytes =
+    distance_image_info->getXYZDVector();
 
-  std::vector<std::uint8_t> ampl_bytes =
+  std::vector<std::uint8_t> const ampl_bytes =
     distance_image_info->getAmplitudeVector();
 
-  auto distance = create_buffer(xyzd_bytes,
-                                npts * 3 * sizeof(float),
-                                width,
-                                height,
-                                pixel_format::FORMAT_32F);
+  auto distance =
+    create_buffer(xyzd_bytes,
+                  static_cast<std::size_t>(npts) * 3 * sizeof(float),
+                  width,
+                  height,
+                  pixel_format::FORMAT_32F);
 
   auto amplitude =
     create_buffer(ampl_bytes, 0, width, height, pixel_format::FORMAT_32F);
@@ -155,14 +166,15 @@ ifm3d::O3ROrganizer3D::ExtractDistanceImageInfo(
       mask_buffer(amplitude, mask.value());
     }
 
-  auto xyz = create_xyz_buffer(xyzd_bytes,
-                               0,
-                               npts * sizeof(float),
-                               npts * 2 * sizeof(float),
-                               width,
-                               height,
-                               pixel_format::FORMAT_32F,
-                               mask);
+  auto xyz =
+    create_xyz_buffer(xyzd_bytes,
+                      0,
+                      npts * sizeof(float),
+                      static_cast<std::size_t>(npts) * 2 * sizeof(float),
+                      width,
+                      height,
+                      pixel_format::FORMAT_32F,
+                      mask);
   auto extrinsic_param = create_buffer_from_vector<float>(
     distance_image_info->getExtrinsicOpticToUser());
 

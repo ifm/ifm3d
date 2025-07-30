@@ -33,7 +33,7 @@ main(int argc, char** argv)
 
   gtest_filter += ":" + device_to_filter[get_connected_device()];
 
-  ::testing::GTEST_FLAG(filter) = gtest_filter.c_str();
+  ::testing::GTEST_FLAG(filter) = gtest_filter;
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

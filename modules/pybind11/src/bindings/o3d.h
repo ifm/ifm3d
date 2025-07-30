@@ -11,6 +11,8 @@
 #include <fmt/core.h>
 #include <ifm3d/device/o3d.h>
 
+namespace py = pybind11;
+
 void
 bind_o3d(pybind11::module_& m)
 {

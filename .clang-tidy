@@ -1,0 +1,138 @@
+Checks: >
+   -*,
+
+   bugprone-*,
+   -bugprone-exception-escape,
+   -bugprone-forward-declaration-namespace,
+   -bugprone-lambda-function-name,
+   -bugprone-easily-swappable-parameters,
+
+   clang-analyzer-*,
+
+   cppcoreguidelines-*,
+   -cppcoreguidelines-narrowing-conversions,
+   -cppcoreguidelines-owning-memory,
+   -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+   -cppcoreguidelines-pro-bounds-constant-array-index,
+   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+   -cppcoreguidelines-pro-type-reinterpret-cast,
+   -cppcoreguidelines-pro-type-vararg,
+   -cppcoreguidelines-avoid-c-arrays,
+   -cppcoreguidelines-avoid-magic-numbers,
+   -cppcoreguidelines-non-private-member-variables-in-classes,
+
+   misc-*,
+   -misc-no-recursion,
+
+   modernize-*,
+   -modernize-use-trailing-return-type,
+
+   performance-*,
+
+   readability-*,
+   -readability-convert-member-functions-to-static,
+   -readability-implicit-bool-conversion,
+   -readability-named-parameter,
+   -readability-redundant-access-specifiers,
+   -readability-container-contains,
+   -readability-magic-numbers,
+
+WarningsAsErrors: >
+  *,
+  -clang-analyzer-core.NonNullParamChecker,
+  -clang-analyzer-cplusplus.NewDeleteLeaks,
+  -cppcoreguidelines-avoid-non-const-global-variables,
+  -bugprone-easily-swappable-parameters,
+  -misc-header-include-cycle
+
+FormatStyle: file
+
+CheckOptions:
+  - key: readability-magic-numbers.IgnorePowersOf2IntegerValues
+    value: "1"
+  - key: performance-unnecessary-value-param.AllowedTypes
+    value: .*[Pp]tr;.*[Pp]ointer
+  - key: bugprone-exception-escape.IgnoredExceptions
+    value: std::bad_alloc;std::bad_optional_access;fmt::format_error;CLI::RuntimeError;CLI::Error
+  - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value: "1"
+  - key: readability-function-cognitive-complexity.IgnoreMacros
+    value: "true"
+  - key: readability-function-cognitive-complexity.DescribeBasicIncrements
+    value: "false"
+  - key: cppcoreguidelines-macro-usage.AllowedRegexp
+    value: ^CAP_|^CHECK_|^VERIFY|^ERROR_.*_IF$|^PACKED$|_NOLINT$|^UTIL_|^DECLARE_|^DEFINE_|^DEFAULT_|^BEGIN_|^END_|^TRACE_
+  - key: misc-include-cleaner.IgnoreHeaders
+    value: common/FormatUtils.hpp;CLI/CLI.hpp;common/LogUtils.hpp
+  - key: readability-identifier-length.IgnoredVariableNames
+    value: ^id$|^it$|^ok$|^i$
+  - key: readability-identifier-length.IgnoredParameterNames
+    value: ^id$|^ok$|^a$|^b$
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.ConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.ConstantMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.EnumCase
+    value: lower_case
+  - key: readability-identifier-naming.EnumConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+  - key: readability-identifier-naming.FunctionIgnoredRegexp
+    value: ^_[a-z][^A-Z]*$
+  - key: readability-identifier-naming.GlobalVariableCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.GlobalConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.LocalConstantCase
+    value: lower_case
+  - key: readability-identifier-naming.LocalVariableCase
+    value: lower_case
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.MemberCase
+    value: lower_case
+  - key: readability-identifier-naming.MethodCase
+    value: CamelCase
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case
+  - key: readability-identifier-naming.ParameterCase
+    value: lower_case
+  - key: readability-identifier-naming.PrivateMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.PrivateMemberPrefix
+    value: _
+  - key: readability-identifier-naming.StaticConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.StaticVariableCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+  - key: readability-identifier-naming.TemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.TemplateTemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypeAliasCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypedefCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypeTemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.UnionCase
+    value: CamelCase
+  - key: readability-identifier-naming.ValueTemplateParameterCase
+    value: camelBack
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+  - key: readability-identifier-naming.VirtualMethodCase
+    value: camelBack
+  - key: bugprone-empty-catch.IgnoreCatchWithKeywords
+    value: "IGNORE"
+  - key: readability-function-cognitive-complexity.Threshold
+    value: 100
+  - key: readability-identifier-length.MinimumVariableNameLength
+    value: '1'
+  - key: readability-identifier-length.MinimumParameterNameLength
+    value: '1'

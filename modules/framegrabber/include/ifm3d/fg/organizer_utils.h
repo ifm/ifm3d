@@ -42,7 +42,7 @@ namespace ifm3d
                        std::size_t width,
                        std::size_t height,
                        pixel_format fmt,
-                       std::optional<json> metadata = std::nullopt);
+                       const std::optional<json>& metadata = std::nullopt);
 
   Buffer create_xyz_buffer(const std::vector<std::uint8_t>& data,
                            std::size_t xidx,
@@ -94,16 +94,17 @@ namespace ifm3d
 
   void parse_data(
     const std::vector<uint8_t>& data,
-    const std::set<buffer_id>& requestedImages,
+    const std::set<buffer_id>& requested_images,
     const std::map<ifm3d::image_chunk, std::set<std::size_t>>& chunks,
     const size_t width,
     const size_t height,
     std::map<buffer_id, BufferList>& data_blob,
     std::map<buffer_id, BufferList>& data_image);
 
-  void mask_images(std::map<ifm3d::buffer_id, ifm3d::BufferList>& images,
-                   ifm3d::Buffer& mask,
-                   std::function<bool(ifm3d::buffer_id id)> should_mask);
+  void mask_images(
+    std::map<ifm3d::buffer_id, ifm3d::BufferList>& images,
+    ifm3d::Buffer& mask,
+    const std::function<bool(ifm3d::buffer_id id)>& should_mask);
 
   bool has_metadata(const std::vector<std::uint8_t>& data, std::size_t idx);
 
@@ -182,6 +183,65 @@ namespace ifm3d
               ptr + sizeof(T),
               reinterpret_cast<uint8_t*>(&struct_object));
     return struct_object;
+  }
+  /**
+   * @brief Helper function to convertifm3d buffer
+   */
+  template <typename T>
+  inline ifm3d::Buffer
+  create_xyz_buffer(const std::vector<std::uint8_t>& data,
+                    std::size_t xidx,
+                    std::size_t yidx,
+                    std::size_t zidx,
+                    std::size_t width,
+                    std::size_t height,
+                    ifm3d::pixel_format fmt,
+                    const std::optional<ifm3d::Buffer>& mask)
+  {
+    std::size_t const incr = sizeof(T);
+    std::size_t const npts = width * height;
+
+    ifm3d::Buffer im(width, height, 3, fmt);
+
+    int col = 0;
+    int row = -1;
+    int xyz_col = 0;
+
+    T* xyz_ptr = NULL;
+    T x_, y_, z_;
+
+    constexpr T bad_pixel = 0;
+
+    for (std::size_t i = 0; i < npts;
+         ++i, xidx += incr, yidx += incr, zidx += incr)
+      {
+        col = static_cast<int>(i % static_cast<size_t>(width));
+        xyz_col = col * 3;
+        if (col == 0)
+          {
+            row += 1;
+            xyz_ptr = im.ptr<T>(row);
+          }
+
+        x_ = ifm3d::mkval<T>(data.data() + xidx);
+        y_ = ifm3d::mkval<T>(data.data() + yidx);
+        z_ = ifm3d::mkval<T>(data.data() + zidx);
+
+        if (mask.has_value() && mask.value().at<uint8_t>(row, col) != 0)
+          {
+            xyz_ptr[xyz_col] = bad_pixel;
+            xyz_ptr[xyz_col + 1] = bad_pixel;
+            xyz_ptr[xyz_col + 2] = bad_pixel;
+          }
+        else
+          {
+            xyz_ptr[xyz_col] = x_;
+            xyz_ptr[xyz_col + 1] = y_;
+            xyz_ptr[xyz_col + 2] = z_;
+          }
+      }
+
+    return im;
   }
 
 } // end: namespace ifm3d

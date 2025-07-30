@@ -1,14 +1,10 @@
-#include <chrono>
+#include <array>
 #include <cstdint>
 #include <memory>
-#include <thread>
 #include "gtest/gtest.h"
-#include <ifm3d/deserialize.h>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/device/o3d.h>
-#include <ifm3d/device/err.h>
-#include <ifm3d/fg.h>
 #include <ifm3d/deserialize/struct_tof_info_v3.hpp>
 #include <ifm3d/deserialize/struct_tof_info_v4.hpp>
 #include <ifm3d/deserialize/struct_rgb_info_v1.hpp>
@@ -17,8 +13,10 @@
 #include <ifm3d/deserialize/struct_o3r_ods_polar_occupancy_grid_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_extrinsic_calibration_correction_v1.hpp>
 #include <ifm3d/deserialize/deserialize_o3d_buffers.hpp>
-#include <algorithm>
-#include <fstream>
+#include "ifm3d/common/err.h"
+#include "ifm3d/device/device.h"
+#include "ifm3d/fg/buffer_id.h"
+#include "ifm3d/fg/frame_grabber.h"
 #include "tof_info_test_data.hpp"
 #include "rgb_info_test_data.hpp"
 #include "ods_info_test_data.hpp"
@@ -27,7 +25,6 @@
 #include "ods_extrinsic_calibration_correction.hpp"
 #include "o3d_parameters.hpp"
 #include "test_utils.hpp"
-#include <limits>
 
 TEST(DeserializeTestWithFile, struct_tof_info_v3_size_exception)
 {
@@ -51,7 +48,7 @@ TEST(DeserializeTestWithFile, struct_tof_info_v3)
     ifm3d::compare_array(tof_info_v3.amp_normalization_factors,
                          ifm3d::tof_info::amp_normalization_factors));
 
-  std::array<float, 6> extrinc_opt_to_user = {
+  std::array<float, 6> const extrinc_opt_to_user = {
     tof_info_v3.extrinsic_optic_to_user.trans_x,
     tof_info_v3.extrinsic_optic_to_user.trans_y,
     tof_info_v3.extrinsic_optic_to_user.trans_z,
@@ -115,7 +112,7 @@ TEST(DeserializeTestWithFile, struct_tof_info_v4)
     ifm3d::compare_array(tof_info_v4.amp_normalization_factors,
                          ifm3d::tof_info::amp_normalization_factors));
 
-  std::array<float, 6> extrinc_opt_to_user = {
+  std::array<float, 6> const extrinc_opt_to_user = {
     tof_info_v4.extrinsic_optic_to_user.trans_x,
     tof_info_v4.extrinsic_optic_to_user.trans_y,
     tof_info_v4.extrinsic_optic_to_user.trans_z,
@@ -183,7 +180,7 @@ TEST(DeserializeTestWithFile, struct_rgb_info_v1)
               ifm3d::rgb_info::exposure_time,
               ifm3d::epsilon);
 
-  std::array<float, 6> extrinc_opt_to_user = {
+  std::array<float, 6> const extrinc_opt_to_user = {
     rgb_info_v1.extrinsic_optic_to_user.trans_x,
     rgb_info_v1.extrinsic_optic_to_user.trans_y,
     rgb_info_v1.extrinsic_optic_to_user.trans_z,
@@ -306,7 +303,7 @@ TEST(DeserializeTestWithFile, struct_o3d_intrinsic_parameter)
   EXPECT_TRUE(ifm3d::compare_array(o3d_instrinsic_param.data,
                                    ifm3d::o3d::intrinsic_parameter));
 
-  ifm3d::Buffer buffer_blank;
+  ifm3d::Buffer const buffer_blank;
   EXPECT_THROW(ifm3d::O3DInstrinsicCalibration::Deserialize(buffer_blank),
                ifm3d::Error);
 }
@@ -321,7 +318,7 @@ TEST(DeserializeTestWithFile, struct_o3d_inverse_intrinsic_parameter)
   EXPECT_TRUE(ifm3d::compare_array(o3d_param.data,
                                    ifm3d::o3d::invers_intrinsic_parameter));
 
-  ifm3d::Buffer buffer_blank;
+  ifm3d::Buffer const buffer_blank;
   EXPECT_THROW(
     ifm3d::O3DInverseInstrinsicCalibration::Deserialize(buffer_blank),
     ifm3d::Error);
@@ -337,7 +334,7 @@ TEST(DeserializeTestWithFile, struct_o3d_extrinsic_parameter)
   EXPECT_TRUE(ifm3d::compare_array(o3d_param.data,
                                    ifm3d::o3d::extrincsic_calib_parameter));
 
-  ifm3d::Buffer buffer_blank;
+  ifm3d::Buffer const buffer_blank;
   EXPECT_THROW(ifm3d::O3DExtrinsicCalibration::Deserialize(buffer_blank),
                ifm3d::Error);
 }
@@ -352,7 +349,7 @@ TEST(DeserializeTestWithFile, struct_o3d_exposure_time_parameter)
   EXPECT_TRUE(
     ifm3d::compare_array(o3d_param.data, ifm3d::o3d::exposure_times));
 
-  ifm3d::Buffer buffer_blank;
+  ifm3d::Buffer const buffer_blank;
   EXPECT_THROW(ifm3d::O3DExposureTimes::Deserialize(buffer_blank),
                ifm3d::Error);
 }
@@ -366,7 +363,7 @@ TEST(DeserializeTestWithFile, struct_o3d_illu_temp_parameter)
 
   EXPECT_TRUE(ifm3d::compare_array(o3d_param.data, ifm3d::o3d::illu_temp));
 
-  ifm3d::Buffer buffer_blank;
+  ifm3d::Buffer const buffer_blank;
   EXPECT_THROW(ifm3d::O3DILLUTemperature::Deserialize(buffer_blank),
                ifm3d::Error);
 }

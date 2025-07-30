@@ -27,17 +27,39 @@
 
 namespace ifm3d
 {
-  constexpr const char*
-  LOG_STRIP_PREFIX(const char* ptr, const char* prefix)
+  constexpr std::size_t
+  _log_strlen(const char* str)
   {
-    return ::std::strncmp(ptr, prefix, ::std::strlen(prefix)) == 0 ?
-             (ptr + ::std::strlen(prefix)) :
-             ptr;
+    std::size_t len = 0;
+    while (str[len] != '\0')
+      ++len;
+    return len;
+  }
+
+  constexpr bool
+  _log_starts_with(const char* str, const char* prefix)
+  {
+    std::size_t i = 0;
+    while (prefix[i] != '\0')
+      {
+        if (str[i] != prefix[i])
+          {
+            return false;
+          }
+        ++i;
+      }
+    return true;
+  }
+
+  constexpr const char*
+  _log_strip_prefix(const char* ptr, const char* prefix)
+  {
+    return _log_starts_with(ptr, prefix) ? ptr + _log_strlen(prefix) : ptr;
   }
 }
 
 #define LOG_GET_FILE()                                                        \
-  ::ifm3d::LOG_STRIP_PREFIX(__FILE__, IFM3D_COMMON_LOGGING_STRIP_PREFIX)
+  ::ifm3d::_log_strip_prefix(__FILE__, IFM3D_COMMON_LOGGING_STRIP_PREFIX)
 #define LOG_GET_LINE() __LINE__
 
 #define LOG_IF_(condition)                                                    \

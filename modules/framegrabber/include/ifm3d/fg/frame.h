@@ -9,7 +9,6 @@
 #include <chrono>
 #include <cstdint>
 #include <memory>
-#include <type_traits>
 #include <vector>
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/buffer.h>
@@ -34,7 +33,7 @@ namespace ifm3d
     using Ptr = std::shared_ptr<Frame>;
 
     Frame(const BufferDataListMap& images,
-          const std::vector<TimePointT> timestamps,
+          const std::vector<TimePointT>& timestamps,
           uint64_t frame_count);
     ~Frame();
 
@@ -68,7 +67,7 @@ namespace ifm3d
      * @return Image& Reference to the requested buffer
      * @throw std::out_of_range if no image with the give id exists
      */
-    Buffer& GetBuffer(buffer_id id,
+    Buffer& GetBuffer(buffer_id key,
                       std::optional<size_t> index = std::nullopt);
 
     /**

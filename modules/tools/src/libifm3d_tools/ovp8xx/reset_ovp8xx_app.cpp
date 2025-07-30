@@ -3,15 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/device/o3r.h"
 #include <ifm3d/tools/ovp8xx/reset_ovp8xx_app.h>
-#include <iostream>
+#include <memory>
 #include <string>
-#include <ifm3d/device.h>
 
-ifm3d::ResetOvp8xxApp::~ResetOvp8xxApp() {}
+ifm3d::ResetOvp8xxApp::~ResetOvp8xxApp() = default;
 
 void
-ifm3d::ResetOvp8xxApp::Execute(CLI::App* app)
+ifm3d::ResetOvp8xxApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
   std::static_pointer_cast<ifm3d::O3R>(device)->Reset(this->path);

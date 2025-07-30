@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IFM3D_CAMERA_IMAGE_INL_HPP
-#define IFM3D_CAMERA_IMAGE_INL_HPP
+#ifndef IFM3D_FG_BUFFER_IMPL_HPP
+#define IFM3D_FG_BUFFER_IMPL_HPP
+#pragma once
 
 #include <ifm3d/fg/buffer.h>
+#include <ifm3d/fg/buffer_id.h>
 #include <cstdint>
-#include <memory>
-#include <vector>
 
 ///////////////////////////Image //////////////////
 
@@ -349,14 +349,16 @@ ifm3d::Buffer_<Tp>::operator=(const Buffer& img)
 }
 template <typename Tp>
 void
-ifm3d::Buffer_<Tp>::create(const std::uint32_t cols, const std::uint32_t rows)
+ifm3d::Buffer_<Tp>::create(const std::uint32_t cols,
+                           const std::uint32_t rows,
+                           ifm3d::buffer_id buffer_id)
 {
   ifm3d::Buffer::create(
     cols,
     rows,
     static_cast<uint32_t>(ifm3d::FormatType<Tp>::nchannel),
     static_cast<ifm3d::pixel_format>(ifm3d::FormatType<Tp>::format),
-    static_cast<ifm3d::buffer_id>(bufferId_));
+    buffer_id);
 }
 
 template <typename Tp>

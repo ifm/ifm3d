@@ -4,22 +4,25 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/common/err.h"
+#include "ifm3d/device/legacy_device.h"
 #include <ifm3d/tools/legacy/import_application_app.h>
 #include <cstdint>
+#include <iosfwd>
 #include <iostream>
 #include <istream>
-#include <exception>
 #include <fstream>
+#include <iterator>
 #include <memory>
 #include <string>
 #include <vector>
-#include <ifm3d/device.h>
 #include <ifm3d/device/util.h>
 
-ifm3d::ImportApplicationApp::~ImportApplicationApp() {}
+ifm3d::ImportApplicationApp::~ImportApplicationApp() = default;
 
 void
-ifm3d::ImportApplicationApp::Execute(CLI::App* app)
+ifm3d::ImportApplicationApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
 
@@ -32,7 +35,7 @@ ifm3d::ImportApplicationApp::Execute(CLI::App* app)
         {
           ifs.reset(&std::cin, [](...) {});
 
-          char b;
+          char b = 0;
           while (ifs->get(b))
             {
               bytes.push_back(*(reinterpret_cast<std::uint8_t*>(&b)));
@@ -45,12 +48,11 @@ ifm3d::ImportApplicationApp::Execute(CLI::App* app)
     }
   else
     {
-      ifs.reset(
-        new std::ifstream(this->input_file, std::ios::in | std::ios::binary));
+      ifs = std::make_shared<std::ifstream>(this->input_file,
+                                            std::ios::in | std::ios::binary);
       if (!*ifs)
         {
-          std::cerr << "Could not open file: " << this->input_file
-                    << std::endl;
+          std::cerr << "Could not open file: " << this->input_file << '\n';
           throw ifm3d::Error(IFM3D_IO_ERROR);
         }
 

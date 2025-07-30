@@ -17,9 +17,9 @@ namespace ifm3d
   class SealedBox
   {
   public:
-    SealedBox(
-      const std::vector<uint8_t> public_key,
-      std::optional<const std::vector<uint8_t>> private_key = std::nullopt);
+    SealedBox(const std::vector<uint8_t>& public_key,
+              const std::optional<const std::vector<uint8_t>>& private_key =
+                std::nullopt);
 
     ~SealedBox();
 

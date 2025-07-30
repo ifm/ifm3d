@@ -1,7 +1,30 @@
 
+#include <cstddef>
+#include "ifm3d/common/err.h"
+#include "ifm3d/device/device.h"
+#include <cstdint>
+#include "ifm3d/fg/buffer.h"
+#include "ifm3d/common/json_impl.hpp"
+#include "ifm3d/fg/buffer_id.h"
+#if defined(__GNUC__) && !defined(__clang__) && !defined(_MSC_VER)
+#  include <bits/endian.h>
+#elif defined(__clang__) && !defined(_MSC_VER)
+#  if __has_include(<bits/endian.h>)
+#    include <bits/endian.h>
+#  endif
+#endif
+#include <algorithm>
+#include "ifm3d/fg/frame.h"
+#include <chrono>
+#include <functional>
 #include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/common/logging/log.h>
-#include <ifm3d/device/err.h>
+#include <vector>
+#include <optional>
+#include <map>
+#include <set>
+#include <tuple>
+#include <string>
 
 constexpr auto CHUNK_OFFSET_CHUNK_SIZE = 0x0004;
 constexpr auto CHUNK_OFFSET_HEADER_SIZE = 0x0008;
@@ -76,7 +99,8 @@ ifm3d::get_format_channels(ifm3d::pixel_format fmt)
 ifm3d::Buffer
 ifm3d::create_1d_buffer(const std::vector<std::uint8_t>& data, std::size_t idx)
 {
-  std::size_t pixeldata_offset = ifm3d::get_chunk_pixeldata_offset(data, idx);
+  std::size_t const pixeldata_offset =
+    ifm3d::get_chunk_pixeldata_offset(data, idx);
   auto size = ifm3d::get_chunk_pixeldata_size(data, idx);
   auto metadata = create_metadata(data, idx);
   return create_buffer(data,
@@ -94,7 +118,7 @@ ifm3d::create_buffer(const std::vector<std::uint8_t>& data,
                      std::size_t height)
 {
   auto fmt = get_chunk_format(data, idx);
-  std::size_t pixeldata_offset = get_chunk_pixeldata_offset(data, idx);
+  std::size_t const pixeldata_offset = get_chunk_pixeldata_offset(data, idx);
   auto metadata = create_metadata(data, idx);
   return ifm3d::create_buffer(data,
                               idx + pixeldata_offset,
@@ -110,17 +134,17 @@ ifm3d::create_buffer(const std::vector<std::uint8_t>& data,
                      std::size_t width,
                      std::size_t height,
                      pixel_format fmt,
-                     std::optional<json> metadata)
+                     const std::optional<json>& metadata)
 {
-  uint32_t nchan = get_format_channels(fmt);
-  std::size_t fsize = get_format_size(fmt);
-  std::size_t pixel_stride = fsize * nchan;
-  std::size_t npts = width * height;
-
+  uint32_t const nchan = get_format_channels(fmt);
+  std::size_t const fsize = get_format_size(fmt);
   ifm3d::Buffer image(width, height, nchan, fmt, metadata);
-  uint8_t* dst = image.ptr<uint8_t>(0);
 
-  const uint8_t* start = data.data() + idx;
+  std::size_t const incr = fsize * nchan;
+  std::size_t const npts = width * height;
+  auto* ptr = image.ptr<uint8_t>(0);
+
+  const auto* const start = data.data() + idx;
 
 #if !defined(_WIN32) && __BYTE_ORDER == __BIG_ENDIAN
   for (std::size_t i = 0; i < npts * nchan; ++i)
@@ -130,67 +154,10 @@ ifm3d::create_buffer(const std::vector<std::uint8_t>& data,
       std::reverse_copy(src_pixel, src_pixel + fsize, dst_pixel);
     }
 #else
-  std::copy(start, start + (npts * pixel_stride), dst);
+  std::copy(start, start + (npts * fsize), ptr);
 #endif
 
   return image;
-}
-
-template <typename T>
-static ifm3d::Buffer
-create_xyz_buffer(const std::vector<std::uint8_t>& data,
-                  std::size_t xidx,
-                  std::size_t yidx,
-                  std::size_t zidx,
-                  std::size_t width,
-                  std::size_t height,
-                  ifm3d::pixel_format fmt,
-                  const std::optional<ifm3d::Buffer>& mask)
-{
-  std::size_t incr = sizeof(T);
-  std::size_t npts = width * height;
-
-  ifm3d::Buffer im(width, height, 3, fmt);
-
-  int col = 0;
-  int row = -1;
-  int xyz_col = 0;
-
-  T* xyz_ptr = NULL;
-  T x_, y_, z_;
-
-  constexpr T bad_pixel = 0;
-
-  for (std::size_t i = 0; i < npts;
-       ++i, xidx += incr, yidx += incr, zidx += incr)
-    {
-      col = i % width;
-      xyz_col = col * 3;
-      if (col == 0)
-        {
-          row += 1;
-          xyz_ptr = im.ptr<T>(row);
-        }
-
-      x_ = ifm3d::mkval<T>(data.data() + xidx);
-      y_ = ifm3d::mkval<T>(data.data() + yidx);
-      z_ = ifm3d::mkval<T>(data.data() + zidx);
-
-      if (mask.has_value() && mask.value().at<uint8_t>(row, col) != 0)
-        {
-          xyz_ptr[xyz_col] = bad_pixel;
-          xyz_ptr[xyz_col + 1] = bad_pixel;
-          xyz_ptr[xyz_col + 2] = bad_pixel;
-        }
-      else
-        {
-          xyz_ptr[xyz_col] = x_;
-          xyz_ptr[xyz_col + 1] = y_;
-          xyz_ptr[xyz_col + 2] = z_;
-        }
-    }
-
-  return im;
 }
 
 ifm3d::Buffer
@@ -206,16 +173,26 @@ ifm3d::create_xyz_buffer(const std::vector<std::uint8_t>& data,
   switch (fmt)
     {
     case ifm3d::pixel_format::FORMAT_8U:
-      return ::create_xyz_buffer<std::uint8_t>(data,
-                                               xidx,
-                                               yidx,
-                                               zidx,
-                                               width,
-                                               height,
-                                               fmt,
-                                               mask);
+      return create_xyz_buffer<std::uint8_t>(data,
+                                             xidx,
+                                             yidx,
+                                             zidx,
+                                             width,
+                                             height,
+                                             fmt,
+                                             mask);
     case pixel_format::FORMAT_8S:
-      return ::create_xyz_buffer<std::int8_t>(data,
+      return create_xyz_buffer<std::int8_t>(data,
+                                            xidx,
+                                            yidx,
+                                            zidx,
+                                            width,
+                                            height,
+                                            fmt,
+                                            mask);
+    case pixel_format::FORMAT_16U:
+    case pixel_format::FORMAT_16U2:
+      return create_xyz_buffer<std::uint16_t>(data,
                                               xidx,
                                               yidx,
                                               zidx,
@@ -223,64 +200,35 @@ ifm3d::create_xyz_buffer(const std::vector<std::uint8_t>& data,
                                               height,
                                               fmt,
                                               mask);
-    case pixel_format::FORMAT_16U:
-    case pixel_format::FORMAT_16U2:
-      return ::create_xyz_buffer<std::uint16_t>(data,
-                                                xidx,
-                                                yidx,
-                                                zidx,
-                                                width,
-                                                height,
-                                                fmt,
-                                                mask);
     case pixel_format::FORMAT_16S:
-      return ::create_xyz_buffer<std::int16_t>(data,
-                                               xidx,
-                                               yidx,
-                                               zidx,
-                                               width,
-                                               height,
-                                               fmt,
-                                               mask);
+      return create_xyz_buffer<std::int16_t>(data,
+                                             xidx,
+                                             yidx,
+                                             zidx,
+                                             width,
+                                             height,
+                                             fmt,
+                                             mask);
     case pixel_format::FORMAT_32U:
-      return ::create_xyz_buffer<std::uint32_t>(data,
-                                                xidx,
-                                                yidx,
-                                                zidx,
-                                                width,
-                                                height,
-                                                fmt,
-                                                mask);
+      return create_xyz_buffer<std::uint32_t>(data,
+                                              xidx,
+                                              yidx,
+                                              zidx,
+                                              width,
+                                              height,
+                                              fmt,
+                                              mask);
     case pixel_format::FORMAT_32S:
-      return ::create_xyz_buffer<std::int32_t>(data,
-                                               xidx,
-                                               yidx,
-                                               zidx,
-                                               width,
-                                               height,
-                                               fmt,
-                                               mask);
+      return create_xyz_buffer<std::int32_t>(data,
+                                             xidx,
+                                             yidx,
+                                             zidx,
+                                             width,
+                                             height,
+                                             fmt,
+                                             mask);
     case pixel_format::FORMAT_64U:
-      return ::create_xyz_buffer<uint64_t>(data,
-                                           xidx,
-                                           yidx,
-                                           zidx,
-                                           width,
-                                           height,
-                                           fmt,
-                                           mask);
-    case pixel_format::FORMAT_32F:
-    case pixel_format::FORMAT_32F3:
-      return ::create_xyz_buffer<float>(data,
-                                        xidx,
-                                        yidx,
-                                        zidx,
-                                        width,
-                                        height,
-                                        fmt,
-                                        mask);
-    case pixel_format::FORMAT_64F:
-      return ::create_xyz_buffer<double>(data,
+      return create_xyz_buffer<uint64_t>(data,
                                          xidx,
                                          yidx,
                                          zidx,
@@ -288,6 +236,25 @@ ifm3d::create_xyz_buffer(const std::vector<std::uint8_t>& data,
                                          height,
                                          fmt,
                                          mask);
+    case pixel_format::FORMAT_32F:
+    case pixel_format::FORMAT_32F3:
+      return create_xyz_buffer<float>(data,
+                                      xidx,
+                                      yidx,
+                                      zidx,
+                                      width,
+                                      height,
+                                      fmt,
+                                      mask);
+    case pixel_format::FORMAT_64F:
+      return create_xyz_buffer<double>(data,
+                                       xidx,
+                                       yidx,
+                                       zidx,
+                                       width,
+                                       height,
+                                       fmt,
+                                       mask);
 
     default:
       LOG_ERROR("Invalid pixel format => {}", static_cast<uint32_t>(fmt));
@@ -303,16 +270,17 @@ ifm3d::get_image_chunks(const std::vector<std::uint8_t>& data,
   std::map<image_chunk, std::set<std::size_t>> chunks;
 
   std::size_t idx = start_idx; // start of first chunk
-  std::size_t size = (end_idx.has_value() ? end_idx.value() : data.size()) - 6;
+  std::size_t const size =
+    (end_idx.has_value() ? end_idx.value() : data.size()) - 6;
 
   while (idx < size)
     {
-      image_chunk chunk =
+      auto const chunk =
         static_cast<image_chunk>(mkval<std::uint32_t>(data.data() + idx));
       chunks[chunk].insert(idx);
 
       // move to the beginning of the next chunk
-      std::uint32_t incr = mkval<std::uint32_t>(data.data() + idx + 4);
+      auto const incr = mkval<std::uint32_t>(data.data() + idx + 4);
       if (incr <= 0)
         {
           LOG_WARNING("Next chunk is supposedly {} bytes from the current one "
@@ -358,11 +326,11 @@ ifm3d::get_image_size(const std::vector<std::uint8_t>& data, std::size_t idx)
       return std::make_tuple(0, 0);
     }
 
-  std::uint32_t width = std::max(
-    1u,
+  std::uint32_t const width = std::max(
+    1U,
     ifm3d::mkval<std::uint32_t>(data.data() + idx + CHUNK_OFFSET_IMAGE_WIDTH));
-  std::uint32_t height =
-    std::max(1u,
+  std::uint32_t const height =
+    std::max(1U,
              ifm3d::mkval<std::uint32_t>(data.data() + idx +
                                          CHUNK_OFFSET_IMAGE_HEIGHT));
 
@@ -394,27 +362,26 @@ std::vector<ifm3d::TimePointT>
 ifm3d::get_chunk_timestamps(const std::vector<uint8_t>& data, std::size_t idx)
 {
   std::vector<TimePointT> timestamps;
-  const std::uint32_t header_version = ifm3d::mkval<std::uint32_t>(
+  const auto header_version = ifm3d::mkval<std::uint32_t>(
     data.data() + idx + CHUNK_OFFSET_HEADER_VERSION);
   if (header_version > 1)
     {
       // Retrieve the timespamp information from the chunk
-      const std::uint32_t timestampSec = ifm3d::mkval<std::uint32_t>(
+      const auto timestamp_sec = ifm3d::mkval<std::uint32_t>(
         data.data() + idx + CHUNK_OFFSET_TIME_STAMP_SEC);
-      const std::uint32_t timestampNsec = ifm3d::mkval<std::uint32_t>(
+      const auto timestamp_nsec = ifm3d::mkval<std::uint32_t>(
         data.data() + idx + CHUNK_OFFSET_TIME_STAMP_NSEC);
       // convert the time stamp into a TimePointT
-      timestamps.push_back(
-        ifm3d::TimePointT{std::chrono::seconds{timestampSec} +
-                          std::chrono::nanoseconds{timestampNsec}});
+      timestamps.emplace_back(std::chrono::seconds{timestamp_sec} +
+                              std::chrono::nanoseconds{timestamp_nsec});
 
       // O3X device provides an offeset in Usec releative to timestamp
       // calculated as time_stamp_[0]
-      const std::uint32_t ethernetTimeinUsecOffset =
-        ifm3d::mkval<std::uint32_t>(data.data() + idx +
-                                    CHUNK_OFFSET_TIME_STAMP);
+      const auto ethernet_timein_usec_offset = ifm3d::mkval<std::uint32_t>(
+        data.data() + idx + CHUNK_OFFSET_TIME_STAMP);
       timestamps.push_back(ifm3d::TimePointT{
-        timestamps[0] + std::chrono::microseconds{ethernetTimeinUsecOffset}});
+        timestamps[0] +
+        std::chrono::microseconds{ethernet_timein_usec_offset}});
     }
   else
     {
@@ -526,7 +493,7 @@ ifm3d::create_pixel_mask(ifm3d::Buffer& confidence)
                        1,
                        pixel_format::FORMAT_8U);
 
-  int index = 0;
+  int const index = 0;
   if (confidence.dataFormat() == pixel_format::FORMAT_16U)
     {
       std::transform(confidence.begin<std::uint16_t>(),
@@ -568,7 +535,7 @@ ifm3d::parse_data(
           requested_images.find(static_cast<buffer_id>(chunk.first)) !=
             requested_images.end())
         {
-          for (auto& index : chunk.second)
+          for (const auto& index : chunk.second)
             {
               if (is_probably_blob(data, index, width, height))
                 {
@@ -590,7 +557,7 @@ ifm3d::parse_data(
 void
 ifm3d::mask_images(std::map<ifm3d::buffer_id, ifm3d::BufferList>& images,
                    ifm3d::Buffer& mask,
-                   std::function<bool(ifm3d::buffer_id id)> should_mask)
+                   const std::function<bool(ifm3d::buffer_id id)>& should_mask)
 {
   for (auto& [buffer_id_value, buffers] : images)
     {
@@ -616,11 +583,10 @@ ifm3d::create_metadata(const std::vector<std::uint8_t>& data, std::size_t idx)
 {
   if (has_metadata(data, idx))
     {
-      std::string metadata(
-        std::string((char*)(data.data() + idx + CHUNK_OFFSET_META_DATA),
-                    get_chunk_pixeldata_offset(data, idx) -
-                      CHUNK_OFFSET_META_DATA)
-          .c_str());
+      std::string const metadata(std::string(
+        reinterpret_cast<const char*>(data.data() + idx +
+                                      CHUNK_OFFSET_META_DATA),
+        get_chunk_pixeldata_offset(data, idx) - CHUNK_OFFSET_META_DATA));
       return ifm3d::json::parse(metadata);
     }
   return {};

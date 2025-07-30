@@ -6,8 +6,8 @@
 
 #ifndef IFM3D_TOOLS_OVP8XX_APP_H
 #define IFM3D_TOOLS_OVP8XX_APP_H
+#pragma once
 
-#include <string>
 #include <CLI/CLI.hpp>
 #include <ifm3d/tools/command.hpp>
 #include <ifm3d/tools.h>

@@ -9,7 +9,6 @@
 
 #include <array>
 #include <string>
-#include <chrono>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/fg/organizer_utils.h>

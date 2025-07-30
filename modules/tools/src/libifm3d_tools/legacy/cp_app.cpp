@@ -4,15 +4,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/device/legacy_device.h"
 #include <ifm3d/tools/legacy/cp_app.h>
-#include <iostream>
+#include <memory>
 #include <string>
-#include <ifm3d/device.h>
 
-ifm3d::CpApp::~CpApp() {}
+ifm3d::CpApp::~CpApp() = default;
 
 void
-ifm3d::CpApp::Execute(CLI::App* app)
+ifm3d::CpApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
 

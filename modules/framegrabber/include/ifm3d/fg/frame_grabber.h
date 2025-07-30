@@ -6,6 +6,7 @@
 
 #ifndef IFM3D_FG_FRAMEGRABBER_H
 #define IFM3D_FG_FRAMEGRABBER_H
+#pragma once
 
 #include <cstdint>
 #include <future>
@@ -13,13 +14,13 @@
 #include <optional>
 #include <vector>
 #include <variant>
-#include <type_traits>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/organizer.h>
 #include <ifm3d/fg/frame.h>
 #include <ifm3d/fg/module_frame_grabber.h>
+
 namespace ifm3d
 {
   /** @ingroup FrameGrabber
@@ -105,7 +106,7 @@ namespace ifm3d
      */
     std::shared_future<void> Start(
       const BufferList& buffers,
-      const std::optional<json>& pcicFormat = std::nullopt);
+      const std::optional<json>& schema = std::nullopt);
 
     /**
      * Stops the worker thread for streaming in pixel data from the device

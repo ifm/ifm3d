@@ -1,10 +1,12 @@
-#include <chrono>
+#include <array>
+#include <cstdint>
 #include <string>
-#include <thread>
 #include <gtest/gtest.h>
 #include <sodium/crypto_box.h>
 #include <ifm3d/crypto/crypto.h>
 #include <cstring>
+#include <vector>
+#include <string_view>
 
 static const std::vector<uint8_t> RECIPIENT_PK = {
   0x34, 0x3f, 0x4b, 0x3f, 0xee, 0xff, 0xda, 0xa7, 0x3f, 0x2e, 0xd7,
@@ -23,19 +25,19 @@ static const std::vector<uint8_t> CIPHERTEXT = {
   0x79, 0xa4, 0x64, 0x90, 0xa9, 0x85, 0x9d, 0x54, 0x55, 0x58, 0x7c,
   0xc7, 0x49, 0xbb, 0x52, 0x96, 0x1f, 0x48, 0x0d, 0xb9, 0x71, 0x82};
 
-static constexpr const char MESSAGE[] = "Message";
-static constexpr size_t MESSAGE_LEN = sizeof(MESSAGE) - 1;
+static constexpr std::string_view MESSAGE = "Message";
+static constexpr size_t MESSAGE_LEN = MESSAGE.size();
 static constexpr size_t CIPHERTEXT_LEN = (crypto_box_SEALBYTES + MESSAGE_LEN);
 
 class CryptoTest : public ::testing::Test
 {
 protected:
-  virtual void
-  SetUp()
+  void
+  SetUp() override
   {}
 
-  virtual void
-  TearDown()
+  void
+  TearDown() override
   {}
 };
 
@@ -43,12 +45,12 @@ TEST_F(CryptoTest, Encrypt)
 {
   ifm3d::SealedBox box(RECIPIENT_PK, RECIPIENT_SK);
 
-  std::vector<uint8_t> ciphertext = box.Encrypt(MESSAGE);
+  std::vector<uint8_t> ciphertext = box.Encrypt(std::string(MESSAGE));
 
   ASSERT_EQ(ciphertext.size(), CIPHERTEXT_LEN);
 
-  unsigned char message[MESSAGE_LEN];
-  ASSERT_EQ(crypto_box_seal_open(message,
+  std::array<unsigned char, MESSAGE_LEN> message{};
+  ASSERT_EQ(crypto_box_seal_open(message.data(),
                                  ciphertext.data(),
                                  CIPHERTEXT_LEN,
                                  RECIPIENT_PK.data(),
@@ -60,7 +62,7 @@ TEST_F(CryptoTest, Decrypt)
 {
   ifm3d::SealedBox box(RECIPIENT_PK, RECIPIENT_SK);
 
-  std::string message = box.Decrypt(CIPHERTEXT);
+  std::string const message = box.Decrypt(CIPHERTEXT);
 
   EXPECT_EQ(message.length(), MESSAGE_LEN);
   EXPECT_EQ(MESSAGE, message);

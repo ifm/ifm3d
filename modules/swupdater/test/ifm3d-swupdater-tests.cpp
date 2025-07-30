@@ -1,10 +1,12 @@
+#include "ifm3d/common/err.h"
+#include "ifm3d/device/legacy_device.h"
+#include "ifm3d/swupdater/swupdater.h"
 #include <chrono>
-#include <cstdint>
+#include <ios>
 #include <memory>
+#include <string>
 #include <thread>
-#include <ifm3d/swupdater.h>
 #include <ifm3d/device/device.h>
-#include <ifm3d/device/err.h>
 #include <ifm3d/common/logging/log.h>
 #include <gtest/gtest.h>
 #include <fstream>
@@ -73,7 +75,7 @@ TEST_F(SWUpdater, DISABLED_FlashEmptyFile)
   swu->RebootToRecovery();
   EXPECT_TRUE(swu->WaitForRecovery(80000));
 
-  std::string swu_file("swu_test_file.swu");
+  std::string const swu_file("swu_test_file.swu");
   std::fstream infile;
   infile.open(swu_file, std::ios::out);
   infile.close();

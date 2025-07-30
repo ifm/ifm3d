@@ -7,7 +7,7 @@
 #define IFM3D_PYBIND_BINDING_ERROR
 
 #include "../util.hpp"
-
+#include <ifm3d/device/err.h>
 #include <pybind11/pybind11.h>
 #include <string>
 

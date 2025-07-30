@@ -3,17 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include "ifm3d/device/device.h"
+#include <CLI/App.hpp>
+#include <cstdint>
 #include <ifm3d/tools/common/swupdater/swupdate_app.h>
 #include <ifm3d/common/features.h>
-#include <exception>
 #include <iostream>
-#include <istream>
-#include <fstream>
 #include <memory>
-#include <vector>
-#include <chrono>
-#include <filesystem>
-#include <ifm3d/device.h>
+#include <optional>
+#include <string>
 
 #ifdef _WIN32
 #  include <io.h>
@@ -24,10 +22,10 @@ ifm3d::SWUpdateApp::SWUpdateApp(
   std::optional<ifm3d::Device::swu_version> force_swu_version)
   : force_swu_version(force_swu_version)
 {}
-ifm3d::SWUpdateApp::~SWUpdateApp() {}
+ifm3d::SWUpdateApp::~SWUpdateApp() = default;
 
 void
-ifm3d::SWUpdateApp::Execute(CLI::App* app)
+ifm3d::SWUpdateApp::Execute(CLI::App* /*app*/)
 {
   if (!this->subcmd_flash->parsed() && !this->subcmd_restart->parsed())
     {
@@ -37,22 +35,20 @@ ifm3d::SWUpdateApp::Execute(CLI::App* app)
         {
           if (swupdater->WaitForRecovery(-1))
             {
-              std::cout << "Device is in recovery mode." << std::endl;
+              std::cout << "Device is in recovery mode." << '\n';
             }
           else if (swupdater->WaitForProductive(-1))
             {
-              std::cout << "Device is in productive mode." << std::endl;
+              std::cout << "Device is in productive mode." << '\n';
             }
           else
             {
-              std::cout << "Unable to communicate with device." << std::endl;
+              std::cout << "Unable to communicate with device." << '\n';
             }
           return;
         }
-      else
-        {
-          throw CLI::CallForHelp();
-        }
+
+      throw CLI::CallForHelp();
     }
 }
 
@@ -68,11 +64,12 @@ ifm3d::SWUpdateApp::CreateSWUpdater(bool quiet,
               [](float p, const std::string& msg) {}) :
             static_cast<SWUpdater::FlashStatusCb>(
               [](float p, const std::string& msg) {
-                if (p < 1.0f)
+                if (p < 1.0F)
                   {
-                    int width = 50;
+                    int const width = 50;
                     std::cout << "Uploading Firmware: [";
-                    int pos = int(width * p);
+                    int const pos =
+                      static_cast<int>(static_cast<float>(width) * p);
                     for (int i = 0; i < width; ++i)
                       {
                         if (i < pos)
@@ -93,7 +90,7 @@ ifm3d::SWUpdateApp::CreateSWUpdater(bool quiet,
                   }
                 else
                   {
-                    std::cout << msg << std::endl;
+                    std::cout << msg << '\n';
                   }
               }),
     swupdate_recovery_port,

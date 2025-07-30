@@ -1,4 +1,5 @@
 #include <array>
+#include <cstdint>
 
 namespace ifm3d
 {

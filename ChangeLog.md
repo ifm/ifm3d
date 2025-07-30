@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Improve Deserialize usages by adding global `Deserialize`
 - Support for accessing OVP8XX SealedBox
+- Add code analysis using `clang-tidy`, `cppcheck`, `clang-format`
 
 ### Fixed
 - Parsing of multi-channel data (e.g. UNIT_VECTOR_ALL)

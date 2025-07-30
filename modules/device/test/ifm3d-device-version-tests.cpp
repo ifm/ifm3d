@@ -1,10 +1,17 @@
-#include <ifm3d/device.h>
+#include "ifm3d/device/semver.h"
+#include "ifm3d/device/version.h"
 #include <gtest/gtest.h>
 #include <fmt/core.h>
 #include <optional>
+#include <vector>
+#include <utility>
+#include <string>
+#include <tuple>
 
-// clang-format off
-static std::vector<std::pair<std::string, ifm3d::SemVer>>
+namespace
+{
+  // clang-format off
+std::vector<std::pair<std::string, ifm3d::SemVer>>
   VALID_VERSION_STRINGS{
     {"0.0.4", ifm3d::SemVer(0, 0, 4, std::nullopt, std::nullopt)},
     {"1.2.3", ifm3d::SemVer(1, 2, 3, std::nullopt, std::nullopt)},
@@ -37,67 +44,70 @@ static std::vector<std::pair<std::string, ifm3d::SemVer>>
     {"1.0.0+0.build.1-rc.10000aaa-kk-0.1", ifm3d::SemVer(1, 0, 0, std::nullopt, "0.build.1-rc.10000aaa-kk-0.1")},
     {"1.0.0-0A.is.legal", ifm3d::SemVer(1, 0, 0, "0A.is.legal", std::nullopt)},
   };
-// clang-format on
+  // clang-format on
 
-static std::vector<std::string> INVALID_VERSION_STRINGS{
-  "1",
-  "1.2",
-  "1.2.3-0123",
-  "1.2.3-0123.0123",
-  "1.1.2+.123",
-  "+invalid",
-  "-invalid",
-  "-invalid+invalid",
-  "-invalid.01",
-  "alpha",
-  "alpha.beta",
-  "alpha.beta.1",
-  "alpha.1",
-  "alpha+beta",
-  "alpha_beta",
-  "alpha.",
-  "alpha..",
-  "beta",
-  "1.0.0-alpha_beta",
-  "-alpha.",
-  "1.0.0-alpha..",
-  "1.0.0-alpha..1",
-  "1.0.0-alpha...1",
-  "1.0.0-alpha....1",
-  "1.0.0-alpha.....1",
-  "1.0.0-alpha......1",
-  "1.0.0-alpha.......1",
-  "01.1.1",
-  "1.01.1",
-  "1.1.01",
-  "1.2",
-  "1.2.3.DEV",
-  "1.2-SNAPSHOT",
-  "1.2.31.2.3----RC-SNAPSHOT.12.09.1--..12+788",
-  "1.2-RC-SNAPSHOT",
-  "-1.0.3-gamma+b7718",
-  "+justmeta",
-  "9.8.7+meta+meta",
-  "9.8.7-whatever+meta+meta",
-  "99999999999999999999999.999999999999999999."
-  "99999999999999999----RC-SNAPSHOT.12.09.1-----------"
-  "---------------------..12",
-};
-
-static std::vector<std::tuple<std::string, std::string, int, bool>>
-  COMPARE_VERSIONS{
-    {"1.0.0", "1.0.0", 0, true},
-    {"1.0.0-prerelease", "1.0.0", 0, false},
-    {"1.0.0-prerelease+meta", "1.0.0", 0, false},
-    {"1.0.0+meta", "1.0.0", 0, false},
-    {"1.1.0", "1.0.0", +1, false},
-    {"1.0.1", "1.0.0", +1, false},
-    {"1.1.0-prerelease", "1.0.5", +1, false},
+  std::vector<std::string> INVALID_VERSION_STRINGS{
+    "1",
+    "1.2",
+    "1.2.3-0123",
+    "1.2.3-0123.0123",
+    "1.1.2+.123",
+    "+invalid",
+    "-invalid",
+    "-invalid+invalid",
+    "-invalid.01",
+    "alpha",
+    "alpha.beta",
+    "alpha.beta.1",
+    "alpha.1",
+    "alpha+beta",
+    "alpha_beta",
+    "alpha.",
+    "alpha..",
+    "beta",
+    "1.0.0-alpha_beta",
+    "-alpha.",
+    "1.0.0-alpha..",
+    "1.0.0-alpha..1",
+    "1.0.0-alpha...1",
+    "1.0.0-alpha....1",
+    "1.0.0-alpha.....1",
+    "1.0.0-alpha......1",
+    "1.0.0-alpha.......1",
+    "01.1.1",
+    "1.01.1",
+    "1.1.01",
+    "1.2",
+    "1.2.3.DEV",
+    "1.2-SNAPSHOT",
+    "1.2.31.2.3----RC-SNAPSHOT.12.09.1--..12+788",
+    "1.2-RC-SNAPSHOT",
+    "-1.0.3-gamma+b7718",
+    "+justmeta",
+    "9.8.7+meta+meta",
+    "9.8.7-whatever+meta+meta",
+    "99999999999999999999999.999999999999999999." // NOLINT(bugprone-suspicious-missing-comma)
+    "99999999999999999----RC-SNAPSHOT.12.09.1-----------"
+    "---------------------..12",
   };
+
+  std::vector<std::tuple<std::string, std::string, int, bool>>
+    COMPARE_VERSIONS{
+      {"1.0.0", "1.0.0", 0, true},
+      {"1.0.0-prerelease", "1.0.0", 0, false},
+      {"1.0.0-prerelease+meta", "1.0.0", 0, false},
+      {"1.0.0+meta", "1.0.0", 0, false},
+      {"1.1.0", "1.0.0", +1, false},
+      {"1.0.1", "1.0.0", +1, false},
+      {"1.1.0-prerelease", "1.0.5", +1, false},
+    };
+};
 
 TEST(Version, Version)
 {
-  int major, minor, patch;
+  int major = 0;
+  int minor = 0;
+  int patch = 0;
   std::string tweak;
   std::string meta;
   ifm3d::version(&major, &minor, &patch, tweak, meta);
@@ -116,7 +126,12 @@ TEST(Version, ParseVersionValid)
 
       EXPECT_TRUE(parsed.has_value()) << tag;
 
-      const auto actual = parsed.value();
+      if (!parsed)
+        {
+          FAIL() << "Failed to parse version string: " << tag;
+          continue;
+        }
+      const auto& actual = parsed.value();
 
       EXPECT_EQ(expected.major_num, actual.major_num) << tag;
       EXPECT_EQ(expected.minor_num, actual.minor_num) << tag;
@@ -162,8 +177,19 @@ TEST(Version, CompareVersions)
       const auto [v1_string, v2_string, compare_order, equal] = test_case;
       const auto tag = fmt::format("({0}, {1})", v1_string, v2_string);
 
-      const auto v1 = ifm3d::SemVer::Parse(v1_string).value();
-      const auto v2 = ifm3d::SemVer::Parse(v2_string).value();
+      auto v1_opt = ifm3d::SemVer::Parse(v1_string);
+      if (!v1_opt)
+        {
+          FAIL() << "Failed to parse v1: " << v1_string;
+        }
+      const auto& v1 = v1_opt.value();
+
+      auto v2_opt = ifm3d::SemVer::Parse(v2_string);
+      if (!v2_opt)
+        {
+          FAIL() << "Failed to parse v1: " << v2_string;
+        }
+      const auto& v2 = v2_opt.value();
 
       EXPECT_EQ(equal, v1 == v2) << tag;
 

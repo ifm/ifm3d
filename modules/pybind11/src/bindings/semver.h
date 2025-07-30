@@ -9,7 +9,9 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
 #include <sstream>
+#include <ifm3d/device/semver.h>
 
+namespace py = pybind11;
 using namespace pybind11::literals;
 
 void

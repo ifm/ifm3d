@@ -4,9 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/tools/legacy/export_application_app.h"
+#include "ifm3d/tools/legacy/export_device_app.h"
 #include <ifm3d/tools/legacy/export_app.h>
 
-ifm3d::ExportApp::~ExportApp() {}
+ifm3d::ExportApp::~ExportApp() = default;
 
 void
 ifm3d::ExportApp::Execute(CLI::App* app)

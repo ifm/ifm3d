@@ -1,3 +1,4 @@
+#include <cstring>
 #include <ifm3d/common/err.h>
 #include <gtest/gtest.h>
 

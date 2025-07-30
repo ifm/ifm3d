@@ -3,7 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <cstdint>
+#include "ifm3d/device/legacy_device.h"
+#include "ifm3d/device/device.h"
 #include <ifm3d/device/o3x.h>
+#include <string>
 
 //================================================
 // O3XCamera class - the public interface

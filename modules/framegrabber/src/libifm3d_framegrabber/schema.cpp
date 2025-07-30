@@ -4,16 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include "ifm3d/device/semver.h"
+#include "ifm3d/fg/buffer_id.h"
+#include "ifm3d/common/json_impl.hpp"
+#include "ifm3d/device/device.h"
 #include <ifm3d/fg/schema.h>
-#include <cstdint>
 #include <cstdlib>
 #include <map>
 #include <string>
-#include <vector>
 #include <set>
-#include <ifm3d/device/util.h>
-#include <ifm3d/device/err.h>
-#include <ifm3d/common/json.hpp>
 
 const ifm3d::SemVer O3R_SCHEMA_FIRMWARE_COMPATIBILITY_CHECK_VERSION =
   ifm3d::SemVer(1, 0, 1);
@@ -171,12 +170,11 @@ ifm3d::make_schema(const std::set<ifm3d::buffer_id>& buffer_ids,
       {
         return schema_map.at(buffer_id);
       }
-    else
-      {
-        // TODO: should we throw if schema generation fail due to non supported
-        // chunk_id by device ? throw
-        // ifm3d::error_t(IFM3D_UNSUPPORTED_SCHEMA_ON_DEVICE);
-      }
+
+    // TODO: should we throw if schema generation fail due to non supported
+    // chunk_id by device ? throw
+    // ifm3d::error_t(IFM3D_UNSUPPORTED_SCHEMA_ON_DEVICE);
+
     return {};
   };
 

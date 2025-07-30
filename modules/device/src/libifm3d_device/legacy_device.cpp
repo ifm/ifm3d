@@ -3,6 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <cstdint>
+#include "ifm3d/common/err.h"
+#include "ifm3d/device/device.h"
+#include "ifm3d/common/logging/log.h"
+#include "ifm3d/common/json_impl.hpp"
+#include <chrono>
+#include <functional>
 #include <memory>
 #include <ctime>
 #include <sstream>
@@ -10,12 +17,17 @@
 #include <ifm3d/device/util.h>
 #include <ifm3d/device/version.h>
 #include <legacy_device_impl.hpp>
+#include <unordered_map>
+#include <string>
+#include <vector>
+#include <tuple>
+#include <stdexcept>
 //================================================
 // A lookup table listing the read-only camera
 // parameters
 //================================================
 // clang-format off
-std::unordered_map<std::string,
+static std::unordered_map<std::string,
                    std::unordered_map<std::string, bool>>
 RO_LUT=
   {
@@ -213,7 +225,7 @@ ifm3d::LegacyDevice::ApplicationList()
 {
   json retval; // list
 
-  int active = this->ActiveApplication();
+  int const active = this->ActiveApplication();
   std::vector<ifm3d::app_entry_t> apps = this->pImpl->ApplicationList();
   if (apps.empty())
     {
@@ -221,11 +233,11 @@ ifm3d::LegacyDevice::ApplicationList()
     }
   for (auto& app : apps)
     {
-      json dict = {{"Index", app.index},
-                   {"Id", app.id},
-                   {"Name", app.name},
-                   {"Description", app.description},
-                   {"Active", app.index == active}};
+      json const dict = {{"Index", app.index},
+                         {"Id", app.id},
+                         {"Name", app.name},
+                         {"Description", app.description},
+                         {"Active", app.index == active}};
 
       retval.push_back(dict);
     }
@@ -329,7 +341,7 @@ void
 ifm3d::LegacyDevice::ImportIFMConfig(const std::vector<std::uint8_t>& bytes,
                                      std::uint16_t flags)
 {
-  return this->pImpl->WrapInEditSession(
+  this->pImpl->WrapInEditSession(
     [this, &bytes, flags]() { this->pImpl->ImportIFMConfig(bytes, flags); });
 }
 
@@ -364,11 +376,12 @@ ifm3d::LegacyDevice::getApplicationInfosToJSON()
          compatibility with o3x which does not support dedicated xmlrpc
          filter objects since there are no config options for the o3x filter
        */
-      std::unordered_map<std::string, std::string> spatialFil = {
+      std::unordered_map<std::string, std::string> const spatial_fil = {
         {"MaskSize", "0"}};
-      std::unordered_map<std::string, std::string> tmpFil = {{}}; // empty map
-      imager_json["SpatialFilter"] = json(spatialFil);
-      imager_json["TemporalFilter"] = json(tmpFil);
+      std::unordered_map<std::string, std::string> const tmp_fil = {
+        {}}; // empty map
+      imager_json["SpatialFilter"] = json(spatial_fil);
+      imager_json["TemporalFilter"] = json(tmp_fil);
 
       if (this->AmI(device_family::O3D))
         {
@@ -394,29 +407,31 @@ ifm3d::LegacyDevice::getApplicationInfosToJSON()
 ifm3d::json
 ifm3d::LegacyDevice::ToJSON_(const bool open_session)
 {
-  auto timeNow =
+  auto time_now =
     std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
   std::ostringstream time_buf;
-  time_buf << std::ctime(&timeNow);
+  time_buf << std::ctime(&time_now);
   auto time_s = time_buf.str();
   ifm3d::trim(time_s);
 
-  auto exec_toJSON = [this]() {
+  auto exec_to_json = [this]() {
     return std::make_tuple(this->getApplicationInfosToJSON(),
                            json(this->NetInfo()),
                            this->TimeInfo());
   };
 
-  json app_info, net_info, time_info;
+  json app_info;
+  json net_info;
+  json time_info;
   if (open_session)
     {
       std::tie(app_info, net_info, time_info) =
         this->pImpl->WrapInEditSession<std::tuple<json, json, json>>(
-          exec_toJSON);
+          exec_to_json);
     }
   else
     {
-      std::tie(app_info, net_info, time_info) = exec_toJSON();
+      std::tie(app_info, net_info, time_info) = exec_to_json();
     }
 
   // clang-format off
@@ -455,8 +470,8 @@ void
 ifm3d::LegacyDevice::FromJSON_(
   const json& j_curr,
   const json& j_new,
-  std::function<void(const std::string&, const std::string&)> SetFunc,
-  std::function<void()> SaveFunc,
+  const std::function<void(const std::string&, const std::string&)>& set_func,
+  const std::function<void()>& save_func,
   const std::string& name,
   int idx)
 {
@@ -481,21 +496,21 @@ ifm3d::LegacyDevice::FromJSON_(
   bool do_save = false;
   for (auto it = j_new.begin(); it != j_new.end(); ++it)
     {
-      std::string key = it.key();
+      std::string const& key = it.key();
       LOG_VERBOSE("Processing key={} with val={}", key, j_new[key].dump(2));
       if (it.value().is_null())
         {
           LOG_WARNING("Skipping {}, null value -- should be string!", key);
           continue;
         }
-      std::string val = j_new[key].get<std::string>();
+      std::string const val = j_new[key].get<std::string>();
       if (j_curr[key].is_null())
         {
           const auto msg =
             key + std::string(" parameter is not supported in firmware");
           throw std::runtime_error(msg);
         }
-      else if (j_curr[key].get<std::string>() != val)
+      if (j_curr[key].get<std::string>() != val)
         {
           try
             {
@@ -511,12 +526,12 @@ ifm3d::LegacyDevice::FromJSON_(
                 }
               catch (const std::out_of_range& /*ex*/)
                 {
-                  // just swallow the error -- we are setting a
+                  // IGNORE: just swallow the error -- we are setting a
                   // r/w parameter
                 }
 
               LOG_VERBOSE("Setting {} parameter: {}={}", name, key, val);
-              SetFunc(key, val);
+              set_func(key, val);
               do_save = true;
             }
           catch (const ifm3d::Error& ex)
@@ -541,7 +556,7 @@ ifm3d::LegacyDevice::FromJSON_(
 
   if (do_save)
     {
-      SaveFunc();
+      save_func();
     }
   if (idx > 0)
     {
@@ -598,7 +613,7 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
   // Ensure we cancel the session when leaving this method
   this->pImpl->WrapInEditSession([this, &root, &j, &current]() {
     // Device
-    json j_dev = root["Device"];
+    json const j_dev = root["Device"];
     if (!j_dev.is_null())
       {
         this->FromJSON_(
@@ -698,13 +713,13 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
               "App",
               idx);
 
-            json s_filt = j_im["SpatialFilter"];
+            json const s_filt = j_im["SpatialFilter"];
             if (!s_filt.is_null())
               {
                 j_im.erase("SpatialFilter");
               }
 
-            json t_filt = j_im["TemporalFilter"];
+            json const t_filt = j_im["TemporalFilter"];
             if (!t_filt.is_null())
               {
                 j_im.erase("TemporalFilter");
@@ -715,7 +730,7 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
             // application. When trying to import them, ifm3d will fail. In
             // case an temporal filter is set, we have to reload the
             // application.
-            bool reloadApp =
+            bool const reload_app =
               (!j_im["TemporalFilterType"].is_null() &&
                std::stoi(j_im["TemporalFilterType"].get<std::string>()) != 0);
 
@@ -736,7 +751,7 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
               "Imager",
               idx);
 
-            if (reloadApp)
+            if (reload_app)
               {
                 current = this->ToJSON_(false);
                 app_found = getAppJSON(idx, current, curr_app);
@@ -781,7 +796,7 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
                                            ifm3d::O3D_TIME_SUPPORT_MINOR,
                                            ifm3d::O3D_TIME_SUPPORT_PATCH)))
       {
-        json j_time = root["Time"];
+        json const j_time = root["Time"];
         if (!j_time.is_null())
           {
             this->FromJSON_(
@@ -796,7 +811,7 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
       }
 
     // Network - we do this last intentionally!
-    json j_net = root["Net"];
+    json const j_net = root["Net"];
     if (!j_net.is_null())
       {
         this->FromJSON_(
@@ -830,11 +845,11 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
 }
 
 void
-ifm3d::LegacyDevice::SetPassword(std::string password)
+ifm3d::LegacyDevice::SetPassword(const std::string& password)
 {
   this->pImpl->WrapInEditSession([this, password]() {
-    password == "" ? this->pImpl->DisablePassword() :
-                     this->pImpl->ActivatePassword(password);
+    password.empty() ? this->pImpl->DisablePassword() :
+                       this->pImpl->ActivatePassword(password);
     this->pImpl->SaveDevice();
   });
 }
@@ -843,6 +858,7 @@ ifm3d::LegacyDevice::ForceTrigger()
 {
   if (this->AmI(device_family::O3X))
     {
-      return this->pImpl->ForceTrigger();
+      this->pImpl->ForceTrigger();
+      return;
     }
 }

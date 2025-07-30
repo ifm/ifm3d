@@ -6,7 +6,10 @@
 #ifndef IFM3D_PYBIND_BINDING_CAMERA_BASE
 #define IFM3D_PYBIND_BINDING_CAMERA_BASE
 
+#include <ifm3d/device/device.h>
 #include <pybind11/pybind11.h>
+
+namespace py = pybind11;
 
 void
 bind_ifmnetworkdevice(pybind11::module_& m)

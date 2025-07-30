@@ -10,6 +10,8 @@
 #include <pybind11/functional.h>
 #include <ifm3d/swupdater/swupdater.h>
 
+namespace py = pybind11;
+
 void
 bind_swupdater(pybind11::module_& m)
 {

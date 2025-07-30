@@ -6,10 +6,13 @@
 #ifndef IFM3D_PYBIND_BINDING_FRAMEGRABBER
 #define IFM3D_PYBIND_BINDING_FRAMEGRABBER
 
+#include <ifm3d/fg/frame_grabber.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/functional.h>
 #include <ifm3d/fg/frame_grabber.h>
 #include "bindings/future.h"
+
+namespace py = pybind11;
 
 void
 bind_framegrabber(pybind11::module_& m)

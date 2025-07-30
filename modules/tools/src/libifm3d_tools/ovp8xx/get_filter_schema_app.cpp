@@ -3,22 +3,24 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
 #include <ifm3d/tools/ovp8xx/get_filter_schema_app.h>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <ifm3d/device/o3r.h>
 
-ifm3d::GetFilterSchemaApp::~GetFilterSchemaApp() {}
+ifm3d::GetFilterSchemaApp::~GetFilterSchemaApp() = default;
 
 void
-ifm3d::GetFilterSchemaApp::Execute(CLI::App* app)
+ifm3d::GetFilterSchemaApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
 
   std::cout << std::static_pointer_cast<ifm3d::O3R>(device)
                  ->GetDiagnosticFilterSchema()
                  .dump(2)
-            << std::endl;
+            << '\n';
 }
 
 CLI::App*

@@ -3,27 +3,30 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <cstdint>
 #include <ifm3d/crypto/crypto.h>
 #include <ifm3d/common/err.h>
+#include <optional>
 #include <sodium/crypto_box.h>
 #include <sodium/randombytes.h>
-#include <stdexcept>
+#include <vector>
+#include <string>
 
 ifm3d::SealedBox::SealedBox(
-  const std::vector<uint8_t> public_key,
-  std::optional<const std::vector<uint8_t>> private_key)
+  const std::vector<uint8_t>& public_key,
+  const std::optional<const std::vector<uint8_t>>& private_key)
   : public_key_(public_key),
     private_key_(private_key)
 {}
 
-ifm3d::SealedBox::~SealedBox() {}
+ifm3d::SealedBox::~SealedBox() = default;
 
 std::vector<uint8_t>
 ifm3d::SealedBox::Encrypt(const std::string& plaintext)
 {
   std::vector<uint8_t> ciphertext(plaintext.length() + crypto_box_SEALBYTES);
 
-  int ret = crypto_box_seal(
+  int const ret = crypto_box_seal(
     reinterpret_cast<unsigned char*>(ciphertext.data()),
     reinterpret_cast<const unsigned char*>(plaintext.data()),
     plaintext.length(),
@@ -49,7 +52,7 @@ ifm3d::SealedBox::Decrypt(const std::vector<std::uint8_t>& ciphertext)
 
   std::string plaintext(ciphertext.size() - crypto_box_SEALBYTES, '\0');
 
-  int ret = crypto_box_seal_open(
+  int const ret = crypto_box_seal_open(
     reinterpret_cast<unsigned char*>(plaintext.data()),
     reinterpret_cast<const unsigned char*>(ciphertext.data()),
     ciphertext.size(),

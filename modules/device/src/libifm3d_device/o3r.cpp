@@ -3,8 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <cstdint>
+#include "ifm3d/device/device.h"
+#include "ifm3d/common/json_impl.hpp"
 #include <ifm3d/device/o3r.h>
+#include <memory>
 #include <o3r_impl.hpp>
+#include <optional>
+#include <string>
+#include <utility>
+#include <vector>
 
 //================================================
 // O3R class - the public interface
@@ -18,9 +26,9 @@ ifm3d::O3R::O3R(const std::string& ip, const std::uint16_t xmlrpc_port)
 ifm3d::O3R::~O3R() = default;
 
 void
-ifm3d::O3R::FactoryReset(bool keepNetworkSettings)
+ifm3d::O3R::FactoryReset(bool keep_network_settings)
 {
-  this->pImpl->FactoryReset(keepNetworkSettings);
+  this->pImpl->FactoryReset(keep_network_settings);
 }
 
 ifm3d::json
@@ -38,19 +46,19 @@ ifm3d::O3R::ResolveConfig(const json::json_pointer& ptr)
 void
 ifm3d::O3R::Set(const json& j)
 {
-  return this->pImpl->Set(j.dump());
+  this->pImpl->Set(j.dump());
 }
 
 void
-ifm3d::O3R::Remove(const std::string& jsonPointer)
+ifm3d::O3R::Remove(const std::string& json_pointer)
 {
-  this->pImpl->Remove(jsonPointer);
+  this->pImpl->Remove(json_pointer);
 }
 
 void
-ifm3d::O3R::Reset(const std::string& jsonPointer)
+ifm3d::O3R::Reset(const std::string& json_pointer)
 {
-  this->pImpl->Reset(jsonPointer);
+  this->pImpl->Reset(json_pointer);
 }
 
 ifm3d::json
@@ -62,7 +70,7 @@ ifm3d::O3R::GetInit()
 void
 ifm3d::O3R::SaveInit(const std::vector<std::string>& pointers)
 {
-  return this->pImpl->SaveInit(pointers);
+  this->pImpl->SaveInit(pointers);
 }
 
 std::string
@@ -80,13 +88,13 @@ ifm3d::O3R::GetSchema()
 void
 ifm3d::O3R::Lock(const std::string& password)
 {
-  return this->pImpl->Lock(password);
+  this->pImpl->Lock(password);
 }
 
 void
 ifm3d::O3R::Unlock(const std::string& password)
 {
-  return this->pImpl->Unlock(password);
+  this->pImpl->Unlock(password);
 }
 
 ifm3d::PortInfo
@@ -134,7 +142,7 @@ ifm3d::O3R::GetDiagnosticFilterSchema()
 ifm3d::json
 ifm3d::O3R::GetDiagnosticFiltered(json filter)
 {
-  return this->pImpl->GetDiagnosticFiltered(filter);
+  return this->pImpl->GetDiagnosticFiltered(std::move(filter));
 }
 
 void
@@ -165,9 +173,9 @@ ifm3d::O3R::SwUpdateVersion()
 }
 
 void
-ifm3d::O3R::DownloadServiceReport(std::string outFile)
+ifm3d::O3R::DownloadServiceReport(std::string out_file)
 {
-  this->pImpl->DownloadServiceReport(outFile);
+  this->pImpl->DownloadServiceReport(std::move(out_file));
 }
 
 #ifdef BUILD_MODULE_CRYPTO
@@ -178,17 +186,17 @@ ifm3d::O3R::SealedBox()
   return std::make_shared<O3RSealedBox>(this->pImpl);
 }
 
-ifm3d::O3RSealedBox::O3RSealedBox(std::shared_ptr<O3R::Impl> pImpl)
-  : pImpl(pImpl)
+ifm3d::O3RSealedBox::O3RSealedBox(std::shared_ptr<O3R::Impl> p_impl)
+  : pImpl(std::move(p_impl))
 {}
 
-ifm3d::O3RSealedBox::~O3RSealedBox() {}
+ifm3d::O3RSealedBox::~O3RSealedBox() = default;
 
 void
 ifm3d::O3RSealedBox::SetPassword(const std::string& new_password,
                                  std::optional<std::string> old_password)
 {
-  this->pImpl->SealedBoxSetPassword(new_password, old_password);
+  this->pImpl->SealedBoxSetPassword(new_password, std::move(old_password));
 }
 
 bool
@@ -200,7 +208,7 @@ ifm3d::O3RSealedBox::IsPasswordProtected()
 void
 ifm3d::O3RSealedBox::RemovePassword(std::string password)
 {
-  this->pImpl->SealedBoxRemovePassword(password);
+  this->pImpl->SealedBoxRemovePassword(std::move(password));
 }
 
 std::vector<uint8_t>

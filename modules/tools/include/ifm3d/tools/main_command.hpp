@@ -5,6 +5,7 @@
 
 #ifndef IFM3D_TOOLS_COMMANDS_MAIN_HPP
 #define IFM3D_TOOLS_COMMANDS_MAIN_HPP
+#pragma once
 
 #include <ifm3d/tools/command.hpp>
 #include <ifm3d/tools.h>
@@ -20,7 +21,7 @@ namespace ifm3d
 
     virtual CLI::App* CreateCommand(CLI::App* parent) override;
     std::string GetAppVersion();
-    ifm3d::Device::Ptr GetDevice(bool throwIfUnavailable = true);
+    ifm3d::Device::Ptr GetDevice(bool throw_if_unavailable = true) const;
 
     std::string ip;
     std::uint16_t xmlrpc_port;

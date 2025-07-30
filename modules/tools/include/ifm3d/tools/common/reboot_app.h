@@ -7,8 +7,8 @@
 
 #ifndef IFM3D_TOOLS_REBOOT_APP_H
 #define IFM3D_TOOLS_REBOOT_APP_H
+#pragma once
 
-#include <string>
 #include <ifm3d/tools/command.hpp>
 #include <ifm3d/tools/main_command.hpp>
 

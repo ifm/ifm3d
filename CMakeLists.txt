@@ -56,6 +56,8 @@ option(BUILD_DOC "Build documentation" OFF)
 option(CREATE_WIN_INSTALLER "Create windows installer" OFF)
 option(CREATE_PYTHON_STUBS "Create the Python stubs" OFF)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Installation root
 if(NOT WIN32)
   set(CPACK_SET_DESTDIR true)
@@ -115,45 +117,7 @@ else()
 endif(CREATE_WIN_INSTALLER)
 
 # Build sub-modules
-add_subdirectory(modules/common)
-list(APPEND DOXYGEN_MODULES "common")
-
-if (BUILD_MODULE_CRYPTO)
-  add_subdirectory(modules/crypto)
-endif()
-
-add_subdirectory(modules/device)
-list(APPEND DOXYGEN_MODULES "device")
-
-add_subdirectory(modules/libifm3d)
-
-if(BUILD_MODULE_FRAMEGRABBER)
-  add_subdirectory(modules/framegrabber)
-  list(APPEND DOXYGEN_MODULES "framegrabber")
-endif()
-
-if(BUILD_MODULE_SWUPDATER)
-  add_subdirectory(modules/swupdater)
-  list(APPEND DOXYGEN_MODULES "swupdater")
-endif()
-
-if(BUILD_MODULE_PCICCLIENT)
-  add_subdirectory(modules/pcicclient)
-  list(APPEND DOXYGEN_MODULES "pcicclient")
-endif()
-
-if(BUILD_MODULE_PYBIND11)
-  add_subdirectory(modules/pybind11)
-endif()
-
-if(BUILD_MODULE_DESERIALIZE)
-  add_subdirectory(modules/deserialize)
-  list(APPEND DOXYGEN_MODULES "deserialize")
-endif()
-
-if(BUILD_MODULE_TOOLS)
-  add_subdirectory(modules/tools)
-endif()
+add_subdirectory(modules)
 
 if(IS_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/local)
   add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/local)

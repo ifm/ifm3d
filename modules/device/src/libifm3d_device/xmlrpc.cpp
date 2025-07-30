@@ -1,9 +1,18 @@
 #include "xmlrpc.hpp"
+#include <cstdint>
+#include <string>
+#include "fmt/core.h"
+#include "ifm3d/common/err.h"
+#include "ifm3d/common/json_impl.hpp"
+#include <httplib.h>
 #include <tinyxml2.h>
-#include <fmt/format.h>
 #include <cstring>
 #include <ifm3d/device/util.h>
-#include <ifm3d/device/err.h>
+#include <utility>
+#include <vector>
+#include <unordered_map>
+#include <variant>
+#include <type_traits>
 
 namespace ifm3d
 {
@@ -70,54 +79,54 @@ namespace ifm3d
   XMLRPCValue::ToXML(tinyxml2::XMLDocument* doc,
                      tinyxml2::XMLElement* parent) const
   {
-    tinyxml2::XMLElement* valueElement = doc->NewElement("value");
+    tinyxml2::XMLElement* value_element = doc->NewElement("value");
     std::visit(
       [&](auto&& arg) {
         using T = std::decay_t<decltype(arg)>;
         if constexpr (std::is_same_v<T, std::string>)
           {
-            tinyxml2::XMLElement* stringElement = doc->NewElement("string");
-            stringElement->SetText(arg.c_str());
-            valueElement->InsertEndChild(stringElement);
+            tinyxml2::XMLElement* string_element = doc->NewElement("string");
+            string_element->SetText(arg.c_str());
+            value_element->InsertEndChild(string_element);
           }
         else if constexpr (std::is_same_v<T, int32_t>)
           {
-            tinyxml2::XMLElement* intElement = doc->NewElement("i4");
-            intElement->SetText(arg);
-            valueElement->InsertEndChild(intElement);
+            tinyxml2::XMLElement* int_element = doc->NewElement("i4");
+            int_element->SetText(arg);
+            value_element->InsertEndChild(int_element);
           }
         else if constexpr (std::is_same_v<T, bool>)
           {
-            tinyxml2::XMLElement* boolElement = doc->NewElement("boolean");
-            boolElement->SetText(arg ? "1" : "0");
-            valueElement->InsertEndChild(boolElement);
+            tinyxml2::XMLElement* bool_element = doc->NewElement("boolean");
+            bool_element->SetText(arg ? "1" : "0");
+            value_element->InsertEndChild(bool_element);
           }
         else if constexpr (std::is_same_v<T, double>)
           {
-            tinyxml2::XMLElement* doubleElement = doc->NewElement("double");
-            doubleElement->SetText(arg);
-            valueElement->InsertEndChild(doubleElement);
+            tinyxml2::XMLElement* double_element = doc->NewElement("double");
+            double_element->SetText(arg);
+            value_element->InsertEndChild(double_element);
           }
         else if constexpr (std::is_same_v<T, std::vector<uint8_t>>)
           {
-            tinyxml2::XMLElement* base64Element = doc->NewElement("base64");
-            base64Element->SetText(ifm3d::base64_encode(arg).c_str());
-            valueElement->InsertEndChild(base64Element);
+            tinyxml2::XMLElement* base64_element = doc->NewElement("base64");
+            base64_element->SetText(ifm3d::base64_encode(arg).c_str());
+            value_element->InsertEndChild(base64_element);
           }
         else if constexpr (std::is_same_v<T, std::vector<XMLRPCValue>>)
           {
-            tinyxml2::XMLElement* arrayElement = doc->NewElement("array");
-            tinyxml2::XMLElement* dataElement = doc->NewElement("data");
-            for (const auto& arrElem : arg)
+            tinyxml2::XMLElement* array_element = doc->NewElement("array");
+            tinyxml2::XMLElement* data_element = doc->NewElement("data");
+            for (const auto& arr_elem : arg)
               {
-                arrElem.ToXML(doc, dataElement);
+                arr_elem.ToXML(doc, data_element);
               }
-            arrayElement->InsertEndChild(dataElement);
-            valueElement->InsertEndChild(arrayElement);
+            array_element->InsertEndChild(data_element);
+            value_element->InsertEndChild(array_element);
           }
       },
       *this->value_);
-    parent->InsertEndChild(valueElement);
+    parent->InsertEndChild(value_element);
   }
 
   XMLRPCValue
@@ -139,20 +148,20 @@ namespace ifm3d
       {
         return std::string(text);
       }
-    else if (std::strcmp(result_type, "i4") == 0 ||
-             std::strcmp(result_type, "int") == 0)
+    if (std::strcmp(result_type, "i4") == 0 ||
+        std::strcmp(result_type, "int") == 0)
       {
         return std::stoi(text);
       }
-    else if (std::strcmp(result_type, "double") == 0)
+    if (std::strcmp(result_type, "double") == 0)
       {
         return std::stod(text);
       }
-    else if (std::strcmp(result_type, "boolean") == 0)
+    if (std::strcmp(result_type, "boolean") == 0)
       {
         return std::strcmp(text, "1") == 0;
       }
-    else if (std::strcmp(result_type, "array") == 0)
+    if (std::strcmp(result_type, "array") == 0)
       {
         tinyxml2::XMLElement* data = inner->FirstChildElement();
         if (data)
@@ -167,7 +176,7 @@ namespace ifm3d
             return array;
           }
       }
-    else if (std::strcmp(result_type, "struct") == 0)
+    if (std::strcmp(result_type, "struct") == 0)
       {
         std::unordered_map<std::string, XMLRPCValue> map;
         tinyxml2::XMLElement* member = inner->FirstChildElement();
@@ -180,7 +189,7 @@ namespace ifm3d
           }
         return map;
       }
-    else if (std::strcmp(result_type, "base64") == 0)
+    if (std::strcmp(result_type, "base64") == 0)
       {
         return ifm3d::base64_decode(inner->GetText());
       }
@@ -205,9 +214,9 @@ namespace ifm3d
         else if constexpr (std::is_same_v<T, std::vector<XMLRPCValue>>)
           {
             j = json::array();
-            for (const auto& arrElem : arg)
+            for (const auto& arr_elem : arg)
               {
-                j.push_back(arrElem.ToJson());
+                j.push_back(arr_elem.ToJson());
               }
           }
         else if constexpr (std::is_same_v<
@@ -225,8 +234,8 @@ namespace ifm3d
     return j;
   }
 
-  XMLRPC::XMLRPC(const std::string& ip, const std::uint16_t xmlrpc_port)
-    : ip_(ip),
+  XMLRPC::XMLRPC(std::string ip, const std::uint16_t xmlrpc_port)
+    : ip_(std::move(ip)),
       xmlrpc_port_(xmlrpc_port)
   {}
 
@@ -237,7 +246,7 @@ namespace ifm3d
   }
 
   std::uint16_t
-  XMLRPC::XMLRPCPort()
+  XMLRPC::XMLRPCPort() const
   {
     return this->xmlrpc_port_;
   }
@@ -246,7 +255,7 @@ namespace ifm3d
   XMLRPC::ParseXMLRPCResponse(const std::string& xml_response)
   {
     tinyxml2::XMLDocument doc;
-    tinyxml2::XMLError result = doc.Parse(xml_response.c_str());
+    tinyxml2::XMLError const result = doc.Parse(xml_response.c_str());
 
     if (result != tinyxml2::XML_SUCCESS)
       {
@@ -254,22 +263,23 @@ namespace ifm3d
                            "Malformed XML received from server.");
       }
 
-    tinyxml2::XMLElement* methodResponse =
+    tinyxml2::XMLElement* method_response =
       doc.FirstChildElement("methodResponse");
-    if (!methodResponse)
+    if (!method_response)
       {
         throw ifm3d::Error(
           IFM3D_XMLRPC_FAILURE,
           "Invalid XML-RPC response. <methodResponse> not found.");
       }
 
-    tinyxml2::XMLElement* fault = methodResponse->FirstChildElement("fault");
+    tinyxml2::XMLElement* fault = method_response->FirstChildElement("fault");
     if (fault)
       {
-        tinyxml2::XMLElement* valueElement = fault->FirstChildElement("value");
-        if (valueElement)
+        tinyxml2::XMLElement* value_element =
+          fault->FirstChildElement("value");
+        if (value_element)
           {
-            auto value = XMLRPCValue::FromXML(valueElement).AsMap();
+            auto value = XMLRPCValue::FromXML(value_element).AsMap();
             if (value.find("faultCode") != value.end() &&
                 value.find("faultString") != value.end())
               {
@@ -283,7 +293,8 @@ namespace ifm3d
           }
       }
 
-    tinyxml2::XMLElement* params = methodResponse->FirstChildElement("params");
+    tinyxml2::XMLElement* params =
+      method_response->FirstChildElement("params");
     if (params)
       {
         tinyxml2::XMLElement* param = params->FirstChildElement("param");
@@ -310,22 +321,22 @@ namespace ifm3d
     tinyxml2::XMLDeclaration* decl = doc.NewDeclaration("xml version=\"1.0\"");
     doc.InsertFirstChild(decl);
 
-    tinyxml2::XMLElement* methodCall = doc.NewElement("methodCall");
-    doc.InsertEndChild(methodCall);
+    tinyxml2::XMLElement* method_call = doc.NewElement("methodCall");
+    doc.InsertEndChild(method_call);
 
-    tinyxml2::XMLElement* methodName = doc.NewElement("methodName");
-    methodName->SetText(method_name.c_str());
-    methodCall->InsertEndChild(methodName);
+    tinyxml2::XMLElement* method_elem = doc.NewElement("methodName");
+    method_elem->SetText(method_name.c_str());
+    method_call->InsertEndChild(method_elem);
 
-    tinyxml2::XMLElement* paramsElement = doc.NewElement("params");
-    methodCall->InsertEndChild(paramsElement);
+    tinyxml2::XMLElement* params_element = doc.NewElement("params");
+    method_call->InsertEndChild(params_element);
 
     for (const auto& param : params)
       {
-        tinyxml2::XMLElement* paramElement = doc.NewElement("param");
-        paramsElement->InsertEndChild(paramElement);
+        tinyxml2::XMLElement* param_element = doc.NewElement("param");
+        params_element->InsertEndChild(param_element);
 
-        param.ToXML(&doc, paramElement);
+        param.ToXML(&doc, param_element);
       }
 
     tinyxml2::XMLPrinter printer;
@@ -334,13 +345,13 @@ namespace ifm3d
     return printer.CStr();
   }
 
-  XMLRPCValue const
+  XMLRPCValue
   XMLRPC::DoXMLRPCCall(const std::string& path,
                        const std::string& method,
-                       int timeout,
+                       int /*timeout*/,
                        std::vector<XMLRPCValue>& params)
   {
-    std::string xmlrpc_request = CreateXMLRPCRequest(method, params);
+    std::string const xmlrpc_request = CreateXMLRPCRequest(method, params);
 
     httplib::Client client(this->ip_, this->xmlrpc_port_);
 

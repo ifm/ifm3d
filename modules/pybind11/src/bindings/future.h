@@ -6,8 +6,11 @@
 #ifndef IFM3D_PYBIND_BINDING_FUTURE
 #define IFM3D_PYBIND_BINDING_FUTURE
 
+#include <future>
 #include <pybind11/pybind11.h>
 #include <fmt/format.h>
+
+namespace py = pybind11;
 
 class StopIteration : public py::stop_iteration
 {

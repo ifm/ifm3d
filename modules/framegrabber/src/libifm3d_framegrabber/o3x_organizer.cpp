@@ -2,13 +2,21 @@
  * Copyright 2023-present ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
+#include "ifm3d/fg/buffer_id.h"
+#include "ifm3d/common/err.h"
+#include "ifm3d/fg/organizer.h"
+#include <cstdint>
+#include "ifm3d/fg/frame.h"
+#include "ifm3d/device/device.h"
+#include <cstddef>
 #include <functional>
+#include <map>
 #include <o3x_organizer.hpp>
-#include <ifm3d/common/logging/log.h>
-#include <ifm3d/device/err.h>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/organizer_utils.h>
-#include <ifm3d/fg/distance_image_info.h>
+#include <vector>
+#include <set>
+#include <optional>
 
 ifm3d::Organizer::Result
 ifm3d::O3XOrganizer::Organize(const std::vector<uint8_t>& data,
@@ -29,19 +37,19 @@ ifm3d::O3XOrganizer::Organize(const std::vector<uint8_t>& data,
 
   // get the image dimensions
   auto [width, height] = get_image_size(data, *(metachunk->second.begin()));
-  std::uint32_t npts = width * height;
 
   auto timestamps = get_chunk_timestamps(data, *(metachunk->second.begin()));
   auto frame_count = get_chunk_frame_count(data, *(metachunk->second.begin()));
 
   if (chunks.find(image_chunk::CARTESIAN_ALL) != chunks.end())
     {
-      size_t cart_all_idx = *(chunks[image_chunk::CARTESIAN_ALL].begin());
-      size_t x_idx =
+      size_t const cart_all_idx =
+        *(chunks[image_chunk::CARTESIAN_ALL].begin());
+      size_t const x_idx =
         cart_all_idx + get_chunk_pixeldata_offset(data, cart_all_idx);
 
-      size_t y_idx = x_idx + get_chunk_size(data, x_idx);
-      size_t z_idx = y_idx + get_chunk_size(data, y_idx);
+      size_t const y_idx = x_idx + get_chunk_size(data, x_idx);
+      size_t const z_idx = y_idx + get_chunk_size(data, y_idx);
 
       chunks[image_chunk::CARTESIAN_X_COMPONENT] = {x_idx};
       chunks[image_chunk::CARTESIAN_Y_COMPONENT] = {y_idx};
@@ -49,7 +57,8 @@ ifm3d::O3XOrganizer::Organize(const std::vector<uint8_t>& data,
       chunks.erase(image_chunk::CARTESIAN_ALL);
     }
 
-  std::map<buffer_id, BufferList> data_blob, data_image;
+  std::map<buffer_id, BufferList> data_blob;
+  std::map<buffer_id, BufferList> data_image;
   ifm3d::parse_data(data,
                     requested_images,
                     chunks,
@@ -66,11 +75,9 @@ ifm3d::O3XOrganizer::Organize(const std::vector<uint8_t>& data,
         {
           mask =
             create_pixel_mask(images[ifm3d::buffer_id::CONFIDENCE_IMAGE][0]);
-          mask_images(data_image,
-                      mask.value(),
-                      std::bind(&ifm3d::O3XOrganizer::ShouldMask,
-                                this,
-                                std::placeholders::_1));
+          mask_images(data_image, mask.value(), [this](auto&& p_h1) {
+            return ShouldMask(std::forward<decltype(p_h1)>(p_h1));
+          });
         }
     }
 

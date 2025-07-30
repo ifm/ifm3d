@@ -1,19 +1,31 @@
-check:clang-format:
+.check-code:
   stage: check
-  tags:
-    - shared_docker
-  image:
-    name: gcr.io/kaniko-project/executor:v1.15.0-debug
+  image: 
+    name: ghcr.io/ifm/ifm3d/dev-image:20250508125639
     entrypoint: [""]
   script:
-    - !reference [.docker-config, script]
-    - echo "${KANIKO_PUSH_ARGS}"
-    - mkdir -p /kaniko/.docker
-    - echo "${DOCKER_CFG}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context ${CI_PROJECT_DIR}
-      --dockerfile docker/ifm-robotics/check/Dockerfile
-      ${KANIKO_BUILD_ARGS}
-      --no-push
+    - echo "Running code check with ${CHECK_COMMAND}"
+    - mkdir -p ${CI_PROJECT_DIR}/build/
+    - pushd ${CI_PROJECT_DIR}/build/
+    - cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DBUILD_MODULE_PCICCLIENT=ON -DBUILD_MODULE_PYBIND11=ON ..
+    - popd
+    - python3 check-code.py ${CHECK_COMMAND}
+
+check:clang-format:
+  extends: .check-code
+  variables:
+    CHECK_COMMAND: "clang-format"
+
+check:clang-tidy:
+  extends: .check-code
+  variables:
+    CHECK_COMMAND: "clang-tidy"
+  allow_failure: true
+
+check:cppcheck:
+  extends: .check-code
+  variables:
+    CHECK_COMMAND: "cppcheck"
 
 check:vale-linting:
   variables:

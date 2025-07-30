@@ -4,15 +4,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/tools/ovp8xx/jsonschema_app.h"
+#include "ifm3d/tools/ovp8xx/get_init_app.h"
+#include "ifm3d/tools/ovp8xx/save_init_app.h"
+#include "ifm3d/tools/ovp8xx/remove_app.h"
+#include "ifm3d/tools/ovp8xx/reset_ovp8xx_app.h"
 #include <ifm3d/tools/ovp8xx/config_ovp8xx_app.h>
-#include <fstream>
-#include <iostream>
-#include <sstream>
 #include <string>
-#include <ifm3d/device/device.h>
-#include <ifm3d/device/err.h>
 
-ifm3d::ConfigOvp8xxApp::~ConfigOvp8xxApp() {}
+ifm3d::ConfigOvp8xxApp::~ConfigOvp8xxApp() = default;
 
 void
 ifm3d::ConfigOvp8xxApp::Execute(CLI::App* app)

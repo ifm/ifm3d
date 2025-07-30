@@ -3,14 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/device/device.h"
+#include <CLI/Validators.hpp>
 #include <ifm3d/tools/common/set_temp_ip_app.h>
-#include <iostream>
 #include <regex>
 
-ifm3d::SetTemporaryIPApp::~SetTemporaryIPApp() {}
+ifm3d::SetTemporaryIPApp::~SetTemporaryIPApp() = default;
 
 void
-ifm3d::SetTemporaryIPApp::Execute(CLI::App* app)
+ifm3d::SetTemporaryIPApp::Execute(CLI::App* /*app*/)
 {
   ifm3d::Device::SetTempIPAddress(this->mac, this->temp_ip);
 }

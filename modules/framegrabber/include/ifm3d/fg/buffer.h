@@ -100,27 +100,27 @@ namespace ifm3d
   {
   private:
     /* @ brief raw pointer to the data*/
-    uint8_t* data_;
+    uint8_t* data_{};
     /*@brief number of columns in Buffer (width)*/
-    std::uint32_t cols_;
+    std::uint32_t cols_{};
     /*@brief number of rows in Buffer (height)*/
-    std::uint32_t rows_;
+    std::uint32_t rows_{};
     /*@brief number of channel in Buffer*/
-    std::uint32_t nchannel_;
+    std::uint32_t nchannel_{};
     /* @brief data format or type*/
-    ifm3d::pixel_format data_format_;
+    ifm3d::pixel_format data_format_{};
     /* @brief number of pixel to store one value of data*/
-    std::size_t data_size_in_bytes_;
+    std::size_t data_size_in_bytes_{};
     /* @brief size of the memory allocated*/
-    size_t size_;
+    size_t size_{};
     /* @brief bytes to store pixel */
-    size_t bytes_per_pixel;
+    size_t bytes_per_pixel{};
     /* @brief bytes per row */
-    size_t bytes_per_row;
+    size_t bytes_per_row{};
     /* @brief json formatted metadata of the chunk obtain from device*/
     json metadata_;
     /* @brief buffer id of Buffer */
-    ifm3d::buffer_id bufferId_;
+    ifm3d::buffer_id bufferId_{};
 
     class BufferAllocator;
     std::shared_ptr<BufferAllocator> buffer_allocator_;
@@ -147,8 +147,8 @@ namespace ifm3d
            const std::uint32_t rows,
            const std::uint32_t nchannel,
            ifm3d::pixel_format format,
-           std::optional<ifm3d::json> metadata = std::nullopt,
-           ifm3d::buffer_id bufferId_ = static_cast<ifm3d::buffer_id>(0));
+           const std::optional<ifm3d::json>& metadata = std::nullopt,
+           ifm3d::buffer_id buffer_id = static_cast<ifm3d::buffer_id>(0));
 
     virtual ~Buffer() = default;
 
@@ -172,7 +172,7 @@ namespace ifm3d
                 const std::uint32_t rows,
                 const std::uint32_t nchannel,
                 ifm3d::pixel_format format,
-                ifm3d::buffer_id bufferId);
+                ifm3d::buffer_id buffer_id);
 
     /** @brief Creates a full copy of the array and the underlying data.
      */
@@ -352,8 +352,10 @@ namespace ifm3d
     Buffer_& operator=(const Buffer&);
 
     /* Similar to Buffer::create(cols,rows,ifm3d::formatType<Tp>::nchannel,
-     * ifm3d::formatType<Tp>::format ) */
-    void create(const std::uint32_t cols, const std::uint32_t rows);
+     * ifm3d::formatType<Tp>::format, ifm3d::buffer_id buffer_id ) */
+    void create(const std::uint32_t cols,
+                const std::uint32_t rows,
+                ifm3d::buffer_id buffer_id);
 
     /** @brief Creates a full copy of the array and the underlying data.
      */

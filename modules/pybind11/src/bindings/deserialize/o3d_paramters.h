@@ -5,11 +5,15 @@
 
 #ifndef IFM3D_PYBIND_BINDING_DESERIALIZE_O3D_PARAM_H
 #define IFM3D_PYBIND_BINDING_DESERIALIZE_O3D_PARAM_H
+#include "util.hpp"
+#pragma once
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/chrono.h>
 #include <ifm3d/deserialize/deserialize_o3d_buffers.hpp>
+
+namespace py = pybind11;
 
 template <typename T>
 void

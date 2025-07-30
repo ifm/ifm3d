@@ -3,12 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/tools/ovp8xx/get_diagnostic_app.h"
+#include "ifm3d/tools/ovp8xx/get_filter_schema_app.h"
 #include <ifm3d/tools/ovp8xx/diagnostic_app.h>
-#include <iostream>
 #include <string>
-#include <ifm3d/device/o3r.h>
 
-ifm3d::DiagnosticApp::~DiagnosticApp() {}
+ifm3d::DiagnosticApp::~DiagnosticApp() = default;
 
 void
 ifm3d::DiagnosticApp::Execute(CLI::App* app)

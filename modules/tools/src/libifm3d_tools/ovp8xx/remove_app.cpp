@@ -3,15 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/device/o3r.h"
 #include <ifm3d/tools/ovp8xx/remove_app.h>
-#include <iostream>
+#include <memory>
 #include <string>
-#include <ifm3d/device.h>
 
-ifm3d::RemoveApp::~RemoveApp() {}
+ifm3d::RemoveApp::~RemoveApp() = default;
 
 void
-ifm3d::RemoveApp::Execute(CLI::App* app)
+ifm3d::RemoveApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
   std::static_pointer_cast<ifm3d::O3R>(device)->Remove(this->path);

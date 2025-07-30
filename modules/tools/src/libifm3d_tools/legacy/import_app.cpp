@@ -4,9 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/tools/legacy/import_application_app.h"
+#include "ifm3d/tools/legacy/import_device_app.h"
 #include <ifm3d/tools/legacy/import_app.h>
 
-ifm3d::ImportApp::~ImportApp() {}
+ifm3d::ImportApp::~ImportApp() = default;
 
 void
 ifm3d::ImportApp::Execute(CLI::App* app)

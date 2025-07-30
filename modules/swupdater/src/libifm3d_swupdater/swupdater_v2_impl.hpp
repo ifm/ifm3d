@@ -7,17 +7,11 @@
 #define IFM3D_SWUPDATER_SWUPDATER_V2_IMPL_H
 
 #include <cstdlib>
-#include <map>
-#include <sstream>
 #include <chrono>
 #include <string>
 #include <thread>
-#include <tuple>
-#include <vector>
 #include <mutex>
 #include <condition_variable>
-#include <limits>
-#include <iostream>
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>
 #include <websocketpp/common/thread.hpp>

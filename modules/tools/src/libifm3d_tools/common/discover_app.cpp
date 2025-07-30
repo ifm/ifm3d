@@ -3,27 +3,45 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <cstdint>
+#include "ifm3d/common/err.h"
+#include "ifm3d/device/device.h"
+#include <CLI/App.hpp>
+#include "ifm3d/tools/legacy/o3d3xx_app.h"
+#include "ifm3d/tools/legacy/o3x_app.h"
+#include "ifm3d/tools/ovp8xx/ovp8xx_app.h"
+#include "ifm3d/tools/main_command.hpp"
+#include <exception>
 #include <ifm3d/tools/common/discover_app.h>
 #include <iostream>
+#include <string>
+#include <sstream>
+#include <unordered_map>
 
 constexpr uint32_t BCAST_FLAG_WRONGSUBNET = 0x0001;
 
-ifm3d::DiscoverApp::~DiscoverApp() {}
+ifm3d::DiscoverApp::~DiscoverApp() = default;
 
 std::string
 ifm3d::DiscoverApp::GetDeviceType(const ifm3d::Device::Ptr& cam)
 {
   if (cam->AmI(ifm3d::Device::device_family::O3D))
-    return "O3D";
+    {
+      return "O3D";
+    }
   if (cam->AmI(ifm3d::Device::device_family::O3X))
-    return "O3X";
+    {
+      return "O3X";
+    }
   if (cam->AmI(ifm3d::Device::device_family::O3R))
-    return "O3R";
+    {
+      return "O3R";
+    }
   return "";
 }
 
 void
-ifm3d::DiscoverApp::Execute(CLI::App* app)
+ifm3d::DiscoverApp::Execute(CLI::App* /*app*/)
 {
   if (!(this->subcmd_set_temp_ip->parsed()))
     {
@@ -58,7 +76,7 @@ ifm3d::DiscoverApp::Execute(CLI::App* app)
                          << "] (Device is in different "
                             "subnet, set temporary IP to connect. Use "
                             "'set-temporary-ip' subcommand) "
-                         << std::endl;
+                         << '\n';
                     }
                   else
                     {
@@ -67,39 +85,28 @@ ifm3d::DiscoverApp::Execute(CLI::App* app)
                       bool display_device = false;
                       if (device_type.empty())
                         {
-                          ss << ip_address << " (Unsupported device)"
-                             << std::endl;
+                          ss << ip_address << " (Unsupported device)" << '\n';
                         }
                       else
                         {
-                          if ((device_type == "O3D") &&
-                              (Parent<ifm3d::O3D3XX>()))
+                          if ((device_type == "O3D" &&
+                               Parent<ifm3d::O3D3XX>()) ||
+                              (device_type == "O3X" &&
+                               Parent<ifm3d::O3X1XX_O3X2XX>()) ||
+                              (device_type == "O3R" &&
+                               Parent<ifm3d::OVP8xx>()) ||
+                              (Parent<ifm3d::MainCommand>() &&
+                               !(Parent<ifm3d::OVP8xx>()) &&
+                               !(Parent<ifm3d::O3X1XX_O3X2XX>()) &&
+                               !(Parent<ifm3d::O3D3XX>())))
                             {
                               display_device = true;
                             }
-                          else if ((device_type == "O3X") &&
-                                   (Parent<ifm3d::O3X1XX_O3X2XX>()))
-                            {
-                              display_device = true;
-                            }
-                          else if ((device_type == "O3R") &&
-                                   (Parent<ifm3d::OVP8xx>()))
-                            {
-                              display_device = true;
-                            }
-                          else if (Parent<ifm3d::MainCommand>() &&
-                                   !(Parent<ifm3d::OVP8xx>()) &&
-                                   !(Parent<ifm3d::O3X1XX_O3X2XX>()) &&
-                                   !(Parent<ifm3d::O3D3XX>()))
-                            {
-                              display_device = true;
-                            }
-
                           if (display_device)
                             {
                               ss << ip_address << " (" << device_type << ")"
                                  << " [" << device.GetMACAddress() << "]"
-                                 << std::endl;
+                                 << '\n';
                             }
                         }
                     }
@@ -108,20 +115,19 @@ ifm3d::DiscoverApp::Execute(CLI::App* app)
                 {
                   if (e.code() == ifm3d::Error(IFM3D_XMLRPC_TIMEOUT).code())
                     {
-                      ss << ip_address << " (Unable to identify) "
-                         << std::endl;
+                      ss << ip_address << " (Unable to identify) " << '\n';
                     }
                 }
               catch (std::exception& exp)
                 {
-                  // ignore this device and search for next devices..
+                  // IGNORE: ignore this device and search for next devices..
                 }
             }
           std::cout << ss.str();
         }
       if (devices.empty() || ss.str().empty())
         {
-          std::cout << "Info: No devices available" << std::endl;
+          std::cout << "Info: No devices available" << '\n';
         }
     }
 }

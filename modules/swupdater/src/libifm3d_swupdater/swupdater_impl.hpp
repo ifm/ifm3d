@@ -5,17 +5,18 @@
 
 #ifndef IFM3D_SWUPDATER_SWUPDATER_IMPL_H
 #define IFM3D_SWUPDATER_SWUPDATER_IMPL_H
+#pragma once
 
 #include <chrono>
 #include <string>
 #include <thread>
 #include <tuple>
-#include <vector>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/common/logging/log.h>
 #include <ifm3d/common/json.hpp>
 #include <ifm3d/device/util.h>
+#include <ifm3d/swupdater/swupdater.h>
 #include <httplib.h>
 
 #ifdef _WIN32
@@ -408,8 +409,7 @@ ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
         }
 
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    }
-  while (status_id != desired_status);
+  } while (status_id != desired_status);
 
   return true;
 }

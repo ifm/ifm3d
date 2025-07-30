@@ -3,12 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <CLI/App.hpp>
+#include "ifm3d/tools/common/fg/hz_app.h"
+#include "ifm3d/tools/common/fg/jitter_app.h"
 #include <ifm3d/tools/common/fg/stat_app.h>
-#include <iostream>
 #include <string>
-#include <ifm3d/device/o3r.h>
 
-ifm3d::StatApp::~StatApp() {}
+ifm3d::StatApp::~StatApp() = default;
 
 void
 ifm3d::StatApp::Execute(CLI::App* app)

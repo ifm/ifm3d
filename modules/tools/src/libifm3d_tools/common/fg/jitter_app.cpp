@@ -3,21 +3,27 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include "ifm3d/fg/buffer_id.h"
+#include "ifm3d/fg/organizer.h"
+#include "ifm3d/device/device.h"
+#include <cstddef>
+#include <CLI/App.hpp>
+#include "ifm3d/fg/frame_grabber.h"
+#include <future>
 #include <ifm3d/tools/common/fg/jitter_app.h>
 #include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
-#include <exception>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <numeric>
 #include <ratio>
+#include <set>
 #include <tuple>
 #include <type_traits>
 #include <vector>
-#include <ifm3d/device.h>
 
 const int ifm3d::FG_JITTER_TIMEOUT = 10000;
 
@@ -29,14 +35,14 @@ public:
   NullOrganizer() : ifm3d::Organizer() {}
 
   virtual Result
-  Organize(const std::vector<uint8_t>& data,
-           const std::set<ifm3d::buffer_id>& requestedImages)
+  Organize(const std::vector<uint8_t>& /*data*/,
+           const std::set<ifm3d::buffer_id>& /*requestedImages*/)
   {
     return {};
   };
 
   virtual std::set<ifm3d::image_chunk>
-  GetImageChunks(ifm3d::buffer_id id)
+  getImageChunks(ifm3d::buffer_id /*id*/)
   {
     return {};
   };
@@ -44,19 +50,20 @@ public:
 
 // Make sure we use a steady_clock-- prefer the high_resolution_clock
 // on platforms where it is steady.
-using Clock_t = std::conditional<std::chrono::high_resolution_clock::is_steady,
-                                 std::chrono::high_resolution_clock,
-                                 std::chrono::steady_clock>::type;
+using ClockT =
+  std::conditional_t<std::chrono::high_resolution_clock::is_steady,
+                     std::chrono::high_resolution_clock,
+                     std::chrono::steady_clock>;
 
 //
 // utility functions for computing summary statistics
 //
 template <typename T>
-T
+static T
 median(const std::vector<T>& arr)
 {
   T median = 0;
-  std::size_t sz = arr.size();
+  std::size_t const sz = arr.size();
 
   // we make a copy b/c we do not want to mutate the input `arr`.
   std::vector<T> arr_cp(sz);
@@ -79,15 +86,15 @@ median(const std::vector<T>& arr)
 }
 
 template <typename T>
-std::tuple<T, T>
+static std::tuple<T, T>
 mean_stdev(const std::vector<T>& arr)
 {
-  if (arr.size() < 1)
+  if (arr.empty())
     {
       return std::make_tuple(0, 0);
     }
 
-  T sum = std::accumulate(arr.begin(), arr.end(), 0.f);
+  T sum = std::accumulate(arr.begin(), arr.end(), 0.F);
   T mean = sum / arr.size();
 
   T ssd = 0;
@@ -100,10 +107,10 @@ mean_stdev(const std::vector<T>& arr)
 }
 
 template <typename T>
-T
+static T
 mad(const std::vector<T>& arr, T center)
 {
-  std::size_t n = arr.size();
+  std::size_t const n = arr.size();
   std::vector<T> arr_d(n);
   for (std::size_t i = 0; i < n; ++i)
     {
@@ -113,14 +120,14 @@ mad(const std::vector<T>& arr, T center)
   return median(arr_d);
 }
 
-ifm3d::JitterApp::~JitterApp() {}
+ifm3d::JitterApp::~JitterApp() = default;
 
 void
-ifm3d::JitterApp::Execute(CLI::App* app)
+ifm3d::JitterApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
 
-  ifm3d::FrameGrabber::Ptr fg =
+  ifm3d::FrameGrabber::Ptr const fg =
     std::make_shared<ifm3d::FrameGrabber>(device, pcic_port);
   nframes = nframes <= 0 ? 100 : nframes;
 
@@ -128,19 +135,20 @@ ifm3d::JitterApp::Execute(CLI::App* app)
   // capture data for computing jitter statistics
   //
   std::vector<float> bb_results(nframes, 0.);
-  std::cout << "Capturing frame data..." << std::endl;
+  std::cout << "Capturing frame data..." << '\n';
 
   fg->Start({});
   capture_frames(fg, bb_results);
-  float bb_median = median(bb_results);
-  float bb_mean, bb_stdev;
+  float const bb_median = median(bb_results);
+  float bb_mean = NAN;
+  float bb_stdev = NAN;
   std::tie(bb_mean, bb_stdev) = mean_stdev(bb_results);
-  float bb_mad = mad(bb_results, bb_median);
+  float const bb_mad = mad(bb_results, bb_median);
 
-  std::cout << "Mean:   " << bb_mean << " ms" << std::endl;
-  std::cout << "Median: " << bb_median << " ms" << std::endl;
-  std::cout << "Stdev:  " << bb_stdev << " ms" << std::endl;
-  std::cout << "Mad:    " << bb_mad << " ms" << std::endl;
+  std::cout << "Mean:   " << bb_mean << " ms" << '\n';
+  std::cout << "Median: " << bb_median << " ms" << '\n';
+  std::cout << "Stdev:  " << bb_stdev << " ms" << '\n';
+  std::cout << "Mad:    " << bb_mad << " ms" << '\n';
 
   //
   // compute summary statistics
@@ -153,18 +161,17 @@ ifm3d::JitterApp::Execute(CLI::App* app)
       // headers in the csv
       out << "ByteBuffer";
 
-      out << std::endl;
+      out << '\n';
 
       // csv data
       for (int i = 0; i < nframes; ++i)
         {
           out << bb_results[i];
-          out << std::endl;
+          out << '\n';
         }
       out.close();
 
-      std::cout << "Raw data has been written to: " << output_file
-                << std::endl;
+      std::cout << "Raw data has been written to: " << output_file << '\n';
     }
 }
 
@@ -197,35 +204,35 @@ ifm3d::JitterApp::CreateCommand(CLI::App* parent)
 }
 
 void
-ifm3d::JitterApp::capture_frames(ifm3d::FrameGrabber::Ptr fg,
+ifm3d::JitterApp::capture_frames(const ifm3d::FrameGrabber::Ptr& fg,
                                  std::vector<float>& results)
 {
-  int nframes = results.size();
+  int const nframes = static_cast<int>(results.size());
 
   // get one-time allocations out of the way, and, make
   // sure it doesn't get optimized away by the compiler
   if (fg->WaitForFrame().wait_for(std::chrono::milliseconds(
         ifm3d::FG_JITTER_TIMEOUT)) != std::future_status::ready)
     {
-      std::cerr << "Timeout waiting for first image acquisition!" << std::endl;
+      std::cerr << "Timeout waiting for first image acquisition!" << '\n';
       return;
     }
 
   for (int i = 0; i < nframes; ++i)
     {
-      auto t1 = Clock_t::now();
+      auto t1 = ClockT::now();
       auto future = fg->WaitForFrame();
       if (future.wait_for(std::chrono::milliseconds(
             ifm3d::FG_JITTER_TIMEOUT)) != std::future_status::ready)
         {
-          std::cerr << "Timeout waiting for image acquisition!" << std::endl;
+          std::cerr << "Timeout waiting for image acquisition!" << '\n';
           return;
         }
       future.get()->TimeStamps();
-      auto t2 = Clock_t::now();
+      auto t2 = ClockT::now();
 
-      std::chrono::duration<float, std::milli> fp_ms = t2 - t1;
+      std::chrono::duration<float, std::milli> const fp_ms = t2 - t1;
       results[i] = fp_ms.count();
-      std::cout << fp_ms.count() << std::endl;
+      std::cout << fp_ms.count() << '\n';
     }
 }

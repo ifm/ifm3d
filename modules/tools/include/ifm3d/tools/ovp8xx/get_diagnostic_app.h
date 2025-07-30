@@ -6,6 +6,7 @@
 
 #ifndef IFM3D_TOOLS_GET_DIAGNOSTIC_APP_H
 #define IFM3D_TOOLS_GET_DIAGNOSTIC_APP_H
+#pragma once
 
 #include <string>
 #include <ifm3d/tools/command.hpp>

@@ -5,9 +5,9 @@
 
 #ifndef IFM3D_SWUPDATER_SWUPDATER_H
 #define IFM3D_SWUPDATER_SWUPDATER_H
+#pragma once
 
 #include <memory>
-#include <vector>
 #include <ifm3d/device/legacy_device.h>
 #include <ifm3d/swupdater/module_swupdater.h>
 
@@ -43,7 +43,7 @@ namespace ifm3d
      * @param swupdate_recovery_port swupate recovery port for the device
      */
     SWUpdater(
-      ifm3d::Device::Ptr cam,
+      const ifm3d::Device::Ptr& cam,
       const ifm3d::SWUpdater::FlashStatusCb& cb = {},
       std::uint16_t swupdate_recovery_port = ifm3d::SWUPDATER_RECOVERY_PORT,
       std::optional<ifm3d::Device::swu_version> force_swu_version =

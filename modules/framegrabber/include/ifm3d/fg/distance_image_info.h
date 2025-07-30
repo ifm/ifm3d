@@ -131,7 +131,7 @@ namespace ifm3d
      * return Buffer with float values
      */
     ifm3d::Buffer applyDistanceResolution(
-      const ifm3d::Buffer& ui16_distance_buffer);
+      const ifm3d::Buffer& ui16_distance_buffer) const;
   };
   using DistanceImageInfoPtr = std::unique_ptr<DistanceImageInfo>;
   IFM3D_EXPORT DistanceImageInfoPtr

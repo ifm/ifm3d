@@ -5,8 +5,8 @@
 
 #ifndef IFM3D_TOOLS_SWUPDATER_SWUPDATE_APP_H
 #define IFM3D_TOOLS_SWUPDATER_SWUPDATE_APP_H
+#pragma once
 
-#include <string>
 #include <ifm3d/tools/command.hpp>
 #include <ifm3d/tools/main_command.hpp>
 #include <ifm3d/swupdater.h>
@@ -34,8 +34,8 @@ namespace ifm3d
       std::uint16_t swupdate_recovery_port = ifm3d::SWUPDATER_RECOVERY_PORT);
 
     bool detect{false};
-    CLI::App* subcmd_flash;
-    CLI::App* subcmd_restart;
+    CLI::App* subcmd_flash{};
+    CLI::App* subcmd_restart{};
 
   private:
     std::optional<ifm3d::Device::swu_version> force_swu_version;

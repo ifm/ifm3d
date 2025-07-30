@@ -23,7 +23,7 @@
 #define IFM3D_VERSION_META "@IFM3D_VERSION_META@"
 
 #define IFM3D_MAKE_VERSION(major, minor, patch, tweak, meta)                  \
-  std::to_string(((major)*10000 + (minor)*100 + (patch))) + tweak + meta
+  std::to_string((((major)*10000) + ((minor)*100) + (patch))) + tweak + meta
 #define IFM3D_VERSION                                                         \
   IFM3D_MAKE_VERSION(IFM3D_VERSION_MAJOR,                                     \
                      IFM3D_VERSION_MINOR,                                     \

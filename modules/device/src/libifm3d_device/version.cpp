@@ -4,7 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <functional>
 #include <ifm3d/device/version.h>
+#include <optional>
+#include <string>
 
 void
 ifm3d::version(int* major,

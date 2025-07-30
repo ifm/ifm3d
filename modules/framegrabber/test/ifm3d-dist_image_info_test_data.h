@@ -12,6 +12,10 @@
 #ifndef IFM3D_DISTANCE_IMAGE_INFO_TEST_DATA_H
 #define IFM3D_DISTANCE_IMAGE_INFO_TEST_DATA_H
 
+#include "ifm3d/fg/distance_image_info.h"
+#include <vector>
+#include <cstdint>
+
 constexpr auto distance_resolution = 0.00015259021893143654;
 constexpr auto amplitude_resolution = 1.552299089269127e-08;
 
