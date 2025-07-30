@@ -27,7 +27,7 @@
 
 namespace ifm3d
 {
-  constexpr const char*
+  inline const char*
   LOG_STRIP_PREFIX(const char* ptr, const char* prefix)
   {
     return ::std::strncmp(ptr, prefix, ::std::strlen(prefix)) == 0 ?
