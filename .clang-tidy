@@ -63,7 +63,7 @@ CheckOptions:
   - key: cppcoreguidelines-macro-usage.AllowedRegexp
     value: ^CAP_|^CHECK_|^VERIFY|^ERROR_.*_IF$|^PACKED$|_NOLINT$|^UTIL_|^DECLARE_|^DEFINE_|^DEFAULT_|^BEGIN_|^END_|^TRACE_
   - key: misc-include-cleaner.IgnoreHeaders
-    value: common/FormatUtils.hpp;CLI/CLI.hpp;common/LogUtils.hpp
+    value: common/FormatUtils.hpp;CLI/CLI.hpp;common/LogUtils.hpp;bits/.*
   - key: readability-identifier-length.IgnoredVariableNames
     value: ^id$|^it$|^ok$|^i$
   - key: readability-identifier-length.IgnoredParameterNames

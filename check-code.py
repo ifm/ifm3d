@@ -7,6 +7,7 @@
 
 # Provides functions to format C/C++ files using clang-format
 import argparse
+from collections.abc import Generator
 import functools
 import json
 import multiprocessing
@@ -58,7 +59,7 @@ def run_clang_tidy(file: str, args: dict[str, Any]) -> bool:
         cmd.append(f"-p={args['build_dir']}")
         cmd.append(f"--exclude-header-filter=^{args['build_dir']}/_deps/.*")
 
-    if "fix" in args:
+    if "fix" in args and args["fix"]:
         cmd.append("--fix")
         cmd.append("--fix-errors")
 
@@ -138,6 +139,16 @@ def get_compile_db_files(compile_db: str) -> list[str]:
 
     return list(filelist)
 
+def filter_files(files: list[str], files_to_check: list[str]) -> Generator[str, None, None]:
+    if not files_to_check:
+        for f in files:
+            yield f
+
+    for f1 in files_to_check:
+        for f2 in files:
+            if os.path.abspath(f1) == os.path.abspath(f2):
+                yield f2
+                break 
 
 def process_files(files: list[str], func: str, args: dict[str, Any]) -> bool:
     with multiprocessing.Pool(MAX_PARALLEL_PROCESSES) as p:
@@ -229,6 +240,7 @@ def command_clang_tidy(args: dict[str, Any]) -> bool:
     files = get_compile_db_files(
         os.path.join(args["build_dir"], "compile_commands.json")
     )
+    files = list(filter_files(files, [x[0] for x in args["file"]]))
     return process_files(files, "run_clang_tidy", args)
 
 def command_clang_format(args: dict[str, Any]) -> bool:
@@ -236,6 +248,7 @@ def command_clang_format(args: dict[str, Any]) -> bool:
         args["clang_format"], SUPPORTED_TOOL_VERSIONS["clang_format"]
     )
     files = glob_files(args["path"])
+    files = list(filter_files(files, [x[0] for x in args["file"]]))
     return process_files(files, "run_clang_format", args)
 
 def command_cppcheck(args: dict[str, Any]) -> bool:
@@ -276,6 +289,13 @@ if __name__ == "__main__":
     cmd_cppcheck.add_argument(
         "--build-dir", help="Path to the build directory", default="build"
     )
+    cmd_clang_tidy.add_argument(
+        "--file", 
+        help="Path to a single file to check, can be repeated for multiple files", 
+        default=[], 
+        action="append", 
+        nargs='*'
+    )
 
     cmd_clang_format = subparsers.add_parser(
         "clang-format", help="Check formatting using clang-format"
@@ -287,11 +307,28 @@ if __name__ == "__main__":
     cmd_clang_format.add_argument(
         "--fix", help="Apply formatting to the code", action="store_true"
     )
+    cmd_clang_format.add_argument(
+        "--file", 
+        help="Path to a single file to check, can be repeated for multiple files", 
+        default=[], 
+        action="append", 
+        nargs='*'
+    )
 
     args = vars(parser.parse_args())
 
     if "build_dir" in args:
         VALID_ROOTS.append(os.path.abspath(args["build_dir"]))
+
+    if args["command"] is None:
+        parser.print_help()
+        quit(0)
+
+    cmd = f"command_{args["command"].replace("-", "_")}"
+    if cmd not in globals():
+        print(f"Unknown command: {args['command']}")
+        parser.print_help()
+        quit(1)
 
     ok = globals()[f"command_{args["command"].replace("-", "_")}"](args)
 

@@ -5,13 +5,6 @@
 
 #include "ifm3d/common/err.h"
 #include <cstdint>
-#if defined(__GNUC__) && !defined(__clang__) && !defined(_MSC_VER)
-#  include <bits/types/struct_timeval.h>
-#elif defined(__clang__) && !defined(_MSC_VER)
-#  if __has_include(<bits/types/struct_timeval.h>)
-#    include <bits/types/struct_timeval.h>
-#  endif
-#endif
 #include "fmt/core.h"
 #include <ifm3d/device/util.h>
 #include <sstream>
@@ -29,6 +22,7 @@
 #elif __unix__
 #  include <sys/select.h>
 #  include <unistd.h>
+#  include <sys/time.h>
 #endif
 
 std::string&

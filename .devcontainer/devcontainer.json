@@ -38,7 +38,9 @@
 				"python.defaultInterpreterPath": "/opt/venv/bin/python",
 				"[cpp]": {
 					"editor.defaultFormatter": "xaver.clang-format"
-				}
+				},
+				"editor.formatOnSave": true,
+				"clang-format.executable": "/usr/bin/clang-format-14"
 			}
 		}
 	},

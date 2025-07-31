@@ -16,4 +16,5 @@ test:linux:
       --dockerfile docker/ifm-robotics/test/Dockerfile
       ${KANIKO_BUILD_ARGS}
       --no-push
+  needs: []
 

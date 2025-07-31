@@ -17,6 +17,7 @@ build:windows_2019:
     paths:
       - ifm3d_installer/*.exe
       - ifm3d_installer/*.zip
+  needs: []
 
 build:windows_2019:python_wheel:
   stage: build
@@ -41,3 +42,4 @@ build:windows_2019:python_wheel:
     - !reference [.tagged, rules]
     - !reference [.nightly, rules]
     - !reference [.manual, rules]
+  needs: []

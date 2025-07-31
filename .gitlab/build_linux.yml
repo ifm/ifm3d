@@ -17,6 +17,7 @@ build:linux:
       ${KANIKO_BUILD_ARGS}
       ${KANIKO_PUSH_ARGS}
       ${DOCKER_BUILD_ARGS}
+  needs: []
 
 # Debs
 build:linux:deb:
@@ -46,6 +47,7 @@ build:linux:deb:
     - !reference [.tagged, rules]
     - !reference [.nightly, rules]
     - !reference [.manual, rules]
+  needs: []
 
 # Docker
 build:linux:docker:
@@ -115,6 +117,7 @@ build:linux:python_wheel:
     - !reference [.tagged, rules]
     - !reference [.nightly, rules]
     - !reference [.manual, rules]
+  needs: []
 
 # Docs
 build:linux:docs:
@@ -137,6 +140,7 @@ build:linux:docs:
   artifacts:
     paths:
       - docs
+  needs: []
 
 build:create-dev-image:
   stage: build
@@ -156,3 +160,4 @@ build:create-dev-image:
       --destination ${GHCR_REPO}/dev-image:$(date '+%Y%m%d%H%M%S')
   when: manual
   allow_failure: true
+  needs: []

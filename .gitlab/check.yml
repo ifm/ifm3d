@@ -10,6 +10,7 @@
     - cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DBUILD_MODULE_PCICCLIENT=ON -DBUILD_MODULE_PYBIND11=ON ..
     - popd
     - python3 check-code.py ${CHECK_COMMAND}
+  needs: []
 
 check:clang-format:
   extends: .check-code
@@ -41,7 +42,6 @@ check:vale-linting:
     - cd ${CI_PROJECT_DIR}/formatting-tools
     - git reset --hard ${FORMATTING_TOOLS_REF}
     - vale --minAlertLevel error ../doc/sphinx/* ../README.md ../ChangeLog.md
-  allow_failure: true
 
 check:large-files:
   stage: check
@@ -56,4 +56,4 @@ check:large-files:
         echo "$large_files"
         exit 1
       fi
-  
+  needs: []
