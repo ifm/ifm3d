@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Add a new `--resetNetworkSettings` flag to the CLI, resolving an issue where network settings were not reset as expected.
+
 ### Fixed
 - Fix in device discovery command always tries to access devices at `192.168.0.69`
 

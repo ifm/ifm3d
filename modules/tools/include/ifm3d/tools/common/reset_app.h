@@ -27,6 +27,11 @@ namespace ifm3d
 
     bool reboot{false};
     bool network_settings{true};
+    bool reset_network_settings{false};
+
+  private:
+    CLI::Option* keep_network_opt{nullptr};
+    CLI::Option* reset_network_opt{nullptr};
 
   }; // end: class ResetApp
 } // end: namespace ifm3d
