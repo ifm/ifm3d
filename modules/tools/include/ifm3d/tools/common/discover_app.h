@@ -26,6 +26,7 @@ namespace ifm3d
     virtual void Execute(CLI::App* app) override;
     std::string GetDeviceType(const ifm3d::Device::Ptr& cam);
     virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    virtual bool CheckCompatibility() override;
 
     CLI::App* subcmd_set_temp_ip;
   }; // end: class
