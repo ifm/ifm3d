@@ -4,21 +4,21 @@
  */
 
 #include <cstddef>
-#include "ifm3d/common/json_impl.hpp"
-#include "ifm3d/device/device.h"
-#include "ifm3d/fg/buffer_id.h"
-#include "ifm3d/common/err.h"
-#include <cstring>
-#include <ifm3d/fg/buffer.h>
 #include <cstdint>
+#include <cstring>
+#include <ifm3d/common/err.h>
+#include <ifm3d/common/json_impl.hpp>
+#include <ifm3d/device/device.h>
+#include <ifm3d/fg/buffer.h>
+#include <ifm3d/fg/buffer_id.h>
 #include <memory>
 #include <optional>
-#include <unordered_map>
 #include <stdexcept>
+#include <unordered_map>
 
-namespace ifm3d
+namespace
 {
-  static std::unordered_map<uint32_t, std::size_t> PIX_SZ{
+  const std::unordered_map<uint32_t, std::size_t> PIX_SZ{
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8U), 1},
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_8S), 1},
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16U), 2},
@@ -28,6 +28,10 @@ namespace ifm3d
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_64F), 8},
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_16U2), 2},
     {static_cast<std::uint32_t>(ifm3d::pixel_format::FORMAT_32F3), 4}};
+}
+
+namespace ifm3d
+{
 
   //--------------------------------
   // ImageAllocator class
@@ -97,85 +101,85 @@ ifm3d::Buffer::Buffer(const std::uint32_t cols,
                       ifm3d::pixel_format format,
                       const std::optional<ifm3d::json>& metadata,
                       ifm3d::buffer_id buffer_id)
-  : metadata_(metadata.value_or(ifm3d::json()))
+  : _metadata(metadata.value_or(ifm3d::json()))
 {
-  create(cols, rows, nchannel, format, buffer_id);
+  Create(cols, rows, nchannel, format, buffer_id);
 }
 
 void
-ifm3d::Buffer::create(const std::uint32_t cols,
+ifm3d::Buffer::Create(const std::uint32_t cols,
                       const std::uint32_t rows,
                       const std::uint32_t nchannel,
                       ifm3d::pixel_format format,
                       ifm3d::buffer_id buffer_id)
 {
-  cols_ = cols;
-  rows_ = rows;
-  nchannel_ = nchannel;
-  data_format_ = format;
-  bufferId_ = buffer_id;
+  _cols = cols;
+  _rows = rows;
+  _nchannel = nchannel;
+  _data_format = format;
+  _buffer_id = buffer_id;
   if (PIX_SZ.find(static_cast<std::uint32_t>(format)) != PIX_SZ.end())
     {
-      data_size_in_bytes_ = PIX_SZ[static_cast<std::uint32_t>(format)];
+      _data_size_in_bytes = PIX_SZ.at(static_cast<std::uint32_t>(format));
     }
   else
     {
       throw ifm3d::Error(IFM3D_PIXEL_FORMAT_NOT_SUPPORTED);
     }
-  bytes_per_pixel = data_size_in_bytes_ * nchannel;
-  bytes_per_row = bytes_per_pixel * cols_;
-  size_ =
-    static_cast<std::size_t>(cols * rows * nchannel_) * data_size_in_bytes_;
-  buffer_allocator_ = std::make_shared<ifm3d::Buffer::BufferAllocator>();
-  data_ = buffer_allocator_->Allocate(size_);
+  _bytes_per_pixel = _data_size_in_bytes * nchannel;
+  _bytes_per_row = _bytes_per_pixel * _cols;
+  _size =
+    static_cast<std::size_t>(cols * rows * _nchannel) * _data_size_in_bytes;
+  _buffer_allocator = std::make_shared<ifm3d::Buffer::BufferAllocator>();
+  _data = _buffer_allocator->Allocate(_size);
 }
 
 ifm3d::Buffer
-ifm3d::Buffer::clone() const
+ifm3d::Buffer::Clone() const
 {
-  Buffer copy(cols_, rows_, nchannel_, data_format_, metadata_);
-  std::memcpy(copy.ptr(0), data_, size_);
+  Buffer copy(_cols, _rows, _nchannel, _data_format, _metadata);
+  std::memcpy(copy.Ptr(0), _data, _size);
   return copy;
 }
 
 std::uint32_t
-ifm3d::Buffer::height() const
+ifm3d::Buffer::Height() const
 {
-  return rows_;
+  return _rows;
 }
 
 std::uint32_t
-ifm3d::Buffer::width() const
+ifm3d::Buffer::Width() const
 {
-  return cols_;
+  return _cols;
 }
 
 std::uint32_t
-ifm3d::Buffer::nchannels() const
+ifm3d::Buffer::NumChannels() const
 {
-  return nchannel_;
+  return _nchannel;
 }
 
 ifm3d::pixel_format
-ifm3d::Buffer::dataFormat() const
+ifm3d::Buffer::DataFormat() const
 {
-  return data_format_;
+  return _data_format;
 }
 
 size_t
-ifm3d::Buffer::size() const
+ifm3d::Buffer::Size() const
 {
-  return size_;
+  return _size;
 }
 
 ifm3d::json
-ifm3d::Buffer::metadata() const
+ifm3d::Buffer::Metadata() const
 {
-  return metadata_;
+  return _metadata;
 }
 
 ifm3d::buffer_id
-ifm3d::Buffer::bufferId() const
+ifm3d::Buffer::BufferId() const
 {
-  return bufferId_;
+  return _buffer_id;
 }

@@ -6,47 +6,48 @@
 #ifndef IFM3D_PYBIND_BINDING_CAMERA_O3R
 #define IFM3D_PYBIND_BINDING_CAMERA_O3R
 
+#include <fmt/format.h>
 #include <ifm3d/device/o3r.h>
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <fmt/core.h>
 
 namespace py = pybind11;
 
-void
+inline void
 bind_o3r(pybind11::module_& m)
 {
-
-  // clang-format off
-  py::class_<ifm3d::PortInfo> port_info(
-      m, "PortInfo",
-      R"(
+  py::class_<ifm3d::PortInfo> port_info(m,
+                                        "PortInfo",
+                                        R"(
         Provides information about a connected Port
-      )"
-    );
+      )");
 
-  port_info.def_readonly("port", &ifm3d::PortInfo::port, "The name of the port.");
-  port_info.def_readonly("pcic_port", &ifm3d::PortInfo::pcic_port, "The assigned pcic port.");
-  port_info.def_readonly("type", &ifm3d::PortInfo::type, "The type of the conntected sensor.");
-  port_info.def(
-    "__repr__", 
-    [](ifm3d::PortInfo* self) {
-      return fmt::format("PortInfo(port: \"{}\", pcic_port: {}, type: \"{}\")", 
-        self->port, self->pcic_port, self->type);
-    }
-  );
+  port_info.def_readonly("port",
+                         &ifm3d::PortInfo::port,
+                         "The name of the port.");
+  port_info.def_readonly("pcic_port",
+                         &ifm3d::PortInfo::pcic_port,
+                         "The assigned pcic port.");
+  port_info.def_readonly("type",
+                         &ifm3d::PortInfo::type,
+                         "The type of the conntected sensor.");
+  port_info.def("__repr__", [](ifm3d::PortInfo* self) {
+    return fmt::format(R"(PortInfo(port: "{}", pcic_port: {}, type: "{}"))",
+                       self->port,
+                       self->pcic_port,
+                       self->type);
+  });
 
-  py::class_<ifm3d::O3R, ifm3d::O3R::Ptr, ifm3d::Device> o3r(
-    m, "O3R",
-    R"(
+  py::class_<ifm3d::O3R, ifm3d::O3R::Ptr, ifm3d::Device> o3r(m,
+                                                             "O3R",
+                                                             R"(
       Class for managing an instance of an O3R Camera
     )");
 
-  o3r.def(
-    py::init([](std::string ip, std::uint16_t xmlrpc_port) {
-      return std::make_shared<ifm3d::O3R>(ip, xmlrpc_port);
-    }),
-    R"(
+  o3r.def(py::init([](std::string ip, std::uint16_t xmlrpc_port) {
+            return std::make_shared<ifm3d::O3R>(ip, xmlrpc_port);
+          }),
+          R"(
       Constructor
 
       Parameters
@@ -63,15 +64,14 @@ bind_o3r(pybind11::module_& m)
           Edit sessions allow for mutating camera parameters and persisting
           those changes. Defaults to '' (no password).
     )",
-    py::arg("ip") = ifm3d::DEFAULT_IP,
-    py::arg("xmlrpc_port") = ifm3d::DEFAULT_XMLRPC_PORT);
+          py::arg("ip") = ifm3d::DEFAULT_IP,
+          py::arg("xmlrpc_port") = ifm3d::DEFAULT_XMLRPC_PORT);
 
-  o3r.def(
-    "factory_reset",
-    &ifm3d::O3R::FactoryReset,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("keep_network_settings"),
-    R"(
+  o3r.def("factory_reset",
+          &ifm3d::O3R::FactoryReset,
+          py::call_guard<py::gil_scoped_release>(),
+          py::arg("keep_network_settings"),
+          R"(
       Sets the camera configuration back to the state in which it shipped from
       the ifm factory.
 
@@ -83,8 +83,8 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "get",
-    [](const ifm3d::O3R::Ptr& c, const std::vector<std::string>& path) -> py::dict
-    {
+    [](const ifm3d::O3R::Ptr& c,
+       const std::vector<std::string>& path) -> py::dict {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
       py::gil_scoped_release release;
@@ -105,13 +105,13 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "resolve_config",
-    [](const ifm3d::O3R::Ptr& c, std::string& json_pointer) -> py::object
-    {
+    [](const ifm3d::O3R::Ptr& c, std::string& json_pointer) -> py::object {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
 
       py::gil_scoped_release release;
-      auto result = c->ResolveConfig(ifm3d::json::json_pointer(json_pointer)).dump();
+      auto result =
+        c->ResolveConfig(ifm3d::json::json_pointer(json_pointer)).dump();
       py::gil_scoped_acquire acquire;
       return json_loads(result);
     },
@@ -128,11 +128,10 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "set",
-    [](const ifm3d::O3R::Ptr& c, const py::dict& json)
-    {
+    [](const ifm3d::O3R::Ptr& c, const py::dict& json) {
       // Convert the input JSON to string and load it
       py::object json_dumps = py::module::import("json").attr("dumps");
-      auto json_string =  json_dumps(json).cast<std::string>();
+      auto json_string = json_dumps(json).cast<std::string>();
       py::gil_scoped_release release;
       c->Set(ifm3d::json::parse(json_string));
     },
@@ -147,12 +146,11 @@ bind_o3r(pybind11::module_& m)
           The new temporay JSON configuration of the device.
     )");
 
-  o3r.def(
-    "remove",
-    &ifm3d::O3R::Remove,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("json_pointer"),
-    R"(
+  o3r.def("remove",
+          &ifm3d::O3R::Remove,
+          py::call_guard<py::gil_scoped_release>(),
+          py::arg("json_pointer"),
+          R"(
       Removes an object from the JSON. The scope of this method is limited to
       the following regular expressions
 
@@ -165,12 +163,11 @@ bind_o3r(pybind11::module_& m)
           A JSON Pointer to the object to be removed.
     )");
 
-  o3r.def(
-    "reset",
-    &ifm3d::O3R::Reset,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("json_pointer"),
-    R"(
+  o3r.def("reset",
+          &ifm3d::O3R::Reset,
+          py::call_guard<py::gil_scoped_release>(),
+          py::arg("json_pointer"),
+          R"(
       Sets the default value of an object inside the JSON. The object is
       addressed by a JSON Pointer. The object is reset to the values
       defined in the JSON schema. Note that this does not reset the init
@@ -184,8 +181,7 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "get_init",
-    [](const ifm3d::O3R::Ptr& c) -> py::dict
-    {
+    [](const ifm3d::O3R::Ptr& c) -> py::dict {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
       py::gil_scoped_release release;
@@ -202,12 +198,11 @@ bind_o3r(pybind11::module_& m)
           The initial JSON configuration
     )");
 
-  o3r.def(
-    "save_init",
-    &ifm3d::O3R::SaveInit,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("pointers") = std::vector<std::string>(),
-    R"(
+  o3r.def("save_init",
+          &ifm3d::O3R::SaveInit,
+          py::call_guard<py::gil_scoped_release>(),
+          py::arg("pointers") = std::vector<std::string>(),
+          R"(
       Save to current temporary JSON configuration as initial JSON
       configuration, so it will be applied with the next transition to the
       INIT state (system boot up)
@@ -220,11 +215,10 @@ bind_o3r(pybind11::module_& m)
         provided the whole config will be saved
     )");
 
-  o3r.def(
-    "get_init_status",
-    &ifm3d::O3R::GetInitStatus,
-    py::call_guard<py::gil_scoped_release>(),
-    R"(
+  o3r.def("get_init_status",
+          &ifm3d::O3R::GetInitStatus,
+          py::call_guard<py::gil_scoped_release>(),
+          R"(
       Returns the init status of the device
 
       Returns
@@ -235,12 +229,11 @@ bind_o3r(pybind11::module_& m)
       :meta hidden:
     )");
 
-  o3r.def(
-    "lock",
-    &ifm3d::O3R::Lock,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("password"),
-    R"(
+  o3r.def("lock",
+          &ifm3d::O3R::Lock,
+          py::call_guard<py::gil_scoped_release>(),
+          py::arg("password"),
+          R"(
       Release the lock from the Device
 
       Returns
@@ -251,12 +244,11 @@ bind_o3r(pybind11::module_& m)
       :meta hidden:
     )");
 
-  o3r.def(
-    "unlock",
-    &ifm3d::O3R::Unlock,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("password"),
-    R"(
+  o3r.def("unlock",
+          &ifm3d::O3R::Unlock,
+          py::call_guard<py::gil_scoped_release>(),
+          py::arg("password"),
+          R"(
       Locks the device until it is unlocked.
       If the device is unlocked and an empty password is provided the password
       protection is removed.
@@ -271,8 +263,7 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "get_schema",
-    [](const ifm3d::O3R::Ptr& c) -> py::dict
-    {
+    [](const ifm3d::O3R::Ptr& c) -> py::dict {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
       py::gil_scoped_release release;
@@ -291,8 +282,7 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "get_diagnostic",
-    [](const ifm3d::O3R::Ptr& c) -> py::dict
-    {
+    [](const ifm3d::O3R::Ptr& c) -> py::dict {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
       py::gil_scoped_release release;
@@ -310,12 +300,11 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "get_diagnostic_filter_schema",
-    [](const ifm3d::O3R::Ptr& c) -> py::dict
-    {
+    [](const ifm3d::O3R::Ptr& c) -> py::dict {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
       py::gil_scoped_release release;
-      auto json_string =c->GetDiagnosticFilterSchema().dump();
+      auto json_string = c->GetDiagnosticFilterSchema().dump();
       py::gil_scoped_acquire acquire;
       return json_loads(json_string);
     },
@@ -331,11 +320,13 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "get_diagnostic_filtered",
-    [](const ifm3d::O3R::Ptr& c, const py::dict& filter) -> py::dict
-    {
+    [](const ifm3d::O3R::Ptr& c, const py::dict& filter) -> py::dict {
       py::object json_dumps = py::module::import("json").attr("dumps");
       py::object json_loads = py::module::import("json").attr("loads");
-      return json_loads(c->GetDiagnosticFiltered(ifm3d::json::parse(json_dumps(filter).cast<std::string>())).dump());
+      return json_loads(
+        c->GetDiagnosticFiltered(
+           ifm3d::json::parse(json_dumps(filter).cast<std::string>()))
+          .dump());
     },
     py::arg("filter"),
     R"(
@@ -352,11 +343,10 @@ bind_o3r(pybind11::module_& m)
       dict 
     )");
 
-  o3r.def(
-    "ports",
-    &ifm3d::O3R::Ports,
-    py::call_guard<py::gil_scoped_release>(),
-    R"(
+  o3r.def("ports",
+          &ifm3d::O3R::Ports,
+          py::call_guard<py::gil_scoped_release>(),
+          R"(
       Returns a list containing information about all connected physical ports
 
       Returns
@@ -365,12 +355,11 @@ bind_o3r(pybind11::module_& m)
           the list of Ports
     )");
 
-  o3r.def(
-    "port",
-    &ifm3d::O3R::Port,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("port"),
-    R"(
+  o3r.def("port",
+          &ifm3d::O3R::Port,
+          py::call_guard<py::gil_scoped_release>(),
+          py::arg("port"),
+          R"(
       Returns information about a given physical port
 
       Parameters
@@ -384,11 +373,10 @@ bind_o3r(pybind11::module_& m)
           the port information
     )");
 
-  o3r.def(
-    "reboot_to_recovery",
-    &ifm3d::O3R::RebootToRecovery,
-    py::call_guard<py::gil_scoped_release>(),
-    R"(
+  o3r.def("reboot_to_recovery",
+          &ifm3d::O3R::RebootToRecovery,
+          py::call_guard<py::gil_scoped_release>(),
+          R"(
       Reboot the device into Recovery Mode
 
       Raises
@@ -398,21 +386,20 @@ bind_o3r(pybind11::module_& m)
 
 #ifdef BUILD_MODULE_CRYPTO
   py::class_<ifm3d::O3RSealedBox, ifm3d::O3RSealedBox::Ptr> o3r_sealed_box(
-    m, "O3RSealedBox",
+    m,
+    "O3RSealedBox",
     R"(
       The O3RSealedBox class provides access to the SealedBox. The
       SealedBox is used to for accessing the password protected features of the
       device
-    )"
-  );
+    )");
 
-  o3r_sealed_box.def(
-    "set_password",
-    &ifm3d::O3RSealedBox::SetPassword,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("new_password"),
-    py::arg("old_password") = std::nullopt,
-    R"(
+  o3r_sealed_box.def("set_password",
+                     &ifm3d::O3RSealedBox::SetPassword,
+                     py::call_guard<py::gil_scoped_release>(),
+                     py::arg("new_password"),
+                     py::arg("old_password") = std::nullopt,
+                     R"(
       Locks the password for the device. If the device is currently 
       locked, requires the correct old password.
 
@@ -423,40 +410,36 @@ bind_o3r(pybind11::module_& m)
       old_password : str, optional
           The old password for the device. Required if the 
           device is currently locked.
-    )"
-  );
+    )");
 
-  o3r_sealed_box.def(
-    "is_password_protected",
-    &ifm3d::O3RSealedBox::IsPasswordProtected,
-    py::call_guard<py::gil_scoped_release>(),
-    R"(
+  o3r_sealed_box.def("is_password_protected",
+                     &ifm3d::O3RSealedBox::IsPasswordProtected,
+                     py::call_guard<py::gil_scoped_release>(),
+                     R"(
       Returns whether the device is password protected
-    )"
-  );
+    )");
 
-  o3r_sealed_box.def( 
-    "remove_password",
-    &ifm3d::O3RSealedBox::RemovePassword,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("password"),
-    R"(
+  o3r_sealed_box.def("remove_password",
+                     &ifm3d::O3RSealedBox::RemovePassword,
+                     py::call_guard<py::gil_scoped_release>(),
+                     py::arg("password"),
+                     R"(
       Removes the password protection from the device
 
       Parameters
       ----------
       password : str
           The current password for the device
-    )"
-  );
+    )");
 
   o3r_sealed_box.def(
     "set",
-    [](const ifm3d::O3RSealedBox::Ptr& c, const std::string& password, const py::dict& json)
-    {
+    [](const ifm3d::O3RSealedBox::Ptr& c,
+       const std::string& password,
+       const py::dict& json) {
       // Convert the input JSON to string and load it
       py::object json_dumps = py::module::import("json").attr("dumps");
-      auto json_string =  json_dumps(json).cast<std::string>();
+      auto json_string = json_dumps(json).cast<std::string>();
       py::gil_scoped_release release;
       c->Set(password, ifm3d::json::parse(json_string));
     },
@@ -471,15 +454,15 @@ bind_o3r(pybind11::module_& m)
           The current password for the device
       configuration : dict
           The new configuration for the device
-    )"
-  );
+    )");
 
   o3r_sealed_box.def(
     "get_public_key",
     [](ifm3d::O3RSealedBox::Ptr self) -> py::array {
       auto public_key = self->GetPublicKey();
       py::gil_scoped_acquire acquire;
-      return py::array(public_key.size(), public_key.data());
+      return py::array(static_cast<py::ssize_t>(public_key.size()),
+                       public_key.data());
     },
     py::call_guard<py::gil_scoped_release>(),
     R"(
@@ -489,14 +472,12 @@ bind_o3r(pybind11::module_& m)
       -------
       numpy.ndarray
           The public key of the device
-    )"
-  );
+    )");
 
-  o3r.def(
-    "sealed_box",
-    &ifm3d::O3R::SealedBox,
-    py::call_guard<py::gil_scoped_release>(),
-    R"(
+  o3r.def("sealed_box",
+          &ifm3d::O3R::SealedBox,
+          py::call_guard<py::gil_scoped_release>(),
+          R"(
       Provides access to the SealedBox. The SealedBox is used to for 
       accessing the password protected features of the device
 
@@ -504,11 +485,8 @@ bind_o3r(pybind11::module_& m)
       -------
       O3RSealedBox
           The sealed box object for the O3R camera
-    )"
-  );
+    )");
 #endif
-
-  // clang-format on
 }
 
 #endif // IFM3D_PYBIND_BINDING_CAMERA_O3R

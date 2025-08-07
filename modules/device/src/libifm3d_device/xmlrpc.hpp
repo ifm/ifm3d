@@ -9,14 +9,14 @@
 
 #include <cstdint>
 #include <ctime>
-#include <string>
-#include <unordered_map>
-#include <vector>
-#include <ifm3d/device/legacy_device.h>
-#include <ifm3d/common/logging/log.h>
 #include <httplib.h>
+#include <ifm3d/common/logging/log.h>
+#include <ifm3d/device/legacy_device.h>
+#include <string>
 #include <tinyxml2.h>
+#include <unordered_map>
 #include <variant>
+#include <vector>
 
 namespace ifm3d
 {

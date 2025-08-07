@@ -6,8 +6,8 @@
 #ifndef IFM3D_FG_DEFAULT_ORGANIZER_H
 #define IFM3D_FG_DEFAULT_ORGANIZER_H
 
-#include <optional>
 #include <ifm3d/fg/organizer.h>
+#include <optional>
 
 namespace ifm3d
 {
@@ -19,18 +19,22 @@ namespace ifm3d
   {
   public:
     DefaultOrganizer() = default;
-    ~DefaultOrganizer() = default;
+    DefaultOrganizer(const DefaultOrganizer&) = default;
+    DefaultOrganizer(DefaultOrganizer&&) = delete;
+    DefaultOrganizer& operator=(const DefaultOrganizer&) = default;
+    DefaultOrganizer& operator=(DefaultOrganizer&&) = delete;
+    ~DefaultOrganizer() override = default;
 
     Result Organize(const std::vector<uint8_t>& data,
-                    const std::set<buffer_id>& requestedImages,
-                    const bool masking = true) override;
+                    const std::set<buffer_id>& requested_images,
+                    bool masking = true) override;
 
   private:
-    Buffer CreatePixelMask(Buffer& confidence);
-    std::map<buffer_id, Buffer> ExtractDistanceImageInfo(
+    Buffer create_pixel_mask(Buffer& confidence);
+    std::map<buffer_id, Buffer> extract_distance_image_info(
       std::shared_ptr<DistanceImageInfo> distance_image_info,
       const std::optional<Buffer>& mask);
-    bool ShouldMask(buffer_id id);
+    bool should_mask(buffer_id id);
 
   }; // end: class DefaultOrganizer
 

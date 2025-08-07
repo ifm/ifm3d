@@ -8,15 +8,15 @@
 
 /** \defgroup Deserialize Deserialize Module */
 
-#include <ifm3d/fg/buffer.h>
-#include <ifm3d/fg/organizer_utils.h>
-#include <ifm3d/deserialize/struct_tof_info_v3.hpp>
-#include <ifm3d/deserialize/struct_tof_info_v4.hpp>
-#include <ifm3d/deserialize/struct_rgb_info_v1.hpp>
+#include <ifm3d/deserialize/struct_o3r_ods_extrinsic_calibration_correction_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_info_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_occupancy_grid_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_polar_occupancy_grid_v1.hpp>
-#include <ifm3d/deserialize/struct_o3r_ods_extrinsic_calibration_correction_v1.hpp>
+#include <ifm3d/deserialize/struct_rgb_info_v1.hpp>
+#include <ifm3d/deserialize/struct_tof_info_v3.hpp>
+#include <ifm3d/deserialize/struct_tof_info_v4.hpp>
+#include <ifm3d/fg/buffer.h>
+#include <ifm3d/fg/organizer_utils.h>
 #include <variant>
 
 namespace ifm3d
@@ -34,7 +34,7 @@ namespace ifm3d
   static T
   create_and_read(const uint8_t* data, size_t size)
   {
-    T obj;
+    T obj{};
     obj.Read(data, size);
     return obj;
   }
@@ -53,7 +53,7 @@ namespace ifm3d
    * unknown.
    */
   static VariantType
-  Deserialize(const uint8_t* data, size_t size, ifm3d::buffer_id buffer_id)
+  deserialize(const uint8_t* data, size_t size, ifm3d::buffer_id buffer_id)
   {
     switch (buffer_id)
       {
@@ -61,11 +61,16 @@ namespace ifm3d
         return create_and_read<ODSInfoV1>(data, size);
         case (ifm3d::buffer_id::TOF_INFO): {
           if (TOFInfoV4::IsValid(data, size))
-            return create_and_read<TOFInfoV4>(data, size);
-          else if (TOFInfoV3::IsValid(data, size))
-            return create_and_read<TOFInfoV3>(data, size);
-          else
-            return std::monostate{};
+            {
+              return create_and_read<TOFInfoV4>(data, size);
+            }
+
+          if (TOFInfoV3::IsValid(data, size))
+            {
+              return create_and_read<TOFInfoV3>(data, size);
+            }
+
+          return std::monostate{};
         }
       case (ifm3d::buffer_id::RGB_INFO):
         return create_and_read<RGBInfoV1>(data, size);
@@ -82,11 +87,11 @@ namespace ifm3d
   }
 
   static VariantType
-  Deserialize(const Buffer& buffer)
+  deserialize(const Buffer& buffer)
   {
-    return Deserialize(buffer.ptr<uint8_t>(0),
-                       buffer.size(),
-                       buffer.bufferId());
+    return deserialize(buffer.Ptr<uint8_t>(0),
+                       buffer.Size(),
+                       buffer.BufferId());
   }
 } // end namespace ifm3d
 

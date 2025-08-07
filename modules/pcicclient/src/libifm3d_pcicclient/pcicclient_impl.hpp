@@ -8,12 +8,18 @@
 #define IFM3D_PCICCLIENT_PCICCLIENT_IMPL_H
 #pragma once
 
+#include <algorithm>
+#include <asio.hpp>
 #include <chrono>
 #include <condition_variable>
 #include <cstdint>
 #include <cstdlib>
 #include <exception>
 #include <functional>
+#include <ifm3d/common/logging/log.h>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/err.h>
+#include <ifm3d/pcicclient/pcicclient.h>
 #include <iomanip>
 #include <memory>
 #include <mutex>
@@ -22,11 +28,7 @@
 #include <string>
 #include <system_error>
 #include <thread>
-#include <asio.hpp>
-#include <ifm3d/device/device.h>
-#include <ifm3d/device/err.h>
-#include <ifm3d/common/logging/log.h>
-#include <ifm3d/pcicclient/pcicclient.h>
+#include <utility>
 
 namespace ifm3d
 {
@@ -39,9 +41,13 @@ namespace ifm3d
   //============================================================
   // Impl interface
   //============================================================
-  class PCICClient::Impl
+  class IFM3D_NO_EXPORT PCICClient::Impl
   {
   public:
+    Impl(const Impl&) = delete;
+    Impl(Impl&&) = delete;
+    Impl& operator=(const Impl&) = delete;
+    Impl& operator=(Impl&&) = delete;
     Impl(ifm3d::LegacyDevice::Ptr cam, const std::uint16_t& pcic_port);
     ~Impl();
 
@@ -173,7 +179,7 @@ namespace ifm3d
      * The State enum provides information which buffer is currently
      * used in writing to and reading from network
      */
-    enum class State
+    enum class State : std::uint8_t
     {
       PRE_CONTENT,
       CONTENT,
@@ -183,96 +189,97 @@ namespace ifm3d
     /**
      * Connects to the camera
      */
-    void DoConnect();
+    void do_connect();
 
     /**
      * Handles DoConnect results
      */
-    void ConnectHandler(const asio::error_code& ec);
+    void connect_handler(const asio::error_code& ec);
 
     /**
      * Reads data from network into one of the three "in" buffers
      * depending on current reading state.
      */
-    void DoRead(State state, std::size_t bytes_remaining = UNSET);
+    void do_read(State state, std::size_t bytes_remaining = UNSET);
 
     /**
      * Handles DoRead results: Triggers further reads and in
      * case an incoming message is completely received, does
      * the callback (if existent).
      */
-    void ReadHandler(State state,
-                     const asio::error_code& ec,
-                     std::size_t bytes_transferred,
-                     std::size_t bytes_remaining);
+    void read_handler(State state,
+                      const asio::error_code& ec,
+                      std::size_t bytes_transferred,
+                      std::size_t bytes_remaining);
 
     /**
      * Returns buffer to be filled from network depending on
      * specified reading state
      */
-    std::string& InBufferByState(State state);
+    std::string& in_buffer_by_state(State state);
 
     /**
      * Writes data to network from one of the three "out" buffers
      * depending on current writing state.
      */
-    void DoWrite(State state,
-                 const std::string& out_content_buffer,
-                 std::size_t bytes_remaining = UNSET);
+    void do_write(State state,
+                  const std::string& out_content_buffer,
+                  std::size_t bytes_remaining = UNSET);
 
     /**
      * Handles DoWrite results: Triggers further writes and in
      * case a request is completely sent, unblocks calling thread.
      */
-    void WriteHandler(State state,
-                      const asio::error_code& ec,
-                      std::size_t bytes_transferred,
-                      const std::string& out_content_buffer,
-                      std::size_t bytes_remaining);
+    void write_handler(State state,
+                       const asio::error_code& ec,
+                       std::size_t bytes_transferred,
+                       const std::string& out_content_buffer,
+                       std::size_t bytes_remaining);
 
     /**
      * Returns buffer containing data to be written to network
      * depending on specified writing state. (In case of state CONTENT,
      * the specified out_content_buffer is returned.)
      */
-    const std::string& OutBufferByState(State state,
-                                        const std::string& out_content_buffer);
+    const std::string& out_buffer_by_state(
+      State state,
+      const std::string& out_content_buffer);
 
     /**
      * Finds and returns the next free ticket for a command
      */
-    int NextCommandTicket();
+    int next_command_ticket();
 
     /**
      * Calculates and returns next callback id
      */
-    long NextCallbackId();
+    long next_callback_id();
 
   private:
     /**
      * Init command sequence
      */
-    static const std::string init_command;
+    static const std::string INIT_COMMAND;
 
     /**
      * Shared pointer to the camera this PCIC client will communicate with.
      */
-    ifm3d::LegacyDevice::Ptr cam_;
+    ifm3d::LegacyDevice::Ptr _cam;
 
     /**
      * Cached copy of the camera IP address
      */
-    std::string cam_ip_;
+    std::string _cam_ip;
 
     /**
      * Cached copy of the camera PCIC TCP port
      */
-    int cam_port_;
+    int _cam_port;
 
     /**
      * Flag indicating that client is connected.
      */
-    std::atomic_bool connected_;
+    std::atomic_bool _connected;
 
     /**
      * Flag which is used as default parameter in DoRead and DoWrite
@@ -284,23 +291,23 @@ namespace ifm3d
     /**
      * The ASIO event loop handle
      */
-    asio::io_service io_service_;
+    asio::io_service _io_service;
 
     /**
      * The ASIO socket to PCIC
      */
-    asio::ip::tcp::socket sock_;
+    asio::ip::tcp::socket _sock;
 
     /**
      * The ASIO endpoint to PCIC
      */
-    asio::ip::tcp::endpoint endpoint_;
+    asio::ip::tcp::endpoint _endpoint;
 
     /**
      * A pointer to the wrapped thread object. This is the thread that
      * communicates directly with the sensor.
      */
-    std::unique_ptr<std::thread> thread_;
+    std::unique_ptr<std::thread> _thread;
 
     /**
      * Sequential id for callbacks. Used in two-stage mapping:
@@ -309,83 +316,83 @@ namespace ifm3d
      * Using callback ids for cancelling callbacks instead of tickets
      * eliminates the risk of cancelling a newer callback with the same ticket.
      */
-    unsigned long current_callback_id_;
+    unsigned long _current_callback_id{};
 
     /**
      * Maps PCIC tickets to callback ids. When receiving an incoming message,
      * the accordant callback id and thus the pending callback can be found via
      * pending_callbacks_
      */
-    std::map<int, long> ticket_to_callback_id_;
+    std::map<int, long> _ticket_to_callback_id;
 
     /**
      * Maps callback ids to callbacks. When receiving an incoming message,
      * the accordant callback can be found (and triggered).
      */
     std::map<long, std::function<void(const std::string& content)>>
-      pending_callbacks_;
+      _pending_callbacks;
 
     /**
      * Pre-content buffer for incoming messages (<ticket><length>\r\n<ticket>)
      */
-    std::string in_pre_content_buffer_;
+    std::string _in_pre_content_buffer;
 
     /**
      * Content buffer for incoming messages, which is provided
      * through the callback to the caller
      */
-    std::string in_content_buffer_;
+    std::string _in_content_buffer;
 
     /**
      * Post-content buffer for incoming messages (\r\n)
      */
-    std::string in_post_content_buffer_;
+    std::string _in_post_content_buffer;
 
     /**
      * Pre-content buffer for outgoing requests (<ticket><length>\r\n<ticket>)
      */
-    std::string out_pre_content_buffer_;
+    std::string _out_pre_content_buffer;
 
     /**
      * Post-content buffer for outgoing messages (\r\n)
      */
-    std::string out_post_content_buffer_;
+    std::string _out_post_content_buffer;
 
     /**
      * Flag that indicates whether an incoming messages is completely read.
      */
-    std::atomic_bool out_completed_;
+    std::atomic_bool _out_completed{};
 
     /**
      * Ensures synchronized access to ticket and id generation
      * as well as ticket/id and id/callback maps
      */
-    std::mutex data_sync_mutex_;
+    std::mutex _data_sync_mutex;
 
     /**
      * Ensures single outgoing message at a time
      */
-    std::mutex call_mutex_;
+    std::mutex _call_mutex;
 
     /**
      * Ensures outgoing message
      */
-    std::mutex out_mutex_;
+    std::mutex _out_mutex;
 
     /**
      * Condition variable used to unblock call
      */
-    std::condition_variable out_cv_;
+    std::condition_variable _out_cv;
 
     /**
      * Ensures incoming response (used in synchronous Call)
      */
-    std::mutex in_mutex_;
+    std::mutex _in_mutex;
 
     /**
      * Condition variable used to unblock synchronous Call
      */
-    std::condition_variable in_cv_;
+    std::condition_variable _in_cv;
 
   }; // end: class FrameGrabber::Impl
 
@@ -397,34 +404,32 @@ namespace ifm3d
 
 // Init command sequence to deactivate asynchronous result messages and
 // activate asynchronous error and notification messages (command: p6)
-const std::string ifm3d::PCICClient::Impl::init_command =
+const std::string ifm3d::PCICClient::Impl::
+  INIT_COMMAND = // NOLINT(misc-definitions-in-headers)
   "9999L000000008\r\n9999p6\r\n";
 
 //-------------------------------------
 // ctor/dtor
 //-------------------------------------
-ifm3d::PCICClient::Impl::Impl(ifm3d::LegacyDevice::Ptr cam,
-                              const std::uint16_t& pcic_port)
-  : cam_(cam),
-    cam_port_(pcic_port == ifm3d::PCIC_PORT ? ifm3d::DEFAULT_PCIC_PORT :
+inline ifm3d::PCICClient::Impl::Impl(ifm3d::LegacyDevice::Ptr cam,
+                                     const std::uint16_t& pcic_port)
+  : _cam(std::move(cam)),
+    _cam_port(pcic_port == ifm3d::PCIC_PORT ? ifm3d::DEFAULT_PCIC_PORT :
                                               pcic_port),
-    connected_(false),
-    io_service_(),
-    sock_(io_service_),
-    current_callback_id_(0),
-    in_pre_content_buffer_(ifm3d::PRE_CONTENT_BUFFER_LENGTH, ' '),
-    in_content_buffer_(),
-    in_post_content_buffer_(ifm3d::POST_CONTENT_BUFFER_LENGTH, ' '),
-    out_pre_content_buffer_(ifm3d::PRE_CONTENT_BUFFER_LENGTH, ' '),
-    out_post_content_buffer_("\r\n")
+    _connected(false),
+    _sock(_io_service),
+    _in_pre_content_buffer(ifm3d::PRE_CONTENT_BUFFER_LENGTH, ' '),
+    _in_post_content_buffer(ifm3d::POST_CONTENT_BUFFER_LENGTH, ' '),
+    _out_pre_content_buffer(ifm3d::PRE_CONTENT_BUFFER_LENGTH, ' '),
+    _out_post_content_buffer("\r\n")
 {
   try
     {
-      this->cam_ip_ = this->cam_->IP();
-      if (cam_port_ != pcic_port)
+      this->_cam_ip = this->_cam->IP();
+      if (_cam_port != pcic_port)
         {
-          this->cam_port_ =
-            std::stoi(this->cam_->DeviceParameter("PcicTcpPort"));
+          this->_cam_port =
+            std::stoi(this->_cam->DeviceParameter("PcicTcpPort"));
         }
     }
   catch (const ifm3d::Error& ex)
@@ -433,54 +438,53 @@ ifm3d::PCICClient::Impl::Impl(ifm3d::LegacyDevice::Ptr cam,
       // NOTE: GetIP() won't throw, so, the problem must be getting the PCIC
       // port. Here we assume the default. Former behavior was to throw!
       LOG_WARNING("Assuming default PCIC port!");
-      this->cam_port_ = ifm3d::DEFAULT_PCIC_PORT;
+      this->_cam_port = ifm3d::DEFAULT_PCIC_PORT;
     }
 
   LOG_INFO("Camera connection info: ip={} , port={}",
-           this->cam_ip_,
-           this->cam_port_);
+           this->_cam_ip,
+           this->_cam_port);
 
-  if (this->cam_->AmI(Device::device_family::O3X))
+  if (this->_cam->AmI(Device::device_family::O3X))
     {
       throw ifm3d::Error(IFM3D_PCICCLIENT_UNSUPPORTED_DEVICE);
     }
 
-  this->endpoint_ =
-    asio::ip::tcp::endpoint(asio::ip::address::from_string(this->cam_ip_),
-                            this->cam_port_);
+  this->_endpoint =
+    asio::ip::tcp::endpoint(asio::ip::address::from_string(this->_cam_ip),
+                            this->_cam_port);
 
-  this->thread_ = std::unique_ptr<std::thread>(
-    new std::thread(std::bind(&ifm3d::PCICClient::Impl::DoConnect, this)));
+  this->_thread = std::make_unique<std::thread>([this] { do_connect(); });
 }
 
-ifm3d::PCICClient::Impl::~Impl()
+inline ifm3d::PCICClient::Impl::~Impl()
 {
   LOG_VERBOSE("FrameGrabber dtor running...");
 
-  if (this->thread_ && this->thread_->joinable())
+  if (this->_thread && this->_thread->joinable())
     {
       this->Stop();
-      this->thread_->join();
+      this->_thread->join();
     }
 
   LOG_VERBOSE("FrameGrabber destroyed.");
 }
 
-void
+inline void
 ifm3d::PCICClient::Impl::Stop()
 {
-  this->io_service_.post(
+  this->_io_service.post(
     []() { throw ifm3d::Error(IFM3D_THREAD_INTERRUPTED); });
 }
 
-long
+inline long
 ifm3d::PCICClient::Impl::Call(
   const std::string& request,
   std::function<void(const std::string& response)> callback)
 {
   // TODO Better solution for this connection waiting ..
   int i = 0;
-  while (!this->connected_.load())
+  while (!this->_connected.load())
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
       i++;
@@ -493,9 +497,9 @@ ifm3d::PCICClient::Impl::Call(
     }
 
   // PCICClient is unbuffered, so block further calls
-  std::lock_guard<std::mutex> call_mutex_lock(this->call_mutex_);
+  std::lock_guard<std::mutex> call_mutex_lock(this->_call_mutex);
 
-  this->out_completed_.store(false);
+  this->_out_completed.store(false);
 
   int ticket = 0;
   long callback_id = 0;
@@ -503,15 +507,15 @@ ifm3d::PCICClient::Impl::Call(
   // Sync access to ticket and id generation
   // as well as to ticket/id and id/callback maps
   {
-    std::lock_guard<std::mutex> data_sync_lock(this->data_sync_mutex_);
+    std::lock_guard<std::mutex> data_sync_lock(this->_data_sync_mutex);
 
     // Get next command ticket and callback id
-    ticket = this->NextCommandTicket();
-    callback_id = this->NextCallbackId();
+    ticket = this->next_command_ticket();
+    callback_id = this->next_callback_id();
 
     // Add mappings: ticket -> callback id; callback id -> callback
-    this->ticket_to_callback_id_[ticket] = callback_id;
-    this->pending_callbacks_[callback_id] = callback;
+    this->_ticket_to_callback_id[ticket] = callback_id;
+    this->_pending_callbacks[callback_id] = std::move(callback);
   }
 
   // Transform ticket and length to string
@@ -521,22 +525,22 @@ ifm3d::PCICClient::Impl::Call(
                  << ticket;
 
   // Prepare pre content buffer
-  this->out_pre_content_buffer_ = pre_content_ss.str();
+  this->_out_pre_content_buffer = pre_content_ss.str();
 
   LOG_DEBUG("Client sending request");
 
   // Send command
-  this->DoWrite(State::PRE_CONTENT, request);
+  this->do_write(State::PRE_CONTENT, request);
 
   // Wait until sending is complete
-  std::unique_lock<std::mutex> out_mutex_lock(this->out_mutex_);
-  this->out_cv_.wait(out_mutex_lock,
-                     [this] { return this->out_completed_.load(); });
+  std::unique_lock<std::mutex> out_mutex_lock(this->_out_mutex);
+  this->_out_cv.wait(out_mutex_lock,
+                     [this] { return this->_out_completed.load(); });
 
   return callback_id;
 }
 
-std::string
+inline std::string
 ifm3d::PCICClient::Impl::Call(const std::string& request)
 {
   std::string response;
@@ -544,7 +548,7 @@ ifm3d::PCICClient::Impl::Call(const std::string& request)
   return response;
 }
 
-bool /* @R Consider asio::error return type here */
+inline bool /* @R Consider asio::error return type here */
 ifm3d::PCICClient::Impl::Call(const std::string& request,
                               std::string& response,
                               long timeout_millis)
@@ -554,46 +558,48 @@ ifm3d::PCICClient::Impl::Call(const std::string& request,
 
   // Handle the PCIC Call
 
-  std::unique_ptr<std::thread> call_thread_ =
+  std::unique_ptr<std::thread> call_thread =
     std::make_unique<std::thread>([&] {
       call_output = Call(request, [&](const std::string& content) {
         // Copy content, notify and leave callback
         response = content;
-        std::lock_guard<std::mutex> lock(this->in_mutex_);
+        std::lock_guard<std::mutex> lock(this->_in_mutex);
         has_result.store(true);
-        this->in_cv_.notify_all();
+        this->_in_cv.notify_all();
       });
     });
 
-  if (call_thread_ && call_thread_->joinable())
-    call_thread_->join();
+  if (call_thread && call_thread->joinable())
+    {
+      call_thread->join();
+    }
 
   // Check the return value of our PCIC Call
   auto predicate = [&has_result] { return has_result.load(); };
   if (call_output > 0)
     {
-      std::unique_lock<std::mutex> lock(this->in_mutex_);
+      std::unique_lock<std::mutex> lock(this->_in_mutex);
       try
         {
           if (timeout_millis <= 0)
             {
-              this->in_cv_.wait(lock, predicate);
+              this->_in_cv.wait(lock, predicate);
             }
 
           else
             {
-              if (!this->in_cv_.wait_for(
+              if (!this->_in_cv.wait_for(
                     lock,
                     std::chrono::milliseconds(timeout_millis),
                     predicate))
                 {
-                  this->in_cv_.notify_all();
-                  if (this->thread_ && this->thread_->joinable())
+                  this->_in_cv.notify_all();
+                  if (this->_thread && this->_thread->joinable())
                     {
                       LOG_WARNING("PCICClient::Call: Timed out waiting for a "
                                   "response, stopping thread...");
                       this->Stop();
-                      this->thread_->join();
+                      this->_thread->join();
                     }
                   return false;
                 }
@@ -610,53 +616,51 @@ ifm3d::PCICClient::Impl::Call(const std::string& request,
   return has_result.load();
 }
 
-long
+inline long
 ifm3d::PCICClient ::Impl::SetErrorCallback(
   std::function<void(const std::string& error)> callback)
 {
-  std::lock_guard<std::mutex> lock(this->data_sync_mutex_);
-  long callback_id = this->NextCallbackId();
+  std::lock_guard<std::mutex> lock(this->_data_sync_mutex);
+  long callback_id = this->next_callback_id();
 
   // Asynchronous error messages always have ticket '0001'
-  this->ticket_to_callback_id_[1] = callback_id;
-  this->pending_callbacks_[callback_id] = callback;
+  this->_ticket_to_callback_id[1] = callback_id;
+  this->_pending_callbacks[callback_id] = std::move(callback);
   return callback_id;
 }
 
-long
+inline long
 ifm3d::PCICClient ::Impl::SetNotificationCallback(
   std::function<void(const std::string& notification)> callback)
 {
-  std::lock_guard<std::mutex> lock(this->data_sync_mutex_);
-  long callback_id = this->NextCallbackId();
+  std::lock_guard<std::mutex> lock(this->_data_sync_mutex);
+  long callback_id = this->next_callback_id();
 
   // Asynchronous notification messages always have ticket '0010'
-  this->ticket_to_callback_id_[10] = callback_id;
-  this->pending_callbacks_[callback_id] = callback;
+  this->_ticket_to_callback_id[10] = callback_id;
+  this->_pending_callbacks[callback_id] = std::move(callback);
   return callback_id;
 }
 
-void
+inline void
 ifm3d::PCICClient::Impl::CancelCallback(long callback_id)
 {
-  std::lock_guard<std::mutex> lock(this->data_sync_mutex_);
-  this->pending_callbacks_.erase(callback_id);
+  std::lock_guard<std::mutex> lock(this->_data_sync_mutex);
+  this->_pending_callbacks.erase(callback_id);
 }
 
-void
-ifm3d::PCICClient::Impl::DoConnect()
+inline void
+ifm3d::PCICClient::Impl::do_connect()
 {
-  asio::io_service::work work(this->io_service_);
+  asio::io_service::work work(this->_io_service);
 
   // Establish TCP connection to sensor
   try
     {
-      this->sock_.async_connect(
-        this->endpoint_,
-        std::bind(&ifm3d::PCICClient::Impl::ConnectHandler,
-                  this,
-                  std::placeholders::_1));
-      this->io_service_.run();
+      this->_sock.async_connect(this->_endpoint, [this](auto&& error_code) {
+        connect_handler(std::forward<decltype(error_code)>(error_code));
+      });
+      this->_io_service.run();
     }
   catch (const std::exception& ex)
     {
@@ -666,165 +670,54 @@ ifm3d::PCICClient::Impl::DoConnect()
   LOG_INFO("PCICClient thread done.");
 }
 
-void
-ifm3d::PCICClient::Impl::ConnectHandler(const asio::error_code& ec)
+inline void
+ifm3d::PCICClient::Impl::connect_handler(const asio::error_code& ec)
 {
   if (ec)
     {
       throw ifm3d::Error(ec.value());
     }
-  this->DoRead(State::PRE_CONTENT);
+  this->do_read(State::PRE_CONTENT);
 
   // Write init command sequence to turn off asynchronous messages
   asio::async_write(
-    this->sock_,
-    asio::buffer(&init_command[0], init_command.size()),
-    [&, this](const asio::error_code& ec, std::size_t bytes_transferred) {
+    this->_sock,
+    asio::buffer(INIT_COMMAND.data(), INIT_COMMAND.size()),
+    [&, this](const asio::error_code& ec, std::size_t /*bytes_transferred*/) {
       if (ec)
         {
           throw ifm3d::Error(ec.value());
         }
-      this->connected_.store(true);
+      this->_connected.store(true);
     });
 }
 
-void
-ifm3d::PCICClient::Impl::DoRead(ifm3d::PCICClient::Impl::State state,
-                                std::size_t bytes_remaining)
-{
-  std::string& buffer = this->InBufferByState(state);
-  if (bytes_remaining == UNSET)
-    {
-      bytes_remaining = buffer.size();
-    }
-
-  this->sock_.async_read_some(
-    asio::buffer(&buffer[buffer.size() - bytes_remaining], bytes_remaining),
-    std::bind(&ifm3d::PCICClient::Impl::ReadHandler,
-              this,
-              state,
-              std::placeholders::_1,
-              std::placeholders::_2,
-              bytes_remaining));
-}
-
-void
-ifm3d::PCICClient::Impl::ReadHandler(State state,
-                                     const asio::error_code& ec,
-                                     std::size_t bytes_transferred,
-                                     std::size_t bytes_remaining)
-{
-  if (ec)
-    {
-      throw ifm3d::Error(ec.value());
-    }
-
-  if (bytes_remaining - bytes_transferred > 0)
-    {
-      this->DoRead(state, bytes_remaining - bytes_transferred);
-    }
-  else
-    {
-      int ticket;
-      int length;
-      switch (state)
-        {
-        case State::PRE_CONTENT:
-          length = std::stoi(this->in_pre_content_buffer_.substr(5, 9));
-          this->in_content_buffer_.resize(length - 6);
-          this->DoRead(State::CONTENT);
-          break;
-
-        case State::CONTENT:
-          this->DoRead(State::POST_CONTENT);
-          break;
-
-        case State::POST_CONTENT:
-          ticket = std::stoi(this->in_pre_content_buffer_.substr(0, 4));
-
-          // Sync access to ticket
-          {
-            std::lock_guard<std::mutex> data_sync_mutex_lock(
-              this->data_sync_mutex_);
-            try
-              {
-                // Get callback id
-                long callback_id = this->ticket_to_callback_id_.at(ticket);
-
-                // Erase mapping if it is a one-time ticket triggered by a Call
-                // method
-                if (ticket >= ifm3d::ONE_TIME_TICKET_LOWER_RANGE &&
-                    ticket <= ifm3d::ONE_TIME_TICKET_HIGHER_RANGE)
-                  {
-                    this->ticket_to_callback_id_.erase(ticket);
-                  }
-
-                // Execute callback
-                this->pending_callbacks_.at(callback_id)(
-                  this->in_content_buffer_);
-
-                // Erase mapping if it is a one-time ticket triggered by a Call
-                // method
-                if (ticket >= ifm3d::ONE_TIME_TICKET_LOWER_RANGE &&
-                    ticket <= ifm3d::ONE_TIME_TICKET_HIGHER_RANGE)
-                  {
-                    this->pending_callbacks_.erase(callback_id);
-                  }
-              }
-            catch (std::out_of_range ex)
-              {
-                LOG_DEBUG("No callback for ticket {} found", ticket);
-              }
-          }
-          this->DoRead(State::PRE_CONTENT);
-          break;
-        }
-    }
-}
-
-std::string&
-ifm3d::PCICClient::Impl::InBufferByState(State state)
-{
-  switch (state)
-    {
-    case State::PRE_CONTENT:
-      return this->in_pre_content_buffer_;
-    case State::CONTENT:
-      return this->in_content_buffer_;
-    case State::POST_CONTENT:
-      return this->in_post_content_buffer_;
-    }
-  throw;
-}
-
-void
-ifm3d::PCICClient::Impl::DoWrite(State state,
-                                 const std::string& out_content_buffer,
+inline void
+ifm3d::PCICClient::Impl::do_read(ifm3d::PCICClient::Impl::State state,
                                  std::size_t bytes_remaining)
 {
-  const std::string& buffer =
-    this->OutBufferByState(state, out_content_buffer);
+  std::string& buffer = this->in_buffer_by_state(state);
   if (bytes_remaining == UNSET)
     {
       bytes_remaining = buffer.size();
     }
 
-  this->sock_.async_write_some(
+  this->_sock.async_read_some(
     asio::buffer(&buffer[buffer.size() - bytes_remaining], bytes_remaining),
-    std::bind(&ifm3d::PCICClient::Impl::WriteHandler,
-              this,
-              state,
-              std::placeholders::_1,
-              std::placeholders::_2,
-              out_content_buffer,
-              bytes_remaining));
+    [this, state, bytes_remaining](auto&& error_code,
+                                   auto&& bytes_transferred) {
+      read_handler(
+        state,
+        std::forward<decltype(error_code)>(error_code),
+        std::forward<decltype(bytes_transferred)>(bytes_transferred),
+        bytes_remaining);
+    });
 }
 
-void
-ifm3d::PCICClient::Impl::WriteHandler(State state,
+inline void
+ifm3d::PCICClient::Impl::read_handler(State state,
                                       const asio::error_code& ec,
                                       std::size_t bytes_transferred,
-                                      const std::string& out_content_buffer,
                                       std::size_t bytes_remaining)
 {
   if (ec)
@@ -834,82 +727,196 @@ ifm3d::PCICClient::Impl::WriteHandler(State state,
 
   if (bytes_remaining - bytes_transferred > 0)
     {
-      this->DoWrite(state,
-                    out_content_buffer,
-                    bytes_remaining - bytes_transferred);
+      this->do_read(state, bytes_remaining - bytes_transferred);
+    }
+  else
+    {
+      int ticket{};
+      int length{};
+      switch (state)
+        {
+        case State::PRE_CONTENT:
+          length = std::stoi(this->_in_pre_content_buffer.substr(5, 9));
+          this->_in_content_buffer.resize(length - 6);
+          this->do_read(State::CONTENT);
+          break;
+
+        case State::CONTENT:
+          this->do_read(State::POST_CONTENT);
+          break;
+
+        case State::POST_CONTENT:
+          ticket = std::stoi(this->_in_pre_content_buffer.substr(0, 4));
+
+          // Sync access to ticket
+          {
+            std::lock_guard<std::mutex> data_sync_mutex_lock(
+              this->_data_sync_mutex);
+            try
+              {
+                // Get callback id
+                long callback_id = this->_ticket_to_callback_id.at(ticket);
+
+                // Erase mapping if it is a one-time ticket triggered by a Call
+                // method
+                if (ticket >= ifm3d::ONE_TIME_TICKET_LOWER_RANGE &&
+                    ticket <= ifm3d::ONE_TIME_TICKET_HIGHER_RANGE)
+                  {
+                    this->_ticket_to_callback_id.erase(ticket);
+                  }
+
+                // Execute callback
+                this->_pending_callbacks.at(callback_id)(
+                  this->_in_content_buffer);
+
+                // Erase mapping if it is a one-time ticket triggered by a Call
+                // method
+                if (ticket >= ifm3d::ONE_TIME_TICKET_LOWER_RANGE &&
+                    ticket <= ifm3d::ONE_TIME_TICKET_HIGHER_RANGE)
+                  {
+                    this->_pending_callbacks.erase(callback_id);
+                  }
+              }
+            catch (std::out_of_range& ex)
+              {
+                LOG_DEBUG("No callback for ticket {} found", ticket);
+              }
+          }
+          this->do_read(State::PRE_CONTENT);
+          break;
+        }
+    }
+}
+
+inline std::string&
+ifm3d::PCICClient::Impl::in_buffer_by_state(State state)
+{
+  switch (state)
+    {
+    case State::PRE_CONTENT:
+      return this->_in_pre_content_buffer;
+    case State::CONTENT:
+      return this->_in_content_buffer;
+    case State::POST_CONTENT:
+      return this->_in_post_content_buffer;
+    }
+  throw;
+}
+
+inline void
+ifm3d::PCICClient::Impl::do_write(State state,
+                                  const std::string& out_content_buffer,
+                                  std::size_t bytes_remaining)
+{
+  const std::string& buffer =
+    this->out_buffer_by_state(state, out_content_buffer);
+  if (bytes_remaining == UNSET)
+    {
+      bytes_remaining = buffer.size();
+    }
+
+  this->_sock.async_write_some(
+    asio::buffer(&buffer[buffer.size() - bytes_remaining], bytes_remaining),
+    [this, state, out_content_buffer, bytes_remaining](
+      auto&& error_code,
+      auto&& bytes_transferred) {
+      write_handler(
+        state,
+        std::forward<decltype(error_code)>(error_code),
+        std::forward<decltype(bytes_transferred)>(bytes_transferred),
+        out_content_buffer,
+        bytes_remaining);
+    });
+}
+
+inline void
+ifm3d::PCICClient::Impl::write_handler(State state,
+                                       const asio::error_code& ec,
+                                       std::size_t bytes_transferred,
+                                       const std::string& out_content_buffer,
+                                       std::size_t bytes_remaining)
+{
+  if (ec)
+    {
+      throw ifm3d::Error(ec.value());
+    }
+
+  if (bytes_remaining - bytes_transferred > 0)
+    {
+      this->do_write(state,
+                     out_content_buffer,
+                     bytes_remaining - bytes_transferred);
     }
   else
     {
       switch (state)
         {
         case State::PRE_CONTENT:
-          this->DoWrite(State::CONTENT, out_content_buffer);
+          this->do_write(State::CONTENT, out_content_buffer);
           break;
 
         case State::CONTENT:
-          this->DoWrite(State::POST_CONTENT, out_content_buffer);
+          this->do_write(State::POST_CONTENT, out_content_buffer);
           break;
 
         case State::POST_CONTENT:
-          std::lock_guard<std::mutex> lock(this->out_mutex_);
-          this->out_completed_.store(true);
-          this->out_cv_.notify_all();
+          std::lock_guard<std::mutex> lock(this->_out_mutex);
+          this->_out_completed.store(true);
+          this->_out_cv.notify_all();
           break;
         }
     }
 }
 
-const std::string&
-ifm3d::PCICClient::Impl::OutBufferByState(
+inline const std::string&
+ifm3d::PCICClient::Impl::out_buffer_by_state(
   State state,
   const std::string& out_content_buffer)
 {
   switch (state)
     {
     case State::PRE_CONTENT:
-      return this->out_pre_content_buffer_;
+      return this->_out_pre_content_buffer;
     case State::CONTENT:
-      return out_content_buffer;
+      return out_content_buffer; // NOLINT(bugprone-return-const-ref-from-parameter)
     case State::POST_CONTENT:
-      return this->out_post_content_buffer_;
+      return this->_out_post_content_buffer;
     }
   throw;
 }
 
-int
-ifm3d::PCICClient::Impl::NextCommandTicket()
+inline int
+ifm3d::PCICClient::Impl::next_command_ticket()
 {
   const auto number_of_one_time_tickets =
     ONE_TIME_TICKET_HIGHER_RANGE - ONE_TIME_TICKET_LOWER_RANGE + 1;
   int ticket = ifm3d::ONE_TIME_TICKET_LOWER_RANGE;
-  if (!this->ticket_to_callback_id_.empty())
+  if (!this->_ticket_to_callback_id.empty())
     {
-      ticket = (this->ticket_to_callback_id_.rbegin()->first) -
+      ticket = (this->_ticket_to_callback_id.rbegin()->first) -
                ifm3d::ONE_TIME_TICKET_LOWER_RANGE;
 
       // Ignore error/notification message tickets when generating
       // new command tickets
-      if (ticket < 0)
-        {
-          ticket = 0;
-        }
+      ticket = std::max(ticket, 0);
 
-      while (this->ticket_to_callback_id_.find(
+      while (this->_ticket_to_callback_id.find(
                ((++ticket) % number_of_one_time_tickets) +
                ifm3d::ONE_TIME_TICKET_LOWER_RANGE) !=
-             this->ticket_to_callback_id_.end())
-        ;
+             this->_ticket_to_callback_id.end())
+        {}
       ticket = (ticket % number_of_one_time_tickets) +
                ifm3d::ONE_TIME_TICKET_LOWER_RANGE;
     }
   return ticket;
 }
 
-long
-ifm3d::PCICClient::Impl::NextCallbackId()
+inline long
+ifm3d::PCICClient::Impl::next_callback_id()
 {
-  return (this->current_callback_id_ == 0) ? (this->current_callback_id_ = 1) :
-                                             (++this->current_callback_id_);
+  return (this->_current_callback_id == 0) ?
+           static_cast<long>(this->_current_callback_id = 1) :
+           static_cast<long>(++this->_current_callback_id);
 }
 
 #endif // IFM3D_PCICCLIENT_PCICCLIENT_IMPL_H

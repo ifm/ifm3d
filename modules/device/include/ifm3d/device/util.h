@@ -7,10 +7,10 @@
 #ifndef IFM3D_DEVICE_UTIL_H
 #define IFM3D_DEVICE_UTIL_H
 
+#include <cstdint>
+#include <ifm3d/device/module_device.h>
 #include <string>
 #include <vector>
-#include <ifm3d/device/module_device.h>
-#include <cstdint>
 
 namespace httplib
 {

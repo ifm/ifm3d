@@ -5,17 +5,17 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/common/err.h"
-#include "ifm3d/device/o3r.h"
-#include "ifm3d/tools/ovp8xx/ovp8xx_app.h"
-#include <ifm3d/tools/common/config_set_app.h>
 #include <fstream>
+#include <ifm3d/common/err.h>
+#include <ifm3d/device/o3r.h>
+#include <ifm3d/device/util.h>
+#include <ifm3d/tools/common/config_set_app.h>
+#include <ifm3d/tools/ovp8xx/ovp8xx_app.h>
 #include <iostream>
 #include <iterator>
 #include <memory>
 #include <sstream>
 #include <string>
-#include <ifm3d/device/util.h>
 
 ifm3d::ConfigSetApp::~ConfigSetApp() = default;
 

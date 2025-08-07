@@ -8,11 +8,11 @@
 #define IFM3D_DESERIALIZE_STRUCT_O3R__ODS_INFO_V1_HPP
 
 #include <array>
+#include <ifm3d/deserialize/deserialize_utils.hpp>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/fg/buffer.h>
-#include <ifm3d/deserialize/deserialize_utils.hpp>
+#include <ifm3d/fg/organizer_utils.h>
 
 namespace ifm3d
 {
@@ -30,13 +30,9 @@ namespace ifm3d
     using Ptr = std::shared_ptr<ODSInfoV1>;
 
     bool
-    IsValid(const uint8_t* data, size_t size)
+    IsValid(const uint8_t*, size_t size)
     {
-      if (size < ods_info_v1_size)
-        {
-          return false;
-        }
-      return true;
+      return size >= ODS_INFO_V1_SIZE;
     }
 
     void
@@ -69,15 +65,15 @@ namespace ifm3d
     /*
      *@brief size ofthe ODS_INFO_V1 in bytes
      * */
-    static constexpr size_t ods_info_v1_size = 15;
+    static constexpr size_t ODS_INFO_V1_SIZE = 15;
 
     static ODSInfoV1
     Deserialize(const Buffer& tof_info_buffer)
     {
-      ODSInfoV1 ods_info_v1;
+      ODSInfoV1 ods_info_v1{};
 
-      ods_info_v1.Read(tof_info_buffer.ptr<uint8_t>(0),
-                       tof_info_buffer.size());
+      ods_info_v1.Read(tof_info_buffer.Ptr<uint8_t>(0),
+                       tof_info_buffer.Size());
       return ods_info_v1;
     }
   };

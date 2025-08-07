@@ -6,41 +6,39 @@
 #ifndef IFM3D_PYBIND_BINDING_DESERIALIZE_ODS_POLAR_OCCUPANCY_GRID_V1_H
 #define IFM3D_PYBIND_BINDING_DESERIALIZE_ODS_POLAR_OCCUPANCY_GRID_V1_H
 
-#include "util.hpp"
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/chrono.h>
 #include <ifm3d/deserialize/struct_o3r_ods_polar_occupancy_grid_v1.hpp>
+#include <ifm3d/pybind11/util.hpp>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 
-void
+inline void
 bind_struct_odspolaroccupancygridv1(pybind11::module_& m)
 {
-  // clang-format off
-    py::class_<ifm3d::ODSPolarOccupancyGridV1, ifm3d::ODSPolarOccupancyGridV1::Ptr>ods_polar_occupancy_grid_v1(
-    m,
-    "ODSPolarOccupancyGridV1",
-    R"(
+  py::class_<ifm3d::ODSPolarOccupancyGridV1,
+             ifm3d::ODSPolarOccupancyGridV1::Ptr>
+    ods_polar_occupancy_grid_v1(m,
+                                "ODSPolarOccupancyGridV1",
+                                R"(
         Class for managing an instance of an struct ODSPolarOccupancyGridV1
       )");
 
-    ods_polar_occupancy_grid_v1.def(
-    py::init<>(),
-    R"(
+  ods_polar_occupancy_grid_v1.def(py::init<>(),
+                                  R"(
         Constructor
       )");
 
-    ods_polar_occupancy_grid_v1.def_readonly(
+  ods_polar_occupancy_grid_v1.def_readonly(
     "version",
     &ifm3d::ODSPolarOccupancyGridV1::version,
     R"(
         version of the grid
       )");
 
-    ods_polar_occupancy_grid_v1.def_readonly(
+  ods_polar_occupancy_grid_v1.def_readonly(
     "polarOccGrid",
-    &ifm3d::ODSPolarOccupancyGridV1::polarOccGrid,
+    &ifm3d::ODSPolarOccupancyGridV1::polar_occ_grid,
     R"(
         A compressed version of the grid using polar coordinates.
         The index corresponds to the angle
@@ -50,18 +48,18 @@ bind_struct_odspolaroccupancygridv1(pybind11::module_& m)
         given in [mm]. In case there are no occupied cells on the ray, the value 65535 is set.
       )");
 
-    ods_polar_occupancy_grid_v1.def_readonly(
+  ods_polar_occupancy_grid_v1.def_readonly(
     "timestamp_ns",
     &ifm3d::ODSPolarOccupancyGridV1::timestamp_ns,
     R"(
         timestamp of the grid
       )");
 
-    ods_polar_occupancy_grid_v1.def_static(
+  ods_polar_occupancy_grid_v1.def_static(
     "deserialize",
-    [](py::array_t<uint8_t, py::array::c_style | py::array::forcecast> in)
-      -> ifm3d::ODSPolarOccupancyGridV1 {
-      ifm3d::ODSPolarOccupancyGridV1 val;
+    [](const py::array_t<uint8_t, py::array::c_style | py::array::forcecast>&
+         in) -> ifm3d::ODSPolarOccupancyGridV1 {
+      ifm3d::ODSPolarOccupancyGridV1 val{};
       val.Read(reinterpret_cast<const uint8_t*>(in.data(0)), in.nbytes());
       return val;
     },
@@ -69,5 +67,4 @@ bind_struct_odspolaroccupancygridv1(pybind11::module_& m)
         Deserialize ODSPolarOccupancyGridV1 Buffer
       )");
 }
-// clang-format on
 #endif // IFM3D_PYBIND_BINDING_DESERIALIZE_ODS_POLAR_OCCUPANCY_GRID_V1_H

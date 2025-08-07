@@ -324,7 +324,7 @@ namespace ifm3d
 
   protected:
     class Impl;
-    std::unique_ptr<Impl> pImpl;
+    std::unique_ptr<Impl> _impl;
 
     /**
      * Handles parsing a selected sub-tree of a potential input JSON file,

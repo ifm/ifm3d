@@ -1,15 +1,15 @@
-#include "ifm3d/common/err.h"
-#include "ifm3d/device/legacy_device.h"
-#include "ifm3d/swupdater/swupdater.h"
 #include <chrono>
+#include <fstream>
+#include <gtest/gtest.h>
+#include <ifm3d/common/err.h>
+#include <ifm3d/common/logging/log.h>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/legacy_device.h>
+#include <ifm3d/swupdater/swupdater.h>
 #include <ios>
 #include <memory>
 #include <string>
 #include <thread>
-#include <ifm3d/device/device.h>
-#include <ifm3d/common/logging/log.h>
-#include <gtest/gtest.h>
-#include <fstream>
 
 class SWUpdater : public ::testing::Test
 {

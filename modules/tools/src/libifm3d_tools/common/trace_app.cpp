@@ -5,11 +5,11 @@
 
 #include <CLI/App.hpp>
 #include <algorithm>
-#include "fmt/core.h"
-#include <iostream>
+#include <fmt/core.h> // NOLINT(*)
 #include <ifm3d/tools/common/trace_app.h>
-#include <vector>
+#include <iostream>
 #include <string>
+#include <vector>
 
 namespace
 {

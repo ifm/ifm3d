@@ -24,7 +24,7 @@ namespace ifm3d
              const char* file,
              const char* function,
              size_t line)
-      : _time(logging_clock::now()),
+      : _time(LoggingClock::now()),
         _log_level(log_level),
         _message(std::move(message)),
         _line(line),
@@ -32,7 +32,7 @@ namespace ifm3d
         _file(file)
     {}
 
-    [[nodiscard]] const logging_timepoint&
+    [[nodiscard]] const LogginTimepoint&
     GetTime() const
     {
       return _time;
@@ -69,7 +69,7 @@ namespace ifm3d
     }
 
   private:
-    logging_timepoint _time;
+    LogginTimepoint _time;
     LogLevel _log_level;
     std::string _message;
     size_t _line;

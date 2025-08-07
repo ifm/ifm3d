@@ -21,9 +21,14 @@ namespace ifm3d
   class StatApp : public Command
   {
   public:
-    ~StatApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    StatApp() = default;
+    StatApp(const StatApp&) = default;
+    StatApp(StatApp&&) = delete;
+    StatApp& operator=(const StatApp&) = default;
+    StatApp& operator=(StatApp&&) = delete;
+    ~StatApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
   }; // end: class StatApp
 } // end: namespace ifm3d

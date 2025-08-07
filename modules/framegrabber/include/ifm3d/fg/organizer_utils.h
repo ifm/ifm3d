@@ -6,16 +6,15 @@
 #ifndef IFM3D_FG_ORGANIZER_UTILS_H
 #define IFM3D_FG_ORGANIZER_UTILS_H
 
-#include <map>
-#include <set>
-#include <optional>
-#include <vector>
-#include <tuple>
-#include <set>
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/buffer.h>
-#include <ifm3d/fg/frame.h>
 #include <ifm3d/fg/distance_image_info.h>
+#include <ifm3d/fg/frame.h>
+#include <map>
+#include <optional>
+#include <set>
+#include <tuple>
+#include <vector>
 
 namespace ifm3d
 {
@@ -96,8 +95,8 @@ namespace ifm3d
     const std::vector<uint8_t>& data,
     const std::set<buffer_id>& requested_images,
     const std::map<ifm3d::image_chunk, std::set<std::size_t>>& chunks,
-    const size_t width,
-    const size_t height,
+    size_t width,
+    size_t height,
     std::map<buffer_id, BufferList>& data_blob,
     std::map<buffer_id, BufferList>& data_image);
 
@@ -130,7 +129,7 @@ namespace ifm3d
     union
     {
       T v;
-      unsigned char bytes[sizeof(T)];
+      unsigned char bytes[sizeof(T)]; // NOLINT(modernize-avoid-c-arrays)
     } value;
 
 #if !defined(_WIN32) && __BYTE_ORDER == __BIG_ENDIAN
@@ -151,8 +150,8 @@ namespace ifm3d
     ifm3d::Buffer buf =
       Buffer(vec.size(),
              1,
-             ifm3d::FormatType<T>::nchannel,
-             static_cast<ifm3d::pixel_format>(ifm3d::FormatType<T>::format));
+             ifm3d::FormatType<T>::NumChannels,
+             static_cast<ifm3d::pixel_format>(ifm3d::FormatType<T>::Format));
     std::copy(vec.begin(), vec.end(), buf.begin<T>());
     return buf;
   }
@@ -165,8 +164,8 @@ namespace ifm3d
   {
     ifm3d::Buffer buf =
       Buffer(sizeof(T), 1, 1, ifm3d::pixel_format::FORMAT_8U);
-    const uint8_t* start = reinterpret_cast<const uint8_t*>(&struct_object);
-    auto ptr = buf.ptr<uint8_t>(0);
+    const auto* start = reinterpret_cast<const uint8_t*>(&struct_object);
+    auto* ptr = buf.Ptr<uint8_t>(0);
     std::copy(start, start + sizeof(T), ptr);
     return buf;
   }
@@ -178,7 +177,7 @@ namespace ifm3d
   convert_buffer_to_struct(const ifm3d::Buffer& buf)
   {
     T struct_object;
-    auto ptr = buf.ptr<uint8_t>(0);
+    const auto* ptr = buf.Ptr<uint8_t>(0);
     std::copy(ptr,
               ptr + sizeof(T),
               reinterpret_cast<uint8_t*>(&struct_object));
@@ -208,7 +207,9 @@ namespace ifm3d
     int xyz_col = 0;
 
     T* xyz_ptr = NULL;
-    T x_, y_, z_;
+    T x;
+    T y;
+    T z;
 
     constexpr T bad_pixel = 0;
 
@@ -220,14 +221,14 @@ namespace ifm3d
         if (col == 0)
           {
             row += 1;
-            xyz_ptr = im.ptr<T>(row);
+            xyz_ptr = im.Ptr<T>(row);
           }
 
-        x_ = ifm3d::mkval<T>(data.data() + xidx);
-        y_ = ifm3d::mkval<T>(data.data() + yidx);
-        z_ = ifm3d::mkval<T>(data.data() + zidx);
+        x = ifm3d::mkval<T>(data.data() + xidx);
+        y = ifm3d::mkval<T>(data.data() + yidx);
+        z = ifm3d::mkval<T>(data.data() + zidx);
 
-        if (mask.has_value() && mask.value().at<uint8_t>(row, col) != 0)
+        if (mask.has_value() && mask.value().At<uint8_t>(row, col) != 0)
           {
             xyz_ptr[xyz_col] = bad_pixel;
             xyz_ptr[xyz_col + 1] = bad_pixel;
@@ -235,9 +236,9 @@ namespace ifm3d
           }
         else
           {
-            xyz_ptr[xyz_col] = x_;
-            xyz_ptr[xyz_col + 1] = y_;
-            xyz_ptr[xyz_col + 2] = z_;
+            xyz_ptr[xyz_col] = x;
+            xyz_ptr[xyz_col + 1] = y;
+            xyz_ptr[xyz_col + 2] = z;
           }
       }
 

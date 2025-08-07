@@ -4,7 +4,7 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/device/o3r.h"
+#include <ifm3d/device/o3r.h>
 #include <ifm3d/tools/ovp8xx/get_service_report_app.h>
 #include <memory>
 #include <string>

@@ -1,12 +1,12 @@
-#include "ifm3d/common/err.h"
-#include "ifm3d/device/legacy_device.h"
-#include "ifm3d/device/device.h"
-#include "ifm3d/pcicclient/pcicclient.h"
 #include <chrono>
+#include <gtest/gtest.h>
+#include <ifm3d/common/err.h>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/legacy_device.h>
+#include <ifm3d/pcicclient/pcicclient.h>
 #include <memory>
 #include <string>
 #include <thread>
-#include "gtest/gtest.h"
 
 class PCICClientTest : public ::testing::Test
 {
@@ -14,7 +14,7 @@ protected:
   void
   SetUp() override
   {
-    this->dev = ifm3d::LegacyDevice::MakeShared();
+    this->_dev = ifm3d::LegacyDevice::MakeShared();
   }
 
   void
@@ -22,7 +22,7 @@ protected:
   {}
 
   // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-  ifm3d::LegacyDevice::Ptr dev;
+  ifm3d::LegacyDevice::Ptr _dev;
 };
 
 TEST_F(PCICClientTest, IncomingResponseMessage)
@@ -31,13 +31,13 @@ TEST_F(PCICClientTest, IncomingResponseMessage)
   // PCICClientTest is not supported for O3X
   // so this test does not apply
   //
-  if (dev->AmI(ifm3d::Device::device_family::O3X))
+  if (_dev->AmI(ifm3d::Device::device_family::O3X))
     {
-      EXPECT_THROW(std::make_shared<ifm3d::PCICClient>(dev), ifm3d::Error);
+      EXPECT_THROW(std::make_shared<ifm3d::PCICClient>(_dev), ifm3d::Error);
       return;
     }
 
-  ifm3d::PCICClient::Ptr const pc = std::make_shared<ifm3d::PCICClient>(dev);
+  ifm3d::PCICClient::Ptr const pc = std::make_shared<ifm3d::PCICClient>(_dev);
 
   for (int i = 0; i < 5; ++i)
     {
@@ -54,13 +54,13 @@ TEST_F(PCICClientTest, InvalidCommandLength)
   // PCICClientTest is not supported for O3X
   // so this test does not apply
   //
-  if (dev->AmI(ifm3d::Device::device_family::O3X))
+  if (_dev->AmI(ifm3d::Device::device_family::O3X))
     {
-      EXPECT_THROW(std::make_shared<ifm3d::PCICClient>(dev), ifm3d::Error);
+      EXPECT_THROW(std::make_shared<ifm3d::PCICClient>(_dev), ifm3d::Error);
       return;
     }
 
-  ifm3d::PCICClient::Ptr const pc = std::make_shared<ifm3d::PCICClient>(dev);
+  ifm3d::PCICClient::Ptr const pc = std::make_shared<ifm3d::PCICClient>(_dev);
 
   for (int i = 0; i < 5; ++i)
     {
@@ -78,18 +78,18 @@ TEST_F(PCICClientTest, PCICTimeout)
   // PCICClientTest is not supported for O3X
   // so this test does not apply
   //
-  if (dev->AmI(ifm3d::Device::device_family::O3X))
+  if (_dev->AmI(ifm3d::Device::device_family::O3X))
     {
-      EXPECT_THROW(std::make_shared<ifm3d::PCICClient>(dev), ifm3d::Error);
+      EXPECT_THROW(std::make_shared<ifm3d::PCICClient>(_dev), ifm3d::Error);
       return;
     }
 
-  ifm3d::PCICClient::Ptr pc = std::make_shared<ifm3d::PCICClient>(dev);
+  ifm3d::PCICClient::Ptr pc = std::make_shared<ifm3d::PCICClient>(_dev);
 
   std::unique_ptr<std::thread> reboot_thread =
     std::make_unique<std::thread>([&] {
       EXPECT_NO_THROW(
-        this->dev->Reboot(ifm3d::LegacyDevice::boot_mode::PRODUCTIVE));
+        this->_dev->Reboot(ifm3d::LegacyDevice::boot_mode::PRODUCTIVE));
 
       std::this_thread::sleep_for(std::chrono::seconds(5));
     });
@@ -105,7 +105,7 @@ TEST_F(PCICClientTest, PCICTimeout)
 
       if (!pc->Call("V?", result, 5000))
         {
-          pc = std::make_shared<ifm3d::PCICClient>(dev);
+          pc = std::make_shared<ifm3d::PCICClient>(_dev);
         }
     }
 

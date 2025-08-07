@@ -3,19 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <cstdint>
-#include "ifm3d/common/err.h"
-#include "ifm3d/device/device.h"
 #include <CLI/App.hpp>
-#include "ifm3d/tools/legacy/o3d3xx_app.h"
-#include "ifm3d/tools/legacy/o3x_app.h"
-#include "ifm3d/tools/ovp8xx/ovp8xx_app.h"
-#include "ifm3d/tools/main_command.hpp"
+#include <cstdint>
 #include <exception>
+#include <ifm3d/common/err.h>
+#include <ifm3d/device/device.h>
 #include <ifm3d/tools/common/discover_app.h>
+#include <ifm3d/tools/common/set_temp_ip_app.h>
+#include <ifm3d/tools/legacy/o3d3xx_app.h>
+#include <ifm3d/tools/legacy/o3x_app.h>
+#include <ifm3d/tools/main_command.hpp>
+#include <ifm3d/tools/ovp8xx/ovp8xx_app.h>
 #include <iostream>
-#include <string>
 #include <sstream>
+#include <string>
 #include <unordered_map>
 
 constexpr uint32_t BCAST_FLAG_WRONGSUBNET = 0x0001;

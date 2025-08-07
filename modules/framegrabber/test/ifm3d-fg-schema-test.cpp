@@ -2,24 +2,27 @@
  * Copyright 2020 ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
-#include "ifm3d/common/json_impl.hpp"
-#include "ifm3d/fg/buffer_id.h"
-#include <set>
-#include <gtest/gtest.h>
-#include <ifm3d/device/device.h>
-#include <ifm3d/fg/schema.h>
-#include <string>
 #include <algorithm>
+#include <gtest/gtest.h>
+#include <ifm3d/common/json_impl.hpp>
+#include <ifm3d/device/device.h>
+#include <ifm3d/fg/buffer_id.h>
+#include <ifm3d/fg/schema.h>
+#include <set>
+#include <string>
 
 namespace ifm3d
 {
-  static bool
-  check_for_id(const json& elements, const std::string& id)
+  namespace
   {
-    return std::any_of(
-      elements.begin(),
-      elements.end(),
-      [&id](const auto& element) { return element["id"] == id; });
+    bool
+    check_for_id(const json& elements, const std::string& id)
+    {
+      return std::any_of(
+        elements.begin(),
+        elements.end(),
+        [&id](const auto& element) { return element["id"] == id; });
+    }
   }
 };
 

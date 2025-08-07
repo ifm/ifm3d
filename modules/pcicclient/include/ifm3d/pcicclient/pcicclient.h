@@ -6,9 +6,9 @@
 #ifndef IFM3D_PCICCLIENT_PCICCLIENT_H
 #define IFM3D_PCICCLIENT_PCICCLIENT_H
 
+#include <ifm3d/device.h>
 #include <ifm3d/pcicclient/module_pcicclient.h>
 #include <string>
-#include <ifm3d/device.h>
 
 namespace ifm3d
 {
@@ -31,7 +31,7 @@ namespace ifm3d
      * @param[in] nat_pcic_port pcic port for NAT configuartion
      */
     PCICClient(ifm3d::LegacyDevice::Ptr cam,
-               const std::uint16_t pcic_port = ifm3d::PCIC_PORT);
+               std::uint16_t pcic_port = ifm3d::PCIC_PORT);
 
     /**
      * Cleans up any resources held by the receive thread object and
@@ -168,8 +168,8 @@ namespace ifm3d
     void CancelCallback(long callback_id);
 
   private:
-    class IFM3D_NO_EXPORT Impl;
-    std::unique_ptr<Impl> pImpl;
+    class Impl;
+    std::unique_ptr<Impl> _impl;
 
   }; // end: class PCICClient
 

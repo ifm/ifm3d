@@ -1,12 +1,12 @@
 #include <array>
 #include <cstdint>
-#include <string>
-#include <gtest/gtest.h>
-#include <sodium/crypto_box.h>
-#include <ifm3d/crypto/crypto.h>
 #include <cstring>
-#include <vector>
+#include <gtest/gtest.h>
+#include <ifm3d/crypto/crypto.h>
+#include <sodium/crypto_box.h>
+#include <string>
 #include <string_view>
+#include <vector>
 
 static const std::vector<uint8_t> RECIPIENT_PK = {
   0x34, 0x3f, 0x4b, 0x3f, 0xee, 0xff, 0xda, 0xa7, 0x3f, 0x2e, 0xd7,

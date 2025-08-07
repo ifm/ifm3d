@@ -8,20 +8,21 @@
 #pragma once
 
 #include <chrono>
+#include <httplib.h>
+#include <ifm3d/common/json.hpp>
+#include <ifm3d/common/logging/log.h>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/err.h>
+#include <ifm3d/device/util.h>
+#include <ifm3d/swupdater/swupdater.h>
 #include <string>
 #include <thread>
 #include <tuple>
-#include <ifm3d/device/device.h>
-#include <ifm3d/device/err.h>
-#include <ifm3d/common/logging/log.h>
-#include <ifm3d/common/json.hpp>
-#include <ifm3d/device/util.h>
-#include <ifm3d/swupdater/swupdater.h>
-#include <httplib.h>
+#include <utility>
 
 #ifdef _WIN32
-#  include <io.h>
 #  include <fcntl.h>
+#  include <io.h>
 #endif
 
 namespace ifm3d
@@ -47,8 +48,12 @@ namespace ifm3d
   class IFM3D_EXPORT SWUpdater::Impl
   {
   public:
+    Impl(const Impl&) = delete;
+    Impl(Impl&&) = delete;
+    Impl& operator=(const Impl&) = delete;
+    Impl& operator=(Impl&&) = delete;
     Impl(ifm3d::Device::Ptr cam,
-         const ifm3d::SWUpdater::FlashStatusCb& cb,
+         ifm3d::SWUpdater::FlashStatusCb cb,
          const std::string& swupdate_recovery_port);
     virtual ~Impl() = default;
 
@@ -60,21 +65,22 @@ namespace ifm3d
                                long timeout_millis);
 
   protected:
-    ifm3d::Device::Ptr cam_;
-    ifm3d::SWUpdater::FlashStatusCb cb_;
+    ifm3d::Device::Ptr _cam;
+    ifm3d::SWUpdater::FlashStatusCb _cb;
 
-    httplib::Client client_;
+    httplib::Client _client;
 
-    virtual bool CheckRecovery();
+    virtual bool check_recovery();
 
-    virtual bool CheckProductive();
+    virtual bool check_productive();
 
-    virtual void UploadFirmware(const std::string& swu_file,
-                                long timeout_millis);
+    virtual void upload_firmware(const std::string& swu_file,
+                                 long timeout_millis);
 
-    virtual bool WaitForUpdaterStatus(int desired_state, long timeout_millis);
+    virtual bool wait_for_updater_status(int desired_status,
+                                         long timeout_millis);
 
-    virtual std::tuple<int, std::string, int> GetUpdaterStatus();
+    virtual std::tuple<int, std::string, int> get_updater_status();
 
   }; // end: class SWUpdater::Impl
 
@@ -87,37 +93,37 @@ namespace ifm3d
 //-------------------------------------
 // ctor
 //-------------------------------------
-ifm3d::SWUpdater::Impl::Impl(ifm3d::Device::Ptr cam,
-                             const ifm3d::SWUpdater::FlashStatusCb& cb,
-                             const std::string& swupdate_recovery_port)
-  : cam_(cam),
-    cb_(cb),
-    client_(cam->IP().c_str(), std::stoi(swupdate_recovery_port))
+inline ifm3d::SWUpdater::Impl::Impl(ifm3d::Device::Ptr cam,
+                                    ifm3d::SWUpdater::FlashStatusCb cb,
+                                    const std::string& swupdate_recovery_port)
+  : _cam(cam),
+    _cb(std::move(cb)),
+    _client(cam->IP(), std::stoi(swupdate_recovery_port))
 {
-  this->client_.set_connection_timeout(ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
-  this->client_.set_read_timeout(ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
-  this->client_.set_write_timeout(ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
+  this->_client.set_connection_timeout(ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
+  this->_client.set_read_timeout(ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
+  this->_client.set_write_timeout(ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
 }
 
 //-------------------------------------
 // "Public" interface
 //-------------------------------------
-void
+inline void
 ifm3d::SWUpdater::Impl::RebootToRecovery()
 {
-  this->cam_->Reboot(ifm3d::Device::boot_mode::RECOVERY);
+  this->_cam->Reboot(ifm3d::Device::boot_mode::RECOVERY);
 }
 
-bool
+inline bool
 ifm3d::SWUpdater::Impl::WaitForRecovery(long timeout_millis)
 {
   if (timeout_millis < 0)
     {
-      return this->CheckRecovery();
+      return this->check_recovery();
     }
 
   auto start = std::chrono::system_clock::now();
-  while (!this->CheckRecovery())
+  while (!this->check_recovery())
     {
       if (timeout_millis > 0)
         {
@@ -134,25 +140,25 @@ ifm3d::SWUpdater::Impl::WaitForRecovery(long timeout_millis)
   return true;
 }
 
-void
+inline void
 ifm3d::SWUpdater::Impl::RebootToProductive()
 {
-  auto res = this->client_.Post(SWUPDATER_REBOOT_URL_SUFFIX,
+  auto res = this->_client.Post(SWUPDATER_REBOOT_URL_SUFFIX,
                                 "",
                                 "application/x-www-form-urlencoded");
   ifm3d::check_http_result(res);
 }
 
-bool
+inline bool
 ifm3d::SWUpdater::Impl::WaitForProductive(long timeout_millis)
 {
   if (timeout_millis < 0)
     {
-      return this->CheckProductive();
+      return this->check_productive();
     }
 
   auto start = std::chrono::system_clock::now();
-  while (!this->CheckProductive())
+  while (!this->check_productive())
     {
       if (timeout_millis > 0)
         {
@@ -169,7 +175,7 @@ ifm3d::SWUpdater::Impl::WaitForProductive(long timeout_millis)
     }
   return true;
 }
-bool
+inline bool
 ifm3d::SWUpdater::Impl::FlashFirmware(const std::string& swu_file,
                                       long timeout_millis)
 {
@@ -189,7 +195,7 @@ ifm3d::SWUpdater::Impl::FlashFirmware(const std::string& swu_file,
   //
   // In practice, 10 iterations is sufficient.
   int retries = 0;
-  while (!this->WaitForUpdaterStatus(SWUPDATER_STATUS_IDLE, -1))
+  while (!this->wait_for_updater_status(SWUPDATER_STATUS_IDLE, -1))
     {
       if (++retries >= 10)
         {
@@ -203,7 +209,7 @@ ifm3d::SWUpdater::Impl::FlashFirmware(const std::string& swu_file,
       return false;
     }
 
-  this->UploadFirmware(swu_file, remaining_time);
+  this->upload_firmware(swu_file, remaining_time);
 
   remaining_time = get_remaining_time();
   if (remaining_time <= 0)
@@ -211,16 +217,17 @@ ifm3d::SWUpdater::Impl::FlashFirmware(const std::string& swu_file,
       return false;
     }
 
-  return this->WaitForUpdaterStatus(SWUPDATER_STATUS_SUCCESS, remaining_time);
+  return this->wait_for_updater_status(SWUPDATER_STATUS_SUCCESS,
+                                       remaining_time);
 }
 
 //-------------------------------------
 // "Private" helpers
 //-------------------------------------
-bool
-ifm3d::SWUpdater::Impl::CheckRecovery()
+inline bool
+ifm3d::SWUpdater::Impl::check_recovery()
 {
-  auto res = this->client_.Head("/");
+  auto res = this->_client.Head("/");
 
   if (!res)
     {
@@ -237,12 +244,12 @@ ifm3d::SWUpdater::Impl::CheckRecovery()
   return res->status == 200;
 }
 
-bool
-ifm3d::SWUpdater::Impl::CheckProductive()
+inline bool
+ifm3d::SWUpdater::Impl::check_productive()
 {
   try
     {
-      if (this->cam_->DeviceParameter("OperatingMode") != "")
+      if (this->_cam->DeviceParameter("OperatingMode") != "")
         {
           return true;
         }
@@ -261,22 +268,22 @@ ifm3d::SWUpdater::Impl::CheckProductive()
   return false;
 }
 
-struct mime_ctx
+struct MimeCtx
 {
   FILE* fp;
 };
 
-size_t
+inline size_t
 mime_read(char* buffer, size_t size, size_t nitems, void* arg)
 {
-  auto ctx = (mime_ctx*)arg;
+  auto* ctx = static_cast<MimeCtx*>(arg);
   return fread(buffer, size, nitems, ctx->fp);
 }
 
-void
+inline void
 mime_free(void* arg)
 {
-  auto ctx = (mime_ctx*)arg;
+  auto* ctx = static_cast<MimeCtx*>(arg);
   if (ctx->fp)
     {
       if (ctx->fp != stdin)
@@ -287,7 +294,7 @@ mime_free(void* arg)
     }
 }
 
-FILE*
+inline FILE*
 fopen_read(const std::string& file)
 {
   if (file == "-")
@@ -308,7 +315,7 @@ fopen_read(const std::string& file)
   return res;
 }
 
-void
+inline void
 fclose_read(std::FILE* file)
 {
   if (file != stdin)
@@ -317,21 +324,21 @@ fclose_read(std::FILE* file)
     }
 }
 
-void
-ifm3d::SWUpdater::Impl::UploadFirmware(const std::string& swu_file,
-                                       long timeout_millis)
+inline void
+ifm3d::SWUpdater::Impl::upload_firmware(const std::string& swu_file,
+                                        long /*timeout_millis*/)
 {
   std::FILE* input = fopen_read(swu_file);
 
-  char buffer[4096];
+  std::array<char, 4096> buffer{};
   httplib::MultipartFormDataProviderItems items = {
     {SWUPDATER_MIME_PART_NAME,
-     [&](size_t offset, httplib::DataSink& sink) -> bool {
-       auto c = fread(buffer, 1, sizeof(buffer), input);
+     [&](size_t /*offset*/, httplib::DataSink& sink) -> bool {
+       auto c = fread(buffer.data(), 1, buffer.size(), input);
 
        if (c > 0)
          {
-           return sink.write(buffer, c);
+           return sink.write(buffer.data(), c);
          }
 
        if (feof(input))
@@ -344,7 +351,7 @@ ifm3d::SWUpdater::Impl::UploadFirmware(const std::string& swu_file,
      SWUPDATER_FILENAME,
      SWUPDATER_CONTENT_TYPE_HEADER}};
 
-  auto res = this->client_.Post(SWUPDATER_UPLOAD_URL_SUFFIX, {}, {}, items);
+  auto res = this->_client.Post(SWUPDATER_UPLOAD_URL_SUFFIX, {}, {}, items);
 
   fclose_read(input);
   // Ignore Error::Write because the device will force close the connection
@@ -355,17 +362,18 @@ ifm3d::SWUpdater::Impl::UploadFirmware(const std::string& swu_file,
     }
 }
 
-bool
-ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
-                                             long timeout_millis)
+inline bool
+ifm3d::SWUpdater::Impl::wait_for_updater_status(int desired_status,
+                                                long timeout_millis)
 {
-  int status_id;
-  int status_error;
+  int status_id{};
+  int status_error{};
   std::string status_message;
 
   if (timeout_millis < 0)
     {
-      std::tie(status_id, std::ignore, std::ignore) = this->GetUpdaterStatus();
+      std::tie(status_id, std::ignore, std::ignore) =
+        this->get_updater_status();
       return status_id == desired_status;
     }
 
@@ -387,13 +395,13 @@ ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
         }
 
       std::tie(status_id, status_message, status_error) =
-        this->GetUpdaterStatus();
+        this->get_updater_status();
 
       if (status_message != "")
         {
-          if (this->cb_)
+          if (this->_cb)
             {
-              this->cb_(1.0, status_message);
+              this->_cb(1.0, status_message);
             }
           LOG_INFO("[{}][{}]: {}", status_id, status_error, status_message);
         }
@@ -414,10 +422,10 @@ ifm3d::SWUpdater::Impl::WaitForUpdaterStatus(int desired_status,
   return true;
 }
 
-std::tuple<int, std::string, int>
-ifm3d::SWUpdater::Impl::GetUpdaterStatus()
+inline std::tuple<int, std::string, int>
+ifm3d::SWUpdater::Impl::get_updater_status()
 {
-  auto res = this->client_.Get(SWUPDATER_STATUS_URL_SUFFIX);
+  auto res = this->_client.Get(SWUPDATER_STATUS_URL_SUFFIX);
 
   ifm3d::check_http_result(res);
 

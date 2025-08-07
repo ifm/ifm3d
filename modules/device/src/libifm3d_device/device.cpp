@@ -4,30 +4,30 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
-#include <cstddef>
+#include <device_impl.hpp>
+#include <discovery.hpp>
 #include <exception>
-#include "ifm3d/common/err.h"
-#include "ifm3d/device/semver.h"
-#include "ifm3d/device/ifm_network_device.h"
-#include "ifm3d/common/json_impl.hpp"
+#include <fmt/core.h> // NOLINT(*)
 #include <httplib.h>
-#include <chrono>
+#include <ifm3d/common/err.h>
+#include <ifm3d/common/json_impl.hpp>
+#include <ifm3d/common/logging/log.h>
 #include <ifm3d/device/device.h>
+#include <ifm3d/device/ifm_network_device.h>
+#include <ifm3d/device/o3d.h>
+#include <ifm3d/device/o3r.h>
+#include <ifm3d/device/o3x.h>
+#include <ifm3d/device/semver.h>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
-#include <ifm3d/device/o3d.h>
-#include <ifm3d/device/o3r.h>
-#include <ifm3d/device/o3x.h>
-#include <ifm3d/common/logging/log.h>
-#include <device_impl.hpp>
-#include <discovery.hpp>
 #include <xmlrpc.hpp>
-#include <fmt/core.h>
 
 //================================================
 // Public constants
@@ -46,40 +46,66 @@ const std::string ifm3d::DEFAULT_APPLICATION_TYPE = "Camera";
 const long ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT = 10;     // seconds
 const long ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT = 30; // seconds
 
-static auto IFM3D_SESSION_ID = []() -> std::string {
-  std::string sid;
+namespace
+{
+  const auto IFM3D_SESSION_ID = []() -> std::string {
+    std::string sid;
 
-  try
-    {
-      if (std::getenv("IFM3D_SESSION_ID") == nullptr)
-        {
-          sid = "";
-        }
-      else
-        {
-          sid = std::string(std::getenv("IFM3D_SESSION_ID"));
-          if ((sid.size() != ifm3d::SESSION_ID_SZ) ||
-              (sid.find_first_not_of("0123456789abcdefABCDEF") !=
-               std::string::npos))
-            {
-              LOG_WARNING("Invalid session id: {}", sid);
-              sid = "";
-            }
-          else
-            {
-              LOG_INFO("Default session id: {}", sid);
-            }
-        }
-    }
-  catch (const std::exception& ex)
-    {
-      LOG_WARNING("When trying to set default session id: {}", ex.what());
+    try
+      {
+        if (std::getenv("IFM3D_SESSION_ID") == nullptr)
+          {
+            sid = "";
+          }
+        else
+          {
+            sid = std::string(std::getenv("IFM3D_SESSION_ID"));
+            if ((sid.size() != ifm3d::SESSION_ID_SZ) ||
+                (sid.find_first_not_of("0123456789abcdefABCDEF") !=
+                 std::string::npos))
+              {
+                LOG_WARNING("Invalid session id: {}", sid);
+                sid = "";
+              }
+            else
+              {
+                LOG_INFO("Default session id: {}", sid);
+              }
+          }
+      }
+    catch (const std::exception& ex)
+      {
+        LOG_WARNING("When trying to set default session id: {}", ex.what());
 
-      sid = "";
-    }
+        sid = "";
+      }
 
-  return sid;
-};
+    return sid;
+  };
+
+  bool
+  is_v1_sw_update(const std::string& ip)
+  {
+    /* SWU_V1 device expose a /id.lp endpoint in recovery, so we check for its
+     * existence to determine if this is a SWU_V1 device */
+    httplib::Client cli(ip, 8080);
+    cli.set_connection_timeout(
+      std::chrono::seconds(ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT));
+    cli.set_read_timeout(
+      std::chrono::seconds(ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT));
+
+    auto res = cli.Head("/");
+
+    if (res && res->status >= 200 && res->status < 300)
+      {
+        return true;
+      }
+
+    auto dev = ifm3d::Device(ip);
+    return dev.WhoAmI() == ifm3d::Device::device_family::O3D ||
+           dev.WhoAmI() == ifm3d::Device::device_family::O3X;
+  }
+}
 
 const std::string ifm3d::DEFAULT_SESSION_ID = IFM3D_SESSION_ID();
 
@@ -207,7 +233,7 @@ ifm3d::Device::MakeShared(const std::string& ip,
 //================================================
 
 ifm3d::Device::Device(const std::string& ip, const std::uint16_t xmlrpc_port)
-  : pImpl(std::make_unique<Device::Impl>(
+  : _impl(std::make_unique<Device::Impl>(
       std::make_shared<XMLRPC>(ip, xmlrpc_port)))
 {}
 
@@ -216,31 +242,31 @@ ifm3d::Device::~Device() = default;
 std::string
 ifm3d::Device::IP()
 {
-  return this->pImpl->IP();
+  return this->_impl->IP();
 }
 
 std::uint16_t
 ifm3d::Device::XMLRPCPort()
 {
-  return this->pImpl->XMLRPCPort();
+  return this->_impl->XMLRPCPort();
 }
 
 void
 ifm3d::Device::Reboot(const ifm3d::Device::boot_mode& mode)
 {
-  this->pImpl->Reboot(static_cast<int>(mode));
+  this->_impl->Reboot(static_cast<int>(mode));
 }
 
 std::vector<std::string>
 ifm3d::Device::TraceLogs(int count)
 {
-  return this->pImpl->TraceLogs(count);
+  return this->_impl->TraceLogs(count);
 }
 
 std::string
 ifm3d::Device::DeviceParameter(const std::string& key)
 {
-  return this->pImpl->DeviceParameter(key);
+  return this->_impl->DeviceParameter(key);
 }
 
 std::string
@@ -260,7 +286,7 @@ ifm3d::Device::DeviceType(bool use_cached)
         }
     }
 
-  this->device_type_ = this->pImpl->DeviceParameter("DeviceType");
+  this->device_type_ = this->_impl->DeviceParameter("DeviceType");
   return this->device_type_;
 }
 
@@ -319,14 +345,14 @@ ifm3d::Device::CheckMinimumFirmwareVersion(unsigned int major,
                                            unsigned int minor,
                                            unsigned int patch)
 {
-  return this->pImpl->CheckMinimumFirmwareVersion(
+  return this->_impl->CheckMinimumFirmwareVersion(
     ifm3d::SemVer(major, minor, patch));
 }
 
 ifm3d::SemVer
 ifm3d::Device::FirmwareVersion()
 {
-  return this->pImpl->FirmwareVersion();
+  return this->_impl->FirmwareVersion();
 }
 
 void
@@ -372,30 +398,7 @@ ifm3d::Device::FromJSONStr(const std::string& jstr)
 std::shared_ptr<ifm3d::XMLRPC>
 ifm3d::Device::XWrapper()
 {
-  return pImpl->XWrapper();
-}
-
-static bool
-is_v1_sw_update(const std::string& ip)
-{
-  /* SWU_V1 device expose a /id.lp endpoint in recovery, so we check for its
-   * existence to determine if this is a SWU_V1 device */
-  httplib::Client cli(ip, 8080);
-  cli.set_connection_timeout(
-    std::chrono::seconds(ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT));
-  cli.set_read_timeout(
-    std::chrono::seconds(ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT));
-
-  auto res = cli.Head("/");
-
-  if (res && res->status >= 200 && res->status < 300)
-    {
-      return true;
-    }
-
-  auto dev = ifm3d::Device(ip);
-  return dev.WhoAmI() == ifm3d::Device::device_family::O3D ||
-         dev.WhoAmI() == ifm3d::Device::device_family::O3X;
+  return _impl->XWrapper();
 }
 
 ifm3d::Device::swu_version
@@ -408,5 +411,5 @@ ifm3d::Device::SwUpdateVersion()
 ifm3d::json
 ifm3d::Device::GetSWVersion()
 {
-  return this->pImpl->GetSWVersion();
+  return this->_impl->GetSWVersion();
 }

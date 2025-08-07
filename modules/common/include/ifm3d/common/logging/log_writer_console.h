@@ -7,10 +7,12 @@
 #ifndef IFM3D_COMMON_LOGGING_LOG_WRITER_CONSOLE_H
 #define IFM3D_COMMON_LOGGING_LOG_WRITER_CONSOLE_H
 
-#include <mutex>
-#include <cstring>
+#include <cstdint>
 #include <cstdio>
+#include <cstring>
+#include <ifm3d/common/logging/log_level.h>
 #include <iostream>
+#include <mutex>
 
 #if defined(_MSC_VER)
 #  include <io.h>
@@ -24,37 +26,37 @@
 
 namespace ifm3d
 {
-  enum class Output
+  enum class Output : std::uint8_t
   {
     StdOut,
     StdErr,
   };
 
-  template <class Formatter,
+  template <class FORMATTER,
             typename std::enable_if_t<std::is_same_v<
-              decltype(Formatter::format(
+              decltype(FORMATTER::Format(
                 ifm3d::LogEntry("", ifm3d::LogLevel::Info, "", "", 1))),
               std::string>>* = nullptr>
   class LogWriterConsole : public LogWriter
   {
   public:
     LogWriterConsole(Output out = Output::StdErr)
-      : out_(out == Output::StdOut ? std::cout : std::cerr),
-        is_a_tty_(IS_A_TTY(out == Output::StdOut ? stdout : stderr))
+      : _out(out == Output::StdOut ? std::cout : std::cerr),
+        _is_a_tty(IS_A_TTY(out == Output::StdOut ? stdout : stderr))
     {}
 
     void
     Write(const LogEntry& entry) override
     {
-      const auto str = Formatter::format(entry);
-      const std::lock_guard<std::mutex> lock(this->mutex_);
-      this->out_ << str << std::endl;
+      const auto str = FORMATTER::Format(entry);
+      const std::lock_guard<std::mutex> lock(this->_mutex);
+      this->_out << str << std::endl;
     }
 
   protected:
-    std::mutex mutex_;
-    std::ostream& out_;
-    bool is_a_tty_;
+    std::mutex _mutex;
+    std::ostream& _out; // NOLINT(*-avoid-const-or-ref-data-members)
+    bool _is_a_tty;
   };
 }
 #endif // IFM3D_COMMON_LOGGING_LOG_WRITER_CONSOLE_H

@@ -8,11 +8,11 @@
 #define IFM3D_DESERIALIZE_STRUCT_O3R_ODS_POLAR_OCCUPANCY_GRID_V1_HPP
 
 #include <array>
+#include <ifm3d/deserialize/deserialize_utils.hpp>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/fg/buffer.h>
-#include <ifm3d/deserialize/deserialize_utils.hpp>
+#include <ifm3d/fg/organizer_utils.h>
 
 namespace ifm3d
 {
@@ -33,14 +33,10 @@ namespace ifm3d
     static bool
     IsValid(const uint8_t* data, size_t size)
     {
-      uint32_t version =
+      auto version =
         mkval<std::uint32_t>(data + ODS_POLAR_OCCUPANCY_GRID_VERSION_INDEX);
 
-      if (size < ods_polar_occupancy_grid_v1_minimum_size || version < 1)
-        {
-          return false;
-        }
-      return true;
+      return size >= ODS_POLAR_OCCUPANCY_GRID_V1_MINIMUM_SIZE && version >= 1;
     }
 
     void
@@ -55,7 +51,7 @@ namespace ifm3d
                                      ODS_POLAR_OCCUPANCY_GRID_VERSION_INDEX);
       mkarray<uint16_t, ARRAY_SIZE>(
         start_ptr + ODS_POLAR_OCCUPANCY_GRID_POLAR_OCC_GRID_INDEX,
-        polarOccGrid);
+        polar_occ_grid);
       timestamp_ns = mkval<std::uint64_t>(
         start_ptr + ODS_POLAR_OCCUPANCY_GRID_TIMESTAMP_NS_INDEX);
     };
@@ -68,22 +64,22 @@ namespace ifm3d
      * cell on the ray from the vehicle origin, given in [mm]. In case there
      * are no occupied cells on the ray, the value 65535 is set.
      */
-    std::array<uint16_t, ARRAY_SIZE> polarOccGrid;
+    std::array<uint16_t, ARRAY_SIZE> polar_occ_grid;
     /*@brief Timestamp of polar occupany grid in [ns]*/
     uint64_t timestamp_ns;
 
   private:
-    static constexpr size_t ods_polar_occupancy_grid_v1_minimum_size = 1354;
+    static constexpr size_t ODS_POLAR_OCCUPANCY_GRID_V1_MINIMUM_SIZE = 1354;
 
   public:
     static ODSPolarOccupancyGridV1
     Deserialize(const Buffer& ods_polar_occupancy_buffer_grid)
     {
-      ODSPolarOccupancyGridV1 ods_polar_occupancy_grid_v1;
+      ODSPolarOccupancyGridV1 ods_polar_occupancy_grid_v1{};
 
       ods_polar_occupancy_grid_v1.Read(
-        ods_polar_occupancy_buffer_grid.ptr<uint8_t>(0),
-        ods_polar_occupancy_buffer_grid.size());
+        ods_polar_occupancy_buffer_grid.Ptr<uint8_t>(0),
+        ods_polar_occupancy_buffer_grid.Size());
       return ods_polar_occupancy_grid_v1;
     }
   };

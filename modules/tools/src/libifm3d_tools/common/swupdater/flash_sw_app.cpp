@@ -4,16 +4,17 @@
  */
 
 #include <CLI/App.hpp>
-#include <ifm3d/tools/common/swupdater/flash_sw_app.h>
-#include <iostream>
-#include <fstream>
-#include <chrono>
-#include <string>
 #include <array>
+#include <chrono>
+#include <fstream>
+#include <ifm3d/tools/common/swupdater/flash_sw_app.h>
+#include <ifm3d/tools/common/swupdater/swupdate_app.h>
+#include <iostream>
+#include <string>
 
 #ifdef _WIN32
-#  include <io.h>
 #  include <fcntl.h>
+#  include <io.h>
 #endif
 
 const std::string ASCII_FORMAT_MAGIC_NUMBER = "070701";

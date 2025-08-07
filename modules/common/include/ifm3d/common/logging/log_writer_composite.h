@@ -9,6 +9,7 @@
 
 #include <ifm3d/common/logging/log_writer.h>
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace ifm3d
@@ -17,20 +18,20 @@ namespace ifm3d
   {
   public:
     LogWriterComposite(std::vector<std::shared_ptr<LogWriter>> writers)
-      : writers_(writers)
+      : _writers(std::move(writers))
     {}
 
     void
     Write(const LogEntry& entry) override
     {
-      for (const auto& it : this->writers_)
+      for (const auto& it : this->_writers)
         {
           it->Write(entry);
         }
     }
 
   protected:
-    std::vector<std::shared_ptr<LogWriter>> writers_;
+    std::vector<std::shared_ptr<LogWriter>> _writers;
   };
 }
 #endif // IFM3D_COMMON_LOGGING_LOG_WRITER_COMPOSITE_H

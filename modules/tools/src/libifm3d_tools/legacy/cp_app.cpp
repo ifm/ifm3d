@@ -5,7 +5,7 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/device/legacy_device.h"
+#include <ifm3d/device/legacy_device.h>
 #include <ifm3d/tools/legacy/cp_app.h>
 #include <memory>
 #include <string>

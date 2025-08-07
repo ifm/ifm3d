@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <ifm3d/common/err.h>
 #include <cstring>
-#include <fmt/core.h>
+#include <fmt/core.h> // NOLINT(*)
+#include <ifm3d/common/err.h>
 #include <string>
 
 // library errors
@@ -235,27 +235,27 @@ ifm3d::strerror(int errnum)
 }
 
 ifm3d::Error::Error(int errnum, const std::string& msg)
-  : errnum_(errnum),
-    errmsg_(msg),
-    what_(format_error(errnum, msg))
+  : _errnum(errnum),
+    _errmsg(msg),
+    _what(format_error(errnum, msg))
 {}
 
 int
 ifm3d::Error::code() const noexcept
 {
-  return this->errnum_;
+  return this->_errnum;
 }
 
 const char*
 ifm3d::Error::what() const noexcept
 {
-  return this->what_.c_str();
+  return this->_what.c_str();
 }
 
 const char*
 ifm3d::Error::message() const noexcept
 {
-  return this->errmsg_.c_str();
+  return this->_errmsg.c_str();
 }
 
 std::string

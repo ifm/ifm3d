@@ -6,18 +6,17 @@
 #ifndef IFM3D_PY_UTIL_HPP
 #define IFM3D_PY_UTIL_HPP
 
-#include <stdexcept>
-#include <stdint.h>
 #include <ifm3d/fg/buffer.h>
+#include <stdexcept>
 
-#include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
 
 using namespace pybind11::literals;
 
 namespace py = pybind11;
 
-void
+inline void
 bind_numpy(pybind11::module_& m)
 {
   py::options options;
@@ -25,8 +24,8 @@ bind_numpy(pybind11::module_& m)
   py::object view_class =
     py::module::import("numpy").attr("ndarray").attr("view");
   py::object parent_class = py::module::import("numpy").attr("ndarray");
-  py::object parent_metaclass =
-    py::reinterpret_borrow<py::object>((PyObject*)&PyType_Type)(parent_class);
+  py::object parent_metaclass = py::reinterpret_borrow<py::object>(
+    reinterpret_cast<PyObject*>(&PyType_Type))(parent_class);
   py::dict attributes;
 
   py::object wrapper_class = parent_metaclass("ifm3d_ndarray",
@@ -38,8 +37,8 @@ bind_numpy(pybind11::module_& m)
                                const py::array& data,
                                const std::optional<py::dict>& metadata,
                                const std::optional<py::object>& buffer_id,
-                               py::args args,
-                               py::kwargs kwargs
+                               const py::args& /*args*/,
+                               const py::kwargs& /*kwargs*/
 
     ) {
       auto obj = view_class(data, self);
@@ -57,13 +56,19 @@ bind_numpy(pybind11::module_& m)
       )"));
 
   attributes["__array_finalize__"] = py::cpp_function(
-    [](py::object self, py::object obj) {
+    [](const py::object& self, const py::object& obj) {
       if (obj == Py_None)
-        return;
+        {
+          return;
+        }
       if (py::hasattr(obj, "metadata"))
-        self.attr("metadata") = obj.attr("metadata");
+        {
+          self.attr("metadata") = obj.attr("metadata");
+        }
       if (py::hasattr(obj, "buffer_id"))
-        self.attr("buffer_id") = obj.attr("buffer_id");
+        {
+          self.attr("buffer_id") = obj.attr("buffer_id");
+        }
     },
     py::is_method(wrapper_class));
   m.attr("buffer") = wrapper_class;
@@ -83,9 +88,9 @@ namespace ifm3d
       delete reinterpret_cast<ifm3d::Buffer_<T>*>(m);
     });
 
-    return py::array_t<T>({mat->height(), mat->width()},
-                          {sizeof(T) * mat->width(), sizeof(T)},
-                          reinterpret_cast<T*>(mat->ptr(0)),
+    return py::array_t<T>({mat->Height(), mat->Width()},
+                          {sizeof(T) * mat->Width(), sizeof(T)},
+                          reinterpret_cast<T*>(mat->Ptr(0)),
                           capsule);
   }
 
@@ -101,58 +106,56 @@ namespace ifm3d
       delete reinterpret_cast<ifm3d::Buffer_<ifm3d::Point3D<T>>*>(m);
     });
 
-    return py::array_t<T>({mat->height(), mat->width(), mat->nchannels()},
-                          {sizeof(T) * mat->nchannels() * mat->width(),
-                           sizeof(T) * mat->nchannels(),
+    return py::array_t<T>({mat->Height(), mat->Width(), mat->Nchannels()},
+                          {sizeof(T) * mat->Nchannels() * mat->Width(),
+                           sizeof(T) * mat->Nchannels(),
                            sizeof(T)},
-                          reinterpret_cast<T*>(mat->ptr(0)),
+                          reinterpret_cast<T*>(mat->Ptr(0)),
                           capsule);
   }
 
   template <typename T>
   py::array_t<T>
-  image_to_array_(const ifm3d::Buffer& img)
+  image_to_array(const ifm3d::Buffer& img)
   {
-    if (img.nchannels() > 1)
+    if (img.NumChannels() > 1)
       {
         return image_to_array_nd<T>(img);
       }
-    else
-      {
-        return image_to_array_2d<T>(img);
-      }
+
+    return image_to_array_2d<T>(img);
   }
 
-  py::array
+  inline py::array
   image_to_array(const ifm3d::Buffer& img)
   {
-    switch (img.dataFormat())
+    switch (img.DataFormat())
       {
       case ifm3d::pixel_format::FORMAT_8U:
-        return image_to_array_<std::uint8_t>(img);
+        return image_to_array<std::uint8_t>(img);
         break;
       case ifm3d::pixel_format::FORMAT_8S:
-        return image_to_array_<std::int8_t>(img);
+        return image_to_array<std::int8_t>(img);
         break;
       case ifm3d::pixel_format::FORMAT_16U:
       case ifm3d::pixel_format::FORMAT_16U2:
-        return image_to_array_<std::uint16_t>(img);
+        return image_to_array<std::uint16_t>(img);
         break;
       case ifm3d::pixel_format::FORMAT_16S:
-        return image_to_array_<std::int16_t>(img);
+        return image_to_array<std::int16_t>(img);
         break;
       case ifm3d::pixel_format::FORMAT_32U:
-        return image_to_array_<std::uint32_t>(img);
+        return image_to_array<std::uint32_t>(img);
         break;
       case ifm3d::pixel_format::FORMAT_32S:
-        return image_to_array_<std::int32_t>(img);
+        return image_to_array<std::int32_t>(img);
         break;
       case ifm3d::pixel_format::FORMAT_32F:
       case ifm3d::pixel_format::FORMAT_32F3:
-        return image_to_array_<float>(img);
+        return image_to_array<float>(img);
         break;
       case ifm3d::pixel_format::FORMAT_64F:
-        return image_to_array_<double>(img);
+        return image_to_array<double>(img);
         break;
       default:
         throw std::runtime_error("Unsupported ifm3d::image type");

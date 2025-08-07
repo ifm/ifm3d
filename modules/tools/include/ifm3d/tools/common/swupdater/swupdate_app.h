@@ -7,9 +7,9 @@
 #define IFM3D_TOOLS_SWUPDATER_SWUPDATE_APP_H
 #pragma once
 
+#include <ifm3d/swupdater.h>
 #include <ifm3d/tools/command.hpp>
 #include <ifm3d/tools/main_command.hpp>
-#include <ifm3d/swupdater.h>
 
 namespace ifm3d
 {
@@ -22,12 +22,15 @@ namespace ifm3d
   class SWUpdateApp : public Command
   {
   public:
-    SWUpdateApp(std::optional<ifm3d::Device::swu_version> force_swu_version =
-                  std::nullopt);
-    ~SWUpdateApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
-    virtual bool CheckCompatibility() override;
+    SWUpdateApp(std::optional<ifm3d::Device::swu_version> force_swu_version);
+    SWUpdateApp(const SWUpdateApp&) = default;
+    SWUpdateApp(SWUpdateApp&&) = delete;
+    SWUpdateApp& operator=(const SWUpdateApp&) = default;
+    SWUpdateApp& operator=(SWUpdateApp&&) = delete;
+    ~SWUpdateApp() override = default;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
+    bool CheckCompatibility() override;
 
     std::shared_ptr<ifm3d::SWUpdater> CreateSWUpdater(
       bool quiet = false,
@@ -38,7 +41,7 @@ namespace ifm3d
     CLI::App* subcmd_restart{};
 
   private:
-    std::optional<ifm3d::Device::swu_version> force_swu_version;
+    std::optional<ifm3d::Device::swu_version> _force_swu_version;
 
   }; // end: class SWUpdateApp
 

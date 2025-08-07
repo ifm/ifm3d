@@ -3,101 +3,85 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <cstdint>
-#include "ifm3d/common/err.h"
-#include "ifm3d/device/device.h"
-#include "ifm3d/common/logging/log.h"
-#include "ifm3d/common/json_impl.hpp"
 #include <chrono>
-#include <functional>
-#include <memory>
+#include <cstdint>
 #include <ctime>
-#include <sstream>
+#include <functional>
+#include <ifm3d/common/err.h>
+#include <ifm3d/common/json_impl.hpp>
+#include <ifm3d/common/logging/log.h>
+#include <ifm3d/device/device.h>
 #include <ifm3d/device/legacy_device.h>
 #include <ifm3d/device/util.h>
 #include <ifm3d/device/version.h>
 #include <legacy_device_impl.hpp>
-#include <unordered_map>
-#include <string>
-#include <vector>
-#include <tuple>
+#include <memory>
+#include <sstream>
 #include <stdexcept>
+#include <string>
+#include <tuple>
+#include <unordered_map>
+#include <vector>
 //================================================
 // A lookup table listing the read-only camera
 // parameters
 //================================================
-// clang-format off
-static std::unordered_map<std::string,
-                   std::unordered_map<std::string, bool>>
-RO_LUT=
-  {
-    {"Device",
-     {
-       {"IPAddressConfig", true},
-       {"PasswordActivated", true},
-       {"OperatingMode", true},
-       {"DeviceType", true},
-       {"ArticleNumber", true},
-       {"ArticleStatus", true},
-       {"UpTime", true},
-       {"ImageTimestampReference", true},
-       {"TemperatureFront1", true},
-       {"TemperatureFront2", true},
-       {"TemperatureIMX6", true},
-       {"TemperatureIllu", true},
-     }
-    },
+namespace
+{
+  const std::unordered_map<std::string, std::unordered_map<std::string, bool>>
+    RO_LUT = {{"Device",
+               {
+                 {"IPAddressConfig", true},
+                 {"PasswordActivated", true},
+                 {"OperatingMode", true},
+                 {"DeviceType", true},
+                 {"ArticleNumber", true},
+                 {"ArticleStatus", true},
+                 {"UpTime", true},
+                 {"ImageTimestampReference", true},
+                 {"TemperatureFront1", true},
+                 {"TemperatureFront2", true},
+                 {"TemperatureIMX6", true},
+                 {"TemperatureIllu", true},
+               }},
 
-    {"App",
-     {
-       {"Id", true},
-     }
-    },
+              {"App",
+               {
+                 {"Id", true},
+               }},
 
-    {"Net",
-     {
-       {"MACAddress", true},
-     }
-    },
+              {"Net",
+               {
+                 {"MACAddress", true},
+               }},
 
-    {"Time",
-     {
-       {"StartingSynchronization", true},
-       {"Syncing", true},
-       {"CurrentTime", true},
-       {"Stats", true},
-     }
-    },
+              {"Time",
+               {
+                 {"StartingSynchronization", true},
+                 {"Syncing", true},
+                 {"CurrentTime", true},
+                 {"Stats", true},
+               }},
 
-    {"Imager",
-     {
-       // Do not uncomment this! We treat the "Type"
-       // key special to make it easy to change imager types --
-       // i.e., while technically it is a RO param on the camera
-       // we use it as a trigger to call ChangeType(...)
-       // {"Type", true},
-       {"ClippingLeft", true},
-       {"ClippingTop", true},
-       {"ClippingRight", true},
-       {"ClippingBottom", true},
-       {"ExposureTimeList", true},
-       {"MaxAllowedLEDFrameRate", true},
-     }
-    },
+              {"Imager",
+               {
+                 // Do not uncomment this! We treat the "Type"
+                 // key special to make it easy to change imager types --
+                 // i.e., while technically it is a RO param on the camera
+                 // we use it as a trigger to call ChangeType(...)
+                 // {"Type", true},
+                 {"ClippingLeft", true},
+                 {"ClippingTop", true},
+                 {"ClippingRight", true},
+                 {"ClippingBottom", true},
+                 {"ExposureTimeList", true},
+                 {"MaxAllowedLEDFrameRate", true},
+               }},
 
-    {"SpatialFilter",
-     {
-       {}
-     }
-    },
+              {"SpatialFilter", {{}}},
 
-    {"TemporalFilter",
-     {
-      {}
-     }
-    }
-  };
-// clang-format on
+              {"TemporalFilter", {{}}}};
+}
 
 //================================================
 // Factory function for making cameras
@@ -123,7 +107,7 @@ ifm3d::LegacyDevice::LegacyDevice(const std::string& ip,
                                   const std::uint16_t xmlrpc_port,
                                   const std::string& password)
   : ifm3d::Device::Device(ip, xmlrpc_port),
-    pImpl(std::make_unique<LegacyDevice::Impl>(XWrapper(), password))
+    _impl(std::make_unique<LegacyDevice::Impl>(XWrapper(), password))
 {}
 
 ifm3d::LegacyDevice::~LegacyDevice() = default;
@@ -131,50 +115,50 @@ ifm3d::LegacyDevice::~LegacyDevice() = default;
 std::string
 ifm3d::LegacyDevice::Password()
 {
-  return this->pImpl->Password();
+  return this->_impl->Password();
 }
 
 std::string
 ifm3d::LegacyDevice::SessionID()
 {
-  return this->pImpl->SessionID();
+  return this->_impl->SessionID();
 }
 
 std::string
 ifm3d::LegacyDevice::RequestSession()
 {
-  return this->pImpl->RequestSession();
+  return this->_impl->RequestSession();
 }
 
 bool
 ifm3d::LegacyDevice::CancelSession()
 {
-  return this->pImpl->CancelSession();
+  return this->_impl->CancelSession();
 }
 
 bool
 ifm3d::LegacyDevice::CancelSession(const std::string& sid)
 {
-  return this->pImpl->CancelSession(sid);
+  return this->_impl->CancelSession(sid);
 }
 
 int
 ifm3d::LegacyDevice::Heartbeat(int hb)
 {
-  return this->pImpl->Heartbeat(hb);
+  return this->_impl->Heartbeat(hb);
 }
 
 std::unordered_map<std::string, std::string>
 ifm3d::LegacyDevice::NetInfo()
 {
-  return this->pImpl->NetInfo();
+  return this->_impl->NetInfo();
 }
 
 std::unordered_map<std::string, std::string>
 ifm3d::LegacyDevice::TimeInfo()
 {
   // http://192.168.0.69:80/api/rpc/v1/com.ifm.efector/session_$XXX/edit/device/time/
-  return json(this->pImpl->TimeInfo());
+  return json(this->_impl->TimeInfo());
 }
 
 void
@@ -194,7 +178,7 @@ ifm3d::LegacyDevice::SetTemporaryApplicationParameters(
       return;
     }
 
-  this->pImpl->SetTemporaryApplicationParameters(params);
+  this->_impl->SetTemporaryApplicationParameters(params);
 }
 
 std::vector<std::uint8_t>
@@ -202,7 +186,7 @@ ifm3d::LegacyDevice::UnitVectors()
 {
   if (this->AmI(device_family::O3X))
     {
-      return this->pImpl->UnitVectors();
+      return this->_impl->UnitVectors();
     }
 
   LOG_ERROR("The device does not support the XMLRPC UnitVectors accessor");
@@ -226,7 +210,7 @@ ifm3d::LegacyDevice::ApplicationList()
   json retval; // list
 
   int const active = this->ActiveApplication();
-  std::vector<ifm3d::app_entry_t> apps = this->pImpl->ApplicationList();
+  std::vector<ifm3d::AppEntry> apps = this->_impl->ApplicationList();
   if (apps.empty())
     {
       return ifm3d::json::array();
@@ -248,22 +232,22 @@ ifm3d::LegacyDevice::ApplicationList()
 std::vector<std::string>
 ifm3d::LegacyDevice::ApplicationTypes()
 {
-  return this->pImpl->WrapInEditSession<std::vector<std::string>>(
+  return this->_impl->WrapInEditSession<std::vector<std::string>>(
     [this]() -> std::vector<std::string> {
-      return this->pImpl->ApplicationTypes();
+      return this->_impl->ApplicationTypes();
     });
 }
 
 std::vector<std::string>
 ifm3d::LegacyDevice::ImagerTypes()
 {
-  return this->pImpl->WrapInEditSession<std::vector<std::string>>(
+  return this->_impl->WrapInEditSession<std::vector<std::string>>(
     [this]() -> std::vector<std::string> {
       if (!this->AmI(device_family::O3X))
         {
-          this->pImpl->EditApplication(this->ActiveApplication());
+          this->_impl->EditApplication(this->ActiveApplication());
         }
-      return this->pImpl->ImagerTypes();
+      return this->_impl->ImagerTypes();
     });
 }
 
@@ -276,8 +260,8 @@ ifm3d::LegacyDevice::CreateApplication(const std::string& type)
       throw ifm3d::Error(IFM3D_UNSUPPORTED_OP);
     }
 
-  return this->pImpl->WrapInEditSession<int>(
-    [this, &type]() -> int { return this->pImpl->CreateApplication(type); });
+  return this->_impl->WrapInEditSession<int>(
+    [this, &type]() -> int { return this->_impl->CreateApplication(type); });
 }
 
 int
@@ -289,8 +273,8 @@ ifm3d::LegacyDevice::CopyApplication(int idx)
       throw ifm3d::Error(IFM3D_UNSUPPORTED_OP);
     }
 
-  return this->pImpl->WrapInEditSession<int>(
-    [this, idx]() -> int { return this->pImpl->CopyApplication(idx); });
+  return this->_impl->WrapInEditSession<int>(
+    [this, idx]() -> int { return this->_impl->CopyApplication(idx); });
 }
 
 void
@@ -302,38 +286,38 @@ ifm3d::LegacyDevice::DeleteApplication(int idx)
       throw ifm3d::Error(IFM3D_UNSUPPORTED_OP);
     }
 
-  this->pImpl->WrapInEditSession(
-    [this, idx]() { this->pImpl->DeleteApplication(idx); });
+  this->_impl->WrapInEditSession(
+    [this, idx]() { this->_impl->DeleteApplication(idx); });
 }
 
 void
 ifm3d::LegacyDevice::FactoryReset()
 {
-  this->pImpl->WrapInEditSession([this]() { this->pImpl->FactoryReset(); });
+  this->_impl->WrapInEditSession([this]() { this->_impl->FactoryReset(); });
 }
 
 void
 ifm3d::LegacyDevice::SetCurrentTime(int epoch_secs)
 {
-  this->pImpl->WrapInEditSession(
-    [this, epoch_secs]() { this->pImpl->SetCurrentTime(epoch_secs); });
+  this->_impl->WrapInEditSession(
+    [this, epoch_secs]() { this->_impl->SetCurrentTime(epoch_secs); });
 }
 
 std::vector<std::uint8_t>
 ifm3d::LegacyDevice::ExportIFMConfig()
 {
-  return this->pImpl->WrapInEditSession<std::vector<std::uint8_t>>(
+  return this->_impl->WrapInEditSession<std::vector<std::uint8_t>>(
     [this]() -> std::vector<std::uint8_t> {
-      return this->pImpl->ExportIFMConfig();
+      return this->_impl->ExportIFMConfig();
     });
 }
 
 std::vector<std::uint8_t>
 ifm3d::LegacyDevice::ExportIFMApp(int idx)
 {
-  return this->pImpl->WrapInEditSession<std::vector<std::uint8_t>>(
+  return this->_impl->WrapInEditSession<std::vector<std::uint8_t>>(
     [this, idx]() -> std::vector<std::uint8_t> {
-      return this->pImpl->ExportIFMApp(idx);
+      return this->_impl->ExportIFMApp(idx);
     });
 }
 
@@ -341,15 +325,15 @@ void
 ifm3d::LegacyDevice::ImportIFMConfig(const std::vector<std::uint8_t>& bytes,
                                      std::uint16_t flags)
 {
-  this->pImpl->WrapInEditSession(
-    [this, &bytes, flags]() { this->pImpl->ImportIFMConfig(bytes, flags); });
+  this->_impl->WrapInEditSession(
+    [this, &bytes, flags]() { this->_impl->ImportIFMConfig(bytes, flags); });
 }
 
 int
 ifm3d::LegacyDevice::ImportIFMApp(const std::vector<std::uint8_t>& bytes)
 {
-  return this->pImpl->WrapInEditSession<int>(
-    [this, &bytes]() -> int { return this->pImpl->ImportIFMApp(bytes); });
+  return this->_impl->WrapInEditSession<int>(
+    [this, &bytes]() -> int { return this->_impl->ImportIFMApp(bytes); });
 }
 
 ifm3d::json
@@ -363,14 +347,14 @@ ifm3d::LegacyDevice::getApplicationInfosToJSON()
       auto idx = app["Index"].get<int>();
       if (!this->AmI(device_family::O3X))
         {
-          this->pImpl->EditApplication(idx);
+          this->_impl->EditApplication(idx);
         }
 
-      auto app_json = json(this->pImpl->AppInfo());
+      auto app_json = json(this->_impl->AppInfo());
       app_json["Index"] = std::to_string(idx);
       app_json["Id"] = std::to_string(app["Id"].get<int>());
 
-      auto imager_json = json(this->pImpl->ImagerInfo());
+      auto imager_json = json(this->_impl->ImagerInfo());
 
       /* Initialize the imager_json filters with default values for
          compatibility with o3x which does not support dedicated xmlrpc
@@ -385,10 +369,10 @@ ifm3d::LegacyDevice::getApplicationInfosToJSON()
 
       if (this->AmI(device_family::O3D))
         {
-          auto sfilt_json = json(this->pImpl->SpatialFilterInfo());
+          auto sfilt_json = json(this->_impl->SpatialFilterInfo());
           imager_json["SpatialFilter"] = sfilt_json;
 
-          auto tfilt_json = json(this->pImpl->TemporalFilterInfo());
+          auto tfilt_json = json(this->_impl->TemporalFilterInfo());
           imager_json["TemporalFilter"] = tfilt_json;
         }
 
@@ -398,7 +382,7 @@ ifm3d::LegacyDevice::getApplicationInfosToJSON()
 
       if (!this->AmI(device_family::O3X))
         {
-          this->pImpl->StopEditingApplication();
+          this->_impl->StopEditingApplication();
         }
     }
   return app_info;
@@ -426,7 +410,7 @@ ifm3d::LegacyDevice::ToJSON_(const bool open_session)
   if (open_session)
     {
       std::tie(app_info, net_info, time_info) =
-        this->pImpl->WrapInEditSession<std::tuple<json, json, json>>(
+        this->_impl->WrapInEditSession<std::tuple<json, json, json>>(
           exec_to_json);
     }
   else
@@ -444,11 +428,11 @@ ifm3d::LegacyDevice::ToJSON_(const bool open_session)
           {
             {std::string(IFM3D_LIBRARY_NAME) + "_version", IFM3D_VERSION},
             {"Date", time_s},
-            {"HWInfo", json(pImpl->HWInfo())},
-            {"SWVersion", json(pImpl->SWVersion())}
+            {"HWInfo", json(_impl->HWInfo())},
+            {"SWVersion", json(_impl->SWVersion())}
           }
          },
-         {"Device", json(pImpl->DeviceInfo())},
+         {"Device", json(_impl->DeviceInfo())},
          {"Net", net_info},
          {"Time", time_info},
          {"Apps", app_info}
@@ -489,7 +473,7 @@ ifm3d::LegacyDevice::FromJSON_(
       if (!this->AmI(device_family::O3X))
         {
           LOG_VERBOSE("Editing app at idx={}", idx);
-          this->pImpl->EditApplication(idx);
+          this->_impl->EditApplication(idx);
         }
     }
 
@@ -563,7 +547,7 @@ ifm3d::LegacyDevice::FromJSON_(
       if (!this->AmI(device_family::O3X))
         {
           LOG_VERBOSE("Stop editing app at idx={}", idx);
-          this->pImpl->StopEditingApplication();
+          this->_impl->StopEditingApplication();
         }
     }
 }
@@ -611,7 +595,7 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
   json root = j.count("ifm3d") ? j["ifm3d"] : j;
 
   // Ensure we cancel the session when leaving this method
-  this->pImpl->WrapInEditSession([this, &root, &j, &current]() {
+  this->_impl->WrapInEditSession([this, &root, &j, &current]() {
     // Device
     json const j_dev = root["Device"];
     if (!j_dev.is_null())
@@ -620,9 +604,9 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
           current["ifm3d"]["Device"],
           j_dev,
           [this](const std::string& k, const std::string& v) {
-            this->pImpl->SetDeviceParameter(k, v);
+            this->_impl->SetDeviceParameter(k, v);
           },
-          [this]() { this->pImpl->SaveDevice(); },
+          [this]() { this->_impl->SaveDevice(); },
           "Device");
       }
 
@@ -658,9 +642,9 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
                   {
                     LOG_VERBOSE("Creating new application");
                     idx = j_app["Type"].is_null() ?
-                            this->pImpl->CreateApplication(
+                            this->_impl->CreateApplication(
                               DEFAULT_APPLICATION_TYPE) :
-                            this->pImpl->CreateApplication(
+                            this->_impl->CreateApplication(
                               j_app["Type"].get<std::string>());
 
                     LOG_VERBOSE("Created new app, updating our dump");
@@ -707,9 +691,9 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
               curr_app,
               j_app,
               [this](const std::string& k, const std::string& v) {
-                this->pImpl->SetAppParameter(k, v);
+                this->_impl->SetAppParameter(k, v);
               },
-              [this]() { this->pImpl->SaveApp(); },
+              [this]() { this->_impl->SaveApp(); },
               "App",
               idx);
 
@@ -740,14 +724,14 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
               [this](const std::string& k, const std::string& v) {
                 if (k == "Type")
                   {
-                    this->pImpl->ChangeImagerType(v);
+                    this->_impl->ChangeImagerType(v);
                   }
                 else
                   {
-                    this->pImpl->SetImagerParameter(k, v);
+                    this->_impl->SetImagerParameter(k, v);
                   }
               },
-              [this, j_im]() { this->pImpl->SaveApp(); },
+              [this, j_im]() { this->_impl->SaveApp(); },
               "Imager",
               idx);
 
@@ -766,9 +750,9 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
                       curr_app["Imager"]["SpatialFilter"],
                       s_filt,
                       [this](const std::string& k, const std::string& v) {
-                        this->pImpl->SetSpatialFilterParameter(k, v);
+                        this->_impl->SetSpatialFilterParameter(k, v);
                       },
-                      [this]() { this->pImpl->SaveApp(); },
+                      [this]() { this->_impl->SaveApp(); },
                       "SpatialFilter",
                       idx);
                   }
@@ -779,9 +763,9 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
                       curr_app["Imager"]["TemporalFilter"],
                       t_filt,
                       [this](const std::string& k, const std::string& v) {
-                        this->pImpl->SetTemporalFilterParameter(k, v);
+                        this->_impl->SetTemporalFilterParameter(k, v);
                       },
-                      [this]() { this->pImpl->SaveApp(); },
+                      [this]() { this->_impl->SaveApp(); },
                       "TemporalFilter",
                       idx);
                   }
@@ -803,9 +787,9 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
               current["ifm3d"]["Time"],
               j_time,
               [this](const std::string& k, const std::string& v) {
-                this->pImpl->SetTimeParameter(k, v);
+                this->_impl->SetTimeParameter(k, v);
               },
-              [this]() { this->pImpl->SaveTime(); },
+              [this]() { this->_impl->SaveTime(); },
               "Time");
           }
       }
@@ -818,13 +802,13 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
           current["ifm3d"]["Net"],
           j_net,
           [this](const std::string& k, const std::string& v) {
-            this->pImpl->SetNetParameter(k, v);
+            this->_impl->SetNetParameter(k, v);
           },
           [this]() { // we are changing network parameters,
                      // we expect a timeout!
             try
               {
-                this->pImpl->SaveNet();
+                this->_impl->SaveNet();
               }
             catch (const ifm3d::Error& ex)
               {
@@ -847,10 +831,10 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
 void
 ifm3d::LegacyDevice::SetPassword(const std::string& password)
 {
-  this->pImpl->WrapInEditSession([this, password]() {
-    password.empty() ? this->pImpl->DisablePassword() :
-                       this->pImpl->ActivatePassword(password);
-    this->pImpl->SaveDevice();
+  this->_impl->WrapInEditSession([this, password]() {
+    password.empty() ? this->_impl->DisablePassword() :
+                       this->_impl->ActivatePassword(password);
+    this->_impl->SaveDevice();
   });
 }
 void
@@ -858,7 +842,7 @@ ifm3d::LegacyDevice::ForceTrigger()
 {
   if (this->AmI(device_family::O3X))
     {
-      this->pImpl->ForceTrigger();
+      this->_impl->ForceTrigger();
       return;
     }
 }

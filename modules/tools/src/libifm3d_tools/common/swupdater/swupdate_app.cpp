@@ -3,26 +3,27 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "ifm3d/device/device.h"
 #include <CLI/App.hpp>
 #include <cstdint>
-#include <ifm3d/tools/common/swupdater/swupdate_app.h>
 #include <ifm3d/common/features.h>
+#include <ifm3d/device/device.h>
+#include <ifm3d/tools/common/swupdater/flash_sw_app.h>
+#include <ifm3d/tools/common/swupdater/restart_app.h>
+#include <ifm3d/tools/common/swupdater/swupdate_app.h>
 #include <iostream>
 #include <memory>
 #include <optional>
 #include <string>
 
 #ifdef _WIN32
-#  include <io.h>
 #  include <fcntl.h>
+#  include <io.h>
 #endif
 
 ifm3d::SWUpdateApp::SWUpdateApp(
   std::optional<ifm3d::Device::swu_version> force_swu_version)
-  : force_swu_version(force_swu_version)
+  : _force_swu_version(force_swu_version)
 {}
-ifm3d::SWUpdateApp::~SWUpdateApp() = default;
 
 void
 ifm3d::SWUpdateApp::Execute(CLI::App* /*app*/)
@@ -94,7 +95,7 @@ ifm3d::SWUpdateApp::CreateSWUpdater(bool quiet,
                   }
               }),
     swupdate_recovery_port,
-    this->force_swu_version);
+    this->_force_swu_version);
 }
 
 CLI::App*

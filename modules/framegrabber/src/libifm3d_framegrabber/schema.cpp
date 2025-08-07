@@ -4,20 +4,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "ifm3d/device/semver.h"
-#include "ifm3d/fg/buffer_id.h"
-#include "ifm3d/common/json_impl.hpp"
-#include "ifm3d/device/device.h"
-#include <ifm3d/fg/schema.h>
 #include <cstdlib>
+#include <ifm3d/common/json_impl.hpp>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/semver.h>
+#include <ifm3d/fg/buffer_id.h>
+#include <ifm3d/fg/schema.h>
 #include <map>
-#include <string>
 #include <set>
+#include <string>
 
 const ifm3d::SemVer O3R_SCHEMA_FIRMWARE_COMPATIBILITY_CHECK_VERSION =
   ifm3d::SemVer(1, 0, 1);
 
-const std::map<ifm3d::buffer_id, const ifm3d::json> o3d_schema_map{
+const std::map<ifm3d::buffer_id, const ifm3d::json> O3D_SCHEMA_MAP{
   {ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
    {{"type", "blob"}, {"id", "distance_image"}}},
   {ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE,
@@ -68,7 +68,7 @@ const std::map<ifm3d::buffer_id, const ifm3d::json> o3d_schema_map{
 };
 
 // TODO : update this for O3R specific Data.
-const std::map<ifm3d::buffer_id, const ifm3d::json> o3r_schema_map{
+const std::map<ifm3d::buffer_id, const ifm3d::json> O3R_SCHEMA_MAP{
   {ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE,
    {{"type", "blob"}, {"id", "RADIAL_DISTANCE_COMPRESSED"}}},
   {ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE,
@@ -215,11 +215,11 @@ ifm3d::make_schema(const std::set<ifm3d::buffer_id>& buffer_ids,
 
   if (device_type == ifm3d::Device::device_family::O3D)
     {
-      schema_generator(o3d_schema_map);
+      schema_generator(O3D_SCHEMA_MAP);
     }
   else if (device_type == ifm3d::Device::device_family::O3R)
     {
-      schema_generator(o3r_schema_map);
+      schema_generator(O3R_SCHEMA_MAP);
       // TODO how to enable exposure time for O3R ?
     }
 

@@ -14,6 +14,7 @@ namespace ifm3d
    *
    * buffer_ids available for use with the default Organizer.
    */
+  // NOLINTNEXTLINE(readability-identifier-naming,readability-enum-initial-value)
   enum class buffer_id : uint64_t
   {
     // clang-format off
@@ -73,7 +74,7 @@ namespace ifm3d
     */
     UNIT_VECTOR_ALL = static_cast<uint64_t>(ifm3d::image_chunk::UNIT_VECTOR_ALL), 
     
-    /** @hideinitializer 
+    /** @hideinitializer  
      * @brief \c
     */
     MONOCHROM_2D_12BIT = static_cast<uint64_t>(ifm3d::image_chunk::MONOCHROM_2D_12BIT), 

@@ -5,16 +5,16 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/common/json_impl.hpp"
-#include "ifm3d/device/device.h"
-#include "ifm3d/device/legacy_device.h"
-#include <ifm3d/tools/legacy/time_app.h>
 #include <ctime>
+#include <ifm3d/common/json_impl.hpp>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/legacy_device.h>
+#include <ifm3d/tools/legacy/time_app.h>
 #include <iomanip>
 #include <iostream>
 #include <memory>
-#include <string>
 #include <sstream>
+#include <string>
 
 ifm3d::TimeApp::~TimeApp() = default;
 

@@ -28,14 +28,18 @@ SUPPORTED_TOOL_VERSIONS = {
     "cppcheck": 2,
 }
 
+ENABLED_MODULES_LINT = [
+    "BUILD_MODULE_PCICCLIENT",
+    "BUILD_TESTS",
+]
+
 
 # Extension and folders to be excludes from formatting
 APPLY_EXTENSIONS = (".cxx", ".cpp", ".c", ".hxx", ".hh", ".cc", ".hpp", ".h")
-EXCLUDES = list([re.compile(p) for p in [
-    r".*/_deps/.*"
-]])
+EXCLUDES = list([re.compile(p) for p in [r".*/_deps/.*"]])
 
 VALID_ROOTS = [os.path.abspath(os.getcwd())]
+
 
 def run_clang_format(file: str, args: dict[str, Any]) -> bool:
     cmd = [args["clang_format"], "-i", "-style=file"]
@@ -49,31 +53,6 @@ def run_clang_format(file: str, args: dict[str, Any]) -> bool:
     return subprocess.call(cmd) == 0
 
 
-def run_clang_tidy(file: str, args: dict[str, Any]) -> bool:
-    cmd = [args["clang_tidy"]]
-
-    if "config_file" in args:
-        cmd.append(f"--config-file={args['config_file']}")
-
-    if "build_dir" in args:
-        cmd.append(f"-p={args['build_dir']}")
-        cmd.append(f"--exclude-header-filter=^{args['build_dir']}/_deps/.*")
-
-    if "fix" in args and args["fix"]:
-        cmd.append("--fix")
-        cmd.append("--fix-errors")
-
-    cmd.append("--quiet")
-    cmd.append("--use-color")
-    cmd.append(file)
-
-    p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-    if p.returncode != 0:
-        print(p.stdout.decode("utf-8"))
-
-    return p.returncode == 0
-
 def run_cppcheck(args: dict[str, Any]) -> bool:
     cmd = ["cppcheck"]
 
@@ -86,14 +65,16 @@ def run_cppcheck(args: dict[str, Any]) -> bool:
 
     cmd.append(f"--suppress=*:/usr/*")
 
-    cmd.extend([
-        "--std=c++17",
-        "--xml",
-        "--error-exitcode=1",
-        "-j", 
-        str(MAX_PARALLEL_PROCESSES),
-        f"-D{"_WIN32" if sys.platform == "nt" else "__unix__"}",
-    ])
+    cmd.extend(
+        [
+            "--std=c++17",
+            "--xml",
+            "--error-exitcode=1",
+            "-j",
+            str(MAX_PARALLEL_PROCESSES),
+            f"-D{"_WIN32" if sys.platform == "nt" else "__unix__"}",
+        ]
+    )
 
     return subprocess.call(cmd) == 0
 
@@ -109,8 +90,9 @@ def include_file(file: str) -> bool:
     # Check for excludes
     if any([exclude.match(file) for exclude in EXCLUDES]):
         return False
-    
+
     return True
+
 
 def glob_files(path: str) -> list[str]:
     filelist = set()
@@ -139,7 +121,10 @@ def get_compile_db_files(compile_db: str) -> list[str]:
 
     return list(filelist)
 
-def filter_files(files: list[str], files_to_check: list[str]) -> Generator[str, None, None]:
+
+def filter_files(
+    files: list[str], files_to_check: list[str]
+) -> Generator[str, None, None]:
     if not files_to_check:
         for f in files:
             yield f
@@ -148,7 +133,8 @@ def filter_files(files: list[str], files_to_check: list[str]) -> Generator[str, 
         for f2 in files:
             if os.path.abspath(f1) == os.path.abspath(f2):
                 yield f2
-                break 
+                break
+
 
 def process_files(files: list[str], func: str, args: dict[str, Any]) -> bool:
     with multiprocessing.Pool(MAX_PARALLEL_PROCESSES) as p:
@@ -159,8 +145,12 @@ def process_files(files: list[str], func: str, args: dict[str, Any]) -> bool:
             ):
                 ok = ok and result
 
-                print(f"[{i+1}/{len(files)}] {files[i]}: {'\x1b[6;32mOK\x1b[0m' if result else '\x1b[6;31mFAIL\x1b[0m'}", flush=True, file=sys.stderr)
-            
+                print(
+                    f"[{i+1}/{len(files)}] {files[i]}: {'\x1b[6;32mOK\x1b[0m' if result else '\x1b[6;31mFAIL\x1b[0m'}",
+                    flush=True,
+                    file=sys.stderr,
+                )
+
             return ok
         except Exception as e:
             print("Error while processing files", e, flush=True, file=sys.stderr)
@@ -198,6 +188,7 @@ def check_clang_version(tool_path: str, supported_version: int) -> None:
         print("Error while checking tool version", e)
         exit(1)
 
+
 def check_cppcheck_version(tool_path: str, supported_version: int) -> None:
     """
     Function checks the version of cppcheck
@@ -228,33 +219,77 @@ def check_cppcheck_version(tool_path: str, supported_version: int) -> None:
         print("Error while checking tool version", e)
         exit(1)
 
+
 def check_compile_db(build_dir) -> bool:
     compile_db = os.path.join(build_dir, "compile_commands.json")
     if not os.path.exists(compile_db):
-        print(f"Unable to find compile_commands.json in {build_dir}. Please make sure to run cmake before calling this script.")
+        print(
+            f"Unable to find compile_commands.json in {build_dir}. Please make sure to run cmake before calling this script."
+        )
         exit(1)
+
 
 def command_clang_tidy(args: dict[str, Any]) -> bool:
     check_clang_version(args["clang_tidy"], SUPPORTED_TOOL_VERSIONS["clang_tidy"])
-    check_compile_db(args["build_dir"])
-    files = get_compile_db_files(
-        os.path.join(args["build_dir"], "compile_commands.json")
+
+    source_path = os.getcwd()
+    build_path = os.path.realpath(args["build_dir"])
+    clang_tidy_cmd = ["ctcache"] if not args["no_cache"] else []
+    clang_tidy_cmd.append(args["clang_tidy"])
+    clang_tidy_cmd.append("--allow-no-checks")
+    clang_tidy_cmd.append(f"--exclude-header-filter=^{build_path}/_deps/.*")
+    clang_tidy_cmd.append("--quiet")
+    clang_tidy_cmd.append("--use-color")
+
+    configure_cmd = [
+        "cmake",
+        "-S",
+        source_path,
+        "-B",
+        build_path,
+        f"-DCMAKE_CXX_CLANG_TIDY={';'.join(clang_tidy_cmd)}",
+    ] + [f"-D{mod}=ON" for mod in ENABLED_MODULES_LINT]
+    clean_cmd = ["cmake", "--build", build_path, "--target", "clean"]
+    lint_cmd = ["cmake", "--build", build_path, "-j", str(MAX_PARALLEL_PROCESSES)]
+
+    print("Running: ", " ".join(configure_cmd))
+    p = subprocess.run(configure_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+    if p.returncode != 0:
+        print(p.stdout.decode("utf-8"))
+        return False
+
+    if not args["no_clean"]:
+        print("Running: ", " ".join(clean_cmd))
+        p = subprocess.run(clean_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+        if p.returncode != 0:
+            print(p.stdout.decode("utf-8"))
+            return False
+
+    print("Running: ", " ".join(lint_cmd))
+    p = subprocess.run(
+        lint_cmd, env={"CTCACHE_STRIP": f"{build_path}:{source_path}", **os.environ}
     )
-    files = list(filter_files(files, [x[0] for x in args["file"]]))
-    return process_files(files, "run_clang_tidy", args)
+
+    if p.returncode != 0:
+        return False
+
+    return True
+
 
 def command_clang_format(args: dict[str, Any]) -> bool:
-    check_clang_version(
-        args["clang_format"], SUPPORTED_TOOL_VERSIONS["clang_format"]
-    )
+    check_clang_version(args["clang_format"], SUPPORTED_TOOL_VERSIONS["clang_format"])
     files = glob_files(args["path"])
     files = list(filter_files(files, [x[0] for x in args["file"]]))
     return process_files(files, "run_clang_format", args)
+
 
 def command_cppcheck(args: dict[str, Any]) -> bool:
     check_cppcheck_version(args["cppcheck"], SUPPORTED_TOOL_VERSIONS["cppcheck"])
     check_compile_db(args["build_dir"])
     return run_cppcheck(args)
+
 
 # entry point
 if __name__ == "__main__":
@@ -266,18 +301,22 @@ if __name__ == "__main__":
         "clang-tidy", help="Analyze the code using clang-tidy"
     )
     cmd_clang_tidy.add_argument(
-        "--clang-tidy", help="Path to clang-tidy executable", default=f"clang-tidy-{SUPPORTED_TOOL_VERSIONS['clang_tidy']}"
+        "--clang-tidy",
+        help="Path to clang-tidy executable",
+        default=f"clang-tidy-{SUPPORTED_TOOL_VERSIONS['clang_tidy']}",
     )
     cmd_clang_tidy.add_argument(
-        "--config-file",
-        help="Path to the clang-tidy configuration file",
-        default=".clang-tidy",
+        "--build-dir", help="Path to the build directory", default="build_lint"
     )
     cmd_clang_tidy.add_argument(
-        "--build-dir", help="Path to the build directory", default="build"
+        "--no-clean",
+        help="Don't clean the build directory before checking, can be used to speed up rechecking while working on fixes",
+        action="store_true",
     )
     cmd_clang_tidy.add_argument(
-        "--fix", help="Apply fixes to the code", action="store_true"
+        "--no-cache",
+        help="Disables ctcache",
+        action="store_true",
     )
 
     cmd_cppcheck = subparsers.add_parser(
@@ -290,29 +329,33 @@ if __name__ == "__main__":
         "--build-dir", help="Path to the build directory", default="build"
     )
     cmd_clang_tidy.add_argument(
-        "--file", 
-        help="Path to a single file to check, can be repeated for multiple files", 
-        default=[], 
-        action="append", 
-        nargs='*'
+        "--file",
+        help="Path to a single file to check, can be repeated for multiple files",
+        default=[],
+        action="append",
+        nargs="*",
     )
 
     cmd_clang_format = subparsers.add_parser(
         "clang-format", help="Check formatting using clang-format"
     )
     cmd_clang_format.add_argument(
-        "--clang-format", help="Path to clang-format executable", default=f"clang-format-{SUPPORTED_TOOL_VERSIONS['clang_format']}"
+        "--clang-format",
+        help="Path to clang-format executable",
+        default=f"clang-format-{SUPPORTED_TOOL_VERSIONS['clang_format']}",
     )
-    cmd_clang_format.add_argument("--path", help="Path to the source code", default="modules")
+    cmd_clang_format.add_argument(
+        "--path", help="Path to the source code", default="modules"
+    )
     cmd_clang_format.add_argument(
         "--fix", help="Apply formatting to the code", action="store_true"
     )
     cmd_clang_format.add_argument(
-        "--file", 
-        help="Path to a single file to check, can be repeated for multiple files", 
-        default=[], 
-        action="append", 
-        nargs='*'
+        "--file",
+        help="Path to a single file to check, can be repeated for multiple files",
+        default=[],
+        action="append",
+        nargs="*",
     )
 
     args = vars(parser.parse_args())
@@ -333,9 +376,8 @@ if __name__ == "__main__":
     ok = globals()[f"command_{args["command"].replace("-", "_")}"](args)
 
     if ok:
-        print('\x1b[6;32m' + 'All OK!' + '\x1b[0m')
+        print("\x1b[6;32m" + "All OK!" + "\x1b[0m")
     else:
-        print('\x1b[6;31m' + 'FAILED!' + '\x1b[0m')
+        print("\x1b[6;31m" + "FAILED!" + "\x1b[0m")
 
     quit(0 if ok else 1)
-

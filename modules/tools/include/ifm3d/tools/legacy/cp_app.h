@@ -22,9 +22,14 @@ namespace ifm3d
   class CpApp : public Command
   {
   public:
-    ~CpApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    CpApp() = default;
+    CpApp(const CpApp&) = default;
+    CpApp(CpApp&&) = delete;
+    CpApp& operator=(const CpApp&) = default;
+    CpApp& operator=(CpApp&&) = delete;
+    ~CpApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
     int index{-1};
 

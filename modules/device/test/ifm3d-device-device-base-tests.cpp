@@ -1,8 +1,8 @@
 #include <chrono>
+#include <gtest/gtest.h>
+#include <ifm3d/device/device.h>
 #include <string>
 #include <thread>
-#include <ifm3d/device/device.h>
-#include <gtest/gtest.h>
 
 class DeviceTest : public ::testing::Test
 {
@@ -10,7 +10,7 @@ protected:
   void
   SetUp() override
   {
-    this->dev = ifm3d::Device::MakeShared();
+    this->_dev = ifm3d::Device::MakeShared();
   }
 
   void
@@ -18,13 +18,13 @@ protected:
   {}
 
   // NOLINTNEXTLINE(misc-non-private-member-variables-in-classes)
-  ifm3d::Device::Ptr dev;
+  ifm3d::Device::Ptr _dev;
 };
 
 TEST_F(DeviceTest, DefaultCredentials)
 {
-  EXPECT_STREQ(this->dev->IP().c_str(), ifm3d::DEFAULT_IP.c_str());
-  EXPECT_EQ(this->dev->XMLRPCPort(), ifm3d::DEFAULT_XMLRPC_PORT);
+  EXPECT_STREQ(this->_dev->IP().c_str(), ifm3d::DEFAULT_IP.c_str());
+  EXPECT_EQ(this->_dev->XMLRPCPort(), ifm3d::DEFAULT_XMLRPC_PORT);
 }
 
 TEST_F(DeviceTest, DeviceDiscovery)
@@ -34,7 +34,7 @@ TEST_F(DeviceTest, DeviceDiscovery)
 
 TEST_F(DeviceTest, DISABLED_Reboot_productive)
 {
-  EXPECT_NO_THROW(dev->Reboot());
+  EXPECT_NO_THROW(_dev->Reboot());
   std::this_thread::sleep_for(std::chrono::seconds(60));
   EXPECT_NO_THROW(ifm3d::Device::MakeShared());
 }
@@ -42,11 +42,11 @@ TEST_F(DeviceTest, DISABLED_Reboot_productive)
 TEST_F(DeviceTest, DeviceType)
 {
   std::string device_type_from_cache;
-  EXPECT_NO_THROW(device_type_from_cache = dev->DeviceType());
+  EXPECT_NO_THROW(device_type_from_cache = _dev->DeviceType());
   std::string device_type_from_device;
-  EXPECT_NO_THROW(device_type_from_device = dev->DeviceType(false));
+  EXPECT_NO_THROW(device_type_from_device = _dev->DeviceType(false));
   EXPECT_STREQ(device_type_from_cache.c_str(),
                device_type_from_device.c_str());
 }
 
-TEST_F(DeviceTest, WhoAmI) { EXPECT_NO_THROW(dev->WhoAmI()); }
+TEST_F(DeviceTest, WhoAmI) { EXPECT_NO_THROW(_dev->WhoAmI()); }

@@ -5,10 +5,11 @@
 
 #include <CLI/App.hpp>
 #include <ifm3d/tools/common/swupdater/restart_app.h>
+#include <ifm3d/tools/common/swupdater/swupdate_app.h>
 
 #ifdef _WIN32
-#  include <io.h>
 #  include <fcntl.h>
+#  include <io.h>
 #endif
 
 ifm3d::RestartApp::~RestartApp() = default;

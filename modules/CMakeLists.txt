@@ -30,7 +30,6 @@ if(BUILD_MODULE_PCICCLIENT)
 endif()
 
 if(BUILD_MODULE_PYBIND11)
-  add_definitions(-DBUILD_MODULE_PYBIND11)
   add_subdirectory(pybind11)
 endif()
 

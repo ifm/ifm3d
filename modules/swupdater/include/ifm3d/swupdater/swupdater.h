@@ -7,9 +7,9 @@
 #define IFM3D_SWUPDATER_SWUPDATER_H
 #pragma once
 
-#include <memory>
 #include <ifm3d/device/legacy_device.h>
 #include <ifm3d/swupdater/module_swupdater.h>
+#include <memory>
 
 namespace ifm3d
 {
@@ -137,7 +137,7 @@ namespace ifm3d
     class IFM3D_EXPORT Impl;
 
   private:
-    std::unique_ptr<Impl> pImpl;
+    std::unique_ptr<Impl> _impl;
 
   }; // end: class SWUpdater
 

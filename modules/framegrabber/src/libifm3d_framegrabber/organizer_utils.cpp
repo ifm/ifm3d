@@ -1,11 +1,11 @@
 
 #include <cstddef>
-#include "ifm3d/common/err.h"
-#include "ifm3d/device/device.h"
 #include <cstdint>
-#include "ifm3d/fg/buffer.h"
-#include "ifm3d/common/json_impl.hpp"
-#include "ifm3d/fg/buffer_id.h"
+#include <ifm3d/common/err.h>
+#include <ifm3d/common/json_impl.hpp>
+#include <ifm3d/device/device.h>
+#include <ifm3d/fg/buffer.h>
+#include <ifm3d/fg/buffer_id.h>
 #if defined(__GNUC__) && !defined(__clang__) && !defined(_MSC_VER)
 #  include <bits/endian.h>
 #elif defined(__clang__) && !defined(_MSC_VER)
@@ -14,17 +14,17 @@
 #  endif
 #endif
 #include <algorithm>
-#include "ifm3d/fg/frame.h"
 #include <chrono>
 #include <functional>
-#include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/common/logging/log.h>
-#include <vector>
-#include <optional>
+#include <ifm3d/fg/frame.h>
+#include <ifm3d/fg/organizer_utils.h>
 #include <map>
+#include <optional>
 #include <set>
-#include <tuple>
 #include <string>
+#include <tuple>
+#include <vector>
 
 constexpr auto CHUNK_OFFSET_CHUNK_SIZE = 0x0004;
 constexpr auto CHUNK_OFFSET_HEADER_SIZE = 0x0008;
@@ -140,9 +140,8 @@ ifm3d::create_buffer(const std::vector<std::uint8_t>& data,
   std::size_t const fsize = get_format_size(fmt);
   ifm3d::Buffer image(width, height, nchan, fmt, metadata);
 
-  std::size_t const incr = fsize * nchan;
   std::size_t const npts = width * height;
-  auto* ptr = image.ptr<uint8_t>(0);
+  auto* ptr = image.Ptr<uint8_t>(0);
 
   const auto* const start = data.data() + idx;
 
@@ -441,29 +440,29 @@ ifm3d::get_chunk_pixeldata_size(const std::vector<std::uint8_t>& data,
 void
 ifm3d::mask_buffer(ifm3d::Buffer& image, const ifm3d::Buffer& mask)
 {
-  switch (image.dataFormat())
+  switch (image.DataFormat())
     {
     case ifm3d::pixel_format::FORMAT_8U:
     case ifm3d::pixel_format::FORMAT_8S:
-      image.setTo<std::uint8_t>(0, mask);
+      image.SetTo<std::uint8_t>(0, mask);
       break;
 
     case ifm3d::pixel_format::FORMAT_16U:
     case ifm3d::pixel_format::FORMAT_16S:
     case ifm3d::pixel_format::FORMAT_16U2:
-      image.setTo<std::uint16_t>(0, mask);
+      image.SetTo<std::uint16_t>(0, mask);
       break;
 
     case ifm3d::pixel_format::FORMAT_32U:
     case ifm3d::pixel_format::FORMAT_32S:
     case ifm3d::pixel_format::FORMAT_32F:
     case ifm3d::pixel_format::FORMAT_32F3:
-      image.setTo<std::uint32_t>(0, mask);
+      image.SetTo<std::uint32_t>(0, mask);
       break;
 
     case ifm3d::pixel_format::FORMAT_64U:
     case ifm3d::pixel_format::FORMAT_64F:
-      image.setTo<std::uint64_t>(0, mask);
+      image.SetTo<std::uint64_t>(0, mask);
       break;
 
     default:
@@ -488,20 +487,20 @@ ifm3d::is_probably_blob(const std::vector<std::uint8_t>& data,
 ifm3d::Buffer
 ifm3d::create_pixel_mask(ifm3d::Buffer& confidence)
 {
-  Buffer mask = Buffer(confidence.width(),
-                       confidence.height(),
+  Buffer mask = Buffer(confidence.Width(),
+                       confidence.Height(),
                        1,
                        pixel_format::FORMAT_8U);
 
   int const index = 0;
-  if (confidence.dataFormat() == pixel_format::FORMAT_16U)
+  if (confidence.DataFormat() == pixel_format::FORMAT_16U)
     {
       std::transform(confidence.begin<std::uint16_t>(),
                      confidence.end<std::uint16_t>(),
                      mask.begin<std::uint8_t>(),
                      [](auto& value) -> uint8_t { return value & 0x1; });
     }
-  else if (confidence.dataFormat() == pixel_format::FORMAT_8U)
+  else if (confidence.DataFormat() == pixel_format::FORMAT_8U)
     {
       std::transform(confidence.begin<std::uint8_t>(),
                      confidence.end<std::uint8_t>(),
@@ -511,7 +510,7 @@ ifm3d::create_pixel_mask(ifm3d::Buffer& confidence)
   else
     {
       LOG_ERROR("confidence image format is not supported : ",
-                static_cast<int>(confidence.dataFormat()));
+                static_cast<int>(confidence.DataFormat()));
       throw Error(IFM3D_CONFIDENCE_IMAGE_FORMAT_NOT_SUPPORTED);
     }
 

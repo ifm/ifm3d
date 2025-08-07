@@ -9,14 +9,15 @@
 #define IFM3D_DEVICE_O3R_IMPL_HPP
 
 #include <ctime>
-#include <string>
-#include <vector>
+#include <fmt/core.h> // NOLINT(*)
 #include <fstream>
-#include <fmt/core.h>
-#include <ifm3d/device/o3r.h>
-#include <ifm3d/device/err.h>
 #include <ifm3d/common/logging/log.h>
+#include <ifm3d/device/err.h>
+#include <ifm3d/device/o3r.h>
 #include <ifm3d/device/util.h>
+#include <string>
+#include <utility>
+#include <vector>
 #include <xmlrpc.hpp>
 
 namespace ifm3d
@@ -31,14 +32,18 @@ namespace ifm3d
   class IFM3D_NO_EXPORT O3R::Impl
   {
   public:
+    Impl(const Impl&) = default;
+    Impl(Impl&&) = delete;
+    Impl& operator=(const Impl&) = default;
+    Impl& operator=(Impl&&) = delete;
     explicit Impl(std::shared_ptr<XMLRPC> xwrapper);
     ~Impl();
 
     json Get(const std::vector<std::string>& path);
     json ResolveConfig(const json::json_pointer& ptr);
     void Set(const std::string& config);
-    void Remove(const std::string& jsonPointer);
-    void Reset(const std::string& jsonPointer);
+    void Remove(const std::string& json_pointer);
+    void Reset(const std::string& json_pointer);
     json GetInit();
     void SaveInit(const std::vector<std::string>& pointers);
     std::string GetInitStatus();
@@ -48,13 +53,13 @@ namespace ifm3d
     std::vector<PortInfo> Ports();
     json GetDiagnostic();
     json GetDiagnosticFilterSchema();
-    json GetDiagnosticFiltered(json filter);
+    json GetDiagnosticFiltered(const json& filter);
     PortInfo Port(const std::string& port);
 
-    void FactoryReset(bool keepNetworkSettings);
+    void FactoryReset(bool keep_network_settings);
     void Reboot();
     void RebootToRecovery();
-    void DownloadServiceReport(std::string outFile);
+    void DownloadServiceReport(const std::string& out_file);
 
 #ifdef BUILD_MODULE_CRYPTO
     // SealedBoxImpl
@@ -72,106 +77,109 @@ namespace ifm3d
 #endif
 
   protected:
-    std::shared_ptr<XMLRPC> xwrapper_;
+    std::shared_ptr<XMLRPC> _xwrapper;
 
   private:
-    template <typename... Args>
-    XMLRPCValue const
-    _XCallDiagnostic(const std::string& method, Args... args)
+    template <typename... ARGS>
+    XMLRPCValue
+    x_call_diagnostic(const std::string& method, ARGS... args)
     {
-      return this->xwrapper_->XCall(ifm3d::XMLRPC_DIAGNOSTIC, method, args...);
+      return this->_xwrapper->XCall(ifm3d::XMLRPC_DIAGNOSTIC,
+                                    method,
+                                    std::move(args)...);
     }
   }; // end: class O3RCamera::Impl
 
 } // end: namespace ifm3d
 
-ifm3d::O3R::Impl::Impl(std::shared_ptr<XMLRPC> xwrapper)
-  : xwrapper_(std::move(xwrapper))
+inline ifm3d::O3R::Impl::Impl(std::shared_ptr<XMLRPC> xwrapper)
+  : _xwrapper(std::move(xwrapper))
 {}
 
-ifm3d::O3R::Impl::~Impl() {}
+// NOLINTNEXTLINE(readability-redundant-inline-specifier)
+inline ifm3d::O3R::Impl::~Impl() = default;
 
-ifm3d::json
+inline ifm3d::json
 ifm3d::O3R::Impl::Get(const std::vector<std::string>& path)
 {
-  return json::parse(this->xwrapper_->XCallMain("get", path).AsString());
+  return json::parse(this->_xwrapper->XCallMain("get", path).AsString());
 }
 
-ifm3d::json
+inline ifm3d::json
 ifm3d::O3R::Impl::ResolveConfig(const json::json_pointer& ptr)
 {
   return this->Get({ptr.to_string()})[ptr];
 }
 
-void
+inline void
 ifm3d::O3R::Impl::Set(const std::string& config)
 {
-  this->xwrapper_->XCallMainTimeout("set", NET_WAIT_O3R_SET, config);
+  this->_xwrapper->XCallMainTimeout("set", NET_WAIT_O3R_SET, config);
 }
 
-void
-ifm3d::O3R::Impl::Remove(const std::string& jsonPointer)
+inline void
+ifm3d::O3R::Impl::Remove(const std::string& json_pointer)
 {
-  this->xwrapper_->XCallMain("remove", jsonPointer);
+  this->_xwrapper->XCallMain("remove", json_pointer);
 }
 
-void
-ifm3d::O3R::Impl::Reset(const std::string& jsonPointer)
+inline void
+ifm3d::O3R::Impl::Reset(const std::string& json_pointer)
 {
-  this->xwrapper_->XCallMain("reset", jsonPointer);
+  this->_xwrapper->XCallMain("reset", json_pointer);
 }
 
-ifm3d::json
+inline ifm3d::json
 ifm3d::O3R::Impl::GetInit()
 {
-  return json::parse(this->xwrapper_->XCallMain("getInit").AsString());
+  return json::parse(this->_xwrapper->XCallMain("getInit").AsString());
 }
 
-void
+inline void
 ifm3d::O3R::Impl::SaveInit(const std::vector<std::string>& pointers)
 {
   if (pointers.size() == 0)
     {
-      this->xwrapper_->XCallMain("saveInit");
+      this->_xwrapper->XCallMain("saveInit");
     }
   else
     {
-      this->xwrapper_->XCallMain("saveInit", pointers);
+      this->_xwrapper->XCallMain("saveInit", pointers);
     }
 }
 
-std::string
+inline std::string
 ifm3d::O3R::Impl::GetInitStatus()
 {
-  return this->xwrapper_
+  return this->_xwrapper
     ->XCallMain("getInitStatus", std::vector<std::string>())
     .AsString();
 }
 
-std::string
+inline std::string
 ifm3d::O3R::Impl::GetSchema()
 {
-  return this->xwrapper_->XCallMain("getSchema").AsString();
+  return this->_xwrapper->XCallMain("getSchema").AsString();
 }
 
-void
+inline void
 ifm3d::O3R::Impl::Lock(const std::string& password)
 {
-  this->xwrapper_->XCallMain("lock", password);
+  this->_xwrapper->XCallMain("lock", password);
 }
 
-void
+inline void
 ifm3d::O3R::Impl::Unlock(const std::string& password)
 {
-  this->xwrapper_->XCallMain("unlock", password);
+  this->_xwrapper->XCallMain("unlock", password);
 }
 
-ifm3d::PortInfo
+inline ifm3d::PortInfo
 ifm3d::O3R::Impl::Port(const std::string& port)
 {
-  auto get_port_data = [this](const ifm3d::json::json_pointer basePtr,
+  auto get_port_data = [this](const ifm3d::json::json_pointer base_ptr,
                               const std::string& port) {
-    auto port_data = ResolveConfig(basePtr / port);
+    auto port_data = ResolveConfig(base_ptr / port);
 
     if (port_data.is_null())
       {
@@ -185,15 +193,15 @@ ifm3d::O3R::Impl::Port(const std::string& port)
         {
           auto port_data =
             get_port_data("/applications/instances"_json_pointer, port);
-          auto pcicTCPPort = port_data["/data/pcicTCPPort"_json_pointer];
-          return {port, pcicTCPPort, "app"};
+          auto pcic_tcp_port = port_data["/data/pcicTCPPort"_json_pointer];
+          return {port, pcic_tcp_port, "app"};
         }
       if (port.find("port") == 0)
         {
           auto port_data = get_port_data("/ports"_json_pointer, port);
-          auto pcicTCPPort = port_data["/data/pcicTCPPort"_json_pointer];
+          auto pcic_tcp_port = port_data["/data/pcicTCPPort"_json_pointer];
           auto type = port_data["/info/features/type"_json_pointer];
-          return {port, pcicTCPPort, type};
+          return {port, pcic_tcp_port, type};
         }
       if (port.find("diagnostics") == 0)
         {
@@ -210,7 +218,7 @@ ifm3d::O3R::Impl::Port(const std::string& port)
   throw ifm3d::Error(IFM3D_DEVICE_PORT_NOT_SUPPORTED, port);
 }
 
-std::vector<ifm3d::PortInfo>
+inline std::vector<ifm3d::PortInfo>
 ifm3d::O3R::Impl::Ports()
 {
   std::vector<ifm3d::PortInfo> result;
@@ -289,60 +297,61 @@ ifm3d::O3R::Impl::Ports()
   return result;
 }
 
-ifm3d::json
+inline ifm3d::json
 ifm3d::O3R::Impl::GetDiagnostic()
 {
-  return json::parse(this->_XCallDiagnostic("get").AsString());
+  return json::parse(this->x_call_diagnostic("get").AsString());
 }
 
-ifm3d::json
+inline ifm3d::json
 ifm3d::O3R::Impl::GetDiagnosticFilterSchema()
 {
-  return json::parse(this->_XCallDiagnostic("getFilterSchema").AsString());
+  return json::parse(this->x_call_diagnostic("getFilterSchema").AsString());
 }
 
-ifm3d::json
-ifm3d::O3R::Impl::GetDiagnosticFiltered(json filter)
+inline ifm3d::json
+ifm3d::O3R::Impl::GetDiagnosticFiltered(const json& filter)
 {
   return json::parse(
-    this->_XCallDiagnostic("getFiltered", filter.dump()).AsString());
+    this->x_call_diagnostic("getFiltered", filter.dump()).AsString());
 }
 
-void
-ifm3d::O3R::Impl::FactoryReset(bool keepNetworkSettings)
+inline void
+ifm3d::O3R::Impl::FactoryReset(bool keep_network_settings)
 {
-  this->xwrapper_->XCallMain("factoryReset", keepNetworkSettings);
+  this->_xwrapper->XCallMain("factoryReset", keep_network_settings);
 }
 
-void
+inline void
 ifm3d::O3R::Impl::Reboot()
 {
-  this->xwrapper_->XCallMain("reboot");
+  this->_xwrapper->XCallMain("reboot");
 }
 
-void
+inline void
 ifm3d::O3R::Impl::RebootToRecovery()
 {
-  this->xwrapper_->XCallMain("rebootToRecovery");
+  this->_xwrapper->XCallMain("rebootToRecovery");
 }
 
-size_t
-WriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
+inline size_t
+write_callback(void* contents, size_t size, size_t nmemb, void* userp)
 {
-  std::ofstream* ofs = static_cast<std::ofstream*>(userp);
-  size_t totalSize = size * nmemb;
-  ofs->write(static_cast<char*>(contents), totalSize);
-  return totalSize;
+  auto* ofs = static_cast<std::ofstream*>(userp);
+  size_t total_size = size * nmemb;
+  ofs->write(static_cast<char*>(contents),
+             static_cast<std::streamsize>(total_size));
+  return total_size;
 }
 
-void
-ifm3d::O3R::Impl::DownloadServiceReport(std::string outFile)
+inline void
+ifm3d::O3R::Impl::DownloadServiceReport(const std::string& out_file)
 {
-  httplib::Client cli(this->xwrapper_->IP(), 80);
-  std::ofstream ofs("service_report.zip", std::ios::binary);
+  httplib::Client cli(this->_xwrapper->IP(), 80);
+  std::ofstream ofs(out_file, std::ios::binary);
   auto res =
     cli.Get("/service_report/", [&](const char* data, size_t data_length) {
-      ofs.write(data, data_length);
+      ofs.write(data, static_cast<std::streamsize>(data_length));
       return true;
     });
 
@@ -351,7 +360,7 @@ ifm3d::O3R::Impl::DownloadServiceReport(std::string outFile)
 
 #ifdef BUILD_MODULE_CRYPTO
 
-void
+inline void
 ifm3d::O3R::Impl::SealedBoxSetPassword(const std::string& new_password,
                                        std::optional<std::string> old_password)
 {
@@ -367,14 +376,14 @@ ifm3d::O3R::Impl::SealedBoxSetPassword(const std::string& new_password,
     }
 }
 
-bool
+inline bool
 ifm3d::O3R::Impl::SealedBoxIsPasswordProtected()
 {
   return this->ResolveConfig(
     "/device/crypto/sealedbox/passwordProtected"_json_pointer);
 }
 
-void
+inline void
 ifm3d::O3R::Impl::SealedBoxRemovePassword(std::string password)
 {
   SealedBoxSendCommand("remove_password", {{"password", password}});
@@ -388,13 +397,13 @@ ifm3d::O3R::Impl::SealedBoxGetPublicKey()
       .get<std::string>());
 }
 
-std::vector<uint8_t>
+inline std::vector<uint8_t>
 ifm3d::O3R::Impl::SealedBoxEncryptMessage(const json& message)
 {
   return ifm3d::SealedBox(SealedBoxGetPublicKey()).Encrypt(message.dump());
 }
 
-void
+inline void
 ifm3d::O3R::Impl::SealedBoxSet(const std::string& password,
                                const json& configuration)
 {
@@ -403,13 +412,13 @@ ifm3d::O3R::Impl::SealedBoxSet(const std::string& password,
     {{"password", password}, {"configuration", configuration}});
 }
 
-void
+inline void
 ifm3d::O3R::Impl::SealedBoxSendCommand(const std::string& command,
                                        const json& additional_data)
 {
   json message = additional_data;
   message.update(
-    {{"nonce", base64_encode(RandomNonce())}, {"request", command}});
+    {{"nonce", base64_encode(random_nonce())}, {"request", command}});
 
   this->Set(
     json({{"device",

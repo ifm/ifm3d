@@ -7,9 +7,8 @@
 #define IFM3D_TOOLS_COMMANDS_MAIN_HPP
 #pragma once
 
-#include <ifm3d/tools/command.hpp>
-#include <ifm3d/tools.h>
 #include <ifm3d/device.h>
+#include <ifm3d/tools/command.hpp>
 
 namespace ifm3d
 {
@@ -17,11 +16,16 @@ namespace ifm3d
   {
   public:
     MainCommand();
-    virtual ~MainCommand() {}
+    ~MainCommand() override = default;
+    MainCommand(const MainCommand&) = default;
+    MainCommand& operator=(const MainCommand&) = default;
+    MainCommand(MainCommand&&) = delete;
+    MainCommand& operator=(MainCommand&&) = delete;
 
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
     std::string GetAppVersion();
-    ifm3d::Device::Ptr GetDevice(bool throw_if_unavailable = true) const;
+    [[nodiscard]] ifm3d::Device::Ptr GetDevice(
+      bool throw_if_unavailable = true) const;
 
     std::string ip;
     std::uint16_t xmlrpc_port;

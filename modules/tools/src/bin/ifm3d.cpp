@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "ifm3d/common/err.h"
 #include <CLI/App.hpp>
 #include <exception>
-#include <iostream>
+#include <ifm3d/common/err.h>
 #include <ifm3d/tools/main_command.hpp>
+#include <iostream>
 
 int
 main(int argc, char** argv)

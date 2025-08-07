@@ -3,19 +3,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "ifm3d/fg/buffer_id.h"
-#include "ifm3d/fg/organizer.h"
-#include "ifm3d/device/device.h"
-#include <cstddef>
 #include <CLI/App.hpp>
-#include "ifm3d/fg/frame_grabber.h"
-#include <future>
-#include <ifm3d/tools/common/fg/jitter_app.h>
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <fstream>
+#include <future>
+#include <ifm3d/device/device.h>
+#include <ifm3d/fg/buffer_id.h>
+#include <ifm3d/fg/frame_grabber.h>
+#include <ifm3d/fg/organizer.h>
+#include <ifm3d/tools/common/fg/jitter_app.h>
 #include <iostream>
 #include <memory>
 #include <numeric>
@@ -32,7 +32,7 @@ const int ifm3d::FG_JITTER_TIMEOUT = 10000;
 class NullOrganizer : public ifm3d::Organizer
 {
 public:
-  NullOrganizer() : ifm3d::Organizer() {}
+  NullOrganizer() = default;
 
   virtual Result
   Organize(const std::vector<uint8_t>& /*data*/,
@@ -42,7 +42,7 @@ public:
   };
 
   virtual std::set<ifm3d::image_chunk>
-  getImageChunks(ifm3d::buffer_id /*id*/)
+  GetImageChunks(ifm3d::buffer_id /*id*/)
   {
     return {};
   };
@@ -55,71 +55,73 @@ using ClockT =
                      std::chrono::high_resolution_clock,
                      std::chrono::steady_clock>;
 
-//
-// utility functions for computing summary statistics
-//
-template <typename T>
-static T
-median(const std::vector<T>& arr)
+namespace
 {
-  T median = 0;
-  std::size_t const sz = arr.size();
+  //
+  // utility functions for computing summary statistics
+  //
+  template <typename T>
+  T
+  median(const std::vector<T>& arr)
+  {
+    T median = 0;
+    std::size_t const sz = arr.size();
 
-  // we make a copy b/c we do not want to mutate the input `arr`.
-  std::vector<T> arr_cp(sz);
-  std::copy(arr.begin(), arr.end(), arr_cp.begin());
-  std::sort(arr_cp.begin(), arr_cp.end());
+    // we make a copy b/c we do not want to mutate the input `arr`.
+    std::vector<T> arr_cp(sz);
+    std::copy(arr.begin(), arr.end(), arr_cp.begin());
+    std::sort(arr_cp.begin(), arr_cp.end());
 
-  if (sz > 0)
-    {
-      if (sz % 2 == 0)
-        {
-          median = (arr_cp.at((sz / 2) - 1) + arr_cp.at(sz / 2)) / 2.;
-        }
-      else
-        {
-          median = arr_cp.at(sz / 2);
-        }
-    }
+    if (sz > 0)
+      {
+        if (sz % 2 == 0)
+          {
+            median = (arr_cp.at((sz / 2) - 1) + arr_cp.at(sz / 2)) / 2.;
+          }
+        else
+          {
+            median = arr_cp.at(sz / 2);
+          }
+      }
 
-  return median;
+    return median;
+  }
+
+  template <typename T>
+  std::tuple<T, T>
+  mean_stdev(const std::vector<T>& arr)
+  {
+    if (arr.empty())
+      {
+        return std::make_tuple(0, 0);
+      }
+
+    T sum = std::accumulate(arr.begin(), arr.end(), 0.F);
+    T mean = sum / arr.size();
+
+    T ssd = 0;
+    std::for_each(arr.begin(), arr.end(), [&](const T val) -> void {
+      ssd += ((val - mean) * (val - mean));
+    });
+
+    T stdev = std::sqrt(ssd / (arr.size() - 1));
+    return std::make_tuple(mean, stdev);
+  }
+
+  template <typename T>
+  T
+  mad(const std::vector<T>& arr, T center)
+  {
+    std::size_t const n = arr.size();
+    std::vector<T> arr_d(n);
+    for (std::size_t i = 0; i < n; ++i)
+      {
+        arr_d[i] = std::abs(arr[i] - center);
+      }
+
+    return median(arr_d);
+  }
 }
-
-template <typename T>
-static std::tuple<T, T>
-mean_stdev(const std::vector<T>& arr)
-{
-  if (arr.empty())
-    {
-      return std::make_tuple(0, 0);
-    }
-
-  T sum = std::accumulate(arr.begin(), arr.end(), 0.F);
-  T mean = sum / arr.size();
-
-  T ssd = 0;
-  std::for_each(arr.begin(), arr.end(), [&](const T val) -> void {
-    ssd += ((val - mean) * (val - mean));
-  });
-
-  T stdev = std::sqrt(ssd / (arr.size() - 1));
-  return std::make_tuple(mean, stdev);
-}
-
-template <typename T>
-static T
-mad(const std::vector<T>& arr, T center)
-{
-  std::size_t const n = arr.size();
-  std::vector<T> arr_d(n);
-  for (std::size_t i = 0; i < n; ++i)
-    {
-      arr_d[i] = std::abs(arr[i] - center);
-    }
-
-  return median(arr_d);
-}
-
 ifm3d::JitterApp::~JitterApp() = default;
 
 void
@@ -138,7 +140,7 @@ ifm3d::JitterApp::Execute(CLI::App* /*app*/)
   std::cout << "Capturing frame data..." << '\n';
 
   fg->Start({});
-  capture_frames(fg, bb_results);
+  CaptureFrames(fg, bb_results);
   float const bb_median = median(bb_results);
   float bb_mean = NAN;
   float bb_stdev = NAN;
@@ -204,8 +206,8 @@ ifm3d::JitterApp::CreateCommand(CLI::App* parent)
 }
 
 void
-ifm3d::JitterApp::capture_frames(const ifm3d::FrameGrabber::Ptr& fg,
-                                 std::vector<float>& results)
+ifm3d::JitterApp::CaptureFrames(const ifm3d::FrameGrabber::Ptr& fg,
+                                std::vector<float>& results)
 {
   int const nframes = static_cast<int>(results.size());
 

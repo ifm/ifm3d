@@ -5,12 +5,14 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/tools/ovp8xx/jsonschema_app.h"
-#include "ifm3d/tools/ovp8xx/get_init_app.h"
-#include "ifm3d/tools/ovp8xx/save_init_app.h"
-#include "ifm3d/tools/ovp8xx/remove_app.h"
-#include "ifm3d/tools/ovp8xx/reset_ovp8xx_app.h"
+#include <ifm3d/tools/common/config_set_app.h>
+#include <ifm3d/tools/common/dump_app.h>
 #include <ifm3d/tools/ovp8xx/config_ovp8xx_app.h>
+#include <ifm3d/tools/ovp8xx/get_init_app.h>
+#include <ifm3d/tools/ovp8xx/jsonschema_app.h>
+#include <ifm3d/tools/ovp8xx/remove_app.h>
+#include <ifm3d/tools/ovp8xx/reset_ovp8xx_app.h>
+#include <ifm3d/tools/ovp8xx/save_init_app.h>
 #include <string>
 
 ifm3d::ConfigOvp8xxApp::~ConfigOvp8xxApp() = default;

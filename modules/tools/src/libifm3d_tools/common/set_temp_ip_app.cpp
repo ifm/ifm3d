@@ -4,8 +4,8 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/device/device.h"
 #include <CLI/Validators.hpp>
+#include <ifm3d/device/device.h>
 #include <ifm3d/tools/common/set_temp_ip_app.h>
 #include <regex>
 

@@ -5,10 +5,10 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/device/device.h"
-#include "ifm3d/device/o3r.h"
-#include "ifm3d/tools/ovp8xx/ovp8xx_app.h"
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/o3r.h>
 #include <ifm3d/tools/common/dump_app.h>
+#include <ifm3d/tools/ovp8xx/ovp8xx_app.h>
 #include <iostream>
 #include <memory>
 #include <string>

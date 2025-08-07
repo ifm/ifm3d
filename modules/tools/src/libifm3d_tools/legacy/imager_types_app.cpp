@@ -5,8 +5,8 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/common/json_impl.hpp"
-#include "ifm3d/device/legacy_device.h"
+#include <ifm3d/common/json_impl.hpp>
+#include <ifm3d/device/legacy_device.h>
 #include <ifm3d/tools/legacy/imager_types_app.h>
 #include <iostream>
 #include <memory>

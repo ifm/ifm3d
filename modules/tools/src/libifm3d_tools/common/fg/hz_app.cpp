@@ -5,13 +5,13 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/fg/frame_grabber.h"
-#include <future>
-#include <cstddef>
-#include "ifm3d/device/device.h"
-#include <ifm3d/tools/common/fg/hz_app.h>
 #include <algorithm>
 #include <chrono>
+#include <cstddef>
+#include <future>
+#include <ifm3d/device/device.h>
+#include <ifm3d/fg/frame_grabber.h>
+#include <ifm3d/tools/common/fg/hz_app.h>
 #include <iostream>
 #include <memory>
 #include <string>

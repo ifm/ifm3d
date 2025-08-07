@@ -21,9 +21,14 @@ namespace ifm3d
   class RmApp : public Command
   {
   public:
-    ~RmApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    RmApp() = default;
+    RmApp(const RmApp&) = default;
+    RmApp(RmApp&&) = delete;
+    RmApp& operator=(const RmApp&) = default;
+    RmApp& operator=(RmApp&&) = delete;
+    ~RmApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
     int index{-1};
 

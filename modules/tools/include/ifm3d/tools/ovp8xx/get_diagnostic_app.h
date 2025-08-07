@@ -8,9 +8,9 @@
 #define IFM3D_TOOLS_GET_DIAGNOSTIC_APP_H
 #pragma once
 
-#include <string>
 #include <ifm3d/tools/command.hpp>
 #include <ifm3d/tools/main_command.hpp>
+#include <string>
 
 namespace ifm3d
 {
@@ -22,11 +22,16 @@ namespace ifm3d
   class GetDiagnosticApp : public Command
   {
   public:
-    ~GetDiagnosticApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    GetDiagnosticApp() = default;
+    GetDiagnosticApp(const GetDiagnosticApp&) = default;
+    GetDiagnosticApp(GetDiagnosticApp&&) = delete;
+    GetDiagnosticApp& operator=(const GetDiagnosticApp&) = default;
+    GetDiagnosticApp& operator=(GetDiagnosticApp&&) = delete;
+    ~GetDiagnosticApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
-    std::string filter_expression{""};
+    std::string filter_expression;
   }; // end: class GetDiagnosticApp
 } // end: namespace ifm3d
 

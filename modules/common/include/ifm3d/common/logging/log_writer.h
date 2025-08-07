@@ -14,7 +14,12 @@ namespace ifm3d
   class LogWriter
   {
   public:
-    virtual ~LogWriter() {}
+    LogWriter() = default;
+    LogWriter(const LogWriter&) = default;
+    LogWriter(LogWriter&&) = delete;
+    LogWriter& operator=(const LogWriter&) = default;
+    LogWriter& operator=(LogWriter&&) = delete;
+    virtual ~LogWriter() = default;
     virtual void Write(const LogEntry& entry) = 0;
   };
 }

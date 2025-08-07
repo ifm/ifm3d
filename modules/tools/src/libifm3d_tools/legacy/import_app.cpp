@@ -5,9 +5,9 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/tools/legacy/import_application_app.h"
-#include "ifm3d/tools/legacy/import_device_app.h"
 #include <ifm3d/tools/legacy/import_app.h>
+#include <ifm3d/tools/legacy/import_application_app.h>
+#include <ifm3d/tools/legacy/import_device_app.h>
 
 ifm3d::ImportApp::~ImportApp() = default;
 

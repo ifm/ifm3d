@@ -21,9 +21,14 @@ namespace ifm3d
   class GetFilterSchemaApp : public Command
   {
   public:
-    ~GetFilterSchemaApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    GetFilterSchemaApp() = default;
+    GetFilterSchemaApp(const GetFilterSchemaApp&) = default;
+    GetFilterSchemaApp(GetFilterSchemaApp&&) = delete;
+    GetFilterSchemaApp& operator=(const GetFilterSchemaApp&) = default;
+    GetFilterSchemaApp& operator=(GetFilterSchemaApp&&) = delete;
+    ~GetFilterSchemaApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
   }; // end: class GetFilterSchemaApp
 } // end: namespace ifm3d

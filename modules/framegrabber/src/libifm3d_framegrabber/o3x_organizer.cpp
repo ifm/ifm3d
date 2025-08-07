@@ -2,21 +2,21 @@
  * Copyright 2023-present ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
-#include "ifm3d/fg/buffer_id.h"
-#include "ifm3d/common/err.h"
-#include "ifm3d/fg/organizer.h"
-#include <cstdint>
-#include "ifm3d/fg/frame.h"
-#include "ifm3d/device/device.h"
 #include <cstddef>
+#include <cstdint>
 #include <functional>
+#include <ifm3d/common/err.h>
+#include <ifm3d/device/device.h>
+#include <ifm3d/fg/buffer.h>
+#include <ifm3d/fg/buffer_id.h>
+#include <ifm3d/fg/frame.h>
+#include <ifm3d/fg/organizer.h>
+#include <ifm3d/fg/organizer_utils.h>
 #include <map>
 #include <o3x_organizer.hpp>
-#include <ifm3d/fg/buffer.h>
-#include <ifm3d/fg/organizer_utils.h>
-#include <vector>
-#include <set>
 #include <optional>
+#include <set>
+#include <vector>
 
 ifm3d::Organizer::Result
 ifm3d::O3XOrganizer::Organize(const std::vector<uint8_t>& data,
@@ -76,7 +76,7 @@ ifm3d::O3XOrganizer::Organize(const std::vector<uint8_t>& data,
           mask =
             create_pixel_mask(images[ifm3d::buffer_id::CONFIDENCE_IMAGE][0]);
           mask_images(data_image, mask.value(), [this](auto&& p_h1) {
-            return ShouldMask(std::forward<decltype(p_h1)>(p_h1));
+            return should_mask(std::forward<decltype(p_h1)>(p_h1));
           });
         }
     }
@@ -115,7 +115,7 @@ ifm3d::O3XOrganizer::Organize(const std::vector<uint8_t>& data,
 }
 
 bool
-ifm3d::O3XOrganizer::ShouldMask(buffer_id id)
+ifm3d::O3XOrganizer::should_mask(buffer_id id)
 {
   switch (id)
     {

@@ -7,21 +7,21 @@
 #define IFM3D_CAMERA_DISCOVERY_HPP
 
 #include <asio.hpp>
-#include <map>
-#include <vector>
-#include <string>
-#include <tuple>
-#include <iostream>
-#include <iomanip>
 #include <chrono>
-#include <thread>
-#include <system_error>
-#include <ifm3d/device/ifm_network_device.h>
 #include <cstddef>
+#include <ifm3d/device/ifm_network_device.h>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <string>
+#include <system_error>
+#include <thread>
+#include <tuple>
+#include <vector>
 #ifdef __unix__
 #  include <arpa/inet.h>
-#  include <sys/socket.h>
 #  include <ifaddrs.h>
+#  include <sys/socket.h>
 #endif
 
 namespace ifm3d

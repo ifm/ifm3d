@@ -5,19 +5,19 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/common/err.h"
-#include "ifm3d/device/legacy_device.h"
-#include <ifm3d/tools/legacy/import_application_app.h>
 #include <cstdint>
+#include <fstream>
+#include <ifm3d/common/err.h>
+#include <ifm3d/device/legacy_device.h>
+#include <ifm3d/device/util.h>
+#include <ifm3d/tools/legacy/import_application_app.h>
 #include <iosfwd>
 #include <iostream>
 #include <istream>
-#include <fstream>
 #include <iterator>
 #include <memory>
 #include <string>
 #include <vector>
-#include <ifm3d/device/util.h>
 
 ifm3d::ImportApplicationApp::~ImportApplicationApp() = default;
 

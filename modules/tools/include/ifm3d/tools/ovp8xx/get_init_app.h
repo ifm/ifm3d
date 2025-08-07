@@ -21,9 +21,14 @@ namespace ifm3d
   class GetInitApp : public Command
   {
   public:
-    ~GetInitApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    GetInitApp() = default;
+    GetInitApp(const GetInitApp&) = default;
+    GetInitApp(GetInitApp&&) = delete;
+    GetInitApp& operator=(const GetInitApp&) = default;
+    GetInitApp& operator=(GetInitApp&&) = delete;
+    ~GetInitApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
   }; // end: class GetInitApp
 } // end: namespace ifm3d

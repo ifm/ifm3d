@@ -7,10 +7,10 @@
 #ifndef IFM3D_DEVICE_SEMVER_H
 #define IFM3D_DEVICE_SEMVER_H
 
+#include <ifm3d/device/module_device.h>
 #include <iostream>
 #include <optional>
 #include <string>
-#include <ifm3d/device/module_device.h>
 
 namespace ifm3d
 {

@@ -8,6 +8,8 @@
 
 #include <cstdint>
 
+// NOLINTBEGIN
+
 #ifndef M_PI
 #  define M_PI (3.141592653589793f)
 #endif
@@ -29,7 +31,6 @@
 namespace ifm3d
 {
 
-  // NOLINTBEGIN(misc-use-internal-linkage)
   int32_t
   eval_intrinsic(float vx[],
                  float vy[],
@@ -314,5 +315,6 @@ namespace ifm3d
       }
     return 0;
   }
-  // NOLINTEND(misc-use-internal-linkage)
 }
+
+// NOLINTEND

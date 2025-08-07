@@ -4,8 +4,8 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/tools/common/fg/hz_app.h"
-#include "ifm3d/tools/common/fg/jitter_app.h"
+#include <ifm3d/tools/common/fg/hz_app.h>
+#include <ifm3d/tools/common/fg/jitter_app.h>
 #include <ifm3d/tools/common/fg/stat_app.h>
 #include <string>
 

@@ -1,4 +1,5 @@
 **/build/*
+**/build_lint/*
 /docker/build/**/debs/*
 .vscode
 /examples/**/build

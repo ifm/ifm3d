@@ -5,11 +5,11 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/tools/legacy/o3d3xx_app.h"
-#include "ifm3d/device/legacy_device.h"
-#include <ifm3d/tools/legacy/export_application_app.h>
 #include <cstdint>
 #include <fstream>
+#include <ifm3d/device/legacy_device.h>
+#include <ifm3d/tools/legacy/export_application_app.h>
+#include <ifm3d/tools/legacy/o3d3xx_app.h>
 #include <iostream>
 #include <memory>
 #include <string>

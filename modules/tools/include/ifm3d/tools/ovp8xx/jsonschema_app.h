@@ -20,9 +20,14 @@ namespace ifm3d
   class JSONSchemaApp : public Command
   {
   public:
-    ~JSONSchemaApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    JSONSchemaApp() = default;
+    JSONSchemaApp(const JSONSchemaApp&) = default;
+    JSONSchemaApp(JSONSchemaApp&&) = delete;
+    JSONSchemaApp& operator=(const JSONSchemaApp&) = default;
+    JSONSchemaApp& operator=(JSONSchemaApp&&) = delete;
+    ~JSONSchemaApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
   }; // end: class JSONSchemaApp
 

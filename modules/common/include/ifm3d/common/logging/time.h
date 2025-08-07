@@ -11,8 +11,8 @@
 
 namespace ifm3d
 {
-  using logging_clock = std::chrono::system_clock;
-  using logging_timepoint = std::chrono::time_point<std::chrono::system_clock>;
+  using LoggingClock = std::chrono::system_clock;
+  using LogginTimepoint = std::chrono::time_point<std::chrono::system_clock>;
 }
 
 #endif // IFM3D_COMMON_LOGGING_TIME_H

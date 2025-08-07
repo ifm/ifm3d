@@ -5,19 +5,39 @@
 
 #include <CLI/App.hpp>
 #include <CLI/Validators.hpp>
+#include <fmt/core.h> // NOLINT(*)
 #include <functional>
-#include "ifm3d/common/logging/log_level.h"
-#include "ifm3d/common/logging/log_formatter_text.h"
-#include "ifm3d/tools/legacy/o3d3xx_app.h"
-#include "ifm3d/tools/ovp8xx/ovp8xx_app.h"
-#include "ifm3d/tools/common/discover_app.h"
-#include "ifm3d/device/version.h"
-#include "fmt/core.h"
-#include <ifm3d/tools/main_command.hpp>
-#include <ifm3d/device/device.h>
 #include <ifm3d/common/features.h>
-#include <ifm3d/common/logging/logger.h>
+#include <ifm3d/common/logging/log_formatter_text.h>
+#include <ifm3d/common/logging/log_level.h>
 #include <ifm3d/common/logging/log_writer_file.h>
+#include <ifm3d/common/logging/logger.h>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/version.h>
+#include <ifm3d/tools/common/config_set_app.h>
+#include <ifm3d/tools/common/discover_app.h>
+#include <ifm3d/tools/common/dump_app.h>
+#include <ifm3d/tools/common/fg/hz_app.h>
+#include <ifm3d/tools/common/fg/jitter_app.h>
+#include <ifm3d/tools/common/reboot_app.h>
+#include <ifm3d/tools/common/reset_app.h>
+#include <ifm3d/tools/common/swupdater/swupdate_deprecated_app.h>
+#include <ifm3d/tools/common/trace_app.h>
+#include <ifm3d/tools/legacy/app_types_app.h>
+#include <ifm3d/tools/legacy/cp_app.h>
+#include <ifm3d/tools/legacy/export_app.h>
+#include <ifm3d/tools/legacy/imager_types_app.h>
+#include <ifm3d/tools/legacy/import_app.h>
+#include <ifm3d/tools/legacy/ls_app.h>
+#include <ifm3d/tools/legacy/o3d3xx_app.h>
+#include <ifm3d/tools/legacy/o3x_app.h>
+#include <ifm3d/tools/legacy/passwd_app.h>
+#include <ifm3d/tools/legacy/rm_app.h>
+#include <ifm3d/tools/legacy/time_app.h>
+#include <ifm3d/tools/main_command.hpp>
+#include <ifm3d/tools/ovp8xx/diagnostic_app.h>
+#include <ifm3d/tools/ovp8xx/jsonschema_app.h>
+#include <ifm3d/tools/ovp8xx/ovp8xx_app.h>
 #include <memory>
 
 ifm3d::MainCommand::MainCommand()
@@ -58,7 +78,7 @@ ifm3d::MainCommand::CreateCommand(CLI::App* parent)
   std::function<void(const std::string&)> const log_level_cb =
     [&](const std::string& value) {
       ifm3d::Logger::Get().SetLogLevel(
-        ifm3d::LogLevelFromString(value.c_str()));
+        ifm3d::log_level_from_string(value.c_str()));
     };
 
   parent

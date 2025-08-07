@@ -4,9 +4,9 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/tools/ovp8xx/get_diagnostic_app.h"
-#include "ifm3d/tools/ovp8xx/get_filter_schema_app.h"
 #include <ifm3d/tools/ovp8xx/diagnostic_app.h>
+#include <ifm3d/tools/ovp8xx/get_diagnostic_app.h>
+#include <ifm3d/tools/ovp8xx/get_filter_schema_app.h>
 #include <string>
 
 ifm3d::DiagnosticApp::~DiagnosticApp() = default;

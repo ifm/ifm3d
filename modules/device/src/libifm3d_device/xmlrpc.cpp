@@ -1,18 +1,18 @@
-#include "xmlrpc.hpp"
 #include <cstdint>
-#include <string>
-#include "fmt/core.h"
-#include "ifm3d/common/err.h"
-#include "ifm3d/common/json_impl.hpp"
-#include <httplib.h>
-#include <tinyxml2.h>
 #include <cstring>
+#include <fmt/core.h> // NOLINT(*)
+#include <httplib.h>
+#include <ifm3d/common/err.h>
+#include <ifm3d/common/json_impl.hpp>
 #include <ifm3d/device/util.h>
-#include <utility>
-#include <vector>
-#include <unordered_map>
-#include <variant>
+#include <string>
+#include <tinyxml2.h>
 #include <type_traits>
+#include <unordered_map>
+#include <utility>
+#include <variant>
+#include <vector>
+#include <xmlrpc.hpp>
 
 namespace ifm3d
 {
@@ -355,6 +355,7 @@ namespace ifm3d
 
     httplib::Client client(this->ip_, this->xmlrpc_port_);
 
+    // NOLINTNEXTLINE(clang-analyzer-unix.BlockInCriticalSection)
     auto res = client.Post(path, xmlrpc_request, "text/xml");
 
     auto timeout_sec = NET_WAIT / 1000;

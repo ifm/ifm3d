@@ -6,24 +6,24 @@
 #ifndef IFM3D_PYBIND_BINDING_CAMERA
 #define IFM3D_PYBIND_BINDING_CAMERA
 
-#include <pybind11/pybind11.h>
 #include <ifm3d/device/legacy_device.h>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 
-void
+inline void
 bind_legacy_device(pybind11::module_& m)
 {
-  // clang-format off
-  py::class_<ifm3d::LegacyDevice, ifm3d::LegacyDevice::Ptr, ifm3d::Device> legacy_device(
-    m, "LegacyDevice",
-    R"(
+  py::class_<ifm3d::LegacyDevice, ifm3d::LegacyDevice::Ptr, ifm3d::Device>
+    legacy_device(m,
+                  "LegacyDevice",
+                  R"(
       Class for managing an instance of an O3D/O3X Camera
     )");
 
-  legacy_device.def(
-    py::init(&ifm3d::LegacyDevice::MakeShared),
-    R"(
+  legacy_device.def(py::init(&ifm3d::LegacyDevice::MakeShared),
+                    R"(
       Constructor
 
       Parameters
@@ -40,9 +40,9 @@ bind_legacy_device(pybind11::module_& m)
           Edit sessions allow for mutating camera parameters and persisting
           those changes. Defaults to '' (no password).
     )",
-    py::arg("ip") = ifm3d::DEFAULT_IP,
-    py::arg("xmlrpc_port") = ifm3d::DEFAULT_XMLRPC_PORT,
-    py::arg("password") = ifm3d::DEFAULT_PASSWORD);
+                    py::arg("ip") = ifm3d::DEFAULT_IP,
+                    py::arg("xmlrpc_port") = ifm3d::DEFAULT_XMLRPC_PORT,
+                    py::arg("password") = ifm3d::DEFAULT_PASSWORD);
 
   legacy_device.def_property(
     "password",
@@ -50,18 +50,16 @@ bind_legacy_device(pybind11::module_& m)
     &ifm3d::LegacyDevice::SetPassword,
     R"(The password associated with this Camera instance)");
 
-  legacy_device.def_property_readonly(
-    "session_id",
-    &ifm3d::LegacyDevice::SessionID,
-    R"(Retrieves the active session ID)");
+  legacy_device.def_property_readonly("session_id",
+                                      &ifm3d::LegacyDevice::SessionID,
+                                      R"(Retrieves the active session ID)");
 
   // Member Functions
 
-  legacy_device.def(
-    "request_session",
-    &ifm3d::LegacyDevice::RequestSession,
-    py::call_guard<py::gil_scoped_release>(),
-    R"(
+  legacy_device.def("request_session",
+                    &ifm3d::LegacyDevice::RequestSession,
+                    py::call_guard<py::gil_scoped_release>(),
+                    R"(
       Requests an edit-mode session with the camera.
 
       In order to (permanently) mutate parameters on the camera, an edit
@@ -95,11 +93,11 @@ bind_legacy_device(pybind11::module_& m)
       @throws ifm3d::error_t if an error is encountered.
     )");
 
-  legacy_device.def(
-    "cancel_session",
-    (bool (ifm3d::LegacyDevice::*)(void)) &ifm3d::LegacyDevice::CancelSession,
-     py::call_guard<py::gil_scoped_release>(),
-    R"(
+  legacy_device.def("cancel_session",
+                    (bool(ifm3d::LegacyDevice::*)(void)) &
+                      ifm3d::LegacyDevice::CancelSession,
+                    py::call_guard<py::gil_scoped_release>(),
+                    R"(
       Explictly stops the current session with the sensor.
 
       Returns
@@ -109,12 +107,12 @@ bind_legacy_device(pybind11::module_& m)
           for details.
     )");
 
-  legacy_device.def(
-    "cancel_session",
-    (bool (ifm3d::LegacyDevice::*)(const std::string&))&ifm3d::LegacyDevice::CancelSession,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("sid"),
-    R"(
+  legacy_device.def("cancel_session",
+                    (bool(ifm3d::LegacyDevice::*)(const std::string&)) &
+                      ifm3d::LegacyDevice::CancelSession,
+                    py::call_guard<py::gil_scoped_release>(),
+                    py::arg("sid"),
+                    R"(
       Attempts to cancel a session with a particular session id.
 
       Parameters
@@ -129,12 +127,11 @@ bind_legacy_device(pybind11::module_& m)
           for details.
     )");
 
-  legacy_device.def(
-    "heartbeat",
-    &ifm3d::LegacyDevice::Heartbeat,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("hb"),
-    R"(
+  legacy_device.def("heartbeat",
+                    &ifm3d::LegacyDevice::Heartbeat,
+                    py::call_guard<py::gil_scoped_release>(),
+                    py::arg("hb"),
+                    R"(
       Sends a heartbeat message and sets the next heartbeat interval
 
       Heartbeat messages are used to keep a session with the sensor
@@ -157,12 +154,11 @@ bind_legacy_device(pybind11::module_& m)
       RuntimeError
     )");
 
-  legacy_device.def(
-    "set_temporary_application_parameters",
-    &ifm3d::LegacyDevice::SetTemporaryApplicationParameters,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("params"),
-    R"(
+  legacy_device.def("set_temporary_application_parameters",
+                    &ifm3d::LegacyDevice::SetTemporaryApplicationParameters,
+                    py::call_guard<py::gil_scoped_release>(),
+                    py::arg("params"),
+                    R"(
       Sets temporary application parameters in run mode.
 
       The changes are not persistent and are lost when entering edit mode or
@@ -185,11 +181,10 @@ bind_legacy_device(pybind11::module_& m)
       RuntimeError
     )");
 
-  legacy_device.def(
-    "active_application",
-    &ifm3d::LegacyDevice::ActiveApplication,
-    py::call_guard<py::gil_scoped_release>(),
-    R"(
+  legacy_device.def("active_application",
+                    &ifm3d::LegacyDevice::ActiveApplication,
+                    py::call_guard<py::gil_scoped_release>(),
+                    R"(
       Returns the index of the active application.
 
       A negative number indicates no application is marked as active on the
@@ -198,16 +193,15 @@ bind_legacy_device(pybind11::module_& m)
 
   legacy_device.def(
     "application_list",
-    [](const ifm3d::LegacyDevice::Ptr& c) -> py::list
-    {
+    [](const ifm3d::LegacyDevice::Ptr& c) -> py::list {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
       py::gil_scoped_release release;
       auto json_string = c->ApplicationList().dump(2);
       py::gil_scoped_acquire acquire;
       return json_loads(json_string);
-      },
-      R"(
+    },
+    R"(
       Delivers basic information about all applications stored on the device.
       A call to this function does not require establishing a session with the
       camera.
@@ -226,11 +220,10 @@ bind_legacy_device(pybind11::module_& m)
       RuntimeError
       )");
 
-  legacy_device.def(
-    "application_types",
-    &ifm3d::LegacyDevice::ApplicationTypes,
-    py::call_guard<py::gil_scoped_release>(),
-    R"(
+  legacy_device.def("application_types",
+                    &ifm3d::LegacyDevice::ApplicationTypes,
+                    py::call_guard<py::gil_scoped_release>(),
+                    R"(
       Lists the valid application types supported by the sensor.
 
       Returns
@@ -245,11 +238,10 @@ bind_legacy_device(pybind11::module_& m)
       RuntimeError
     )");
 
-  legacy_device.def(
-    "imager_types",
-    &ifm3d::LegacyDevice::ImagerTypes,
-    py::call_guard<py::gil_scoped_release>(),
-    R"(
+  legacy_device.def("imager_types",
+                    &ifm3d::LegacyDevice::ImagerTypes,
+                    py::call_guard<py::gil_scoped_release>(),
+                    R"(
       Lists the valid imager types supported by the sensor.
 
       Returns
@@ -262,12 +254,11 @@ bind_legacy_device(pybind11::module_& m)
       RuntimeError
     )");
 
-  legacy_device.def(
-    "copy_application",
-    &ifm3d::LegacyDevice::CopyApplication,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("idx"),
-    R"(
+  legacy_device.def("copy_application",
+                    &ifm3d::LegacyDevice::CopyApplication,
+                    py::call_guard<py::gil_scoped_release>(),
+                    py::arg("idx"),
+                    R"(
       Creates a new application by copying the configuration of another
       application. The device will generate an ID for the new application and
       put it on a free index.
@@ -287,12 +278,11 @@ bind_legacy_device(pybind11::module_& m)
       RuntimeError
     )");
 
-  legacy_device.def(
-    "create_application",
-    &ifm3d::LegacyDevice::CreateApplication,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("type") = ifm3d::DEFAULT_APPLICATION_TYPE,
-    R"(
+  legacy_device.def("create_application",
+                    &ifm3d::LegacyDevice::CreateApplication,
+                    py::call_guard<py::gil_scoped_release>(),
+                    py::arg("type") = ifm3d::DEFAULT_APPLICATION_TYPE,
+                    R"(
       Creates a new application on the camera of the given type.
 
       To figure out valid `type`s, you should call the
@@ -316,12 +306,11 @@ bind_legacy_device(pybind11::module_& m)
           The index of the new application.
     )");
 
-  legacy_device.def(
-    "delete_application",
-    &ifm3d::LegacyDevice::DeleteApplication,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("idx"),
-    R"(
+  legacy_device.def("delete_application",
+                    &ifm3d::LegacyDevice::DeleteApplication,
+                    py::call_guard<py::gil_scoped_release>(),
+                    py::arg("idx"),
+                    R"(
       Deletes the application at the specified index from the sensor.
 
       Parameters
@@ -334,12 +323,11 @@ bind_legacy_device(pybind11::module_& m)
       RuntimeError
     )");
 
-  legacy_device.def(
-    "set_current_time",
-    &ifm3d::LegacyDevice::SetCurrentTime,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("epoch_secs") = -1,
-    R"(
+  legacy_device.def("set_current_time",
+                    &ifm3d::LegacyDevice::SetCurrentTime,
+                    py::call_guard<py::gil_scoped_release>(),
+                    py::arg("epoch_secs") = -1,
+                    R"(
       Sets the current time on the camera
 
       Parameters
@@ -349,11 +337,10 @@ bind_legacy_device(pybind11::module_& m)
           implicity set the time to the current system time.
     )");
 
-  legacy_device.def(
-    "factory_reset",
-    &ifm3d::LegacyDevice::FactoryReset,
-    py::call_guard<py::gil_scoped_release>(),
-    R"(
+  legacy_device.def("factory_reset",
+                    &ifm3d::LegacyDevice::FactoryReset,
+                    py::call_guard<py::gil_scoped_release>(),
+                    R"(
       Sets the camera configuration back to the state in which it shipped from
       the ifm factory.
     )");
@@ -362,11 +349,10 @@ bind_legacy_device(pybind11::module_& m)
   // @TODO: Not tested; not supported on my o3d303?
   // how to expose this info anyway? numpy?
   //
-  legacy_device.def(
-    "unit_vectors",
-    &ifm3d::LegacyDevice::UnitVectors,
-    py::call_guard<py::gil_scoped_release>(),
-    R"(
+  legacy_device.def("unit_vectors",
+                    &ifm3d::LegacyDevice::UnitVectors,
+                    py::call_guard<py::gil_scoped_release>(),
+                    R"(
       For cameras that support fetching the Unit Vectors over XML-RPC, this
       function will return those data as a binary blob.
 
@@ -375,11 +361,10 @@ bind_legacy_device(pybind11::module_& m)
       list[int]
     )");
 
-  legacy_device.def(
-    "export_ifm_config",
-    &ifm3d::LegacyDevice::ExportIFMConfig,
-    py::call_guard<py::gil_scoped_release>(),
-    R"(
+  legacy_device.def("export_ifm_config",
+                    &ifm3d::LegacyDevice::ExportIFMConfig,
+                    py::call_guard<py::gil_scoped_release>(),
+                    R"(
       Exports the entire camera configuration in a format compatible with
       Vision Assistant.
 
@@ -388,12 +373,11 @@ bind_legacy_device(pybind11::module_& m)
       list[int]
     )");
 
-  legacy_device.def(
-    "export_ifm_app",
-    &ifm3d::LegacyDevice::ExportIFMApp,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("idx"),
-    R"(
+  legacy_device.def("export_ifm_app",
+                    &ifm3d::LegacyDevice::ExportIFMApp,
+                    py::call_guard<py::gil_scoped_release>(),
+                    py::arg("idx"),
+                    R"(
       Export the application at the specified index into a byte array suitable
       for writing to a file. The exported bytes represent the ifm serialization
       of an application.
@@ -417,13 +401,12 @@ bind_legacy_device(pybind11::module_& m)
       RuntimeError
     )");
 
-  legacy_device.def(
-    "import_ifm_config",
-    &ifm3d::LegacyDevice::ImportIFMConfig,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("bytes"),
-    py::arg("flags") = 0,
-    R"(
+  legacy_device.def("import_ifm_config",
+                    &ifm3d::LegacyDevice::ImportIFMConfig,
+                    py::call_guard<py::gil_scoped_release>(),
+                    py::arg("bytes"),
+                    py::arg("flags") = 0,
+                    R"(
       Imports the entire camera configuration in a format compatible with
       Vision Assistant.
 
@@ -435,12 +418,11 @@ bind_legacy_device(pybind11::module_& m)
       flags : int
     )");
 
-  legacy_device.def(
-    "import_ifm_app",
-    &ifm3d::LegacyDevice::ImportIFMApp,
-    py::call_guard<py::gil_scoped_release>(),
-    py::arg("bytes"),
-    R"(
+  legacy_device.def("import_ifm_app",
+                    &ifm3d::LegacyDevice::ImportIFMApp,
+                    py::call_guard<py::gil_scoped_release>(),
+                    py::arg("bytes"),
+                    R"(
       Import the IFM-encoded application.
 
       This function provides compatibility with tools like IFM's Vision
@@ -459,7 +441,6 @@ bind_legacy_device(pybind11::module_& m)
       int
           The index of the imported application.
     )");
-  // clang-format on
 }
 
 #endif // IFM3D_PYBIND_BINDING_CAMERA

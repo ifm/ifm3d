@@ -21,9 +21,14 @@ namespace ifm3d
   class ResetApp : public Command
   {
   public:
-    ~ResetApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    ResetApp() = default;
+    ResetApp(const ResetApp&) = default;
+    ResetApp(ResetApp&&) = delete;
+    ResetApp& operator=(const ResetApp&) = default;
+    ResetApp& operator=(ResetApp&&) = delete;
+    ~ResetApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
     bool reboot{false};
     bool network_settings{true};

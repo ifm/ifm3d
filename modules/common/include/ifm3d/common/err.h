@@ -8,8 +8,8 @@
 #ifndef IFM3D_COMMON_ERR_H
 #define IFM3D_COMMON_ERR_H
 
-#include <ifm3d/common/export.h>
 #include <exception>
+#include <ifm3d/common/export.h>
 #include <string>
 
 /** @ingroup Device
@@ -124,35 +124,37 @@ namespace ifm3d
     /**
      * Exception message
      */
-    const char* what() const noexcept override;
+    [[nodiscard]] const char* what() const noexcept override;
 
     /**
      * Accessor to the underlying error code
      */
-    int code() const noexcept;
+    // NOLINTNEXTLINE(readability-identifier-naming) Ignore our naming scheme
+    [[nodiscard]] int code() const noexcept;
 
     /**
      * Accessor to the underlying error msg
      */
-    const char* message() const noexcept;
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    [[nodiscard]] const char* message() const noexcept;
 
   private:
     /**
      * The error code from the sensor/system/library that this exception
      * wraps.
      */
-    int errnum_;
+    int _errnum;
 
     /**
      * Optional error message to pass additional details about the error
      */
-    std::string errmsg_;
+    std::string _errmsg;
 
     /**
      * String representation of the error including the error code and
      * optionally the message
      */
-    std::string what_;
+    std::string _what;
 
     static std::string format_error(int errnum, const std::string& msg);
   }; // end: class Error

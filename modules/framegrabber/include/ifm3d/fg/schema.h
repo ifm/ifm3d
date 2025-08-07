@@ -9,12 +9,12 @@
 #define IFM3D_FG_SCHEMA_H
 
 #include <cstdint>
-#include <string>
-#include <set>
-#include <ifm3d/fg/module_frame_grabber.h>
 #include <ifm3d/device/device.h>
-#include <ifm3d/fg/frame.h>
 #include <ifm3d/device/semver.h>
+#include <ifm3d/fg/frame.h>
+#include <ifm3d/fg/module_frame_grabber.h>
+#include <set>
+#include <string>
 
 namespace ifm3d
 {

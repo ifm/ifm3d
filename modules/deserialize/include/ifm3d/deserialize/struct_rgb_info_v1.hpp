@@ -7,12 +7,12 @@
 #ifndef IFM3D_DESERIALIZE_STRUCT_RGB_INFO_V1_HPP
 #define IFM3D_DESERIALIZE_STRUCT_RGB_INFO_V1_HPP
 
-#include <ifm3d/device/device.h>
-#include <ifm3d/device/err.h>
-#include <ifm3d/fg/organizer_utils.h>
-#include <ifm3d/fg/buffer.h>
 #include <ifm3d/deserialize/deserialize_utils.hpp>
 #include <ifm3d/deserialize/struct_calibration.hpp>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/err.h>
+#include <ifm3d/fg/buffer.h>
+#include <ifm3d/fg/organizer_utils.h>
 
 namespace ifm3d
 {
@@ -37,13 +37,9 @@ namespace ifm3d
     static bool
     IsValid(const uint8_t* data, size_t size)
     {
-      uint32_t version = mkval<std::uint32_t>(data + RGB_INFO_VERSION_INDEX);
+      auto version = mkval<std::uint32_t>(data + RGB_INFO_VERSION_INDEX);
 
-      if (size < rgb_info_v1_size || version < 1)
-        {
-          return false;
-        }
-      return true;
+      return size >= RGB_INFO_V1_SIZE && version >= 1;
     }
 
     void
@@ -83,15 +79,15 @@ namespace ifm3d
     /*@brief Inverse intrinsic Calibration parameters*/
     calibration::InverseIntrinsicCalibration inverse_intrinsic_calibration;
     /*@brief Size of RGB_INFO in bytes*/
-    static constexpr size_t rgb_info_v1_size = 308;
+    static constexpr size_t RGB_INFO_V1_SIZE = 308;
 
     static RGBInfoV1
     Deserialize(const Buffer& rgb_info_buffer)
     {
-      RGBInfoV1 rgb_info_v1;
+      RGBInfoV1 rgb_info_v1{};
 
-      rgb_info_v1.Read(rgb_info_buffer.ptr<uint8_t>(0),
-                       rgb_info_buffer.size());
+      rgb_info_v1.Read(rgb_info_buffer.Ptr<uint8_t>(0),
+                       rgb_info_buffer.Size());
       return rgb_info_v1;
     }
   };

@@ -8,11 +8,11 @@
 #define IFM3D_TOOLS_SET_TEMP_IP_APP_H
 #pragma once
 
-#include <string>
-#include <ifm3d/tools/command.hpp>
-#include <ifm3d/tools/main_command.hpp>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
+#include <ifm3d/tools/command.hpp>
+#include <ifm3d/tools/main_command.hpp>
+#include <string>
 
 namespace ifm3d
 {
@@ -23,12 +23,17 @@ namespace ifm3d
   class SetTemporaryIPApp : public Command
   {
   public:
-    ~SetTemporaryIPApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    SetTemporaryIPApp() = default;
+    SetTemporaryIPApp(const SetTemporaryIPApp&) = default;
+    SetTemporaryIPApp(SetTemporaryIPApp&&) = delete;
+    SetTemporaryIPApp& operator=(const SetTemporaryIPApp&) = default;
+    SetTemporaryIPApp& operator=(SetTemporaryIPApp&&) = delete;
+    ~SetTemporaryIPApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
-    std::string mac{""};
-    std::string temp_ip{""};
+    std::string mac;
+    std::string temp_ip;
 
   }; // end: class SetTemporaryIPApp
 

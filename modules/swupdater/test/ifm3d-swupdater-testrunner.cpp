@@ -1,5 +1,5 @@
-#include "ifm3d/device/device.h"
 #include <gtest/gtest.h>
+#include <ifm3d/device/device.h>
 #include <map>
 #include <string>
 

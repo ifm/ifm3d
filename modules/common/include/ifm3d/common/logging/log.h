@@ -10,8 +10,8 @@
 #include <cstring>
 
 #include <ifm3d/common/logging/log_entry.h>
-#include <ifm3d/common/logging/logger.h>
 #include <ifm3d/common/logging/log_level.h>
+#include <ifm3d/common/logging/logger.h>
 
 #include <fmt/format.h>
 
@@ -32,7 +32,9 @@ namespace ifm3d
   {
     std::size_t len = 0;
     while (str[len] != '\0')
-      ++len;
+      {
+        ++len;
+      }
     return len;
   }
 
@@ -58,10 +60,13 @@ namespace ifm3d
   }
 }
 
+// NOLINTNEXTLINE(*-macro-usage)
 #define LOG_GET_FILE()                                                        \
   ::ifm3d::_log_strip_prefix(__FILE__, IFM3D_COMMON_LOGGING_STRIP_PREFIX)
+// NOLINTNEXTLINE(*-macro-usage)
 #define LOG_GET_LINE() __LINE__
 
+// NOLINTNEXTLINE(*-macro-usage,readability-identifier-naming)
 #define LOG_IF_(condition)                                                    \
   if (!(condition))                                                           \
     {                                                                         \

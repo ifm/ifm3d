@@ -8,9 +8,9 @@
 #define IFM3D_IFM_NETWORK_DEVICE_H
 
 #include <cstdint>
+#include <ifm3d/device/module_device.h>
 #include <string>
 #include <vector>
-#include <ifm3d/device/module_device.h>
 
 namespace ifm3d
 {

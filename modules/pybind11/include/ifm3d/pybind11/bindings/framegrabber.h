@@ -7,25 +7,23 @@
 #define IFM3D_PYBIND_BINDING_FRAMEGRABBER
 
 #include <ifm3d/fg/frame_grabber.h>
-#include <pybind11/pybind11.h>
+#include <ifm3d/pybind11/bindings/future.h>
 #include <pybind11/functional.h>
-#include <ifm3d/fg/frame_grabber.h>
-#include "bindings/future.h"
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 
-void
+inline void
 bind_framegrabber(pybind11::module_& m)
 {
-  // clang-format off
 
   py::class_<ifm3d::FrameGrabber, ifm3d::FrameGrabber::Ptr> framegrabber(
     m,
     "FrameGrabber",
     R"(
       Implements a TCP FrameGrabber connected to a provided Camera
-    )"
-  );
+    )");
 
   framegrabber.def(
     py::init<ifm3d::Device::Ptr, std::optional<std::uint16_t>>(),
@@ -41,8 +39,7 @@ bind_framegrabber(pybind11::module_& m)
 
       pcic_port : uint16
           The PCIC port
-    )"
-  );
+    )");
 
   {
     py::options options;
@@ -50,11 +47,17 @@ bind_framegrabber(pybind11::module_& m)
 
     framegrabber.def(
       "start",
-      [](const ifm3d::FrameGrabber::Ptr& self, const ifm3d::FrameGrabber::BufferList& buffers, const std::optional<py::dict>& pcicFormat) {
+      [](const ifm3d::FrameGrabber::Ptr& self,
+         const ifm3d::FrameGrabber::BufferList& buffers,
+         const std::optional<py::dict>& pcic_format) {
         py::object json_dumps = py::module::import("json").attr("dumps");
-        return FutureAwaitable<void>(pcicFormat.has_value() 
-          ? self->Start(buffers, ifm3d::json::parse(json_dumps(pcicFormat.value()).cast<std::string>())) 
-          : self->Start(buffers));
+        return FutureAwaitable<void>(
+          pcic_format.has_value() ?
+            self->Start(
+              buffers,
+              ifm3d::json::parse(
+                json_dumps(pcic_format.value()).cast<std::string>())) :
+            self->Start(buffers));
       },
       py::arg("buffers") = ifm3d::FrameGrabber::BufferList{},
       py::arg("pcic_format") = std::nullopt,
@@ -87,15 +90,14 @@ bind_framegrabber(pybind11::module_& m)
             Note: The FrameGrabber is relying on some specific formatting rules, if
             they are missing from the pcicFormat the FrameGrabber will not be able to
             extract the image data.
-      )")
-    );
+      )"));
   }
 
   framegrabber.def(
     "stop",
     [](const ifm3d::FrameGrabber::Ptr& fg) {
       return FutureAwaitable<void>(fg->Stop());
-      },
+    },
     R"(
       Stops the worker thread for streaming in pixel data from the device
 
@@ -104,16 +106,13 @@ bind_framegrabber(pybind11::module_& m)
       FutureAwaitable
 
           Resolves when framgrabber stops.
-    )"
-  );
+    )");
 
-  framegrabber.def(
-    "is_running",
-    &ifm3d::FrameGrabber::IsRunning,
-    R"(
+  framegrabber.def("is_running",
+                   &ifm3d::FrameGrabber::IsRunning,
+                   R"(
       Returns true if the worker thread is currently running
-    )"
-  );
+    )");
 
   framegrabber.def(
     "wait_for_frame",
@@ -122,27 +121,27 @@ bind_framegrabber(pybind11::module_& m)
     },
     R"(
       Returns an Awaitable that will resolve when a new frame is available
-    )"
-  );
+    )");
 
   framegrabber.def(
     "on_new_frame",
-    [](const ifm3d::FrameGrabber::Ptr& fg, const ifm3d::FrameGrabber::NewFrameCallback& callback) {
-      if(callback) 
+    [](const ifm3d::FrameGrabber::Ptr& fg,
+       const ifm3d::FrameGrabber::NewFrameCallback& callback) {
+      if (callback)
         {
-          fg->OnNewFrame([callback](const ifm3d::Frame::Ptr& frame){
+          fg->OnNewFrame([callback](const ifm3d::Frame::Ptr& frame) {
             py::gil_scoped_acquire acquire;
-            try 
+            try
               {
                 callback(frame);
               }
-            catch(py::error_already_set ex)
+            catch (py::error_already_set& ex)
               {
                 py::print(ex.value());
               }
           });
         }
-      else 
+      else
         {
           fg->OnNewFrame();
         }
@@ -151,27 +150,27 @@ bind_framegrabber(pybind11::module_& m)
     R"(
       The callback will be executed whenever a new frame is available.
       It receives the frame as an argument.
-    )"
-  );
+    )");
 
   framegrabber.def(
     "on_async_error",
-    [](const ifm3d::FrameGrabber::Ptr& fg, const ifm3d::FrameGrabber::AsyncErrorCallback& callback) {
-      if(callback) 
+    [](const ifm3d::FrameGrabber::Ptr& fg,
+       const ifm3d::FrameGrabber::AsyncErrorCallback& callback) {
+      if (callback)
         {
-          fg->OnAsyncError([callback](int code, const std::string& message){
+          fg->OnAsyncError([callback](int code, const std::string& message) {
             py::gil_scoped_acquire acquire;
-            try 
+            try
               {
                 callback(code, message);
               }
-            catch(py::error_already_set ex)
+            catch (py::error_already_set& ex)
               {
                 py::print(ex.value());
               }
           });
         }
-      else 
+      else
         {
           fg->OnAsyncError();
         }
@@ -182,27 +181,28 @@ bind_framegrabber(pybind11::module_& m)
       The callback will be executed whenever a async error
       are avaliable. It receives a error code and error string
       to the received async error as an argument. 
-    )"
-  );
+    )");
 
   framegrabber.def(
     "on_async_notification",
-    [](const ifm3d::FrameGrabber::Ptr& fg, const ifm3d::FrameGrabber::AsyncNotificationCallback& callback) {
-      if(callback) 
+    [](const ifm3d::FrameGrabber::Ptr& fg,
+       const ifm3d::FrameGrabber::AsyncNotificationCallback& callback) {
+      if (callback)
         {
-          fg->OnAsyncNotification([callback](const std::string& message_id, const std::string& payload){
+          fg->OnAsyncNotification([callback](const std::string& message_id,
+                                             const std::string& payload) {
             py::gil_scoped_acquire acquire;
-            try 
+            try
               {
                 callback(message_id, payload);
               }
-            catch(py::error_already_set ex)
+            catch (py::error_already_set& ex)
               {
                 py::print(ex.value());
               }
           });
         }
-      else 
+      else
         {
           fg->OnAsyncNotification();
         }
@@ -212,8 +212,7 @@ bind_framegrabber(pybind11::module_& m)
       This function will enable the async notifications on device.
       The callback will be executed whenever a async notification
       is avaliable. It receives a message id and payload string
-    )"
-  );
+    )");
 
   {
     py::options options;
@@ -221,37 +220,40 @@ bind_framegrabber(pybind11::module_& m)
 
     framegrabber.def(
       "on_error",
-      [](const ifm3d::FrameGrabber::Ptr& fg, const std::function<void(const py::object&)>& callback) {
-        if(callback) 
+      [](const ifm3d::FrameGrabber::Ptr& fg,
+         const std::function<void(const py::object&)>& callback) {
+        if (callback)
           {
-              fg->OnError([callback](const ifm3d::Error& error){
+            fg->OnError([callback](const ifm3d::Error& ifm3d_error) {
               py::gil_scoped_acquire acquire;
               try
                 {
-                  auto error_class = py::module::import("ifm3dpy").attr("Error");
-                  auto error_ = error_class(error.code(), error.message(),error.what());
-                  callback(error_);
+                  auto error_class =
+                    py::module::import("ifm3dpy").attr("Error");
+                  auto py_error = error_class(ifm3d_error.code(),
+                                              ifm3d_error.message(),
+                                              ifm3d_error.what());
+                  callback(py_error);
                 }
-              catch(py::error_already_set ex)
+              catch (py::error_already_set& ex)
                 {
                   py::print(ex.value());
                 }
             });
           }
-        else 
+        else
           {
             fg->OnError();
           }
       },
-      py::arg("callback") =  std::function<void(const py::object&)>(),
+      py::arg("callback") = std::function<void(const py::object&)>(),
       R"(
         on_error(self: ifm3dpy.framegrabber.FrameGrabber, callback: Callable[[ifm3dpy.device.Error], None] = None) -> None
 
 
         The callback will be executed whenever an error condition
         occur while grabbing the data from device.
-      )"
-    );
+      )");
   }
 
   framegrabber.def(
@@ -273,13 +275,11 @@ bind_framegrabber(pybind11::module_& m)
       recommend calling this function in a tight framegrabbing loop when you
       know it is not needed. The "cost" of the NOOP is undefined and incurring
       it is not recommended.
-    )"
-  );
+    )");
 
-   framegrabber.def(
-    "set_masking",
-    &ifm3d::FrameGrabber::SetMasking,
-    R"(
+  framegrabber.def("set_masking",
+                   &ifm3d::FrameGrabber::SetMasking,
+                   R"(
       Enable/Disable masking on supported buffers
       Note: ifm3dpy.buffer_id.CONFIDENCE_IMAGE should be in schema  list passed to ifm3dpy.FrameGrabber.Start method
 
@@ -287,20 +287,15 @@ bind_framegrabber(pybind11::module_& m)
       ----------
       mask
           flag to enable/disable masking.
-    )"
-  );
+    )");
 
-    framegrabber.def(
-    "is_masking",
-    &ifm3d::FrameGrabber::IsMasking,
-    R"(
+  framegrabber.def("is_masking",
+                   &ifm3d::FrameGrabber::IsMasking,
+                   R"(
       Returns
       -------
       Masking flag
-    )"
-  );
-
-  // clang-format on
+    )");
 }
 
 #endif // IFM3D_PYBIND_BINDING_FRAMEGRABBER

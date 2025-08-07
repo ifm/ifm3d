@@ -3,16 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "ifm3d/fg/buffer_id.h"
-#include "ifm3d/common/err.h"
-#include "ifm3d/fg/organizer.h"
 #include <cstdint>
-#include "ifm3d/fg/frame.h"
+#include <ifm3d/common/err.h>
+#include <ifm3d/fg/buffer_id.h>
+#include <ifm3d/fg/frame.h>
+#include <ifm3d/fg/organizer.h>
+#include <ifm3d/fg/organizer_utils.h>
 #include <map>
 #include <o3r_organizer.hpp>
-#include <ifm3d/fg/organizer_utils.h>
-#include <vector>
 #include <set>
+#include <vector>
 
 ifm3d::Organizer::Result
 ifm3d::O3ROrganizer::Organize(const std::vector<uint8_t>& data,

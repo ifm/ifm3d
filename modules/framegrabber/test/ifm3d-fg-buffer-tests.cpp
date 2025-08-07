@@ -1,12 +1,12 @@
-#include "ifm3d/common/err.h"
-#include "ifm3d/device/device.h"
-#include "ifm3d/fg/buffer_id.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
-#include <ifm3d/fg/buffer.h>
 #include <gtest/gtest.h>
+#include <ifm3d/common/err.h>
+#include <ifm3d/device/device.h>
+#include <ifm3d/fg/buffer.h>
+#include <ifm3d/fg/buffer_id.h>
 
 namespace
 {
@@ -39,9 +39,9 @@ TEST(Buffer, Construct)
 {
   ifm3d::Buffer const img;
 
-  EXPECT_TRUE(img.width() == 0);
-  EXPECT_TRUE(img.height() == 0);
-  EXPECT_TRUE(img.nchannels() == 0);
+  EXPECT_TRUE(img.Width() == 0);
+  EXPECT_TRUE(img.Height() == 0);
+  EXPECT_TRUE(img.NumChannels() == 0);
 }
 
 TEST(Buffer, parameter_ctor)
@@ -52,11 +52,11 @@ TEST(Buffer, parameter_ctor)
 
   ifm3d::Buffer img(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
 
-  EXPECT_TRUE(img.ptr(0) != nullptr);
-  EXPECT_TRUE(img.width() == width);
-  EXPECT_TRUE(img.height() == height);
-  EXPECT_TRUE(img.nchannels() == nchannel);
-  EXPECT_TRUE(img.dataFormat() == ifm3d::pixel_format::FORMAT_8U);
+  EXPECT_TRUE(img.Ptr(0) != nullptr);
+  EXPECT_TRUE(img.Width() == width);
+  EXPECT_TRUE(img.Height() == height);
+  EXPECT_TRUE(img.NumChannels() == nchannel);
+  EXPECT_TRUE(img.DataFormat() == ifm3d::pixel_format::FORMAT_8U);
 }
 
 TEST(Buffer, copy_ctor)
@@ -68,11 +68,11 @@ TEST(Buffer, copy_ctor)
   ifm3d::Buffer img1(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
   ifm3d::Buffer img(img1);
 
-  EXPECT_TRUE(img.ptr(0) == img1.ptr(0));
-  EXPECT_TRUE(img.width() == img1.width());
-  EXPECT_TRUE(img.height() == img1.height());
-  EXPECT_TRUE(img.nchannels() == img1.nchannels());
-  EXPECT_TRUE(img.dataFormat() == img1.dataFormat());
+  EXPECT_TRUE(img.Ptr(0) == img1.Ptr(0));
+  EXPECT_TRUE(img.Width() == img1.Width());
+  EXPECT_TRUE(img.Height() == img1.Height());
+  EXPECT_TRUE(img.NumChannels() == img1.NumChannels());
+  EXPECT_TRUE(img.DataFormat() == img1.DataFormat());
 
   EXPECT_TRUE(std::equal(img.begin<std::uint8_t>(),
                          img.end<std::uint8_t>(),
@@ -88,11 +88,11 @@ TEST(Buffer, copy_assigment)
   ifm3d::Buffer img1(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
   ifm3d::Buffer img = img1;
 
-  EXPECT_TRUE(img.ptr(0) == img1.ptr(0));
-  EXPECT_TRUE(img.width() == img1.width());
-  EXPECT_TRUE(img.height() == img1.height());
-  EXPECT_TRUE(img.nchannels() == img1.nchannels());
-  EXPECT_TRUE(img.dataFormat() == img1.dataFormat());
+  EXPECT_TRUE(img.Ptr(0) == img1.Ptr(0));
+  EXPECT_TRUE(img.Width() == img1.Width());
+  EXPECT_TRUE(img.Height() == img1.Height());
+  EXPECT_TRUE(img.NumChannels() == img1.NumChannels());
+  EXPECT_TRUE(img.DataFormat() == img1.DataFormat());
 
   EXPECT_TRUE(std::equal(img.begin<std::uint8_t>(),
                          img.end<std::uint8_t>(),
@@ -107,14 +107,14 @@ TEST(Buffer, Create)
   const int width = 100;
   const int nchannel = 1;
 
-  auto const buffer_id = static_cast<ifm3d::buffer_id>(img.bufferId());
-  img.create(width, height, 1, ifm3d::pixel_format::FORMAT_8U, buffer_id);
+  auto const buffer_id = static_cast<ifm3d::buffer_id>(img.BufferId());
+  img.Create(width, height, 1, ifm3d::pixel_format::FORMAT_8U, buffer_id);
 
-  EXPECT_TRUE(img.ptr(0) != nullptr);
-  EXPECT_TRUE(img.width() == width);
-  EXPECT_TRUE(img.height() == height);
-  EXPECT_TRUE(img.nchannels() == nchannel);
-  EXPECT_TRUE(img.dataFormat() == ifm3d::pixel_format::FORMAT_8U);
+  EXPECT_TRUE(img.Ptr(0) != nullptr);
+  EXPECT_TRUE(img.Width() == width);
+  EXPECT_TRUE(img.Height() == height);
+  EXPECT_TRUE(img.NumChannels() == nchannel);
+  EXPECT_TRUE(img.DataFormat() == ifm3d::pixel_format::FORMAT_8U);
 }
 
 // CLone
@@ -126,13 +126,13 @@ TEST(Buffer, Clone)
   const int nchannel = 1;
 
   ifm3d::Buffer img(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
-  ifm3d::Buffer img_clone = img.clone();
+  ifm3d::Buffer img_clone = img.Clone();
 
-  EXPECT_TRUE(img.ptr(0) != img_clone.ptr(0));
-  EXPECT_TRUE(img.width() == img_clone.width());
-  EXPECT_TRUE(img.height() == img_clone.height());
-  EXPECT_TRUE(img.nchannels() == img_clone.nchannels());
-  EXPECT_TRUE(img.dataFormat() == img_clone.dataFormat());
+  EXPECT_TRUE(img.Ptr(0) != img_clone.Ptr(0));
+  EXPECT_TRUE(img.Width() == img_clone.Width());
+  EXPECT_TRUE(img.Height() == img_clone.Height());
+  EXPECT_TRUE(img.NumChannels() == img_clone.NumChannels());
+  EXPECT_TRUE(img.DataFormat() == img_clone.DataFormat());
 
   EXPECT_TRUE(std::equal(img.begin<std::uint8_t>(),
                          img.end<std::uint8_t>(),
@@ -148,9 +148,9 @@ TEST(Buffer, row_pointer)
 
   ifm3d::Buffer img(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
 
-  EXPECT_TRUE(img.ptr(0) != nullptr);
-  EXPECT_TRUE(img.ptr(height - 1) != nullptr);
-  EXPECT_TRUE(img.ptr(10, 10) != nullptr);
+  EXPECT_TRUE(img.Ptr(0) != nullptr);
+  EXPECT_TRUE(img.Ptr(height - 1) != nullptr);
+  EXPECT_TRUE(img.Ptr(10, 10) != nullptr);
 }
 
 // at function
@@ -165,7 +165,7 @@ TEST(Buffer, at)
   // fill the image with values
   for (int i = 0; i < height * width; i++)
     {
-      EXPECT_NO_FATAL_FAILURE(img.at<uint16_t>(i) = i);
+      EXPECT_NO_FATAL_FAILURE(img.At<uint16_t>(i) = i);
     }
   uint16_t val = 0;
   for (auto pix_val : ifm3d::IteratorAdapter<uint16_t>(img))
@@ -178,7 +178,7 @@ TEST(Buffer, at)
     {
       for (int col = 0; col < width; col++)
         {
-          EXPECT_TRUE(img.at<uint16_t>(row, col) == val);
+          EXPECT_TRUE(img.At<uint16_t>(row, col) == val);
           val++;
         }
     }
@@ -197,7 +197,7 @@ TEST(Buffer, setTo)
   add<uint8_t>(mask, 1);
   uint16_t const val = 255;
 
-  img.setTo<uint16_t>(val, mask);
+  img.SetTo<uint16_t>(val, mask);
   auto mask_itr = mask.begin<uint8_t>();
   for (const auto pix_val : ifm3d::IteratorAdapter<uint16_t>(img))
     {
@@ -221,14 +221,14 @@ TEST(Buffer, iterators)
   // fill the image with values
   for (int i = 0; i < height * width; i++)
     {
-      EXPECT_NO_FATAL_FAILURE(img.at<uint16_t>(i) = i);
+      EXPECT_NO_FATAL_FAILURE(img.At<uint16_t>(i) = i);
     }
 
   auto it_begin = img.begin<uint16_t>();
   auto it_end = img.begin<uint16_t>();
   EXPECT_TRUE(it_begin != nullptr);
   EXPECT_TRUE(it_end != nullptr);
-  EXPECT_TRUE(it_begin == img.ptr(0));
+  EXPECT_TRUE(it_begin == img.Ptr(0));
   uint16_t val = 0;
   auto it = it_begin;
   for (int i = 0; i < width * height; i++, val++, it++)
@@ -258,15 +258,15 @@ TEST(Buffer, ptr_comparision)
       point.val[0] = static_cast<float>(rand());
       point.val[1] = static_cast<float>(rand());
       point.val[2] = static_cast<float>(rand());
-      EXPECT_NO_FATAL_FAILURE(img.at<ifm3d::Point3D_32F>(i) = point);
+      EXPECT_NO_FATAL_FAILURE(img.At<ifm3d::Point3D_32F>(i) = point);
     }
 
-  for (int i = 0; i < img.height(); i++)
+  for (int i = 0; i < img.Height(); i++)
     {
-      for (int j = 0; j < img.width(); j++)
+      for (int j = 0; j < img.Width(); j++)
         {
-          auto* ptr = img.ptr<float>(i, j);
-          auto* ptr_struct = img.ptr<ifm3d::Point3D_32F>(i, j);
+          auto* ptr = img.Ptr<float>(i, j);
+          auto* ptr_struct = img.Ptr<ifm3d::Point3D_32F>(i, j);
           EXPECT_TRUE(ptr[0] == ptr_struct->val[0]);
           EXPECT_TRUE(ptr[1] == ptr_struct->val[1]);
           EXPECT_TRUE(ptr[2] == ptr_struct->val[2]);

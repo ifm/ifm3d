@@ -1,30 +1,30 @@
+#include "test_utils.hpp"
 #include <array>
 #include <cstdint>
-#include <memory>
-#include "gtest/gtest.h"
-#include <ifm3d/fg/buffer.h>
-#include <ifm3d/device/o3r.h>
-#include <ifm3d/device/o3d.h>
-#include <ifm3d/deserialize/struct_tof_info_v3.hpp>
-#include <ifm3d/deserialize/struct_tof_info_v4.hpp>
-#include <ifm3d/deserialize/struct_rgb_info_v1.hpp>
+#include <gtest/gtest.h>
+#include <ifm3d/common/err.h>
+#include <ifm3d/deserialize/deserialize_o3d_buffers.hpp>
+#include <ifm3d/deserialize/struct_o3r_ods_extrinsic_calibration_correction_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_info_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_occupancy_grid_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_polar_occupancy_grid_v1.hpp>
-#include <ifm3d/deserialize/struct_o3r_ods_extrinsic_calibration_correction_v1.hpp>
-#include <ifm3d/deserialize/deserialize_o3d_buffers.hpp>
-#include "ifm3d/common/err.h"
-#include "ifm3d/device/device.h"
-#include "ifm3d/fg/buffer_id.h"
-#include "ifm3d/fg/frame_grabber.h"
-#include "tof_info_test_data.hpp"
-#include "rgb_info_test_data.hpp"
-#include "ods_info_test_data.hpp"
-#include "ods_occupancy_grid.hpp"
-#include "ods_polar_occupancy_grid.hpp"
-#include "ods_extrinsic_calibration_correction.hpp"
-#include "o3d_parameters.hpp"
-#include "test_utils.hpp"
+#include <ifm3d/deserialize/struct_rgb_info_v1.hpp>
+#include <ifm3d/deserialize/struct_tof_info_v3.hpp>
+#include <ifm3d/deserialize/struct_tof_info_v4.hpp>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/o3d.h>
+#include <ifm3d/device/o3r.h>
+#include <ifm3d/fg/buffer.h>
+#include <ifm3d/fg/buffer_id.h>
+#include <ifm3d/fg/frame_grabber.h>
+#include <memory>
+#include <o3d_parameters.hpp>
+#include <ods_extrinsic_calibration_correction.hpp>
+#include <ods_info_test_data.hpp>
+#include <ods_occupancy_grid.hpp>
+#include <ods_polar_occupancy_grid.hpp>
+#include <rgb_info_test_data.hpp>
+#include <tof_info_test_data.hpp>
 
 TEST(DeserializeTestWithFile, struct_tof_info_v3_size_exception)
 {
@@ -40,10 +40,10 @@ TEST(DeserializeTestWithFile, struct_tof_info_v3)
   EXPECT_GE(tof_info_v3.version, minimum_required_version);
   EXPECT_NEAR(tof_info_v3.amplitude_resolution,
               ifm3d::tof_info::amplitude_resolution,
-              ifm3d::epsilon);
+              ifm3d::EPSILON);
   EXPECT_NEAR(tof_info_v3.distance_resolution,
               ifm3d::tof_info::distance_resolution,
-              ifm3d::epsilon);
+              ifm3d::EPSILON);
   EXPECT_TRUE(
     ifm3d::compare_array(tof_info_v3.amp_normalization_factors,
                          ifm3d::tof_info::amp_normalization_factors));
@@ -81,7 +81,7 @@ TEST(DeserializeTestWithFile, struct_tof_info_v3)
 
   EXPECT_NEAR(tof_info_v3.illu_temperature,
               ifm3d::tof_info::illu_temperature,
-              ifm3d::epsilon);
+              ifm3d::EPSILON);
 
   EXPECT_TRUE(tof_info_v3.mode.compare(ifm3d::tof_info::mode));
 
@@ -104,10 +104,10 @@ TEST(DeserializeTestWithFile, struct_tof_info_v4)
   EXPECT_GE(tof_info_v4.version, minimum_required_version);
   EXPECT_NEAR(tof_info_v4.amplitude_resolution,
               ifm3d::tof_info::amplitude_resolution,
-              ifm3d::epsilon);
+              ifm3d::EPSILON);
   EXPECT_NEAR(tof_info_v4.distance_resolution,
               ifm3d::tof_info::distance_resolution,
-              ifm3d::epsilon);
+              ifm3d::EPSILON);
   EXPECT_TRUE(
     ifm3d::compare_array(tof_info_v4.amp_normalization_factors,
                          ifm3d::tof_info::amp_normalization_factors));
@@ -145,7 +145,7 @@ TEST(DeserializeTestWithFile, struct_tof_info_v4)
 
   EXPECT_NEAR(tof_info_v4.illu_temperature,
               ifm3d::tof_info::illu_temperature,
-              ifm3d::epsilon);
+              ifm3d::EPSILON);
 
   EXPECT_TRUE(tof_info_v4.mode.compare(ifm3d::tof_info::mode));
 
@@ -155,10 +155,10 @@ TEST(DeserializeTestWithFile, struct_tof_info_v4)
             ifm3d::tof_info::measurement_block_index);
   EXPECT_NEAR(tof_info_v4.measurement_range_min,
               ifm3d::tof_info::measurement_range_min,
-              ifm3d::epsilon);
+              ifm3d::EPSILON);
   EXPECT_NEAR(tof_info_v4.measurement_range_max,
               ifm3d::tof_info::measurement_range_max,
-              ifm3d::epsilon);
+              ifm3d::EPSILON);
 }
 
 TEST(DeserializeTestWithFile, struct_rgb_info_v1_size_exception)
@@ -178,7 +178,7 @@ TEST(DeserializeTestWithFile, struct_rgb_info_v1)
   EXPECT_EQ(rgb_info_v1.timestamp_ns, ifm3d::rgb_info::timestamp_ns);
   EXPECT_NEAR(rgb_info_v1.exposure_time,
               ifm3d::rgb_info::exposure_time,
-              ifm3d::epsilon);
+              ifm3d::EPSILON);
 
   std::array<float, 6> const extrinc_opt_to_user = {
     rgb_info_v1.extrinsic_optic_to_user.trans_x,
@@ -245,11 +245,11 @@ TEST(DeserializeTestWithFile, struct_ods_occupancy_grid_info_v1)
     ods_occupancy_grid_v1.transform_cell_center_to_user,
     ifm3d::ods_occupancy_grid::transform_cell_center_to_user);
 
-  EXPECT_EQ(ods_occupancy_grid_v1.image.width(),
+  EXPECT_EQ(ods_occupancy_grid_v1.image.Width(),
             ifm3d::ods_occupancy_grid::width);
-  EXPECT_EQ(ods_occupancy_grid_v1.image.height(),
+  EXPECT_EQ(ods_occupancy_grid_v1.image.Height(),
             ifm3d::ods_occupancy_grid::height);
-  EXPECT_EQ(ods_occupancy_grid_v1.image.dataFormat(),
+  EXPECT_EQ(ods_occupancy_grid_v1.image.DataFormat(),
             ifm3d::pixel_format::FORMAT_8U);
 }
 
@@ -359,12 +359,12 @@ TEST(DeserializeTestWithFile, struct_o3d_illu_temp_parameter)
 
   auto buffer = ifm3d::read_buffer_from_file("o3d_illu_temp.data");
 
-  auto o3d_param = ifm3d::O3DILLUTemperature::Deserialize(buffer);
+  auto o3d_param = ifm3d::O3DIlluTemperature::Deserialize(buffer);
 
   EXPECT_TRUE(ifm3d::compare_array(o3d_param.data, ifm3d::o3d::illu_temp));
 
   ifm3d::Buffer const buffer_blank;
-  EXPECT_THROW(ifm3d::O3DILLUTemperature::Deserialize(buffer_blank),
+  EXPECT_THROW(ifm3d::O3DIlluTemperature::Deserialize(buffer_blank),
                ifm3d::Error);
 }
 
@@ -436,7 +436,7 @@ TEST(DeserializeTestWithO3D, struct_o3d_illu_temp_parameter)
 
   auto buffer = frame->GetBuffer(ifm3d::buffer_id::ILLUMINATION_TEMP);
 
-  EXPECT_NO_THROW(ifm3d::O3DILLUTemperature::Deserialize(buffer));
+  EXPECT_NO_THROW(ifm3d::O3DIlluTemperature::Deserialize(buffer));
 }
 
 TEST(DeserializeTestWithFile,
@@ -459,7 +459,7 @@ TEST(DeserializeTestWithFile, struct_ods_polar_occupancy_grid_info_v1)
             ifm3d::ods_polar_occupancy_grid::version);
 
   ifm3d::compare_array<uint16_t, 675>(
-    ods_polar_occupancy_grid_v1.polarOccGrid,
+    ods_polar_occupancy_grid_v1.polar_occ_grid,
     ifm3d::ods_polar_occupancy_grid::polarOccGrid);
 
   EXPECT_EQ(ods_polar_occupancy_grid_v1.timestamp_ns,

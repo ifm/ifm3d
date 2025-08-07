@@ -4,9 +4,9 @@
  */
 
 #include <cstdint>
-#include "ifm3d/device/legacy_device.h"
-#include "ifm3d/device/device.h"
-#include "ifm3d/common/json_impl.hpp"
+#include <ifm3d/common/json_impl.hpp>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/legacy_device.h>
 #include <ifm3d/device/o3d.h>
 #include <string>
 #include <unordered_map>

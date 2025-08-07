@@ -3,26 +3,26 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "ifm3d/common/err.h"
+#include <array>
 #include <cstdint>
-#include "fmt/core.h"
+#include <cstdio>
+#include <fmt/core.h> // NOLINT(*)
+#include <httplib.h>
+#include <ifm3d/common/err.h>
 #include <ifm3d/device/util.h>
 #include <sstream>
-#include <cstdio>
 #include <string>
 #include <vector>
-#include <httplib.h>
-#include <array>
 #ifdef _WIN32
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN
 #  endif
-#  include <windows.h>
 #  include <io.h>
+#  include <windows.h>
 #elif __unix__
 #  include <sys/select.h>
+#  include <sys/time.h> // NOLINT(misc-include-cleaner), included for timeval
 #  include <unistd.h>
-#  include <sys/time.h>
 #endif
 
 std::string&

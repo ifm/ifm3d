@@ -6,15 +6,15 @@
 #ifndef IFM3D_PYBIND_BINDING_SEMVER
 #define IFM3D_PYBIND_BINDING_SEMVER
 
-#include <pybind11/pybind11.h>
-#include <pybind11/operators.h>
-#include <sstream>
 #include <ifm3d/device/semver.h>
+#include <pybind11/numpy.h>
+#include <pybind11/operators.h>
+#include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 using namespace pybind11::literals;
 
-void
+inline void
 bind_semver(pybind11::module_& m)
 {
 
@@ -35,12 +35,12 @@ bind_semver(pybind11::module_& m)
          "build"_a,
          "prerelease"_a = std::nullopt,
          "build_meta"_a = std::nullopt)
-    .def(py::self < py::self)
-    .def(py::self == py::self)
-    .def(py::self != py::self)
-    .def(py::self >= py::self)
-    .def(py::self > py::self)
-    .def(py::self <= py::self)
+    .def(py::self < py::self)  // NOLINT(misc-redundant-expression)
+    .def(py::self == py::self) // NOLINT(misc-redundant-expression)
+    .def(py::self != py::self) // NOLINT(misc-redundant-expression)
+    .def(py::self >= py::self) // NOLINT(misc-redundant-expression)
+    .def(py::self > py::self)  // NOLINT(misc-redundant-expression)
+    .def(py::self <= py::self) // NOLINT(misc-redundant-expression)
     .def("__repr__",
          [](ifm3d::SemVer& self) -> std::string {
            std::ostringstream stream;

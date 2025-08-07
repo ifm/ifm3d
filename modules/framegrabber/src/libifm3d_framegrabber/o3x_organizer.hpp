@@ -18,14 +18,18 @@ namespace ifm3d
   {
   public:
     O3XOrganizer() = default;
-    ~O3XOrganizer() = default;
+    O3XOrganizer(const O3XOrganizer&) = default;
+    O3XOrganizer(O3XOrganizer&&) = delete;
+    O3XOrganizer& operator=(const O3XOrganizer&) = default;
+    O3XOrganizer& operator=(O3XOrganizer&&) = delete;
+    ~O3XOrganizer() override = default;
 
     Result Organize(const std::vector<uint8_t>& data,
                     const std::set<buffer_id>& requested_images,
-                    const bool masking = true) override;
+                    bool masking = true) override;
 
   private:
-    bool ShouldMask(buffer_id id);
+    bool should_mask(buffer_id id);
   }; // end: class O3XOrganizer
 
 } // end: namespace ifm3d

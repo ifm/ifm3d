@@ -6,19 +6,16 @@
 #ifndef IFM3D_PYBIND_BINDING_FRAME
 #define IFM3D_PYBIND_BINDING_FRAME
 
-#include "../util.hpp"
 #include <ifm3d/fg/frame.h>
+#include <ifm3d/pybind11/util.hpp>
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/chrono.h>
 
 namespace py = pybind11;
 
-#define PYBIND11_DETAILED_ERROR_MESSAGES
-void
+inline void
 bind_frame(pybind11::module_& m, pybind11::module_& ifm3dpy)
 {
-  // clang-format off
   py::class_<ifm3d::Frame, ifm3d::Frame::Ptr> frame(m,
                                                     "Frame",
                                                     R"(
@@ -91,13 +88,16 @@ bind_frame(pybind11::module_& m, pybind11::module_& ifm3dpy)
 
   frame.def(
     "get_buffer",
-    [ifm3dpy](const ifm3d::Frame::Ptr& frame, ifm3d::buffer_id id, size_t index)
-    {
-       auto instance = ifm3dpy.attr("buffer");
-       auto ifm3d_buffer = frame->GetBuffer(id, index);
-       py::object json_loads = py::module::import("json").attr("loads");
-       py::gil_scoped_acquire acquire;
-       return instance(ifm3d::image_to_array(ifm3d_buffer), json_loads(ifm3d_buffer.metadata().dump()), py::cast(id));
+    [ifm3dpy](const ifm3d::Frame::Ptr& frame,
+              ifm3d::buffer_id id,
+              size_t index) {
+      auto instance = ifm3dpy.attr("buffer");
+      auto ifm3d_buffer = frame->GetBuffer(id, index);
+      py::object json_loads = py::module::import("json").attr("loads");
+      py::gil_scoped_acquire acquire;
+      return instance(ifm3d::image_to_array(ifm3d_buffer),
+                      json_loads(ifm3d_buffer.Metadata().dump()),
+                      py::cast(id));
     },
     py::arg("id"),
     py::arg("index") = 0,
@@ -120,8 +120,6 @@ bind_frame(pybind11::module_& m, pybind11::module_& ifm3dpy)
             R"(
       Get the list of available buffers
     )");
-
-  // clang-format on
 }
 
 #endif // IFM3D_PYBIND_BINDING_FRAME

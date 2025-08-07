@@ -12,37 +12,37 @@
 #ifndef IFM3D_DISTANCE_IMAGE_INFO_TEST_DATA_H
 #define IFM3D_DISTANCE_IMAGE_INFO_TEST_DATA_H
 
-#include "ifm3d/fg/distance_image_info.h"
-#include <vector>
 #include <cstdint>
+#include <ifm3d/fg/distance_image_info.h>
+#include <vector>
 
-constexpr auto distance_resolution = 0.00015259021893143654;
-constexpr auto amplitude_resolution = 1.552299089269127e-08;
+constexpr auto DISTANCE_RESOLUTION = 0.00015259021893143654;
+constexpr auto AMPLITUDE_RESOLUTION = 1.552299089269127e-08;
 
-constexpr auto image_width = 10;
-constexpr auto image_height = 5;
+constexpr auto IMAGE_WIDTH = 10;
+constexpr auto IMAGE_HEIGHT = 5;
 
-const std::vector<std::uint16_t> distance_buffer{
+const std::vector<std::uint16_t> DISTANCE_BUFFER{
   24821, 25191, 25323, 25370, 25330, 25270, 25342, 25232, 25244, 25175,
   25303, 25086, 25136, 25126, 25017, 24882, 24872, 24922, 24867, 24809,
   24876, 24835, 24740, 24755, 24683, 24589, 24705, 24686, 24355, 24453,
   24433, 24316, 24292, 24348, 24371, 24343, 24359, 24392, 24338, 24185,
   24217, 24200, 24244, 24131, 24085, 24070, 24001, 24061, 24029, 23973};
 
-const std::vector<std::uint16_t> amplitude_buffer{
+const std::vector<std::uint16_t> AMPLITUDE_BUFFER{
   1407, 1173, 1168, 1278, 1235, 1190, 1170, 1168, 1167, 1171, 1176, 1148, 1143,
   1144, 1145, 1153, 1138, 1134, 1140, 1141, 1140, 1132, 1126, 1128, 1048, 1097,
   1129, 1127, 1129, 1120, 1115, 1130, 1106, 1113, 1106, 1110, 1123, 1104, 1123,
   1128, 1115, 1107, 1105, 1113, 1110, 1105, 1108, 1035, 1063, 1111};
 
-const std::vector<float> extrinsic_optic_to_user{-0.015242096967995167,
+const std::vector<float> EXTRINSIC_OPTIC_TO_USER{-0.015242096967995167,
                                                  0.0,
                                                  0.9012097120285034,
                                                  0.0,
                                                  1.649999976158142,
                                                  -1.619999885559082};
 
-const ifm3d::IntrinsicCalibration intr_calibration{0,
+const ifm3d::IntrinsicCalibration INTR_CALIBRATION{0,
                                                    {124.34428405761719,
                                                     124.34428405761719,
                                                     111.5,
@@ -76,7 +76,7 @@ const ifm3d::IntrinsicCalibration intr_calibration{0,
                                                     0.0,
                                                     0.0}};
 
-const std::vector<float> distance_buffer_calc{
+const std::vector<float> DISTANCE_BUFFER_CALC{
   3.7874417304992676, 3.843900203704834,  3.864042043685913,
   3.871213912963867,  3.865110158920288,  3.855954885482788,
   3.866941213607788,  3.850156307220459,  3.851987600326538,
@@ -95,7 +95,7 @@ const std::vector<float> distance_buffer_calc{
   3.672846555709839,  3.6623177528381348, 3.671473264694214,
   3.666590452194214,  3.6580452919006348};
 
-const std::vector<float> amplitude_buffer_calc{
+const std::vector<float> AMPLITUDE_BUFFER_CALC{
   0.030688317492604256, 0.0213428046554327,   0.02115040272474289,
   0.02532017044723034,  0.023657245561480522, 0.021956413984298706,
   0.021247584372758865, 0.02115503139793873,  0.02112499438226223,
@@ -114,7 +114,7 @@ const std::vector<float> amplitude_buffer_calc{
   0.018946772441267967, 0.019031574949622154, 0.016620047390460968,
   0.017520902678370476, 0.01914162002503872};
 
-const std::vector<float> x_calc{
+const std::vector<float> X_CALC{
   2.0214684009552,    2.0716307163238525, 2.1023194789886475,
   2.125885486602783,  2.1419570446014404, 2.1560897827148438,
   2.1814112663269043, 2.1907646656036377, 2.2105460166931152,
@@ -133,7 +133,7 @@ const std::vector<float> x_calc{
   2.10261869430542,   2.114697217941284,  2.1380574703216553,
   2.153043746948242,  2.1656370162963867};
 
-const std::vector<float> y_calc{
+const std::vector<float> Y_CALC{
   2.698387861251831,  2.7210419178009033, 2.717493772506714,
   2.7045562267303467, 2.682199478149414,  2.657658815383911,
   2.6468563079833984, 2.616938829421997,  2.5996153354644775,
@@ -152,7 +152,7 @@ const std::vector<float> y_calc{
   2.5445263385772705, 2.519749402999878,  2.5083978176116943,
   2.487312078475952,  2.463686943054199};
 
-const std::vector<float> z_calc{
+const std::vector<float> Z_CALC{
   2.6086127758026123, 2.6380057334899902, 2.651061534881592,
   2.6582655906677246, 2.659440517425537,  2.659207344055176,
   2.668156623840332,  2.6644082069396973, 2.669168710708618,
@@ -173,37 +173,37 @@ const std::vector<float> z_calc{
 
 // abstract of real o3r device buffer data saved to a file
 //
-constexpr auto buffer_data_file = "O3RBuffer.data";
+constexpr auto BUFFER_DATA_FILE = "O3RBuffer.data";
 // As most of the image buffer item values are zero, for
 // the test here only the buffer datas within the range
 // of 9770-1000 were taken into consideration for comparison
-constexpr auto compare_buffer_data_offset = 9770;
+constexpr auto COMPARE_BUFFER_DATA_OFFSET = 9770;
 
-const std::vector<float> XVector{
+const std::vector<float> X_VECTOR{
   0,        0,        0,        0,        0,        0.145326,
   0.149209, 0.152048, 0.155774, 0.164778, 0.171372, 0.179666,
   0.18385,  0.188327, 0.19977,  0.20491,  0.210555, 0.217248,
   0.225002, 0.230732, 0.238931, 0.24575,  0.253022, 0,
   0,        0,        0,        0,        0,        0};
-const std::vector<float> YVector{
+const std::vector<float> Y_VECTOR{
   0,         0,         0,         0,         0,         -0.19074,
   -0.189902, -0.187824, -0.186929, -0.192241, -0.194531, -0.198579,
   -0.197992, -0.197743, -0.204643, -0.20491,  -0.205658, -0.207373,
   -0.210001, -0.210668, -0.213513, -0.215031, -0.216876, 0,
   0,         0,         0,         0,         0,         0};
-const std::vector<float> ZVector{
+const std::vector<float> Z_VECTOR{
   0,        0,        0,        0,        0,        0.521349,
   0.518403, 0.511965, 0.508841, 0.523093, 0.528837, 0.539463,
   0.537112, 0.535691, 0.554147, 0.554105, 0.555379, 0.55931,
   0.565739, 0.566711, 0.573666, 0.576929, 0.58106,  0,
   0,        0,        0,        0,        0,        0};
-const std::vector<float> DistVector{
+const std::vector<float> DIST_VECTOR{
   0,        0,        0,        0,        0,        0.587777,
   0.585794, 0.579995, 0.577859, 0.594949, 0.602731, 0.616007,
   0.614939, 0.614939, 0.637217, 0.638895, 0.6421,   0.648356,
   0.657511, 0.660563, 0.670481, 0.67628,  0.683146, 0,
   0,        0,        0,        0,        0,        0};
-const std::vector<float> Amplitude{
+const std::vector<float> AMPLITUDE{
   -1,         0.00824955, -1, -1,         0.0124343,  0.00749799, 0.00623956,
   0.00713567, -1,         -1, 0.0046957,  -1,         0.0057006,  -1,
   0.00754121, -1,         -1, 0.00709363, 0.00587118, -1};

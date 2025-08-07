@@ -7,11 +7,11 @@
 #define IFM3D_FG_ORGANIZER_H
 
 #include <cstdint>
-#include <vector>
-#include <set>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/frame.h>
 #include <ifm3d/fg/module_frame_grabber.h>
+#include <set>
+#include <vector>
 
 namespace ifm3d
 {
@@ -21,6 +21,12 @@ namespace ifm3d
   class IFM3D_EXPORT Organizer
   {
   public:
+    Organizer() = default;
+    Organizer(const Organizer&) = default;
+    Organizer(Organizer&&) = delete;
+    Organizer& operator=(const Organizer&) = default;
+    Organizer& operator=(Organizer&&) = delete;
+
     struct Result
     {
       std::map<buffer_id, BufferList> images;
@@ -28,11 +34,11 @@ namespace ifm3d
       uint32_t frame_count;
     };
 
-    virtual ~Organizer() {}
+    virtual ~Organizer() = default;
 
     virtual Result Organize(const std::vector<uint8_t>& data,
-                            const std::set<buffer_id>& requestedImages,
-                            const bool masking) = 0;
+                            const std::set<buffer_id>& requested_images,
+                            bool masking) = 0;
   }; // end: class Organizer
 
   /**

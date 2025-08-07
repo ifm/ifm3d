@@ -4,19 +4,19 @@
  */
 
 #include <cstdint>
-#include <ifm3d/crypto/crypto.h>
 #include <ifm3d/common/err.h>
+#include <ifm3d/crypto/crypto.h>
 #include <optional>
 #include <sodium/crypto_box.h>
 #include <sodium/randombytes.h>
-#include <vector>
 #include <string>
+#include <vector>
 
 ifm3d::SealedBox::SealedBox(
   const std::vector<uint8_t>& public_key,
   const std::optional<const std::vector<uint8_t>>& private_key)
-  : public_key_(public_key),
-    private_key_(private_key)
+  : _public_key(public_key),
+    _private_key(private_key)
 {}
 
 ifm3d::SealedBox::~SealedBox() = default;
@@ -30,7 +30,7 @@ ifm3d::SealedBox::Encrypt(const std::string& plaintext)
     reinterpret_cast<unsigned char*>(ciphertext.data()),
     reinterpret_cast<const unsigned char*>(plaintext.data()),
     plaintext.length(),
-    reinterpret_cast<const unsigned char*>(this->public_key_.data()));
+    reinterpret_cast<const unsigned char*>(this->_public_key.data()));
 
   if (ret != 0)
     {
@@ -44,7 +44,7 @@ ifm3d::SealedBox::Encrypt(const std::string& plaintext)
 std::string
 ifm3d::SealedBox::Decrypt(const std::vector<std::uint8_t>& ciphertext)
 {
-  if (this->private_key_ == std::nullopt)
+  if (this->_private_key == std::nullopt)
     {
       throw ifm3d::Error(IFM3D_CRYPTO_ERROR,
                          "Private key is not set, unable to decrypt message.");
@@ -56,8 +56,8 @@ ifm3d::SealedBox::Decrypt(const std::vector<std::uint8_t>& ciphertext)
     reinterpret_cast<unsigned char*>(plaintext.data()),
     reinterpret_cast<const unsigned char*>(ciphertext.data()),
     ciphertext.size(),
-    reinterpret_cast<const unsigned char*>(this->public_key_.data()),
-    reinterpret_cast<const unsigned char*>(this->private_key_.value().data()));
+    reinterpret_cast<const unsigned char*>(this->_public_key.data()),
+    reinterpret_cast<const unsigned char*>(this->_private_key.value().data()));
 
   if (ret != 0)
     {
@@ -69,7 +69,7 @@ ifm3d::SealedBox::Decrypt(const std::vector<std::uint8_t>& ciphertext)
 }
 
 std::vector<uint8_t>
-ifm3d::RandomNonce()
+ifm3d::random_nonce()
 {
   std::vector<uint8_t> nonce(crypto_box_NONCEBYTES);
   randombytes_buf(nonce.data(), crypto_box_NONCEBYTES);

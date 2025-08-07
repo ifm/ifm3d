@@ -4,19 +4,19 @@
  */
 
 #include <cstdint>
-#include <ifm3d/swupdater/swupdater.h>
 #include <ifm3d/device/device.h>
+#include <ifm3d/swupdater/swupdater.h>
 #include <optional>
-#include <string>
 #include <stdexcept>
+#include <string>
 #include <swupdater_impl.hpp>
 #include <swupdater_v2_impl.hpp>
 
 const std::uint16_t ifm3d::SWUPDATER_RECOVERY_PORT = 8080;
 
-namespace ifm3d
+namespace
 {
-  static auto make_swu_implementor =
+  const auto MAKE_SWU_IMPLEMENTOR =
     [](const ifm3d::Device::Ptr& cam,
        const ifm3d::SWUpdater::FlashStatusCb& cb,
        const std::uint16_t swupdate_recovery_port,
@@ -46,10 +46,8 @@ ifm3d::SWUpdater::SWUpdater(
   const ifm3d::SWUpdater::FlashStatusCb& cb,
   const std::uint16_t swupdate_recovery_port,
   std::optional<ifm3d::Device::swu_version> force_swu_version)
-  : pImpl(ifm3d::make_swu_implementor(cam,
-                                      cb,
-                                      swupdate_recovery_port,
-                                      force_swu_version))
+  : _impl(
+      MAKE_SWU_IMPLEMENTOR(cam, cb, swupdate_recovery_port, force_swu_version))
 {}
 
 ifm3d::SWUpdater::~SWUpdater() = default;
@@ -57,30 +55,30 @@ ifm3d::SWUpdater::~SWUpdater() = default;
 void
 ifm3d::SWUpdater::RebootToRecovery()
 {
-  this->pImpl->RebootToRecovery();
+  this->_impl->RebootToRecovery();
 }
 
 bool
 ifm3d::SWUpdater::WaitForRecovery(long timeout_millis)
 {
-  return this->pImpl->WaitForRecovery(timeout_millis);
+  return this->_impl->WaitForRecovery(timeout_millis);
 }
 
 void
 ifm3d::SWUpdater::RebootToProductive()
 {
-  this->pImpl->RebootToProductive();
+  this->_impl->RebootToProductive();
 }
 
 bool
 ifm3d::SWUpdater::WaitForProductive(long timeout_millis)
 {
-  return this->pImpl->WaitForProductive(timeout_millis);
+  return this->_impl->WaitForProductive(timeout_millis);
 }
 
 bool
 ifm3d::SWUpdater::FlashFirmware(const std::string& swu_file,
                                 long timeout_millis)
 {
-  return this->pImpl->FlashFirmware(swu_file, timeout_millis);
+  return this->_impl->FlashFirmware(swu_file, timeout_millis);
 }

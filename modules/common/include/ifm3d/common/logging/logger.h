@@ -7,11 +7,11 @@
 #ifndef IFM3D_COMMON_LOGGING_LOGGER_H
 #define IFM3D_COMMON_LOGGING_LOGGER_H
 
+#include <ifm3d/common/logging/log_formatter_text.h>
 #include <ifm3d/common/logging/log_level.h>
 #include <ifm3d/common/logging/log_writer.h>
 #include <ifm3d/common/logging/log_writer_console.h>
 #include <ifm3d/common/logging/log_writer_console_colored.h>
-#include <ifm3d/common/logging/log_formatter_text.h>
 #include <ifm3d/common/module_common.h>
 
 #include <memory>
@@ -22,50 +22,50 @@ namespace ifm3d
   {
   public:
     Logger(LogLevel log_level = LogLevel::Warning)
-      : log_level_(log_level),
-        writer_(std::make_shared<LogWriterConsoleColored<LogFormatterText>>(
+      : _log_level(log_level),
+        _writer(std::make_shared<LogWriterConsoleColored<LogFormatterText>>(
           Output::StdErr))
     {}
 
     Logger&
     SetWriter(std::shared_ptr<LogWriter> writer)
     {
-      this->writer_ = writer;
+      this->_writer = writer;
       return *this;
     }
 
-    LogLevel
+    [[nodiscard]] LogLevel
     GetLogLevel() const
     {
-      return this->log_level_;
+      return this->_log_level;
     }
 
     void
     SetLogLevel(LogLevel log_level)
     {
-      this->log_level_ = log_level;
+      this->_log_level = log_level;
     }
 
-    inline bool
+    [[nodiscard]] bool
     ShouldLog(LogLevel log_level) const
     {
-      return log_level <= this->log_level_;
+      return log_level <= this->_log_level;
     }
 
-    inline void
+    void
     Write(const LogEntry& entry)
     {
-      if (this->writer_)
+      if (this->_writer)
         {
-          this->writer_->Write(entry);
+          this->_writer->Write(entry);
         }
     }
 
     static Logger& Get();
 
   private:
-    LogLevel log_level_;
-    std::shared_ptr<LogWriter> writer_;
+    LogLevel _log_level;
+    std::shared_ptr<LogWriter> _writer;
   };
 
 }

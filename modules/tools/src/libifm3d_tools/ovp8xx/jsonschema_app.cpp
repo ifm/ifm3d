@@ -4,10 +4,10 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/common/json_impl.hpp"
+#include <ifm3d/common/json_impl.hpp>
+#include <ifm3d/device/o3r.h>
 #include <ifm3d/tools/ovp8xx/jsonschema_app.h>
 #include <iostream>
-#include <ifm3d/device/o3r.h>
 #include <memory>
 
 ifm3d::JSONSchemaApp::~JSONSchemaApp() = default;

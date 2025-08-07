@@ -6,31 +6,27 @@
 #ifndef IFM3D_PYBIND_BINDING_CAMERA_O3X
 #define IFM3D_PYBIND_BINDING_CAMERA_O3X
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <fmt/core.h>
 #include <ifm3d/device/o3x.h>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 
-void
+inline void
 bind_o3x(pybind11::module_& m)
 {
-
-  // clang-format off
-  py::class_<ifm3d::O3X, ifm3d::O3X::Ptr, ifm3d::LegacyDevice> o3x(
-    m, "O3X",
-    R"(
+  py::class_<ifm3d::O3X, ifm3d::O3X::Ptr, ifm3d::LegacyDevice> o3x(m,
+                                                                   "O3X",
+                                                                   R"(
       Class for managing an instance of an O3X Camera
 
       Note that O3X support is currently experimental- Use at your own risk!.
     )");
 
-  o3x.def(
-    py::init([](std::string ip, std::uint16_t xmlrpc_port) {
-      return std::make_shared<ifm3d::O3X>(ip, xmlrpc_port);
-    }),
-    R"(
+  o3x.def(py::init([](std::string ip, std::uint16_t xmlrpc_port) {
+            return std::make_shared<ifm3d::O3X>(ip, xmlrpc_port);
+          }),
+          R"(
       Constructor
 
       Parameters
@@ -47,9 +43,8 @@ bind_o3x(pybind11::module_& m)
           Edit sessions allow for mutating camera parameters and persisting
           those changes. Defaults to '' (no password).
     )",
-    py::arg("ip") = ifm3d::DEFAULT_IP,
-    py::arg("xmlrpc_port") = ifm3d::DEFAULT_XMLRPC_PORT);
-  // clang-format on
+          py::arg("ip") = ifm3d::DEFAULT_IP,
+          py::arg("xmlrpc_port") = ifm3d::DEFAULT_XMLRPC_PORT);
 }
 
 #endif // IFM3D_PYBIND_BINDING_CAMERA_O3X

@@ -3,23 +3,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "ifm3d/fg/buffer_id.h"
-#include "ifm3d/common/err.h"
-#include "ifm3d/fg/organizer.h"
+#include <cstddef>
 #include <cstdint>
-#include "ifm3d/fg/frame.h"
+#include <functional>
+#include <ifm3d/common/err.h>
+#include <ifm3d/device/device.h>
+#include <ifm3d/fg/buffer.h>
+#include <ifm3d/fg/buffer_id.h>
+#include <ifm3d/fg/distance_image_info.h>
+#include <ifm3d/fg/frame.h>
+#include <ifm3d/fg/organizer.h>
+#include <ifm3d/fg/organizer_utils.h>
 #include <map>
 #include <memory>
-#include "ifm3d/device/device.h"
-#include <functional>
-#include <cstddef>
 #include <o3r_organizer3D.hpp>
-#include <ifm3d/fg/buffer.h>
-#include <ifm3d/fg/organizer_utils.h>
-#include <ifm3d/fg/distance_image_info.h>
-#include <vector>
-#include <set>
 #include <optional>
+#include <set>
+#include <vector>
 
 ifm3d::Organizer::Result
 ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
@@ -51,7 +51,7 @@ ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
       chunks.find(image_chunk::RADIAL_DISTANCE_IMAGE) != chunks.end() &&
       chunks.find(image_chunk::NORM_AMPLITUDE_IMAGE) != chunks.end())
     {
-      distance_image_info = CreateDistanceImageInfo(
+      distance_image_info = create_distance_image_info(
         data,
         *(chunks.at(image_chunk::TOF_INFO).begin()),
         *(chunks.at(image_chunk::RADIAL_DISTANCE_IMAGE).begin()),
@@ -84,14 +84,14 @@ ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
           mask =
             create_pixel_mask(images[ifm3d::buffer_id::CONFIDENCE_IMAGE][0]);
           mask_images(data_image, mask.value(), [this](auto&& p_h1) {
-            return ShouldMask(std::forward<decltype(p_h1)>(p_h1));
+            return should_mask(std::forward<decltype(p_h1)>(p_h1));
           });
         }
     }
 
   if (distance_image_info != nullptr)
     {
-      auto extracted = ExtractDistanceImageInfo(distance_image_info, mask);
+      auto extracted = extract_distance_image_info(distance_image_info, mask);
       for (auto& itr : extracted)
         {
           images.insert({itr.first, {itr.second}});
@@ -100,7 +100,7 @@ ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
       if (images.find(ifm3d::buffer_id::RADIAL_DISTANCE_NOISE) != images.end())
         {
           auto dist_noise_buffer =
-            distance_image_info->applyDistanceResolution(
+            distance_image_info->ApplyDistanceResolution(
               images[static_cast<buffer_id>(
                 ifm3d::image_chunk::RADIAL_DISTANCE_NOISE)][0]);
 
@@ -136,19 +136,19 @@ ifm3d::O3ROrganizer3D::Organize(const std::vector<uint8_t>& data,
 }
 
 std::map<ifm3d::buffer_id, ifm3d::Buffer>
-ifm3d::O3ROrganizer3D::ExtractDistanceImageInfo(
+ifm3d::O3ROrganizer3D::extract_distance_image_info(
   const std::shared_ptr<DistanceImageInfo>& distance_image_info,
   const std::optional<Buffer>& mask)
 {
-  auto width = distance_image_info->getWidth();
-  auto height = distance_image_info->getHeight();
-  auto npts = distance_image_info->getNPTS();
+  auto width = distance_image_info->GetWidth();
+  auto height = distance_image_info->GetHeight();
+  auto npts = distance_image_info->GetNpts();
 
   std::vector<std::uint8_t> const xyzd_bytes =
-    distance_image_info->getXYZDVector();
+    distance_image_info->GetXyzdVector();
 
   std::vector<std::uint8_t> const ampl_bytes =
-    distance_image_info->getAmplitudeVector();
+    distance_image_info->GetAmplitudeVector();
 
   auto distance =
     create_buffer(xyzd_bytes,
@@ -176,13 +176,13 @@ ifm3d::O3ROrganizer3D::ExtractDistanceImageInfo(
                       pixel_format::FORMAT_32F,
                       mask);
   auto extrinsic_param = create_buffer_from_vector<float>(
-    distance_image_info->getExtrinsicOpticToUser());
+    distance_image_info->GetExtrinsicOpticToUser());
 
   auto intrinsic_param = create_buffer_from_struct<IntrinsicCalibration>(
-    distance_image_info->getIntrinsicCalibration());
+    distance_image_info->GetIntrinsicCalibration());
 
   auto inv_intrinsic_param = create_buffer_from_struct<IntrinsicCalibration>(
-    distance_image_info->getInverseIntrinsicCalibration());
+    distance_image_info->GetInverseIntrinsicCalibration());
 
   return {
     {static_cast<buffer_id>(image_chunk::NORM_AMPLITUDE_IMAGE), amplitude},
@@ -196,7 +196,7 @@ ifm3d::O3ROrganizer3D::ExtractDistanceImageInfo(
 }
 
 bool
-ifm3d::O3ROrganizer3D::ShouldMask(buffer_id id)
+ifm3d::O3ROrganizer3D::should_mask(buffer_id id)
 {
   switch (id)
     {

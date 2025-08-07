@@ -7,6 +7,8 @@
 #ifndef IFM3D_DEVICE_JSON_HPP
 #define IFM3D_DEVICE_JSON_HPP
 
+// NOLINTBEGIN
+
 #ifdef DOXYGEN
 
 namespace ifm3d
@@ -165,5 +167,7 @@ namespace nlohmann
 #  endif // IFM3D_JSON_NLOHMANN_COMPAT
 
 #endif
+
+// NOLINTEND
 
 #endif // IFM3D_DEVICE_JSON_HPP

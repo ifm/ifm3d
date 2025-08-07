@@ -132,3 +132,5 @@ endif()
 unset(BUILD_STATIC_LIBS)
 unset(BUILD_SHARED_LIBS)
 unset(CMAKE_POSITION_INDEPENDENT_CODE)
+
+file(WRITE "${FETCHCONTENT_BASE_DIR}/.clang-tidy" "Checks: '-*'\n")

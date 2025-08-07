@@ -12,14 +12,15 @@
 #include <cstdint>
 #include <ctime>
 #include <functional>
+#include <ifm3d/common/logging/log.h>
+#include <ifm3d/device/err.h>
+#include <ifm3d/device/legacy_device.h>
 #include <mutex>
 #include <regex>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
-#include <ifm3d/device/legacy_device.h>
-#include <ifm3d/device/err.h>
-#include <ifm3d/common/logging/log.h>
 #include <xmlrpc.hpp>
 
 namespace ifm3d
@@ -34,10 +35,10 @@ namespace ifm3d
   const std::string XMLRPC_SPATIALFILTER = "spatialfilter";
   const std::string XMLRPC_TEMPORALFILTER = "temporalfilter";
 
-  using app_entry_t = struct
+  struct AppEntry
   {
-    int index;
-    int id;
+    int index{};
+    int id{};
     std::string name;
     std::string description;
   };
@@ -48,8 +49,14 @@ namespace ifm3d
   class IFM3D_NO_EXPORT LegacyDevice::Impl
   {
   public:
-    Impl(std::shared_ptr<XMLRPC> xwrapper, const std::string& password);
+    Impl(std::shared_ptr<XMLRPC> xwrapper, std::string password);
     ~Impl();
+
+    // Delete copy and move constructors and assignment operators
+    Impl(const Impl&) = delete;
+    Impl& operator=(const Impl&) = delete;
+    Impl(Impl&&) = delete;
+    Impl& operator=(Impl&&) = delete;
 
     // accessor/mutators
     std::string XPrefix();
@@ -67,7 +74,7 @@ namespace ifm3d
     std::unordered_map<std::string, std::string> SWVersion();
     std::unordered_map<std::string, std::string> HWInfo();
     std::unordered_map<std::string, std::string> DeviceInfo();
-    std::vector<ifm3d::app_entry_t> ApplicationList();
+    std::vector<ifm3d::AppEntry> ApplicationList();
     std::string RequestSession(
       const std::string& sid = ifm3d::DEFAULT_SESSION_ID);
     std::vector<std::uint8_t> UnitVectors();
@@ -165,7 +172,7 @@ namespace ifm3d
     }
 
     void
-    WrapInEditSession(std::function<void()> f)
+    WrapInEditSession(const std::function<void()>& f)
     {
       try
         {
@@ -183,17 +190,17 @@ namespace ifm3d
     }
 
   private:
-    std::shared_ptr<XMLRPC> xwrapper_;
-    std::string password_;
-    std::string session_;
-    std::mutex session_mutex_;
+    std::shared_ptr<XMLRPC> _xwrapper;
+    std::string _password;
+    std::string _session;
+    std::mutex _session_mutex;
 
     // ---------------------------------------------
     // _XCall wrappers
     // ---------------------------------------------
 
     std::string
-    _XSession()
+    xmlrpc_session()
     {
       return std::regex_replace(ifm3d::XMLRPC_SESSION,
                                 std::regex("\\$XXX"),
@@ -201,87 +208,88 @@ namespace ifm3d
     }
 
     template <typename... Args>
-    XMLRPCValue const
-    _XCallSession(const std::string& method, Args... args)
+    XMLRPCValue
+    xmlrpc_call_main(const std::string& method, Args... args)
     {
-      std::string path = ifm3d::XMLRPC_MAIN + _XSession();
-      return this->xwrapper_->XCall(path, method, args...);
+      std::string path = ifm3d::XMLRPC_MAIN + xmlrpc_session();
+      return this->_xwrapper->XCall(path, method, std::move(args)...);
     }
 
     template <typename... Args>
-    XMLRPCValue const
-    _XCallEdit(const std::string& method, Args... args)
+    XMLRPCValue
+    xmlrpc_call_edit(const std::string& method, Args... args)
     {
-      std::string path = ifm3d::XMLRPC_MAIN + _XSession() + ifm3d::XMLRPC_EDIT;
-      return this->xwrapper_->XCall(path, method, args...);
+      std::string path =
+        ifm3d::XMLRPC_MAIN + xmlrpc_session() + ifm3d::XMLRPC_EDIT;
+      return this->_xwrapper->XCall(path, method, args...);
     }
 
     template <typename... Args>
-    XMLRPCValue const
-    _XCallDevice(const std::string& method, Args... args)
+    XMLRPCValue
+    xmlrpc_call_device(const std::string& method, Args... args)
     {
-      std::string path = ifm3d::XMLRPC_MAIN + _XSession() +
+      std::string path = ifm3d::XMLRPC_MAIN + xmlrpc_session() +
                          ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE;
-      return this->xwrapper_->XCall(path, method, args...);
+      return this->_xwrapper->XCall(path, method, args...);
     }
 
     template <typename... Args>
-    XMLRPCValue const
-    _XCallNet(const std::string& method, Args... args)
+    XMLRPCValue
+    xmlrpc_call_net(const std::string& method, Args... args)
     {
-      std::string path = ifm3d::XMLRPC_MAIN + _XSession() +
+      std::string path = ifm3d::XMLRPC_MAIN + xmlrpc_session() +
                          ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE +
                          ifm3d::XMLRPC_NET;
-      return this->xwrapper_->XCall(path, method, args...);
+      return this->_xwrapper->XCall(path, method, args...);
     }
 
     template <typename... Args>
-    XMLRPCValue const
-    _XCallTime(const std::string& method, Args... args)
+    XMLRPCValue
+    xmlrpc_call_time(const std::string& method, Args... args)
     {
-      std::string path = ifm3d::XMLRPC_MAIN + _XSession() +
+      std::string path = ifm3d::XMLRPC_MAIN + xmlrpc_session() +
                          ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_DEVICE +
                          ifm3d::XMLRPC_TIME;
-      return this->xwrapper_->XCall(path, method, args...);
+      return this->_xwrapper->XCall(path, method, args...);
     }
 
     template <typename... Args>
-    XMLRPCValue const
-    _XCallApp(const std::string& method, Args... args)
+    XMLRPCValue
+    xmlrpc_call_app(const std::string& method, Args... args)
     {
-      std::string path = ifm3d::XMLRPC_MAIN + _XSession() +
+      std::string path = ifm3d::XMLRPC_MAIN + xmlrpc_session() +
                          ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_APP;
-      return this->xwrapper_->XCall(path, method, args...);
+      return this->_xwrapper->XCall(path, method, args...);
     }
 
     template <typename... Args>
-    XMLRPCValue const
-    _XCallImager(const std::string& method, Args... args)
+    XMLRPCValue
+    xmlrpc_call_imager(const std::string& method, Args... args)
     {
-      std::string path = ifm3d::XMLRPC_MAIN + _XSession() +
+      std::string path = ifm3d::XMLRPC_MAIN + xmlrpc_session() +
                          ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_APP +
                          ifm3d::XMLRPC_IMAGER;
-      return this->xwrapper_->XCall(path, method, args...);
+      return this->_xwrapper->XCall(path, method, args...);
     }
 
     template <typename... Args>
-    XMLRPCValue const
-    _XCallSpatialFilter(const std::string& method, Args... args)
+    XMLRPCValue
+    xmlrpc_call_spatial_filter(const std::string& method, Args... args)
     {
-      std::string path = ifm3d::XMLRPC_MAIN + _XSession() +
+      std::string path = ifm3d::XMLRPC_MAIN + xmlrpc_session() +
                          ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_APP +
                          ifm3d::XMLRPC_IMAGER + ifm3d::XMLRPC_SPATIALFILTER;
-      return this->xwrapper_->XCall(path, method, args...);
+      return this->_xwrapper->XCall(path, method, args...);
     }
 
     template <typename... Args>
-    XMLRPCValue const
-    _XCallTemporalFilter(const std::string& method, Args... args)
+    XMLRPCValue
+    xmlrpc_call_temporal_filter(const std::string& method, Args... args)
     {
-      std::string path = ifm3d::XMLRPC_MAIN + _XSession() +
+      std::string path = ifm3d::XMLRPC_MAIN + xmlrpc_session() +
                          ifm3d::XMLRPC_EDIT + ifm3d::XMLRPC_APP +
                          ifm3d::XMLRPC_IMAGER + ifm3d::XMLRPC_TEMPORALFILTER;
-      return this->xwrapper_->XCall(path, method, args...);
+      return this->_xwrapper->XCall(path, method, args...);
     }
 
   }; // end: class Camera::Impl
@@ -296,17 +304,16 @@ namespace ifm3d
 // ctor/dtor
 //-------------------------------------
 
-ifm3d::LegacyDevice::Impl::Impl(std::shared_ptr<XMLRPC> xwrapper,
-                                const std::string& password)
-  : xwrapper_(std::move(xwrapper)),
-    password_(password),
-    session_("")
+inline ifm3d::LegacyDevice::Impl::Impl(std::shared_ptr<XMLRPC> xwrapper,
+                                       std::string password)
+  : _xwrapper(std::move(xwrapper)),
+    _password(std::move(password))
 {
   // Needed for fetching unit vectors over xmlrpc for O3X
   LOG_VERBOSE("Increasing XML-RPC response size limit...");
 }
 
-ifm3d::LegacyDevice::Impl::~Impl()
+inline ifm3d::LegacyDevice::Impl::~Impl()
 {
   LOG_VERBOSE("Dtor...");
   this->CancelSession();
@@ -316,71 +323,71 @@ ifm3d::LegacyDevice::Impl::~Impl()
 // Accessor/mutators
 //-------------------------------------
 
-std::string
+inline std::string
 ifm3d::LegacyDevice::Impl::IP()
 {
-  return this->xwrapper_->IP();
+  return this->_xwrapper->IP();
 }
 
-std::uint16_t
+inline std::uint16_t
 ifm3d::LegacyDevice::Impl::XMLRPCPort()
 {
-  return this->xwrapper_->XMLRPCPort();
+  return this->_xwrapper->XMLRPCPort();
 }
 
-std::string
+inline std::string
 ifm3d::LegacyDevice::Impl::Password()
 {
-  return this->password_;
+  return this->_password;
 }
 
-std::string
+inline std::string
 ifm3d::LegacyDevice::Impl::SessionID()
 {
-  std::lock_guard<std::mutex> lock(this->session_mutex_);
-  return this->session_;
+  std::lock_guard<std::mutex> lock(this->_session_mutex);
+  return this->_session;
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::SetSessionID(const std::string& id)
 {
-  std::lock_guard<std::mutex> lock(this->session_mutex_);
-  this->session_ = id;
+  std::lock_guard<std::mutex> lock(this->_session_mutex);
+  this->_session = id;
 }
 
 // =============================================
 // Public XMLRPC interface - worker methods
 // =============================================
 
-std::unordered_map<std::string, std::string>
+inline std::unordered_map<std::string, std::string>
 ifm3d::LegacyDevice::Impl::HWInfo()
 {
-  return this->xwrapper_->XCallMain("getHWInfo").ToStringMap();
+  return this->_xwrapper->XCallMain("getHWInfo").ToStringMap();
 }
 
-std::unordered_map<std::string, std::string>
+inline std::unordered_map<std::string, std::string>
 ifm3d::LegacyDevice::Impl::SWVersion()
 {
-  return this->xwrapper_->XCallMain("getSWVersion").ToStringMap();
+  return this->_xwrapper->XCallMain("getSWVersion").ToStringMap();
 }
 
-std::unordered_map<std::string, std::string>
+inline std::unordered_map<std::string, std::string>
 ifm3d::LegacyDevice::Impl::DeviceInfo()
 {
-  return this->xwrapper_->XCallMain("getAllParameters").ToStringMap();
+  return this->_xwrapper->XCallMain("getAllParameters").ToStringMap();
 }
 
-std::vector<ifm3d::app_entry_t>
+inline std::vector<ifm3d::AppEntry>
 ifm3d::LegacyDevice::Impl::ApplicationList()
 {
-  auto result(this->xwrapper_->XCallMain("getApplicationList").AsArray());
+  auto result(this->_xwrapper->XCallMain("getApplicationList").AsArray());
 
-  std::vector<ifm3d::app_entry_t> retval;
+  std::vector<ifm3d::AppEntry> retval;
   for (auto& entry : result)
     {
       auto entry_map = entry.AsMap();
 
-      ifm3d::app_entry_t app;
+      ifm3d::AppEntry app;
       app.index = entry_map["Index"].AsInt();
       app.id = entry_map["Id"].AsInt();
       app.name = entry_map["Name"].AsString();
@@ -391,11 +398,11 @@ ifm3d::LegacyDevice::Impl::ApplicationList()
   return retval;
 }
 
-std::string
+inline std::string
 ifm3d::LegacyDevice::Impl::RequestSession(const std::string& sid)
 {
   auto result =
-    this->xwrapper_->XCallMain("requestSession", this->Password().c_str(), sid)
+    this->_xwrapper->XCallMain("requestSession", this->Password().c_str(), sid)
       .AsString();
 
   this->SetSessionID(static_cast<std::string>(result));
@@ -403,22 +410,22 @@ ifm3d::LegacyDevice::Impl::RequestSession(const std::string& sid)
   return this->SessionID();
 }
 
-std::vector<std::uint8_t>
+inline std::vector<std::uint8_t>
 ifm3d::LegacyDevice::Impl::UnitVectors()
 {
-  return this->xwrapper_->XCallMain("getUnitVectors").AsByteArray();
+  return this->_xwrapper->XCallMain("getUnitVectors").AsByteArray();
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::ForceTrigger()
 {
-  this->xwrapper_->XCallMain("trigger");
+  this->_xwrapper->XCallMain("trigger");
 }
 
 // ---------------------------------------------
 // Session
 // ---------------------------------------------
-bool
+inline bool
 ifm3d::LegacyDevice::Impl::CancelSession(const std::string& sid)
 {
   if (sid == this->SessionID())
@@ -433,7 +440,7 @@ ifm3d::LegacyDevice::Impl::CancelSession(const std::string& sid)
   return retval;
 }
 
-bool
+inline bool
 ifm3d::LegacyDevice::Impl::CancelSession()
 {
   if (this->SessionID() == "")
@@ -445,7 +452,7 @@ ifm3d::LegacyDevice::Impl::CancelSession()
 
   try
     {
-      this->_XCallSession("cancelSession");
+      this->xmlrpc_call_main("cancelSession");
       this->SetSessionID("");
     }
   catch (const ifm3d::Error& ex)
@@ -471,20 +478,20 @@ ifm3d::LegacyDevice::Impl::CancelSession()
   return retval;
 }
 
-int
+inline int
 ifm3d::LegacyDevice::Impl::Heartbeat(int hb)
 {
-  return this->_XCallSession("heartbeat", hb).AsInt();
+  return this->xmlrpc_call_main("heartbeat", hb).AsInt();
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::SetOperatingMode(
   const ifm3d::LegacyDevice::operating_mode& mode)
 {
-  this->_XCallSession("setOperatingMode", static_cast<int>(mode));
+  this->xmlrpc_call_main("setOperatingMode", static_cast<int>(mode));
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::SetTemporaryApplicationParameters(
   const std::unordered_map<std::string, std::string>& params)
 {
@@ -506,46 +513,47 @@ ifm3d::LegacyDevice::Impl::SetTemporaryApplicationParameters(
         }
     }
 
-  this->_XCallSession("setTemporaryApplicationParameters",
-                      XMLRPCValue(param_map));
+  this->xmlrpc_call_main("setTemporaryApplicationParameters",
+                         XMLRPCValue(param_map));
 }
 
-std::vector<std::uint8_t>
+inline std::vector<std::uint8_t>
 ifm3d::LegacyDevice::Impl::ExportIFMConfig()
 {
-  return this->_XCallSession("exportConfig").AsByteArray();
+  return this->xmlrpc_call_main("exportConfig").AsByteArray();
 }
 
-std::vector<std::uint8_t>
+inline std::vector<std::uint8_t>
 ifm3d::LegacyDevice::Impl::ExportIFMApp(int idx)
 {
-  return this->_XCallSession("exportApplication", idx).AsByteArray();
+  return this->xmlrpc_call_main("exportApplication", idx).AsByteArray();
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::ImportIFMConfig(
   const std::vector<std::uint8_t>& bytes,
   std::uint16_t flags)
 {
-  this->_XCallSession("importConfig", bytes, flags);
+  this->xmlrpc_call_main("importConfig", bytes, flags);
 }
 
-int
+inline int
 ifm3d::LegacyDevice::Impl::ImportIFMApp(const std::vector<std::uint8_t>& bytes)
 {
-  return this->_XCallSession("importApplication", bytes).AsInt();
+  return this->xmlrpc_call_main("importApplication", bytes).AsInt();
 }
 
 // ---------------------------------------------
 // Edit Mode
 // ---------------------------------------------
 
-std::vector<std::string>
+inline std::vector<std::string>
 ifm3d::LegacyDevice::Impl::ApplicationTypes()
 {
-  auto result = this->_XCallEdit("availableApplicationTypes").AsArray();
+  auto result = this->xmlrpc_call_edit("availableApplicationTypes").AsArray();
 
   std::vector<std::string> retval;
+  retval.reserve(result.size());
   for (auto& entry : result)
     {
       retval.push_back(entry.AsString());
@@ -554,130 +562,130 @@ ifm3d::LegacyDevice::Impl::ApplicationTypes()
   return retval;
 }
 
-int
+inline int
 ifm3d::LegacyDevice::Impl::CopyApplication(int idx)
 {
-  return this->_XCallEdit("copyApplication", idx).AsInt();
+  return this->xmlrpc_call_edit("copyApplication", idx).AsInt();
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::DeleteApplication(int idx)
 {
-  this->_XCallEdit("deleteApplication", idx);
+  this->xmlrpc_call_edit("deleteApplication", idx);
 }
 
-int
+inline int
 ifm3d::LegacyDevice::Impl::CreateApplication(const std::string& type)
 {
-  return this->_XCallEdit("createApplication", type.c_str()).AsInt();
+  return this->xmlrpc_call_edit("createApplication", type.c_str()).AsInt();
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::FactoryReset()
 {
-  this->_XCallEdit("factoryReset");
+  this->xmlrpc_call_edit("factoryReset");
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::EditApplication(int idx)
 {
-  this->_XCallEdit("editApplication", idx);
+  this->xmlrpc_call_edit("editApplication", idx);
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::StopEditingApplication()
 {
-  this->_XCallEdit("stopEditingApplication");
+  this->xmlrpc_call_edit("stopEditingApplication");
 }
 
 // ---------------------------------------------
 // Device
 // ---------------------------------------------
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::SetDeviceParameter(const std::string& param,
                                               const std::string& val)
 {
-  this->_XCallDevice("setParameter", param.c_str(), val.c_str());
+  this->xmlrpc_call_device("setParameter", param.c_str(), val.c_str());
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::SaveDevice()
 {
-  this->_XCallDevice("save");
+  this->xmlrpc_call_device("save");
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::ActivatePassword(const std::string& password)
 {
-  this->_XCallDevice("activatePassword", password.c_str());
+  this->xmlrpc_call_device("activatePassword", password.c_str());
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::DisablePassword()
 {
-  this->_XCallDevice("disablePassword");
+  this->xmlrpc_call_device("disablePassword");
 }
 
 // ---------------------------------------------
 // Network
 // ---------------------------------------------
 
-std::unordered_map<std::string, std::string>
+inline std::unordered_map<std::string, std::string>
 ifm3d::LegacyDevice::Impl::NetInfo()
 {
-  return this->_XCallNet("getAllParameters").ToStringMap();
+  return this->xmlrpc_call_net("getAllParameters").ToStringMap();
 }
 
-std::string
+inline std::string
 ifm3d::LegacyDevice::Impl::NetParameter(const std::string& param)
 {
-  return this->_XCallNet("getParameter", param.c_str()).AsString();
+  return this->xmlrpc_call_net("getParameter", param.c_str()).AsString();
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::SetNetParameter(const std::string& param,
                                            const std::string& val)
 {
-  this->_XCallNet("setParameter", param.c_str(), val.c_str());
+  this->xmlrpc_call_net("setParameter", param.c_str(), val.c_str());
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::SaveNet()
 {
-  this->_XCallNet("saveAndActivateConfig");
+  this->xmlrpc_call_net("saveAndActivateConfig");
 }
 
 // ---------------------------------------------
 // Time
 // ---------------------------------------------
 
-std::unordered_map<std::string, std::string>
+inline std::unordered_map<std::string, std::string>
 ifm3d::LegacyDevice::Impl::TimeInfo()
 {
-  return this->_XCallTime("getAllParameters").ToStringMap();
+  return this->xmlrpc_call_time("getAllParameters").ToStringMap();
 }
 
-std::string
+inline std::string
 ifm3d::LegacyDevice::Impl::TimeParameter(const std::string& param)
 {
-  return this->_XCallTime("getParameter", param.c_str()).AsString();
+  return this->xmlrpc_call_time("getParameter", param.c_str()).AsString();
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::SetTimeParameter(const std::string& param,
                                             const std::string& val)
 {
-  this->_XCallTime("setParameter", param.c_str(), val.c_str());
+  this->xmlrpc_call_time("setParameter", param.c_str(), val.c_str());
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::SaveTime()
 {
-  this->_XCallTime("saveAndActivateConfig");
+  this->xmlrpc_call_time("saveAndActivateConfig");
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::SetCurrentTime(int epoch_seconds)
 {
   if (epoch_seconds < 0)
@@ -686,67 +694,68 @@ ifm3d::LegacyDevice::Impl::SetCurrentTime(int epoch_seconds)
         static_cast<int>(std::chrono::seconds(std::time(nullptr)).count());
     }
 
-  this->_XCallTime("setCurrentTime", epoch_seconds);
+  this->xmlrpc_call_time("setCurrentTime", epoch_seconds);
 }
 
 // ---------------------------------------------
 // Application
 // ---------------------------------------------
 
-std::unordered_map<std::string, std::string>
+inline std::unordered_map<std::string, std::string>
 ifm3d::LegacyDevice::Impl::AppInfo()
 {
-  return this->_XCallApp("getAllParameters").ToStringMap();
+  return this->xmlrpc_call_app("getAllParameters").ToStringMap();
 }
 
-std::string
+inline std::string
 ifm3d::LegacyDevice::Impl::AppParameter(const std::string& param)
 {
-  return this->_XCallApp("getParameter", param.c_str()).AsString();
+  return this->xmlrpc_call_app("getParameter", param.c_str()).AsString();
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::SetAppParameter(const std::string& param,
                                            const std::string& val)
 {
-  this->_XCallApp("setParameter", param.c_str(), val.c_str());
+  this->xmlrpc_call_app("setParameter", param.c_str(), val.c_str());
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::SaveApp()
 {
-  this->_XCallApp("save");
+  this->xmlrpc_call_app("save");
 }
 
 // ---------------------------------------------
 // Imager
 // ---------------------------------------------
 
-std::unordered_map<std::string, std::string>
+inline std::unordered_map<std::string, std::string>
 ifm3d::LegacyDevice::Impl::ImagerInfo()
 {
-  return this->_XCallImager("getAllParameters").ToStringMap();
+  return this->xmlrpc_call_imager("getAllParameters").ToStringMap();
 }
 
-std::string
+inline std::string
 ifm3d::LegacyDevice::Impl::ImagerParameter(const std::string& param)
 {
-  return this->_XCallImager("getParameter", param.c_str()).AsString();
+  return this->xmlrpc_call_imager("getParameter", param.c_str()).AsString();
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::SetImagerParameter(const std::string& param,
                                               const std::string& val)
 {
-  this->_XCallImager("setParameter", param.c_str(), val.c_str());
+  this->xmlrpc_call_imager("setParameter", param.c_str(), val.c_str());
 }
 
-std::vector<std::string>
+inline std::vector<std::string>
 ifm3d::LegacyDevice::Impl::ImagerTypes()
 {
-  auto result = this->_XCallImager("availableTypes").AsArray();
+  auto result = this->xmlrpc_call_imager("availableTypes").AsArray();
 
   std::vector<std::string> retval;
+  retval.reserve(result.size());
   for (auto& entry : result)
     {
       retval.push_back(entry.AsString());
@@ -755,56 +764,60 @@ ifm3d::LegacyDevice::Impl::ImagerTypes()
   return retval;
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::ChangeImagerType(const std::string& type)
 {
-  this->_XCallImager("changeType", type.c_str());
+  this->xmlrpc_call_imager("changeType", type.c_str());
 }
 
 // ---------------------------------------------
 // Spatial Filter
 // ---------------------------------------------
 
-std::unordered_map<std::string, std::string>
+inline std::unordered_map<std::string, std::string>
 ifm3d::LegacyDevice::Impl::SpatialFilterInfo()
 {
-  return this->_XCallSpatialFilter("getAllParameters").ToStringMap();
+  return this->xmlrpc_call_spatial_filter("getAllParameters").ToStringMap();
 }
 
-std::string
+inline std::string
 ifm3d::LegacyDevice::Impl::SpatialFilterParameter(const std::string& param)
 {
-  return this->_XCallSpatialFilter("getParameter", param.c_str()).AsString();
+  return this->xmlrpc_call_spatial_filter("getParameter", param.c_str())
+    .AsString();
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::SetSpatialFilterParameter(const std::string& param,
                                                      const std::string& val)
 {
-  this->_XCallSpatialFilter("setParameter", param.c_str(), val.c_str());
+  this->xmlrpc_call_spatial_filter("setParameter", param.c_str(), val.c_str());
 }
 
 // ---------------------------------------------
 // Temporal Filter
 // ---------------------------------------------
 
-std::unordered_map<std::string, std::string>
+inline std::unordered_map<std::string, std::string>
 ifm3d::LegacyDevice::Impl::TemporalFilterInfo()
 {
-  return this->_XCallTemporalFilter("getAllParameters").ToStringMap();
+  return this->xmlrpc_call_temporal_filter("getAllParameters").ToStringMap();
 }
 
-std::string
+inline std::string
 ifm3d::LegacyDevice::Impl::TemporalFilterParameter(const std::string& param)
 {
-  return this->_XCallTemporalFilter("getParameter", param.c_str()).AsString();
+  return this->xmlrpc_call_temporal_filter("getParameter", param.c_str())
+    .AsString();
 }
 
-void
+inline void
 ifm3d::LegacyDevice::Impl::SetTemporalFilterParameter(const std::string& param,
                                                       const std::string& val)
 {
-  this->_XCallTemporalFilter("setParameter", param.c_str(), val.c_str());
+  this->xmlrpc_call_temporal_filter("setParameter",
+                                    param.c_str(),
+                                    val.c_str());
 }
 
 #endif // IFM3D_LEGACY_DEVICE_IMPL_HPP

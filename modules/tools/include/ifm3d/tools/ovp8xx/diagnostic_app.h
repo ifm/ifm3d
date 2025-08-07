@@ -21,9 +21,14 @@ namespace ifm3d
   class DiagnosticApp : public Command
   {
   public:
-    ~DiagnosticApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    DiagnosticApp() = default;
+    DiagnosticApp(const DiagnosticApp&) = default;
+    DiagnosticApp(DiagnosticApp&&) = delete;
+    DiagnosticApp& operator=(const DiagnosticApp&) = default;
+    DiagnosticApp& operator=(DiagnosticApp&&) = delete;
+    ~DiagnosticApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
   }; // end: class DiagnosticApp
 } // end: namespace ifm3d

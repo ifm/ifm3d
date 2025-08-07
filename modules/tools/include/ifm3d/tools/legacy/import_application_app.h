@@ -9,9 +9,9 @@
 #define IFM3D_TOOLS_IMPORT_APPLICATION_APP_H
 #pragma once
 
-#include <string>
 #include <ifm3d/tools/command.hpp>
 #include <ifm3d/tools/main_command.hpp>
+#include <string>
 
 namespace ifm3d
 {
@@ -22,9 +22,14 @@ namespace ifm3d
   class ImportApplicationApp : public Command
   {
   public:
-    ~ImportApplicationApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    ImportApplicationApp() = default;
+    ImportApplicationApp(const ImportApplicationApp&) = default;
+    ImportApplicationApp(ImportApplicationApp&&) = delete;
+    ImportApplicationApp& operator=(const ImportApplicationApp&) = default;
+    ImportApplicationApp& operator=(ImportApplicationApp&&) = delete;
+    ~ImportApplicationApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
     std::string input_file{"-"};
 

@@ -5,9 +5,9 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/tools/legacy/export_application_app.h"
-#include "ifm3d/tools/legacy/export_device_app.h"
 #include <ifm3d/tools/legacy/export_app.h>
+#include <ifm3d/tools/legacy/export_application_app.h>
+#include <ifm3d/tools/legacy/export_device_app.h>
 
 ifm3d::ExportApp::~ExportApp() = default;
 

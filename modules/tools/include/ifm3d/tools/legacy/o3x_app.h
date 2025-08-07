@@ -11,7 +11,6 @@
 #include <CLI/CLI.hpp>
 #include <ifm3d/tools/command.hpp>
 #include <ifm3d/tools/main_command.hpp>
-#include <ifm3d/tools.h>
 
 namespace ifm3d
 {
@@ -19,13 +18,18 @@ namespace ifm3d
    * Concrete implementation of the `o3x1xx and o3x2xx` subcommand to the
    * `ifm3d` command-line utility.
    */
-  class O3X1XX_O3X2XX : public Command
+  class O3X1XX_O3X2XX : public Command // NOLINT(readability-identifier-naming)
   {
   public:
-    ~O3X1XX_O3X2XX();
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
-    virtual void Execute(CLI::App* app) override;
-    virtual bool CheckCompatibility() override;
+    O3X1XX_O3X2XX() = default;
+    O3X1XX_O3X2XX(const O3X1XX_O3X2XX&) = default;
+    O3X1XX_O3X2XX(O3X1XX_O3X2XX&&) = delete;
+    O3X1XX_O3X2XX& operator=(const O3X1XX_O3X2XX&) = default;
+    O3X1XX_O3X2XX& operator=(O3X1XX_O3X2XX&&) = delete;
+    ~O3X1XX_O3X2XX() override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
+    void Execute(CLI::App* app) override;
+    bool CheckCompatibility() override;
 
   }; // end: class O3X1XX_O3X2XX
 

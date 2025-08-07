@@ -8,12 +8,12 @@
 
 #include <chrono>
 #include <cstdint>
-#include <memory>
-#include <vector>
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/buffer.h>
-#include <ifm3d/fg/module_frame_grabber.h>
 #include <ifm3d/fg/buffer_id.h>
+#include <ifm3d/fg/module_frame_grabber.h>
+#include <memory>
+#include <vector>
 
 namespace ifm3d
 {
@@ -40,8 +40,8 @@ namespace ifm3d
     Frame(const Frame& t);
     Frame& operator=(const Frame& t);
 
-    Frame(Frame&& t);
-    Frame& operator=(Frame&& t);
+    Frame(Frame&& t) noexcept;
+    Frame& operator=(Frame&& t) noexcept;
 
     /**
      * @brief Get the timestamps of the frame
@@ -88,18 +88,24 @@ namespace ifm3d
      */
     std::vector<buffer_id> GetBuffers();
 
+    // NOLINTBEGIN(readability-identifier-naming)
     decltype(std::declval<std::map<buffer_id, BufferList>>().begin())
     begin() noexcept;
-    decltype(std::declval<const std::map<buffer_id, BufferList>>().begin())
+    [[nodiscard]] decltype(std::declval<
+                             const std::map<buffer_id, BufferList>>()
+                             .begin())
     begin() const noexcept;
     decltype(std::declval<std::map<buffer_id, BufferList>>().end())
     end() noexcept;
-    decltype(std::declval<const std::map<buffer_id, BufferList>>().end()) end()
-      const noexcept;
+    [[nodiscard]] decltype(std::declval<
+                             const std::map<buffer_id, BufferList>>()
+                             .end())
+    end() const noexcept;
+    // NOLINTEND(readability-identifier-naming)
 
   private:
     class Impl;
-    std::unique_ptr<Impl> pImpl;
+    std::unique_ptr<Impl> _impl;
   }; // end: class Organizer
 
 } // end: namespace ifm3d

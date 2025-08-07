@@ -20,6 +20,7 @@
 				"ms-vscode.cmake-tools",
 				"xaver.clang-format",
 				"ms-python.python",
+				"ms-python.black-formatter",
 				"llvm-vs-code-extensions.vscode-clangd"
 			],
 			"settings": {
@@ -40,7 +41,14 @@
 					"editor.defaultFormatter": "xaver.clang-format"
 				},
 				"editor.formatOnSave": true,
-				"clang-format.executable": "/usr/bin/clang-format-14"
+				"clang-format.executable": "/usr/bin/clang-format-14",
+				"cmake.configureArgs": [
+					"-DBUILD_MODULE_PYBIND11=ON",
+					"-DBUILD_MODULE_PCICCLIENT=ON",
+					"-DCREATE_PYTHON_STUBS=ON",
+					"-DBUILD_DOC=ON",
+					"-DBUILD_TESTS=ON"
+				]
 			}
 		}
 	},

@@ -4,6 +4,8 @@
  * THE PROGRAM IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND.
  */
 
+// NOLINTBEGIN
+
 #ifndef O3R_UNCOMPRESS_DI_H
 #define O3R_UNCOMPRESS_DI_H
 
@@ -126,5 +128,7 @@ namespace ifm3d
                               float rot_z);
 
 }
+
+// NOLINTEND
 
 #endif

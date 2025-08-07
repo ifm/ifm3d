@@ -4,17 +4,17 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/swupdater/swupdater.h"
-#include <ifm3d/tools/common/swupdater/swupdate_deprecated_app.h>
+#include <chrono>
 #include <ifm3d/common/features.h>
+#include <ifm3d/swupdater/swupdater.h>
+#include <ifm3d/tools/common/swupdater/swupdate_deprecated_app.h>
 #include <iostream>
 #include <memory>
-#include <chrono>
 #include <string>
 
 #ifdef _WIN32
-#  include <io.h>
 #  include <fcntl.h>
+#  include <io.h>
 #endif
 
 ifm3d::SWUpdateDeprecatedApp::~SWUpdateDeprecatedApp() = default;

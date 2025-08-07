@@ -7,28 +7,28 @@
 #define IFM3D_FG_FRAMEGRABBER_IMPL_H
 #pragma once
 
+#include <asio.hpp>
+#include <asio/use_future.hpp>
 #include <cstdint>
 #include <cstdlib>
 #include <exception>
+#include <fmt/core.h> // NOLINT(*)
 #include <functional>
+#include <ifm3d/common/logging/log.h>
+#include <ifm3d/device.h>
+#include <ifm3d/fg/frame_grabber.h>
+#include <ifm3d/fg/module_frame_grabber.h>
+#include <ifm3d/fg/schema.h>
 #include <memory>
 #include <mutex>
+#include <o3d_organizer.hpp>
+#include <o3r_organizer.hpp>
+#include <o3r_organizer3D.hpp>
+#include <o3x_organizer.hpp>
 #include <string>
 #include <system_error>
+#include <utility>
 #include <vector>
-#include <mutex>
-#include <asio/use_future.hpp>
-#include <asio.hpp>
-#include <ifm3d/common/logging/log.h>
-#include <ifm3d/fg/module_frame_grabber.h>
-#include <ifm3d/device.h>
-#include <ifm3d/fg/schema.h>
-#include <o3d_organizer.hpp>
-#include <o3x_organizer.hpp>
-#include <o3r_organizer3D.hpp>
-#include <o3r_organizer.hpp>
-#include <fmt/core.h>
-#include <ifm3d/fg/frame_grabber.h>
 
 namespace ifm3d
 {
@@ -55,6 +55,11 @@ namespace ifm3d
     Impl(ifm3d::Device::Ptr cam, std::optional<std::uint16_t> nat_pcic_port);
     ~Impl();
 
+    Impl(const Impl&) = delete;
+    Impl(Impl&&) = delete;
+    Impl& operator=(const Impl&) = delete;
+    Impl& operator=(Impl&&) = delete;
+
     std::shared_future<void> SWTrigger();
 
     void OnNewFrame(NewFrameCallback callback);
@@ -72,54 +77,55 @@ namespace ifm3d
     void OnAsyncNotification(AsyncNotificationCallback callback);
     void OnError(ErrorCallback callback);
 
-    void SetMasking(const bool masking);
+    void SetMasking(bool masking);
     bool IsMasking();
 
   protected:
-    void Run(const std::optional<json>& schema);
+    void run(const std::optional<json>& schema);
 
-    void SendCommand(const std::string& ticket_id, const std::string& command);
-    void SendCommand(const std::string& ticket_id,
-                     const std::vector<std::uint8_t>& command);
-    json GenerateDefaultSchema();
-    std::set<ifm3d::buffer_id> GetImageChunks(ifm3d::buffer_id id);
+    void send_command(const std::string& ticket_id,
+                      const std::string& content);
+    void send_command(const std::string& ticket_id,
+                      const std::vector<std::uint8_t>& content);
+    json generate_default_schema();
+    std::set<ifm3d::buffer_id> get_image_chunks(ifm3d::buffer_id id);
     //
     // ASIO event handlers
     //
-    void ConnectHandler(const std::optional<json>& schema);
+    void connect_handler(const std::optional<json>& schema);
 
-    void TicketHandler(const asio::error_code& ec,
-                       std::size_t bytes_xferd,
-                       std::size_t bytes_read);
-
-    void PayloadHandler(const asio::error_code& ec,
+    void ticket_handler(const asio::error_code& ec,
                         std::size_t bytes_xferd,
-                        std::size_t bytes_read,
-                        const std::string& ticket_id);
+                        std::size_t bytes_read);
 
-    void ImageHandler();
-    void AsyncErrorHandler();
-    void AsyncNotificationHandler();
-    void TriggerHandler();
-    void ReportError(const ifm3d::Error& error);
-    std::string CalculateAsyncCommand();
+    void payload_handler(const asio::error_code& ec,
+                         std::size_t bytes_xferd,
+                         std::size_t bytes_read,
+                         const std::string& ticket_id);
+
+    void image_handler();
+    void async_error_handler();
+    void async_notification_handler();
+    void trigger_handler();
+    void report_error(const ifm3d::Error& error);
+    std::string calculate_async_command();
 
     //---------------------
     // State
     //---------------------
-    ifm3d::Device::Ptr cam_;
+    ifm3d::Device::Ptr _cam;
 
-    std::string cam_ip_;
-    uint16_t pcic_port_;
-    std::unique_ptr<asio::io_service> io_service_;
-    std::mutex io_service_mutex_;
-    std::unique_ptr<asio::ip::tcp::socket> sock_;
-    std::shared_future<void> finish_future_;
-    std::unique_ptr<Organizer> organizer_;
-    std::set<buffer_id> requested_images_;
-    bool is_ready_;
-    bool masking_;
-    std::mutex mutex_for_masking_;
+    std::string _cam_ip;
+    uint16_t _pcic_port;
+    std::unique_ptr<asio::io_service> _io_service;
+    std::mutex _io_service_mutex;
+    std::unique_ptr<asio::ip::tcp::socket> _sock;
+    std::shared_future<void> _finish_future;
+    std::unique_ptr<Organizer> _organizer;
+    std::set<buffer_id> _requested_images;
+    bool _is_ready{};
+    bool _masking{};
+    std::mutex _mutex_for_masking;
 
     //
     // Holds the raw 'Ticket' bytes received from the sensor:
@@ -131,28 +137,28 @@ namespace ifm3d
     // The '9 bytes length' is a string of chars to be converted to an integer
     // number representing the length of the payload data.
     //
-    std::vector<std::uint8_t> ticket_buffer_;
+    std::vector<std::uint8_t> _ticket_buffer;
 
     //
     // According to the PCIC V3 protocol, this will hold from the 4 digit
     // ticket sequence up to and including the ending CR + LF ('\r\n')
     //
-    std::vector<std::uint8_t> payload_buffer_;
+    std::vector<std::uint8_t> _payload_buffer;
 
-    FrameGrabber::NewFrameCallback new_frame_callback_;
-    FrameGrabber::AsyncErrorCallback async_error_callback_;
-    FrameGrabber::AsyncNotificationCallback async_notification_callback_;
-    FrameGrabber::ErrorCallback error_callback_;
+    FrameGrabber::NewFrameCallback _new_frame_callback;
+    FrameGrabber::AsyncErrorCallback _async_error_callback;
+    FrameGrabber::AsyncNotificationCallback _async_notification_callback;
+    FrameGrabber::ErrorCallback _error_callback;
 
-    std::promise<Frame::Ptr> wait_for_frame_promise;
-    std::shared_future<Frame::Ptr> wait_for_frame_future;
-    std::mutex wait_for_frame_mutex_;
+    std::promise<Frame::Ptr> _wait_for_frame_promise;
+    std::shared_future<Frame::Ptr> _wait_for_frame_future;
+    std::mutex _wait_for_frame_mutex;
 
-    std::promise<void> trigger_feedback_promise_;
-    std::shared_future<void> trigger_feedback_future_;
+    std::promise<void> _trigger_feedback_promise;
+    std::shared_future<void> _trigger_feedback_future;
 
-    std::promise<void> ready_promise_;
-    std::shared_future<void> ready_future_;
+    std::promise<void> _ready_promise;
+    std::shared_future<void> _ready_future;
 
   }; // end: class FrameGrabber::Impl
 
@@ -165,20 +171,17 @@ namespace ifm3d
 //-------------------------------------
 // ctor/dtor
 //-------------------------------------
-ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
-                                std::optional<std::uint16_t> pcic_port)
-  : cam_(cam),
-    cam_ip_(this->cam_->IP()),
-    pcic_port_(pcic_port.value_or(ifm3d::DEFAULT_PCIC_PORT)),
-    io_service_(),
-    sock_(),
-    finish_future_(std::async(std::launch::async, []() {})),
-    is_ready_(false),
-    wait_for_frame_future(wait_for_frame_promise.get_future()),
-    trigger_feedback_future_(trigger_feedback_promise_.get_future()),
-    ready_future_(ready_promise_.get_future())
+inline ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
+                                       std::optional<std::uint16_t> pcic_port)
+  : _cam(std::move(cam)),
+    _cam_ip(this->_cam->IP()),
+    _pcic_port(pcic_port.value_or(ifm3d::DEFAULT_PCIC_PORT)),
+    _finish_future(std::async(std::launch::async, []() {})),
+    _wait_for_frame_future(_wait_for_frame_promise.get_future()),
+    _trigger_feedback_future(_trigger_feedback_promise.get_future()),
+    _ready_future(_ready_promise.get_future())
 {
-  auto device_type = this->cam_->WhoAmI();
+  auto device_type = this->_cam->WhoAmI();
   if (device_type == Device::device_family::O3D)
     {
       this->SetMasking(true);
@@ -187,8 +190,8 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
         {
           try
             {
-              this->pcic_port_ =
-                std::stoi(this->cam_->DeviceParameter("PcicTcpPort"));
+              this->_pcic_port =
+                std::stoi(this->_cam->DeviceParameter("PcicTcpPort"));
             }
           catch (const ifm3d::Error& ex)
             {
@@ -196,7 +199,7 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
                         ex.what());
               LOG_WARNING("Assuming default PCIC port: {}",
                           ifm3d::DEFAULT_PCIC_PORT);
-              this->pcic_port_ = ifm3d::DEFAULT_PCIC_PORT;
+              this->_pcic_port = ifm3d::DEFAULT_PCIC_PORT;
             }
         }
     }
@@ -211,7 +214,7 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
       this->SetMasking(false);
 
       auto ports_info =
-        std::dynamic_pointer_cast<ifm3d::O3R>(this->cam_)->Ports();
+        std::dynamic_pointer_cast<ifm3d::O3R>(this->_cam)->Ports();
 
       for (auto& port_info : ports_info)
         {
@@ -229,7 +232,7 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
                        "configuration aligned.")
             }
         }
-      if (organizer_ == nullptr)
+      if (_organizer == nullptr)
         {
           this->SetOrganizer(std::make_unique<O3ROrganizer>());
           LOG_WARNING(
@@ -238,7 +241,7 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
         }
     }
 
-  if (organizer_ == nullptr)
+  if (_organizer == nullptr)
     {
       LOG_ERROR(
         "The device's PCIC port does not match any compatible organizers");
@@ -246,11 +249,11 @@ ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
     }
 
   LOG_INFO("Camera connection info: ip={}, port={}",
-           this->cam_ip_,
-           this->pcic_port_);
+           this->_cam_ip,
+           this->_pcic_port);
 }
 
-ifm3d::FrameGrabber::Impl::~Impl()
+inline ifm3d::FrameGrabber::Impl::~Impl()
 {
   LOG_VERBOSE("FrameGrabber dtor running...");
 
@@ -263,25 +266,25 @@ ifm3d::FrameGrabber::Impl::~Impl()
 // "Public" interface
 //-------------------------------------
 
-std::shared_future<void>
+inline std::shared_future<void>
 ifm3d::FrameGrabber::Impl::SWTrigger()
 {
-  this->io_service_->post([this]() {
+  this->_io_service->post([this]() {
     auto reinitialize_promise = [this]() {
-      this->trigger_feedback_promise_ = std::promise<void>();
-      this->trigger_feedback_future_ = trigger_feedback_promise_.get_future();
+      this->_trigger_feedback_promise = std::promise<void>();
+      this->_trigger_feedback_future = _trigger_feedback_promise.get_future();
     };
     try
       {
-        if (this->cam_->AmI(ifm3d::Device::device_family::O3X))
+        if (this->_cam->AmI(ifm3d::Device::device_family::O3X))
           {
-            this->cam_->ForceTrigger();
-            this->trigger_feedback_promise_.set_value();
+            this->_cam->ForceTrigger();
+            this->_trigger_feedback_promise.set_value();
             reinitialize_promise();
           }
         else
           {
-            SendCommand(TICKET_COMMAND_t, "t");
+            send_command(TICKET_COMMAND_t, "t");
           }
       }
     catch (const ifm3d::Error& ex)
@@ -289,50 +292,50 @@ ifm3d::FrameGrabber::Impl::SWTrigger()
         LOG_ERROR("While trying to software trigger the camera: {} = {}",
                   ex.code(),
                   ex.what());
-        this->trigger_feedback_promise_.set_exception(
+        this->_trigger_feedback_promise.set_exception(
           std::current_exception());
         reinitialize_promise();
       }
     catch (std::exception& e)
       {
-        this->trigger_feedback_promise_.set_exception(
+        this->_trigger_feedback_promise.set_exception(
           std::current_exception());
         reinitialize_promise();
       }
   });
 
-  return this->trigger_feedback_future_;
+  return this->_trigger_feedback_future;
 }
 
-void
+inline void
 ifm3d::FrameGrabber::Impl::OnNewFrame(NewFrameCallback callback)
 {
-  this->new_frame_callback_ = callback;
+  this->_new_frame_callback = std::move(callback);
 }
 
-std::shared_future<ifm3d::Frame::Ptr>
+inline std::shared_future<ifm3d::Frame::Ptr>
 ifm3d::FrameGrabber::Impl::WaitForFrame()
 {
-  std::lock_guard<std::mutex> lock(this->wait_for_frame_mutex_);
-  return this->wait_for_frame_future;
+  std::lock_guard<std::mutex> lock(this->_wait_for_frame_mutex);
+  return this->_wait_for_frame_future;
 }
 
-std::shared_future<void>
+inline std::shared_future<void>
 ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::buffer_id>& images,
                                  const std::optional<json>& schema)
 {
-  std::lock_guard<std::mutex> lock(this->io_service_mutex_);
-  if (!this->io_service_)
+  std::lock_guard<std::mutex> lock(this->_io_service_mutex);
+  if (!this->_io_service)
     {
-      this->io_service_ = std::make_unique<asio::io_service>();
-      this->sock_ = std::make_unique<asio::ip::tcp::socket>(*io_service_);
-      this->requested_images_ = images;
+      this->_io_service = std::make_unique<asio::io_service>();
+      this->_sock = std::make_unique<asio::ip::tcp::socket>(*_io_service);
+      this->_requested_images = images;
 
-      this->finish_future_ = std::async(
+      this->_finish_future = std::async(
         std::launch::async,
-        [this](const std::optional<json>& schema) { this->Run(schema); },
+        [this](const std::optional<json>& schema) { this->run(schema); },
         schema);
-      return this->ready_future_;
+      return this->_ready_future;
     }
 
   std::promise<void> promise;
@@ -340,61 +343,61 @@ ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::buffer_id>& images,
   return promise.get_future();
 }
 
-std::shared_future<void>
+inline std::shared_future<void>
 ifm3d::FrameGrabber::Impl::Stop()
 {
-  std::lock_guard<std::mutex> lock(this->io_service_mutex_);
-  if (this->io_service_)
+  std::lock_guard<std::mutex> lock(this->_io_service_mutex);
+  if (this->_io_service)
     {
-      this->io_service_->post(
+      this->_io_service->post(
         []() { throw ifm3d::Error(IFM3D_THREAD_INTERRUPTED); });
     }
 
-  return this->finish_future_;
+  return this->_finish_future;
 }
 
-bool
+inline bool
 ifm3d::FrameGrabber::Impl::IsRunning()
 {
-  return this->io_service_ != nullptr;
+  return this->_io_service != nullptr;
 }
 
-void
+inline void
 ifm3d::FrameGrabber::Impl::SetOrganizer(std::unique_ptr<Organizer> organizer)
 {
-  this->organizer_ = std::move(organizer);
+  this->_organizer = std::move(organizer);
 }
 
 //-------------------------------------
 // "Private" interface
 //-------------------------------------
 
-void
-ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
+inline void
+ifm3d::FrameGrabber::Impl::run(const std::optional<json>& schema)
 {
   LOG_DEBUG("Framegrabber thread running...");
 
-  this->ticket_buffer_.clear();
-  this->ticket_buffer_.resize(ifm3d::TICKET_SIZE);
+  this->_ticket_buffer.clear();
+  this->_ticket_buffer.resize(ifm3d::TICKET_SIZE);
 
   std::optional<ifm3d::Error> error;
 
   try
     {
-      this->sock_->connect(
-        asio::ip::tcp::endpoint(asio::ip::address::from_string(this->cam_ip_),
-                                this->pcic_port_));
+      this->_sock->connect(
+        asio::ip::tcp::endpoint(asio::ip::address::from_string(this->_cam_ip),
+                                this->_pcic_port));
 
-      this->ConnectHandler(schema);
+      this->connect_handler(schema);
 
-      this->io_service_->run();
+      this->_io_service->run();
     }
   catch (const ifm3d::Error& ex)
     {
       if (ex.code() != IFM3D_THREAD_INTERRUPTED)
         {
           LOG_WARNING(ex.what());
-          this->ReportError(ex);
+          this->report_error(ex);
           error = ex;
         }
     }
@@ -406,10 +409,9 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
     }
   catch (const std::system_error& err)
     {
-      error = ifm3d::Error(IFM3D_SYSTEM_ERROR,
-                           fmt::format("{0}: {1}",
-                                       static_cast<int>(err.code().value()),
-                                       err.what()));
+      error =
+        ifm3d::Error(IFM3D_SYSTEM_ERROR,
+                     fmt::format("{0}: {1}", err.code().value(), err.what()));
     }
   catch (const std::exception& err)
     {
@@ -417,30 +419,28 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
     }
   try
     {
-      this->sock_->shutdown(asio::socket_base::shutdown_both);
-      this->sock_->close();
+      this->_sock->shutdown(asio::socket_base::shutdown_both);
+      this->_sock->close();
     }
   catch (const std::system_error& err)
     {
-      this->ReportError(
+      this->report_error(
         ifm3d::Error(IFM3D_SYSTEM_ERROR,
-                     fmt::format("{0}: {1}",
-                                 static_cast<int>(err.code().value()),
-                                 err.what())));
+                     fmt::format("{0}: {1}", err.code().value(), err.what())));
       LOG_WARNING("System error {}: {}",
                   static_cast<int>(err.code().value()),
                   err.what());
     }
 
   {
-    std::lock_guard<std::mutex> lock(this->io_service_mutex_);
-    this->sock_.reset();
-    this->io_service_.reset();
+    std::lock_guard<std::mutex> lock(this->_io_service_mutex);
+    this->_sock.reset();
+    this->_io_service.reset();
   }
 
-  this->ready_promise_ = std::promise<void>();
-  this->ready_future_ = this->ready_promise_.get_future();
-  this->is_ready_ = false;
+  this->_ready_promise = std::promise<void>();
+  this->_ready_future = this->_ready_promise.get_future();
+  this->_is_ready = false;
 
   if (error.has_value())
     {
@@ -448,27 +448,26 @@ ifm3d::FrameGrabber::Impl::Run(const std::optional<json>& schema)
                   static_cast<int>(error.value().code()),
                   error.value().what());
       auto ex_ptr = std::make_exception_ptr(error.value());
-      this->wait_for_frame_promise.set_exception(ex_ptr);
-      if (!this->is_ready_)
+      this->_wait_for_frame_promise.set_exception(ex_ptr);
+      if (!this->_is_ready)
         {
-          this->ready_promise_.set_exception(ex_ptr);
+          this->_ready_promise.set_exception(ex_ptr);
         }
     }
 
   LOG_INFO("FrameGrabber thread done.");
 }
 
-void
-ifm3d::FrameGrabber::Impl::SendCommand(const std::string& ticket_id,
-                                       const std::string& content)
+inline void
+ifm3d::FrameGrabber::Impl::send_command(const std::string& ticket_id,
+                                        const std::string& content)
 {
-  return SendCommand(
-    ticket_id,
-    std::vector<std::uint8_t>(content.begin(), content.end()));
+  send_command(ticket_id,
+               std::vector<std::uint8_t>(content.begin(), content.end()));
 }
 
-void
-ifm3d::FrameGrabber::Impl::SendCommand(
+inline void
+ifm3d::FrameGrabber::Impl::send_command(
   const std::string& ticket_id,
   const std::vector<std::uint8_t>& content)
 {
@@ -476,15 +475,15 @@ ifm3d::FrameGrabber::Impl::SendCommand(
     fmt::format("{0}L{1:09}\r\n{0}", ticket_id, 4 + content.size() + 2);
   std::string suffix = "\r\n";
 
-  asio::write(*this->sock_,
+  asio::write(*this->_sock,
               std::vector<asio::const_buffer>{
                 asio::buffer(prefix),
                 asio::buffer(content.data(), content.size()),
                 asio::buffer(suffix)});
 }
 
-void
-ifm3d::FrameGrabber::Impl::ConnectHandler(
+inline void
+ifm3d::FrameGrabber::Impl::connect_handler(
   const std::optional<ifm3d::json>& schema)
 {
   // Set the schema
@@ -492,35 +491,35 @@ ifm3d::FrameGrabber::Impl::ConnectHandler(
     {
       SetSchema(schema.value());
     }
-  else if (!this->requested_images_.empty())
+  else if (!this->_requested_images.empty())
     {
-      SetSchema(GenerateDefaultSchema());
+      SetSchema(generate_default_schema());
     }
 
-  SendCommand(TICKET_COMMAND_p, CalculateAsyncCommand());
+  send_command(TICKET_COMMAND_p, calculate_async_command());
 
-  this->sock_->async_read_some(
-    asio::buffer(this->ticket_buffer_.data(), ifm3d::TICKET_SIZE),
-    std::bind(&ifm3d::FrameGrabber::Impl::TicketHandler,
-              this,
-              std::placeholders::_1,
-              std::placeholders::_2,
-              0));
+  this->_sock->async_read_some(
+    asio::buffer(this->_ticket_buffer.data(), ifm3d::TICKET_SIZE),
+    [this](auto&& error_code, auto&& bytes_xferd) {
+      ticket_handler(std::forward<decltype(error_code)>(error_code),
+                     std::forward<decltype(bytes_xferd)>(bytes_xferd),
+                     0);
+    });
 
-  if (this->cam_->AmI(ifm3d::Device::device_family::O3X))
+  if (this->_cam->AmI(ifm3d::Device::device_family::O3X))
     {
-      if (!this->is_ready_)
+      if (!this->_is_ready)
         {
-          this->is_ready_ = true;
-          this->ready_promise_.set_value();
+          this->_is_ready = true;
+          this->_ready_promise.set_value();
         }
     }
 }
 
-void
-ifm3d::FrameGrabber::Impl::TicketHandler(const asio::error_code& ec,
-                                         std::size_t bytes_xferd,
-                                         std::size_t bytes_read)
+inline void
+ifm3d::FrameGrabber::Impl::ticket_handler(const asio::error_code& ec,
+                                          std::size_t bytes_xferd,
+                                          std::size_t bytes_read)
 {
   if (ec && ec.value() != asio::error::try_again)
     {
@@ -531,42 +530,43 @@ ifm3d::FrameGrabber::Impl::TicketHandler(const asio::error_code& ec,
   bytes_read += bytes_xferd;
   if (bytes_read < ifm3d::TICKET_SIZE)
     {
-      this->sock_->async_read_some(
-        asio::buffer(this->ticket_buffer_.data() + bytes_read,
-                     this->ticket_buffer_.size() - bytes_read),
-        std::bind(&ifm3d::FrameGrabber::Impl::TicketHandler,
-                  this,
-                  std::placeholders::_1,
-                  std::placeholders::_2,
-                  bytes_read));
+      this->_sock->async_read_some(
+        asio::buffer(this->_ticket_buffer.data() + bytes_read,
+                     this->_ticket_buffer.size() - bytes_read),
+        [this, bytes_read](auto&& error_code, auto&& bytes_transferred) {
+          ticket_handler(
+            std::forward<decltype(error_code)>(error_code),
+            std::forward<decltype(bytes_transferred)>(bytes_transferred),
+            bytes_read);
+        });
       return;
     }
 
-  std::string ticket_id(this->ticket_buffer_.begin() + TICKET_ID_START,
-                        this->ticket_buffer_.begin() + TICKET_ID_END);
+  std::string ticket_id(this->_ticket_buffer.begin() + TICKET_ID_START,
+                        this->_ticket_buffer.begin() + TICKET_ID_END);
 
   std::string payload_size_str(
-    this->ticket_buffer_.begin() + PAYLOAD_SIZE_START,
-    this->ticket_buffer_.begin() + PAYLOAD_SIZE_END);
+    this->_ticket_buffer.begin() + PAYLOAD_SIZE_START,
+    this->_ticket_buffer.begin() + PAYLOAD_SIZE_END);
 
   std::size_t payload_size = std::stoi(payload_size_str);
-  payload_buffer_.resize(payload_size);
+  _payload_buffer.resize(payload_size);
 
-  this->sock_->async_read_some(
-    asio::buffer(this->payload_buffer_.data(), payload_size),
-    std::bind(&ifm3d::FrameGrabber::Impl::PayloadHandler,
-              this,
-              std::placeholders::_1,
-              std::placeholders::_2,
-              0,
-              ticket_id));
+  this->_sock->async_read_some(
+    asio::buffer(this->_payload_buffer.data(), payload_size),
+    [this, ticket_id](auto&& error_code, auto&& bytes_xferd) {
+      payload_handler(std::forward<decltype(error_code)>(error_code),
+                      std::forward<decltype(bytes_xferd)>(bytes_xferd),
+                      0,
+                      ticket_id);
+    });
 }
 
-void
-ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
-                                          std::size_t bytes_xferd,
-                                          std::size_t bytes_read,
-                                          const std::string& ticket_id)
+inline void
+ifm3d::FrameGrabber::Impl::payload_handler(const asio::error_code& ec,
+                                           std::size_t bytes_xferd,
+                                           std::size_t bytes_read,
+                                           const std::string& ticket_id)
 {
   if (ec && ec.value() != asio::error::try_again)
     {
@@ -575,25 +575,25 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
     }
 
   bytes_read += bytes_xferd;
-  if (bytes_read < this->payload_buffer_.size())
+  if (bytes_read < this->_payload_buffer.size())
     {
-      this->sock_->async_read_some(
-        asio::buffer(this->payload_buffer_.data() + bytes_read,
-                     this->payload_buffer_.size() - bytes_read),
-        std::bind(&ifm3d::FrameGrabber::Impl::PayloadHandler,
-                  this,
-                  std::placeholders::_1,
-                  std::placeholders::_2,
-                  bytes_read,
-                  ticket_id));
+      this->_sock->async_read_some(
+        asio::buffer(this->_payload_buffer.data() + bytes_read,
+                     this->_payload_buffer.size() - bytes_read),
+        [this, bytes_read, ticket_id](auto&& error_code, auto&& bytes_xferd) {
+          payload_handler(std::forward<decltype(error_code)>(error_code),
+                          std::forward<decltype(bytes_xferd)>(bytes_xferd),
+                          bytes_read,
+                          ticket_id);
+        });
       return;
     }
 
   if (ticket_id == ifm3d::TICKET_IMAGE || ticket_id == ifm3d::TICKET_ALGO_DGB)
     {
-      if (this->is_ready_)
+      if (this->_is_ready)
         {
-          this->ImageHandler();
+          this->image_handler();
         }
       else
         {
@@ -602,15 +602,15 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
     }
   else if (ticket_id == ifm3d::TICKET_ASYNC_ERROR)
     {
-      this->AsyncErrorHandler();
+      this->async_error_handler();
     }
   else if (ticket_id == ifm3d::TICKET_ASYNC_NOTIFICATION)
     {
-      this->AsyncNotificationHandler();
+      this->async_notification_handler();
     }
   else if (ticket_id == ifm3d::TICKET_COMMAND_c)
     {
-      if (this->payload_buffer_.at(4) != '*')
+      if (this->_payload_buffer.at(4) != '*')
         {
           LOG_ERROR("Error setting pcic schema on device");
           throw ifm3d::Error(
@@ -620,12 +620,12 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
     }
   else if (ticket_id == ifm3d::TICKET_COMMAND_p)
     {
-      if (!this->is_ready_)
+      if (!this->_is_ready)
         {
-          if (this->payload_buffer_.at(4) == '*')
+          if (this->_payload_buffer.at(4) == '*')
             {
-              this->is_ready_ = true;
-              this->ready_promise_.set_value();
+              this->_is_ready = true;
+              this->_ready_promise.set_value();
             }
           else
             {
@@ -638,56 +638,56 @@ ifm3d::FrameGrabber::Impl::PayloadHandler(const asio::error_code& ec,
     }
   else if (ticket_id == ifm3d::TICKET_COMMAND_t)
     {
-      this->TriggerHandler();
+      this->trigger_handler();
     }
 
-  this->payload_buffer_.clear();
+  this->_payload_buffer.clear();
 
-  this->sock_->async_read_some(
-    asio::buffer(this->ticket_buffer_.data(), ifm3d::TICKET_SIZE),
-    std::bind(&ifm3d::FrameGrabber::Impl::TicketHandler,
-              this,
-              std::placeholders::_1,
-              std::placeholders::_2,
-              0));
+  this->_sock->async_read_some(
+    asio::buffer(this->_ticket_buffer.data(), ifm3d::TICKET_SIZE),
+    [this](auto&& error_code, auto&& bytes_xferd) {
+      ticket_handler(std::forward<decltype(error_code)>(error_code),
+                     std::forward<decltype(bytes_xferd)>(bytes_xferd),
+                     0);
+    });
 }
 
-void
-ifm3d::FrameGrabber::Impl::ImageHandler()
+inline void
+ifm3d::FrameGrabber::Impl::image_handler()
 {
-  std::size_t buffer_size = this->payload_buffer_.size();
+  std::size_t buffer_size = this->_payload_buffer.size();
   bool buffer_valid =
-    std::string(this->payload_buffer_.begin() + 4,
-                this->payload_buffer_.begin() + 8) == "star" &&
-    std::string(this->payload_buffer_.end() - 6,
-                this->payload_buffer_.end() - 2) == "stop" &&
-    this->payload_buffer_.at(buffer_size - 2) == '\r' &&
-    this->payload_buffer_.at(buffer_size - 1) == '\n';
+    std::string(this->_payload_buffer.begin() + 4,
+                this->_payload_buffer.begin() + 8) == "star" &&
+    std::string(this->_payload_buffer.end() - 6,
+                this->_payload_buffer.end() - 2) == "stop" &&
+    this->_payload_buffer.at(buffer_size - 2) == '\r' &&
+    this->_payload_buffer.at(buffer_size - 1) == '\n';
 
   if (buffer_valid)
     {
       try
         {
-          auto result = this->organizer_->Organize(this->payload_buffer_,
-                                                   this->requested_images_,
+          auto result = this->_organizer->Organize(this->_payload_buffer,
+                                                   this->_requested_images,
                                                    this->IsMasking());
 
           auto frame = std::make_shared<Frame>(result.images,
                                                result.timestamps,
                                                result.frame_count);
 
-          this->wait_for_frame_promise.set_value(frame);
+          this->_wait_for_frame_promise.set_value(frame);
 
           {
-            std::lock_guard<std::mutex> lock(this->wait_for_frame_mutex_);
-            this->wait_for_frame_promise = std::promise<Frame::Ptr>();
-            this->wait_for_frame_future =
-              this->wait_for_frame_promise.get_future();
+            std::lock_guard<std::mutex> lock(this->_wait_for_frame_mutex);
+            this->_wait_for_frame_promise = std::promise<Frame::Ptr>();
+            this->_wait_for_frame_future =
+              this->_wait_for_frame_promise.get_future();
           }
 
-          if (this->new_frame_callback_)
+          if (this->_new_frame_callback)
             {
-              this->new_frame_callback_(frame);
+              this->_new_frame_callback(frame);
             }
         }
       catch (const ifm3d::Error& ex)
@@ -695,10 +695,10 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
           // We might get empty frames when we requesting only algo debug but
           // also enable async notifications or async errors, so we just ignore
           // these frames.
-          if (!(ex.code() == IFM3D_IMG_CHUNK_NOT_FOUND &&
-                this->requested_images_.count(ifm3d::buffer_id::ALGO_DEBUG) >
-                  0 &&
-                this->requested_images_.size() == 1))
+          if (ex.code() != IFM3D_IMG_CHUNK_NOT_FOUND ||
+              this->_requested_images.count(ifm3d::buffer_id::ALGO_DEBUG) <=
+                0 ||
+              this->_requested_images.size() != 1)
             {
               LOG_WARNING("Bad image: {}", ex.message());
             }
@@ -714,30 +714,30 @@ ifm3d::FrameGrabber::Impl::ImageHandler()
     }
 }
 
-void
-ifm3d::FrameGrabber::Impl::AsyncErrorHandler()
+inline void
+ifm3d::FrameGrabber::Impl::async_error_handler()
 {
-  std::size_t buffer_size = this->payload_buffer_.size();
+  std::size_t buffer_size = this->_payload_buffer.size();
 
   bool buffer_valid = buffer_size >= 4 + 9;
 
   if (buffer_valid)
     {
       auto error_code =
-        std::stol(std::string(this->payload_buffer_.begin() + 4,
-                              this->payload_buffer_.begin() + 4 + 9));
+        std::stol(std::string(this->_payload_buffer.begin() + 4,
+                              this->_payload_buffer.begin() + 4 + 9));
 
       std::string error_message = {};
       // 4-ticket 9-error_code 2-\r\n 1-:
       if (buffer_size > 4 + 9 + 2 + 1)
         {
           error_message =
-            std::string(this->payload_buffer_.begin() + 4 + 9 + 1,
-                        this->payload_buffer_.end() - 2);
+            std::string(this->_payload_buffer.begin() + 4 + 9 + 1,
+                        this->_payload_buffer.end() - 2);
         }
-      if (async_error_callback_)
+      if (_async_error_callback)
         {
-          async_error_callback_(error_code, error_message);
+          _async_error_callback(static_cast<int>(error_code), error_message);
         }
     }
   else
@@ -746,28 +746,28 @@ ifm3d::FrameGrabber::Impl::AsyncErrorHandler()
     }
 }
 
-void
-ifm3d::FrameGrabber::Impl::AsyncNotificationHandler()
+inline void
+ifm3d::FrameGrabber::Impl::async_notification_handler()
 {
-  std::size_t buffer_size = this->payload_buffer_.size();
+  std::size_t buffer_size = this->_payload_buffer.size();
 
   bool buffer_valid = buffer_size >= 4 + 9;
 
   if (buffer_valid)
     {
-      auto message_id = std::string(this->payload_buffer_.begin() + 4,
-                                    this->payload_buffer_.begin() + 4 + 9);
+      auto message_id = std::string(this->_payload_buffer.begin() + 4,
+                                    this->_payload_buffer.begin() + 4 + 9);
 
       std::string payload = {};
       // 4-ticket 9-message_id 2-\r\n 1-:
       if (buffer_size > 4 + 9 + 2 + 1)
         {
-          payload = std::string(this->payload_buffer_.begin() + 4 + 9 + 1,
-                                this->payload_buffer_.end() - 2);
+          payload = std::string(this->_payload_buffer.begin() + 4 + 9 + 1,
+                                this->_payload_buffer.end() - 2);
         }
-      if (async_notification_callback_)
+      if (_async_notification_callback)
         {
-          async_notification_callback_(message_id, payload);
+          _async_notification_callback(message_id, payload);
         }
     }
   else
@@ -776,38 +776,37 @@ ifm3d::FrameGrabber::Impl::AsyncNotificationHandler()
     }
 }
 
-void
-ifm3d::FrameGrabber::Impl::TriggerHandler()
+inline void
+ifm3d::FrameGrabber::Impl::trigger_handler()
 {
-  if (this->payload_buffer_.at(4) != '*')
+  if (this->_payload_buffer.at(4) != '*')
     {
       LOG_ERROR("Error Sending trigger on device");
-      this->trigger_feedback_promise_.set_exception(
+      this->_trigger_feedback_promise.set_exception(
         std::make_exception_ptr(Error(IFM3D_CANNOT_SW_TRIGGER)));
     }
   else
     {
-      this->trigger_feedback_promise_.set_value();
+      this->_trigger_feedback_promise.set_value();
     }
 
   // re-intialize promise
-  this->trigger_feedback_promise_ = std::promise<void>();
-  this->trigger_feedback_future_ = trigger_feedback_promise_.get_future();
-  return;
+  this->_trigger_feedback_promise = std::promise<void>();
+  this->_trigger_feedback_future = _trigger_feedback_promise.get_future();
 }
 
-void
+inline void
 ifm3d::FrameGrabber::Impl::SetSchema(const json& schema)
 {
   auto json = schema.dump();
-  if (this->cam_->AmI(ifm3d::Device::device_family::O3X))
+  if (this->_cam->AmI(ifm3d::Device::device_family::O3X))
     {
       // O3X does not set the schema via PCIC, rather we set it via
       // XMLRPC using the camera interface.
       LOG_VERBOSE("o3x schema: \n{}", json);
       try
         {
-          this->cam_->FromJSONStr(json);
+          this->_cam->FromJSONStr(json);
         }
       catch (const std::exception& ex)
         {
@@ -819,60 +818,66 @@ ifm3d::FrameGrabber::Impl::SetSchema(const json& schema)
 
   // Setting schema for O3D O3R devices
   const std::string c_length = fmt::format("{0}{1:09}", "c", json.size());
-  SendCommand(TICKET_COMMAND_c, c_length + json);
+  send_command(TICKET_COMMAND_c, c_length + json);
   LOG_VERBOSE("schema: {}", json);
 }
 
-ifm3d::json
-ifm3d::FrameGrabber::Impl::GenerateDefaultSchema()
+inline ifm3d::json
+ifm3d::FrameGrabber::Impl::generate_default_schema()
 {
   std::set<ifm3d::buffer_id> image_chunk_ids;
-  for (auto buffer_id : this->requested_images_)
+  for (auto buffer_id : this->_requested_images)
     {
-      auto buffer_ids = GetImageChunks(buffer_id);
+      auto buffer_ids = get_image_chunks(buffer_id);
       image_chunk_ids.insert(buffer_ids.begin(), buffer_ids.end());
     }
 
   // Add O3D specific invariants
-  if (this->cam_->AmI(ifm3d::Device::device_family::O3D))
+  if (this->_cam->AmI(ifm3d::Device::device_family::O3D))
     {
       // Add confidence image
       image_chunk_ids.insert(ifm3d::buffer_id::CONFIDENCE_IMAGE);
       image_chunk_ids.insert(ifm3d::buffer_id::EXTRINSIC_CALIB);
     }
 
-  auto schema = ifm3d::make_schema(image_chunk_ids, cam_->WhoAmI());
+  auto schema = ifm3d::make_schema(image_chunk_ids, _cam->WhoAmI());
 
-  if (this->cam_->AmI(ifm3d::Device::device_family::O3R))
+  if (this->_cam->AmI(ifm3d::Device::device_family::O3R))
     {
       schema = ifm3d::make_o3r_schema_compatible_with_firmware(
         schema,
-        cam_->FirmwareVersion());
+        _cam->FirmwareVersion());
     }
   return schema;
 }
 
-std::set<ifm3d::buffer_id>
-ifm3d::FrameGrabber::Impl::GetImageChunks(buffer_id id)
+inline std::set<ifm3d::buffer_id>
+ifm3d::FrameGrabber::Impl::get_image_chunks(buffer_id id)
 {
-  auto device_type = cam_->WhoAmI();
+  auto device_type = _cam->WhoAmI();
 
-  switch (static_cast<buffer_id>(id))
+  switch (id)
     {
     case buffer_id::XYZ:
       if (device_type == ifm3d::Device::device_family::O3R)
-        return {buffer_id::TOF_INFO,
-                buffer_id::RADIAL_DISTANCE_IMAGE,
-                buffer_id::NORM_AMPLITUDE_IMAGE,
-                buffer_id::CONFIDENCE_IMAGE};
+        {
+          return {buffer_id::TOF_INFO,
+                  buffer_id::RADIAL_DISTANCE_IMAGE,
+                  buffer_id::NORM_AMPLITUDE_IMAGE,
+                  buffer_id::CONFIDENCE_IMAGE};
+        }
       else if (device_type == ifm3d::Device::device_family::O3D)
-        return {
-          buffer_id::CARTESIAN_X_COMPONENT,
-          buffer_id::CARTESIAN_Y_COMPONENT,
-          buffer_id::CARTESIAN_Z_COMPONENT,
-        };
+        {
+          return {
+            buffer_id::CARTESIAN_X_COMPONENT,
+            buffer_id::CARTESIAN_Y_COMPONENT,
+            buffer_id::CARTESIAN_Z_COMPONENT,
+          };
+        }
       else
-        return {id};
+        {
+          return {id};
+        }
     case buffer_id::RADIAL_DISTANCE_IMAGE:
     case buffer_id::NORM_AMPLITUDE_IMAGE:
     case buffer_id::EXTRINSIC_CALIB:
@@ -914,62 +919,64 @@ ifm3d::FrameGrabber::Impl::GetImageChunks(buffer_id id)
   return {};
 }
 
-void
+inline void
 ifm3d::FrameGrabber::Impl::OnAsyncError(AsyncErrorCallback callback)
 {
-  this->async_error_callback_ = callback;
+  this->_async_error_callback = std::move(callback);
   // enable async error outputs
-  if (this->io_service_ != nullptr)
+  if (this->_io_service != nullptr)
     {
-      this->io_service_->post(
-        [this]() { SendCommand(TICKET_COMMAND_p, CalculateAsyncCommand()); });
+      this->_io_service->post([this]() {
+        send_command(TICKET_COMMAND_p, calculate_async_command());
+      });
     }
 }
 
-void
+inline void
 ifm3d::FrameGrabber::Impl::OnAsyncNotification(
   AsyncNotificationCallback callback)
 {
-  this->async_notification_callback_ = callback;
-  if (this->io_service_ != nullptr)
+  this->_async_notification_callback = std::move(callback);
+  if (this->_io_service != nullptr)
     {
       // enable async error outputs
-      this->io_service_->post(
-        [this]() { SendCommand(TICKET_COMMAND_p, CalculateAsyncCommand()); });
+      this->_io_service->post([this]() {
+        send_command(TICKET_COMMAND_p, calculate_async_command());
+      });
     }
 }
 
-void
+inline void
 ifm3d::FrameGrabber::Impl::OnError(ErrorCallback callback)
 {
-  this->error_callback_ = callback;
+  this->_error_callback = std::move(callback);
 }
 
-void
-ifm3d::FrameGrabber::Impl::ReportError(const ifm3d::Error& err)
+inline void
+ifm3d::FrameGrabber::Impl::report_error(const ifm3d::Error& err)
 {
-  if (this->error_callback_)
+  if (this->_error_callback)
     {
-      this->error_callback_(err);
+      this->_error_callback(err);
     }
 }
 
-std::string
-ifm3d::FrameGrabber::Impl::CalculateAsyncCommand()
+inline std::string
+ifm3d::FrameGrabber::Impl::calculate_async_command()
 {
   uint8_t p = 0;
-  auto device_type = cam_->WhoAmI();
+  auto device_type = _cam->WhoAmI();
   // always enable async data
   p |= (1 << 0);
 
   // enable async errors if a callback is set
-  if (this->async_error_callback_ != nullptr)
+  if (this->_async_error_callback != nullptr)
     {
       p |= (1 << 1);
     }
 
   // enable async notifications if a callback is set
-  if (this->async_notification_callback_ != nullptr)
+  if (this->_async_notification_callback != nullptr)
     {
       p |= (1 << 2);
     }
@@ -977,26 +984,26 @@ ifm3d::FrameGrabber::Impl::CalculateAsyncCommand()
   if (device_type == ifm3d::Device::device_family::O3R)
     {
       // enable algodebug
-      if (this->requested_images_.count(ifm3d::buffer_id::ALGO_DEBUG) > 0)
+      if (this->_requested_images.count(ifm3d::buffer_id::ALGO_DEBUG) > 0)
         {
-          p = this->requested_images_.size() == 1 && p == 0x1 ? 0x8 : 0xF;
+          p = this->_requested_images.size() == 1 && p == 0x1 ? 0x8 : 0xF;
         }
     }
   return fmt::format("p{0:X}", p);
 }
 
-void
+inline void
 ifm3d::FrameGrabber::Impl::SetMasking(const bool masking)
 {
-  std::scoped_lock guard{this->mutex_for_masking_};
-  masking_ = masking;
+  std::scoped_lock guard{this->_mutex_for_masking};
+  _masking = masking;
 }
 
-bool
+inline bool
 ifm3d::FrameGrabber::Impl::IsMasking()
 {
-  std::scoped_lock guard{this->mutex_for_masking_};
-  return this->masking_;
+  std::scoped_lock guard{this->_mutex_for_masking};
+  return this->_masking;
 }
 
 #endif // IFM3D_FG_FRAMEGRABBER_IMPL_H

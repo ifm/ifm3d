@@ -9,12 +9,12 @@
 #define IFM3D_DEVICE_DEVICE_H
 
 #include <cstdint>
+#include <ifm3d/common/json.hpp>
+#include <ifm3d/device/ifm_network_device.h>
+#include <ifm3d/device/module_device.h>
+#include <ifm3d/device/semver.h>
 #include <string>
 #include <vector>
-#include <ifm3d/common/json.hpp>
-#include <ifm3d/device/module_device.h>
-#include <ifm3d/device/ifm_network_device.h>
-#include <ifm3d/device/semver.h>
 
 namespace ifm3d
 {
@@ -454,7 +454,7 @@ namespace ifm3d
 
   protected:
     class Impl;
-    std::unique_ptr<Impl> pImpl;
+    std::unique_ptr<Impl> _impl;
 
     /**
      * The cached device type of the connected device

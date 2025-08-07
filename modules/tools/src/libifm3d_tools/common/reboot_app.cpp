@@ -5,9 +5,9 @@
  */
 
 #include <CLI/App.hpp>
-#include "ifm3d/swupdater/swupdater.h"
-#include <ifm3d/tools/common/reboot_app.h>
 #include <ifm3d/device/device.h>
+#include <ifm3d/swupdater/swupdater.h>
+#include <ifm3d/tools/common/reboot_app.h>
 #include <memory>
 #if defined(BUILD_MODULE_SWUPDATER)
 #endif
