@@ -98,7 +98,7 @@ namespace
   void
   convert_to(ifm3d::Buffer& convert_this,
              ifm3d::Buffer& to_this,
-             ifm3d::pixel_format this_type)
+             ifm3d::PixelFormat this_type)
   {
     to_this.Create(convert_this.Width(),
                    convert_this.Height(),
@@ -130,11 +130,11 @@ TEST(Frame, MoveCtor)
   auto frame2 = std::make_shared<ifm3d::Frame>(std::move(*(frame)));
   ifm3d::Buffer amp2 = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
 
-  if (cam->AmI(ifm3d::Device::device_family::O3X) ||
-      cam->AmI(ifm3d::Device::device_family::O3R))
+  if (cam->AmI(ifm3d::Device::DeviceFamily::O3X) ||
+      cam->AmI(ifm3d::Device::DeviceFamily::O3R))
     {
-      EXPECT_TRUE(copy_of_amp.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
+      EXPECT_TRUE(copy_of_amp.DataFormat() == ifm3d::PixelFormat::FORMAT_32F);
+      EXPECT_TRUE(amp2.DataFormat() == ifm3d::PixelFormat::FORMAT_32F);
       EXPECT_TRUE(copy_of_amp.NumChannels() == 1);
       EXPECT_TRUE(amp2.NumChannels() == 1);
       EXPECT_TRUE(std::equal(copy_of_amp.begin<float>(),
@@ -144,8 +144,8 @@ TEST(Frame, MoveCtor)
     }
   else
     {
-      EXPECT_TRUE(copy_of_amp.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
+      EXPECT_TRUE(copy_of_amp.DataFormat() == ifm3d::PixelFormat::FORMAT_16U);
+      EXPECT_TRUE(amp2.DataFormat() == ifm3d::PixelFormat::FORMAT_16U);
       EXPECT_TRUE(copy_of_amp.NumChannels() == 1);
       EXPECT_TRUE(amp2.NumChannels() == 1);
       EXPECT_TRUE(std::equal(copy_of_amp.begin<std::uint16_t>(),
@@ -171,11 +171,11 @@ TEST(Frame, MoveAssignmentOperator)
   auto frame2 = std::move(frame);
 
   ifm3d::Buffer amp2 = frame2->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
-  if (cam->AmI(ifm3d::Device::device_family::O3X) ||
-      cam->AmI(ifm3d::Device::device_family::O3R))
+  if (cam->AmI(ifm3d::Device::DeviceFamily::O3X) ||
+      cam->AmI(ifm3d::Device::DeviceFamily::O3R))
     {
-      EXPECT_TRUE(copy_of_amp.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
+      EXPECT_TRUE(copy_of_amp.DataFormat() == ifm3d::PixelFormat::FORMAT_32F);
+      EXPECT_TRUE(amp2.DataFormat() == ifm3d::PixelFormat::FORMAT_32F);
       EXPECT_TRUE(copy_of_amp.NumChannels() == 1);
       EXPECT_TRUE(amp2.NumChannels() == 1);
       EXPECT_TRUE(std::equal(copy_of_amp.begin<float>(),
@@ -185,8 +185,8 @@ TEST(Frame, MoveAssignmentOperator)
     }
   else
     {
-      EXPECT_TRUE(copy_of_amp.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
+      EXPECT_TRUE(copy_of_amp.DataFormat() == ifm3d::PixelFormat::FORMAT_16U);
+      EXPECT_TRUE(amp2.DataFormat() == ifm3d::PixelFormat::FORMAT_16U);
       EXPECT_TRUE(copy_of_amp.NumChannels() == 1);
       EXPECT_TRUE(amp2.NumChannels() == 1);
       EXPECT_TRUE(std::equal(copy_of_amp.begin<std::uint16_t>(),
@@ -216,11 +216,11 @@ TEST(Frame, CopyCtor)
   amp2 = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
   EXPECT_TRUE((amp.Height() * amp.Width()) == (amp2.Height() * amp2.Width()));
 
-  if (cam->AmI(ifm3d::Device::device_family::O3X) ||
-      cam->AmI(ifm3d::Device::device_family::O3R))
+  if (cam->AmI(ifm3d::Device::DeviceFamily::O3X) ||
+      cam->AmI(ifm3d::Device::DeviceFamily::O3R))
     {
-      EXPECT_TRUE(amp.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
+      EXPECT_TRUE(amp.DataFormat() == ifm3d::PixelFormat::FORMAT_32F);
+      EXPECT_TRUE(amp2.DataFormat() == ifm3d::PixelFormat::FORMAT_32F);
       EXPECT_TRUE(amp.NumChannels() == 1);
       EXPECT_TRUE(amp2.NumChannels() == 1);
       EXPECT_TRUE(std::equal(amp.begin<float>(),
@@ -230,8 +230,8 @@ TEST(Frame, CopyCtor)
     }
   else
     {
-      EXPECT_TRUE(amp.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
+      EXPECT_TRUE(amp.DataFormat() == ifm3d::PixelFormat::FORMAT_16U);
+      EXPECT_TRUE(amp2.DataFormat() == ifm3d::PixelFormat::FORMAT_16U);
       EXPECT_TRUE(amp.NumChannels() == 1);
       EXPECT_TRUE(amp2.NumChannels() == 1);
       EXPECT_TRUE(std::equal(amp.begin<std::uint16_t>(),
@@ -239,8 +239,8 @@ TEST(Frame, CopyCtor)
                              amp2.begin<std::uint16_t>()));
     }
 
-  if (cam->AmI(ifm3d::Device::device_family::O3X) ||
-      cam->AmI(ifm3d::Device::device_family::O3R))
+  if (cam->AmI(ifm3d::Device::DeviceFamily::O3X) ||
+      cam->AmI(ifm3d::Device::DeviceFamily::O3R))
     {
       add<float>(amp2, 1.0F);
       EXPECT_FALSE(std::equal(amp.begin<float>(),
@@ -272,11 +272,11 @@ TEST(Frame, CopyAssignmentOperator)
   auto amp = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
   auto amp2 = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
 
-  if (cam->AmI(ifm3d::Device::device_family::O3X) ||
-      cam->AmI(ifm3d::Device::device_family::O3R))
+  if (cam->AmI(ifm3d::Device::DeviceFamily::O3X) ||
+      cam->AmI(ifm3d::Device::DeviceFamily::O3R))
     {
-      EXPECT_TRUE(amp.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
+      EXPECT_TRUE(amp.DataFormat() == ifm3d::PixelFormat::FORMAT_32F);
+      EXPECT_TRUE(amp2.DataFormat() == ifm3d::PixelFormat::FORMAT_32F);
       EXPECT_TRUE(amp.NumChannels() == 1);
       EXPECT_TRUE(amp2.NumChannels() == 1);
       EXPECT_TRUE(std::equal(amp.begin<float>(),
@@ -286,8 +286,8 @@ TEST(Frame, CopyAssignmentOperator)
     }
   else
     {
-      EXPECT_TRUE(amp.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
+      EXPECT_TRUE(amp.DataFormat() == ifm3d::PixelFormat::FORMAT_16U);
+      EXPECT_TRUE(amp2.DataFormat() == ifm3d::PixelFormat::FORMAT_16U);
       EXPECT_TRUE(amp.NumChannels() == 1);
       EXPECT_TRUE(amp2.NumChannels() == 1);
       EXPECT_TRUE(std::equal(amp.begin<std::uint16_t>(),
@@ -295,8 +295,8 @@ TEST(Frame, CopyAssignmentOperator)
                              amp2.begin<std::uint16_t>()));
     }
 
-  if (cam->AmI(ifm3d::Device::device_family::O3X) ||
-      cam->AmI(ifm3d::Device::device_family::O3R))
+  if (cam->AmI(ifm3d::Device::DeviceFamily::O3X) ||
+      cam->AmI(ifm3d::Device::DeviceFamily::O3R))
     {
       add<float>(amp2, 1.0F);
       EXPECT_FALSE(std::equal(amp.begin<float>(),
@@ -328,11 +328,11 @@ TEST(Frame, References)
   auto amp = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
   auto amp2 = frame->GetBuffer(ifm3d::buffer_id::AMPLITUDE_IMAGE);
 
-  if (cam->AmI(ifm3d::Device::device_family::O3X) ||
-      cam->AmI(ifm3d::Device::device_family::O3R))
+  if (cam->AmI(ifm3d::Device::DeviceFamily::O3X) ||
+      cam->AmI(ifm3d::Device::DeviceFamily::O3R))
     {
-      EXPECT_TRUE(amp.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_32F);
+      EXPECT_TRUE(amp.DataFormat() == ifm3d::PixelFormat::FORMAT_32F);
+      EXPECT_TRUE(amp2.DataFormat() == ifm3d::PixelFormat::FORMAT_32F);
       EXPECT_TRUE(amp.NumChannels() == 1);
       EXPECT_TRUE(amp2.NumChannels() == 1);
       EXPECT_TRUE(std::equal(amp.begin<float>(),
@@ -342,8 +342,8 @@ TEST(Frame, References)
     }
   else
     {
-      EXPECT_TRUE(amp.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
-      EXPECT_TRUE(amp2.DataFormat() == ifm3d::pixel_format::FORMAT_16U);
+      EXPECT_TRUE(amp.DataFormat() == ifm3d::PixelFormat::FORMAT_16U);
+      EXPECT_TRUE(amp2.DataFormat() == ifm3d::PixelFormat::FORMAT_16U);
       EXPECT_TRUE(amp.NumChannels() == 1);
       EXPECT_TRUE(amp2.NumChannels() == 1);
       EXPECT_TRUE(std::equal(amp.begin<std::uint16_t>(),
@@ -351,8 +351,8 @@ TEST(Frame, References)
                              amp2.begin<std::uint16_t>()));
     }
 
-  if (cam->AmI(ifm3d::Device::device_family::O3X) ||
-      cam->AmI(ifm3d::Device::device_family::O3R))
+  if (cam->AmI(ifm3d::Device::DeviceFamily::O3X) ||
+      cam->AmI(ifm3d::Device::DeviceFamily::O3R))
     {
       add<float>(amp2, 1.0F);
       EXPECT_TRUE(std::equal(amp.begin<float>(),

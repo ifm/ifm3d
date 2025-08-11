@@ -31,7 +31,7 @@ namespace ifm3d
 
     std::size_t
     get_chunk_index(const std::vector<std::uint8_t>& buff,
-                    ifm3d::image_chunk chunk_type,
+                    ifm3d::ImageChunk chunk_type,
                     std::size_t start_idx = ifm3d::IMG_BUFF_START)
     {
       std::size_t idx = start_idx; // start of first chunk
@@ -76,12 +76,12 @@ namespace ifm3d
 
       auto didx =
         ifm3d::get_chunk_index(file_buffer,
-                               ifm3d::image_chunk::RADIAL_DISTANCE_IMAGE);
+                               ifm3d::ImageChunk::RADIAL_DISTANCE_IMAGE);
       auto aidx =
         ifm3d::get_chunk_index(file_buffer,
-                               ifm3d::image_chunk::NORM_AMPLITUDE_IMAGE);
+                               ifm3d::ImageChunk::NORM_AMPLITUDE_IMAGE);
       auto distimageidx =
-        ifm3d::get_chunk_index(file_buffer, ifm3d::image_chunk::TOF_INFO);
+        ifm3d::get_chunk_index(file_buffer, ifm3d::ImageChunk::TOF_INFO);
 
       // get the image dimensions
       if (!width)

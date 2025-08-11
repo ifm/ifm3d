@@ -7,9 +7,12 @@
 #define IFM3D_TOOLS_SWUPDATER_SWUPDATE_DEPRECATED_APP_H
 #pragma once
 
-#include <ifm3d/tools/command.hpp>
-#include <ifm3d/tools/main_command.hpp>
-#include <string>
+#include <ifm3d/common/features.h>
+#if defined(BUILD_MODULE_SWUPDATER)
+
+#  include <ifm3d/tools/command.hpp>
+#  include <ifm3d/tools/main_command.hpp>
+#  include <string>
 
 namespace ifm3d
 {
@@ -40,4 +43,5 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
+#endif
 #endif // IFM3D_TOOLS_SWUPDATER_SWUPDATE_DEPRECATED_APP_H

@@ -32,8 +32,8 @@ protected:
 
 TEST_F(O3RTest, AmI)
 {
-  EXPECT_NO_THROW(this->_dev->AmI(ifm3d::Device::device_family::O3R));
-  bool const is_o3r = this->_dev->AmI(ifm3d::Device::device_family::O3R);
+  EXPECT_NO_THROW(this->_dev->AmI(ifm3d::Device::DeviceFamily::O3R));
+  bool const is_o3r = this->_dev->AmI(ifm3d::Device::DeviceFamily::O3R);
   EXPECT_EQ(is_o3r, true);
   if (!is_o3r)
     {
@@ -45,9 +45,9 @@ TEST_F(O3RTest, AmI)
 
 TEST_F(O3RTest, WhoAmI_O3R)
 {
-  ifm3d::Device::device_family device{};
+  ifm3d::Device::DeviceFamily device{};
   EXPECT_NO_THROW(device = _dev->WhoAmI());
-  EXPECT_EQ(device, ifm3d::Device::device_family::O3R);
+  EXPECT_EQ(device, ifm3d::Device::DeviceFamily::O3R);
 }
 
 TEST_F(O3RTest, portinfo)

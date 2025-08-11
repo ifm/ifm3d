@@ -50,70 +50,70 @@ bind_device(pybind11::module_& m)
 
   // Types
 
-  py::enum_<ifm3d::Device::boot_mode>(device,
-                                      "boot_mode",
-                                      "Enum: Camera boot up modes.")
+  py::enum_<ifm3d::Device::BootMode>(device,
+                                     "boot_mode",
+                                     "Enum: Camera boot up modes.")
     .value("PRODUCTIVE",
-           ifm3d::Device::boot_mode::PRODUCTIVE,
+           ifm3d::Device::BootMode::PRODUCTIVE,
            "the normal runtime firmware comes up")
     .value("RECOVERY",
-           ifm3d::Device::boot_mode::RECOVERY,
+           ifm3d::Device::BootMode::RECOVERY,
            "allows you to flash new firmware");
 
-  py::enum_<ifm3d::Device::operating_mode>(device,
-                                           "operating_mode",
-                                           "Enum: Camera operating modes")
-    .value("RUN", ifm3d::Device::operating_mode::RUN, "streaming pixel data")
+  py::enum_<ifm3d::Device::OperatingMode>(device,
+                                          "operating_mode",
+                                          "Enum: Camera operating modes")
+    .value("RUN", ifm3d::Device::OperatingMode::RUN, "streaming pixel data")
     .value("EDIT",
-           ifm3d::Device::operating_mode::EDIT,
+           ifm3d::Device::OperatingMode::EDIT,
            "configuring the device/applications");
 
-  py::enum_<ifm3d::Device::trigger_mode>(
+  py::enum_<ifm3d::Device::TriggerMode>(
     device,
     "trigger_mode",
     "Enum: Image acquisition trigger modes")
-    .value("FREE_RUN", ifm3d::Device::trigger_mode::FREE_RUN)
-    .value("SW", ifm3d::Device::trigger_mode::SW);
+    .value("FREE_RUN", ifm3d::Device::TriggerMode::FREE_RUN)
+    .value("SW", ifm3d::Device::TriggerMode::SW);
 
-  py::enum_<ifm3d::Device::import_flags>(
+  py::enum_<ifm3d::Device::ImportFlags>(
     device,
     "import_flags",
     "Enum: Import flags used when importing a Vision Assistant configuration")
-    .value("GLOBAL", ifm3d::Device::import_flags::GLOBAL)
-    .value("NET", ifm3d::Device::import_flags::NET)
-    .value("APPS", ifm3d::Device::import_flags::APPS);
+    .value("GLOBAL", ifm3d::Device::ImportFlags::GLOBAL)
+    .value("NET", ifm3d::Device::ImportFlags::NET)
+    .value("APPS", ifm3d::Device::ImportFlags::APPS);
 
-  py::enum_<ifm3d::Device::spatial_filter>(
+  py::enum_<ifm3d::Device::SpatialFilter>(
     device,
     "spatial_filter",
     "Enum: Convenience constants for spatial filter types")
-    .value("OFF", ifm3d::Device::spatial_filter::OFF)
-    .value("MEDIAN", ifm3d::Device::spatial_filter::MEDIAN)
-    .value("MEAN", ifm3d::Device::spatial_filter::MEAN)
-    .value("BILATERAL", ifm3d::Device::spatial_filter::BILATERAL);
+    .value("OFF", ifm3d::Device::SpatialFilter::OFF)
+    .value("MEDIAN", ifm3d::Device::SpatialFilter::MEDIAN)
+    .value("MEAN", ifm3d::Device::SpatialFilter::MEAN)
+    .value("BILATERAL", ifm3d::Device::SpatialFilter::BILATERAL);
 
-  py::enum_<ifm3d::Device::temporal_filter>(
+  py::enum_<ifm3d::Device::TemporalFilter>(
     device,
     "temporal_filter",
     "Enum: Convenience constants for temporal filter types")
-    .value("OFF", ifm3d::Device::temporal_filter::OFF)
-    .value("MEAN", ifm3d::Device::temporal_filter::MEAN)
-    .value("ADAPTIVE_EXP", ifm3d::Device::temporal_filter::ADAPTIVE_EXP);
+    .value("OFF", ifm3d::Device::TemporalFilter::OFF)
+    .value("MEAN", ifm3d::Device::TemporalFilter::MEAN)
+    .value("ADAPTIVE_EXP", ifm3d::Device::TemporalFilter::ADAPTIVE_EXP);
 
-  py::enum_<ifm3d::Device::mfilt_mask_size>(
+  py::enum_<ifm3d::Device::MedianfilterMaskSize>(
     device,
     "mfilt_mask_size",
     "Enum: Convenient constants for median filter mask sizes")
-    .value("_3x3", ifm3d::Device::mfilt_mask_size::_3x3)
-    .value("_5x5", ifm3d::Device::mfilt_mask_size::_5x5);
+    .value("_3x3", ifm3d::Device::MedianfilterMaskSize::_3x3)
+    .value("_5x5", ifm3d::Device::MedianfilterMaskSize::_5x5);
 
-  py::enum_<ifm3d::Device::device_family>(device,
-                                          "device_family",
-                                          "Enum: The family of the device")
-    .value("UNKNOWN", ifm3d::Device::device_family::UNKNOWN)
-    .value("O3D", ifm3d::Device::device_family::O3D)
-    .value("O3X", ifm3d::Device::device_family::O3X)
-    .value("O3R", ifm3d::Device::device_family::O3R);
+  py::enum_<ifm3d::Device::DeviceFamily>(device,
+                                         "device_family",
+                                         "Enum: The family of the device")
+    .value("UNKNOWN", ifm3d::Device::DeviceFamily::UNKNOWN)
+    .value("O3D", ifm3d::Device::DeviceFamily::O3D)
+    .value("O3X", ifm3d::Device::DeviceFamily::O3X)
+    .value("O3R", ifm3d::Device::DeviceFamily::O3R);
 
   // Ctor
   device.def(py::init(&ifm3d::Device::MakeShared),
@@ -164,7 +164,7 @@ bind_device(pybind11::module_& m)
   device.def("reboot",
              &ifm3d::Device::Reboot,
              py::call_guard<py::gil_scoped_release>(),
-             py::arg("mode") = ifm3d::Device::boot_mode::PRODUCTIVE,
+             py::arg("mode") = ifm3d::Device::BootMode::PRODUCTIVE,
              R"(
       Reboot the sensor
 

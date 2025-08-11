@@ -206,15 +206,15 @@ namespace ifm3d
     json GetDiagnosticFiltered(const json& filter);
 
     void Reboot(
-      const boot_mode& mode = ifm3d::Device::boot_mode::PRODUCTIVE) override;
+      const BootMode& mode = ifm3d::Device::BootMode::PRODUCTIVE) override;
 
     /**
      * Reboot the device into Recovery Mode
      */
     void RebootToRecovery();
 
-    device_family WhoAmI() override;
-    ifm3d::Device::swu_version SwUpdateVersion() override;
+    DeviceFamily WhoAmI() override;
+    ifm3d::Device::SWUVersion SwUpdateVersion() override;
 
     /**
      * @copydoc Device::ToJSON()

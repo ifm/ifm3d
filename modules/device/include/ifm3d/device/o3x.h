@@ -21,10 +21,10 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<O3X>;
     O3X(const std::string& ip = ifm3d::DEFAULT_IP,
-        const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
+        std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
         const std::string& password = ifm3d::DEFAULT_PASSWORD);
 
-    virtual ~O3X();
+    ~O3X() override;
     O3X(O3X&&) = delete;
     O3X& operator=(O3X&&) = delete;
     O3X(O3X&) = delete;

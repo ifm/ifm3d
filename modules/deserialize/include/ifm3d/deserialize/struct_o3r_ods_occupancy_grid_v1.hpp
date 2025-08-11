@@ -62,7 +62,7 @@ namespace ifm3d
           throw ifm3d::Error(IFM3D_CORRUPTED_STRUCT);
         }
 
-      image = ifm3d::Buffer(height, width, 1, ifm3d::pixel_format::FORMAT_8U);
+      image = ifm3d::Buffer(height, width, 1, ifm3d::PixelFormat::FORMAT_8U);
       std::memcpy(image.Ptr<uint8_t>(0),
                   start_ptr + ODS_OCCUPANCY_GRID_IMAGE_INDEX,
                   image.Size());

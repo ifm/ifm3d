@@ -50,13 +50,13 @@ TEST(Buffer, parameter_ctor)
   const int width = 100;
   const int nchannel = 1;
 
-  ifm3d::Buffer img(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
+  ifm3d::Buffer img(width, height, 1, ifm3d::PixelFormat::FORMAT_8U);
 
   EXPECT_TRUE(img.Ptr(0) != nullptr);
   EXPECT_TRUE(img.Width() == width);
   EXPECT_TRUE(img.Height() == height);
   EXPECT_TRUE(img.NumChannels() == nchannel);
-  EXPECT_TRUE(img.DataFormat() == ifm3d::pixel_format::FORMAT_8U);
+  EXPECT_TRUE(img.DataFormat() == ifm3d::PixelFormat::FORMAT_8U);
 }
 
 TEST(Buffer, copy_ctor)
@@ -65,7 +65,7 @@ TEST(Buffer, copy_ctor)
   const int width = 100;
   const int nchannel = 1;
 
-  ifm3d::Buffer img1(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
+  ifm3d::Buffer img1(width, height, 1, ifm3d::PixelFormat::FORMAT_8U);
   ifm3d::Buffer img(img1);
 
   EXPECT_TRUE(img.Ptr(0) == img1.Ptr(0));
@@ -85,7 +85,7 @@ TEST(Buffer, copy_assigment)
   const int width = 100;
   const int nchannel = 1;
 
-  ifm3d::Buffer img1(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
+  ifm3d::Buffer img1(width, height, 1, ifm3d::PixelFormat::FORMAT_8U);
   ifm3d::Buffer img = img1;
 
   EXPECT_TRUE(img.Ptr(0) == img1.Ptr(0));
@@ -108,13 +108,13 @@ TEST(Buffer, Create)
   const int nchannel = 1;
 
   auto const buffer_id = static_cast<ifm3d::buffer_id>(img.BufferId());
-  img.Create(width, height, 1, ifm3d::pixel_format::FORMAT_8U, buffer_id);
+  img.Create(width, height, 1, ifm3d::PixelFormat::FORMAT_8U, buffer_id);
 
   EXPECT_TRUE(img.Ptr(0) != nullptr);
   EXPECT_TRUE(img.Width() == width);
   EXPECT_TRUE(img.Height() == height);
   EXPECT_TRUE(img.NumChannels() == nchannel);
-  EXPECT_TRUE(img.DataFormat() == ifm3d::pixel_format::FORMAT_8U);
+  EXPECT_TRUE(img.DataFormat() == ifm3d::PixelFormat::FORMAT_8U);
 }
 
 // CLone
@@ -125,7 +125,7 @@ TEST(Buffer, Clone)
   const int width = 100;
   const int nchannel = 1;
 
-  ifm3d::Buffer img(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
+  ifm3d::Buffer img(width, height, 1, ifm3d::PixelFormat::FORMAT_8U);
   ifm3d::Buffer img_clone = img.Clone();
 
   EXPECT_TRUE(img.Ptr(0) != img_clone.Ptr(0));
@@ -146,7 +146,7 @@ TEST(Buffer, row_pointer)
   const int width = 100;
   const int nchannel = 1;
 
-  ifm3d::Buffer img(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
+  ifm3d::Buffer img(width, height, 1, ifm3d::PixelFormat::FORMAT_8U);
 
   EXPECT_TRUE(img.Ptr(0) != nullptr);
   EXPECT_TRUE(img.Ptr(height - 1) != nullptr);
@@ -160,7 +160,7 @@ TEST(Buffer, at)
   const int width = 100;
   const int nchannel = 1;
 
-  ifm3d::Buffer img(width, height, 1, ifm3d::pixel_format::FORMAT_16U);
+  ifm3d::Buffer img(width, height, 1, ifm3d::PixelFormat::FORMAT_16U);
 
   // fill the image with values
   for (int i = 0; i < height * width; i++)
@@ -191,8 +191,8 @@ TEST(Buffer, setTo)
   const int width = 100;
   const int nchannel = 1;
 
-  ifm3d::Buffer img(width, height, 1, ifm3d::pixel_format::FORMAT_16U);
-  ifm3d::Buffer mask(width, height, 1, ifm3d::pixel_format::FORMAT_8U);
+  ifm3d::Buffer img(width, height, 1, ifm3d::PixelFormat::FORMAT_16U);
+  ifm3d::Buffer mask(width, height, 1, ifm3d::PixelFormat::FORMAT_8U);
 
   add<uint8_t>(mask, 1);
   uint16_t const val = 255;
@@ -216,7 +216,7 @@ TEST(Buffer, iterators)
   const int width = 100;
   const int nchannel = 1;
 
-  ifm3d::Buffer img(width, height, 1, ifm3d::pixel_format::FORMAT_16U);
+  ifm3d::Buffer img(width, height, 1, ifm3d::PixelFormat::FORMAT_16U);
 
   // fill the image with values
   for (int i = 0; i < height * width; i++)
@@ -250,7 +250,7 @@ TEST(Buffer, ptr_comparision)
   const int width = 100;
   const int nchannel = 3;
 
-  ifm3d::Buffer img(width, height, 3, ifm3d::pixel_format::FORMAT_32F);
+  ifm3d::Buffer img(width, height, 3, ifm3d::PixelFormat::FORMAT_32F);
   ifm3d::Point3D_32F point;
   // fill the image with values
   for (int i = 0; i < height * width; i++)
@@ -276,11 +276,11 @@ TEST(Buffer, ptr_comparision)
 
 TEST(Buffer, invalid_data_type)
 {
-  EXPECT_NO_THROW(ifm3d::Buffer(100, 100, 3, ifm3d::pixel_format::FORMAT_32F));
+  EXPECT_NO_THROW(ifm3d::Buffer(100, 100, 3, ifm3d::PixelFormat::FORMAT_32F));
   // NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange)
   EXPECT_THROW(const ifm3d::Buffer img(100,
                                        100,
                                        3,
-                                       static_cast<ifm3d::pixel_format>(1000)),
+                                       static_cast<ifm3d::PixelFormat>(1000)),
                ifm3d::Error);
 }

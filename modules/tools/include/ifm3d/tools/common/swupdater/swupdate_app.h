@@ -7,9 +7,12 @@
 #define IFM3D_TOOLS_SWUPDATER_SWUPDATE_APP_H
 #pragma once
 
-#include <ifm3d/swupdater.h>
-#include <ifm3d/tools/command.hpp>
-#include <ifm3d/tools/main_command.hpp>
+#include <ifm3d/common/features.h>
+#if defined(BUILD_MODULE_SWUPDATER)
+
+#  include <ifm3d/swupdater.h>
+#  include <ifm3d/tools/command.hpp>
+#  include <ifm3d/tools/main_command.hpp>
 
 namespace ifm3d
 {
@@ -22,7 +25,7 @@ namespace ifm3d
   class SWUpdateApp : public Command
   {
   public:
-    SWUpdateApp(std::optional<ifm3d::Device::swu_version> force_swu_version);
+    SWUpdateApp(std::optional<ifm3d::Device::SWUVersion> force_swu_version);
     SWUpdateApp(const SWUpdateApp&) = default;
     SWUpdateApp(SWUpdateApp&&) = delete;
     SWUpdateApp& operator=(const SWUpdateApp&) = default;
@@ -41,10 +44,11 @@ namespace ifm3d
     CLI::App* subcmd_restart{};
 
   private:
-    std::optional<ifm3d::Device::swu_version> _force_swu_version;
+    std::optional<ifm3d::Device::SWUVersion> _force_swu_version;
 
   }; // end: class SWUpdateApp
 
 } // end: namespace ifm3d
 
+#endif
 #endif // IFM3D_TOOLS_SWUPDATER_SWUPDATE_APP_H

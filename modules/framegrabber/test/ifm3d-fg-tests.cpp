@@ -26,7 +26,7 @@ protected:
   SetUp() override
   {
     this->_dev = ifm3d::Device::MakeShared();
-    if (_dev->WhoAmI() == ifm3d::Device::device_family::O3R)
+    if (_dev->WhoAmI() == ifm3d::Device::DeviceFamily::O3R)
       {
         auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->_dev);
 
@@ -249,15 +249,15 @@ TEST_F(FrameGrabberTest, DistanceNoiseImage_type)
         count++;
         auto distance_noise_image =
           frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_NOISE);
-        if (_dev->AmI(ifm3d::Device::device_family::O3R))
+        if (_dev->AmI(ifm3d::Device::DeviceFamily::O3R))
           {
             EXPECT_EQ(distance_noise_image.DataFormat(),
-                      ifm3d::pixel_format::FORMAT_32F);
+                      ifm3d::PixelFormat::FORMAT_32F);
           }
-        if (_dev->AmI(ifm3d::Device::device_family::O3X))
+        if (_dev->AmI(ifm3d::Device::DeviceFamily::O3X))
           {
             EXPECT_EQ(distance_noise_image.DataFormat(),
-                      ifm3d::pixel_format::FORMAT_16U);
+                      ifm3d::PixelFormat::FORMAT_16U);
           }
         _fg->Stop();
       }
@@ -319,15 +319,15 @@ TEST_F(FrameGrabberTest, confidence_image_3D)
         auto confidence_image =
           frame->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE);
 
-        if (_dev->AmI(ifm3d::Device::device_family::O3R))
+        if (_dev->AmI(ifm3d::Device::DeviceFamily::O3R))
           {
             EXPECT_EQ(confidence_image.DataFormat(),
-                      ifm3d::pixel_format::FORMAT_16U);
+                      ifm3d::PixelFormat::FORMAT_16U);
           }
         else
           {
             EXPECT_EQ(confidence_image.DataFormat(),
-                      ifm3d::pixel_format::FORMAT_8U);
+                      ifm3d::PixelFormat::FORMAT_8U);
           }
         _fg->Stop();
       }
@@ -458,7 +458,7 @@ TEST_F(FrameGrabberTest, FrameGrabberRecycling)
       EXPECT_TRUE(status == std::future_status::ready);
     }
   _fg.reset();
-  if (_dev->WhoAmI() == ifm3d::Device::device_family::O3R)
+  if (_dev->WhoAmI() == ifm3d::Device::DeviceFamily::O3R)
     {
       auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->_dev);
 
@@ -489,7 +489,7 @@ TEST_F(FrameGrabberTest, SoftwareTrigger)
   int const idx = legacy_device->ActiveApplication();
   ifm3d::json config = legacy_device->ToJSON();
   config["ifm3d"]["Apps"][idx - 1]["TriggerMode"] =
-    std::to_string(static_cast<int>(ifm3d::Device::trigger_mode::SW));
+    std::to_string(static_cast<int>(ifm3d::Device::TriggerMode::SW));
   legacy_device->FromJSON(config);
 
   _fg->Start({});
@@ -509,7 +509,7 @@ TEST_F(FrameGrabberTest, SoftwareTrigger)
 
   // set the camera back into free-run mode
   config["ifm3d"]["Apps"][idx - 1]["TriggerMode"] =
-    std::to_string(static_cast<int>(ifm3d::Device::trigger_mode::FREE_RUN));
+    std::to_string(static_cast<int>(ifm3d::Device::TriggerMode::FREE_RUN));
   _dev->FromJSON(config);
 }
 
@@ -522,7 +522,7 @@ TEST_F(FrameGrabberTest, SWTriggerMultipleClients)
   int const idx = legacy_device->ActiveApplication();
   ifm3d::json config = legacy_device->ToJSON();
   config["ifm3d"]["Apps"][idx - 1]["TriggerMode"] =
-    std::to_string(static_cast<int>(ifm3d::Device::trigger_mode::SW));
+    std::to_string(static_cast<int>(ifm3d::Device::TriggerMode::SW));
   legacy_device->FromJSON(config);
 
   // create two framegrabbers and two buffers
@@ -550,7 +550,7 @@ TEST_F(FrameGrabberTest, SWTriggerMultipleClients)
 
   // set the camera back into free-run mode
   config["ifm3d"]["Apps"][idx - 1]["TriggerMode"] =
-    std::to_string(static_cast<int>(ifm3d::Device::trigger_mode::FREE_RUN));
+    std::to_string(static_cast<int>(ifm3d::Device::TriggerMode::FREE_RUN));
   _dev->FromJSON(config);
 }
 

@@ -20,13 +20,13 @@ namespace ifm3d
 {
   constexpr std::size_t IMG_BUFF_START = 8;
 
-  std::map<image_chunk, std::set<std::size_t>> get_image_chunks(
+  std::map<ImageChunk, std::set<std::size_t>> get_image_chunks(
     const std::vector<std::uint8_t>& data,
     std::size_t start_idx,
     std::optional<size_t> end_idx = std::nullopt);
 
-  std::size_t get_format_size(pixel_format fmt);
-  std::size_t get_format_channels(pixel_format fmt);
+  std::size_t get_format_size(PixelFormat fmt);
+  std::size_t get_format_channels(PixelFormat fmt);
 
   Buffer create_1d_buffer(const std::vector<std::uint8_t>& data,
                           std::size_t idx);
@@ -40,7 +40,7 @@ namespace ifm3d
                        std::size_t idx,
                        std::size_t width,
                        std::size_t height,
-                       pixel_format fmt,
+                       PixelFormat fmt,
                        const std::optional<json>& metadata = std::nullopt);
 
   Buffer create_xyz_buffer(const std::vector<std::uint8_t>& data,
@@ -49,19 +49,19 @@ namespace ifm3d
                            std::size_t zidx,
                            std::size_t width,
                            std::size_t height,
-                           pixel_format fmt,
+                           PixelFormat fmt,
                            const std::optional<Buffer>& mask);
 
   auto find_metadata_chunk(
-    const std::map<image_chunk, std::set<std::size_t>>& chunks)
+    const std::map<ImageChunk, std::set<std::size_t>>& chunks)
     -> decltype(chunks.end());
 
   std::tuple<uint32_t, uint32_t> get_image_size(
     const std::vector<std::uint8_t>& data,
     std::size_t idx);
 
-  pixel_format get_chunk_format(const std::vector<std::uint8_t>& data,
-                                std::size_t idx);
+  PixelFormat get_chunk_format(const std::vector<std::uint8_t>& data,
+                               std::size_t idx);
 
   uint32_t get_chunk_frame_count(const std::vector<std::uint8_t>& data,
                                  std::size_t idx);
@@ -94,7 +94,7 @@ namespace ifm3d
   void parse_data(
     const std::vector<uint8_t>& data,
     const std::set<buffer_id>& requested_images,
-    const std::map<ifm3d::image_chunk, std::set<std::size_t>>& chunks,
+    const std::map<ifm3d::ImageChunk, std::set<std::size_t>>& chunks,
     size_t width,
     size_t height,
     std::map<buffer_id, BufferList>& data_blob,
@@ -151,7 +151,7 @@ namespace ifm3d
       Buffer(vec.size(),
              1,
              ifm3d::FormatType<T>::NumChannels,
-             static_cast<ifm3d::pixel_format>(ifm3d::FormatType<T>::Format));
+             static_cast<ifm3d::PixelFormat>(ifm3d::FormatType<T>::Format));
     std::copy(vec.begin(), vec.end(), buf.begin<T>());
     return buf;
   }
@@ -162,8 +162,7 @@ namespace ifm3d
   ifm3d::Buffer
   create_buffer_from_struct(const T& struct_object)
   {
-    ifm3d::Buffer buf =
-      Buffer(sizeof(T), 1, 1, ifm3d::pixel_format::FORMAT_8U);
+    ifm3d::Buffer buf = Buffer(sizeof(T), 1, 1, ifm3d::PixelFormat::FORMAT_8U);
     const auto* start = reinterpret_cast<const uint8_t*>(&struct_object);
     auto* ptr = buf.Ptr<uint8_t>(0);
     std::copy(start, start + sizeof(T), ptr);
@@ -194,7 +193,7 @@ namespace ifm3d
                     std::size_t zidx,
                     std::size_t width,
                     std::size_t height,
-                    ifm3d::pixel_format fmt,
+                    ifm3d::PixelFormat fmt,
                     const std::optional<ifm3d::Buffer>& mask)
   {
     std::size_t const incr = sizeof(T);

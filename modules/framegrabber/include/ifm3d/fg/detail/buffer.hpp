@@ -182,7 +182,7 @@ namespace ifm3d
     using DataType = T;
     enum : uint8_t
     {
-      Format = static_cast<int>(ifm3d::pixel_format::FORMAT_8U),
+      Format = static_cast<int>(ifm3d::PixelFormat::FORMAT_8U),
       NumChannels = 1
     };
   };
@@ -194,7 +194,7 @@ namespace ifm3d
     using DataType = uint8_t;
     enum : uint8_t
     {
-      Format = static_cast<int>(ifm3d::pixel_format::FORMAT_8U),
+      Format = static_cast<int>(ifm3d::PixelFormat::FORMAT_8U),
       NumChannels = 1
     };
   };
@@ -206,7 +206,7 @@ namespace ifm3d
     using DataType = int8_t;
     enum : uint8_t
     {
-      Format = static_cast<int>(ifm3d::pixel_format::FORMAT_8S),
+      Format = static_cast<int>(ifm3d::PixelFormat::FORMAT_8S),
       NumChannels = 1
     };
   };
@@ -218,7 +218,7 @@ namespace ifm3d
     using DataType = uint16_t;
     enum : uint8_t
     {
-      Format = static_cast<int>(ifm3d::pixel_format::FORMAT_16U),
+      Format = static_cast<int>(ifm3d::PixelFormat::FORMAT_16U),
       NumChannels = 1
     };
   };
@@ -230,7 +230,7 @@ namespace ifm3d
     using DataType = uint16_t;
     enum : uint8_t
     {
-      Format = static_cast<int>(ifm3d::pixel_format::FORMAT_16S),
+      Format = static_cast<int>(ifm3d::PixelFormat::FORMAT_16S),
       NumChannels = 1
     };
   };
@@ -242,7 +242,7 @@ namespace ifm3d
     using DataType = uint32_t;
     enum : uint8_t
     {
-      Format = static_cast<int>(ifm3d::pixel_format::FORMAT_32U),
+      Format = static_cast<int>(ifm3d::PixelFormat::FORMAT_32U),
       NumChannels = 1
     };
   };
@@ -254,7 +254,7 @@ namespace ifm3d
     using DataType = int32_t;
     enum : uint8_t
     {
-      Format = static_cast<int>(ifm3d::pixel_format::FORMAT_32S),
+      Format = static_cast<int>(ifm3d::PixelFormat::FORMAT_32S),
       NumChannels = 1
     };
   };
@@ -266,7 +266,7 @@ namespace ifm3d
     using DataType = float;
     enum : uint8_t
     {
-      Format = static_cast<int>(ifm3d::pixel_format::FORMAT_32F),
+      Format = static_cast<int>(ifm3d::PixelFormat::FORMAT_32F),
       NumChannels = 1
     };
   };
@@ -278,7 +278,7 @@ namespace ifm3d
     using DataType = double;
     enum : uint8_t
     {
-      Format = static_cast<int>(ifm3d::pixel_format::FORMAT_64F),
+      Format = static_cast<int>(ifm3d::PixelFormat::FORMAT_64F),
       NumChannels = 1
     };
   };
@@ -290,7 +290,7 @@ namespace ifm3d
     using DataType = uint64_t;
     enum : uint8_t
     {
-      Format = static_cast<int>(ifm3d::pixel_format::FORMAT_64U),
+      Format = static_cast<int>(ifm3d::PixelFormat::FORMAT_64U),
       NumChannels = 1
     };
   };
@@ -321,7 +321,7 @@ ifm3d::Buffer_<TP>::Buffer_(const std::uint32_t cols,
       cols,
       rows,
       static_cast<std::uint32_t>(ifm3d::FormatType<TP>::NumChannels),
-      static_cast<ifm3d::pixel_format>(ifm3d::FormatType<TP>::Format),
+      static_cast<ifm3d::PixelFormat>(ifm3d::FormatType<TP>::Format),
       metadata)
 {}
 
@@ -354,7 +354,7 @@ ifm3d::Buffer_<TP>::Create(const std::uint32_t cols,
     cols,
     rows,
     static_cast<uint32_t>(ifm3d::FormatType<TP>::NumChannels),
-    static_cast<ifm3d::pixel_format>(ifm3d::FormatType<TP>::Format),
+    static_cast<ifm3d::PixelFormat>(ifm3d::FormatType<TP>::Format),
     buffer_id);
 }
 
@@ -385,7 +385,7 @@ ifm3d::Buffer_<TP>::Nchannels() const
   return Buffer::NumChannels();
 }
 template <typename TP>
-ifm3d::pixel_format
+ifm3d::PixelFormat
 ifm3d::Buffer_<TP>::DataFormat() const
 {
   return Buffer::DataFormat();
@@ -490,7 +490,7 @@ namespace ifm3d
           img.Width(),
           img.Height(),
           img.Nchannels(),
-          (static_cast<ifm3d::pixel_format>(ifm3d::FormatType<TO>::Format)));
+          (static_cast<ifm3d::PixelFormat>(ifm3d::FormatType<TO>::Format)));
 
         ifm3d::Buffer_<FROM> image_from = img;
 

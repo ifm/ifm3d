@@ -31,7 +31,7 @@ TEST_F(PCICClientTest, IncomingResponseMessage)
   // PCICClientTest is not supported for O3X
   // so this test does not apply
   //
-  if (_dev->AmI(ifm3d::Device::device_family::O3X))
+  if (_dev->AmI(ifm3d::Device::DeviceFamily::O3X))
     {
       EXPECT_THROW(std::make_shared<ifm3d::PCICClient>(_dev), ifm3d::Error);
       return;
@@ -54,7 +54,7 @@ TEST_F(PCICClientTest, InvalidCommandLength)
   // PCICClientTest is not supported for O3X
   // so this test does not apply
   //
-  if (_dev->AmI(ifm3d::Device::device_family::O3X))
+  if (_dev->AmI(ifm3d::Device::DeviceFamily::O3X))
     {
       EXPECT_THROW(std::make_shared<ifm3d::PCICClient>(_dev), ifm3d::Error);
       return;
@@ -78,7 +78,7 @@ TEST_F(PCICClientTest, PCICTimeout)
   // PCICClientTest is not supported for O3X
   // so this test does not apply
   //
-  if (_dev->AmI(ifm3d::Device::device_family::O3X))
+  if (_dev->AmI(ifm3d::Device::DeviceFamily::O3X))
     {
       EXPECT_THROW(std::make_shared<ifm3d::PCICClient>(_dev), ifm3d::Error);
       return;

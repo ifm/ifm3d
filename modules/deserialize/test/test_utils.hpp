@@ -68,7 +68,7 @@ namespace ifm3d
     const uint32_t width = buffer.Width();
     const uint32_t height = buffer.Height();
     const uint32_t nchannel = buffer.NumChannels();
-    const ifm3d::pixel_format pix_format = buffer.DataFormat();
+    const ifm3d::PixelFormat pix_format = buffer.DataFormat();
 
     auto buffer_file =
       std::fstream(file_name, std::ios::out | std::ios::binary);
@@ -79,7 +79,7 @@ namespace ifm3d
     buffer_file.write(reinterpret_cast<const char*>(&nchannel),
                       sizeof(nchannel));
     buffer_file.write(reinterpret_cast<const char*>(&pix_format),
-                      sizeof(pixel_format));
+                      sizeof(PixelFormat));
 
     buffer_file.write(reinterpret_cast<const char*>(buffer.Ptr<uint8_t>(0)),
                       static_cast<std::streamsize>(buffer.Size()));
@@ -93,7 +93,7 @@ namespace ifm3d
     uint32_t width{};
     uint32_t height{};
     uint32_t nchannel{};
-    ifm3d::pixel_format pix_format{};
+    ifm3d::PixelFormat pix_format{};
 
     std::vector<std::uint8_t> file_buffer;
     std::istreambuf_iterator<char> iter(buffer_file);
@@ -104,7 +104,7 @@ namespace ifm3d
     width = ifm3d::mkval<uint32_t>(file_buffer.data());
     height = ifm3d::mkval<uint32_t>(file_buffer.data() + 4);
     nchannel = ifm3d::mkval<uint32_t>(file_buffer.data() + 8);
-    pix_format = static_cast<ifm3d::pixel_format>(
+    pix_format = static_cast<ifm3d::PixelFormat>(
       ifm3d::mkval<uint32_t>(file_buffer.data() + 12));
 
     auto buffer = ifm3d::Buffer(width, height, nchannel, pix_format);

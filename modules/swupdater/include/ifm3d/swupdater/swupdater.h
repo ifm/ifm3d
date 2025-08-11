@@ -46,7 +46,7 @@ namespace ifm3d
       const ifm3d::Device::Ptr& cam,
       const ifm3d::SWUpdater::FlashStatusCb& cb = {},
       std::uint16_t swupdate_recovery_port = ifm3d::SWUPDATER_RECOVERY_PORT,
-      std::optional<ifm3d::Device::swu_version> force_swu_version =
+      std::optional<ifm3d::Device::SWUVersion> force_swu_version =
         std::nullopt);
 
     virtual ~SWUpdater();

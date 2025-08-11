@@ -23,14 +23,14 @@ protected:
 
 TEST_F(O3DTest, AmI)
 {
-  EXPECT_NO_THROW(this->_dev->AmI(ifm3d::Device::device_family::O3D));
-  bool const is_o3d = this->_dev->AmI(ifm3d::Device::device_family::O3D);
+  EXPECT_NO_THROW(this->_dev->AmI(ifm3d::Device::DeviceFamily::O3D));
+  bool const is_o3d = this->_dev->AmI(ifm3d::Device::DeviceFamily::O3D);
   EXPECT_EQ(is_o3d, true);
 }
 
 TEST_F(O3DTest, WhoAmI)
 {
-  ifm3d::Device::device_family device{};
+  ifm3d::Device::DeviceFamily device{};
   EXPECT_NO_THROW(device = _dev->WhoAmI());
-  EXPECT_EQ(device, ifm3d::Device::device_family::O3D);
+  EXPECT_EQ(device, ifm3d::Device::DeviceFamily::O3D);
 }

@@ -6,11 +6,14 @@
 #ifndef IFM3D_PY_UTIL_HPP
 #define IFM3D_PY_UTIL_HPP
 
-#include <ifm3d/fg/buffer.h>
-#include <stdexcept>
-
+#include <ifm3d/common/features.h>
+#include <ifm3d/device/device.h>
+#if defined(BUILD_MODULE_FRAMEGRABBER)
+#  include <ifm3d/fg/buffer.h>
+#endif
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
+#include <stdexcept>
 
 using namespace pybind11::literals;
 
@@ -76,6 +79,7 @@ bind_numpy(pybind11::module_& m)
 
 namespace ifm3d
 {
+#if defined(BUILD_MODULE_FRAMEGRABBER)
   template <typename T>
   py::array_t<T>
   image_to_array_2d(const ifm3d::Buffer& img)
@@ -131,36 +135,37 @@ namespace ifm3d
   {
     switch (img.DataFormat())
       {
-      case ifm3d::pixel_format::FORMAT_8U:
+      case ifm3d::PixelFormat::FORMAT_8U:
         return image_to_array<std::uint8_t>(img);
         break;
-      case ifm3d::pixel_format::FORMAT_8S:
+      case ifm3d::PixelFormat::FORMAT_8S:
         return image_to_array<std::int8_t>(img);
         break;
-      case ifm3d::pixel_format::FORMAT_16U:
-      case ifm3d::pixel_format::FORMAT_16U2:
+      case ifm3d::PixelFormat::FORMAT_16U:
+      case ifm3d::PixelFormat::FORMAT_16U2:
         return image_to_array<std::uint16_t>(img);
         break;
-      case ifm3d::pixel_format::FORMAT_16S:
+      case ifm3d::PixelFormat::FORMAT_16S:
         return image_to_array<std::int16_t>(img);
         break;
-      case ifm3d::pixel_format::FORMAT_32U:
+      case ifm3d::PixelFormat::FORMAT_32U:
         return image_to_array<std::uint32_t>(img);
         break;
-      case ifm3d::pixel_format::FORMAT_32S:
+      case ifm3d::PixelFormat::FORMAT_32S:
         return image_to_array<std::int32_t>(img);
         break;
-      case ifm3d::pixel_format::FORMAT_32F:
-      case ifm3d::pixel_format::FORMAT_32F3:
+      case ifm3d::PixelFormat::FORMAT_32F:
+      case ifm3d::PixelFormat::FORMAT_32F3:
         return image_to_array<float>(img);
         break;
-      case ifm3d::pixel_format::FORMAT_64F:
+      case ifm3d::PixelFormat::FORMAT_64F:
         return image_to_array<double>(img);
         break;
       default:
         throw std::runtime_error("Unsupported ifm3d::image type");
       }
   }
+#endif
 
   template <typename T>
   void

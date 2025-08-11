@@ -7,12 +7,15 @@
 #define IFM3D_TOOLS_JITTER_APP_H
 #pragma once
 
-#include <CLI/CLI.hpp>
-#include <ifm3d/fg.h>
-#include <ifm3d/tools/command.hpp>
-#include <ifm3d/tools/main_command.hpp>
-#include <ifm3d/tools/tools_export.h>
-#include <string>
+#include <ifm3d/common/features.h>
+#if defined(BUILD_MODULE_FRAMEGRABBER)
+
+#  include <CLI/CLI.hpp>
+#  include <ifm3d/fg.h>
+#  include <ifm3d/tools/command.hpp>
+#  include <ifm3d/tools/main_command.hpp>
+#  include <ifm3d/tools/tools_export.h>
+#  include <string>
 
 namespace ifm3d
 {
@@ -44,4 +47,5 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
+#endif
 #endif // IFM3D_TOOLS_JITTER_APP_H

@@ -1,14 +1,16 @@
-project(IFM3D_COMMON CXX)
-set(IFM3D_COMMON_MODULE_NAME "common")
+ifm3d_module(common
+  LINK_LIBRARIES 
+    $<BUILD_INTERFACE:fmt::fmt-header-only>
+)
 
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/include/ifm3d/common/json_impl.hpp.in IFM_JSON_HPP)
-string(REPLACE INCLUDE_NLOHMANN_JSON_HPP_ IFM_JSON_IMPL_HPP IFM_JSON_HPP "${IFM_JSON_HPP}") 
+string(REPLACE INCLUDE_NLOHMANN_JSON_HPP_ IFM_JSON_IMPL_HPP IFM_JSON_HPP "${IFM_JSON_HPP}")
 string(REPLACE NLOHMANN_JSON_ IFM3D_JSON_ IFM_JSON_HPP "${IFM_JSON_HPP}")
 string(REPLACE NLOHMANN_ IFM3D_JSON_ IFM_JSON_HPP "${IFM_JSON_HPP}")
 string(REPLACE JSON_ IFM3D_JSON_ IFM_JSON_HPP "${IFM_JSON_HPP}")
 string(REPLACE nlohmann:: ifm3d:: IFM_JSON_HPP "${IFM_JSON_HPP}")
 string(REPLACE "namespace nlohmann" "namespace ifm3d" IFM_JSON_HPP "${IFM_JSON_HPP}")
-file(GENERATE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/include/ifm3d/common/json_impl.hpp CONTENT "${IFM_JSON_HPP}")
+file(GENERATE OUTPUT ${IFM3D_COMMON_BINARY_DIR}/include/ifm3d/common/json_impl.hpp CONTENT "${IFM_JSON_HPP}")
 
 configure_file(
   ${IFM3D_COMMON_SOURCE_DIR}/include/ifm3d/common/features.h.in
@@ -16,26 +18,6 @@ configure_file(
   @ONLY
 )
 
-################################################
-## Process child CMakeLists.txt files
-################################################
-add_subdirectory(src)
-
- if(BUILD_TESTS)
-   add_subdirectory(test)
- else()
-   message(WARNING "Skipping ${IFM3D_COMMON_MODULE_NAME} unit tests!")
- endif()
-
-################################################
-## Manage installation process
-################################################
-if(BUILD_SDK_PKG)
-  install(DIRECTORY ${IFM3D_COMMON_SOURCE_DIR}/include/ ${IFM3D_COMMON_BINARY_DIR}/include/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    COMPONENT ifm3d
-    PATTERN "*.in" EXCLUDE
-    PATTERN ".git" EXCLUDE
-    PATTERN "*~" EXCLUDE
-  )
-endif()
+target_compile_definitions(ifm3d_common INTERFACE
+  IFM3D_COMMON_LOGGING_STRIP_PREFIX="${ROOT_PROJECT_PATH}"
+)

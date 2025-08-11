@@ -248,6 +248,7 @@ def command_clang_tidy(args: dict[str, Any]) -> bool:
         "-B",
         build_path,
         f"-DCMAKE_CXX_CLANG_TIDY={';'.join(clang_tidy_cmd)}",
+        "-DVERIFY_INTERFACE_HEADER_SETS=ON",
     ] + [f"-D{mod}=ON" for mod in ENABLED_MODULES_LINT]
     clean_cmd = ["cmake", "--build", build_path, "--target", "clean"]
     lint_cmd = ["cmake", "--build", build_path, "-j", str(MAX_PARALLEL_PROCESSES)]

@@ -23,8 +23,8 @@ protected:
 
 TEST_F(O3XTest, AmI)
 {
-  EXPECT_NO_THROW(this->_dev->AmI(ifm3d::Device::device_family::O3X));
-  bool const is_o3x = this->_dev->AmI(ifm3d::Device::device_family::O3X);
+  EXPECT_NO_THROW(this->_dev->AmI(ifm3d::Device::DeviceFamily::O3X));
+  bool const is_o3x = this->_dev->AmI(ifm3d::Device::DeviceFamily::O3X);
   EXPECT_EQ(is_o3x, true);
 }
 
@@ -32,7 +32,7 @@ TEST_F(O3XTest, ForceTrigger) { EXPECT_NO_THROW(_dev->ForceTrigger()); }
 
 TEST_F(O3XTest, WhoAmI)
 {
-  ifm3d::Device::device_family device{};
+  ifm3d::Device::DeviceFamily device{};
   EXPECT_NO_THROW(device = _dev->WhoAmI());
-  EXPECT_EQ(device, ifm3d::Device::device_family::O3X);
+  EXPECT_EQ(device, ifm3d::Device::DeviceFamily::O3X);
 }

@@ -37,7 +37,7 @@ target_include_directories(ifm3dpy
   PRIVATE
     $<BUILD_INTERFACE:${IFM3D_DEVICE_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_DEVICE_BINARY_DIR}/include>
-    $<BUILD_INTERFACE:${IFM3D_FG_DIR}/include>
+    $<BUILD_INTERFACE:${IFM3D_FRAMEGRABBER_DIR}/include>
     $<BUILD_INTERFACE:${IFM3D_TOOLS_SOURCE_DIR}/include>
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
@@ -57,7 +57,6 @@ target_link_libraries(
     ifm3d_common
     ifm3d_device
     ifm3d_tools
-    ifm3d_deserialize
     pybind11::module
     $<BUILD_INTERFACE:fmt::fmt-header-only>
 )
@@ -69,6 +68,11 @@ endif()
 if(BUILD_MODULE_SWUPDATER)
   target_link_libraries(ifm3dpy PRIVATE ifm3d_swupdater)
 endif()
+
+if(BUILD_MODULE_DESERIALIZE)
+  target_link_libraries(ifm3dpy PRIVATE ifm3d_deserialize)
+endif()
+
 
 if(BUILD_MODULE_CRYPTO)
   target_link_libraries(ifm3dpy PRIVATE ifm3d_crypto)

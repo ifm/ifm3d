@@ -1,0 +1,77 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/cpp
+{
+	"name": "ifm3d (local)",
+	"image": "mcr.microsoft.com/devcontainers/cpp:1-ubuntu-24.04",
+	"postCreateCommand": "bash scripts/setup-dev-container.sh",
+	"waitFor": "postCreateCommand",
+	// Shared config, always update both local and prebuilt
+	"features": {
+		"ghcr.io/devcontainers/features/rust:1": {},
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+	},
+	"runArgs": [
+		"--network=host",
+		"--cap-add=SYS_PTRACE",
+		"--security-opt",
+		"seccomp=unconfined"
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cpptools",
+				"ms-vscode.cmake-tools",
+				"xaver.clang-format",
+				"ms-python.python",
+				"ms-python.black-formatter",
+				"llvm-vs-code-extensions.vscode-clangd"
+			],
+			"settings": {
+				// Disable the CPPTools formatting and auto-completion because we're using clangd
+				"C_Cpp.formatting": "disabled",
+				"C_Cpp.intelliSenseEngine": "disabled",
+				// Clangd settings
+				"clangd.checkUpdates": false,
+				"clangd.onConfigChanged": "restart",
+				"clangd.arguments": [
+					"-background-index",
+					"--function-arg-placeholders=1"
+				],
+				// Setup the python env
+				"python.terminal.activateEnvInCurrentTerminal": true,
+				"python.defaultInterpreterPath": "/opt/venv/bin/python",
+				"[cpp]": {
+					"editor.defaultFormatter": "xaver.clang-format"
+				},
+				"editor.formatOnSave": true,
+				"clang-format.executable": "/usr/bin/clang-format-14",
+				"cmake.configureArgs": [
+					"-DBUILD_MODULE_PYBIND11=ON",
+					"-DBUILD_MODULE_PCICCLIENT=ON",
+					"-DCREATE_PYTHON_STUBS=ON",
+					"-DBUILD_DOC=ON",
+					"-DBUILD_TESTS=ON"
+				]
+			}
+		}
+	},
+	"containerEnv": {
+		"CMAKE_GENERATOR": "Ninja",
+		"SCCACHE_DIR": "/host/.cache/sccache",
+		"SCCACHE_SERVER_UDS": "/tmp/sccache.sock"
+	},
+	"remoteEnv": {
+		"CMAKE_C_COMPILER_LAUNCHER": "/opt/cargo/bin/sccache",
+		"CMAKE_CXX_COMPILER_LAUNCHER": "/opt/cargo/bin/sccache",
+		"CARGO_HOME": "/opt/cargo",
+		"PATH": "/opt/cargo/bin:${containerEnv:PATH}"
+	},
+	"workspaceFolder": "/workspace",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+	"remoteUser": "vscode",
+	// Mount points in the container
+	"mounts": [
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind,readonly",
+		"source=${localEnv:HOME}${localEnv:USERPROFILE},target=/host,type=bind,consistency=cached"
+	]
+}

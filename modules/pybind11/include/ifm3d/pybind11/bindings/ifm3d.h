@@ -1,24 +1,29 @@
 #ifndef IFM3D_PYBIND_BINDING_IFM3D
 #define IFM3D_PYBIND_BINDING_IFM3D
 
+#include <ifm3d/common/features.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/version.h>
-#include <ifm3d/fg/frame.h>
-#include <ifm3d/pybind11/util.hpp>
-
+#if defined(BUILD_MODULE_FRAMEGRABBER)
+#  include <ifm3d/fg/frame.h>
+#  include <ifm3d/pybind11/bindings/frame.h>
+#  include <ifm3d/pybind11/bindings/framegrabber.h>
+#endif
 #include <ifm3d/pybind11/bindings/device.h>
 #include <ifm3d/pybind11/bindings/error.h>
-#include <ifm3d/pybind11/bindings/frame.h>
-#include <ifm3d/pybind11/bindings/framegrabber.h>
 #include <ifm3d/pybind11/bindings/legacy_device.h>
 #include <ifm3d/pybind11/bindings/logging.h>
 #include <ifm3d/pybind11/bindings/o3d.h>
 #include <ifm3d/pybind11/bindings/o3r.h>
 #include <ifm3d/pybind11/bindings/o3x.h>
+#include <ifm3d/pybind11/util.hpp>
 #if defined(BUILD_MODULE_SWUPDATER)
 #  include <ifm3d/pybind11/bindings/swupdater.h>
 #endif
-#include <ifm3d/pybind11/bindings/deserialize/deserialize.h>
+#if defined(BUILD_MODULE_DESERIALIZE)
+#  include <ifm3d/pybind11/bindings/deserialize/deserialize.h>
+#endif
+#include <ifm3d/pybind11/bindings/future.h>
 #include <ifm3d/pybind11/bindings/semver.h>
 #include <pybind11/pybind11.h>
 
@@ -147,6 +152,7 @@ bind_ifm3d(py::module_& m)
   bind_o3d(device_module);
   bind_o3x(device_module);
 
+#if defined(BUILD_MODULE_SWUPDATER)
   auto framegrabber_module = m.def_submodule(
     "framegrabber",
     R"(Provides an implementation of the PCIC protocol for streaming pixel
@@ -158,6 +164,7 @@ bind_ifm3d(py::module_& m)
     "Provides a mechanism to access the frame object",
     "Frame");
   bind_framegrabber(framegrabber_module);
+#endif
 
 #if defined(BUILD_MODULE_SWUPDATER)
   auto swupdater_module = m.def_submodule(
@@ -166,10 +173,12 @@ bind_ifm3d(py::module_& m)
   bind_swupdater(swupdater_module);
 #endif
 
+#if defined(BUILD_MODULE_DESERIALIZE)
   auto deserializer_module = m.def_submodule(
     "deserialize",
     R"(Provides definitions and functions for deserializing structs sent over PCIC)");
   bind_deserialize_struct(deserializer_module);
+#endif
 
   // deprecated aliases for backwards compatibility, will removed at some point
   // in the future
@@ -178,9 +187,11 @@ bind_ifm3d(py::module_& m)
   m.attr("Device") = device_module.attr("Device");
   m.attr("LegacyDevice") = device_module.attr("LegacyDevice");
   m.attr("O3R") = device_module.attr("O3R");
+#if defined(BUILD_MODULE_SWUPDATER)
   m.attr("FrameGrabber") = framegrabber_module.attr("FrameGrabber");
   m.attr("Frame") = framegrabber_module.attr("Frame");
   m.attr("buffer_id") = framegrabber_module.attr("buffer_id");
+#endif
 #if defined(BUILD_MODULE_SWUPDATER)
   m.attr("SWUpdater") = swupdater_module.attr("SWUpdater");
 #endif

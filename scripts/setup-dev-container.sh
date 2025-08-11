@@ -17,7 +17,6 @@ fi
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
-# Check if the script is run as root
 if [ "$EUID" -ne 0 ]; then
     SUDO="sudo"
 fi
@@ -45,19 +44,13 @@ $SUDO apt-get install -y --no-install-recommends \
     python3-dev \
     python3-pip \
     python3-venv \
-    wget
+    wget 
+
+
 
 # Install sccache if cargo is available
 if command -v cargo &> /dev/null; then
-    if [ -z "$CARGO_HOME" ]; then
-        CARGO_HOME="${HOME}/.cargo"
-    fi
-
-    $SUDO mkdir -p ${CARGO_HOME}
-    $SUDO chown -R $(whoami) ${CARGO_HOME}
-
-    curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-    cargo binstall -y sccache
+    bash ${SCRIPT_DIR}/install-sccache.sh
 fi
 
 

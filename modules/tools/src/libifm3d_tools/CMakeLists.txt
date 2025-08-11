@@ -15,7 +15,7 @@ if (BUILD_MODULE_FRAMEGRABBER)
   target_sources(ifm3d_tools INTERFACE ${IFM3D_TOOLS_FG_SOURCES})
   target_include_directories(ifm3d_tools
     INTERFACE
-      $<BUILD_INTERFACE:${IFM3D_FG_SOURCE_DIR}/include>
+      $<BUILD_INTERFACE:${IFM3D_FRAMEGRABBER_SOURCE_DIR}/include>
   )
 endif()
 

@@ -33,10 +33,10 @@ TEST(Schema, MakeSchema_O3R)
     ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE};
 
   EXPECT_NO_THROW(
-    ifm3d::make_schema(buffer_ids, ifm3d::Device::device_family::O3R));
+    ifm3d::make_schema(buffer_ids, ifm3d::Device::DeviceFamily::O3R));
 
   auto schema =
-    ifm3d::make_schema(buffer_ids, ifm3d::Device::device_family::O3R);
+    ifm3d::make_schema(buffer_ids, ifm3d::Device::DeviceFamily::O3R);
 
   EXPECT_TRUE(schema["elements"].is_array());
   // 2 for buffer_ids and 2 for start and stop
@@ -50,7 +50,7 @@ TEST(Schema, o3r_firmware_compatibility_rgb_info)
     std::set<ifm3d::buffer_id> const buffer_ids = {buffer_id};
 
     auto schema =
-      ifm3d::make_schema(buffer_ids, ifm3d::Device::device_family::O3R);
+      ifm3d::make_schema(buffer_ids, ifm3d::Device::DeviceFamily::O3R);
 
     EXPECT_TRUE(ifm3d::check_for_id(schema["elements"], "RGB_INFO"));
 
@@ -85,7 +85,7 @@ TEST(Schema, o3r_firmware_compatibility_tof_info)
     std::set<ifm3d::buffer_id> const buffer_ids = {buffer_id};
 
     auto schema =
-      ifm3d::make_schema(buffer_ids, ifm3d::Device::device_family::O3R);
+      ifm3d::make_schema(buffer_ids, ifm3d::Device::DeviceFamily::O3R);
 
     EXPECT_TRUE(ifm3d::check_for_id(schema["elements"], "TOF_INFO"));
 

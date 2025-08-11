@@ -107,7 +107,7 @@ namespace ifm3d
     /*@brief number of channel in Buffer*/
     std::uint32_t _nchannel{};
     /* @brief data format or type*/
-    ifm3d::pixel_format _data_format{};
+    ifm3d::PixelFormat _data_format{};
     /* @brief number of pixel to store one value of data*/
     std::size_t _data_size_in_bytes{};
     /* @brief size of the memory allocated*/
@@ -145,7 +145,7 @@ namespace ifm3d
     Buffer(std::uint32_t cols,
            std::uint32_t rows,
            std::uint32_t nchannel,
-           ifm3d::pixel_format format,
+           ifm3d::PixelFormat format,
            const std::optional<ifm3d::json>& metadata = std::nullopt,
            ifm3d::buffer_id buffer_id = static_cast<ifm3d::buffer_id>(0));
 
@@ -170,7 +170,7 @@ namespace ifm3d
     void Create(std::uint32_t cols,
                 std::uint32_t rows,
                 std::uint32_t nchannel,
-                ifm3d::pixel_format format,
+                ifm3d::PixelFormat format,
                 ifm3d::buffer_id buffer_id);
 
     /** @brief Creates a full copy of the array and the underlying data.
@@ -181,7 +181,7 @@ namespace ifm3d
     [[nodiscard]] std::uint32_t Height() const;
     [[nodiscard]] std::uint32_t Width() const;
     [[nodiscard]] std::uint32_t NumChannels() const;
-    [[nodiscard]] ifm3d::pixel_format DataFormat() const;
+    [[nodiscard]] ifm3d::PixelFormat DataFormat() const;
     [[nodiscard]] ifm3d::json Metadata() const;
     [[nodiscard]] ifm3d::buffer_id BufferId() const;
 
@@ -367,7 +367,7 @@ namespace ifm3d
     [[nodiscard]] std::uint32_t Height() const;
     [[nodiscard]] std::uint32_t Width() const;
     [[nodiscard]] std::uint32_t Nchannels() const;
-    [[nodiscard]] ifm3d::pixel_format DataFormat() const;
+    [[nodiscard]] ifm3d::PixelFormat DataFormat() const;
     [[nodiscard]] ifm3d::json Metadata() const;
 
     /** @brief returns a pointer to the specified Buffer row.

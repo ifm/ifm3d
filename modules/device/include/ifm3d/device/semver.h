@@ -20,8 +20,8 @@ namespace ifm3d
     SemVer(size_t major,
            size_t minor,
            size_t patch,
-           const std::optional<std::string> prerelease = std::nullopt,
-           const std::optional<std::string> build_meta = std::nullopt)
+           const std::optional<std::string>& prerelease = std::nullopt,
+           const std::optional<std::string>& build_meta = std::nullopt)
       : major_num(major),
         minor_num(minor),
         patch_num(patch),
@@ -30,11 +30,11 @@ namespace ifm3d
 
     {}
 
-    const size_t major_num;
-    const size_t minor_num;
-    const size_t patch_num;
-    const std::optional<std::string> prerelease;
-    const std::optional<std::string> build_meta;
+    size_t major_num;
+    size_t minor_num;
+    size_t patch_num;
+    std::optional<std::string> prerelease;
+    std::optional<std::string> build_meta;
 
     constexpr bool
     operator<(const SemVer& rhs) const
