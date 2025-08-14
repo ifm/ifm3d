@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fix in device discovery command always tries to access devices at `192.168.0.69`
+- Resolve issue where ODS application buffers were not received
+
+### Added
+- Result buffers now auto-mapped to correct IDs on receive
 
 ## 1.7.1 - 2025-07-31
 ### Removed
