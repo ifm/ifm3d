@@ -13,6 +13,8 @@
 #  include <ifm3d/crypto/crypto.h>
 #endif
 #include <ifm3d/device/pcic_command.h>
+#include <initializer_list>
+#include <variant>
 
 namespace ifm3d
 {
@@ -65,6 +67,36 @@ namespace ifm3d
      * @return The current JSON schema configuration
      */
     json GetSchema();
+
+    /**
+     * Returns the current JSON schema configuration or a subset of it.
+     *
+     * This overload accepts a variant argument to support optional selection
+     * of specific portions of the schema using JSON Pointers.
+     *
+     * @param pointers A variant that can be:
+     *   - std::monostate, std::string, std::vector<std::string>
+     *
+     * @return A JSON object representing the full or filtered schema
+     * configuration.
+     */
+    json GetSchema(
+      std::variant<std::monostate, std::string, std::vector<std::string>>
+        pointers);
+
+    /**
+     * Returns the current JSON schema configuration or a subset of it.
+     *
+     * This overload accepts an initializer list of JSON Pointers to extract
+     * specific parts of the schema.
+     *
+     * @param pointers One or more JSON Pointers as strings to select a subset
+     * of the schema.
+     *
+     * @return A JSON object representing the selected parts of the schema
+     * configuration.
+     */
+    json GetSchema(std::initializer_list<std::string> pointers);
 
     /**
      * Returns the configuration formatted as JSON based on a path.

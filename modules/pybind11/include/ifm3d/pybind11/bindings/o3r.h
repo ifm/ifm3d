@@ -306,16 +306,24 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "get_schema",
-    [](const ifm3d::O3R::Ptr& c) -> py::dict {
+    [](const ifm3d::O3R::Ptr& c,
+       std::variant<std::monostate, std::string, std::vector<std::string>>
+         pointers = std::monostate{}) -> py::dict {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
       py::gil_scoped_release release;
-      auto json_string = c->GetSchema().dump();
+      auto json_string = c->GetSchema(pointers).dump();
       py::gil_scoped_acquire acquire;
       return json_loads(json_string);
     },
+    py::arg("pointers") = std::monostate{},
     R"(
       Returns the current JSON schema configuration
+
+      Parameters
+      ----------
+      pointers : str, list[str], or None
+        JSON pointer(s) to select a subset of the schema.
 
       Returns
       -------

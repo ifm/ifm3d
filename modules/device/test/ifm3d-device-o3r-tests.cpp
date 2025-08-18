@@ -10,6 +10,7 @@
 #include <ostream>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 class O3RTest : public ::testing::Test
@@ -64,6 +65,36 @@ TEST_F(O3RTest, port)
   EXPECT_NO_THROW(_dev->Port("port0"));
   EXPECT_THROW(_dev->Port("port7"), ifm3d::Error);
   EXPECT_THROW(_dev->Port("random"), ifm3d::Error);
+}
+
+TEST_F(O3RTest, GetSchema)
+{
+  EXPECT_NO_THROW({
+    auto result = _dev->GetSchema();
+    EXPECT_FALSE(result.empty());
+  });
+
+  EXPECT_NO_THROW({
+    auto result = _dev->GetSchema("/ports");
+    EXPECT_FALSE(result.empty());
+  });
+
+  std::string pointer = "/ports";
+  EXPECT_NO_THROW({
+    auto result = _dev->GetSchema(pointer);
+    EXPECT_FALSE(result.empty());
+  });
+
+  EXPECT_NO_THROW({
+    auto result = _dev->GetSchema({"/ports", "/applications"});
+    EXPECT_FALSE(result.empty());
+  });
+
+  std::vector<std::string> pointer_vec = {"/ports", "/applications"};
+  EXPECT_NO_THROW({
+    auto result = _dev->GetSchema(pointer_vec);
+    EXPECT_FALSE(result.empty());
+  });
 }
 
 #ifdef BUILD_MODULE_CRYPTO

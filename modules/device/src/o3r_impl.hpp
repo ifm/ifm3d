@@ -17,6 +17,7 @@
 #include <ifm3d/device/util.h>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 #include <xmlrpc.hpp>
 
@@ -48,6 +49,10 @@ namespace ifm3d
     void SaveInit(const std::vector<std::string>& pointers);
     std::string GetInitStatus();
     std::string GetSchema();
+    std::string GetSchema(
+      std::variant<std::monostate, std::string, std::vector<std::string>>
+        pointers);
+    std::string GetSchema(std::initializer_list<std::string> pointers);
     void Lock(const std::string& password);
     void Unlock(const std::string& password);
     std::vector<PortInfo> Ports();
@@ -160,6 +165,37 @@ inline std::string
 ifm3d::O3R::Impl::GetSchema()
 {
   return this->_xwrapper->XCallMain("getSchema").AsString();
+}
+
+inline std::string
+ifm3d::O3R::Impl::GetSchema(
+  std::variant<std::monostate, std::string, std::vector<std::string>> pointers)
+{
+  return std::visit(
+    [this](auto&& value) -> std::string {
+      using T = std::decay_t<decltype(value)>;
+      if constexpr (std::is_same_v<T, std::monostate>)
+        {
+          return this->_xwrapper->XCallMain("getSchema").AsString();
+        }
+      else if constexpr (std::is_same_v<T, std::string>)
+        {
+          return this->_xwrapper
+            ->XCallMain("getSchema", std::vector<std::string>{value})
+            .AsString();
+        }
+      else
+        {
+          return this->_xwrapper->XCallMain("getSchema", value).AsString();
+        }
+    },
+    pointers);
+}
+
+inline std::string
+ifm3d::O3R::Impl::GetSchema(std::initializer_list<std::string> pointers)
+{
+  return this->_xwrapper->XCallMain("getSchema", pointers).AsString();
 }
 
 inline void
