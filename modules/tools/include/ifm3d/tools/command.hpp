@@ -49,6 +49,13 @@ namespace ifm3d
       command->_context = command->CreateCommand(parent);
 
       command->_context->final_callback([command, this]() {
+        for (const auto& subcmd : command->_subcommands)
+          {
+            if (subcmd->_context->parsed())
+              {
+                return;
+              }
+          }
         if (!command->CheckCompatibility())
           {
             throw ifm3d::Error(IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE);

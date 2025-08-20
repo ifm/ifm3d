@@ -5,10 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Fix in device discovery command always tries to access devices at `192.168.0.69`
 
 ## 1.7.1 - 2025-07-31
 ### Removed
--[ifm3dpy] Remove `_run_cmdtool` entry point from metadata
+- [ifm3dpy] Remove `_run_cmdtool` entry point from metadata
 
 ### Fixed
 - Fix in device discovery, device showing multiple times

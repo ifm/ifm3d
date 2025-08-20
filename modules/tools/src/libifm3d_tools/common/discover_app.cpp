@@ -144,3 +144,9 @@ ifm3d::DiscoverApp::CreateCommand(CLI::App* parent)
 
   return command;
 }
+
+bool
+ifm3d::DiscoverApp::CheckCompatibility()
+{
+  return true;
+}
