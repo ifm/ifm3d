@@ -577,6 +577,238 @@ ifm3d::LegacyDevice::get_app_json(int index,
 }
 
 void
+ifm3d::LegacyDevice::apply_device_config(json& current, const json& root)
+{
+  json const& j_dev = root["Device"];
+  if (j_dev.is_null())
+    {
+      return;
+    }
+
+  this->from_json(
+    current["ifm3d"]["Device"],
+    j_dev,
+    [this](const std::string& k, const std::string& v) {
+      this->_impl->SetDeviceParameter(k, v);
+    },
+    [this]() { this->_impl->SaveDevice(); },
+    "Device");
+}
+
+void
+ifm3d::LegacyDevice::apply_apps_config(json& current, const json& root)
+{
+  json j_apps = root["Apps"];
+  if (j_apps.is_null())
+    {
+      return;
+    }
+
+  if (!j_apps.is_array())
+    {
+      LOG_ERROR("The `Apps` element should be an array!");
+      LOG_VERBOSE("Invalid JSON was: {}", j_apps.dump());
+      throw ifm3d::Error(IFM3D_JSON_ERROR);
+    }
+
+  LOG_VERBOSE("Looping over applications");
+
+  for (auto& j_app : j_apps)
+    {
+      if (!j_app.is_object())
+        {
+          LOG_ERROR("All 'Apps' must be a JSON object!");
+          LOG_VERBOSE("Invalid JSON was: {}", j_app.dump());
+          throw ifm3d::Error(IFM3D_JSON_ERROR);
+        }
+
+      int idx = -1;
+      json curr_app;
+      if (j_app["Index"].is_null())
+        {
+          if (!this->AmI(device_family::O3X))
+            {
+              const std::string app_type = j_app["Type"].is_null() ?
+                                             DEFAULT_APPLICATION_TYPE :
+                                             j_app["Type"].get<std::string>();
+              LOG_VERBOSE("Creating new app of type '{}'", app_type);
+              idx = this->_impl->CreateApplication(app_type);
+              current = this->to_json(false);
+              if (!get_app_json(idx, current, curr_app))
+                {
+                  LOG_ERROR("Failed to retrieve newly created app at index={}",
+                            idx);
+                  throw ifm3d::Error(IFM3D_JSON_ERROR);
+                }
+              j_app["Index"] = curr_app["Index"];
+              j_app["Type"] = curr_app["Type"];
+            }
+          else
+            {
+              LOG_VERBOSE("O3X only has a single app, assuming idx=1");
+              idx = 1;
+              get_app_json(idx, current, curr_app);
+            }
+        }
+      else
+        {
+          idx = std::stoi(j_app["Index"].get<std::string>());
+          get_app_json(idx, current, curr_app);
+        }
+
+      LOG_VERBOSE("Processing application at index={}", idx);
+
+      json j_im = j_app["Imager"];
+      if (!j_im.is_null())
+        {
+          j_app.erase("Imager");
+        }
+
+      this->from_json(
+        curr_app,
+        j_app,
+        [this](const std::string& k, const std::string& v) {
+          this->_impl->SetAppParameter(k, v);
+        },
+        [this]() { this->_impl->SaveApp(); },
+        "App",
+        idx);
+
+      json const& s_filt = j_im["SpatialFilter"];
+      if (!s_filt.is_null())
+        {
+          j_im.erase("SpatialFilter");
+        }
+
+      json const& t_filt = j_im["TemporalFilter"];
+      if (!t_filt.is_null())
+        {
+          j_im.erase("TemporalFilter");
+        }
+
+      const bool reload_app =
+        !j_im["TemporalFilterType"].is_null() &&
+        std::stoi(j_im["TemporalFilterType"].get<std::string>()) != 0;
+
+      this->from_json(
+        curr_app["Imager"],
+        j_im,
+        [this](const std::string& k, const std::string& v) {
+          if (k == "Type")
+            {
+              this->_impl->ChangeImagerType(v);
+            }
+          else
+            {
+              this->_impl->SetImagerParameter(k, v);
+            }
+        },
+        [this]() { this->_impl->SaveApp(); },
+        "Imager",
+        idx);
+
+      if (reload_app)
+        {
+          current = this->to_json(false);
+          get_app_json(idx, current, curr_app);
+        }
+
+      if (!this->AmI(device_family::O3X))
+        {
+          if (!s_filt.is_null())
+            {
+              this->from_json(
+                curr_app["Imager"]["SpatialFilter"],
+                s_filt,
+                [this](const std::string& k, const std::string& v) {
+                  this->_impl->SetSpatialFilterParameter(k, v);
+                },
+                [this]() { this->_impl->SaveApp(); },
+                "SpatialFilter",
+                idx);
+            }
+
+          if (!t_filt.is_null())
+            {
+              this->from_json(
+                curr_app["Imager"]["TemporalFilter"],
+                t_filt,
+                [this](const std::string& k, const std::string& v) {
+                  this->_impl->SetTemporalFilterParameter(k, v);
+                },
+                [this]() { this->_impl->SaveApp(); },
+                "TemporalFilter",
+                idx);
+            }
+        }
+    }
+}
+
+void
+ifm3d::LegacyDevice::apply_time_config(json& current, const json& root)
+{
+  if (!(this->AmI(device_family::O3X) ||
+        (this->AmI(device_family::O3D) &&
+         this->CheckMinimumFirmwareVersion(ifm3d::O3D_TIME_SUPPORT_MAJOR,
+                                           ifm3d::O3D_TIME_SUPPORT_MINOR,
+                                           ifm3d::O3D_TIME_SUPPORT_PATCH))))
+    {
+      return;
+    }
+
+  json const& j_time = root["Time"];
+  if (j_time.is_null())
+    {
+      return;
+    }
+
+  this->from_json(
+    current["ifm3d"]["Time"],
+    j_time,
+    [this](const std::string& k, const std::string& v) {
+      this->_impl->SetTimeParameter(k, v);
+    },
+    [this]() { this->_impl->SaveTime(); },
+    "Time");
+}
+
+void
+ifm3d::LegacyDevice::apply_network_config(json& current, const json& root)
+{
+  json const& j_net = root["Net"];
+  if (j_net.is_null())
+    {
+      return;
+    }
+
+  this->from_json(
+    current["ifm3d"]["Net"],
+    j_net,
+    [this](const std::string& k, const std::string& v) {
+      this->_impl->SetNetParameter(k, v);
+    },
+    [this]() {
+      try
+        {
+          this->_impl->SaveNet();
+        }
+      catch (const ifm3d::Error& ex)
+        {
+          if (ex.code() == IFM3D_XMLRPC_TIMEOUT)
+            {
+              LOG_WARNING(
+                "XML-RPC timeout saving net params, this is expected");
+            }
+          else
+            {
+              throw;
+            }
+        }
+    },
+    "Net");
+}
+
+void
 ifm3d::LegacyDevice::FromJSON(const json& j)
 {
   LOG_VERBOSE("Checking if passed in JSON is an object");
@@ -584,249 +816,20 @@ ifm3d::LegacyDevice::FromJSON(const json& j)
     {
       LOG_ERROR("The passed in json should be an object!");
       LOG_VERBOSE("Invalid JSON was: {}", j.dump());
-
       throw ifm3d::Error(IFM3D_JSON_ERROR);
     }
 
-  // we use this to lessen the number of overall network calls
   LOG_VERBOSE("Caching current camera dump");
   json current = this->ToJSON();
 
-  // make the `ifm3d` root element optional
-  LOG_VERBOSE("Extracing root element");
+  LOG_VERBOSE("Extracting root element");
   json root = j.count("ifm3d") ? j["ifm3d"] : j;
 
-  // Ensure we cancel the session when leaving this method
-  this->_impl->WrapInEditSession([this, &root, &j, &current]() {
-    // Device
-    json const j_dev = root["Device"];
-    if (!j_dev.is_null())
-      {
-        this->from_json(
-          current["ifm3d"]["Device"],
-          j_dev,
-          [this](const std::string& k, const std::string& v) {
-            this->_impl->SetDeviceParameter(k, v);
-          },
-          [this]() { this->_impl->SaveDevice(); },
-          "Device");
-      }
-
-    // Apps - requires careful/special treatment
-    json j_apps = root["Apps"];
-    if (!j_apps.is_null())
-      {
-        if (!j_apps.is_array())
-          {
-            LOG_ERROR("The `Apps` element should be an array!");
-            LOG_VERBOSE("Invalid JSON was: {}", j_apps.dump());
-
-            throw ifm3d::Error(IFM3D_JSON_ERROR);
-          }
-
-        LOG_VERBOSE("Looping over applications");
-        for (auto& j_app : j_apps)
-          {
-            if (!j_app.is_object())
-              {
-                LOG_ERROR("All 'Apps' must be a JSON object!");
-                LOG_VERBOSE("Invalid JSON was: {}", j_app.dump());
-                throw ifm3d::Error(IFM3D_JSON_ERROR);
-              }
-
-            // First we determine if we are editing an existing application or
-            // if we are creating a new one. If no index is specified, we
-            // create a new application.
-            int idx = -1;
-            if (j_app["Index"].is_null())
-              {
-                if (!this->AmI(device_family::O3X))
-                  {
-                    LOG_VERBOSE("Creating new application");
-                    idx = j_app["Type"].is_null() ?
-                            this->_impl->CreateApplication(
-                              DEFAULT_APPLICATION_TYPE) :
-                            this->_impl->CreateApplication(
-                              j_app["Type"].get<std::string>());
-
-                    LOG_VERBOSE("Created new app, updating our dump");
-                    current = this->to_json(false);
-                  }
-                else
-                  {
-                    LOG_VERBOSE("O3X only has a single app, assuming idx=1");
-                    idx = 1;
-                  }
-              }
-            else
-              {
-                LOG_VERBOSE("Getting index of existing application");
-                idx = std::stoi(j_app["Index"].get<std::string>());
-              }
-
-            LOG_VERBOSE("Application of interest is at index={}", idx);
-
-            // now in `current` (which is a whole camera dump)
-            // we need to find the application at index `idx`.
-            json curr_app = json({});
-            bool app_found = get_app_json(idx, current, curr_app);
-            if (!app_found)
-              {
-                LOG_ERROR("Could not find an application at index={}", idx);
-                throw ifm3d::Error(IFM3D_JSON_ERROR);
-              }
-
-            // at this point both the new and current
-            // should have the same index and type and
-            // we want to make sure of that.
-            j_app["Index"] = curr_app["Index"];
-            j_app["Type"] = curr_app["Type"];
-
-            // pull out the imager sub-tree (we treat that separately)
-            json j_im = j_app["Imager"];
-            if (!j_im.is_null())
-              {
-                j_app.erase("Imager");
-              }
-
-            this->from_json(
-              curr_app,
-              j_app,
-              [this](const std::string& k, const std::string& v) {
-                this->_impl->SetAppParameter(k, v);
-              },
-              [this]() { this->_impl->SaveApp(); },
-              "App",
-              idx);
-
-            json const s_filt = j_im["SpatialFilter"];
-            if (!s_filt.is_null())
-              {
-                j_im.erase("SpatialFilter");
-              }
-
-            json const t_filt = j_im["TemporalFilter"];
-            if (!t_filt.is_null())
-              {
-                j_im.erase("TemporalFilter");
-              }
-
-            // When the TemporalFilterType is set for example, there are
-            // additional parameters. They do not exist in the basic
-            // application. When trying to import them, ifm3d will fail. In
-            // case an temporal filter is set, we have to reload the
-            // application.
-            bool const reload_app =
-              (!j_im["TemporalFilterType"].is_null() &&
-               std::stoi(j_im["TemporalFilterType"].get<std::string>()) != 0);
-
-            this->from_json(
-              curr_app["Imager"],
-              j_im,
-              [this](const std::string& k, const std::string& v) {
-                if (k == "Type")
-                  {
-                    this->_impl->ChangeImagerType(v);
-                  }
-                else
-                  {
-                    this->_impl->SetImagerParameter(k, v);
-                  }
-              },
-              [this, j_im]() { this->_impl->SaveApp(); },
-              "Imager",
-              idx);
-
-            if (reload_app)
-              {
-                current = this->to_json(false);
-                app_found = get_app_json(idx, current, curr_app);
-              }
-
-            if (!this->AmI(device_family::O3X))
-              {
-
-                if (!s_filt.is_null())
-                  {
-                    this->from_json(
-                      curr_app["Imager"]["SpatialFilter"],
-                      s_filt,
-                      [this](const std::string& k, const std::string& v) {
-                        this->_impl->SetSpatialFilterParameter(k, v);
-                      },
-                      [this]() { this->_impl->SaveApp(); },
-                      "SpatialFilter",
-                      idx);
-                  }
-
-                if (!t_filt.is_null())
-                  {
-                    this->from_json(
-                      curr_app["Imager"]["TemporalFilter"],
-                      t_filt,
-                      [this](const std::string& k, const std::string& v) {
-                        this->_impl->SetTemporalFilterParameter(k, v);
-                      },
-                      [this]() { this->_impl->SaveApp(); },
-                      "TemporalFilter",
-                      idx);
-                  }
-              }
-          }
-      }
-
-    // Time
-    if (this->AmI(device_family::O3X) ||
-        (this->AmI(device_family::O3D) &&
-         this->CheckMinimumFirmwareVersion(ifm3d::O3D_TIME_SUPPORT_MAJOR,
-                                           ifm3d::O3D_TIME_SUPPORT_MINOR,
-                                           ifm3d::O3D_TIME_SUPPORT_PATCH)))
-      {
-        json const j_time = root["Time"];
-        if (!j_time.is_null())
-          {
-            this->from_json(
-              current["ifm3d"]["Time"],
-              j_time,
-              [this](const std::string& k, const std::string& v) {
-                this->_impl->SetTimeParameter(k, v);
-              },
-              [this]() { this->_impl->SaveTime(); },
-              "Time");
-          }
-      }
-
-    // Network - we do this last intentionally!
-    json const j_net = root["Net"];
-    if (!j_net.is_null())
-      {
-        this->from_json(
-          current["ifm3d"]["Net"],
-          j_net,
-          [this](const std::string& k, const std::string& v) {
-            this->_impl->SetNetParameter(k, v);
-          },
-          [this]() { // we are changing network parameters,
-                     // we expect a timeout!
-            try
-              {
-                this->_impl->SaveNet();
-              }
-            catch (const ifm3d::Error& ex)
-              {
-                if (ex.code() == IFM3D_XMLRPC_TIMEOUT)
-                  {
-                    LOG_WARNING(
-                      "XML-RPC timeout saving net params, this is expecte");
-                  }
-                else
-                  {
-                    throw;
-                  }
-              }
-          },
-          "Net");
-      }
+  this->_impl->WrapInEditSession([this, &root, &current]() {
+    apply_device_config(current, root);
+    apply_apps_config(current, root);
+    apply_time_config(current, root);
+    apply_network_config(current, root);
   });
 }
 
