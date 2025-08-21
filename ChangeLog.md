@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix in device discovery, device showing multiple times
 - Fix in device discovery command always tries to access devices at `192.168.0.69`
+- Fix issue "network settings are not reset by CLI" by adding new flag `--resetNetworkSettings`
 
 ## 1.6.12 - 2025-06-30
 ### Fixed
