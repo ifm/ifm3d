@@ -8,6 +8,7 @@
 #include <future>
 #include <ifm3d/common/json_impl.hpp>
 #include <ifm3d/device/device.h>
+#include <ifm3d/device/pcic_command.h>
 #include <ifm3d/fg/buffer_id.h>
 #include <ifm3d/fg/frame.h>
 #include <ifm3d/fg/frame_grabber.h>
@@ -130,4 +131,10 @@ bool
 ifm3d::FrameGrabber::IsMasking()
 {
   return this->_impl->IsMasking();
+}
+
+std::shared_future<ifm3d::FrameGrabber::PCICCommandResponse>
+ifm3d::FrameGrabber::SendCommand(const PCICCommand& command)
+{
+  return this->_impl->SendCommand(command);
 }

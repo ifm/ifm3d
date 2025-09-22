@@ -11,6 +11,7 @@
 #include <pybind11/functional.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 namespace py = pybind11;
 
@@ -296,6 +297,28 @@ bind_framegrabber(pybind11::module_& m)
       -------
       Masking flag
     )");
+
+  framegrabber.def(
+    "send_command",
+    [](const ifm3d::FrameGrabber::Ptr& fg, const ifm3d::PCICCommand& cmd) {
+      return FutureAwaitable<ifm3d::FrameGrabber::PCICCommandResponse>(
+        fg->SendCommand(cmd));
+    },
+    py::arg("command"),
+    R"(
+      Send a PCIC command asynchronously to the frame grabber.
+
+      Parameters
+      ----------
+      command : PCICCommand
+          The command to send to the frame grabber.
+
+      Returns
+      -------
+      PCICCommandResponseAwaitable
+          An awaitable object returns: None, a string, or a bytes object if the response is binary.
+    )");
+  // clang-format on
 }
 
 #endif // IFM3D_PYBIND_BINDING_FRAMEGRABBER

@@ -12,6 +12,7 @@
 #include <future>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
+#include <ifm3d/device/pcic_command.h>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/frame.h>
 #include <ifm3d/fg/module_frame_grabber.h>
@@ -38,6 +39,8 @@ namespace ifm3d
     using ErrorCallback = std::function<void(const ifm3d::Error&)>;
     using BufferList =
       std::vector<std::variant<std::uint64_t, int, ifm3d::buffer_id>>;
+    using PCICCommandResponse =
+      std::variant<std::monostate, std::string, std::vector<std::uint8_t>>;
 
     /**
      * Stores a reference to the passed in Device shared pointer
@@ -166,6 +169,21 @@ namespace ifm3d
      *  return masking flag
      */
     bool IsMasking();
+
+    /**
+     * @brief Sends a command to the frame grabber.
+     *
+     * This function sends the specified command to the frame grabber and
+     * returns a shared future that will hold the response as a string once the
+     * command completes.
+     *
+     * @param command The command to send to the frame grabber.
+     *
+     * @return std::shared_future<PCICCommandResponse> A shared future that
+     * resolves to the response from the frame grabber.
+     */
+    std::shared_future<PCICCommandResponse> SendCommand(
+      const PCICCommand& command);
 
   private:
     class Impl;

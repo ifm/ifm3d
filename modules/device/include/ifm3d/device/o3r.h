@@ -8,9 +8,11 @@
 
 #include <ifm3d/common/features.h>
 #include <ifm3d/device/device.h>
+#include <sstream>
 #ifdef BUILD_MODULE_CRYPTO
 #  include <ifm3d/crypto/crypto.h>
 #endif
+#include <ifm3d/device/pcic_command.h>
 
 namespace ifm3d
 {
@@ -237,6 +239,56 @@ namespace ifm3d
      */
     std::shared_ptr<O3RSealedBox> SealedBox();
 #endif
+
+    struct SetTemporaryApplicationParameter : public PCICCommand
+    {
+      enum Parameter : uint16_t
+      {
+        ODS_OVERHANGING_LOAD = 2003,
+        ODS_ZONE_SET = 2101,
+        ODS_MAXIMUM_HEIGHT = 2102,
+        ODS_MOTION_DATA = 2103,
+        PDS_GET_PALLET = 2200,
+        PDS_GET_ITEM = 2201,
+        PDS_GET_RACK = 2202,
+        PDS_VOL_CHECK = 2203,
+      };
+
+      Parameter parameter;
+      std::vector<std::uint8_t> data;
+
+      SetTemporaryApplicationParameter(
+        Parameter param,
+        std::vector<std::uint8_t> parameter_data)
+        : parameter(param),
+          data(std::move(parameter_data))
+      {}
+
+      std::vector<std::uint8_t>
+      SerializeData() const override
+      {
+        std::vector<std::uint8_t> payload;
+
+        // 'f' command prefix
+        payload.push_back(static_cast<uint8_t>('f'));
+
+        // parameter ID as 5-digit ASCII string padded with zeros
+        std::ostringstream param;
+        param << std::setw(5) << std::setfill('0')
+              << static_cast<uint16_t>(parameter);
+        const std::string paramStr = param.str(); // e.g., "02103"
+        payload.insert(payload.end(), paramStr.begin(), paramStr.end());
+
+        // reserved string "#00000" as bytes
+        const std::string reserved = "#00000";
+        payload.insert(payload.end(), reserved.begin(), reserved.end());
+
+        // append user data bytes
+        payload.insert(payload.end(), data.begin(), data.end());
+
+        return payload;
+      }
+    };
 
   private:
     class Impl;

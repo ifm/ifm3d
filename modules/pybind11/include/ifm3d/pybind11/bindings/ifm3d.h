@@ -135,6 +135,12 @@ bind_ifm3d(py::module_& m)
                     "Provides a mechanism to wait for completion of a task",
                     "None");
 
+  bind_future<ifm3d::FrameGrabber::PCICCommandResponse>(
+    m,
+    "PCICCommandResponseAwaitable",
+    "Provides a mechanism to access PCIC command results asynchronously",
+    "typing.Union[None, str, bytes]");
+
   auto logging_module = m.def_submodule(
     "logging",
     R"(Provides access for configuring the logging facilities of ifm3d.)");
