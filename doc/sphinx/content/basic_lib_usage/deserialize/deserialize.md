@@ -1,6 +1,6 @@
 # How to: deserialize O3R data
 
-When you acquire a frame from a FrameGrabber instance, the contents of each buffer depend on its buffer_id.
+When you acquire a frame from a FrameGrabber instance, the contents of each buffer depend on its `buffer_id`.
 
 - Image buffers (e.g., `RADIAL_DISTANCE_IMAGE`, `NORM_AMPLITUDE_IMAGE`, `CONFIDENCE_IMAGE`, `JPEG_IMAGE`, `XYZ`) are delivered as numeric arrays (NumPy arrays in Python, std::vector/cv::Mat in C++). These can be used directly for computation and visualization.
 - Metadata buffers (e.g., `TOF_INFO`, `RGB_INFO`, `O3R_ODS_INFO` etc.,) are delivered as serialized structs. To access their fields, you must deserialize them using the appropriate deserialize class.
@@ -18,7 +18,7 @@ When you acquire a frame from a FrameGrabber instance, the contents of each buff
 
 For more information on the available deserializer classes for managing different structs of other ifm devices like `O3D`, `O3X`, please refer to the [Python API documentation](https://api.ifm3d.com/latest/_autosummary/ifm3dpy.deserialize.html) or the [C++ API documentation](https://api.ifm3d.com/html/cpp_api/annotated.html).
 
-The usage of the deserializer is the same for all the buffers mentioned above: create the object, and call the deserialize function. Follow the example below for an example on deserializing the `TOFInfoV4` buffer received from buffer_id `TOF_INFO`.
+The usage of the deserializer is the same for all the buffers mentioned above: create the object, and call the deserialize function. Follow the example below for an example on deserializing the `TOFInfoV4` buffer received from `buffer_id` - `TOF_INFO`.
 
 :::::{tabs}
 :::: {group-tab} Python
