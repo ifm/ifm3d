@@ -202,8 +202,9 @@ namespace ifm3d
     // clang-format on
   };
 
-  // --- NEW STRUCT AND MAPPING ---
-  // Structure to hold information about how a logical buffer_id is transported
+  /**
+   * @brief Describes the transport info for a logical buffer_id.
+   */
   struct TransportInfo
   {
     ifm3d::buffer_id transport_id;    // The generic buffer_id it's wrapped in
@@ -212,9 +213,9 @@ namespace ifm3d
                                       // identifies it
   };
 
-  // Static mapping: Logical buffer_id -> TransportInfo
-  // This map defines which specific data types are transported within generic
-  // buffers and how to identify them via their metadata 'type' field.
+  /**
+   * @brief Static mapping of logical buffer IDs to their transport info.
+   */
   const std::unordered_map<buffer_id, TransportInfo>
     LOGICAL_TO_TRANSPORT_MAPPING = {
       {ifm3d::buffer_id::O3R_ODS_RENDERED_ZONES,

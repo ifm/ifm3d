@@ -117,18 +117,13 @@ ifm3d::Frame::Impl::HasBuffer(buffer_id id)
 inline ifm3d::Buffer&
 ifm3d::Frame::Impl::GetBuffer(buffer_id id, std::optional<size_t> index)
 {
-  // 1. Check if the requested 'id' is a logical ID that's wrapped in a generic
-  // transport buffer.
   auto const& logical_transport_it =
     ifm3d::LOGICAL_TO_TRANSPORT_MAPPING.find(id);
 
   if (logical_transport_it != ifm3d::LOGICAL_TO_TRANSPORT_MAPPING.end())
     {
-      // User asked for a specific logical ID (e.g., O3R_ODS_RENDERED_ZONES)
       const auto& transport_info = logical_transport_it->second;
-      buffer_id transport_id =
-        transport_info.transport_id; // e.g., O3R_RESULT_ARRAY2D
-      // Check if we even received the expected transport type
+      buffer_id transport_id = transport_info.transport_id;
       if (!HasBuffer(transport_id))
         {
           throw ifm3d::Error(
@@ -139,23 +134,15 @@ ifm3d::Frame::Impl::GetBuffer(buffer_id id, std::optional<size_t> index)
                         std::to_string(static_cast<int>(id)),
                         std::to_string(static_cast<int>(transport_id))));
         }
-      // Get the list of buffers for the transport type (e.g., all
-      // O3R_RESULT_ARRAY2D buffers)
       auto& transport_buffer_list = images_.at(transport_id);
-
-      // Collect all buffers that match the requested logical ID by metadata
       std::vector<std::reference_wrapper<ifm3d::Buffer>> matching_buffers;
       for (auto& buffer : transport_buffer_list)
         {
           try
             {
-              // Use helper function to get the actual specific type ID from
-              // this buffer's metadata
               buffer_id actual_specific_id =
                 ifm3d::MapMetadataToBufferID(buffer);
 
-              // If the actual specific ID from metadata matches the ID the
-              // user requested
               if (actual_specific_id == id)
                 {
                   matching_buffers.push_back(std::ref(buffer));
@@ -172,8 +159,6 @@ ifm3d::Frame::Impl::GetBuffer(buffer_id id, std::optional<size_t> index)
             }
         }
 
-      // After iterating all possible transport buffers, check if we found any
-      // matches
       if (matching_buffers.empty())
         {
           throw ifm3d::Error(
@@ -185,7 +170,6 @@ ifm3d::Frame::Impl::GetBuffer(buffer_id id, std::optional<size_t> index)
                         std::to_string(static_cast<int>(transport_id))));
         }
 
-      // Apply the index to the list of matching buffers
       auto index_value = index.value_or(0);
       if (index_value < matching_buffers.size())
         {
@@ -205,12 +189,6 @@ ifm3d::Frame::Impl::GetBuffer(buffer_id id, std::optional<size_t> index)
               matching_buffers.size()));
         }
     }
-  // 2. Original logic for direct buffer_id lookups (when 'id' is not a logical
-  // ID that needs special transport handling)
-  //    This handles traditional buffers like CONFIDENCE_IMAGE or DIAGNOSTIC
-  //    and also if a user explicitly asks for O3R_RESULT_ARRAY2D or
-  //    O3R_RESULT_JSON and expects the generic type without specific metadata
-  //    filtering.
   else if (HasBuffer(id))
     {
       auto buffer_list = _images.at(id);
