@@ -11,7 +11,6 @@
 #include <CLI/CLI.hpp>
 #include <ifm3d/tools/command.hpp>
 #include <ifm3d/tools/main_command.hpp>
-#include <ifm3d/tools.h>
 
 namespace ifm3d
 {
@@ -22,10 +21,15 @@ namespace ifm3d
   class O3D3XX : public Command
   {
   public:
-    ~O3D3XX();
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
-    virtual void Execute(CLI::App* app) override;
-    virtual bool CheckCompatibility() override;
+    O3D3XX() = default;
+    O3D3XX(const O3D3XX&) = default;
+    O3D3XX(O3D3XX&&) = delete;
+    O3D3XX& operator=(const O3D3XX&) = default;
+    O3D3XX& operator=(O3D3XX&&) = delete;
+    ~O3D3XX() override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
+    void Execute(CLI::App* app) override;
+    bool CheckCompatibility() override;
 
   }; // end: class O3D3XX
 

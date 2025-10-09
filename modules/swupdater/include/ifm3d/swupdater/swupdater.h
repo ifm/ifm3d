@@ -7,9 +7,9 @@
 #define IFM3D_SWUPDATER_SWUPDATER_H
 #pragma once
 
-#include <memory>
 #include <ifm3d/device/legacy_device.h>
 #include <ifm3d/swupdater/module_swupdater.h>
+#include <memory>
 
 namespace ifm3d
 {
@@ -46,7 +46,7 @@ namespace ifm3d
       const ifm3d::Device::Ptr& cam,
       const ifm3d::SWUpdater::FlashStatusCb& cb = {},
       std::uint16_t swupdate_recovery_port = ifm3d::SWUPDATER_RECOVERY_PORT,
-      std::optional<ifm3d::Device::swu_version> force_swu_version =
+      std::optional<ifm3d::Device::SWUVersion> force_swu_version =
         std::nullopt);
 
     virtual ~SWUpdater();
@@ -137,7 +137,7 @@ namespace ifm3d
     class IFM3D_EXPORT Impl;
 
   private:
-    std::unique_ptr<Impl> pImpl;
+    std::unique_ptr<Impl> _impl;
 
   }; // end: class SWUpdater
 

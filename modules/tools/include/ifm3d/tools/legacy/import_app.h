@@ -25,9 +25,14 @@ namespace ifm3d
   class ImportApp : public Command
   {
   public:
-    ~ImportApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    ImportApp() = default;
+    ImportApp(const ImportApp&) = default;
+    ImportApp(ImportApp&&) = delete;
+    ImportApp& operator=(const ImportApp&) = default;
+    ImportApp& operator=(ImportApp&&) = delete;
+    ~ImportApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
   }; // end: class ImportApp
 } // end: namespace ifm3d

@@ -5,6 +5,10 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.30.0")
   cmake_policy(SET CMP0169 OLD)
 endif()
 
+if(POLICY CMP0177)
+  cmake_policy(SET CMP0177 NEW)
+endif()
+
 
 # Some generic settings
 include(cmake/StandardProjectSettings.cmake)
@@ -16,6 +20,7 @@ set(ROOT_PROJECT_NAME IFM3D)
 set(PROJECT_NAME ${ROOT_PROJECT_NAME})
 find_program(GIT_EXECUTABLE git)
 include(GetVersionFromGitTag) 
+include(ifm3d_common)
 
 # Create aliases in order to avoid ${${..}} syntax in other files
 set(ROOT_PROJECT_VERSION ${${ROOT_PROJECT_NAME}_VERSION})

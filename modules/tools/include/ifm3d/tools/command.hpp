@@ -7,8 +7,8 @@
 #define IFM3D_TOOLS_COMMAND_HPP
 
 #include <CLI/CLI.hpp>
-#include <optional>
 #include <ifm3d/device/err.h>
+#include <optional>
 
 namespace ifm3d
 {
@@ -16,7 +16,12 @@ namespace ifm3d
   {
 
   public:
-    virtual ~Command() {}
+    Command() = default;
+    Command(const Command&) = default;
+    Command& operator=(const Command&) = default;
+    Command(Command&&) = default;
+    Command& operator=(Command&&) = delete;
+    virtual ~Command() = default;
 
     virtual CLI::App* CreateCommand(CLI::App* parent) = 0;
     virtual void Execute(CLI::App* command){};
@@ -25,21 +30,21 @@ namespace ifm3d
     T*
     Parent()
     {
-      static_assert(std::is_base_of<Command, T>::value,
+      static_assert(std::is_base_of_v<Command, T>,
                     "Parent must a subclass of Command");
 
       T* parent = dynamic_cast<T*>(_parent);
       return parent ? parent : _parent ? _parent->Parent<T>() : nullptr;
     }
 
-    template <typename T, typename... Args>
+    template <typename T, typename... ARGS>
     T*
-    RegisterSubcommand(CLI::App* parent, Args... args)
+    RegisterSubcommand(CLI::App* parent, ARGS... args)
     {
-      static_assert(std::is_constructible<T, Args...>::value,
+      static_assert(std::is_constructible_v<T, ARGS...>,
                     "No matching constructor found for subcommand");
 
-      static_assert(std::is_base_of<Command, T>::value,
+      static_assert(std::is_base_of_v<Command, T>,
                     "Subcommand must a subclass of Command");
 
       auto command = std::make_shared<T>(args...);
@@ -62,7 +67,7 @@ namespace ifm3d
           }
         if (command->_deprecated.has_value())
           {
-            std::cerr << std::endl
+            std::cerr << '\n'
                       << "ifm3d error: Deprecated subcommand: "
                       << command->_context->get_name() << ". "
                       << command->_deprecated.value() << std::endl;
@@ -90,7 +95,7 @@ namespace ifm3d
     virtual bool
     CheckCompatibility()
     {
-      auto parent = Parent<Command>();
+      auto* parent = Parent<Command>();
       return parent ? parent->CheckCompatibility() : true;
     }
 
@@ -101,10 +106,10 @@ namespace ifm3d
     }
 
   private:
-    Command* _parent = nullptr;
+    Command* _parent{};
     std::vector<std::shared_ptr<Command>> _subcommands;
     std::optional<std::string> _deprecated;
-    CLI::App* _context;
+    CLI::App* _context{};
   };
 } // end: namespace ifm3d
 

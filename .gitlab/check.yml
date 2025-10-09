@@ -1,7 +1,7 @@
 .check-code:
   stage: check
   image: 
-    name: ghcr.io/ifm/ifm3d/dev-image:20250508125639
+    name: ${IFM3D_DEV_IMAGE}
     entrypoint: [""]
   script:
     - echo "Running code check with ${CHECK_COMMAND}"
@@ -9,6 +9,7 @@
     - pushd ${CI_PROJECT_DIR}/build/
     - cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DBUILD_MODULE_PCICCLIENT=ON -DBUILD_MODULE_PYBIND11=ON ..
     - popd
+    - source /opt/venv/bin/activate
     - python3 check-code.py ${CHECK_COMMAND}
   needs: []
 
@@ -21,7 +22,6 @@ check:clang-tidy:
   extends: .check-code
   variables:
     CHECK_COMMAND: "clang-tidy"
-  allow_failure: true
 
 check:cppcheck:
   extends: .check-code

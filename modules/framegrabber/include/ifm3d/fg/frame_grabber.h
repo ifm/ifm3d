@@ -10,16 +10,16 @@
 
 #include <cstdint>
 #include <future>
-#include <memory>
-#include <optional>
-#include <vector>
-#include <variant>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/fg/buffer.h>
-#include <ifm3d/fg/organizer.h>
 #include <ifm3d/fg/frame.h>
 #include <ifm3d/fg/module_frame_grabber.h>
+#include <ifm3d/fg/organizer.h>
+#include <memory>
+#include <optional>
+#include <variant>
+#include <vector>
 
 namespace ifm3d
 {
@@ -35,9 +35,9 @@ namespace ifm3d
     using AsyncErrorCallback = std::function<void(int, const std::string&)>;
     using AsyncNotificationCallback =
       std::function<void(const std::string&, const std::string&)>;
+    using ErrorCallback = std::function<void(const ifm3d::Error&)>;
     using BufferList =
       std::vector<std::variant<std::uint64_t, int, ifm3d::buffer_id>>;
-    using ErrorCallback = std::function<void(const ifm3d::Error&)>;
 
     /**
      * Stores a reference to the passed in Device shared pointer
@@ -160,7 +160,7 @@ namespace ifm3d
      * Note: ifm3d::buffer_id::CONFIDENCE_IMAGE should be in schema set passed
      * to ifm3d::FrameGrabber::Start method
      */
-    void SetMasking(const bool mask);
+    void SetMasking(bool mask);
 
     /**
      *  return masking flag
@@ -169,7 +169,7 @@ namespace ifm3d
 
   private:
     class Impl;
-    std::unique_ptr<Impl> pImpl;
+    std::unique_ptr<Impl> _impl;
 
   }; // end: class FrameGrabber
 

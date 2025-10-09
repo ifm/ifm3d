@@ -9,9 +9,9 @@
 #define IFM3D_TOOLS_CONFIG_SET_APP_H
 #pragma once
 
-#include <string>
 #include <ifm3d/tools/command.hpp>
 #include <ifm3d/tools/main_command.hpp>
+#include <string>
 
 namespace ifm3d
 {
@@ -27,13 +27,18 @@ namespace ifm3d
   class ConfigSetApp : public Command
   {
   public:
-    ~ConfigSetApp();
+    ConfigSetApp() = default;
+    ConfigSetApp(const ConfigSetApp&) = default;
+    ConfigSetApp(ConfigSetApp&&) = delete;
+    ConfigSetApp& operator=(const ConfigSetApp&) = default;
+    ConfigSetApp& operator=(ConfigSetApp&&) = delete;
+    ~ConfigSetApp() override;
 
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
     std::string config_file{"-"};
-    bool save;
+    bool save{};
 
   }; // end: ConfigSetApp
 

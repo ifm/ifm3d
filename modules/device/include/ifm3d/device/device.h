@@ -9,12 +9,12 @@
 #define IFM3D_DEVICE_DEVICE_H
 
 #include <cstdint>
+#include <ifm3d/common/json.hpp>
+#include <ifm3d/device/ifm_network_device.h>
+#include <ifm3d/device/module_device.h>
+#include <ifm3d/device/semver.h>
 #include <string>
 #include <vector>
-#include <ifm3d/common/json.hpp>
-#include <ifm3d/device/module_device.h>
-#include <ifm3d/device/ifm_network_device.h>
-#include <ifm3d/device/semver.h>
 
 namespace ifm3d
 {
@@ -64,7 +64,7 @@ namespace ifm3d
   extern IFM3D_EXPORT const unsigned int
     O3X_DISTANCE_NOISE_IMAGE_SUPPORT_PATCH;
 
-  enum class pixel_format : std::uint32_t
+  enum class PixelFormat : std::uint32_t // NOLINT(performance-enum-size)
   {
     FORMAT_8U = 0,
     FORMAT_8S = 1,
@@ -79,7 +79,7 @@ namespace ifm3d
     FORMAT_32F3 = 10
   };
 
-  enum class image_chunk : std::uint32_t
+  enum class ImageChunk : std::uint32_t // NOLINT(performance-enum-size)
   {
     RADIAL_DISTANCE_IMAGE = 100,
     NORM_AMPLITUDE_IMAGE = 101, // normalized amplitude
@@ -103,10 +103,10 @@ namespace ifm3d
     INVERSE_INTRINSIC_CALIBRATION = 402,
     TOF_INFO = 420,
     O3R_DISTANCE_IMAGE_INFO [[deprecated]] =
-      static_cast<uint32_t>(ifm3d::image_chunk::TOF_INFO),
+      static_cast<uint32_t>(ifm3d::ImageChunk::TOF_INFO),
     RGB_INFO = 421,
     O3R_RGB_IMAGE_INFO [[deprecated]] =
-      static_cast<uint32_t>(ifm3d::image_chunk::RGB_INFO),
+      static_cast<uint32_t>(ifm3d::ImageChunk::RGB_INFO),
     JSON_MODEL = 500,
     ALGO_DEBUG = 900,
     O3R_ODS_OCCUPANCY_GRID = 1000,
@@ -140,7 +140,7 @@ namespace ifm3d
      * Productive: the normal runtime firmware comes up
      * Recovery: allows you to flash new firmware
      */
-    enum class boot_mode : int
+    enum class BootMode : int // NOLINT(performance-enum-size)
     {
       PRODUCTIVE = 0,
       RECOVERY = 1
@@ -150,7 +150,7 @@ namespace ifm3d
      * Device operating modes: run (streaming pixel data), edit (configuring
      * the device/applications).
      */
-    enum class operating_mode : int
+    enum class OperatingMode : int // NOLINT(performance-enum-size)
     {
       RUN = 0,
       EDIT = 1
@@ -159,7 +159,7 @@ namespace ifm3d
     /**
      * Image acquisition trigger modes
      */
-    enum class trigger_mode : int
+    enum class TriggerMode : int // NOLINT(performance-enum-size)
     {
       FREE_RUN = 1,
       SW = 2
@@ -168,7 +168,7 @@ namespace ifm3d
     /**
      * Import flags used when importing a Vision Assistant configuration
      */
-    enum class import_flags : int
+    enum class ImportFlags : int // NOLINT(performance-enum-size)
     {
       GLOBAL = 0x1,
       NET = 0x2,
@@ -178,7 +178,7 @@ namespace ifm3d
     /**
      * Convenience constants for spatial filter types
      */
-    enum class spatial_filter : int
+    enum class SpatialFilter : int // NOLINT(performance-enum-size)
     {
       OFF = 0x0,
       MEDIAN = 0x1,
@@ -189,7 +189,7 @@ namespace ifm3d
     /**
      * Convenience constants for temporal filter types
      */
-    enum class temporal_filter : int
+    enum class TemporalFilter : int // NOLINT(performance-enum-size)
     {
       OFF = 0x0,
       MEAN = 0x1,
@@ -199,13 +199,13 @@ namespace ifm3d
     /**
      * Convenient constants for median filter mask sizes
      */
-    enum class mfilt_mask_size : int
+    enum class MedianfilterMaskSize : int // NOLINT(performance-enum-size)
     {
-      _3x3 = 0,
-      _5x5 = 1
+      _3x3 = 0, // NOLINT(readability-identifier-naming)
+      _5x5 = 1  // NOLINT(readability-identifier-naming)
     };
 
-    enum class device_family : int
+    enum class DeviceFamily : int // NOLINT(performance-enum-size)
     {
       UNKNOWN = 0,
       O3D = 1,
@@ -213,7 +213,7 @@ namespace ifm3d
       O3R = 3,
     };
 
-    enum class swu_version : int
+    enum class SWUVersion : int // NOLINT(performance-enum-size)
     {
       SWU_NOT_SUPPORTED = 0,
       SWU_V1 = 1,
@@ -233,7 +233,8 @@ namespace ifm3d
      * @param[in] mac The MAC address of the device
      * @param[in] temp_ip The temporary IP to be set to device
      */
-    static void SetTempIPAddress(std::string mac, std::string temp_ip);
+    static void SetTempIPAddress(const std::string& mac,
+                                 const std::string& temp_ip);
 
     /**
      * Factory function for instantiating the proper subclass based on h/w
@@ -257,7 +258,7 @@ namespace ifm3d
      */
     static Ptr MakeShared(
       const std::string& ip = ifm3d::DEFAULT_IP,
-      const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
+      std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
       const std::string& password = ifm3d::DEFAULT_PASSWORD,
       bool throw_if_unavailable = true);
 
@@ -273,7 +274,7 @@ namespace ifm3d
      *                     device parameters and persisting those changes.
      */
     Device(const std::string& ip = ifm3d::DEFAULT_IP,
-           const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT);
+           std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT);
 
     /**
      * The dtor will cancel any open edit sessions with the device.
@@ -302,7 +303,7 @@ namespace ifm3d
      * @throw ifm3d::Error upon error
      */
     virtual void Reboot(
-      const boot_mode& mode = ifm3d::Device::boot_mode::PRODUCTIVE);
+      const BootMode& mode = ifm3d::Device::BootMode::PRODUCTIVE);
 
     /**
      * Sends a S/W trigger to the device over XMLRPC.
@@ -341,7 +342,7 @@ namespace ifm3d
      *
      * @return the device family of the connected device.
      */
-    virtual device_family WhoAmI();
+    virtual DeviceFamily WhoAmI();
 
     /**
      * This is a convenience function for checking whether a device is one of
@@ -351,7 +352,7 @@ namespace ifm3d
      *
      * @return true if the device is part of the family
      */
-    virtual bool AmI(device_family family);
+    virtual bool AmI(DeviceFamily family);
 
     /**
      * Convenience accessor for extracting a device parameters
@@ -448,18 +449,18 @@ namespace ifm3d
      *
      * @return sw_version supported by device
      */
-    virtual ifm3d::Device::swu_version SwUpdateVersion();
+    virtual ifm3d::Device::SWUVersion SwUpdateVersion();
 
     json GetSWVersion();
 
   protected:
     class Impl;
-    std::unique_ptr<Impl> pImpl;
+    std::unique_ptr<Impl> _impl;
 
     /**
      * The cached device type of the connected device
      */
-    std::string device_type_;
+    std::string _device_type;
 
     /**
      *  Implements the serialization of the device state to JSON.
@@ -467,10 +468,10 @@ namespace ifm3d
                    on already opened session
      *  @return A JSON object representation of the current device state.
      */
-    int DeviceID();
-    bool checkDeviceID(int device_id, int min_id, int max_id);
+    int device_id();
+    bool check_device_id(int device_id, int min_id, int max_id);
 
-    std::shared_ptr<XMLRPC> XWrapper();
+    std::shared_ptr<XMLRPC> x_wrapper();
 
   }; // end: class Device
 

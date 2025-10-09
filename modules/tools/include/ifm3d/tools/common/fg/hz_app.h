@@ -9,10 +9,13 @@
 #define IFM3D_TOOLS_FG_HZ_APP_H
 #pragma once
 
-#include <CLI/CLI.hpp>
-#include <ifm3d/tools/command.hpp>
-#include <ifm3d/tools/main_command.hpp>
-#include <ifm3d/tools/tools_export.h>
+#include <ifm3d/common/features.h>
+#if defined(BUILD_MODULE_FRAMEGRABBER)
+
+#  include <CLI/CLI.hpp>
+#  include <ifm3d/tools/command.hpp>
+#  include <ifm3d/tools/main_command.hpp>
+#  include <ifm3d/tools/tools_export.h>
 
 namespace ifm3d
 {
@@ -25,9 +28,14 @@ namespace ifm3d
   class HzApp : public Command
   {
   public:
-    ~HzApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    HzApp() = default;
+    HzApp(const HzApp&) = default;
+    HzApp(HzApp&&) = delete;
+    HzApp& operator=(const HzApp&) = default;
+    HzApp& operator=(HzApp&&) = delete;
+    ~HzApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
     unsigned short pcic_port{(unsigned short)ifm3d::DEFAULT_PCIC_PORT};
     int nframes{10};
@@ -37,4 +45,5 @@ namespace ifm3d
   }; // end: class HzApp
 } // end: namespace ifm3d
 
+#endif
 #endif // IFM3D_TOOLS_FG_HZ_APP_H

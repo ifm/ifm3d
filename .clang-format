@@ -31,7 +31,7 @@ Cpp11BracedListStyle: true
 IndentCaseLabels: false
 IndentPPDirectives: AfterHash
 NamespaceIndentation: All
-SortIncludes: false
+SortIncludes: true
 SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: true
 SpaceBeforeParens: ControlStatements

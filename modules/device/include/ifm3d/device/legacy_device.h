@@ -15,14 +15,14 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<LegacyDevice>;
 
-    using boot_mode = ifm3d::Device::boot_mode;
-    using operating_mode = ifm3d::Device::operating_mode;
-    using trigger_mode = ifm3d::Device::trigger_mode;
-    using import_flags = ifm3d::Device::import_flags;
-    using spatial_filter = ifm3d::Device::spatial_filter;
-    using temporal_filter = ifm3d::Device::temporal_filter;
-    using mfilt_mask_size = ifm3d::Device::mfilt_mask_size;
-    using device_family = ifm3d::Device::device_family;
+    using boot_mode = ifm3d::Device::BootMode;
+    using operating_mode = ifm3d::Device::OperatingMode;
+    using trigger_mode = ifm3d::Device::TriggerMode;
+    using import_flags = ifm3d::Device::ImportFlags;
+    using spatial_filter = ifm3d::Device::SpatialFilter;
+    using temporal_filter = ifm3d::Device::TemporalFilter;
+    using mfilt_mask_size = ifm3d::Device::MedianfilterMaskSize;
+    using device_family = ifm3d::Device::DeviceFamily;
 
     /**
      * Factory function for instantiating the proper subclass based on h/w
@@ -46,7 +46,7 @@ namespace ifm3d
      */
     static Ptr MakeShared(
       const std::string& ip = ifm3d::DEFAULT_IP,
-      const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
+      std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
       const std::string& password = ifm3d::DEFAULT_PASSWORD);
 
     /**
@@ -61,10 +61,14 @@ namespace ifm3d
      *                     device parameters and persisting those changes.
      */
     LegacyDevice(const std::string& ip = ifm3d::DEFAULT_IP,
-                 const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
+                 std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT,
                  const std::string& password = ifm3d::DEFAULT_PASSWORD);
 
-    virtual ~LegacyDevice();
+    LegacyDevice(const LegacyDevice&) = delete;
+    LegacyDevice(LegacyDevice&&) = delete;
+    LegacyDevice& operator=(const LegacyDevice&) = delete;
+    LegacyDevice& operator=(LegacyDevice&&) = delete;
+    ~LegacyDevice() override;
 
     /** The password associated with this Device instance */
     virtual std::string Password();
@@ -324,7 +328,7 @@ namespace ifm3d
 
   protected:
     class Impl;
-    std::unique_ptr<Impl> pImpl;
+    std::unique_ptr<Impl> _impl;
 
     /**
      * Handles parsing a selected sub-tree of a potential input JSON file,
@@ -340,7 +344,7 @@ namespace ifm3d
      * @param[in] idx An application index to put into edit mode prior to
      *                setting parameters.
      */
-    void FromJSON_(const json& j_curr,
+    void from_json(const json& j_curr,
                    const json& j_new,
                    const std::function<void(const std::string&,
                                             const std::string&)>& set_func,
@@ -356,11 +360,11 @@ namespace ifm3d
      * @param[out] app  Output json of the application when found or empty json
      * @return          True when application was found
      */
-    static bool getAppJSON(int index, const json& j, json& app);
+    static bool get_app_json(int index, const json& j, json& app);
 
-    json ToJSON_(const bool open_session = true);
+    json to_json(bool open_session = true);
 
-    json getApplicationInfosToJSON();
+    json get_application_infos_to_json();
   };
 }
 

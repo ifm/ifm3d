@@ -158,6 +158,7 @@ build:create-dev-image:
       --dockerfile docker/ifm-robotics/check/Dockerfile
       --reproducible --snapshot-mode time --use-new-run --compressed-caching=false
       --destination ${GHCR_REPO}/dev-image:$(date '+%Y%m%d%H%M%S')
+      --destination ${GHCR_REPO}/dev-image:latest
   when: manual
   allow_failure: true
   needs: []

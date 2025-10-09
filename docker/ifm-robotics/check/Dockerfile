@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=ubuntu:24.04
+ARG BASE_IMAGE=mcr.microsoft.com/devcontainers/cpp:1-ubuntu-24.04
 ARG COMMAND=clang-format
 
 FROM ${BASE_IMAGE}

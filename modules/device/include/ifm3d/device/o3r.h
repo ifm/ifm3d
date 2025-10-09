@@ -40,9 +40,9 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<O3R>;
     O3R(const std::string& ip = ifm3d::DEFAULT_IP,
-        const std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT);
+        std::uint16_t xmlrpc_port = ifm3d::DEFAULT_XMLRPC_PORT);
 
-    virtual ~O3R();
+    ~O3R() override;
     O3R(O3R&&) = delete;
     O3R& operator=(O3R&&) = delete;
     O3R(O3R&) = delete;
@@ -203,18 +203,18 @@ namespace ifm3d
      * @param filter A filter expression in JSON format
      * @return json
      */
-    json GetDiagnosticFiltered(json filter);
+    json GetDiagnosticFiltered(const json& filter);
 
     void Reboot(
-      const boot_mode& mode = ifm3d::Device::boot_mode::PRODUCTIVE) override;
+      const BootMode& mode = ifm3d::Device::BootMode::PRODUCTIVE) override;
 
     /**
      * Reboot the device into Recovery Mode
      */
     void RebootToRecovery();
 
-    device_family WhoAmI() override;
-    ifm3d::Device::swu_version SwUpdateVersion() override;
+    DeviceFamily WhoAmI() override;
+    ifm3d::Device::SWUVersion SwUpdateVersion() override;
 
     /**
      * @copydoc Device::ToJSON()
@@ -228,7 +228,7 @@ namespace ifm3d
      */
     void FromJSON(const json& j) override;
 
-    void DownloadServiceReport(std::string out_file);
+    void DownloadServiceReport(const std::string& out_file);
 
 #ifdef BUILD_MODULE_CRYPTO
     /**
@@ -240,7 +240,7 @@ namespace ifm3d
 
   private:
     class Impl;
-    std::shared_ptr<Impl> pImpl;
+    std::shared_ptr<Impl> _impl;
 
 #ifdef BUILD_MODULE_CRYPTO
     friend class O3RSealedBox;
@@ -260,6 +260,10 @@ namespace ifm3d
   public:
     using Ptr = std::shared_ptr<O3RSealedBox>;
 
+    O3RSealedBox(const O3RSealedBox&) = default;
+    O3RSealedBox(O3RSealedBox&&) = delete;
+    O3RSealedBox& operator=(const O3RSealedBox&) = default;
+    O3RSealedBox& operator=(O3RSealedBox&&) = delete;
     O3RSealedBox(std::shared_ptr<O3R::Impl> p_impl);
     ~O3RSealedBox();
 
@@ -305,7 +309,7 @@ namespace ifm3d
     std::vector<uint8_t> GetPublicKey();
 
   private:
-    std::shared_ptr<O3R::Impl> pImpl;
+    std::shared_ptr<O3R::Impl> _impl;
   };
 #endif
 }

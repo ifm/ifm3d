@@ -7,16 +7,17 @@
 #ifndef IFM3D_DESERIALIZE_O3D_BUFFERS_HPP
 #define IFM3D_DESERIALIZE_O3D_BUFFERS_HPP
 
-#include <ifm3d/device/err.h>
-#include <ifm3d/fg/organizer_utils.h>
-#include <ifm3d/fg/buffer.h>
 #include <ifm3d/deserialize/deserialize_utils.hpp>
+#include <ifm3d/device/err.h>
+#include <ifm3d/fg/buffer.h>
+#include <ifm3d/fg/organizer_utils.h>
 
 namespace ifm3d
 {
   // intrinsic param key which cahn be used for indexing the vector of the
   // intrinsic parameter
-  enum class intrinsic_param : std::uint32_t
+  // NOLINTNEXTLINE(performance-enum-size)
+  enum class IntrinsicParam : std::uint32_t
   {
     F_X = 0,   // Focal length of the camera in the sensor's x axis direction.
     F_Y = 1,   // Focal length of the camera in the sensor's y axis direction.
@@ -87,7 +88,7 @@ namespace ifm3d
    * using O3DILLUTemperature = ifm3d::ArrayDeserialize<float,
    * O3D_ILLU_TEMP_VALUES> \see ifm3d::ArrayDeserialize
    */
-  using O3DILLUTemperature = ArrayDeserialize<float, O3D_ILLU_TEMP_VALUES>;
+  using O3DIlluTemperature = ArrayDeserialize<float, O3D_ILLU_TEMP_VALUES>;
 
 } // end namespace ifm3d
 

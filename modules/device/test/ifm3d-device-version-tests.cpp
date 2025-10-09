@@ -1,18 +1,18 @@
-#include "ifm3d/device/semver.h"
-#include "ifm3d/device/version.h"
+#include <fmt/core.h> // NOLINT(*)
 #include <gtest/gtest.h>
-#include <fmt/core.h>
+#include <ifm3d/device/semver.h>
+#include <ifm3d/device/version.h>
 #include <optional>
-#include <vector>
-#include <utility>
 #include <string>
 #include <tuple>
+#include <utility>
+#include <vector>
 
 namespace
 {
   // clang-format off
 std::vector<std::pair<std::string, ifm3d::SemVer>>
-  VALID_VERSION_STRINGS{
+  const VALID_VERSION_STRINGS{
     {"0.0.4", ifm3d::SemVer(0, 0, 4, std::nullopt, std::nullopt)},
     {"1.2.3", ifm3d::SemVer(1, 2, 3, std::nullopt, std::nullopt)},
     {"10.20.30", ifm3d::SemVer(10, 20, 30, std::nullopt, std::nullopt)},
@@ -46,7 +46,7 @@ std::vector<std::pair<std::string, ifm3d::SemVer>>
   };
   // clang-format on
 
-  std::vector<std::string> INVALID_VERSION_STRINGS{
+  const std::vector<std::string> INVALID_VERSION_STRINGS{
     "1",
     "1.2",
     "1.2.3-0123",
@@ -91,7 +91,7 @@ std::vector<std::pair<std::string, ifm3d::SemVer>>
     "---------------------..12",
   };
 
-  std::vector<std::tuple<std::string, std::string, int, bool>>
+  std::vector<std::tuple<std::string, std::string, int, bool>> const
     COMPARE_VERSIONS{
       {"1.0.0", "1.0.0", 0, true},
       {"1.0.0-prerelease", "1.0.0", 0, false},

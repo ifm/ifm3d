@@ -20,9 +20,14 @@ namespace ifm3d
   class TraceApp : public Command
   {
   public:
-    ~TraceApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    TraceApp() = default;
+    TraceApp(const TraceApp&) = default;
+    TraceApp(TraceApp&&) = delete;
+    TraceApp& operator=(const TraceApp&) = default;
+    TraceApp& operator=(TraceApp&&) = delete;
+    ~TraceApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
     int limit{0};
 

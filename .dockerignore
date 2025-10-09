@@ -1,4 +1,5 @@
 /build/*
+/build_lint/*
 .vscode
 venv
 __pycache__

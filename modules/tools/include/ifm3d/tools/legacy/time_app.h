@@ -21,12 +21,17 @@ namespace ifm3d
   class TimeApp : public Command
   {
   public:
-    ~TimeApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    TimeApp() = default;
+    TimeApp(const TimeApp&) = default;
+    TimeApp(TimeApp&&) = delete;
+    TimeApp& operator=(const TimeApp&) = default;
+    TimeApp& operator=(TimeApp&&) = delete;
+    ~TimeApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
     int epoch{-1};
-    CLI::Option* opt_epoch;
+    CLI::Option* opt_epoch{};
 
   }; // end: class TimeApp
 } // end: namespace ifm3d

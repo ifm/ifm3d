@@ -8,10 +8,11 @@
 #define IFM3D_COMMON_LOGGING_LOG_LEVEL_H
 
 #include <cctype>
+#include <cstdint>
 
 namespace ifm3d
 {
-  enum class LogLevel
+  enum class LogLevel : std::uint8_t
   {
     None = 0,
     Critical = 1,
@@ -23,7 +24,7 @@ namespace ifm3d
   };
 
   inline const char*
-  LogLevelToString(LogLevel severity)
+  log_level_to_string(LogLevel severity)
   {
     switch (severity)
       {
@@ -45,7 +46,7 @@ namespace ifm3d
   }
 
   inline LogLevel
-  LogLevelFromString(const char* str)
+  log_level_from_string(const char* str)
   {
     switch (std::toupper(str[0]))
       {

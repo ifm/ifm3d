@@ -9,12 +9,12 @@
 #define IFM3D_FG_SCHEMA_H
 
 #include <cstdint>
-#include <string>
-#include <set>
-#include <ifm3d/fg/module_frame_grabber.h>
 #include <ifm3d/device/device.h>
-#include <ifm3d/fg/frame.h>
 #include <ifm3d/device/semver.h>
+#include <ifm3d/fg/frame.h>
+#include <ifm3d/fg/module_frame_grabber.h>
+#include <set>
+#include <string>
 
 namespace ifm3d
 {
@@ -26,7 +26,7 @@ namespace ifm3d
    * @return A json-string encoding the schema
    */
   IFM3D_EXPORT json make_schema(const std::set<ifm3d::buffer_id>& buffer_ids,
-                                ifm3d::Device::device_family device_type);
+                                ifm3d::Device::DeviceFamily device_type);
 
   /**
    * Utility function to build a json string, compatible with O3X,

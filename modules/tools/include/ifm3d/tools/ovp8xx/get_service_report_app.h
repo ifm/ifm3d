@@ -8,9 +8,9 @@
 #define IFM3D_TOOLS_GET_SERVICE_REPORT_APP_H
 #pragma once
 
-#include <string>
 #include <ifm3d/tools/command.hpp>
 #include <ifm3d/tools/main_command.hpp>
+#include <string>
 
 namespace ifm3d
 {
@@ -22,9 +22,14 @@ namespace ifm3d
   class GetServiceReportApp : public Command
   {
   public:
-    ~GetServiceReportApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    GetServiceReportApp() = default;
+    GetServiceReportApp(const GetServiceReportApp&) = default;
+    GetServiceReportApp(GetServiceReportApp&&) = delete;
+    GetServiceReportApp& operator=(const GetServiceReportApp&) = default;
+    GetServiceReportApp& operator=(GetServiceReportApp&&) = delete;
+    ~GetServiceReportApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
     std::string outfile = "service_report.zip";
 

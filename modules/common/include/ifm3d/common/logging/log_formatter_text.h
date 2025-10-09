@@ -16,7 +16,7 @@ namespace ifm3d
   class IFM3D_EXPORT LogFormatterText
   {
   public:
-    static std::string format(const LogEntry& entry);
+    static std::string Format(const LogEntry& entry);
   };
 }
 #endif // IFM3D_COMMON_LOGGING_LOG_FORMATTER_TEXT_H

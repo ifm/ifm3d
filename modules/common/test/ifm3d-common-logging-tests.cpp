@@ -1,21 +1,21 @@
-#include "ifm3d/common/logging/log_writer.h"
-#include "ifm3d/common/logging/log_entry.h"
-#include "ifm3d/common/logging/log_level.h"
-#include "ifm3d/common/logging/log_formatter_text.h"
-#include <memory>
-#include "gtest/gtest.h"
-#include <ifm3d/common/logging/logger.h>
+#include <gtest/gtest.h>
 #include <ifm3d/common/logging/log.h>
+#include <ifm3d/common/logging/log_entry.h>
+#include <ifm3d/common/logging/log_formatter_text.h>
+#include <ifm3d/common/logging/log_level.h>
+#include <ifm3d/common/logging/log_writer.h>
+#include <ifm3d/common/logging/logger.h>
+#include <memory>
 #include <string>
 
-template <typename Formatter>
+template <typename FORMATTER>
 class Stringwriter : public ifm3d::LogWriter
 {
 public:
   void
   Write(const ifm3d::LogEntry& entry) override
   {
-    log_line_print = Formatter::format(entry);
+    log_line_print = FORMATTER::Format(entry);
   }
 
   std::string log_line_print;

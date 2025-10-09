@@ -7,6 +7,7 @@
 #ifndef IFM3D_COMMON_LOGGING_LOG_WRITER_CONSOLE_COLORED_H
 #define IFM3D_COMMON_LOGGING_LOG_WRITER_CONSOLE_COLORED_H
 
+#include <ifm3d/common/logging/log_level.h>
 #include <ifm3d/common/logging/log_writer_console.h>
 #ifdef _WIN32
 #  ifndef WIN32_LEAN_AND_MEAN
@@ -19,45 +20,47 @@
 
 namespace ifm3d
 {
-  template <class Formatter,
+  template <class FORMATTER,
             typename std::enable_if_t<std::is_same_v<
-              decltype(Formatter::format(
+              decltype(FORMATTER::Format(
                 ifm3d::LogEntry("", ifm3d::LogLevel::Info, "", "", 1))),
               std::string>>* = nullptr>
-  class LogWriterConsoleColored : public LogWriterConsole<Formatter>
+  class LogWriterConsoleColored : public LogWriterConsole<FORMATTER>
   {
   public:
     LogWriterConsoleColored(Output out = Output::StdErr)
-      : LogWriterConsole<Formatter>(out)
+      : LogWriterConsole<FORMATTER>(out)
     {
 #ifdef _WIN32
-      colored_output_available_ =
-        this->is_a_tty_ && EnableVirtualTerminalProcessing();
+      // NOLINTNEXTLINE(*-prefer-member-initializer)
+      _colored_output_available =
+        this->_is_a_tty && EnableVirtualTerminalProcessing();
 #else
-      colored_output_available_ = this->is_a_tty_;
+      // NOLINTNEXTLINE(*-prefer-member-initializer)
+      _colored_output_available = this->_is_a_tty;
 #endif
     }
 
     void
     Write(const LogEntry& entry) override
     {
-      if (this->colored_output_available_)
+      if (this->_colored_output_available)
         {
-          const auto str = Formatter::format(entry);
-          const std::lock_guard<std::mutex> lock(this->mutex_);
-          this->SetColor(entry.GetLogLevel());
-          this->out_ << str;
-          this->ResetColor();
-          this->out_ << std::endl;
+          const auto str = FORMATTER::Format(entry);
+          const std::lock_guard<std::mutex> lock(this->_mutex);
+          this->set_color(entry.GetLogLevel());
+          this->_out << str;
+          this->reset_color();
+          this->_out << std::endl;
         }
       else
         {
-          LogWriterConsole<Formatter>::Write(entry);
+          LogWriterConsole<FORMATTER>::Write(entry);
         }
     }
 
   protected:
-    bool colored_output_available_ = false;
+    bool _colored_output_available = false;
 #ifdef _WIN32
     bool
     EnableVirtualTerminalProcessing()
@@ -84,25 +87,25 @@ namespace ifm3d
 #endif
 
     void
-    SetColor(LogLevel log_level)
+    set_color(LogLevel log_level)
     {
       switch (log_level)
         {
         case LogLevel::Critical:
-          this->out_ << "\x1B[97m\x1B[41m"; // white on red background
+          this->_out << "\x1B[97m\x1B[41m"; // white on red background
           break;
 
         case LogLevel::Error:
-          this->out_ << "\x1B[91m"; // red
+          this->_out << "\x1B[91m"; // red
           break;
 
         case LogLevel::Warning:
-          this->out_ << "\x1B[93m"; // yellow
+          this->_out << "\x1B[93m"; // yellow
           break;
 
         case LogLevel::Debug:
         case LogLevel::Verbose:
-          this->out_ << "\x1B[96m"; // cyan
+          this->_out << "\x1B[96m"; // cyan
           break;
         default:
           break;
@@ -110,9 +113,9 @@ namespace ifm3d
     }
 
     void
-    ResetColor()
+    reset_color()
     {
-      this->out_ << "\x1B[0m\x1B[0K";
+      this->_out << "\x1B[0m\x1B[0K";
     }
   };
 }

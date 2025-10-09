@@ -25,9 +25,14 @@ namespace ifm3d
   class ExportApp : public Command
   {
   public:
-    ~ExportApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    ExportApp() = default;
+    ExportApp(const ExportApp&) = default;
+    ExportApp(ExportApp&&) = delete;
+    ExportApp& operator=(const ExportApp&) = default;
+    ExportApp& operator=(ExportApp&&) = delete;
+    ~ExportApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
   }; // end: class ExportApp
 

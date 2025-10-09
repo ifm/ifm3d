@@ -2,24 +2,27 @@
  * Copyright 2020 ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
-#include "ifm3d/common/json_impl.hpp"
-#include "ifm3d/fg/buffer_id.h"
-#include <set>
-#include <gtest/gtest.h>
-#include <ifm3d/device/device.h>
-#include <ifm3d/fg/schema.h>
-#include <string>
 #include <algorithm>
+#include <gtest/gtest.h>
+#include <ifm3d/common/json_impl.hpp>
+#include <ifm3d/device/device.h>
+#include <ifm3d/fg/buffer_id.h>
+#include <ifm3d/fg/schema.h>
+#include <set>
+#include <string>
 
 namespace ifm3d
 {
-  static bool
-  check_for_id(const json& elements, const std::string& id)
+  namespace
   {
-    return std::any_of(
-      elements.begin(),
-      elements.end(),
-      [&id](const auto& element) { return element["id"] == id; });
+    bool
+    check_for_id(const json& elements, const std::string& id)
+    {
+      return std::any_of(
+        elements.begin(),
+        elements.end(),
+        [&id](const auto& element) { return element["id"] == id; });
+    }
   }
 };
 
@@ -30,10 +33,10 @@ TEST(Schema, MakeSchema_O3R)
     ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE};
 
   EXPECT_NO_THROW(
-    ifm3d::make_schema(buffer_ids, ifm3d::Device::device_family::O3R));
+    ifm3d::make_schema(buffer_ids, ifm3d::Device::DeviceFamily::O3R));
 
   auto schema =
-    ifm3d::make_schema(buffer_ids, ifm3d::Device::device_family::O3R);
+    ifm3d::make_schema(buffer_ids, ifm3d::Device::DeviceFamily::O3R);
 
   EXPECT_TRUE(schema["elements"].is_array());
   // 2 for buffer_ids and 2 for start and stop
@@ -47,7 +50,7 @@ TEST(Schema, o3r_firmware_compatibility_rgb_info)
     std::set<ifm3d::buffer_id> const buffer_ids = {buffer_id};
 
     auto schema =
-      ifm3d::make_schema(buffer_ids, ifm3d::Device::device_family::O3R);
+      ifm3d::make_schema(buffer_ids, ifm3d::Device::DeviceFamily::O3R);
 
     EXPECT_TRUE(ifm3d::check_for_id(schema["elements"], "RGB_INFO"));
 
@@ -82,7 +85,7 @@ TEST(Schema, o3r_firmware_compatibility_tof_info)
     std::set<ifm3d::buffer_id> const buffer_ids = {buffer_id};
 
     auto schema =
-      ifm3d::make_schema(buffer_ids, ifm3d::Device::device_family::O3R);
+      ifm3d::make_schema(buffer_ids, ifm3d::Device::DeviceFamily::O3R);
 
     EXPECT_TRUE(ifm3d::check_for_id(schema["elements"], "TOF_INFO"));
 

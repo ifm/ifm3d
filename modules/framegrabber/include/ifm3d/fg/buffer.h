@@ -7,15 +7,14 @@
 #ifndef IFM3D_FG_Buffer_H
 #define IFM3D_FG_Buffer_H
 
+#include <climits>
 #include <cstdint>
-#include <memory>
-#include <vector>
-#include <optional>
 #include <ifm3d/common/json.hpp>
-#include <limits.h>
-#include <ifm3d/fg/module_frame_grabber.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/buffer_id.h>
+#include <ifm3d/fg/module_frame_grabber.h>
+#include <memory>
+#include <optional>
 
 namespace ifm3d
 {
@@ -100,30 +99,30 @@ namespace ifm3d
   {
   private:
     /* @ brief raw pointer to the data*/
-    uint8_t* data_{};
+    uint8_t* _data{};
     /*@brief number of columns in Buffer (width)*/
-    std::uint32_t cols_{};
+    std::uint32_t _cols{};
     /*@brief number of rows in Buffer (height)*/
-    std::uint32_t rows_{};
+    std::uint32_t _rows{};
     /*@brief number of channel in Buffer*/
-    std::uint32_t nchannel_{};
+    std::uint32_t _nchannel{};
     /* @brief data format or type*/
-    ifm3d::pixel_format data_format_{};
+    ifm3d::PixelFormat _data_format{};
     /* @brief number of pixel to store one value of data*/
-    std::size_t data_size_in_bytes_{};
+    std::size_t _data_size_in_bytes{};
     /* @brief size of the memory allocated*/
-    size_t size_{};
+    size_t _size{};
     /* @brief bytes to store pixel */
-    size_t bytes_per_pixel{};
+    size_t _bytes_per_pixel{};
     /* @brief bytes per row */
-    size_t bytes_per_row{};
+    size_t _bytes_per_row{};
     /* @brief json formatted metadata of the chunk obtain from device*/
-    json metadata_;
+    json _metadata;
     /* @brief buffer id of Buffer */
-    ifm3d::buffer_id bufferId_{};
+    ifm3d::buffer_id _buffer_id{};
 
     class BufferAllocator;
-    std::shared_ptr<BufferAllocator> buffer_allocator_;
+    std::shared_ptr<BufferAllocator> _buffer_allocator;
 
   public:
     /**
@@ -143,10 +142,10 @@ namespace ifm3d
 
       @note This internally calls Create Method to allocates Memory
     */
-    Buffer(const std::uint32_t cols,
-           const std::uint32_t rows,
-           const std::uint32_t nchannel,
-           ifm3d::pixel_format format,
+    Buffer(std::uint32_t cols,
+           std::uint32_t rows,
+           std::uint32_t nchannel,
+           ifm3d::PixelFormat format,
            const std::optional<ifm3d::json>& metadata = std::nullopt,
            ifm3d::buffer_id buffer_id = static_cast<ifm3d::buffer_id>(0));
 
@@ -168,39 +167,39 @@ namespace ifm3d
 
     @Note On repeated calling it will deference the old Memory
    */
-    void create(const std::uint32_t cols,
-                const std::uint32_t rows,
-                const std::uint32_t nchannel,
-                ifm3d::pixel_format format,
+    void Create(std::uint32_t cols,
+                std::uint32_t rows,
+                std::uint32_t nchannel,
+                ifm3d::PixelFormat format,
                 ifm3d::buffer_id buffer_id);
 
     /** @brief Creates a full copy of the array and the underlying data.
      */
-    Buffer clone() const;
+    [[nodiscard]] Buffer Clone() const;
 
     /* getters*/
-    std::uint32_t height() const;
-    std::uint32_t width() const;
-    std::uint32_t nchannels() const;
-    ifm3d::pixel_format dataFormat() const;
-    ifm3d::json metadata() const;
-    ifm3d::buffer_id bufferId() const;
+    [[nodiscard]] std::uint32_t Height() const;
+    [[nodiscard]] std::uint32_t Width() const;
+    [[nodiscard]] std::uint32_t NumChannels() const;
+    [[nodiscard]] ifm3d::PixelFormat DataFormat() const;
+    [[nodiscard]] ifm3d::json Metadata() const;
+    [[nodiscard]] ifm3d::buffer_id BufferId() const;
 
     /**
      * @brief Return the size of the buffer in bytes
      */
-    size_t size() const;
+    [[nodiscard]] size_t Size() const;
     /** @brief returns a pointer to the specified Buffer row.
         @param row number
      */
     template <typename T = std::uint8_t>
-    T* ptr(const std::uint32_t row);
+    T* Ptr(std::uint32_t row);
 
     /** @brief returns a pointer to the specified Buffer row.
         @param row number
      */
     template <typename T = std::uint8_t>
-    T const* ptr(const std::uint32_t row) const;
+    T const* Ptr(std::uint32_t row) const;
 
     /**
      @brief Pointer to the Pixel at row,col
@@ -208,7 +207,7 @@ namespace ifm3d
      @param col 2nd dimension index
      */
     template <typename T = std::uint8_t>
-    T* ptr(const std::uint32_t row, const std::uint32_t col);
+    T* Ptr(std::uint32_t row, std::uint32_t col);
 
     /**
      @brief Pointer to the Pixel at row,col
@@ -216,33 +215,33 @@ namespace ifm3d
      @param col 2nd dimension index
      */
     template <typename T = std::uint8_t>
-    T const* ptr(const std::uint32_t row, const std::uint32_t col) const;
+    T const* Ptr(std::uint32_t row, std::uint32_t col) const;
 
     /*@brief access to the pixel for read  and write
       @param Index of the pixel considering image as 1D array
       @return refernce of the value at the index
     */
     template <typename T>
-    T& at(const std::size_t index);
+    T& At(std::size_t index);
     /*@overload considering image as 2D
       @param row 1st dimension index
       @param col 2nd dimension index
     */
     template <typename T>
-    T& at(const std::uint32_t row, const std::uint32_t col);
+    T& At(std::uint32_t row, std::uint32_t col);
 
     /*@brief access to the pixel for read  and write
       @param Index of the pixel considering image as 1D array
       @return refernce of the value at the index
     */
     template <typename T>
-    T const& at(const std::size_t index) const;
+    T const& At(std::size_t index) const;
     /*@overload considering image as 2D
       @param row 1st dimension index
       @param col 2nd dimension index
     */
     template <typename T>
-    T const& at(const std::uint32_t row, const std::uint32_t col) const;
+    T const& At(std::uint32_t row, std::uint32_t col) const;
 
     /*@brief set the value where mask value is 1
       @param val  value to be set
@@ -251,7 +250,7 @@ namespace ifm3d
       @Note mask size must be same as this
     */
     template <typename T>
-    void setTo(const T val, const ifm3d::Buffer& mask);
+    void SetTo(T val, const ifm3d::Buffer& mask);
 
     /*===========================*/
     /*  Iterators */
@@ -265,7 +264,7 @@ namespace ifm3d
       using pointer = T*;
       using reference = T&;
 
-      Iterator(uint8_t* ptr);
+      Iterator(const std::uint8_t* ptr);
       reference operator*() const;
       pointer operator->();
       Iterator& operator++();
@@ -274,32 +273,34 @@ namespace ifm3d
       friend bool
       operator==(const Iterator& a, const Iterator& b)
       {
-        return a.m_ptr == b.m_ptr;
+        return a._ptr == b._ptr;
       }
 
       friend bool
       operator!=(const Iterator& a, const Iterator& b)
       {
-        return a.m_ptr != b.m_ptr;
+        return a._ptr != b._ptr;
       }
 
       bool
       operator-(const Iterator& rhs) const noexcept
       {
         // logic here
-        return this->m_ptr - rhs.m_ptr; // for example
+        return this->_ptr - rhs._ptr; // for example
       }
 
     private:
-      pointer m_ptr;
+      pointer _ptr;
     };
 
+    // NOLINTBEGIN(readability-identifier-naming)
     /*@brief Return the Iterator pointing to start of data*/
     template <typename T>
     Iterator<T> begin();
     /*@brief Return the Iterator pointing to end of data*/
     template <typename T>
     Iterator<T> end();
+    // NOLINTEND(readability-identifier-naming)
 
   }; // end Buffer
 
@@ -315,17 +316,18 @@ namespace ifm3d
   class IteratorAdapter
   {
   private:
-    Buffer& it;
+    Buffer& _it; // NOLINT(*-avoid-const-or-ref-data-members)
 
   public:
     IteratorAdapter(Buffer& it);
-    auto begin();
-    auto end();
+    auto begin(); // NOLINT(readability-identifier-naming)
+    auto end();   // NOLINT(readability-identifier-naming)
   };
 
   ////////////////////////////// Buffer_<Tp>//////////////
 
-  template <typename Tp>
+  template <typename TP>
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class Buffer_ : public Buffer
   {
   public:
@@ -334,85 +336,85 @@ namespace ifm3d
 
     /* Similar to Buffer(cols,rows,ifm3d::formatType<Tp>::nchannel,
      * ifm3d::formatType<Tp>::format ) */
-    Buffer_(const std::uint32_t cols,
-            const std::uint32_t rows,
+    Buffer_(std::uint32_t cols,
+            std::uint32_t rows,
             std::optional<ifm3d::json> metadata = std::nullopt);
 
-    ~Buffer_() = default;
+    ~Buffer_() override = default;
 
     // move semantics
-    Buffer_(Buffer_<Tp>&&) = default;
-    Buffer_& operator=(Buffer_<Tp>&&) = default;
+    Buffer_(Buffer_<TP>&&) = default;
+    Buffer_& operator=(Buffer_<TP>&&) = default;
 
     // copy ctor/assignment operator
-    Buffer_(const Buffer_<Tp>&) = default;
-    Buffer_& operator=(const Buffer_<Tp>&) = default;
+    Buffer_(const Buffer_<TP>&) = default;
+    Buffer_& operator=(const Buffer_<TP>&) = default;
 
     Buffer_(const Buffer&);
     Buffer_& operator=(const Buffer&);
 
     /* Similar to Buffer::create(cols,rows,ifm3d::formatType<Tp>::nchannel,
      * ifm3d::formatType<Tp>::format, ifm3d::buffer_id buffer_id ) */
-    void create(const std::uint32_t cols,
-                const std::uint32_t rows,
+    void Create(std::uint32_t cols,
+                std::uint32_t rows,
                 ifm3d::buffer_id buffer_id);
 
     /** @brief Creates a full copy of the array and the underlying data.
      */
-    Buffer_ clone() const;
+    Buffer_ Clone() const;
 
     /* getters*/
-    std::uint32_t height() const;
-    std::uint32_t width() const;
-    std::uint32_t nchannels() const;
-    ifm3d::pixel_format dataFormat() const;
-    ifm3d::json metadata() const;
+    [[nodiscard]] std::uint32_t Height() const;
+    [[nodiscard]] std::uint32_t Width() const;
+    [[nodiscard]] std::uint32_t Nchannels() const;
+    [[nodiscard]] ifm3d::PixelFormat DataFormat() const;
+    [[nodiscard]] ifm3d::json Metadata() const;
 
     /** @brief returns a pointer to the specified Buffer row.
         @param row number
      */
-    Tp* ptr(const std::uint32_t row);
+    TP* Ptr(std::uint32_t row);
 
     /**
      @brief Pointer to the Pixel at row,col
      @param row 1st dimension index
      @param col 2nd dimension index
      */
-    Tp* ptr(const std::uint32_t row, const std::uint32_t col);
+    TP* Ptr(std::uint32_t row, std::uint32_t col);
 
     /*@brief access to the pixel for read  and write
       @param Index of the pixel considering image as 1D array
       @return refernce of the value at the index
     */
-    Tp& at(const std::size_t index);
+    TP& At(std::size_t index);
     /*@overload considering image as 2D
       @param row 1st dimension index
       @param col 2nd dimension index
     */
-    Tp& at(const std::uint32_t row, const std::uint32_t col);
+    TP& At(std::uint32_t row, std::uint32_t col);
     /*@brief set the value where mask value is 1
       @param val  value to be set
       @param mask  Binary mask
 
       @Note mask size must be same as this
     */
-    void setTo(const Tp val, ifm3d::Buffer& mask);
+    void SetTo(TP val, ifm3d::Buffer& mask);
 
     /*@brief Return the Iterator pointing to start of data*/
-    Iterator<Tp> begin();
+    Iterator<TP> begin();
     /*@brief Return the Iterator pointing to end of data*/
-    Iterator<Tp> end();
+    Iterator<TP> end();
 
   }; // end Buffer_<Tp>
 
   /**
    * @brief Struct for 3D space point
    */
-  template <typename T, int n>
+  template <typename T, int N>
   struct Point
   {
-    T val[n];
-    using value_type = T;
+    std::array<T, N> val;
+    using ValueType = T;
   };
 
   template <typename T>

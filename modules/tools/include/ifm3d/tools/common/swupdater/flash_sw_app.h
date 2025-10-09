@@ -7,9 +7,12 @@
 #define IFM3D_TOOLS_SWUPDATER_FLASH_SW_APP_H
 #pragma once
 
-#include <string>
-#include <ifm3d/tools/command.hpp>
-#include <ifm3d/tools/main_command.hpp>
+#include <ifm3d/common/features.h>
+#if defined(BUILD_MODULE_SWUPDATER)
+
+#  include <ifm3d/tools/command.hpp>
+#  include <ifm3d/tools/main_command.hpp>
+#  include <string>
 
 namespace ifm3d
 {
@@ -20,9 +23,14 @@ namespace ifm3d
   class FlashSWApp : public Command
   {
   public:
-    ~FlashSWApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    FlashSWApp() = default;
+    FlashSWApp(const FlashSWApp&) = default;
+    FlashSWApp(FlashSWApp&&) = delete;
+    FlashSWApp& operator=(const FlashSWApp&) = default;
+    FlashSWApp& operator=(FlashSWApp&&) = delete;
+    ~FlashSWApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
     std::string swu_file{"-"};
     bool quiet{false};
@@ -32,4 +40,5 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
+#endif
 #endif // IFM3D_TOOLS_SWUPDATER_FLASH_SW_APP_H

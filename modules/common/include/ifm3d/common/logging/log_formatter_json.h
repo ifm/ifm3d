@@ -20,7 +20,7 @@ namespace ifm3d
   {
   public:
     static std::string
-    format(const LogEntry& entry)
+    Format(const LogEntry& entry)
     {
 
       return json::object(
@@ -30,7 +30,7 @@ namespace ifm3d
                  {"msg", entry.GetMessage()},
                  {"file",
                   fmt::format("{}:{}", entry.GetFile(), entry.GetLine())},
-                 {"level", LogLevelToString(entry.GetLogLevel())},
+                 {"level", log_level_to_string(entry.GetLogLevel())},
                })
         .dump();
 

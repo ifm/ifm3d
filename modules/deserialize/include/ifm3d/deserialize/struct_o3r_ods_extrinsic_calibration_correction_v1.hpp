@@ -8,11 +8,11 @@
 #define IFM3D_DESERIALIZE_STRUCT_O3R_ODS_EXTRINSIC_CALIBRATION_CORRECTION_V1_HPP
 
 #include <array>
+#include <ifm3d/deserialize/deserialize_utils.hpp>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
-#include <ifm3d/fg/organizer_utils.h>
 #include <ifm3d/fg/buffer.h>
-#include <ifm3d/deserialize/deserialize_utils.hpp>
+#include <ifm3d/fg/organizer_utils.h>
 
 namespace ifm3d
 {
@@ -38,15 +38,11 @@ namespace ifm3d
     static bool
     IsValid(const uint8_t* data, size_t size)
     {
-      uint32_t version = mkval<std::uint32_t>(
+      auto version = mkval<std::uint32_t>(
         data + ODS_EXTRINSIC_CALIBRATION_CORRECTION_VERSION_INDEX);
 
-      if (size < ods_extrinsic_calibration_correction_minimum_size ||
-          version < 1)
-        {
-          return false;
-        }
-      return true;
+      return size >= ODS_EXTRINSIC_CALIBRATION_CORRECTION_MINIMUM_SIZE &&
+             version >= 1;
     }
 
     void
@@ -98,7 +94,7 @@ namespace ifm3d
     std::array<float, 3> rot_head_to_user;
 
   private:
-    static constexpr size_t ods_extrinsic_calibration_correction_minimum_size =
+    static constexpr size_t ODS_EXTRINSIC_CALIBRATION_CORRECTION_MINIMUM_SIZE =
       35;
 
   public:
@@ -106,11 +102,11 @@ namespace ifm3d
     Deserialize(const Buffer& ods_extrinsic_calibration_correction)
     {
       ODSExtrinsicCalibrationCorrectionV1
-        ods_extrinsic_calibration_correction_v1;
+        ods_extrinsic_calibration_correction_v1{};
 
       ods_extrinsic_calibration_correction_v1.Read(
-        ods_extrinsic_calibration_correction.ptr<uint8_t>(0),
-        ods_extrinsic_calibration_correction.size());
+        ods_extrinsic_calibration_correction.Ptr<uint8_t>(0),
+        ods_extrinsic_calibration_correction.Size());
       return ods_extrinsic_calibration_correction_v1;
     }
   };

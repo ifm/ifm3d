@@ -7,16 +7,21 @@
 #ifndef IFM3D_CRYPTO_CRYPTO_H
 #define IFM3D_CRYPTO_CRYPTO_H
 
+#include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
-#include <optional>
-#include <cstdint>
 
 namespace ifm3d
 {
   class SealedBox
   {
   public:
+    SealedBox() = default;
+    SealedBox(const SealedBox&) = default;
+    SealedBox(SealedBox&&) = delete;
+    SealedBox& operator=(const SealedBox&) = default;
+    SealedBox& operator=(SealedBox&&) = delete;
     SealedBox(const std::vector<uint8_t>& public_key,
               const std::optional<const std::vector<uint8_t>>& private_key =
                 std::nullopt);
@@ -27,11 +32,11 @@ namespace ifm3d
     std::string Decrypt(const std::vector<uint8_t>& ciphertext);
 
   private:
-    std::vector<uint8_t> public_key_;
-    std::optional<std::vector<uint8_t>> private_key_;
+    std::vector<uint8_t> _public_key;
+    std::optional<std::vector<uint8_t>> _private_key;
   };
 
-  std::vector<uint8_t> RandomNonce();
+  std::vector<uint8_t> random_nonce();
 
 } // end: namespace ifm3d
 

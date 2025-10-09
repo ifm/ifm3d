@@ -26,10 +26,15 @@ namespace ifm3d
   class ConfigOvp8xxApp : public Command
   {
   public:
-    ~ConfigOvp8xxApp();
+    ConfigOvp8xxApp() = default;
+    ConfigOvp8xxApp(const ConfigOvp8xxApp&) = default;
+    ConfigOvp8xxApp(ConfigOvp8xxApp&&) = delete;
+    ConfigOvp8xxApp& operator=(const ConfigOvp8xxApp&) = default;
+    ConfigOvp8xxApp& operator=(ConfigOvp8xxApp&&) = delete;
+    ~ConfigOvp8xxApp() override;
 
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
   }; // end: ConfigOvp8xxApp
 

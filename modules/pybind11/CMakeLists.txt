@@ -1,6 +1,8 @@
 project(IFM3D_PYBIND11 CXX)
 set(IFM3D_PYBIND11_MODULE_NAME "libifm3d-pybind11")
 
+include_directories(${IFM3D_PYBIND11_SOURCE_DIR}/include)
+
 ################################################
 ## Process child CMakeLists.txt files
 ################################################

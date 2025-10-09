@@ -9,9 +9,9 @@
 #define IFM3D_TOOLS_IMPORT_DEVICE_APP_H
 #pragma once
 
-#include <string>
 #include <ifm3d/tools/command.hpp>
 #include <ifm3d/tools/main_command.hpp>
+#include <string>
 
 namespace ifm3d
 {
@@ -22,14 +22,19 @@ namespace ifm3d
   class ImportDeviceApp : public Command
   {
   public:
-    ~ImportDeviceApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    ImportDeviceApp() = default;
+    ImportDeviceApp(const ImportDeviceApp&) = default;
+    ImportDeviceApp(ImportDeviceApp&&) = delete;
+    ImportDeviceApp& operator=(const ImportDeviceApp&) = default;
+    ImportDeviceApp& operator=(ImportDeviceApp&&) = delete;
+    ~ImportDeviceApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
     std::string input_file{"-"};
-    bool no_global_config;
-    bool no_network_config;
-    bool no_app_config;
+    bool no_global_config{};
+    bool no_network_config{};
+    bool no_app_config{};
 
   }; // end: class ImportDeviceApp
 } // end: namespace ifm3d

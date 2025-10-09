@@ -20,9 +20,11 @@ Checks: >
    -cppcoreguidelines-avoid-c-arrays,
    -cppcoreguidelines-avoid-magic-numbers,
    -cppcoreguidelines-non-private-member-variables-in-classes,
+   -cppcoreguidelines-avoid-do-while
 
    misc-*,
    -misc-no-recursion,
+   -misc-non-private-member-variables-in-classes,
 
    modernize-*,
    -modernize-use-trailing-return-type,
@@ -36,6 +38,7 @@ Checks: >
    -readability-redundant-access-specifiers,
    -readability-container-contains,
    -readability-magic-numbers,
+   -readability-avoid-nested-conditional-operator
 
 WarningsAsErrors: >
   *,
@@ -54,8 +57,6 @@ CheckOptions:
     value: .*[Pp]tr;.*[Pp]ointer
   - key: bugprone-exception-escape.IgnoredExceptions
     value: std::bad_alloc;std::bad_optional_access;fmt::format_error;CLI::RuntimeError;CLI::Error
-  - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
-    value: "1"
   - key: readability-function-cognitive-complexity.IgnoreMacros
     value: "true"
   - key: readability-function-cognitive-complexity.DescribeBasicIncrements
@@ -75,9 +76,11 @@ CheckOptions:
   - key: readability-identifier-naming.ConstantMemberCase
     value: lower_case
   - key: readability-identifier-naming.EnumCase
-    value: lower_case
+    value: CamelCase
   - key: readability-identifier-naming.EnumConstantCase
-    value: UPPER_CASE
+    value: CamelCase
+  - key: readability-identifier-naming.EnumConstantIgnoredRegexp
+    value: ^[A-Z][A-Z_0-9]*$
   - key: readability-identifier-naming.FunctionCase
     value: lower_case
   - key: readability-identifier-naming.FunctionIgnoredRegexp
@@ -86,6 +89,8 @@ CheckOptions:
     value: UPPER_CASE
   - key: readability-identifier-naming.GlobalConstantCase
     value: UPPER_CASE
+  - key: readability-identifier-naming.GlobalConstantIgnoredRegexp
+    value: ^TICKET_COMMAND_.*$
   - key: readability-identifier-naming.LocalConstantCase
     value: lower_case
   - key: readability-identifier-naming.LocalVariableCase
@@ -94,15 +99,23 @@ CheckOptions:
     value: UPPER_CASE
   - key: readability-identifier-naming.MemberCase
     value: lower_case
-  - key: readability-identifier-naming.MethodCase
+  - key: readability-identifier-naming.PublicMethodCase
     value: CamelCase
+  - key: readability-identifier-naming.MethodCase
+    value: lower_case
   - key: readability-identifier-naming.NamespaceCase
     value: lower_case
   - key: readability-identifier-naming.ParameterCase
     value: lower_case
+  - key: readability-identifier-naming.ConstantParameterCase
+    value: lower_case
   - key: readability-identifier-naming.PrivateMemberCase
     value: lower_case
   - key: readability-identifier-naming.PrivateMemberPrefix
+    value: _
+  - key: readability-identifier-naming.ProtectedMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.ProtectedMemberPrefix
     value: _
   - key: readability-identifier-naming.StaticConstantCase
     value: UPPER_CASE
@@ -111,23 +124,23 @@ CheckOptions:
   - key: readability-identifier-naming.StructCase
     value: CamelCase
   - key: readability-identifier-naming.TemplateParameterCase
-    value: CamelCase
+    value: UPPER_CASE
   - key: readability-identifier-naming.TemplateTemplateParameterCase
-    value: CamelCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.TypeTemplateParameterCase
+    value: UPPER_CASE
   - key: readability-identifier-naming.TypeAliasCase
     value: CamelCase
+  - key: readability-identifier-naming.TypeAliasIgnoredRegexp
+    value: ^Point\d+D_|d+[SUF]$|
   - key: readability-identifier-naming.TypedefCase
-    value: CamelCase
-  - key: readability-identifier-naming.TypeTemplateParameterCase
     value: CamelCase
   - key: readability-identifier-naming.UnionCase
     value: CamelCase
   - key: readability-identifier-naming.ValueTemplateParameterCase
-    value: camelBack
+    value: UPPER_CASE
   - key: readability-identifier-naming.VariableCase
     value: lower_case
-  - key: readability-identifier-naming.VirtualMethodCase
-    value: camelBack
   - key: bugprone-empty-catch.IgnoreCatchWithKeywords
     value: "IGNORE"
   - key: readability-function-cognitive-complexity.Threshold

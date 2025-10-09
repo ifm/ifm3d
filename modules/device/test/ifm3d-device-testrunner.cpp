@@ -1,7 +1,7 @@
+#include <gtest/gtest.h>
+#include <ifm3d/device/device.h>
 #include <map>
 #include <string>
-#include <ifm3d/device/device.h>
-#include <gtest/gtest.h>
 
 int
 main(int argc, char** argv)
@@ -12,10 +12,10 @@ main(int argc, char** argv)
      {"O3R", "DeviceTest.*:O3RTest.*"},
      {"device_independent", "Version.*"}});
 
-  std::map<ifm3d::Device::device_family, std::string> device_family_to_device(
-    {{ifm3d::Device::device_family::O3D, "O3D"},
-     {ifm3d::Device::device_family::O3X, "O3X"},
-     {ifm3d::Device::device_family::O3R, "O3R"}});
+  std::map<ifm3d::Device::DeviceFamily, std::string> device_family_to_device(
+    {{ifm3d::Device::DeviceFamily::O3D, "O3D"},
+     {ifm3d::Device::DeviceFamily::O3X, "O3X"},
+     {ifm3d::Device::DeviceFamily::O3R, "O3R"}});
 
   std::string gtest_filter = device_to_filter["device_independent"];
 

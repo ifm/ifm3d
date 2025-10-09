@@ -8,13 +8,13 @@
 #define IFM3D_DESERIALIZE_STRUCT_TOF_INFO_V3_HPP
 
 #include <array>
-#include <string>
-#include <ifm3d/device/device.h>
-#include <ifm3d/device/err.h>
-#include <ifm3d/fg/organizer_utils.h>
-#include <ifm3d/fg/buffer.h>
 #include <ifm3d/deserialize/deserialize_utils.hpp>
 #include <ifm3d/deserialize/struct_calibration.hpp>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/err.h>
+#include <ifm3d/fg/buffer.h>
+#include <ifm3d/fg/organizer_utils.h>
+#include <string>
 
 namespace ifm3d
 {
@@ -44,13 +44,9 @@ namespace ifm3d
     static bool
     IsValid(const uint8_t* data, size_t size)
     {
-      uint32_t version = mkval<std::uint32_t>(data + TOF_INFO_VERSION_INDEX);
+      auto version = mkval<std::uint32_t>(data + TOF_INFO_VERSION_INDEX);
 
-      if (size < tof_info_v3_size || version < 3)
-        {
-          return false;
-        }
-      return true;
+      return size >= TOF_INFO_V3_SIZE && version >= 3;
     }
 
     void
@@ -61,7 +57,7 @@ namespace ifm3d
           throw ifm3d::Error(IFM3D_CORRUPTED_STRUCT);
         }
       const uint8_t* start_ptr = data;
-      std::array<char, 32> buff;
+      std::array<char, 32> buff{};
       version = mkval<std::uint32_t>(start_ptr + TOF_INFO_VERSION_INDEX);
       distance_resolution =
         mkval<float>(start_ptr + TOF_INFO_DISTANCE_RESOLUTION_INDEX);
@@ -114,15 +110,15 @@ namespace ifm3d
     /*@brief Imager type*/
     std::string imager;
     /*@brief TOF_INFO data size in bytes*/
-    static constexpr size_t tof_info_v3_size = 416;
+    static constexpr size_t TOF_INFO_V3_SIZE = 416;
 
     static TOFInfoV3
     Deserialize(const Buffer& tof_info_buffer)
     {
-      TOFInfoV3 tof_info_v3;
+      TOFInfoV3 tof_info_v3{};
 
-      tof_info_v3.Read(tof_info_buffer.ptr<uint8_t>(0),
-                       tof_info_buffer.size());
+      tof_info_v3.Read(tof_info_buffer.Ptr<uint8_t>(0),
+                       tof_info_buffer.Size());
       return tof_info_v3;
     }
   };

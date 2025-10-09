@@ -21,9 +21,14 @@ namespace ifm3d
   class ImagerApp : public Command
   {
   public:
-    ~ImagerApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    ImagerApp() = default;
+    ImagerApp(const ImagerApp&) = default;
+    ImagerApp(ImagerApp&&) = delete;
+    ImagerApp& operator=(const ImagerApp&) = default;
+    ImagerApp& operator=(ImagerApp&&) = delete;
+    ~ImagerApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
   }; // end: class ImagerApp
 } // end: namespace ifm3d

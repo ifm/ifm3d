@@ -7,12 +7,15 @@
 #define IFM3D_TOOLS_JITTER_APP_H
 #pragma once
 
-#include <string>
-#include <CLI/CLI.hpp>
-#include <ifm3d/tools/command.hpp>
-#include <ifm3d/tools/main_command.hpp>
-#include <ifm3d/tools/tools_export.h>
-#include <ifm3d/fg.h>
+#include <ifm3d/common/features.h>
+#if defined(BUILD_MODULE_FRAMEGRABBER)
+
+#  include <CLI/CLI.hpp>
+#  include <ifm3d/fg.h>
+#  include <ifm3d/tools/command.hpp>
+#  include <ifm3d/tools/main_command.hpp>
+#  include <ifm3d/tools/tools_export.h>
+#  include <string>
 
 namespace ifm3d
 {
@@ -24,12 +27,17 @@ namespace ifm3d
   class JitterApp : public Command
   {
   public:
-    ~JitterApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    JitterApp() = default;
+    JitterApp(const JitterApp&) = default;
+    JitterApp(JitterApp&&) = delete;
+    JitterApp& operator=(const JitterApp&) = default;
+    JitterApp& operator=(JitterApp&&) = delete;
+    ~JitterApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
-    void capture_frames(const ifm3d::FrameGrabber::Ptr& fg,
-                        std::vector<float>& results);
+    void CaptureFrames(const ifm3d::FrameGrabber::Ptr& fg,
+                       std::vector<float>& results);
 
     unsigned short pcic_port{(unsigned short)ifm3d::DEFAULT_PCIC_PORT};
     int nframes{100};
@@ -39,4 +47,5 @@ namespace ifm3d
 
 } // end: namespace ifm3d
 
+#endif
 #endif // IFM3D_TOOLS_JITTER_APP_H

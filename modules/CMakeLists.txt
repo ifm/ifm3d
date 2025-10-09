@@ -6,13 +6,8 @@ if (BUILD_MODULE_CRYPTO)
   list(APPEND DOXYGEN_MODULES "crypto")
 endif()
 
-
 add_subdirectory(device)
 list(APPEND DOXYGEN_MODULES "device")
-
-if (BUILD_SHARED_LIBS)
-  add_subdirectory(libifm3d)
-endif()
 
 if(BUILD_MODULE_FRAMEGRABBER)
   add_subdirectory(framegrabber)
@@ -30,13 +25,16 @@ if(BUILD_MODULE_PCICCLIENT)
 endif()
 
 if(BUILD_MODULE_PYBIND11)
-  add_definitions(-DBUILD_MODULE_PYBIND11)
   add_subdirectory(pybind11)
 endif()
 
 if(BUILD_MODULE_DESERIALIZE)
   add_subdirectory(deserialize)
   list(APPEND DOXYGEN_MODULES "deserialize")
+endif()
+
+if (BUILD_SHARED_LIBS)
+  add_subdirectory(libifm3d)
 endif()
 
 if(BUILD_MODULE_TOOLS)

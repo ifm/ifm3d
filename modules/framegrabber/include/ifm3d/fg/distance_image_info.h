@@ -7,9 +7,9 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <vector>
 #include <ifm3d/fg/buffer.h>
 #include <memory>
+#include <vector>
 
 #include <ifm3d/fg/module_frame_grabber.h>
 
@@ -24,7 +24,8 @@ namespace ifm3d
   constexpr auto AMPL_NORM_FACTOR_VECTOR_SIZE = 3;
   constexpr auto EXTR_OPTIC_USER_VECTOR_SIZE = 6;
 
-  enum class extrinsic_param : std::uint32_t
+  // NOLINTNEXTLINE(performance-enum-size)
+  enum class ExtrinsicParam : std::uint32_t
   {
     TRANS_X = 0, // Translation along x-direction in meters.
     TRANS_Y = 1, // Translation along y-direction in meters.
@@ -39,27 +40,31 @@ namespace ifm3d
 
   struct IntrinsicCalibration
   {
-    uint32_t model_iD;
-    float model_parameters[NR_MODEL_PARAMS];
+    uint32_t model_id;
+    std::array<float, NR_MODEL_PARAMS> model_parameters;
   };
 
   class IFM3D_EXPORT DistanceImageInfo
   {
-    const float dist_resolution;
-    const float ampl_resolution;
-    const std::vector<float> amp_norm_factors;
-    const std::vector<float> extrinsic_optic_to_user;
-    const IntrinsicCalibration intrinsic_calibration;
-    const IntrinsicCalibration inverse_intrinsic_calibration;
-    const std::vector<std::uint16_t> u16_distance_buffer;
-    const std::vector<std::uint16_t> u16_amplitude_buffer;
-    const std::uint32_t width, height;
-    const std::vector<uint64_t> timestamps_nsec;
-    const std::vector<float> exposure_times_sec;
+    float _dist_resolution;
+    float _ampl_resolution;
+    std::vector<float> _amp_norm_factors;
+    std::vector<float> _extrinsic_optic_to_user;
+    IntrinsicCalibration _intrinsic_calibration;
+    IntrinsicCalibration _inverse_intrinsic_calibration;
+    std::vector<std::uint16_t> _u16_distance_buffer;
+    std::vector<std::uint16_t> _u16_amplitude_buffer;
+    std::uint32_t _width, _height;
+    std::vector<uint64_t> _timestamps_nsec;
+    std::vector<float> _exposure_times_sec;
 
   public:
-    DistanceImageInfo(const float dist_res,
-                      const float ampl_res,
+    DistanceImageInfo(const DistanceImageInfo&) = default;
+    DistanceImageInfo(DistanceImageInfo&&) = delete;
+    DistanceImageInfo& operator=(const DistanceImageInfo&) = delete;
+    DistanceImageInfo& operator=(DistanceImageInfo&&) = delete;
+    DistanceImageInfo(float dist_res,
+                      float ampl_res,
                       const std::vector<float>& amp_norm_fctrs,
                       const std::vector<float>& extr_opt_to_usr,
                       const IntrinsicCalibration& intr_calib,
@@ -68,52 +73,55 @@ namespace ifm3d
                       const std::vector<std::uint16_t>& amplitude_buffer,
                       const std::vector<uint64_t>& timestamps_nsec,
                       const std::vector<float>& exposure_times_sec,
-                      const std::uint32_t width,
-                      const std::uint32_t height);
+                      std::uint32_t width,
+                      std::uint32_t height);
     ~DistanceImageInfo() = default;
-    std::vector<std::uint8_t> getXYZDVector();
-    std::vector<std::uint8_t> getAmplitudeVector();
+    std::vector<std::uint8_t> GetXyzdVector();
+    std::vector<std::uint8_t> GetAmplitudeVector();
 
     auto
-    getExtrinsicOpticToUser()
+    GetExtrinsicOpticToUser()
     {
-      return extrinsic_optic_to_user;
-    }
-
-    auto
-    getIntrinsicCalibration()
-    {
-      return intrinsic_calibration;
+      return _extrinsic_optic_to_user;
     }
 
     auto
-    getInverseIntrinsicCalibration()
+    GetIntrinsicCalibration()
     {
-      return inverse_intrinsic_calibration;
+      return _intrinsic_calibration;
     }
+
     auto
-    getNPTS()
+    GetInverseIntrinsicCalibration()
     {
-      return (width * height);
+      return _inverse_intrinsic_calibration;
     }
-    auto
-    getWidth()
+
+    [[nodiscard]] auto
+    GetNpts() const
     {
-      return width;
+      return (_width * _height);
     }
-    auto
-    getHeight()
+
+    [[nodiscard]] auto
+    GetWidth() const
     {
-      return height;
+      return _width;
+    }
+
+    [[nodiscard]] auto
+    GetHeight() const
+    {
+      return _height;
     }
 
     /**
      * @brief returns the timestamps in nano seconds
      */
     std::vector<uint64_t>
-    getTimestamps()
+    GetTimestamps()
     {
-      return timestamps_nsec;
+      return _timestamps_nsec;
     }
 
     /**
@@ -121,26 +129,26 @@ namespace ifm3d
      * phase data
      */
     std::vector<float>
-    getExposureTimes()
+    GetExposureTimes()
     {
-      return exposure_times_sec;
+      return _exposure_times_sec;
     }
 
     /**
      * @brief multiply distance noise image with distance resolution
      * return Buffer with float values
      */
-    ifm3d::Buffer applyDistanceResolution(
+    [[nodiscard]] ifm3d::Buffer ApplyDistanceResolution(
       const ifm3d::Buffer& ui16_distance_buffer) const;
   };
   using DistanceImageInfoPtr = std::unique_ptr<DistanceImageInfo>;
   IFM3D_EXPORT DistanceImageInfoPtr
-  CreateDistanceImageInfo(const std::vector<std::uint8_t>& data_buffer,
-                          const std::size_t distimageinfo_idx,
-                          const std::size_t dist_idx,
-                          const std::size_t amp_idx,
-                          const std::uint32_t width,
-                          const std::uint32_t height);
+  create_distance_image_info(const std::vector<std::uint8_t>& data_buffer,
+                             std::size_t distimageinfo_idx,
+                             std::size_t dist_idx,
+                             std::size_t amp_idx,
+                             std::uint32_t width,
+                             std::uint32_t height);
 } // end: namespace ifm3d
 
 #endif // IFM3D_DISTANCE_IMAGE_INFO_H

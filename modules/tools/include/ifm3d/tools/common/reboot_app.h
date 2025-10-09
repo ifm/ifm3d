@@ -21,10 +21,15 @@ namespace ifm3d
   class RebootApp : public Command
   {
   public:
-    ~RebootApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
-    virtual bool CheckCompatibility() override;
+    RebootApp() = default;
+    RebootApp(const RebootApp&) = default;
+    RebootApp(RebootApp&&) = delete;
+    RebootApp& operator=(const RebootApp&) = default;
+    RebootApp& operator=(RebootApp&&) = delete;
+    ~RebootApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
+    bool CheckCompatibility() override;
 
     bool recovery{false};
 

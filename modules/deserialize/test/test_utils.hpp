@@ -6,41 +6,41 @@
 #ifndef IFM3D_DESERIALIZE_TEST_UTILS_HPP
 #define IFM3D_DESERIALIZE_TEST_UTILS_HPP
 
-#include "ifm3d/device/device.h"
-#include "ifm3d/fg/buffer.h"
-#include "ifm3d/fg/organizer_utils.h"
 #include <cmath>
 #include <cstdint>
-#include <iomanip>
-#include <iostream>
 #include <fstream>
+#include <ifm3d/device/device.h>
+#include <ifm3d/fg/buffer.h>
+#include <ifm3d/fg/organizer_utils.h>
+#include <iomanip>
+#include <ios>
+#include <iostream>
 
 namespace ifm3d
 {
-  constexpr auto epsilon = 1e-6;
+  constexpr auto EPSILON = 1e-6;
   template <typename T>
   bool
   compare(const T& a, const T& b)
   {
     return a == b;
   }
-#if 1
+
   template <>
-  bool
+  inline bool
   compare<float>(const float& a, const float& b)
   {
-    if (std::fabs(a - b) > epsilon)
-      std::cout << a << " " << b << " " << std::fabs(a - b) << std::endl;
-    return std::fabs(a - b) < epsilon;
+    if (std::fabs(a - b) > EPSILON)
+      {
+        std::cout << a << " " << b << " " << std::fabs(a - b) << '\n';
+      }
+    return std::fabs(a - b) < EPSILON;
   }
-#endif
-  // this is copied from buffer.hpp
-  // remove this after addition of size function in buffer
 
-  template <typename T, size_t n>
+  template <typename T, size_t N>
   bool
-  compare_array(const std::array<T, n>& actual,
-                const std::array<T, n>& expected)
+  compare_array(const std::array<T, N>& actual,
+                const std::array<T, N>& expected)
   {
     return std::equal(
       actual.begin(),
@@ -49,9 +49,9 @@ namespace ifm3d
       [](const T& a, const T& b) { return ifm3d::compare(a, b); });
   }
 
-  template <typename T, size_t n>
+  template <typename T, size_t N>
   void
-  print_array(const std::array<T, n>& arr)
+  print_array(const std::array<T, N>& arr)
   {
     std::cout << "{ ";
     for (auto& val : arr)
@@ -61,13 +61,14 @@ namespace ifm3d
     std::cout << "};";
   }
 
-  void
-  write_buffer_to_file(const ifm3d::Buffer& buffer, std::string file_name)
+  inline void
+  write_buffer_to_file(const ifm3d::Buffer& buffer,
+                       const std::string& file_name)
   {
-    const uint32_t width = buffer.width();
-    const uint32_t height = buffer.height();
-    const uint32_t nchannel = buffer.nchannels();
-    const ifm3d::pixel_format pix_format = buffer.dataFormat();
+    const uint32_t width = buffer.Width();
+    const uint32_t height = buffer.Height();
+    const uint32_t nchannel = buffer.NumChannels();
+    const ifm3d::PixelFormat pix_format = buffer.DataFormat();
 
     auto buffer_file =
       std::fstream(file_name, std::ios::out | std::ios::binary);
@@ -78,36 +79,38 @@ namespace ifm3d
     buffer_file.write(reinterpret_cast<const char*>(&nchannel),
                       sizeof(nchannel));
     buffer_file.write(reinterpret_cast<const char*>(&pix_format),
-                      sizeof(pixel_format));
+                      sizeof(PixelFormat));
 
-    buffer_file.write(reinterpret_cast<const char*>(buffer.ptr<uint8_t>(0)),
-                      buffer.size());
+    buffer_file.write(reinterpret_cast<const char*>(buffer.Ptr<uint8_t>(0)),
+                      static_cast<std::streamsize>(buffer.Size()));
     buffer_file.close();
   }
 
-  ifm3d::Buffer
-  read_buffer_from_file(std::string file_name)
+  inline ifm3d::Buffer
+  read_buffer_from_file(const std::string& file_name)
   {
     auto buffer_file = std::ifstream(file_name, std::ios::binary);
-    uint32_t width;
-    uint32_t height;
-    uint32_t nchannel;
-    ifm3d::pixel_format pix_format;
+    uint32_t width{};
+    uint32_t height{};
+    uint32_t nchannel{};
+    ifm3d::PixelFormat pix_format{};
 
-    std::vector<std::uint8_t> fileBuffer;
+    std::vector<std::uint8_t> file_buffer;
     std::istreambuf_iterator<char> iter(buffer_file);
     std::copy(iter,
               std::istreambuf_iterator<char>(),
-              std::back_inserter(fileBuffer));
+              std::back_inserter(file_buffer));
     buffer_file.close();
-    width = ifm3d::mkval<uint32_t>(fileBuffer.data());
-    height = ifm3d::mkval<uint32_t>(fileBuffer.data() + 4);
-    nchannel = ifm3d::mkval<uint32_t>(fileBuffer.data() + 8);
-    pix_format = static_cast<ifm3d::pixel_format>(
-      ifm3d::mkval<uint32_t>(fileBuffer.data() + 12));
+    width = ifm3d::mkval<uint32_t>(file_buffer.data());
+    height = ifm3d::mkval<uint32_t>(file_buffer.data() + 4);
+    nchannel = ifm3d::mkval<uint32_t>(file_buffer.data() + 8);
+    pix_format = static_cast<ifm3d::PixelFormat>(
+      ifm3d::mkval<uint32_t>(file_buffer.data() + 12));
 
     auto buffer = ifm3d::Buffer(width, height, nchannel, pix_format);
-    std::copy(fileBuffer.begin() + 16, fileBuffer.end(), buffer.begin<char>());
+    std::copy(file_buffer.begin() + 16,
+              file_buffer.end(),
+              buffer.begin<char>());
 
     return buffer;
   }

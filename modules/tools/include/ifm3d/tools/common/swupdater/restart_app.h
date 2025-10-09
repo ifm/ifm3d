@@ -7,8 +7,11 @@
 #define IFM3D_TOOLS_SWUPDATER_RESTART_APP_H
 #pragma once
 
-#include <ifm3d/tools/command.hpp>
-#include <ifm3d/tools/main_command.hpp>
+#include <ifm3d/common/features.h>
+#if defined(BUILD_MODULE_SWUPDATER)
+
+#  include <ifm3d/tools/command.hpp>
+#  include <ifm3d/tools/main_command.hpp>
 
 namespace ifm3d
 {
@@ -19,12 +22,18 @@ namespace ifm3d
   class RestartApp : public Command
   {
   public:
-    ~RestartApp();
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
-    virtual bool CheckCompatibility() override;
+    RestartApp() = default;
+    RestartApp(const RestartApp&) = default;
+    RestartApp(RestartApp&&) = delete;
+    RestartApp& operator=(const RestartApp&) = default;
+    RestartApp& operator=(RestartApp&&) = delete;
+    ~RestartApp() override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
+    bool CheckCompatibility() override;
   }; // end: class RestartApp
 
 } // end: namespace ifm3d
 
+#endif
 #endif // IFM3D_TOOLS_SWUPDATER_RESTART_APP_H

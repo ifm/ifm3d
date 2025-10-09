@@ -7,12 +7,12 @@
 #ifndef IFM3D_DESERIALIZE_STRUCT_TOF_INFO_V4_HPP
 #define IFM3D_DESERIALIZE_STRUCT_TOF_INFO_V4_HPP
 
-#include <ifm3d/device/device.h>
-#include <ifm3d/device/err.h>
-#include <ifm3d/fg/organizer_utils.h>
-#include <ifm3d/fg/buffer.h>
 #include <ifm3d/deserialize/deserialize_utils.hpp>
 #include <ifm3d/deserialize/struct_tof_info_v3.hpp>
+#include <ifm3d/device/device.h>
+#include <ifm3d/device/err.h>
+#include <ifm3d/fg/buffer.h>
+#include <ifm3d/fg/organizer_utils.h>
 
 namespace ifm3d
 {
@@ -32,13 +32,9 @@ namespace ifm3d
     static bool
     IsValid(const uint8_t* data, size_t size)
     {
-      uint32_t version = mkval<std::uint32_t>(data + TOF_INFO_VERSION_INDEX);
+      auto version = mkval<std::uint32_t>(data + TOF_INFO_VERSION_INDEX);
 
-      if (size < tof_info_v4_size || version < 4)
-        {
-          return false;
-        }
-      return true;
+      return size >= TOF_INFO_V4_SIZE && version >= 4;
     }
 
     void
@@ -63,31 +59,31 @@ namespace ifm3d
      * number of sub-modes). This identifies the currently used sub-mode in
      * cyclic modes. In non-cyclic modes this value is always 0.
      */
-    uint32_t measurement_block_index;
+    uint32_t measurement_block_index{};
     /*
      * @brief Current minimum measurement range [m].
      * The value is based on the camera-individual ToF calibration.
      * It is influenced by temperature.
      **/
-    float measurement_range_min;
+    float measurement_range_min{};
     /*
      * @brief Current maximum measurement range [m].
      * The value is based on the camera-individual ToF calibration.
      * It is influenced by temperature.
      **/
-    float measurement_range_max;
+    float measurement_range_max{};
     /**
      * @brief size of ToFInfoV4 in bytes
      */
-    static constexpr size_t tof_info_v4_size = 428;
+    static constexpr size_t TOF_INFO_V4_SIZE = 428;
 
     static TOFInfoV4
     Deserialize(const Buffer& tof_info_buffer)
     {
       TOFInfoV4 tof_info_v4;
 
-      tof_info_v4.Read(tof_info_buffer.ptr<uint8_t>(0),
-                       tof_info_buffer.size());
+      tof_info_v4.Read(tof_info_buffer.Ptr<uint8_t>(0),
+                       tof_info_buffer.Size());
       return tof_info_v4;
     }
   };

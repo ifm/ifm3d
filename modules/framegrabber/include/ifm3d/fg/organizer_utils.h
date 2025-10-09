@@ -6,28 +6,27 @@
 #ifndef IFM3D_FG_ORGANIZER_UTILS_H
 #define IFM3D_FG_ORGANIZER_UTILS_H
 
-#include <map>
-#include <set>
-#include <optional>
-#include <vector>
-#include <tuple>
-#include <set>
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/buffer.h>
-#include <ifm3d/fg/frame.h>
 #include <ifm3d/fg/distance_image_info.h>
+#include <ifm3d/fg/frame.h>
+#include <map>
+#include <optional>
+#include <set>
+#include <tuple>
+#include <vector>
 
 namespace ifm3d
 {
   constexpr std::size_t IMG_BUFF_START = 8;
 
-  std::map<image_chunk, std::set<std::size_t>> get_image_chunks(
+  std::map<ImageChunk, std::set<std::size_t>> get_image_chunks(
     const std::vector<std::uint8_t>& data,
     std::size_t start_idx,
     std::optional<size_t> end_idx = std::nullopt);
 
-  std::size_t get_format_size(pixel_format fmt);
-  std::size_t get_format_channels(pixel_format fmt);
+  std::size_t get_format_size(PixelFormat fmt);
+  std::size_t get_format_channels(PixelFormat fmt);
 
   Buffer create_1d_buffer(const std::vector<std::uint8_t>& data,
                           std::size_t idx);
@@ -41,7 +40,7 @@ namespace ifm3d
                        std::size_t idx,
                        std::size_t width,
                        std::size_t height,
-                       pixel_format fmt,
+                       PixelFormat fmt,
                        const std::optional<json>& metadata = std::nullopt);
 
   Buffer create_xyz_buffer(const std::vector<std::uint8_t>& data,
@@ -50,19 +49,19 @@ namespace ifm3d
                            std::size_t zidx,
                            std::size_t width,
                            std::size_t height,
-                           pixel_format fmt,
+                           PixelFormat fmt,
                            const std::optional<Buffer>& mask);
 
   auto find_metadata_chunk(
-    const std::map<image_chunk, std::set<std::size_t>>& chunks)
+    const std::map<ImageChunk, std::set<std::size_t>>& chunks)
     -> decltype(chunks.end());
 
   std::tuple<uint32_t, uint32_t> get_image_size(
     const std::vector<std::uint8_t>& data,
     std::size_t idx);
 
-  pixel_format get_chunk_format(const std::vector<std::uint8_t>& data,
-                                std::size_t idx);
+  PixelFormat get_chunk_format(const std::vector<std::uint8_t>& data,
+                               std::size_t idx);
 
   uint32_t get_chunk_frame_count(const std::vector<std::uint8_t>& data,
                                  std::size_t idx);
@@ -95,9 +94,9 @@ namespace ifm3d
   void parse_data(
     const std::vector<uint8_t>& data,
     const std::set<buffer_id>& requested_images,
-    const std::map<ifm3d::image_chunk, std::set<std::size_t>>& chunks,
-    const size_t width,
-    const size_t height,
+    const std::map<ifm3d::ImageChunk, std::set<std::size_t>>& chunks,
+    size_t width,
+    size_t height,
     std::map<buffer_id, BufferList>& data_blob,
     std::map<buffer_id, BufferList>& data_image);
 
@@ -130,7 +129,7 @@ namespace ifm3d
     union
     {
       T v;
-      unsigned char bytes[sizeof(T)];
+      unsigned char bytes[sizeof(T)]; // NOLINT(modernize-avoid-c-arrays)
     } value;
 
 #if !defined(_WIN32) && __BYTE_ORDER == __BIG_ENDIAN
@@ -151,8 +150,8 @@ namespace ifm3d
     ifm3d::Buffer buf =
       Buffer(vec.size(),
              1,
-             ifm3d::FormatType<T>::nchannel,
-             static_cast<ifm3d::pixel_format>(ifm3d::FormatType<T>::format));
+             ifm3d::FormatType<T>::NumChannels,
+             static_cast<ifm3d::PixelFormat>(ifm3d::FormatType<T>::Format));
     std::copy(vec.begin(), vec.end(), buf.begin<T>());
     return buf;
   }
@@ -163,10 +162,9 @@ namespace ifm3d
   ifm3d::Buffer
   create_buffer_from_struct(const T& struct_object)
   {
-    ifm3d::Buffer buf =
-      Buffer(sizeof(T), 1, 1, ifm3d::pixel_format::FORMAT_8U);
-    const uint8_t* start = reinterpret_cast<const uint8_t*>(&struct_object);
-    auto ptr = buf.ptr<uint8_t>(0);
+    ifm3d::Buffer buf = Buffer(sizeof(T), 1, 1, ifm3d::PixelFormat::FORMAT_8U);
+    const auto* start = reinterpret_cast<const uint8_t*>(&struct_object);
+    auto* ptr = buf.Ptr<uint8_t>(0);
     std::copy(start, start + sizeof(T), ptr);
     return buf;
   }
@@ -178,7 +176,7 @@ namespace ifm3d
   convert_buffer_to_struct(const ifm3d::Buffer& buf)
   {
     T struct_object;
-    auto ptr = buf.ptr<uint8_t>(0);
+    const auto* ptr = buf.Ptr<uint8_t>(0);
     std::copy(ptr,
               ptr + sizeof(T),
               reinterpret_cast<uint8_t*>(&struct_object));
@@ -195,7 +193,7 @@ namespace ifm3d
                     std::size_t zidx,
                     std::size_t width,
                     std::size_t height,
-                    ifm3d::pixel_format fmt,
+                    ifm3d::PixelFormat fmt,
                     const std::optional<ifm3d::Buffer>& mask)
   {
     std::size_t const incr = sizeof(T);
@@ -208,7 +206,9 @@ namespace ifm3d
     int xyz_col = 0;
 
     T* xyz_ptr = NULL;
-    T x_, y_, z_;
+    T x;
+    T y;
+    T z;
 
     constexpr T bad_pixel = 0;
 
@@ -220,14 +220,14 @@ namespace ifm3d
         if (col == 0)
           {
             row += 1;
-            xyz_ptr = im.ptr<T>(row);
+            xyz_ptr = im.Ptr<T>(row);
           }
 
-        x_ = ifm3d::mkval<T>(data.data() + xidx);
-        y_ = ifm3d::mkval<T>(data.data() + yidx);
-        z_ = ifm3d::mkval<T>(data.data() + zidx);
+        x = ifm3d::mkval<T>(data.data() + xidx);
+        y = ifm3d::mkval<T>(data.data() + yidx);
+        z = ifm3d::mkval<T>(data.data() + zidx);
 
-        if (mask.has_value() && mask.value().at<uint8_t>(row, col) != 0)
+        if (mask.has_value() && mask.value().At<uint8_t>(row, col) != 0)
           {
             xyz_ptr[xyz_col] = bad_pixel;
             xyz_ptr[xyz_col + 1] = bad_pixel;
@@ -235,9 +235,9 @@ namespace ifm3d
           }
         else
           {
-            xyz_ptr[xyz_col] = x_;
-            xyz_ptr[xyz_col + 1] = y_;
-            xyz_ptr[xyz_col + 2] = z_;
+            xyz_ptr[xyz_col] = x;
+            xyz_ptr[xyz_col + 1] = y;
+            xyz_ptr[xyz_col + 2] = z;
           }
       }
 

@@ -35,7 +35,7 @@ if(BUILD_MODULE_FRAMEGRABBER)
     target_link_libraries(libifm3d PRIVATE $<BUILD_INTERFACE:ifm3d_framegrabber>)
     target_include_directories(libifm3d
       INTERFACE
-        $<BUILD_INTERFACE:${IFM3D_FG_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${IFM3D_FRAMEGRABBER_SOURCE_DIR}/include>
     )
 endif()
 

@@ -10,10 +10,10 @@
 #pragma once
 
 #include <CLI/CLI.hpp>
+#include <ifm3d/device.h>
+#include <ifm3d/device/device.h>
 #include <ifm3d/tools/command.hpp>
 #include <ifm3d/tools/main_command.hpp>
-#include <ifm3d/device/device.h>
-#include <ifm3d/device.h>
 
 namespace ifm3d
 {
@@ -24,10 +24,15 @@ namespace ifm3d
   class AppTypesApp : public Command
   {
   public:
-    ~AppTypesApp();
+    AppTypesApp() = default;
+    AppTypesApp(const AppTypesApp&) = default;
+    AppTypesApp(AppTypesApp&&) = delete;
+    AppTypesApp& operator=(const AppTypesApp&) = default;
+    AppTypesApp& operator=(AppTypesApp&&) = delete;
+    ~AppTypesApp() override;
 
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
   }; // end: class AppTypeApp
 } // end: namespace ifm3d

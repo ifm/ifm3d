@@ -7,10 +7,10 @@
 #ifndef IFM3D_DEVICE_UTIL_H
 #define IFM3D_DEVICE_UTIL_H
 
+#include <cstdint>
+#include <ifm3d/device/module_device.h>
 #include <string>
 #include <vector>
-#include <ifm3d/device/module_device.h>
-#include <cstdint>
 
 namespace httplib
 {
@@ -51,7 +51,7 @@ namespace ifm3d
 
   IFM3D_EXPORT void check_http_result(httplib::Result const& res);
 
-  IFM3D_EXPORT bool IsStdinAvailable(int timeout_seconds = 2);
+  IFM3D_EXPORT bool is_stdin_available(int timeout_seconds = 2);
 
 } // end: namespace ifm3d
 
