@@ -17,6 +17,7 @@
 #include <cstdlib>
 #include <exception>
 #include <fmt/core.h> // NOLINT(*)
+#include <fmt/core.h>
 #include <functional>
 #include <ifm3d/common/logging/log.h>
 #include <ifm3d/device.h>
@@ -27,6 +28,7 @@
 #include <mutex>
 #include <string>
 #include <system_error>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -45,6 +47,8 @@ namespace ifm3d
   static const std::string TICKET_COMMAND_c = "1000";
   static const std::string TICKET_COMMAND_t = "1001";
   static const std::string TICKET_COMMAND_p = "1002";
+
+  inline std::atomic<uint16_t> _next_ticket_id{1100};
 
   //============================================================
   // Impl interface
@@ -79,6 +83,8 @@ namespace ifm3d
 
     void SetMasking(bool masking);
     bool IsMasking();
+    std::shared_future<ifm3d::FrameGrabber::PCICCommandResponse> SendCommand(
+      const PCICCommand& command);
 
   protected:
     void run(const std::optional<json>& schema);
@@ -109,6 +115,7 @@ namespace ifm3d
     void trigger_handler();
     void report_error(const ifm3d::Error& error);
     std::string calculate_async_command();
+    std::string generate_ticket_id();
 
     //---------------------
     // State
@@ -160,6 +167,10 @@ namespace ifm3d
     std::promise<void> _ready_promise;
     std::shared_future<void> _ready_future;
 
+    std::mutex _send_command_mutex;
+    std::unordered_map<std::string,
+                       std::shared_ptr<std::promise<PCICCommandResponse>>>
+      _send_command_promises;
   }; // end: class FrameGrabber::Impl
 
 } // end: namespace ifm3d
@@ -640,6 +651,52 @@ ifm3d::FrameGrabber::Impl::payload_handler(const asio::error_code& ec,
     {
       this->trigger_handler();
     }
+  else
+    {
+      std::lock_guard<std::mutex> lock(this->_send_command_mutex);
+      auto it = this->_send_command_promises.find(ticket_id);
+
+      if (it == this->_send_command_promises.end())
+        {
+          LOG_WARNING("Received response for unknown ticket_id: {}",
+                      ticket_id);
+        }
+      else
+        {
+          auto promise = it->second;
+          char response_code = this->_payload_buffer.at(4);
+
+          switch (response_code)
+            {
+            case '*':
+              promise->set_value(PCICCommandResponse{std::monostate{}});
+              break;
+
+              case '?': {
+                auto ex = ifm3d::Error(IFM3D_PCIC_BAD_REPLY,
+                                       "Parameter-Id invalid or syntax error");
+                promise->set_exception(std::make_exception_ptr(ex));
+              }
+              break;
+
+              case '!': {
+                auto ex = ifm3d::Error(IFM3D_PCIC_BAD_REPLY,
+                                       "Application-level error on parameter");
+                promise->set_exception(std::make_exception_ptr(ex));
+              }
+              break;
+
+              default: {
+                auto ex = ifm3d::Error(
+                  IFM3D_PCIC_BAD_REPLY,
+                  fmt::format("Unknown response code '{}'", response_code));
+                promise->set_exception(std::make_exception_ptr(ex));
+              }
+              break;
+            }
+          this->_send_command_promises.erase(it);
+        }
+    }
 
   this->_payload_buffer.clear();
 
@@ -1006,4 +1063,45 @@ ifm3d::FrameGrabber::Impl::IsMasking()
   return this->_masking;
 }
 
+std::string
+ifm3d::FrameGrabber::Impl::generate_ticket_id()
+{
+  std::uint32_t id =
+    (static_cast<std::uint32_t>(_next_ticket_id++) % 8900) + 1100;
+  return std::to_string(id);
+}
+
+std::shared_future<ifm3d::FrameGrabber::PCICCommandResponse>
+ifm3d::FrameGrabber::Impl::SendCommand(const PCICCommand& command)
+{
+  auto payload = command.SerializeData();
+
+  auto promise = std::make_shared<std::promise<PCICCommandResponse>>();
+  auto future = promise->get_future().share();
+
+  if (!this->_sock || !this->_sock->is_open())
+    {
+      LOG_ERROR("PCIC socket is not connected");
+      try
+        {
+          throw ifm3d::Error(IFM3D_NETWORK_ERROR,
+                             "PCIC socket is not connected");
+        }
+      catch (...)
+        {
+          promise->set_exception(std::current_exception());
+        }
+      return future;
+    }
+
+  std::string ticket_id = this->generate_ticket_id();
+
+  {
+    std::lock_guard<std::mutex> lock(this->_send_command_mutex);
+    this->_send_command_promises[ticket_id] = promise;
+  }
+
+  send_command(ticket_id, payload);
+  return future;
+}
 #endif // IFM3D_FG_FRAMEGRABBER_IMPL_H

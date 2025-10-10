@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Add a new `--resetNetworkSettings` flag to the CLI, resolving an issue where network settings were not reset as expected.
+- Add ability to send `PCIC` commands (Currently available: f command for sending external ODS egomotion data).
 
 ### Fixed
 - Fix in device discovery command always tries to access devices at `192.168.0.69`
