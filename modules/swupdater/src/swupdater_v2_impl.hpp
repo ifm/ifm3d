@@ -279,8 +279,7 @@ ifm3d::ImplV2::RebootToProductive()
     {
       // Rethrow unless the code is one that indicates the camera is not
       // currently reachable (occurs during the reboot process)
-      if (e.code() != IFM3D_CURL_TIMEOUT &&
-          e.code() != IFM3D_RECOVERY_CONNECTION_ERROR)
+      if (e.code() != IFM3D_XMLRPC_FAILURE)
         {
           throw;
         }

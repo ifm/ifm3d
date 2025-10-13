@@ -331,7 +331,20 @@ ifm3d::O3R::Impl::Reboot()
 inline void
 ifm3d::O3R::Impl::RebootToRecovery()
 {
-  this->_xwrapper->XCallMain("rebootToRecovery");
+  try
+    {
+      this->_xwrapper->XCallMain("rebootToRecovery");
+    }
+  catch (const ifm3d::Error& e)
+    {
+      // The device will drop the connection without closing when it reboots to
+      // recovery
+      if (e.code() != IFM3D_CURL_ERROR ||
+          std::strstr(e.message(), "Failed to read connection") == nullptr)
+        {
+          throw;
+        }
+    }
 }
 
 inline size_t
