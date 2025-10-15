@@ -634,12 +634,10 @@ TEST_F(FrameGrabberTest, metadata)
 
 TEST_F(FrameGrabberTest, buffer_mapping)
 {
-  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev);
+  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->_dev);
   auto fg = std::make_shared<ifm3d::FrameGrabber>(o3r, 51010);
-  fg->Start({
-    ifm3d::buffer_id::O3R_ODS_RENDERED_ZONES,
-  });
+  fg->Start({ifm3d::buffer_id::O3R_ODS_RENDERED_ZONES});
   auto frame = fg->WaitForFrame().get();
   auto& buffer = frame->GetBuffer(ifm3d::buffer_id::O3R_ODS_RENDERED_ZONES);
-  EXPECT_TRUE(buffer.metadata()["result"]["type"] == "ods_rendered_zones");
+  EXPECT_TRUE(buffer.Metadata()["result"]["type"] == "ods_rendered_zones");
 }

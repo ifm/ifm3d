@@ -201,32 +201,5 @@ namespace ifm3d
 
     // clang-format on
   };
-
-  /**
-   * @brief Describes the transport info for a logical buffer_id.
-   */
-  struct TransportInfo
-  {
-    ifm3d::buffer_id transport_id;    // The generic buffer_id it's wrapped in
-                                      // (e.g., O3R_RESULT_ARRAY2D)
-    std::string metadata_type_string; // The string value in the metadata that
-                                      // identifies it
-  };
-
-  /**
-   * @brief Static mapping of logical buffer IDs to their transport info.
-   */
-  const std::unordered_map<buffer_id, TransportInfo>
-    LOGICAL_TO_TRANSPORT_MAPPING = {
-      {ifm3d::buffer_id::O3R_ODS_RENDERED_ZONES,
-       {ifm3d::buffer_id::O3R_RESULT_ARRAY2D, "ods_rendered_zones"}},
-      {ifm3d::buffer_id::O3R_ODS_FLAGS,
-       {ifm3d::buffer_id::O3R_RESULT_ARRAY2D, "ods_flags"}},
-      {ifm3d::buffer_id::O3R_MCC_STATIC_IMAGE,
-       {ifm3d::buffer_id::O3R_RESULT_ARRAY2D, "mcc_static_image"}},
-      {ifm3d::buffer_id::O3R_MCC_LIVE_IMAGE,
-       {ifm3d::buffer_id::O3R_RESULT_ARRAY2D, "mcc_live_image"}},
-      {ifm3d::buffer_id::O3R_MCC_MOTION_IMAGE,
-       {ifm3d::buffer_id::O3R_RESULT_ARRAY2D, "mcc_motion_image"}}};
 }
 #endif // IFM3D_FG_Buffer_ID_H

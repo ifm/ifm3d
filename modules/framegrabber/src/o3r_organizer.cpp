@@ -48,6 +48,9 @@ ifm3d::O3ROrganizer::Organize(const std::vector<uint8_t>& data,
 
   images.insert(data_image.begin(), data_image.end());
   images.insert(data_blob.begin(), data_blob.end());
+  // perform buffer mapping logic here
+  auto mapped_images = map_logical_buffers(images, requested_images);
+  images.insert(mapped_images.begin(), mapped_images.end());
 
   return {images, timestamps, frame_count};
 }

@@ -6,6 +6,7 @@
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/buffer_id.h>
+#include <unordered_map>
 #if defined(__GNUC__) && !defined(__clang__) && !defined(_MSC_VER)
 #  include <bits/endian.h>
 #elif defined(__clang__) && !defined(_MSC_VER)
@@ -37,6 +38,36 @@ constexpr auto CHUNK_OFFSET_FRAME_COUNT = 0x0020;
 constexpr auto CHUNK_OFFSET_TIME_STAMP_SEC = 0x0028;
 constexpr auto CHUNK_OFFSET_TIME_STAMP_NSEC = 0x002C;
 constexpr auto CHUNK_OFFSET_META_DATA = 0x0030;
+
+namespace ifm3d
+{
+  /**
+   * @brief Describes the transport info for a logical buffer_id.
+   */
+  struct TransportInfo
+  {
+    ifm3d::buffer_id transport_id;    // The generic buffer_id it's wrapped in
+                                      // (e.g., O3R_RESULT_ARRAY2D)
+    std::string metadata_type_string; // The string value in the metadata that
+                                      // identifies it
+  };
+
+  /**
+   * @brief Static mapping of logical buffer IDs to their transport info.
+   */
+  const std::unordered_map<buffer_id, TransportInfo>
+    LOGICAL_TO_TRANSPORT_MAPPING = {
+      {ifm3d::buffer_id::O3R_ODS_RENDERED_ZONES,
+       {ifm3d::buffer_id::O3R_RESULT_ARRAY2D, "ods_rendered_zones"}},
+      {ifm3d::buffer_id::O3R_ODS_FLAGS,
+       {ifm3d::buffer_id::O3R_RESULT_ARRAY2D, "ods_flags"}},
+      {ifm3d::buffer_id::O3R_MCC_STATIC_IMAGE,
+       {ifm3d::buffer_id::O3R_RESULT_ARRAY2D, "mcc_static_image"}},
+      {ifm3d::buffer_id::O3R_MCC_LIVE_IMAGE,
+       {ifm3d::buffer_id::O3R_RESULT_ARRAY2D, "mcc_live_image"}},
+      {ifm3d::buffer_id::O3R_MCC_MOTION_IMAGE,
+       {ifm3d::buffer_id::O3R_RESULT_ARRAY2D, "mcc_motion_image"}}};
+}
 
 std::size_t
 ifm3d::get_format_size(ifm3d::PixelFormat fmt)
@@ -587,4 +618,87 @@ ifm3d::create_metadata(const std::vector<std::uint8_t>& data, std::size_t idx)
       return ifm3d::json::parse(metadata);
     }
   return {};
+}
+
+// Helper function to map metadata 'type' string to its buffer_id enum
+ifm3d::buffer_id
+ifm3d::map_metadata_to_buffer_id(const ifm3d::Buffer& buffer)
+{
+  const auto& metadata = buffer.Metadata();
+
+  const auto& result_node = metadata.at("result");
+  const auto& type_node = result_node.at("type");
+  if (!type_node.is_string())
+    {
+      throw ifm3d::Error(
+        IFM3D_JSON_ERROR,
+        "The 'type' field in buffer metadata is not a string.");
+    }
+  const std::string type_str = type_node.get<std::string>();
+  // Look up the string in the LOGICAL_TO_TRANSPORT_MAPPING
+  for (const auto& pair : ifm3d::LOGICAL_TO_TRANSPORT_MAPPING)
+    {
+      if (pair.second.metadata_type_string == type_str)
+        {
+          return pair.first; // Return the logical buffer_id
+        }
+    }
+
+  // If the type string is not found in our known mappings
+  LOG_ERROR("Unknown buffer type string in metadata: '{}'", type_str);
+  throw ifm3d::Error(IFM3D_BUFFER_ID_NOT_AVAILABLE);
+}
+
+std::map<ifm3d::buffer_id, ifm3d::BufferList>
+ifm3d::map_logical_buffers(
+  const std::map<ifm3d::buffer_id, ifm3d::BufferList>& images,
+  const std::set<ifm3d::buffer_id>& requested_images)
+{
+  std::map<ifm3d::buffer_id, ifm3d::BufferList> mapped_images;
+
+  for (const auto& requested_id : requested_images)
+    {
+      auto mapping_it = ifm3d::LOGICAL_TO_TRANSPORT_MAPPING.find(requested_id);
+
+      // --- Case 1: Direct (non-transport) buffer ---
+      if (mapping_it == ifm3d::LOGICAL_TO_TRANSPORT_MAPPING.end())
+        {
+          auto img_it = images.find(requested_id);
+          if (img_it != images.end())
+            {
+              mapped_images[requested_id] = img_it->second;
+            }
+          continue;
+        }
+
+      // --- Case 2: Logical → Transport mapped buffer ---
+      const auto& transport_id = mapping_it->second.transport_id;
+      auto img_it = images.find(transport_id);
+      if (img_it == images.end())
+        {
+          continue;
+        }
+
+      const auto& transport_buffers = img_it->second;
+      mapped_images[requested_id].reserve(transport_buffers.size());
+
+      for (const auto& buf : transport_buffers)
+        {
+          try
+            {
+              if (ifm3d::map_metadata_to_buffer_id(buf) == requested_id)
+                {
+                  mapped_images[requested_id].push_back(buf);
+                }
+            }
+          catch (const ifm3d::Error& e)
+            {
+              LOG_ERROR("Mapping error for buffer_id {} : {}",
+                        static_cast<int>(transport_id),
+                        e.what());
+              throw ifm3d::Error(IFM3D_BUFFER_ID_NOT_AVAILABLE);
+            }
+        }
+    }
+  return mapped_images;
 }
