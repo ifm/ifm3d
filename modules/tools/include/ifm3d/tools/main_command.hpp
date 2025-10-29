@@ -27,6 +27,21 @@ namespace ifm3d
     [[nodiscard]] ifm3d::Device::Ptr GetDevice(
       bool throw_if_unavailable = true) const;
 
+    template <typename T>
+    typename T::Ptr
+    GetDevice(bool throwIfUnavailable = true)
+    {
+      auto device =
+        std::dynamic_pointer_cast<T>(this->GetDevice(throwIfUnavailable));
+
+      if (!device)
+        {
+          throw ifm3d::Error(IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE);
+        }
+
+      return device;
+    }
+
     std::string ip;
     std::uint16_t xmlrpc_port;
     std::string password;
