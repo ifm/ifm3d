@@ -56,4 +56,8 @@
 #  include <ifm3d/tools/common/swupdater/swupdate_deprecated_app.h>
 #endif
 
+#if defined(BUILD_MODULE_CRYPTO)
+#  include <ifm3d/tools/ovp8xx/sealedbox.h>
+#endif
+
 #endif // IFM3D_TOOLS_H
