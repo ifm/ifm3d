@@ -7,6 +7,7 @@
 #include <array>
 #include <chrono>
 #include <fstream>
+#include <ifm3d/common/err.h>
 #include <ifm3d/tools/common/swupdater/flash_sw_app.h>
 #include <ifm3d/tools/common/swupdater/swupdate_app.h>
 #include <iostream>
@@ -100,7 +101,15 @@ ifm3d::FlashSWApp::Execute(CLI::App* /*app*/)
           return;
         }
 
-      swupdater->RebootToProductive();
+      try
+        {
+          swupdater->RebootToProductive();
+        }
+      catch (const ifm3d::Error& e)
+        {
+          // IGNORE: Some devices will reboot automatically after the update
+          // finished
+        }
       if (!quiet)
         {
           std::cout << "Update successful, waiting for device to reboot..."

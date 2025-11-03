@@ -30,7 +30,7 @@ ifm3d::SWUpdateApp::Execute(CLI::App* /*app*/)
 {
   if (!this->subcmd_flash->parsed() && !this->subcmd_restart->parsed())
     {
-      auto swupdater = Parent<SWUpdateApp>()->CreateSWUpdater();
+      auto swupdater = CreateSWUpdater();
 
       if (detect)
         {

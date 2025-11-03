@@ -5,11 +5,13 @@
 
 #ifndef IFM3D_TOOLS_SWUPDATER_RESTART_APP_H
 #define IFM3D_TOOLS_SWUPDATER_RESTART_APP_H
+#include <ifm3d/device/device.h>
 #pragma once
 
 #include <ifm3d/common/features.h>
 #if defined(BUILD_MODULE_SWUPDATER)
 
+#  include <ifm3d/swupdater/swupdater.h>
 #  include <ifm3d/tools/command.hpp>
 #  include <ifm3d/tools/main_command.hpp>
 
@@ -31,7 +33,15 @@ namespace ifm3d
     void Execute(CLI::App* app) override;
     CLI::App* CreateCommand(CLI::App* parent) override;
     bool CheckCompatibility() override;
+
+  private:
+    bool _wait{false};
   }; // end: class RestartApp
+
+  void reboot_device(ifm3d::Device::Ptr device,
+                     ifm3d::SWUpdater::Ptr swupdater,
+                     ifm3d::Device::BootMode mode,
+                     bool wait);
 
 } // end: namespace ifm3d
 

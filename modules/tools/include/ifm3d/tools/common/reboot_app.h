@@ -31,7 +31,9 @@ namespace ifm3d
     CLI::App* CreateCommand(CLI::App* parent) override;
     bool CheckCompatibility() override;
 
-    bool recovery{false};
+  private:
+    bool _recovery{false};
+    bool _wait{false};
 
   }; // end: class RebootApp
 

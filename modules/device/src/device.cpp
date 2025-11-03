@@ -214,9 +214,9 @@ ifm3d::Device::MakeShared(const std::string& ip,
     }
   catch (const ifm3d::Error& ex)
     {
-      LOG_WARNING("Could not probe device type: {}", ex.what());
       if (throw_if_unavailable)
         {
+          LOG_WARNING("Could not probe device type: {}", ex.what());
           throw;
         }
     }
@@ -224,7 +224,10 @@ ifm3d::Device::MakeShared(const std::string& ip,
   //
   // worst case: we return the "non-optimized" base class
   //
-  LOG_WARNING("Returning instance of base camera class!");
+  if (throw_if_unavailable)
+    {
+      LOG_WARNING("Returning instance of base camera class!");
+    }
   return base;
 }
 
