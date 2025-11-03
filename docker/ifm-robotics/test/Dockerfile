@@ -1,5 +1,5 @@
 # Set the base image
-ARG BASE_IMAGE=ubuntu:20.04
+ARG BASE_IMAGE=ubuntu:22.04
 
 # the cmake version to use for building
 ARG CMAKE_VERSION=3.20.6
