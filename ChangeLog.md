@@ -5,14 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-### Removed
-- Update build matrix: remove `l4t` and `ubuntu:20.04`, keep `ubuntu:22.04` and `ubuntu:24.04`
 
 ### Added
+- Result buffers now auto-mapped to correct IDs on receive
 - Add support for Python `3.14.0` in Docker builds to avoid platform mis-match issue while installing `ifm3dpy`
+- Re-enabled NumPy installation and support in the Docker images.
 
 ### Fixed
 - ifm3d O3D3xx `config` Command now automatically creates missing applications
+
+### Removed
+- Update build matrix: remove `l4t` and `ubuntu:20.04`, keep `ubuntu:22.04` and `ubuntu:24.04`
 
 ## 1.7.2 - 2025-10-15
 ### Added
@@ -23,9 +26,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix in device discovery command always tries to access devices at `192.168.0.69`
 - Resolve issue where ODS application buffers were not received
-
-### Added
-- Result buffers now auto-mapped to correct IDs on receive
 
 ## 1.7.1 - 2025-07-31
 ### Removed
