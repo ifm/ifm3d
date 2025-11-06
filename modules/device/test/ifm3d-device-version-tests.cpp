@@ -16,6 +16,7 @@ std::vector<std::pair<std::string, ifm3d::SemVer>>
     {"0.0.4", ifm3d::SemVer(0, 0, 4, std::nullopt, std::nullopt)},
     {"1.2.3", ifm3d::SemVer(1, 2, 3, std::nullopt, std::nullopt)},
     {"10.20.30", ifm3d::SemVer(10, 20, 30, std::nullopt, std::nullopt)},
+    {"10.20.30.40", ifm3d::SemVer(10, 20, 30, "prerelease", std::nullopt)},
     {"1.1.2-prerelease+meta", ifm3d::SemVer(1, 1, 2, "prerelease", "meta")},
     {"1.1.2+meta", ifm3d::SemVer(1, 1, 2, std::nullopt, "meta")},
     {"1.1.2+meta-valid", ifm3d::SemVer(1, 1, 2, std::nullopt, "meta-valid")},
@@ -49,6 +50,8 @@ std::vector<std::pair<std::string, ifm3d::SemVer>>
   const std::vector<std::string> INVALID_VERSION_STRINGS{
     "1",
     "1.2",
+    "1.2.3.4.5",
+    "1.2.3.4.a",
     "1.2.3-0123",
     "1.2.3-0123.0123",
     "1.1.2+.123",
