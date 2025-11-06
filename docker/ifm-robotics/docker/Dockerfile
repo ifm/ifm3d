@@ -2,7 +2,7 @@
 ARG BASE_IMAGE=ubuntu:22.04
 
 # Set the Python version to use
-ARG PYTHON_VERSION=3.13
+ARG PYTHON_VERSION=3.14
 
 # ---------------------------
 # Stage 1: Builder base image

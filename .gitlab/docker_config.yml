@@ -1,6 +1,6 @@
 .docker-config:
   script: |
-    DOCKER_BUILD_ARGS="--build-arg BASE_IMAGE=${BASE_IMAGE} --build-arg PYTHON_VERSION=3.9"
+    DOCKER_BUILD_ARGS="--build-arg BASE_IMAGE=${BASE_IMAGE} --build-arg PYTHON_VERSION=3.14"
 
     DOCKER_CFG="{\"auths\":{"
 

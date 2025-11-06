@@ -17,10 +17,10 @@
   python-linux-matrix:
     - RUNNER: shared_docker
       IMAGE: quay.io/pypa/manylinux2014_x86_64:latest
-      PYTHON_VERSION: ["cp39-cp39", "cp310-cp310", "cp311-cp311", "cp312-cp312", "cp313-cp313"]
+      PYTHON_VERSION: ["cp39-cp39", "cp310-cp310", "cp311-cp311", "cp312-cp312", "cp313-cp313", "cp314-cp314"]
     - RUNNER: shared_docker_aarch64
       IMAGE: quay.io/pypa/manylinux2014_aarch64:latest
-      PYTHON_VERSION: ["cp39-cp39", "cp310-cp310", "cp311-cp311", "cp312-cp312", "cp313-cp313"]
+      PYTHON_VERSION: ["cp39-cp39", "cp310-cp310", "cp311-cp311", "cp312-cp312", "cp313-cp313", "cp314-cp314"]
       
   python-windows-matrix:
     - PYTHON_VERSION:
