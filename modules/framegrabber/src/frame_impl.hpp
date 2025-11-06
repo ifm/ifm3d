@@ -7,15 +7,19 @@
 #ifndef IFM3D_FG_FRAME_IMPL_H
 #define IFM3D_FG_FRAME_IMPL_H
 
-#include <fmt/format.h>
-#include <ifm3d/device/err.h>
-#include <ifm3d/fg/frame.h>
-#include <ifm3d/fg/module_frame_grabber.h>
 #include <map>
 #include <utility>
 
+#include <fmt/format.h>
+
+#include <ifm3d/device/err.h>
+#include <ifm3d/fg/frame.h>
+#include <ifm3d/fg/module_frame_grabber.h>
+#include <ifm3d/fg/organizer_utils.h>
+
 namespace ifm3d
 {
+
   //============================================================
   // Impl interface
   //============================================================

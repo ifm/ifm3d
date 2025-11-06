@@ -970,6 +970,20 @@ ifm3d::FrameGrabber::Impl::get_image_chunks(buffer_id id)
 
     case buffer_id::ALGO_DEBUG:
       return {};
+    case buffer_id::O3R_ODS_RENDERED_ZONES:
+    case buffer_id::O3R_ODS_FLAGS:
+    case buffer_id::O3R_MCC_LIVE_IMAGE:
+    case buffer_id::O3R_MCC_MOTION_IMAGE:
+    case buffer_id::O3R_MCC_STATIC_IMAGE:
+      if (device_type == ifm3d::Device::DeviceFamily::O3R)
+        {
+          this->_requested_images.insert(ifm3d::buffer_id::O3R_RESULT_ARRAY2D);
+          return {id, buffer_id::O3R_RESULT_ARRAY2D};
+        }
+      else
+        {
+          return {id};
+        }
     default:
       return {id};
     }

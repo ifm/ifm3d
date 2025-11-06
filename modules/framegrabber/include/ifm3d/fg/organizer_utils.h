@@ -109,6 +109,11 @@ namespace ifm3d
 
   ifm3d::json create_metadata(const std::vector<std::uint8_t>& data,
                               std::size_t idx);
+  buffer_id map_metadata_to_buffer_id(const ifm3d::Buffer& buffer);
+
+  std::map<ifm3d::buffer_id, ifm3d::BufferList> map_logical_buffers(
+    const std::map<ifm3d::buffer_id, ifm3d::BufferList>& images,
+    const std::set<ifm3d::buffer_id>& requested_images);
 
   /**
    * Create a value of type T from sizeof(T) bytes of the passed in byte
