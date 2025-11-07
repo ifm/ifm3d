@@ -3,7 +3,7 @@ build:linux:
   tags:
     - shared_docker
   variables:
-    BASE_IMAGE: ubuntu:20.04
+    BASE_IMAGE: ubuntu:22.04
   image:
     name: gcr.io/kaniko-project/executor:v1.23.2-debug
     entrypoint: [""]
@@ -67,7 +67,7 @@ build:linux:docker:
     - |
      ARCH=$(uname -m)
      echo "ARCH : ${ARCH}"
-     PYTHON_VERSION=cp313
+     PYTHON_VERSION=cp314
      if [ "$ARCH" = "x86_64" ]; then
         PATTERN="manylinux_2_17_x86_64"
      elif [ "$ARCH" = "aarch64" ]; then

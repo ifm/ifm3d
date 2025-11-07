@@ -27,11 +27,6 @@
         --template "${TARGET}:${DOCKER_TAG}-ubuntu-ARCH" \
         --platforms "linux/arm64,linux/amd64"
 
-        manifest-tool push from-args \
-        --target "${TARGET}:${DOCKER_TAG}-l4t" \
-        --template "${TARGET}:${DOCKER_TAG}-l4t-ARCH" \
-        --platforms "linux/arm64"
-
       done
   stable:
     - |
@@ -48,11 +43,6 @@
         --target "${TARGET}:stable" \
         --template "${TARGET}:${DOCKER_TAG}-ubuntu-ARCH" \
         --platforms "linux/arm64,linux/amd64"
-
-        manifest-tool push from-args \
-        --target "${TARGET}:stable-l4t" \
-        --template "${TARGET}:${DOCKER_TAG}-l4t-ARCH" \
-        --platforms "linux/arm64"
 
       done
 

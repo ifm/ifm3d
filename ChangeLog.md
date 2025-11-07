@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Removed
+- Update build matrix: remove `l4t` and `ubuntu:20.04`, keep `ubuntu:22.04` and `ubuntu:24.04`
+
+### Added
+- Add support for Python `3.14.0` in Docker builds to avoid platform mis-match issue while installing `ifm3dpy`
 
 ## 1.7.2 - 2025-10-15
 ### Added
