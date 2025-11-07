@@ -8,6 +8,7 @@ ARG PYTHON_VERSION=3.13
 # Stage 1: Builder base image
 # ---------------------------
 FROM ${BASE_IMAGE} AS builder
+ARG PYTHON_VERSION
 
 # Install build dependencies
 RUN apt-get update && \
