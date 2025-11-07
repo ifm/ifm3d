@@ -12,6 +12,7 @@
 #include <httplib.h>
 #include <ifm3d/common/logging/log.h>
 #include <ifm3d/device/legacy_device.h>
+#include <initializer_list>
 #include <string>
 #include <tinyxml2.h>
 #include <unordered_map>
@@ -40,6 +41,9 @@ namespace ifm3d
 
   public:
     XMLRPCValue() : _value(std::make_shared<value_type>(std::monostate())){};
+    XMLRPCValue(std::monostate value)
+      : _value(std::make_shared<value_type>(value))
+    {}
     XMLRPCValue(std::string value)
       : _value(std::make_shared<value_type>(value))
     {}
@@ -70,6 +74,26 @@ namespace ifm3d
           map.emplace(elem.first, XMLRPCValue(elem.second));
         }
       _value = std::make_shared<value_type>(map);
+    }
+
+    template <typename... T>
+    XMLRPCValue(std::variant<T...>&& value)
+    {
+      _value = std::visit(
+        [](auto&& val) -> std::shared_ptr<value_type> {
+          return XMLRPCValue(std::move(val))._value;
+        },
+        std::move(value));
+    }
+
+    XMLRPCValue(std::initializer_list<std::string> list)
+    {
+      auto vec = std::vector<XMLRPCValue>();
+      for (const auto& elem : list)
+        {
+          vec.emplace_back(elem);
+        }
+      _value = std::make_shared<value_type>(vec);
     }
 
     [[nodiscard]] bool IsValid() const;

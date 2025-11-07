@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 1.7.2 - 2025-10-15
 ### Added
 - Add a new `--resetNetworkSettings` flag to the CLI, resolving an issue where network settings were not reset as expected.
+- Add JSON pointer to `get_schema`
 - Add ability to send `PCIC` commands (Currently available: f command for sending external ODS egomotion data).
 
 ### Fixed

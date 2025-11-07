@@ -7,11 +7,13 @@
 #include <ifm3d/common/json_impl.hpp>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/o3r.h>
+#include <initializer_list>
 #include <memory>
 #include <o3r_impl.hpp>
 #include <optional>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 //================================================
@@ -83,6 +85,19 @@ ifm3d::json
 ifm3d::O3R::GetSchema()
 {
   return json::parse(this->_impl->GetSchema());
+}
+
+ifm3d::json
+ifm3d::O3R::GetSchema(
+  std::variant<std::monostate, std::string, std::vector<std::string>> pointers)
+{
+  return json::parse(this->_impl->GetSchema(std::move(pointers)));
+}
+
+ifm3d::json
+ifm3d::O3R::GetSchema(std::initializer_list<std::string> pointers)
+{
+  return json::parse(this->_impl->GetSchema(pointers));
 }
 
 void
