@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add support for Python `3.14.0` in Docker builds to avoid platform mis-match issue while installing `ifm3dpy`
 
+### Fixed
+- ifm3d O3D3xx `config` Command now automatically creates missing applications
+
 ## 1.7.2 - 2025-10-15
 ### Added
 - Add a new `--resetNetworkSettings` flag to the CLI, resolving an issue where network settings were not reset as expected.

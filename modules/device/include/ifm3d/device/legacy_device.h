@@ -365,6 +365,11 @@ namespace ifm3d
     json to_json(bool open_session = true);
 
     json get_application_infos_to_json();
+
+    void apply_device_config(json& current, const json& root);
+    void apply_apps_config(json& current, const json& root);
+    void apply_time_config(json& current, const json& root);
+    void apply_network_config(json& current, const json& root);
   };
 }
 
