@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - ifm3d O3D3xx `config` Command now automatically creates missing applications
+- Fix `.deb` artifacts names to ensure a consistent naming scheme for releases 
 
 ### Removed
 - Update build matrix: remove `l4t` and `ubuntu:20.04`, keep `ubuntu:22.04` and `ubuntu:24.04`
