@@ -67,14 +67,16 @@ RUN mkdir -p /ifm3d/build \
     && cmake --build . \
     && if [ "x$RUN_TESTS" = "x" ]; then echo "Skipping tests..."; else ninja check; fi \
     && cmake --build . --target package \
-    && IFM3D_VERSION=$(/ifm3d/build/modules/tools/src/bin/ifm3d --version | cut -d "=" -f 2) \
+    && IFM3D_VERSION=$(/ifm3d/build/modules/tools/ifm3d --version | cut -d "=" -f 2) \
+    && echo "IFM3D Version: ${IFM3D_VERSION}" \
     && BASE_IMAGE_NAME=$(echo "${BASE_IMAGE}" | grep -o '[^/]*$' | cut -d":" -f1) \
     && BASE_IMAGE_VERSION=$(echo "${BASE_IMAGE}" | grep -o '[^/]*$' | cut -d":" -f2) \
     && ARCH=$(dpkg --print-architecture) \
     && mkdir -p /out \
     && cd /ifm3d/build/  \
     && mv /ifm3d/build/*ifm3d.deb /out/ifm3d-${BASE_IMAGE_NAME}-${BASE_IMAGE_VERSION}-${ARCH}-${IFM3D_VERSION}.deb \
-    && mv /ifm3d/build/*ifm3dpy.deb /out/ifm3dpy-${BASE_IMAGE_NAME}-${BASE_IMAGE_VERSION}-${ARCH}-${IFM3D_VERSION}.deb
+    && mv /ifm3d/build/*ifm3dpy.deb /out/ifm3dpy-${BASE_IMAGE_NAME}-${BASE_IMAGE_VERSION}-${ARCH}-${IFM3D_VERSION}.deb \
+    && ls -l /out
 
 FROM scratch AS output
 COPY --from=build /out /out
