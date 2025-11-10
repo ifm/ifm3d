@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix in device discovery, device showing multiple times
 - Fix in device discovery command always tries to access devices at `192.168.0.69`
 - Fix issue "network settings are not reset by CLI" by adding new flag `--resetNetworkSettings`
+- Fix Docker build failures when installing ifm3dpy by using Python version `3.13.0`
 
 ## 1.6.12 - 2025-06-30
 ### Fixed
