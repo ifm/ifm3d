@@ -94,6 +94,8 @@ const std::map<ifm3d::buffer_id, const ifm3d::json> o3r_schema_map{
    {{"type", "blob"}, {"id", "O3R_RESULT_JSON"}}},
   {ifm3d::buffer_id::O3R_RESULT_ARRAY2D,
    {{"type", "blob"}, {"id", "O3R_RESULT_ARRAY2D"}}},
+  {ifm3d::buffer_id::O3R_RESULT_IMU,
+   {{"type", "blob"}, {"id", "O3R_RESULT_IMU"}}},
   {ifm3d::buffer_id::O3R_ODS_FLAGS,
    {{"type", "records"},
     {"id", "O3R_ODS_FLAGS"},
