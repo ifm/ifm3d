@@ -641,3 +641,12 @@ TEST_F(FrameGrabberTest, buffer_mapping)
   auto& buffer = frame->GetBuffer(ifm3d::buffer_id::O3R_ODS_RENDERED_ZONES);
   EXPECT_TRUE(buffer.Metadata()["result"]["type"] == "ods_rendered_zones");
 }
+
+TEST_F(FrameGrabberTest, imu_data)
+{
+  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->_dev);
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(o3r, 50016);
+  fg->Start({ifm3d::buffer_id::O3R_RESULT_IMU});
+  auto frame = fg->WaitForFrame().get();
+  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::O3R_RESULT_IMU));
+}
