@@ -631,3 +631,12 @@ TEST_F(FrameGrabberTest, metadata)
   EXPECT_TRUE(frame->GetBufferCount(static_cast<ifm3d::buffer_id>(
                 ifm3d::buffer_id::O3R_RESULT_JSON)) > 0);
 }
+
+TEST_F(FrameGrabberTest, imu_data)
+{
+  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->dev_);
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(o3r, 50016);
+  fg->Start({ifm3d::buffer_id::O3R_RESULT_IMU});
+  auto frame = fg->WaitForFrame().get();
+  EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::O3R_RESULT_IMU));
+}

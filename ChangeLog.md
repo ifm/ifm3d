@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix issue "network settings are not reset by CLI" by adding new flag `--resetNetworkSettings`
 - Fix Docker build failures when installing ifm3dpy by using Python version `3.13.0`
 - Pin NumPy to version 1.6.2
+- Fix missing Schema for the `O3R_RESULT_IMU` `buffer_id`
 
 ## 1.6.12 - 2025-06-30
 ### Fixed
