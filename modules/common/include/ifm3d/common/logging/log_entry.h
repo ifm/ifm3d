@@ -32,7 +32,7 @@ namespace ifm3d
         _file(file)
     {}
 
-    [[nodiscard]] const LogginTimepoint&
+    [[nodiscard]] const LoggingTimepoint&
     GetTime() const
     {
       return _time;
@@ -69,7 +69,7 @@ namespace ifm3d
     }
 
   private:
-    LogginTimepoint _time;
+    LoggingTimepoint _time;
     LogLevel _log_level;
     std::string _message;
     size_t _line;
