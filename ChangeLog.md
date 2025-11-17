@@ -16,8 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix `.deb` artifacts names to ensure a consistent naming scheme for releases 
 - Fix missing Schema for the `O3R_RESULT_IMU` `buffer_id`
 
-### Removed
+### Changed
 - Update build matrix: remove `l4t` and `ubuntu:20.04`, keep `ubuntu:22.04` and `ubuntu:24.04`
+- Update Python matrix: remove `3.9` and add `3.14.0` for both `linux` and `windows`
 
 ## 1.7.2 - 2025-10-15
 ### Added
