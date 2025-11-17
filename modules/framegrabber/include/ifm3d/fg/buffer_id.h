@@ -12,10 +12,10 @@ namespace ifm3d
 {
   /** @ingroup FrameGrabber
    *
-   * buffer_ids available for use with the default Organizer.
+   * BufferIds available for use with the default Organizer.
    */
   // NOLINTNEXTLINE(readability-identifier-naming,readability-enum-initial-value)
-  enum class buffer_id : uint64_t
+  enum class BufferId : uint64_t
   {
     // clang-format off
     
@@ -201,5 +201,7 @@ namespace ifm3d
 
     // clang-format on
   };
+
+  using buffer_id = BufferId; // Add alias for backward compatibility
 }
 #endif // IFM3D_FG_Buffer_ID_H
