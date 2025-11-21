@@ -97,8 +97,6 @@ namespace ifm3d
         }
       catch (const std::exception& ex)
         {
-          LOG_ERROR("{} -> {}: {}", url, method, ex.what());
-
           if (std::strstr(ex.what(), "HTTP response code is 407, not 200"))
             {
               throw ifm3d::Error(IFM3D_PROXY_AUTH_REQUIRED);
