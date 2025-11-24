@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Add `IMUInfoV1` deserializer for O3R IMU data.
+
 ## 2.0.0 - 2025-11-17
 
 ### Added
