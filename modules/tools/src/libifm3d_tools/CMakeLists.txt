@@ -1,4 +1,4 @@
-file(GLOB IFM3D_TOOLS_SOURCES CONFIGURE_DEPENDS *.cpp common/*.cpp legacy/*.cpp ovp8xx/*.cpp)
+file(GLOB IFM3D_TOOLS_SOURCES CONFIGURE_DEPENDS *.cpp common/*.cpp legacy/*.cpp ovp8xx/*.cpp o3cxxx/*.cpp)
 add_library(ifm3d_tools INTERFACE)
 target_sources(ifm3d_tools INTERFACE ${IFM3D_TOOLS_SOURCES})
 

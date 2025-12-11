@@ -1,17 +1,17 @@
 #include <cstdlib>
-#include <functional>
+// #include <functional>
 #include <gtest/gtest.h>
-#include <ifm3d/common/err.h>
+// #include <ifm3d/common/err.h>
 #include <ifm3d/common/json_impl.hpp>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/o3c.h>
 #include <iostream>
 #include <memory>
 #include <ostream>
-#include <string>
-#include <utility>
-#include <variant>
-#include <vector>
+// #include <string>
+// #include <utility>
+// #include <variant>
+// #include <vector>
 
 class O3CTest : public ::testing::Test
 {

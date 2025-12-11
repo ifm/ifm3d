@@ -18,9 +18,9 @@
 #include <ifm3d/common/logging/log.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/ifm_network_device.h>
+#include <ifm3d/device/o3c.h>
 #include <ifm3d/device/o3d.h>
 #include <ifm3d/device/o3r.h>
-#include <ifm3d/device/o3c.h>
 #include <ifm3d/device/o3x.h>
 #include <ifm3d/device/semver.h>
 #include <memory>
@@ -144,7 +144,7 @@ const unsigned int ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_PATCH = 190;
 
 const ifm3d::SemVer O3R_MINIMUM_FIRWARE_SUPPORTED(0, 13, 13);
 // TODO : Update once O3C minimum firmware is defined
-const ifm3d::SemVer O3C_MINIMUM_FIRWARE_SUPPORTED(0, 13, 13); 
+const ifm3d::SemVer O3C_MINIMUM_FIRWARE_SUPPORTED(0, 13, 13);
 
 //================================================
 // Function for Searching Devices on Network
