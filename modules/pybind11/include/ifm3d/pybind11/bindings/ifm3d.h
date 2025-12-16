@@ -13,6 +13,7 @@
 #include <ifm3d/pybind11/bindings/error.h>
 #include <ifm3d/pybind11/bindings/legacy_device.h>
 #include <ifm3d/pybind11/bindings/logging.h>
+#include <ifm3d/pybind11/bindings/o3c.h>
 #include <ifm3d/pybind11/bindings/o3d.h>
 #include <ifm3d/pybind11/bindings/o3r.h>
 #include <ifm3d/pybind11/bindings/o3x.h>
@@ -154,6 +155,7 @@ bind_ifm3d(py::module_& m)
   bind_error(device_module);
   bind_device(device_module);
   bind_o3r(device_module);
+  bind_o3c(device_module);
   bind_legacy_device(device_module);
   bind_o3d(device_module);
   bind_o3x(device_module);
@@ -193,6 +195,7 @@ bind_ifm3d(py::module_& m)
   m.attr("Device") = device_module.attr("Device");
   m.attr("LegacyDevice") = device_module.attr("LegacyDevice");
   m.attr("O3R") = device_module.attr("O3R");
+  m.attr("O3C") = device_module.attr("O3C");
 #if defined(BUILD_MODULE_SWUPDATER)
   m.attr("FrameGrabber") = framegrabber_module.attr("FrameGrabber");
   m.attr("Frame") = framegrabber_module.attr("Frame");

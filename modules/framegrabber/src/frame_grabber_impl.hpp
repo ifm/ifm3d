@@ -220,7 +220,8 @@ inline ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
       this->SetMasking(true);
       this->SetOrganizer(std::make_unique<O3XOrganizer>());
     }
-  else if (device_type == Device::DeviceFamily::O3R)
+  else if (device_type == Device::DeviceFamily::O3R ||
+           device_type == Device::DeviceFamily::O3C)
     {
       this->SetMasking(false);
 

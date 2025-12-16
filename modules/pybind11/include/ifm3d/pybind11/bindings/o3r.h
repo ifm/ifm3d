@@ -120,6 +120,54 @@ bind_o3r(pybind11::module_& m)
           py::arg("ip") = ifm3d::DEFAULT_IP,
           py::arg("xmlrpc_port") = ifm3d::DEFAULT_XMLRPC_PORT);
 
+  // Bind SetTemporaryApplicationParameter as a nested class of O3R
+  py::class_<ifm3d::O3R::SetTemporaryApplicationParameter, ifm3d::PCICCommand>(
+    o3r,
+    "SetTemporaryApplicationParameter")
+    .def(py::init<ifm3d::O3R::SetTemporaryApplicationParameter::Parameter,
+                  std::vector<std::uint8_t>>(),
+         py::arg("parameter"),
+         py::arg("data"),
+         R"(
+        Constructor
+
+        Parameters
+        ----------
+        parameter : Parameter
+            The parameter to set
+
+        data : bytes
+            The data to set the parameter to
+      )");
+
+  // Bind Parameter enum as nested within O3R
+  py::enum_<ifm3d::O3R::SetTemporaryApplicationParameter::Parameter>(
+    o3r,
+    "Parameter",
+    py::arithmetic())
+    .value("ODS_OVERHANGING_LOAD",
+           ifm3d::O3R::SetTemporaryApplicationParameter::ODS_OVERHANGING_LOAD)
+    .value("ODS_ZONE_SET",
+           ifm3d::O3R::SetTemporaryApplicationParameter::ODS_ZONE_SET)
+    .value("ODS_MAXIMUM_HEIGHT",
+           ifm3d::O3R::SetTemporaryApplicationParameter::ODS_MAXIMUM_HEIGHT)
+    .value("ODS_MOTION_DATA",
+           ifm3d::O3R::SetTemporaryApplicationParameter::ODS_MOTION_DATA)
+    .value("PDS_GET_PALLET",
+           ifm3d::O3R::SetTemporaryApplicationParameter::PDS_GET_PALLET)
+    .value("PDS_GET_ITEM",
+           ifm3d::O3R::SetTemporaryApplicationParameter::PDS_GET_ITEM)
+    .value("PDS_GET_RACK",
+           ifm3d::O3R::SetTemporaryApplicationParameter::PDS_GET_RACK)
+    .value("PDS_VOL_CHECK",
+           ifm3d::O3R::SetTemporaryApplicationParameter::PDS_VOL_CHECK)
+    .export_values();
+
+  // Create module-level aliases for backward compatibility
+  m.attr("SetTemporaryApplicationParameter") =
+    o3r.attr("SetTemporaryApplicationParameter");
+  m.attr("Parameter") = o3r.attr("Parameter");
+
   o3r.def("factory_reset",
           &ifm3d::O3R::FactoryReset,
           py::call_guard<py::gil_scoped_release>(),

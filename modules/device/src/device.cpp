@@ -113,8 +113,8 @@ const int ifm3d::DEV_O3D_MIN = 1;
 const int ifm3d::DEV_O3D_MAX = 255;
 const int ifm3d::DEV_O3R_MIN = 768;
 const int ifm3d::DEV_O3R_MAX = 1023;
-const int ifm3d::DEV_O3C_MIN = 1;
-const int ifm3d::DEV_O3C_MAX = 1280;
+const int ifm3d::DEV_O3C_MIN = 1280;
+const int ifm3d::DEV_O3C_MAX = 1535;
 const int ifm3d::DEV_O3X_MIN = 512;
 const int ifm3d::DEV_O3X_MAX = 767;
 const std::string ifm3d::ASSUME_DEVICE =
@@ -142,9 +142,9 @@ const unsigned int ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MAJOR = 1;
 const unsigned int ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_MINOR = 1;
 const unsigned int ifm3d::O3X_DISTANCE_NOISE_IMAGE_SUPPORT_PATCH = 190;
 
-const ifm3d::SemVer O3R_MINIMUM_FIRWARE_SUPPORTED(0, 13, 13);
+const ifm3d::SemVer O3R_MINIMUM_FIRMWARE_SUPPORTED(0, 13, 13);
 // TODO : Update once O3C minimum firmware is defined
-const ifm3d::SemVer O3C_MINIMUM_FIRWARE_SUPPORTED(0, 13, 13);
+const ifm3d::SemVer O3C_MINIMUM_FIRMWARE_SUPPORTED(0, 13, 13);
 
 //================================================
 // Function for Searching Devices on Network
@@ -188,9 +188,9 @@ ifm3d::Device::MakeShared(const std::string& ip,
       if (base->AmI(DeviceFamily::O3R))
         {
           if (base->CheckMinimumFirmwareVersion(
-                O3R_MINIMUM_FIRWARE_SUPPORTED.major_num,
-                O3R_MINIMUM_FIRWARE_SUPPORTED.minor_num,
-                O3R_MINIMUM_FIRWARE_SUPPORTED.patch_num))
+                O3R_MINIMUM_FIRMWARE_SUPPORTED.major_num,
+                O3R_MINIMUM_FIRMWARE_SUPPORTED.minor_num,
+                O3R_MINIMUM_FIRMWARE_SUPPORTED.patch_num))
             {
               LOG_VERBOSE("Instantiating O3R...");
               return std::make_shared<ifm3d::O3R>(ip, xmlrpc_port);
@@ -199,7 +199,7 @@ ifm3d::Device::MakeShared(const std::string& ip,
           const std::string error_msg =
             fmt::format("Please update the firmware, minimum firmware "
                         "version required is {}",
-                        O3R_MINIMUM_FIRWARE_SUPPORTED);
+                        O3R_MINIMUM_FIRMWARE_SUPPORTED);
 
           LOG_VERBOSE(error_msg);
           throw Error(IFM3D_INVALID_FIRMWARE_VERSION, error_msg);
@@ -207,9 +207,9 @@ ifm3d::Device::MakeShared(const std::string& ip,
       if (base->AmI(DeviceFamily::O3C))
         {
           if (base->CheckMinimumFirmwareVersion(
-                O3C_MINIMUM_FIRWARE_SUPPORTED.major_num,
-                O3C_MINIMUM_FIRWARE_SUPPORTED.minor_num,
-                O3C_MINIMUM_FIRWARE_SUPPORTED.patch_num))
+                O3C_MINIMUM_FIRMWARE_SUPPORTED.major_num,
+                O3C_MINIMUM_FIRMWARE_SUPPORTED.minor_num,
+                O3C_MINIMUM_FIRMWARE_SUPPORTED.patch_num))
             {
               LOG_VERBOSE("Instantiating O3C...");
               return std::make_shared<ifm3d::O3C>(ip, xmlrpc_port);
@@ -218,7 +218,7 @@ ifm3d::Device::MakeShared(const std::string& ip,
           const std::string error_msg =
             fmt::format("Please update the firmware, minimum firmware "
                         "version required is {}",
-                        O3C_MINIMUM_FIRWARE_SUPPORTED);
+                        O3C_MINIMUM_FIRMWARE_SUPPORTED);
 
           LOG_VERBOSE(error_msg);
           throw Error(IFM3D_INVALID_FIRMWARE_VERSION, error_msg);

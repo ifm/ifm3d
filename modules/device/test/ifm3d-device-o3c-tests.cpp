@@ -1,17 +1,13 @@
 #include <cstdlib>
-// #include <functional>
 #include <gtest/gtest.h>
-// #include <ifm3d/common/err.h>
 #include <ifm3d/common/json_impl.hpp>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/o3c.h>
 #include <iostream>
 #include <memory>
 #include <ostream>
-// #include <string>
-// #include <utility>
-// #include <variant>
-// #include <vector>
+#include <string>
+#include <vector>
 
 class O3CTest : public ::testing::Test
 {
@@ -68,11 +64,25 @@ TEST_F(O3CTest, GetSchema)
     EXPECT_FALSE(result.empty());
   });
 
-  auto json = _dev->ToJSON();
-
-  auto port = _dev->GetSchema("/ports");
   EXPECT_NO_THROW({
     auto result = _dev->GetSchema("/ports");
+    EXPECT_FALSE(result.empty());
+  });
+
+  std::string pointer = "/ports";
+  EXPECT_NO_THROW({
+    auto result = _dev->GetSchema(pointer);
+    EXPECT_FALSE(result.empty());
+  });
+
+  EXPECT_NO_THROW({
+    auto result = _dev->GetSchema({"/ports", "/applications"});
+    EXPECT_FALSE(result.empty());
+  });
+
+  std::vector<std::string> pointer_vec = {"/ports", "/applications"};
+  EXPECT_NO_THROW({
+    auto result = _dev->GetSchema(pointer_vec);
     EXPECT_FALSE(result.empty());
   });
 }

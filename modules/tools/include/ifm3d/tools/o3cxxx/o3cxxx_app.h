@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
- * Copyright 2024-present ifm electronic, gmbh
+ * Copyright 2025-present ifm electronic, gmbh
  * SPDX-License-Identifier: Apache-2.0
  */
 
