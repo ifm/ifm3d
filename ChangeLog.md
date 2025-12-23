@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix `IMUInfoV1.imu_samples` Python binding to return a valid list instead of conversion error.
 - Fix `export` command fails for `o3d` and `o3x` devices
 
+### Changed
+- Migrated `pybind11` from `v2.12.0` to `v3.0.1`.
+
 ## 2.0.0 - 2025-11-17
 
 ### Added

@@ -34,19 +34,6 @@ RUN apt-get update \
 RUN wget -O - "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-$(uname -i).tar.gz" \
     | tar -xz --strip-components=1 -C /usr
 
-# build pybind11 with cmake - but first clone from the official github repo
-RUN git clone --branch v2.8.0 https://github.com/pybind/pybind11.git /pybind  \
-    && mkdir -p /pybind/build \
-    && cd /pybind/build \
-    && cmake -GNinja \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DPYBIND11_TEST=OFF \
-        -DCMAKE_INSTALL_PREFIX=/usr \
-        -DPYTHON_EXECUTABLE=/usr/bin/python3 \
-        .. \
-    && cmake --build . \
-    && cmake --build . --target install
-
 # if you are running unit tests against a camera at
 # a different IP, set that here.
 ENV IFM3D_IP 192.168.0.69
