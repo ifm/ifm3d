@@ -7,6 +7,7 @@
 #define IFM3D_PYBIND_BINDING_LOGGING
 
 #include <pybind11/chrono.h>
+#include <pybind11/native_enum.h>
 #include <pybind11/pybind11.h>
 
 #include <fmt/chrono.h>
@@ -51,14 +52,18 @@ inline void
 bind_logging(pybind11::module_& m)
 {
 
-  py::enum_<ifm3d::LogLevel>(m, "LogLevel", "Enum: The log level.")
+  py::native_enum<ifm3d::LogLevel>(m,
+                                   "LogLevel",
+                                   "enum.IntEnum",
+                                   "Enum: The log level.")
     .value("None", ifm3d::LogLevel::None)
     .value("Critical", ifm3d::LogLevel::Critical)
     .value("Error", ifm3d::LogLevel::Error)
     .value("Warning", ifm3d::LogLevel::Warning)
     .value("Info", ifm3d::LogLevel::Info)
     .value("Debug", ifm3d::LogLevel::Debug)
-    .value("Verbose", ifm3d::LogLevel::Verbose);
+    .value("Verbose", ifm3d::LogLevel::Verbose)
+    .finalize();
 
   py::class_<ifm3d::LogEntry> log_entry(m,
                                         "LogEntry",

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Migrated `pybind11` from `v2.12.0` to `v3.0.1`.
+- Migrate `pybind11` `py::enum_` to `py::native_enum` (v3.0)
 
 ## 2.0.0 - 2025-11-17
 
