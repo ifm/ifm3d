@@ -6,6 +6,7 @@
 #ifndef IFM3D_PYBIND_BINDING_LOGGING
 #define IFM3D_PYBIND_BINDING_LOGGING
 
+#define PYBIND11_USE_SMART_HOLDER
 #include <pybind11/chrono.h>
 #include <pybind11/native_enum.h>
 #include <pybind11/pybind11.h>
@@ -17,7 +18,9 @@
 
 namespace py = pybind11;
 
-class PyLogWriter : public ifm3d::LogWriter
+class PyLogWriter
+  : public ifm3d::LogWriter
+  , public pybind11::trampoline_self_life_support
 {
 public:
   using LogWriter::LogWriter;
@@ -27,25 +30,6 @@ public:
   {
     PYBIND11_OVERRIDE_PURE_NAME(void, ifm3d::LogWriter, "write", Write, entry);
   };
-};
-
-class PyLogWriterGuard : public ifm3d::LogWriter
-{
-public:
-  PyLogWriterGuard(std::shared_ptr<ifm3d::LogWriter> inner)
-    : _inner(std::move(inner)),
-      _py_guard(py::cast(_inner))
-  {}
-
-  void
-  Write(const ifm3d::LogEntry& entry) override
-  {
-    _inner->Write(entry);
-  };
-
-private:
-  std::shared_ptr<ifm3d::LogWriter> _inner;
-  py::object _py_guard;
 };
 
 inline void
@@ -107,10 +91,10 @@ bind_logging(pybind11::module_& m)
       The time this log entry occurred
     )");
 
-  py::class_<ifm3d::LogWriter, PyLogWriter, std::shared_ptr<ifm3d::LogWriter>>
-    log_writer(m,
-               "LogWriter",
-               R"(
+  py::class_<ifm3d::LogWriter, PyLogWriter, py::smart_holder> log_writer(
+    m,
+    "LogWriter",
+    R"(
       Base class for creating custom log writers.
     )");
 
@@ -172,8 +156,7 @@ bind_logging(pybind11::module_& m)
   logger.def_static(
     "set_writer",
     [](std::shared_ptr<ifm3d::LogWriter> writer) {
-      ifm3d::Logger::Get().SetWriter(
-        std::make_shared<PyLogWriterGuard>(writer));
+      ifm3d::Logger::Get().SetWriter(std::move(writer));
     },
     R"(
       Set the log writer.
