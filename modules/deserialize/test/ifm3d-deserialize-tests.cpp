@@ -17,6 +17,7 @@
 #include <ifm3d/deserialize/struct_o3r_ods_polar_occupancy_grid_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_extrinsic_calibration_correction_v1.hpp>
 #include <ifm3d/deserialize/deserialize_o3d_buffers.hpp>
+#include <ifm3d/deserialize/struct_imu_info_v1.hpp>
 #include <algorithm>
 #include <fstream>
 #include "tof_info_test_data.hpp"
@@ -25,6 +26,7 @@
 #include "ods_occupancy_grid.hpp"
 #include "ods_polar_occupancy_grid.hpp"
 #include "ods_extrinsic_calibration_correction.hpp"
+#include "imu_info_test_data.hpp"
 #include "o3d_parameters.hpp"
 #include "test_utils.hpp"
 #include <limits>
@@ -517,4 +519,75 @@ TEST(DeserializeTestWithFile, struct_ods_extrinsic_calibration_correction_v1)
   ifm3d::compare_array<float, 3>(
     ods_extrinsic_calibration_correction_v1.rot_head_to_user,
     ifm3d::ods_extrinsic_calibration_correction::rot_head_to_user);
+}
+
+TEST(DeserializeTestWithFile, struct_imu_info_v1_size_exception)
+{
+  auto buffer = ifm3d::Buffer(1, 5, 1, ifm3d::pixel_format::FORMAT_8U);
+
+  EXPECT_THROW(ifm3d::IMUInfoV1::Deserialize(buffer), ifm3d::Error);
+}
+
+TEST(DeserializeTestWithDevice, struct_imu_info_v1)
+{
+  auto dev = std::make_shared<ifm3d::O3R>();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(dev, 50016);
+
+  fg->Start({ifm3d::buffer_id::O3R_RESULT_IMU});
+  auto frame = fg->WaitForFrame().get();
+
+  auto buffer = frame->GetBuffer(ifm3d::buffer_id::O3R_RESULT_IMU);
+
+  EXPECT_NO_THROW(ifm3d::IMUInfoV1::Deserialize(buffer));
+}
+
+TEST(DeserializeTestWithFile, struct_imu_info_v1)
+{
+  auto buffer = ifm3d::read_buffer_from_file("imu_info.data");
+  auto imu_info_v1 = ifm3d::IMUInfoV1::Deserialize(buffer);
+
+  EXPECT_GE(imu_info_v1.imu_version, ifm3d::imu_info::IMU_VERSION);
+
+  EXPECT_EQ(imu_info_v1.num_samples, ifm3d::imu_info::NUM_SAMPLES);
+
+  for (std::uint32_t i = 0; i < imu_info_v1.num_samples; ++i)
+    {
+      const auto& actual = imu_info_v1.imu_samples[i];
+      const auto& expect = ifm3d::imu_info::IMU_SAMPLES[i];
+
+      EXPECT_EQ(actual.hw_timestamp, expect.hw_timestamp);
+      EXPECT_EQ(actual.timestamp, expect.timestamp);
+
+      constexpr float k_tol = 1e-5F;
+      EXPECT_NEAR(actual.temperature, expect.temperature, k_tol);
+      EXPECT_NEAR(actual.acc_x, expect.acc_x, k_tol);
+      EXPECT_NEAR(actual.acc_y, expect.acc_y, k_tol);
+      EXPECT_NEAR(actual.acc_z, expect.acc_z, k_tol);
+      EXPECT_NEAR(actual.gyro_x, expect.gyro_x, k_tol);
+      EXPECT_NEAR(actual.gyro_y, expect.gyro_y, k_tol);
+      EXPECT_NEAR(actual.gyro_z, expect.gyro_z, k_tol);
+    }
+
+  std::array<float, 6> const extrinc_imu_to_user = {
+    imu_info_v1.extrinsic_imu_to_user.trans_x,
+    imu_info_v1.extrinsic_imu_to_user.trans_y,
+    imu_info_v1.extrinsic_imu_to_user.trans_z,
+    imu_info_v1.extrinsic_imu_to_user.rot_x,
+    imu_info_v1.extrinsic_imu_to_user.rot_y,
+    imu_info_v1.extrinsic_imu_to_user.rot_z};
+  EXPECT_TRUE(ifm3d::compare_array(extrinc_imu_to_user,
+                                   ifm3d::imu_info::EXTRINSIC_IMU_TO_USER));
+
+  std::array<float, 6> const extrinc_imu_to_vpu = {
+    imu_info_v1.extrinsic_imu_to_vpu.trans_x,
+    imu_info_v1.extrinsic_imu_to_vpu.trans_y,
+    imu_info_v1.extrinsic_imu_to_vpu.trans_z,
+    imu_info_v1.extrinsic_imu_to_vpu.rot_x,
+    imu_info_v1.extrinsic_imu_to_vpu.rot_y,
+    imu_info_v1.extrinsic_imu_to_vpu.rot_z};
+  EXPECT_TRUE(ifm3d::compare_array(extrinc_imu_to_vpu,
+                                   ifm3d::imu_info::EXTRINSIC_IMU_TO_VPU));
+
+  EXPECT_EQ(imu_info_v1.imu_fifo_rcv_timestamp,
+            ifm3d::imu_info::IMU_FIFO_RCV_TIMESTAMP_NS);
 }
