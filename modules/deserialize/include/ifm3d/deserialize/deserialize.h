@@ -8,6 +8,7 @@
 
 /** \defgroup Deserialize Deserialize Module */
 
+#include <ifm3d/deserialize/struct_imu_info_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_extrinsic_calibration_correction_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_info_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_occupancy_grid_v1.hpp>
@@ -28,7 +29,8 @@ namespace ifm3d
                                    RGBInfoV1,
                                    ODSOccupancyGridV1,
                                    ODSPolarOccupancyGridV1,
-                                   ODSExtrinsicCalibrationCorrectionV1>;
+                                   ODSExtrinsicCalibrationCorrectionV1,
+                                   IMUInfoV1>;
 
   template <typename T>
   static T
@@ -81,6 +83,8 @@ namespace ifm3d
       case (ifm3d::buffer_id::O3R_ODS_EXTRINSIC_CALIBRATION_CORRECTION):
         return create_and_read<ODSExtrinsicCalibrationCorrectionV1>(data,
                                                                     size);
+      case (ifm3d::buffer_id::O3R_RESULT_IMU):
+        return create_and_read<IMUInfoV1>(data, size);
       default:
         return std::monostate{};
       }
