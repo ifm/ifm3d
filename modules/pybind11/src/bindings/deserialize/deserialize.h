@@ -17,6 +17,7 @@
 #include "o3d_paramters.h"
 #include "ods_polar_occupancy_grid_v1.h"
 #include "ods_extrinsic_calibration_correction_v1.h"
+#include "imu_info_v1.h"
 
 void
 bind_deserialize_struct(pybind11::module_& m)
@@ -29,6 +30,7 @@ bind_deserialize_struct(pybind11::module_& m)
   bind_struct_o3d_paramters(m);
   bind_struct_odspolaroccupancygridv1(m);
   bind_struct_odsextrinsiccalibrationcorrectionv1(m);
+  bind_struct_imuinfov1(m);
 }
 
 #endif // IFM3D_PYBIND_BINDING_DESERIALIZE

@@ -9,6 +9,7 @@
 
 #include <array>
 #include <chrono>
+#include <type_traits>
 #include <ifm3d/deserialize/deserialize_utils.hpp>
 
 namespace ifm3d
@@ -74,6 +75,51 @@ namespace ifm3d
     using IntrinsicCalibration = struct Calibration;
     /*@brief Inverse intrisnsic parameter model for the device/head*/
     using InverseIntrinsicCalibration = struct Calibration;
+
+    /** @ingroup Deserialize
+     *
+     * @brief
+     * All items are given in SI units, i.e. acc_xyz are in [m/s^2] and
+     * gyro_xyz are in [rad/s].
+     */
+    struct IMUSample
+    {
+      uint16_t hw_timestamp;
+      uint64_t timestamp;
+      float temperature;
+      float acc_x;
+      float acc_y;
+      float acc_z;
+      float gyro_x;
+      float gyro_y;
+      float gyro_z;
+
+      void
+      Read(const uint8_t* data)
+      {
+        size_t offset = 0;
+
+        auto read = [&](auto& val) {
+          using T = std::remove_reference_t<decltype(val)>;
+          val = mkval<T>(data + offset);
+          offset += sizeof(T);
+        };
+
+        read(hw_timestamp);
+        read(timestamp);
+        read(temperature);
+        read(acc_x);
+        read(acc_y);
+        read(acc_z);
+        read(gyro_x);
+        read(gyro_y);
+        read(gyro_z);
+      }
+    };
+
+    /*@brief Extrinsic calibration for converting between IMU and User
+     * coordinates*/
+    using AlgoExtrinsicCalibration = struct ExtrinsicOpticToUser;
   } // end namespace calibration
 
 } // end namespace ifm3d
