@@ -24,7 +24,7 @@ build:windows_2019:python_wheel:
   tags:
     - shared_docker_windows
   image:
-    name: ${DOCKER_IMAGE_WINDOWS_BUILDER}
+    name: ${DOCKER_IMAGE_WINDOWS_BUILDER_RB_1_6}
     entrypoint: ["cmd", "/S", "/C"]
   parallel:
     matrix: !reference [.configs, python-windows-matrix]
