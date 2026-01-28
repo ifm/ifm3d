@@ -3,7 +3,7 @@ check:clang-format:
   tags:
     - shared_docker
   image:
-    name: gcr.io/kaniko-project/executor:v1.15.0-debug
+    name: nexus.dev.ifm:20443/tools/kaniko:1.25.6
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]
