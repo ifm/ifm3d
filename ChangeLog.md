@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Add `IMUInfoV1` deserializer for O3R IMU data.
+- Pin NumPy to version 2.3.2
 
 ## 1.6.13 - 2025-11-24
 ### Removed
