@@ -5,7 +5,7 @@ build:linux:
   variables:
     BASE_IMAGE: ubuntu:22.04
   image:
-    name: gcr.io/kaniko-project/executor:v1.23.2-debug
+    name: nexus.dev.ifm:20443/tools/kaniko:1.25.6
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]
@@ -27,7 +27,7 @@ build:linux:deb:
   tags:
     - ${RUNNER}
   image:
-    name: gcr.io/kaniko-project/executor:v1.23.2-debug
+    name: nexus.dev.ifm:20443/tools/kaniko:1.25.6
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]
@@ -57,7 +57,7 @@ build:linux:docker:
   tags:
     - ${RUNNER}
   image:
-    name: gcr.io/kaniko-project/executor:v1.23.2-debug
+    name: nexus.dev.ifm:20443/tools/kaniko:1.25.6
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]
@@ -125,7 +125,7 @@ build:linux:docs:
   tags:
     - shared_docker
   image:
-    name: gcr.io/kaniko-project/executor:v1.23.2-debug
+    name: nexus.dev.ifm:20443/tools/kaniko:1.25.6
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]
@@ -147,7 +147,7 @@ build:create-dev-image:
   tags:
     - shared_docker
   image:
-    name: gcr.io/kaniko-project/executor:v1.23.2-debug
+    name: nexus.dev.ifm:20443/tools/kaniko:1.25.6
     entrypoint: [""]
   script:
     - !reference [.docker-config, script]
