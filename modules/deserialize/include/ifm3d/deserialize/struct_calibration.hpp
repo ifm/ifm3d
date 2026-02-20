@@ -84,6 +84,7 @@ namespace ifm3d
      */
     struct IMUSample
     {
+      using Ptr = std::shared_ptr<struct IMUSample>;
       uint16_t hw_timestamp;
       uint64_t timestamp;
       float temperature;
