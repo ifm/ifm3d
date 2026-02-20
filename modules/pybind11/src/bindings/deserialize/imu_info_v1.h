@@ -9,12 +9,70 @@
 #include <ifm3d/deserialize/struct_imu_info_v1.hpp>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 namespace py = pybind11;
 
 inline void
 bind_struct_imuinfov1(pybind11::module_& m)
 {
   // clang-format off
+  py::class_<ifm3d::calibration::IMUSample,
+            ifm3d::calibration::IMUSample::Ptr> imu_sample(m,
+    "IMUSample",
+    R"(
+        Class for managing an instance of an struct IMUSample
+    )");
+
+  imu_sample.def(py::init<>(),
+    R"(
+        Constructor
+    )");
+  imu_sample.def_readonly("hw_timestamp",
+    &ifm3d::calibration::IMUSample::hw_timestamp,
+    R"(
+        Hardware timestamp of the IMU sample
+    )");
+  imu_sample.def_readonly("timestamp",
+    &ifm3d::calibration::IMUSample::timestamp,
+    R"(
+        Timestamp of the IMU sample
+    )");
+  imu_sample.def_readonly("temperature",
+    &ifm3d::calibration::IMUSample::temperature,
+    R"(
+        Temperature at the time of the IMU sample
+    )");
+  imu_sample.def_readonly("acc_x",
+    &ifm3d::calibration::IMUSample::acc_x,
+    R"(
+        Acceleration in x direction in [m/s^2]
+    )");
+  imu_sample.def_readonly("acc_y",
+    &ifm3d::calibration::IMUSample::acc_y,
+    R"(
+        Acceleration in y direction in [m/s^2]
+    )");
+  imu_sample.def_readonly("acc_z",
+    &ifm3d::calibration::IMUSample::acc_z,
+    R"(
+        Acceleration in z direction in [m/s^2]
+    )");
+  imu_sample.def_readonly("gyro_x",
+    &ifm3d::calibration::IMUSample::gyro_x,
+    R"(
+        Gyroscope x axis in [rad/s]
+    )");
+  imu_sample.def_readonly("gyro_y",
+    &ifm3d::calibration::IMUSample::gyro_y,
+    R"(
+        Gyroscope y axis in [rad/s]
+    )");
+  imu_sample.def_readonly("gyro_z",
+    &ifm3d::calibration::IMUSample::gyro_z,
+    R"(
+        Gyroscope z axis in [rad/s]
+    )");
+
   py::class_<ifm3d::IMUInfoV1, ifm3d::IMUInfoV1::Ptr> imu_info_v1(m,
     "IMUInfoV1",
     R"(
