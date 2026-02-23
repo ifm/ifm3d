@@ -53,6 +53,9 @@ namespace ifm3d
     XMLRPCValue(int32_t value) : _value(std::make_shared<value_type>(value)) {}
     XMLRPCValue(bool value) : _value(std::make_shared<value_type>(value)) {}
     XMLRPCValue(double value) : _value(std::make_shared<value_type>(value)) {}
+    XMLRPCValue(std::vector<std::uint8_t> value)
+      : _value(std::make_shared<value_type>(std::move(value)))
+    {}
 
     template <typename T>
     XMLRPCValue(std::vector<T> value)
