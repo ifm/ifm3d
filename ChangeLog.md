@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.6.15 - 2026-02-24
+
 ### Fixed
 - Fix `IMUInfoV1.imu_samples` Python binding to return a valid list instead of conversion error.
 
