@@ -45,8 +45,8 @@ bind_o3c(pybind11::module_& m)
   // This allows O3C.SetTemporaryApplicationParameter and O3C.Parameter
   // to reference the same classes defined in O3R
   o3c.attr("SetTemporaryApplicationParameter") =
-    m.attr("O3R").attr("SetTemporaryApplicationParameter");
-  o3c.attr("Parameter") = m.attr("O3R").attr("Parameter");
+    m.attr("SetTemporaryApplicationParameter");
+  o3c.attr("Parameter") = m.attr("Parameter");
 }
 
 #endif // IFM3D_PYBIND_BINDING_CAMERA_O3C

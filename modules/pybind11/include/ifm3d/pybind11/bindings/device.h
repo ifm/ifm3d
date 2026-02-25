@@ -131,6 +131,7 @@ bind_device(pybind11::module_& m)
     .value("O3D", ifm3d::Device::DeviceFamily::O3D)
     .value("O3X", ifm3d::Device::DeviceFamily::O3X)
     .value("O3R", ifm3d::Device::DeviceFamily::O3R)
+    .value("O3C", ifm3d::Device::DeviceFamily::O3C)
     .finalize();
 
   // Ctor

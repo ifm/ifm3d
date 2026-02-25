@@ -10,12 +10,14 @@ main(int argc, char** argv)
     {{"O3D", "DeviceTest.*:LegacyDeviceTest.*:O3DTest.*"},
      {"O3X", "DeviceTest.*:LegacyDeviceTest.*:O3XTest.*"},
      {"O3R", "DeviceTest.*:O3RTest.*"},
+     {"O3C", "DeviceTest.*:O3CTest.*"},
      {"device_independent", "Version.*"}});
 
   std::map<ifm3d::Device::DeviceFamily, std::string> device_family_to_device(
     {{ifm3d::Device::DeviceFamily::O3D, "O3D"},
      {ifm3d::Device::DeviceFamily::O3X, "O3X"},
-     {ifm3d::Device::DeviceFamily::O3R, "O3R"}});
+     {ifm3d::Device::DeviceFamily::O3R, "O3R"},
+     {ifm3d::Device::DeviceFamily::O3C, "O3C"}});
 
   std::string gtest_filter = device_to_filter["device_independent"];
 

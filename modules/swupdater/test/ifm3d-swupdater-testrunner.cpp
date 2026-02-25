@@ -11,6 +11,8 @@ main(int argc, char** argv)
      {"O3X", "SWUpdater.*"},
      {"O3R",
       "SWUpdater.*:-SWUpdater.FactoryDefaults:-SWUpdater.FlashEmptyFile"},
+     {"O3C",
+      "SWUpdater.*:-SWUpdater.FactoryDefaults:-SWUpdater.FlashEmptyFile"},
      {"device_independent", ""}});
 
   std::map<ifm3d::Device::DeviceFamily, std::string> device_family_to_device(

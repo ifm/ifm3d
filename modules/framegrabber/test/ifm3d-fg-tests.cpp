@@ -7,6 +7,7 @@
 #include <ifm3d/common/logging/log.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/legacy_device.h>
+#include <ifm3d/device/o3c.h>
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/fg/buffer_id.h>
 #include <ifm3d/fg/frame.h>
@@ -18,6 +19,7 @@
 #include <gtest/gtest.h>
 
 constexpr uint16_t O3R_PORT = 50012;
+constexpr uint16_t O3C_PORT = 50010;
 
 class FrameGrabberTest : public ::testing::Test
 {
@@ -29,11 +31,18 @@ protected:
     if (_dev->WhoAmI() == ifm3d::Device::DeviceFamily::O3R)
       {
         auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->_dev);
-
         auto config = o3r->Get();
         config["ports"]["port2"]["state"] = "RUN";
         o3r->Set(config);
         _fg = std::make_shared<ifm3d::FrameGrabber>(_dev, O3R_PORT);
+      }
+    else if (_dev->WhoAmI() == ifm3d::Device::DeviceFamily::O3C)
+      {
+        auto o3c = std::dynamic_pointer_cast<ifm3d::O3C>(this->_dev);
+        auto config = o3c->Get();
+        config["ports"]["port0"]["state"] = "RUN";
+        o3c->Set(config);
+        _fg = std::make_shared<ifm3d::FrameGrabber>(_dev, O3C_PORT);
       }
     else
       {
@@ -249,7 +258,8 @@ TEST_F(FrameGrabberTest, DistanceNoiseImage_type)
         count++;
         auto distance_noise_image =
           frame->GetBuffer(ifm3d::buffer_id::RADIAL_DISTANCE_NOISE);
-        if (_dev->AmI(ifm3d::Device::DeviceFamily::O3R))
+        if (_dev->AmI(ifm3d::Device::DeviceFamily::O3R) ||
+            _dev->AmI(ifm3d::Device::DeviceFamily::O3C))
           {
             EXPECT_EQ(distance_noise_image.DataFormat(),
                       ifm3d::PixelFormat::FORMAT_32F);
@@ -319,7 +329,8 @@ TEST_F(FrameGrabberTest, confidence_image_3D)
         auto confidence_image =
           frame->GetBuffer(ifm3d::buffer_id::CONFIDENCE_IMAGE);
 
-        if (_dev->AmI(ifm3d::Device::DeviceFamily::O3R))
+        if (_dev->AmI(ifm3d::Device::DeviceFamily::O3R) ||
+            _dev->AmI(ifm3d::Device::DeviceFamily::O3C))
           {
             EXPECT_EQ(confidence_image.DataFormat(),
                       ifm3d::PixelFormat::FORMAT_16U);
@@ -466,6 +477,15 @@ TEST_F(FrameGrabberTest, FrameGrabberRecycling)
       config["ports"]["port2"]["state"] = "RUN";
       o3r->Set(config);
       _fg = std::make_shared<ifm3d::FrameGrabber>(_dev, O3R_PORT);
+    }
+  else if (_dev->WhoAmI() == ifm3d::Device::DeviceFamily::O3C)
+    {
+      auto o3c = std::dynamic_pointer_cast<ifm3d::O3C>(this->_dev);
+
+      auto config = o3c->Get();
+      config["ports"]["port0"]["state"] = "RUN";
+      o3c->Set(config);
+      _fg = std::make_shared<ifm3d::FrameGrabber>(_dev, O3C_PORT);
     }
   else
     {
@@ -644,8 +664,21 @@ TEST_F(FrameGrabberTest, buffer_mapping)
 
 TEST_F(FrameGrabberTest, imu_data)
 {
-  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->_dev);
-  auto fg = std::make_shared<ifm3d::FrameGrabber>(o3r, 50016);
+  ifm3d::O3R::Ptr o3r;
+  ifm3d::O3C::Ptr o3c;
+  ifm3d::FrameGrabber::Ptr fg;
+
+  if (_dev->WhoAmI() == ifm3d::Device::DeviceFamily::O3R)
+    {
+      o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->_dev);
+      fg = std::make_shared<ifm3d::FrameGrabber>(o3r, 50016);
+    }
+  if (_dev->WhoAmI() == ifm3d::Device::DeviceFamily::O3C)
+    {
+      o3c = std::dynamic_pointer_cast<ifm3d::O3C>(this->_dev);
+      fg = std::make_shared<ifm3d::FrameGrabber>(o3c, 50016);
+    }
+
   fg->Start({ifm3d::buffer_id::O3R_RESULT_IMU});
   auto frame = fg->WaitForFrame().get();
   EXPECT_NO_THROW(frame->GetBuffer(ifm3d::buffer_id::O3R_RESULT_IMU));
