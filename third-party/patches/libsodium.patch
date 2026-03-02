@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 8e06f65..0ce4fc0 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -6,7 +6,7 @@ option(SODIUM_DISABLE_TESTS "Disable tests" OFF)
+ option(SODIUM_MINIMAL "Only compile the minimum set of functions required for the high-level API" OFF)
+ option(SODIUM_ENABLE_BLOCKING_RANDOM "Enable this switch only if /dev/urandom is totally broken on the target platform" OFF)
+ 
+-add_library(${PROJECT_NAME}
++add_library(${PROJECT_NAME} OBJECT
+     libsodium/src/libsodium/crypto_aead/aegis128l/aead_aegis128l.c
+     libsodium/src/libsodium/crypto_aead/aegis128l/aegis128l_aesni.c
+     libsodium/src/libsodium/crypto_aead/aegis128l/aegis128l_armcrypto.c
