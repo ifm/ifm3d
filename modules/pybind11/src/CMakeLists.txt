@@ -17,6 +17,15 @@ set(_python_metadata_path "${_python_install_path}/ifm3dpy-${ROOT_PROJECT_VERSIO
 
 configure_file(METADATA.in ${CMAKE_CURRENT_BINARY_DIR}/METADATA @ONLY)
 
+# pybind11 3.0 compatibility (minimal)
+if(NOT DEFINED PYTHON_VERSION_MAJOR AND DEFINED Python_VERSION_MAJOR)
+  set(PYTHON_VERSION_MAJOR ${Python_VERSION_MAJOR})
+endif()
+
+if(NOT DEFINED PYTHON_VERSION_MINOR AND DEFINED Python_VERSION_MINOR)
+  set(PYTHON_VERSION_MINOR ${Python_VERSION_MINOR})
+endif()
+
 if(NOT PYTHON_VERSION_MAJOR EQUAL 3)
   message(FATAL_ERROR "Unsupported PYTHON_VERSION_MAJOR: ${PYTHON_VERSION_MAJOR}")
 endif()

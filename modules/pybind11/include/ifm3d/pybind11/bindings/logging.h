@@ -6,7 +6,9 @@
 #ifndef IFM3D_PYBIND_BINDING_LOGGING
 #define IFM3D_PYBIND_BINDING_LOGGING
 
+#define PYBIND11_USE_SMART_HOLDER
 #include <pybind11/chrono.h>
+#include <pybind11/native_enum.h>
 #include <pybind11/pybind11.h>
 
 #include <fmt/chrono.h>
@@ -16,7 +18,9 @@
 
 namespace py = pybind11;
 
-class PyLogWriter : public ifm3d::LogWriter
+class PyLogWriter
+  : public ifm3d::LogWriter
+  , public pybind11::trampoline_self_life_support
 {
 public:
   using LogWriter::LogWriter;
@@ -28,37 +32,22 @@ public:
   };
 };
 
-class PyLogWriterGuard : public ifm3d::LogWriter
-{
-public:
-  PyLogWriterGuard(std::shared_ptr<ifm3d::LogWriter> inner)
-    : _inner(std::move(inner)),
-      _py_guard(py::cast(_inner))
-  {}
-
-  void
-  Write(const ifm3d::LogEntry& entry) override
-  {
-    _inner->Write(entry);
-  };
-
-private:
-  std::shared_ptr<ifm3d::LogWriter> _inner;
-  py::object _py_guard;
-};
-
 inline void
 bind_logging(pybind11::module_& m)
 {
 
-  py::enum_<ifm3d::LogLevel>(m, "LogLevel", "Enum: The log level.")
+  py::native_enum<ifm3d::LogLevel>(m,
+                                   "LogLevel",
+                                   "enum.IntEnum",
+                                   "Enum: The log level.")
     .value("None", ifm3d::LogLevel::None)
     .value("Critical", ifm3d::LogLevel::Critical)
     .value("Error", ifm3d::LogLevel::Error)
     .value("Warning", ifm3d::LogLevel::Warning)
     .value("Info", ifm3d::LogLevel::Info)
     .value("Debug", ifm3d::LogLevel::Debug)
-    .value("Verbose", ifm3d::LogLevel::Verbose);
+    .value("Verbose", ifm3d::LogLevel::Verbose)
+    .finalize();
 
   py::class_<ifm3d::LogEntry> log_entry(m,
                                         "LogEntry",
@@ -102,10 +91,10 @@ bind_logging(pybind11::module_& m)
       The time this log entry occurred
     )");
 
-  py::class_<ifm3d::LogWriter, PyLogWriter, std::shared_ptr<ifm3d::LogWriter>>
-    log_writer(m,
-               "LogWriter",
-               R"(
+  py::class_<ifm3d::LogWriter, PyLogWriter, py::smart_holder> log_writer(
+    m,
+    "LogWriter",
+    R"(
       Base class for creating custom log writers.
     )");
 
@@ -167,8 +156,7 @@ bind_logging(pybind11::module_& m)
   logger.def_static(
     "set_writer",
     [](std::shared_ptr<ifm3d::LogWriter> writer) {
-      ifm3d::Logger::Get().SetWriter(
-        std::make_shared<PyLogWriterGuard>(writer));
+      ifm3d::Logger::Get().SetWriter(std::move(writer));
     },
     R"(
       Set the log writer.

@@ -8,6 +8,7 @@
 
 #include <fmt/format.h>
 #include <ifm3d/device/o3r.h>
+#include <pybind11/native_enum.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 
@@ -59,27 +60,36 @@ bind_o3r(pybind11::module_& m)
             The data to set the parameter to
       )");
 
-  py::enum_<ifm3d::O3R::SetTemporaryApplicationParameter::Parameter>(
+  py::native_enum<ifm3d::O3R::SetTemporaryApplicationParameter::Parameter>(
     m,
     "Parameter",
-    py::arithmetic())
+    "enum.IntEnum",
+    "Enum: Parameters for SetTemporaryApplicationParameter")
     .value("ODS_OVERHANGING_LOAD",
-           ifm3d::O3R::SetTemporaryApplicationParameter::ODS_OVERHANGING_LOAD)
-    .value("ODS_ZONE_SET",
-           ifm3d::O3R::SetTemporaryApplicationParameter::ODS_ZONE_SET)
+           ifm3d::O3R::SetTemporaryApplicationParameter::Parameter::
+             ODS_OVERHANGING_LOAD)
+    .value(
+      "ODS_ZONE_SET",
+      ifm3d::O3R::SetTemporaryApplicationParameter::Parameter::ODS_ZONE_SET)
     .value("ODS_MAXIMUM_HEIGHT",
-           ifm3d::O3R::SetTemporaryApplicationParameter::ODS_MAXIMUM_HEIGHT)
-    .value("ODS_MOTION_DATA",
-           ifm3d::O3R::SetTemporaryApplicationParameter::ODS_MOTION_DATA)
-    .value("PDS_GET_PALLET",
-           ifm3d::O3R::SetTemporaryApplicationParameter::PDS_GET_PALLET)
-    .value("PDS_GET_ITEM",
-           ifm3d::O3R::SetTemporaryApplicationParameter::PDS_GET_ITEM)
-    .value("PDS_GET_RACK",
-           ifm3d::O3R::SetTemporaryApplicationParameter::PDS_GET_RACK)
-    .value("PDS_VOL_CHECK",
-           ifm3d::O3R::SetTemporaryApplicationParameter::PDS_VOL_CHECK)
-    .export_values();
+           ifm3d::O3R::SetTemporaryApplicationParameter::Parameter::
+             ODS_MAXIMUM_HEIGHT)
+    .value(
+      "ODS_MOTION_DATA",
+      ifm3d::O3R::SetTemporaryApplicationParameter::Parameter::ODS_MOTION_DATA)
+    .value(
+      "PDS_GET_PALLET",
+      ifm3d::O3R::SetTemporaryApplicationParameter::Parameter::PDS_GET_PALLET)
+    .value(
+      "PDS_GET_ITEM",
+      ifm3d::O3R::SetTemporaryApplicationParameter::Parameter::PDS_GET_ITEM)
+    .value(
+      "PDS_GET_RACK",
+      ifm3d::O3R::SetTemporaryApplicationParameter::Parameter::PDS_GET_RACK)
+    .value(
+      "PDS_VOL_CHECK",
+      ifm3d::O3R::SetTemporaryApplicationParameter::Parameter::PDS_VOL_CHECK)
+    .finalize();
 
   py::class_<ifm3d::O3R, ifm3d::O3R::Ptr, ifm3d::Device> o3r(m,
                                                              "O3R",

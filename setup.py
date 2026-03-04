@@ -18,6 +18,7 @@ import re
 import sys
 import platform
 import subprocess
+import sysconfig
 
 from distutils.version import LooseVersion
 from setuptools import setup, Extension, find_packages
@@ -80,6 +81,10 @@ class CMakeBuild(build_ext):
         extdir = os.path.abspath(os.path.dirname(
             self.get_ext_fullpath(ext.name)))
 
+        python_home = sys.prefix 
+
+        python_include = sysconfig.get_path('include')
+
         # Build with cmake -- build only camera and framegrabber. Also build
         # them as static libs so the resulting python module is isolated.
         cmake_args = ['-DBUILD_MODULE_IMAGE=OFF',
@@ -91,8 +96,12 @@ class CMakeBuild(build_ext):
                       '-DCMAKE_USE_OPENSSL=OFF',
                       '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_ARCHIVE_OUTPUT_DIRECTORY=' + extdir,
-                      '-DPYTHON_EXECUTABLE=' + sys.executable,
-                      '-DCREATE_PYTHON_STUBS=OFF']
+                      '-DCREATE_PYTHON_STUBS=OFF',
+                      f'-DPython_EXECUTABLE={sys.executable}',
+                      f'-DPython_ROOT_DIR={python_home}',
+                      f'-DPython_INCLUDE_DIR={python_include}',
+                      '-DPython_FIND_STRATEGY=LOCATION',
+                      '-DPYBIND11_FINDPYTHON=ON']
 
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]

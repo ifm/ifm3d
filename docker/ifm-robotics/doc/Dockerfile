@@ -27,18 +27,6 @@ RUN apt-get update \
         python3-sphinx-rtd-theme \
     && rm -rf /var/lib/apt/lists/*
 
-# build pybind11 with cmake - but first clone from the official github repo
-RUN git clone --branch v2.8.0 https://github.com/pybind/pybind11.git /pybind  \
-    && mkdir -p /pybind/build \
-    && cd /pybind/build \
-    && cmake -GNinja \
-        -DPYBIND11_TEST=OFF \
-        -DCMAKE_INSTALL_PREFIX=/app \
-        -DPYTHON_EXECUTABLE=/usr/bin/python3 \
-        .. \
-    && cmake --build . \
-    && cmake --build . --target install
-
 # if you are running unit tests against a camera at
 # a different IP, set that here.
 ENV IFM3D_IP 192.168.0.69

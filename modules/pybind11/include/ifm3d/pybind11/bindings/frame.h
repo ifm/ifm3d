@@ -8,6 +8,7 @@
 
 #include <ifm3d/fg/frame.h>
 #include <ifm3d/pybind11/util.hpp>
+#include <pybind11/native_enum.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 
@@ -22,9 +23,10 @@ bind_frame(pybind11::module_& m, pybind11::module_& ifm3dpy)
       Represent a frame of data received from the the device.
     )");
 
-  py::enum_<ifm3d::buffer_id>(
+  py::native_enum<ifm3d::buffer_id>(
     m,
     "buffer_id",
+    "enum.IntEnum",
     "Enum: buffer_id available for use with the default Organizer.")
     .value("RADIAL_DISTANCE_IMAGE", ifm3d::buffer_id::RADIAL_DISTANCE_IMAGE)
     .value("NORM_AMPLITUDE_IMAGE", ifm3d::buffer_id::NORM_AMPLITUDE_IMAGE)
@@ -65,7 +67,8 @@ bind_frame(pybind11::module_& m, pybind11::module_& ifm3dpy)
     .value("ILLUMINATION_TEMP", ifm3d::buffer_id::ILLUMINATION_TEMP)
     .value("O3R_ODS_POLAR_OCC_GRID", ifm3d::buffer_id::O3R_ODS_POLAR_OCC_GRID)
     .value("O3R_ODS_EXTRINSIC_CALIBRATION_CORRECTION",
-           ifm3d::buffer_id::O3R_ODS_EXTRINSIC_CALIBRATION_CORRECTION);
+           ifm3d::buffer_id::O3R_ODS_EXTRINSIC_CALIBRATION_CORRECTION)
+    .finalize();
 
   frame.def("timestamps",
             &ifm3d::Frame::TimeStamps,
