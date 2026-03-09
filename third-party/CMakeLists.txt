@@ -117,13 +117,22 @@ FetchContent_Declare(
     GIT_SHALLOW ON
     PATCH_COMMAND git checkout -q . && git apply --whitespace=fix ${CMAKE_CURRENT_SOURCE_DIR}/patches/cpp-httplib.patch
 )
+set(HTTPLIB_USE_OPENSSL_IF_AVAILABLE OFF CACHE INTERNAL "")
+set(HTTPLIB_USE_WOLFSSL_IF_AVAILABLE OFF CACHE INTERNAL "")
+set(HTTPLIB_USE_MBEDTLS_IF_AVAILABLE OFF CACHE INTERNAL "")
+set(HTTPLIB_USE_ZLIB_IF_AVAILABLE OFF CACHE INTERNAL "")
+set(HTTPLIB_USE_BROTLI_IF_AVAILABLE OFF CACHE INTERNAL "")
+set(HTTPLIB_USE_ZSTD_IF_AVAILABLE OFF CACHE INTERNAL "")
+set(HTTPLIB_INSTALL OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(cpp-httplib)
 
 
 if(BUILD_MODULE_CRYPTO)
-  FetchContent_Declare(Sodium
+  FetchContent_Declare(
+    Sodium
       GIT_REPOSITORY https://github.com/robinlinden/libsodium-cmake.git
       GIT_TAG 24f829c6d1bf88adb05ff3ee594abc367ffc0590 # libsodium 1.0.20
+      PATCH_COMMAND git checkout -q . && git apply --whitespace=fix ${CMAKE_CURRENT_SOURCE_DIR}/patches/libsodium.patch
   )
   set(SODIUM_DISABLE_TESTS ON)
   FetchContent_MakeAvailable(Sodium)

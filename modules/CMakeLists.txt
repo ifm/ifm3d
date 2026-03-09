@@ -33,9 +33,7 @@ if(BUILD_MODULE_DESERIALIZE)
   list(APPEND DOXYGEN_MODULES "deserialize")
 endif()
 
-if (BUILD_SHARED_LIBS)
-  add_subdirectory(libifm3d)
-endif()
+add_subdirectory(libifm3d)
 
 if(BUILD_MODULE_TOOLS)
   add_subdirectory(tools)

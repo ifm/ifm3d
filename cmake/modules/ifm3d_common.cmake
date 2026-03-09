@@ -55,6 +55,10 @@ function(IFM3D_MODULE name)
             $<BUILD_INTERFACE:${IFM3D_${name_uppercase}_SOURCE_DIR}/src> 
     )
 
+    if(ARG_INCLUDE_DIRECTORIES)
+        target_include_directories(ifm3d_${name} INTERFACE ${ARG_INCLUDE_DIRECTORIES})
+    endif()
+
     target_link_libraries(
         ifm3d_${name}
         INTERFACE

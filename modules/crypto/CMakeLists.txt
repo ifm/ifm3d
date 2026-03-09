@@ -1,9 +1,13 @@
+get_target_property(SODIUM_INCLUDES sodium INCLUDE_DIRECTORIES)
+
 ifm3d_module(crypto
-  LINK_LIBRARIES 
-    sodium
+  INCLUDE_DIRECTORIES
+    ${SODIUM_INCLUDES}
   REQUIRED_MODULES
     common
 )
+
+target_sources(ifm3d_crypto INTERFACE "$<TARGET_OBJECTS:sodium>")
 
 
 # project(IFM3D_CRYPTO CXX)
