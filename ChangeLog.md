@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 2.0.1 - 2026-03-09
+
 ### Added
 - Add `IMUInfoV1` deserializer for O3R IMU data.
 - Add `o3c` device support to ifm3d
