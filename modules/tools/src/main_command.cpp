@@ -35,6 +35,7 @@
 #include <ifm3d/tools/legacy/rm_app.h>
 #include <ifm3d/tools/legacy/time_app.h>
 #include <ifm3d/tools/main_command.hpp>
+#include <ifm3d/tools/o3cxxx/o3cxxx_app.h>
 #include <ifm3d/tools/ovp8xx/diagnostic_app.h>
 #include <ifm3d/tools/ovp8xx/jsonschema_app.h>
 #include <ifm3d/tools/ovp8xx/ovp8xx_app.h>
@@ -116,6 +117,8 @@ ifm3d::MainCommand::CreateCommand(CLI::App* parent)
   RegisterSubcommand<ifm3d::O3D3XX>(parent);
 
   RegisterSubcommand<ifm3d::OVP8xx>(parent);
+
+  RegisterSubcommand<ifm3d::O3Cxxx>(parent);
 
   std::string const global_command_deprecation_message =
     "The global commands have been deprecated, please use the device specific "

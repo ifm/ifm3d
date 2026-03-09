@@ -219,7 +219,8 @@ ifm3d::make_schema(const std::set<ifm3d::buffer_id>& buffer_ids,
     {
       schema_generator(O3D_SCHEMA_MAP);
     }
-  else if (device_type == ifm3d::Device::DeviceFamily::O3R)
+  else if (device_type == ifm3d::Device::DeviceFamily::O3R ||
+           device_type == ifm3d::Device::DeviceFamily::O3C)
     {
       schema_generator(O3R_SCHEMA_MAP);
       // TODO how to enable exposure time for O3R ?

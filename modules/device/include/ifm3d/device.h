@@ -12,6 +12,7 @@
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/device/legacy_device.h>
+#include <ifm3d/device/o3c.h>
 #include <ifm3d/device/o3d.h>
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/device/o3x.h>

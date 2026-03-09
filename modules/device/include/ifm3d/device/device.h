@@ -34,6 +34,8 @@ namespace ifm3d
   extern IFM3D_EXPORT const int DEV_O3D_MAX;
   extern IFM3D_EXPORT const int DEV_O3R_MIN;
   extern IFM3D_EXPORT const int DEV_O3R_MAX;
+  extern IFM3D_EXPORT const int DEV_O3C_MIN;
+  extern IFM3D_EXPORT const int DEV_O3C_MAX;
   extern IFM3D_EXPORT const int DEV_O3X_MIN;
   extern IFM3D_EXPORT const int DEV_O3X_MAX;
   extern IFM3D_EXPORT const std::string ASSUME_DEVICE;
@@ -212,6 +214,7 @@ namespace ifm3d
       O3D = 1,
       O3X = 2,
       O3R = 3,
+      O3C = 4,
     };
 
     enum class SWUVersion : int // NOLINT(performance-enum-size)

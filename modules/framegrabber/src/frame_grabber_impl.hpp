@@ -220,7 +220,8 @@ inline ifm3d::FrameGrabber::Impl::Impl(ifm3d::Device::Ptr cam,
       this->SetMasking(true);
       this->SetOrganizer(std::make_unique<O3XOrganizer>());
     }
-  else if (device_type == Device::DeviceFamily::O3R)
+  else if (device_type == Device::DeviceFamily::O3R ||
+           device_type == Device::DeviceFamily::O3C)
     {
       this->SetMasking(false);
 
@@ -916,7 +917,8 @@ ifm3d::FrameGrabber::Impl::get_image_chunks(buffer_id id)
   switch (id)
     {
     case buffer_id::XYZ:
-      if (device_type == ifm3d::Device::DeviceFamily::O3R)
+      if (device_type == ifm3d::Device::DeviceFamily::O3R ||
+          device_type == ifm3d::Device::DeviceFamily::O3C)
         {
           return {buffer_id::TOF_INFO,
                   buffer_id::RADIAL_DISTANCE_IMAGE,
@@ -940,7 +942,8 @@ ifm3d::FrameGrabber::Impl::get_image_chunks(buffer_id id)
     case buffer_id::EXTRINSIC_CALIB:
     case buffer_id::INTRINSIC_CALIB:
     case buffer_id::INVERSE_INTRINSIC_CALIBRATION:
-      if (device_type == ifm3d::Device::DeviceFamily::O3R)
+      if (device_type == ifm3d::Device::DeviceFamily::O3R ||
+          device_type == ifm3d::Device::DeviceFamily::O3C)
         {
           return {id,
                   buffer_id::TOF_INFO,
@@ -953,7 +956,8 @@ ifm3d::FrameGrabber::Impl::get_image_chunks(buffer_id id)
           return {id};
         }
     case buffer_id::RADIAL_DISTANCE_NOISE:
-      if (device_type == ifm3d::Device::DeviceFamily::O3R)
+      if (device_type == ifm3d::Device::DeviceFamily::O3R ||
+          device_type == ifm3d::Device::DeviceFamily::O3C)
         {
           return {id,
                   buffer_id::TOF_INFO,
@@ -962,7 +966,8 @@ ifm3d::FrameGrabber::Impl::get_image_chunks(buffer_id id)
         }
       return {id};
     case buffer_id::REFLECTIVITY:
-      if (device_type == ifm3d::Device::DeviceFamily::O3R)
+      if (device_type == ifm3d::Device::DeviceFamily::O3R ||
+          device_type == ifm3d::Device::DeviceFamily::O3C)
         {
           return {id, buffer_id::CONFIDENCE_IMAGE};
         }

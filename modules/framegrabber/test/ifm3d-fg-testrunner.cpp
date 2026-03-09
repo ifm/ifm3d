@@ -29,12 +29,24 @@ main(int argc, char** argv)
       "FrameGrabberTest.*:-FrameGrabberTest.FactoryDefaults:FrameGrabberTest."
       "SoftwareTrigger:FrameGrabberTest."
       "SWTriggerMultipleClients:FrameGrabberTest.JSON_model"},
+     {"O3C",
+      "FrameGrabberTest.*:-FrameGrabberTest.FactoryDefaults:FrameGrabberTest."
+      "SoftwareTrigger:FrameGrabberTest."
+      "BlankSchema2D:FrameGrabberTest."
+      "schema_o3r_rgb_image_info:FrameGrabberTest."
+      "confidence_image_2D:FrameGrabberTest."
+      "SWTriggerMultipleClients:FrameGrabberTest."
+      "metadata:FrameGrabberTest."
+      "only_algo_debug:FrameGrabberTest."
+      "algo_with_other_data:FrameGrabberTest."
+      "JSON_model:FrameGrabberTest.buffer_mapping"},
      {"device_independent", "DistanceImageInfo.*:Buffer.*:Schema.*"}});
 
   std::map<ifm3d::Device::DeviceFamily, std::string> device_family_to_device(
     {{ifm3d::Device::DeviceFamily::O3D, "O3D"},
      {ifm3d::Device::DeviceFamily::O3X, "O3X"},
-     {ifm3d::Device::DeviceFamily::O3R, "O3R"}});
+     {ifm3d::Device::DeviceFamily::O3R, "O3R"},
+     {ifm3d::Device::DeviceFamily::O3C, "O3C"}});
 
   std::string gtest_filter = device_to_filter["device_independent"];
 
