@@ -27,7 +27,7 @@ endif(BUILD_MODULE_PYBIND11)
 FetchContent_Declare(
   fmt
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG 8.0.1
+    GIT_TAG 12.1.0
 )
 FetchContent_MakeAvailable(fmt)
 

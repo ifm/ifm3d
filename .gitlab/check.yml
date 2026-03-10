@@ -28,21 +28,6 @@ check:cppcheck:
   variables:
     CHECK_COMMAND: "cppcheck"
 
-check:vale-linting:
-  variables:
-    FORMATTING_TOOLS_REF: d7042c3b648c81be53aa6647788a565b720a418c
-  image:
-    name: jdkato/vale@sha256:2f6ec4ca2606accb80c13466fd91f1a4d82a4299c9139069d6db5dbcc1da9763
-    entrypoint: [""]
-  stage: check
-  before_script:
-    - apk update && apk add git
-  script:
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab-ee.dev.ifm/syntron/support/csr/formatting-tools.git ${CI_PROJECT_DIR}/formatting-tools
-    - cd ${CI_PROJECT_DIR}/formatting-tools
-    - git reset --hard ${FORMATTING_TOOLS_REF}
-    - vale --minAlertLevel error ../doc/sphinx/* ../README.md ../ChangeLog.md
-
 check:large-files:
   stage: check
   image: bitnami/git

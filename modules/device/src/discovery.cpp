@@ -150,9 +150,15 @@ ifm3d::IFMNetworkDevice::GetPort() const
 }
 
 uint16_t
-ifm3d::IFMNetworkDevice::GetFlag() const
+ifm3d::IFMNetworkDevice::GetFlags() const
 {
   return _flags;
+}
+
+bool
+ifm3d::IFMNetworkDevice::HasFlag(uint16_t flag) const
+{
+  return (_flags & flag) != 0;
 }
 
 std::string
@@ -514,21 +520,10 @@ ifm3d::IFMDeviceDiscovery::broadcast_on_interface(
     asio::ip::udp::endpoint(asio::ip::address::from_string(interface_ip),
                             BCAST_DEFAULT_PORT);
 
-  /** getting the netmask of the interface*/
-  auto netmask = asio::ip::address_v4::netmask(
-    asio::ip::address_v4::from_string(interface_ip));
-
-  /**broadcast of the interface*/
-  auto broadcast_address_of_interface =
-    asio::ip::address_v4::broadcast(
-      asio::ip::address_v4::from_string(interface_ip),
-      netmask)
-      .to_string();
-
   /* create a local broadcast endpoints */
-  asio::ip::udp::endpoint broadcast_endpoint = asio::ip::udp::endpoint(
-    asio::ip::address::from_string(broadcast_address_of_interface),
-    BCAST_DEFAULT_PORT);
+  asio::ip::udp::endpoint broadcast_endpoint =
+    asio::ip::udp::endpoint(asio::ip::address_v4::broadcast(),
+                            BCAST_DEFAULT_PORT);
 
   auto con = std::make_shared<UDPConnection>(_io_context, local_endpoint);
   con->RegisterOnReceive(
@@ -650,25 +645,15 @@ ifm3d::IFMDeviceDiscovery::send_ip_change_broadcast(
       memcpy(ipc.mac.data(), mac, ipc.mac.size());
       std::memcpy(data.data(), &ipc, sizeof(BcastIPChange));
 
-      /** getting the netmask of the interface */
-      auto netmask = asio::ip::address_v4::netmask(
-        asio::ip::address_v4::from_string(interface_ip));
-
-      /**broadcast of the interface */
-      auto broadcast_address_of_interface =
-        asio::ip::address_v4::broadcast(
-          asio::ip::address_v4::from_string(interface_ip),
-          netmask)
-          .to_string();
-
       /* create a local broadcast endpoint */
-      asio::ip::udp::endpoint broadcast_endpoint = asio::ip::udp::endpoint(
-        asio::ip::address::from_string(broadcast_address_of_interface),
-        BCAST_DEFAULT_PORT);
+      asio::ip::udp::endpoint broadcast_endpoint =
+        asio::ip::udp::endpoint(asio::ip::address_v4::broadcast(),
+                                BCAST_DEFAULT_PORT);
 
       /* create a local endpoint */
       asio::ip::udp::endpoint local_endpoint =
-        asio::ip::udp::endpoint(asio::ip::udp::v4(), BCAST_DEFAULT_PORT);
+        asio::ip::udp::endpoint(asio::ip::address::from_string(interface_ip),
+                                BCAST_DEFAULT_PORT);
 
       auto con = std::make_shared<UDPConnection>(_io_context, local_endpoint);
       con->RegisterOnReceive(

@@ -1,6 +1,6 @@
 #include <cstdint>
 #include <cstring>
-#include <fmt/core.h> // NOLINT(*)
+#include <fmt/format.h> // NOLINT(*)
 #include <httplib.h>
 #include <ifm3d/common/err.h>
 #include <ifm3d/common/json_impl.hpp>
@@ -355,15 +355,15 @@ namespace ifm3d
 
     httplib::Client client(this->_ip, this->_xmlrpc_port);
 
-    // NOLINTNEXTLINE(clang-analyzer-unix.BlockInCriticalSection)
-    auto res = client.Post(path, xmlrpc_request, "text/xml");
-
     auto timeout_sec = NET_WAIT / 1000;
     auto timeout_usec = (NET_WAIT % 1000) * 1000;
 
     client.set_connection_timeout(timeout_sec, timeout_usec);
     client.set_read_timeout(timeout_sec, timeout_usec);
     client.set_write_timeout(timeout_sec, timeout_usec);
+
+    // NOLINTNEXTLINE(clang-analyzer-unix.BlockInCriticalSection)
+    auto res = client.Post(path, xmlrpc_request, "text/xml");
 
     ifm3d::check_http_result(res);
 

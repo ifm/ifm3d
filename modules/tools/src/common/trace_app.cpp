@@ -5,7 +5,7 @@
 
 #include <CLI/App.hpp>
 #include <algorithm>
-#include <fmt/core.h> // NOLINT(*)
+#include <fmt/format.h> // NOLINT(*)
 #include <ifm3d/tools/common/trace_app.h>
 #include <iostream>
 #include <string>

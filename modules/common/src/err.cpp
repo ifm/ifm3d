@@ -5,7 +5,7 @@
  */
 
 #include <cstring>
-#include <fmt/core.h> // NOLINT(*)
+#include <fmt/format.h> // NOLINT(*)
 #include <ifm3d/common/err.h>
 #include <string>
 

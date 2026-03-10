@@ -1,4 +1,4 @@
-#include <fmt/core.h> // NOLINT(*)
+#include <fmt/format.h> // NOLINT(*)
 #include <gtest/gtest.h>
 #include <ifm3d/device/semver.h>
 #include <ifm3d/device/version.h>

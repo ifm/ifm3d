@@ -29,13 +29,14 @@ bind_ifmnetworkdevice(pybind11::module_& m)
     .def_property_readonly("netmask", &ifm3d::IFMNetworkDevice::GetNetmask)
     .def_property_readonly("gateway", &ifm3d::IFMNetworkDevice::GetGateway)
     .def_property_readonly("port", &ifm3d::IFMNetworkDevice::GetPort)
-    .def_property_readonly("flag", &ifm3d::IFMNetworkDevice::GetFlag)
+    .def_property_readonly("flags", &ifm3d::IFMNetworkDevice::GetFlags)
     .def_property_readonly("host_name", &ifm3d::IFMNetworkDevice::GetHostName)
     .def_property_readonly("device_name",
                            &ifm3d::IFMNetworkDevice::GetDeviceName)
     .def_property_readonly("vendor_id", &ifm3d::IFMNetworkDevice::GetVendorId)
     .def_property_readonly("device_id", &ifm3d::IFMNetworkDevice::GetDeviceId)
-    .def_property_readonly("found_via", &ifm3d::IFMNetworkDevice::GetFoundVia);
+    .def_property_readonly("found_via", &ifm3d::IFMNetworkDevice::GetFoundVia)
+    .def("has_flag", &ifm3d::IFMNetworkDevice::HasFlag, py::arg("flag"));
 }
 
 inline void
