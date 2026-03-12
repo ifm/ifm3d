@@ -3,13 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <algorithm>
 #include <array>
+#include <cctype>
 #include <cstdint>
 #include <cstdio>
 #include <fmt/format.h> // NOLINT(*)
+#include <fstream>
 #include <httplib.h>
 #include <ifm3d/common/err.h>
 #include <ifm3d/device/util.h>
+#include <ifm3d/device/version.h>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -22,8 +26,211 @@
 #elif __unix__
 #  include <sys/select.h>
 #  include <sys/time.h> // NOLINT(misc-include-cleaner), included for timeval
+#  include <sys/utsname.h>
 #  include <unistd.h>
 #endif
+
+namespace
+{
+  std::string
+  normalize_token(std::string value)
+  {
+    std::transform(value.begin(),
+                   value.end(),
+                   value.begin(),
+                   [](unsigned char ch) { return std::tolower(ch); });
+
+    for (char& ch : value)
+      {
+        if (!std::isalnum(static_cast<unsigned char>(ch)) && ch != '-' &&
+            ch != '_' && ch != '.')
+          {
+            ch = '-';
+          }
+      }
+
+    value.erase(
+      std::unique(value.begin(),
+                  value.end(),
+                  [](char a, char b) { return a == '-' && b == '-'; }),
+      value.end());
+
+    if (!value.empty() && value.front() == '-')
+      {
+        value.erase(0, 1);
+      }
+
+    if (!value.empty() && value.back() == '-')
+      {
+        value.pop_back();
+      }
+
+    return value.empty() ? "unknown" : value;
+  }
+
+  std::string
+  ifm3d_version_string()
+  {
+    int major = 0;
+    int minor = 0;
+    int patch = 0;
+    std::string tweak;
+    std::string meta;
+
+    ifm3d::version(&major, &minor, &patch, tweak, meta);
+    return fmt::format("{}.{}.{}{}{}", major, minor, patch, tweak, meta);
+  }
+
+  std::string
+  system_name_token()
+  {
+#if defined(__linux__)
+    return "linux";
+#elif defined(_WIN32)
+    return "windows";
+#else
+    return "unknown";
+#endif
+  }
+
+  std::string
+  architecture_token()
+  {
+#if defined(__unix__)
+    struct utsname uts
+    {
+    };
+    if (uname(&uts) == 0)
+      {
+        const std::string machine = normalize_token(uts.machine);
+        if (machine == "amd64")
+          {
+            return "x86_64";
+          }
+        return machine == "arm64" ? "aarch64" : machine;
+      }
+    return "unknown";
+#elif defined(_WIN32)
+    SYSTEM_INFO sys_info{};
+    GetNativeSystemInfo(&sys_info);
+
+    switch (sys_info.wProcessorArchitecture)
+      {
+      case PROCESSOR_ARCHITECTURE_AMD64:
+        return "x86_64";
+      case PROCESSOR_ARCHITECTURE_INTEL:
+        return "x86";
+      case PROCESSOR_ARCHITECTURE_ARM64:
+        return "aarch64";
+      case PROCESSOR_ARCHITECTURE_ARM:
+        return "arm";
+      default:
+        return "unknown";
+      }
+#else
+    return "unknown";
+#endif
+  }
+
+#if defined(_WIN32)
+  std::string
+  windows_os_name_token()
+  {
+    using RtlGetVersionFn = LONG(WINAPI*)(OSVERSIONINFOW*);
+
+    HMODULE ntdll = GetModuleHandleW(L"ntdll.dll");
+    if (ntdll == nullptr)
+      {
+        return "windows";
+      }
+
+    auto rtl_get_version = reinterpret_cast<RtlGetVersionFn>(
+      GetProcAddress(ntdll, "RtlGetVersion"));
+    if (rtl_get_version == nullptr)
+      {
+        return "windows";
+      }
+
+    OSVERSIONINFOW os_info{};
+    os_info.dwOSVersionInfoSize = sizeof(os_info);
+    if (rtl_get_version(&os_info) != 0)
+      {
+        return "windows";
+      }
+
+    if (os_info.dwMajorVersion == 10)
+      {
+        return os_info.dwBuildNumber >= 22000 ? "windows11" : "windows10";
+      }
+
+    return fmt::format("windows{}.{}",
+                       os_info.dwMajorVersion,
+                       os_info.dwMinorVersion);
+  }
+#endif
+
+  std::string
+  os_name_token()
+  {
+#if defined(__linux__)
+    std::ifstream os_release("/etc/os-release");
+    if (!os_release.is_open())
+      {
+        return "linux";
+      }
+
+    std::string id;
+    std::string version_id;
+    std::string line;
+    while (std::getline(os_release, line))
+      {
+        if (line.rfind("ID=", 0) == 0)
+          {
+            id = line.substr(3);
+          }
+        else if (line.rfind("VERSION_ID=", 0) == 0)
+          {
+            version_id = line.substr(11);
+          }
+
+        if (!id.empty() && !version_id.empty())
+          {
+            break;
+          }
+      }
+
+    auto strip_quotes = [](std::string& value) {
+      if (value.size() >= 2 && value.front() == value.back() &&
+          (value.front() == '"' || value.front() == '\''))
+        {
+          value = value.substr(1, value.size() - 2);
+        }
+    };
+
+    strip_quotes(id);
+    strip_quotes(version_id);
+
+    if (id.empty() && version_id.empty())
+      {
+        return "linux";
+      }
+    if (version_id.empty())
+      {
+        return normalize_token(id);
+      }
+    if (id.empty())
+      {
+        return normalize_token(version_id);
+      }
+
+    return normalize_token(id + version_id);
+#elif defined(_WIN32)
+    return windows_os_name_token();
+#else
+    return "unknown";
+#endif
+  }
+}
 
 std::string&
 ifm3d::ltrim(std::string& str, const std::string& chars)
@@ -223,4 +430,22 @@ ifm3d::check_http_result(httplib::Result const& res)
       throw ifm3d::Error(IFM3D_XMLRPC_FAILURE,
                          fmt::format("HTTP Status: {}", res->status));
     }
+}
+
+std::string
+ifm3d::make_ifm3d_http_user_agent()
+{
+  return fmt::format("ifm3d/{} ({}; {}; {})",
+                     ifm3d_version_string(),
+                     system_name_token(),
+                     os_name_token(),
+                     architecture_token());
+}
+
+void
+ifm3d::set_ifm3d_http_user_agent(httplib::Client& client)
+{
+  const std::string user_agent = make_ifm3d_http_user_agent();
+  client.set_default_headers(
+    {{"User-Agent", user_agent}, {"X-Ifm3d-Client", user_agent}});
 }

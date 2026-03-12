@@ -23,6 +23,7 @@
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/device/o3x.h>
 #include <ifm3d/device/semver.h>
+#include <ifm3d/device/util.h>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -89,6 +90,7 @@ namespace
     /* SWU_V1 device expose a /id.lp endpoint in recovery, so we check for its
      * existence to determine if this is a SWU_V1 device */
     httplib::Client cli(ip, 8080);
+    ifm3d::set_ifm3d_http_user_agent(cli);
     cli.set_connection_timeout(
       std::chrono::seconds(ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT));
     cli.set_read_timeout(

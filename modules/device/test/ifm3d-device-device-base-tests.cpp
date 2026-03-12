@@ -1,6 +1,7 @@
 #include <chrono>
 #include <gtest/gtest.h>
 #include <ifm3d/device/device.h>
+#include <ifm3d/device/util.h>
 #include <string>
 #include <thread>
 
@@ -50,3 +51,13 @@ TEST_F(DeviceTest, DeviceType)
 }
 
 TEST_F(DeviceTest, WhoAmI) { EXPECT_NO_THROW(_dev->WhoAmI()); }
+
+TEST_F(DeviceTest, MakeUserAgent)
+{
+  const std::string ua = ifm3d::make_ifm3d_http_user_agent();
+  EXPECT_TRUE(ua.find("ifm3d/") == 0);
+  EXPECT_TRUE(ua.find('(') != std::string::npos);
+  EXPECT_TRUE(ua.find(')') != std::string::npos);
+}
+
+TEST_F(DeviceTest, SetUserAgent) { EXPECT_NO_THROW(_dev->DeviceType(false)); }

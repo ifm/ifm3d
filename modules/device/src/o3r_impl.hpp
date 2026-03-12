@@ -397,6 +397,7 @@ inline void
 ifm3d::O3R::Impl::DownloadServiceReport(const std::string& out_file)
 {
   httplib::Client cli(this->_xwrapper->IP(), 80);
+  ifm3d::set_ifm3d_http_user_agent(cli);
   std::ofstream ofs(out_file, std::ios::binary);
   auto res =
     cli.Get("/service_report/", [&](const char* data, size_t data_length) {

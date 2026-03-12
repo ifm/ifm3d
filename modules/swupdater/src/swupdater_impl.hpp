@@ -100,6 +100,7 @@ inline ifm3d::SWUpdater::Impl::Impl(ifm3d::Device::Ptr cam,
     _cb(std::move(cb)),
     _client(cam->IP(), std::stoi(swupdate_recovery_port))
 {
+  ifm3d::set_ifm3d_http_user_agent(this->_client);
   this->_client.set_connection_timeout(ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT);
   this->_client.set_read_timeout(ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
   this->_client.set_write_timeout(ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT);
