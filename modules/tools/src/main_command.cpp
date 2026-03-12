@@ -5,7 +5,7 @@
 
 #include <CLI/App.hpp>
 #include <CLI/Validators.hpp>
-#include <fmt/core.h> // NOLINT(*)
+#include <fmt/format.h> // NOLINT(*)
 #include <functional>
 #include <ifm3d/common/features.h>
 #include <ifm3d/common/logging/log_formatter_text.h>

@@ -7,6 +7,7 @@
 #ifndef IFM3D_DEVICE_SEMVER_H
 #define IFM3D_DEVICE_SEMVER_H
 
+#include <fmt/format.h>
 #include <ifm3d/device/module_device.h>
 #include <iostream>
 #include <optional>
@@ -79,28 +80,46 @@ namespace ifm3d
       return !(rhs < *this);
     }
 
+    [[nodiscard]] std::string
+    ToString() const
+    {
+      std::string version = std::to_string(major_num) + "." +
+                            std::to_string(minor_num) + "." +
+                            std::to_string(patch_num);
+
+      if (prerelease.has_value())
+        {
+          version += "-" + prerelease.value();
+        }
+
+      if (build_meta.has_value())
+        {
+          version += "+" + build_meta.value();
+        }
+
+      return version;
+    }
+
     /* To support fmt ostream */
     friend std::ostream&
     operator<<(std::ostream& os, const SemVer& version)
     {
-      os << version.major_num << '.' << version.minor_num << '.'
-         << version.patch_num;
-
-      if (version.prerelease.has_value())
-        {
-          os << '-' << version.prerelease.value();
-        }
-
-      if (version.build_meta.has_value())
-        {
-          os << '+' << version.build_meta.value();
-        }
-
-      return os;
+      return os << version.ToString();
     }
 
     static std::optional<SemVer> Parse(const std::string& version_string);
   };
 } // end: namespace ifm3d
+
+template <>
+struct fmt::formatter<ifm3d::SemVer> : fmt::formatter<std::string_view>
+{
+  auto
+  format(const ifm3d::SemVer& version, format_context& ctx) const
+  {
+    const auto value = version.ToString();
+    return fmt::formatter<std::string_view>::format(value, ctx);
+  }
+};
 
 #endif // IFM3D_DEVICE_SEMVER_H

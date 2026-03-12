@@ -237,7 +237,7 @@ ifm3d::SWUpdater::Impl::check_recovery()
           return false;
         }
 
-      LOG_WARNING("{}", res.error());
+      LOG_WARNING("{}", httplib::to_string(res.error()));
       throw ifm3d::Error(IFM3D_RECOVERY_CONNECTION_ERROR);
     }
 

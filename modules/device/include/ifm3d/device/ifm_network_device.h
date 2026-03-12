@@ -20,37 +20,40 @@ namespace ifm3d
   public:
     IFMNetworkDevice(Data& data, std::string ip_address_via_interface);
 
-    /** Ip Address of the device */
+    /// Returns the IP address of the device.
     [[nodiscard]] std::string GetIPAddress() const;
 
-    /** Mac Address of the device */
+    /// Returns the MAC address of the device.
     [[nodiscard]] std::string GetMACAddress() const;
 
-    /** Netmask of the network of camera */
+    /// Returns the network subnet mask.
     [[nodiscard]] std::string GetNetmask() const;
 
-    /** Gateway of the device*/
+    /// Returns the default gateway of the device.
     [[nodiscard]] std::string GetGateway() const;
 
-    /** Port on which device discovery is done*/
+    /// Returns the port number used for device discovery.
     [[nodiscard]] uint16_t GetPort() const;
 
-    /** Device gives some additional information via those flags */
-    [[nodiscard]] uint16_t GetFlag() const;
+    /// Returns flags providing additional device information.
+    [[nodiscard]] uint16_t GetFlags() const;
 
-    /** Hostname of the device */
+    /// Checks if a specific flag is set in the device flags.
+    [[nodiscard]] bool HasFlag(uint16_t flag) const;
+
+    /// Returns the hostname of the device.
     [[nodiscard]] std::string GetHostName() const;
 
-    /** Device name */
+    /// Returns the device name.
     [[nodiscard]] std::string GetDeviceName() const;
 
-    /** Vendor ID of the device */
+    /// Returns the vendor ID of the device.
     [[nodiscard]] uint16_t GetVendorId() const;
 
-    /** Device ID of the device */
+    /// Returns the device ID of the device.
     [[nodiscard]] uint16_t GetDeviceId() const;
 
-    /** Founf via interface */
+    /// Returns the network interface through which the device was discovered.
     [[nodiscard]] std::string GetFoundVia() const;
 
   private:

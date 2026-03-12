@@ -1,6 +1,6 @@
 #include <ctime>
 #include <fmt/chrono.h> // NOLINT(*)
-#include <fmt/core.h>   // NOLINT(misc-header-include-cycle)
+#include <fmt/format.h> // NOLINT(misc-header-include-cycle)
 #include <ifm3d/common/logging/log_entry.h>
 #include <ifm3d/common/logging/log_formatter_text.h>
 #include <ifm3d/common/logging/log_level.h>

@@ -4,7 +4,7 @@
  */
 
 #include <CLI/App.hpp>
-#include <fmt/core.h> // NOLINT(*)
+#include <fmt/format.h> // NOLINT(*)
 #include <ifm3d/device/device.h>
 #include <ifm3d/tools/common/swupdater/restart_app.h>
 #include <ifm3d/tools/common/swupdater/swupdate_app.h>
