@@ -95,8 +95,15 @@ endif(WIN32)
 
 # Bootstrap gtest
 if(BUILD_TESTS)
-  add_subdirectory(${GTEST_CMAKE_DIR} gtest_bin EXCLUDE_FROM_ALL)
-  add_definitions(-DGTEST_LINKED_AS_SHARED_LIBRARY=1)
+  find_package(ament_cmake_gtest REQUIRED)
+
+   ament_add_gtest(test_logging
+    modules/common/test/logging/ifm3d-common-logging-tests.cpp
+  )
+  target_link_libraries(test_logging
+    ifm3d_common
+  )
+
   add_custom_target(check)
   #var
   if(WIN32)
