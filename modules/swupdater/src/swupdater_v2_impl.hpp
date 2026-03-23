@@ -359,7 +359,7 @@ ifm3d::ImplV2::check_productive()
       // currently reachable by XML-RPC (occurs during the reboot process)
       if (e.code() != IFM3D_XMLRPC_TIMEOUT &&
           e.code() != IFM3D_XMLRPC_OBJ_NOT_FOUND &&
-          e.code() != IFM3D_CURL_ERROR)
+          e.code() != IFM3D_CURL_ERROR && e.code() != IFM3D_CURL_TIMEOUT)
         {
           throw;
         }
