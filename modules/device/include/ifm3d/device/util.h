@@ -14,6 +14,7 @@
 
 namespace httplib
 {
+  class Client;
   class Result;
 }
 
@@ -50,6 +51,10 @@ namespace ifm3d
     const std::string& base64);
 
   IFM3D_EXPORT void check_http_result(httplib::Result const& res);
+
+  IFM3D_EXPORT std::string make_ifm3d_http_user_agent();
+
+  IFM3D_EXPORT void set_ifm3d_http_user_agent(httplib::Client& client);
 
   IFM3D_EXPORT bool is_stdin_available(int timeout_seconds = 2);
 

@@ -354,6 +354,7 @@ namespace ifm3d
     std::string const xmlrpc_request = create_xmlrpc_request(method, params);
 
     httplib::Client client(this->_ip, this->_xmlrpc_port);
+    ifm3d::set_ifm3d_http_user_agent(client);
 
     auto timeout_sec = NET_WAIT / 1000;
     auto timeout_usec = (NET_WAIT % 1000) * 1000;

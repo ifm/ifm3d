@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix device discovery across different subnets
 
+### Added
+- Add an `ifm3d` specific `user-agent` for `http` request
+
 ## 2.0.1 - 2026-03-09
 
 ### Added
