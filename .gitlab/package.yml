@@ -1,0 +1,40 @@
+package:windows_installer:
+  stage: package
+  tags:
+    - shared_docker_windows
+  image:
+    name: ${DOCKER_IMAGE_WINDOWS_BUILDER}
+    entrypoint: ["cmd", "/S", "/C"]
+  needs:
+    - job: sign:windows_2019
+      artifacts: true
+  script:
+    - git config --global --add safe.directory '*'
+    - cd build
+    - 'cpack --config CPackConfig.cmake -C Release'
+    - powershell.exe -NoProfile -Command "Compress-Archive -Path './_CPack_Packages/win64/NSIS/ifm3d_windows_*/*' -DestinationPath '..\\ifm3d_installer\\ifm3d_windows_installer.zip' -Update -CompressionLevel Optimal"
+  artifacts:
+    name: "ifm3d_windows_installer"
+    paths:
+      - ifm3d_installer/*.exe
+      - ifm3d_installer/*.zip
+    expire_in: 1 week
+
+include:
+  - component: $CI_SERVER_FQDN/ifm-public/standard/components/code-signing@~latest
+    inputs:
+      file: '$CI_PROJECT_DIR/ifm3d_installer/*.exe'
+      client-id: 0ebeac6b-d57a-495e-b994-ca158bd94791
+      stage: package
+      application: windows_installer
+      description: https://ifm3d.com/
+
+sign:windows_installer:
+  stage: package
+  needs:
+    - job: package:windows_installer
+      artifacts: true
+  artifacts:
+    paths:
+      - ifm3d_installer/
+    expire_in: 1 week

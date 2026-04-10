@@ -11,13 +11,11 @@ build:windows_2019:
     - cd build
     - "cmake.exe --build . -j 8 --config Debug --target ALL_BUILD"
     - "cmake.exe --build . -j 8 --config Release --target ALL_BUILD"
-    - 'cpack --config CPackConfig.cmake -C "Debug;Release"'
-    - "compress-archive -path './_CPack_Packages/win64/NSIS/ifm3d_windows_*/*' -destinationpath '../ifm3d_installer/ifm3d_windows_binaries.zip' -update -compressionlevel optimal"
   artifacts:
-    name: "ifm3d_windows_installer"
+    name: "ifm3d_windows_build"
     paths:
-      - ifm3d_installer/*.exe
-      - ifm3d_installer/*.zip
+      - build/
+    expire_in: 1 week
   needs: []
 
 build:windows_2019:python_wheel:
@@ -45,3 +43,22 @@ build:windows_2019:python_wheel:
     - !reference [.nightly, rules]
     - !reference [.manual, rules]
   needs: []
+
+include:
+  - component: $CI_SERVER_FQDN/ifm-public/standard/components/code-signing@~latest
+    inputs:
+      file: '$CI_PROJECT_DIR/build/*/*/*/*.[ed][xl][el]'
+      client-id: 0ebeac6b-d57a-495e-b994-ca158bd94791
+      stage: build
+      application: windows_2019
+      description: https://ifm3d.com/
+
+sign:windows_2019:
+  stage: build
+  needs:
+    - job: build:windows_2019
+      artifacts: true
+  artifacts:
+    paths:
+      - build/
+    expire_in: 1 week
