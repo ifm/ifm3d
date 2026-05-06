@@ -21,14 +21,14 @@ For more information on the available deserializer classes for managing differen
 The usage of the deserializer is the same for all the buffers mentioned above: create the object, and call the deserialize function. Follow the example below for an example on deserializing the `TOFInfoV4` buffer received from `buffer_id` - `TOF_INFO`.
 
 :::::{tabs}
-:::: {group-tab} Python
+::::{group-tab} Python
 :::{literalinclude} ../../ifm3d-examples/ovp8xx/python/core/deserialize_tof_info.py
 :language: python
 :::
 ::::
-:::: {group-tab} C++
+
+::::{group-tab} C++
 :::{literalinclude} ../../ifm3d-examples/ovp8xx/cpp/core/deserialize/deserialize_tof_info.cpp
-:language: cpp
 :::
 ::::
 :::::

@@ -61,10 +61,10 @@ cv::waitKey(0);
 :::::
 
 ## The full example
+
 :::::{tabs}
 ::::{group-tab} Python
-:::{literalinclude} ../../ifm3d-examples/ovp8xx/python/ovp8xxexamples/core/2d_data.py
-
+:::{literalinclude} ../../ifm3d-examples/ovp8xx/python/core/2d_data.py
 :language: python
 :::
 ::::
