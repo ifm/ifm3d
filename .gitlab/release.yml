@@ -8,7 +8,7 @@ release:github:
   needs:
     - job: build:linux:deb
       artifacts: true
-    - job: sign:windows_2019
+    - job: sign:windows_installer
       artifacts: true
   rules:
     - !reference [.tagged, rules]
