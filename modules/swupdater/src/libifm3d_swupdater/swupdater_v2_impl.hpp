@@ -407,9 +407,15 @@ ifm3d::ImplV2::UploadFirmware(const std::string& swu_file, long timeout_millis)
                          fmt::format("Unable to open file: {}", swu_file));
     }
 
+  // This is the ContentSize sent to the server when uploading the FW image,
+  // since the filesize is not known beforehand in case of streaming we just
+  // send a very big number and force close the connection once we're done.
+  constexpr std::uint64_t MAX_UPDATE_FILESIZE =
+    10ULL * 1024 * 1024 * 1024; // 10GiB
+
   curl_mimepart* mimepart = c->AddMimePart();
   curl_mime_data_cb(mimepart,
-                    (std::numeric_limits<int32_t>::max)(),
+                    MAX_UPDATE_FILESIZE,
                     mime_read,
                     NULL,
                     mime_free,

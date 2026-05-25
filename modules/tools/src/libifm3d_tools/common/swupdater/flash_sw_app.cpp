@@ -29,7 +29,7 @@ ifm3d::FlashSWApp::~FlashSWApp() {}
 void
 ifm3d::FlashSWApp::Execute(CLI::App* app)
 {
-  auto device = Parent<MainCommand>()->GetDevice();
+  auto device = Parent<MainCommand>()->GetDevice(false);
 
   auto const timeout_millisec =
     std::chrono::milliseconds(std::chrono::seconds(timeout));
