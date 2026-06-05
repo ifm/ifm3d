@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Fix device discovery across different subnets
+- Fix `SWUpdate` timeout issue
 
 ### Added
 - Add an `ifm3d` specific `user-agent` for `http` request

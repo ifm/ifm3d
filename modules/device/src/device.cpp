@@ -45,7 +45,7 @@ const std::size_t ifm3d::SESSION_ID_SZ = 32;
 const std::string ifm3d::DEFAULT_APPLICATION_TYPE = "Camera";
 
 const long ifm3d::DEFAULT_CURL_CONNECT_TIMEOUT = 10;     // seconds
-const long ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT = 30; // seconds
+const long ifm3d::DEFAULT_CURL_TRANSACTION_TIMEOUT = 20; // seconds
 
 namespace
 {
