@@ -27,7 +27,7 @@ target_compile_definitions(ifm3d-rtsp-tests PRIVATE
   # $<TARGET_FILE_DIR:...> resolves to the actual output directory of the
   # plugin binary, handling both single-config (Make/Ninja) and multi-config
   # (Visual Studio) generators correctly.
-  PLUGIN_TEST_DIR="$<TARGET_FILE_DIR:ifm3d_plugin_sample>"
+  PLUGIN_TEST_DIR="$<TARGET_FILE_DIR:ifm3d_plugin_ffmpeg>"
 )
 
 target_link_libraries(ifm3d-rtsp-tests
@@ -36,8 +36,8 @@ target_link_libraries(ifm3d-rtsp-tests
   $<BUILD_INTERFACE:fmt::fmt-header-only>
 )
 
-# The test binary must run after the sample plugin .so/.dll is built.
-add_dependencies(ifm3d-rtsp-tests ifm3d_plugin_sample)
+# The test binary must run after the ffmpeg plugin .so/.dll is built.
+add_dependencies(ifm3d-rtsp-tests ifm3d_plugin_ffmpeg)
 
 if(NOT CMAKE_CROSSCOMPILING)
   add_custom_target(check_rtsp

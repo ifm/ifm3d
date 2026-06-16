@@ -8,6 +8,7 @@
 
 #include <ifm3d/rtsp/plugin.h>
 #include <ifm3d/rtsp/plugin_manager.h>
-// #include <ifm3d/rtsp/rtsp_client.h>  /* enabled once RtspClient is complete */
+// #include <ifm3d/rtsp/rtsp_client.h>  /* enabled once RtspClient is complete
+// */
 
 #endif /* IFM3D_RTSP_H */

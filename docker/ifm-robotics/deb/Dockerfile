@@ -14,6 +14,8 @@ RUN apt-get update \
         coreutils \
         findutils \
         git \
+        libavcodec-dev \
+        libavutil-dev \
         libcurl4-openssl-dev \
         libgoogle-glog-dev \
         libgtest-dev \
@@ -21,6 +23,7 @@ RUN apt-get update \
         locales \
         file \
         ninja-build \
+        pkg-config \
         python3-dev \
         python3-venv \
         python3-numpy \
@@ -48,6 +51,7 @@ RUN mkdir -p /ifm3d/build \
         -DCMAKE_INSTALL_PREFIX=/usr \
         -DBUILD_MODULE_PCICCLIENT=ON \
         -DBUILD_MODULE_PYBIND11=ON \
+        -DBUILD_BUILD_MODULE_RTSP=ON \
         -DCREATE_PYTHON_STUBS=$(if [ $PYTHON_MINOR_VERSION -ge 7 ]; then echo "ON"; else echo "OFF"; fi) \
         -DPYTHON_EXECUTABLE=/usr/bin/python3 \
         .. \
