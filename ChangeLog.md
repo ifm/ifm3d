@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Add an `ifm3d` specific `user-agent` for `http` request
+- Add support for firmware files larger than 2 GB
 
 ## 2.0.1 - 2026-03-09
 
