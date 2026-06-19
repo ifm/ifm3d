@@ -15,7 +15,7 @@ index 121ce34..154adf8 100644
        req.is_chunked_content_provider_ = false;
      } else if (content_provider_without_length) {
 -      req.content_length_ = 0;
-+      req.content_length_ = (std::numeric_limits<int32_t>::max)();
++      req.content_length_ = (std::numeric_limits<ssize_t>::max)();
        req.content_provider_ = detail::ContentProviderAdapter(
            std::move(content_provider_without_length));
 -      req.is_chunked_content_provider_ = true;
