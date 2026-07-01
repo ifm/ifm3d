@@ -12,6 +12,8 @@ RUN apt-get update \
         findutils \
         git \
         graphviz \
+        libavcodec-dev \
+        libavutil-dev \
         libcurl4-openssl-dev \
         libproj-dev \
         libssl-dev \

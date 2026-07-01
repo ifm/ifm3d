@@ -6,9 +6,8 @@
 #ifndef IFM3D_RTSP_H
 #define IFM3D_RTSP_H
 
-#include <ifm3d/rtsp/plugin.h>
-#include <ifm3d/rtsp/plugin_manager.h>
-// #include <ifm3d/rtsp/rtsp_client.h>  /* enabled once RtspClient is complete
-// */
+#include <ifm3d/rtsp/decoder_manager.h>
+#include <ifm3d/rtsp/rtsp_client.h>
+#include <ifm3d/rtsp/video_decoder.h>
 
 #endif /* IFM3D_RTSP_H */

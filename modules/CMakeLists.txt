@@ -6,17 +6,17 @@ if (BUILD_MODULE_CRYPTO)
   list(APPEND DOXYGEN_MODULES "crypto")
 endif()
 
-if (BUILD_MODULE_RTSP)
-  add_subdirectory( "rtsp")
-  list(APPEND DOXYGEN_MODULES "rtsp")
-endif()
-
 add_subdirectory(device)
 list(APPEND DOXYGEN_MODULES "device")
 
 if(BUILD_MODULE_FRAMEGRABBER)
   add_subdirectory(framegrabber)
   list(APPEND DOXYGEN_MODULES "framegrabber")
+endif()
+
+if (BUILD_MODULE_RTSP)
+  add_subdirectory( "rtsp")
+  list(APPEND DOXYGEN_MODULES "rtsp")
 endif()
 
 if(BUILD_MODULE_SWUPDATER)

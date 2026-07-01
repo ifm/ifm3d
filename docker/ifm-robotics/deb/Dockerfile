@@ -51,7 +51,6 @@ RUN mkdir -p /ifm3d/build \
         -DCMAKE_INSTALL_PREFIX=/usr \
         -DBUILD_MODULE_PCICCLIENT=ON \
         -DBUILD_MODULE_PYBIND11=ON \
-        -DBUILD_BUILD_MODULE_RTSP=ON \
         -DCREATE_PYTHON_STUBS=$(if [ $PYTHON_MINOR_VERSION -ge 7 ]; then echo "ON"; else echo "OFF"; fi) \
         -DPYTHON_EXECUTABLE=/usr/bin/python3 \
         .. \

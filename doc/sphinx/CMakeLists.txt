@@ -20,7 +20,7 @@ endif()
 set(venv ${CMAKE_CURRENT_BINARY_DIR}/docs-venv)
 if(NOT IS_DIRECTORY ${venv})
     execute_process(
-        COMMAND ${PYTHON_EXECUTABLE} -m venv ${venv}
+        COMMAND ${Python_EXECUTABLE} -m venv ${venv}
         RESULT_VARIABLE status
         OUTPUT_VARIABLE output
         ERROR_VARIABLE output
@@ -33,11 +33,11 @@ if(NOT IS_DIRECTORY ${venv})
     endif()
 endif()
 
-find_program(venv_python python PATHS ${venv}/bin/ ${venv}/Scripts REQUIRED NO_DEFAULT_PATH)
+find_program(sphinx_venv_python python PATHS ${venv}/bin/ ${venv}/Scripts REQUIRED NO_DEFAULT_PATH)
 
 # Install requirements in the venv
 execute_process(
-    COMMAND ${venv_python} -m pip install -r ${ROOT_PROJECT_DIR}/requirements.txt -r ${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt
+    COMMAND ${sphinx_venv_python} -m pip install -r ${ROOT_PROJECT_DIR}/requirements.txt -r ${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt
     RESULT_VARIABLE status
     OUTPUT_VARIABLE output
     ERROR_VARIABLE output
@@ -57,7 +57,7 @@ add_custom_target(ifm3d_sphinx
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/jpeg.png ${CMAKE_CURRENT_BINARY_DIR}/content/jpeg.png
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ChangeLog.md ${CMAKE_CURRENT_BINARY_DIR}/content/ChangeLog.md       
     COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${IFM3DPY_DIR}"
-        ${venv_python} -m sphinx.cmd.build -b html -D html_extra_path=${DOXYGEN_DIR}/html "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/html"
+        ${sphinx_venv_python} -m sphinx.cmd.build -b html -D html_extra_path=${DOXYGEN_DIR}/html "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/html"
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generating python documentation with Sphinx"
     VERBATIM)

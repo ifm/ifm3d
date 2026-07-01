@@ -7,7 +7,7 @@ if(DEFINED PYTHON_PACKAGES_PATH)
   set(_python_install_path ${PYTHON_PACKAGES_PATH})
 else()
   execute_process(
-    COMMAND ${PYTHON_EXECUTABLE} -c "from sysconfig import get_paths; print(get_paths()['purelib'].removeprefix('/usr'))"
+    COMMAND ${Python_EXECUTABLE} -c "from sysconfig import get_paths; print(get_paths()['purelib'].removeprefix('/usr'))"
     OUTPUT_VARIABLE _site_packages
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
@@ -82,6 +82,10 @@ if(BUILD_MODULE_DESERIALIZE)
   target_link_libraries(ifm3dpy PRIVATE ifm3d_deserialize)
 endif()
 
+if(BUILD_MODULE_RTSP)
+  target_link_libraries(ifm3dpy PRIVATE ifm3d_rtsp)
+endif()
+
 
 if(BUILD_MODULE_CRYPTO)
   target_link_libraries(ifm3dpy PRIVATE ifm3d_crypto)
@@ -137,7 +141,7 @@ if(CREATE_PYTHON_STUBS)
   set(venv ${CMAKE_CURRENT_BINARY_DIR}/stubgen-venv)
   if(NOT IS_DIRECTORY ${venv})
     execute_process(
-      COMMAND ${PYTHON_EXECUTABLE} -m venv ${venv}
+      COMMAND ${Python_EXECUTABLE} -m venv ${venv}
       RESULT_VARIABLE status
       OUTPUT_VARIABLE output
       ERROR_VARIABLE output)
@@ -148,11 +152,11 @@ if(CREATE_PYTHON_STUBS)
     endif()
   endif()
 
-  find_program(venv_python python PATHS ${venv}/bin/ ${venv}/Scripts REQUIRED NO_DEFAULT_PATH)
+  find_program(stubgen_venv_python python PATHS ${venv}/bin/ ${venv}/Scripts REQUIRED NO_DEFAULT_PATH)
 
   # Install requirements in the venv
   execute_process(
-    COMMAND ${venv_python} -m pip install -r ${ROOT_PROJECT_DIR}/requirements.txt
+    COMMAND ${stubgen_venv_python} -m pip install -r ${ROOT_PROJECT_DIR}/requirements.txt
     RESULT_VARIABLE status
     OUTPUT_VARIABLE output
     ERROR_VARIABLE output)
@@ -169,7 +173,7 @@ if(CREATE_PYTHON_STUBS)
     POST_BUILD
     COMMAND
       ${CMAKE_COMMAND} -E env --unset=PYTHONHOME PYTHONPATH="$<TARGET_FILE_DIR:ifm3dpy>" VIRTUAL_ENV="${venv}" 
-        ${venv_python} -m pybind11_stubgen --ignore-invalid-expressions='.*' -o=$<TARGET_FILE_DIR:ifm3dpy> --root-suffix="" ifm3dpy
+        ${stubgen_venv_python} -m pybind11_stubgen --ignore-invalid-expressions='.*' -o=$<TARGET_FILE_DIR:ifm3dpy> --root-suffix="" ifm3dpy
   )
 
   install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/ifm3dpy 

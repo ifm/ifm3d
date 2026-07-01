@@ -34,6 +34,16 @@ Python API Reference
     :template: module.rst
     :recursive:
 
+    ifm3dpy.rtsp
+```
+
+
+```{eval-rst}
+.. autosummary::
+    :toctree: _autosummary
+    :template: module.rst
+    :recursive:
+
     ifm3dpy.swupdater
 ```
 

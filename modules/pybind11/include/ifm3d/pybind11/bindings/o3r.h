@@ -11,12 +11,60 @@
 #include <pybind11/native_enum.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 namespace py = pybind11;
 
 inline void
 bind_o3r(pybind11::module_& m)
 {
+  py::class_<ifm3d::RtspControlInfo>(m,
+                                     "RtspControlInfo",
+                                     R"(
+        RTSP control endpoint information for a port.
+      )")
+    .def_readonly("tcp_port",
+                  &ifm3d::RtspControlInfo::tcp_port,
+                  "TCP port the RTSP control channel is served on.")
+    .def("__repr__", [](ifm3d::RtspControlInfo* self) {
+      return fmt::format("RtspControlInfo(tcp_port: {})", self->tcp_port);
+    });
+
+  py::class_<ifm3d::RtspMediaEndpoint>(m,
+                                       "RtspMediaEndpoint",
+                                       R"(
+        A single RTSP media endpoint advertised by a port.
+      )")
+    .def_readonly("path",
+                  &ifm3d::RtspMediaEndpoint::path,
+                  "Stream path (e.g. /port1).")
+    .def("__repr__", [](ifm3d::RtspMediaEndpoint* self) {
+      return fmt::format(R"(RtspMediaEndpoint(path: "{}"))", self->path);
+    });
+
+  py::class_<ifm3d::RtspInfo>(m,
+                              "RtspInfo",
+                              R"(
+        RTSP streaming information advertised by a port.
+      )")
+    .def_readonly("control",
+                  &ifm3d::RtspInfo::control,
+                  "RTSP control channel information.")
+    .def_readonly("media_endpoints",
+                  &ifm3d::RtspInfo::media_endpoints,
+                  "Media endpoints exposed by the port.")
+    .def_readonly("supported_transports",
+                  &ifm3d::RtspInfo::supported_transports,
+                  "Transports supported by the RTSP server.")
+    .def("__repr__", [](ifm3d::RtspInfo* self) {
+      return fmt::format("RtspInfo(control: RtspControlInfo(tcp_port: {}), "
+                         "media_endpoints: {}, "
+                         "supported_transports: {})",
+                         self->control.tcp_port,
+                         self->media_endpoints.size(),
+                         self->supported_transports.size());
+    });
+
   py::class_<ifm3d::PortInfo> port_info(m,
                                         "PortInfo",
                                         R"(
@@ -32,6 +80,10 @@ bind_o3r(pybind11::module_& m)
   port_info.def_readonly("type",
                          &ifm3d::PortInfo::type,
                          "The type of the conntected sensor.");
+  port_info.def_readonly("rtsp",
+                         &ifm3d::PortInfo::rtsp,
+                         "RTSP streaming information, or None when the port "
+                         "does not advertise it.");
   port_info.def("__repr__", [](ifm3d::PortInfo* self) {
     return fmt::format(R"(PortInfo(port: "{}", pcic_port: {}, type: "{}"))",
                        self->port,

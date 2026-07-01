@@ -14,7 +14,9 @@
 #endif
 #include <ifm3d/device/pcic_command.h>
 #include <initializer_list>
+#include <optional>
 #include <variant>
+#include <vector>
 
 namespace ifm3d
 {
@@ -23,12 +25,49 @@ namespace ifm3d
       15000 :
       std::stoi(std::getenv("IFM3D_NET_WAIT_O3R_SET"));
 
+  /** @ingroup Device
+   *
+   * RTSP control endpoint information for a port.
+   */
+  struct IFM3D_EXPORT RtspControlInfo
+  {
+    /** TCP port the RTSP control channel is served on. */
+    uint16_t tcp_port;
+  };
+
+  /** @ingroup Device
+   *
+   * A single RTSP media endpoint advertised by a port.
+   */
+  struct IFM3D_EXPORT RtspMediaEndpoint
+  {
+    /** Stream path (e.g. `/port1`). */
+    std::string path;
+  };
+
+  /** @ingroup Device
+   *
+   * RTSP streaming information advertised by a port.
+   */
+  struct IFM3D_EXPORT RtspInfo
+  {
+    /** RTSP control channel information. */
+    RtspControlInfo control;
+    /** Media endpoints exposed by the port. */
+    std::vector<RtspMediaEndpoint> media_endpoints;
+    /** Transports supported by the RTSP server (e.g. `udp`, `tcpInterleaved`).
+     */
+    std::vector<std::string> supported_transports;
+  };
+
   /** @ingroup Device */
   struct IFM3D_EXPORT PortInfo
   {
     std::string port;
     uint16_t pcic_port;
     std::string type;
+    /** RTSP streaming information, present when the port advertises it. */
+    std::optional<RtspInfo> rtsp;
   };
 
 #ifdef BUILD_MODULE_CRYPTO

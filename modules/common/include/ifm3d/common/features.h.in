@@ -15,6 +15,7 @@
 #cmakedefine BUILD_MODULE_TOOLS
 #cmakedefine BUILD_MODULE_PYBIND11
 #cmakedefine BUILD_MODULE_CRYPTO
+#cmakedefine BUILD_MODULE_RTSP
 #cmakedefine BUILD_SDK_PKG
 #cmakedefine BUILD_SHARED_LIBS
 #cmakedefine BUILD_DOC

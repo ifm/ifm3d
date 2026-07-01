@@ -1,0 +1,121 @@
+#
+# Copyright 2026-present ifm electronic, gmbh
+# SPDX-License-Identifier: Apache-2.0
+#
+
+from enum import IntEnum
+
+import pytest
+
+from ifm3dpy.rtsp import RtspClient, NalUnit, DecoderManager
+
+
+def test_rtsp_enums_are_int_enums():
+    assert issubclass(RtspClient.Transport, IntEnum)
+    assert issubclass(RtspClient.State, IntEnum)
+    assert issubclass(RtspClient.OutputFormat, IntEnum)
+    assert issubclass(NalUnit.Type, IntEnum)
+
+
+def test_rtsp_enum_values():
+    assert int(RtspClient.Transport.INTERLEAVED) == 0
+    assert int(RtspClient.Transport.UDP) == 1
+    assert int(RtspClient.State.IDLE) == 0
+    assert int(RtspClient.State.FAILED) == 5
+    assert int(RtspClient.OutputFormat.RGB) == 0
+    assert int(RtspClient.OutputFormat.YUV420) == 1
+    assert int(NalUnit.Type.IDR_SLICE) == 5
+    assert int(NalUnit.Type.SEI) == 6
+
+
+def test_rtsp_client_construct_with_defaults():
+    # device may be None when a url is supplied.
+    client = RtspClient(None, url="rtsp://127.0.0.1:1/port1")
+    assert client.is_running() is False
+    assert client.get_state() == RtspClient.State.IDLE
+
+
+def test_rtsp_client_construct_with_options():
+    client = RtspClient(
+        None,
+        url="rtsp://127.0.0.1:1/port2",
+        port=8554,
+        stream_path="port2",
+        transport=RtspClient.Transport.UDP,
+        decoder="ffmpeg",
+        output_format=RtspClient.OutputFormat.YUV420,
+    )
+    assert client.is_running() is False
+    assert client.get_state() == RtspClient.State.IDLE
+
+
+def test_rtsp_client_construct_with_null_decoder():
+    client = RtspClient(
+        None,
+        url="rtsp://127.0.0.1:1/port1",
+        decoder="null",
+    )
+    assert client.is_running() is False
+    assert client.get_state() == RtspClient.State.IDLE
+
+
+def test_rtsp_client_initial_state():
+    client = RtspClient(None, url="rtsp://127.0.0.1:1/port1")
+    assert client.is_running() is False
+    assert client.get_state() == RtspClient.State.IDLE
+
+
+def test_rtsp_client_callbacks_are_registerable():
+    client = RtspClient(None, url="rtsp://127.0.0.1:1/port1")
+
+    # Registering and clearing callbacks must not raise.
+    client.on_new_frame(lambda buffer: None)
+    client.on_nal_unit(lambda nal: None)
+    client.on_error(lambda err: None)
+    client.on_state_change(lambda state: None)
+
+    client.on_new_frame()
+    client.on_nal_unit()
+    client.on_error()
+    client.on_state_change()
+
+
+def test_rtsp_client_connection_refused_transitions_to_failed():
+    # Port 1 is closed; the client must surface an error and end in FAILED.
+    client = RtspClient(
+        None, url="rtsp://127.0.0.1:1/port1", decoder="null"
+    )
+
+    states = []
+    errors = []
+    client.on_state_change(lambda state: states.append(state))
+    client.on_error(lambda err: errors.append(err))
+
+    ok, _ = client.start().wait_for(5000)
+    assert ok is True
+    client.stop().wait()
+
+    assert RtspClient.State.CONNECTING in states
+    assert RtspClient.State.FAILED in states
+    assert len(errors) >= 1
+    assert client.is_running() is False
+
+
+def test_decoder_manager_discover_decoders_returns_list():
+    decoders = DecoderManager.discover_decoders()
+    assert isinstance(decoders, list)
+    # The 'null' decoder is always listed.
+    assert any(p.name == "null" for p in decoders)
+    for p in decoders:
+        assert isinstance(p.name, str)
+        assert isinstance(p.available, bool)
+        assert isinstance(p.supports_h264, bool)
+        assert isinstance(p.error, str)
+        # available and error must be consistent.
+        assert (p.error == "") == p.available
+
+
+def test_decoder_manager_decoder_info_repr():
+    decoders = DecoderManager.discover_decoders()
+    for p in decoders:
+        assert "DecoderInfo" in repr(p)

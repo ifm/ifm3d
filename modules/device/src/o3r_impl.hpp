@@ -210,6 +210,50 @@ ifm3d::O3R::Impl::Unlock(const std::string& password)
   this->_xwrapper->XCallMain("unlock", password);
 }
 
+namespace ifm3d
+{
+  inline std::optional<ifm3d::RtspInfo>
+  ParsePortRtspInfo(const ifm3d::json& port_data)
+  {
+    const auto rtsp_ptr = "/data/rtsp"_json_pointer;
+    if (!port_data.contains(rtsp_ptr))
+      {
+        return std::nullopt;
+      }
+
+    const auto& rtsp = port_data[rtsp_ptr];
+    ifm3d::RtspInfo info;
+
+    if (rtsp.contains("control") && rtsp["control"].contains("tcpPort"))
+      {
+        info.control.tcp_port = rtsp["control"]["tcpPort"].get<uint16_t>();
+      }
+
+    if (rtsp.contains("mediaEndpoints"))
+      {
+        for (const auto& endpoint : rtsp["mediaEndpoints"])
+          {
+            ifm3d::RtspMediaEndpoint media_endpoint;
+            if (endpoint.contains("path"))
+              {
+                media_endpoint.path = endpoint["path"].get<std::string>();
+              }
+            info.media_endpoints.push_back(std::move(media_endpoint));
+          }
+      }
+
+    if (rtsp.contains("supportedTransports"))
+      {
+        for (const auto& transport : rtsp["supportedTransports"])
+          {
+            info.supported_transports.push_back(transport.get<std::string>());
+          }
+      }
+
+    return info;
+  }
+}
+
 inline ifm3d::PortInfo
 ifm3d::O3R::Impl::Port(const std::string& port)
 {
@@ -235,9 +279,10 @@ ifm3d::O3R::Impl::Port(const std::string& port)
       if (port.find("port") == 0)
         {
           auto port_data = get_port_data("/ports"_json_pointer, port);
-          auto pcic_tcp_port = port_data["/data/pcicTCPPort"_json_pointer];
+          auto pcic_tcp_port =
+            port_data.value("/data/pcicTCPPort"_json_pointer, uint16_t{0});
           auto type = port_data["/info/features/type"_json_pointer];
-          return {port, pcic_tcp_port, type};
+          return {port, pcic_tcp_port, type, ParsePortRtspInfo(port_data)};
         }
       if (port.find("diagnostics") == 0)
         {
@@ -283,8 +328,10 @@ ifm3d::O3R::Impl::Ports()
 
               result.push_back(
                 {port_key,
-                 port_data["/data/pcicTCPPort"_json_pointer],
-                 port_data["/info/features/type"_json_pointer]});
+                 port_data.value("/data/pcicTCPPort"_json_pointer,
+                                 uint16_t{0}),
+                 port_data["/info/features/type"_json_pointer],
+                 ParsePortRtspInfo(port_data)});
             }
         }
     }

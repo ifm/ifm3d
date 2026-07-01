@@ -22,6 +22,8 @@ RUN apt-get update \
         coreutils \
         findutils \
         git \
+        libavcodec-dev \
+        libavutil-dev \
         locales \
         ninja-build \
         libgtest-dev \
