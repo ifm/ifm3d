@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- RtspClient implementation with support for 2D Metadata
+  Currently supports libav/ffmpeg decoder which needs to be available on the system for decoding h264 frames (specifically libavcodec and libavutil), otherwise only encoded h264 packages can be received.
 
 ## 2.0.2 - 2026-06-23
 ### Fixed
