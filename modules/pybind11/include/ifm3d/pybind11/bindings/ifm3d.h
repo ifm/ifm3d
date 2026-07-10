@@ -18,6 +18,9 @@
 #include <ifm3d/pybind11/bindings/o3r.h>
 #include <ifm3d/pybind11/bindings/o3x.h>
 #include <ifm3d/pybind11/util.hpp>
+#if defined(BUILD_MODULE_RTSP)
+#  include <ifm3d/pybind11/bindings/rtsp.h>
+#endif
 #if defined(BUILD_MODULE_SWUPDATER)
 #  include <ifm3d/pybind11/bindings/swupdater.h>
 #endif
@@ -188,6 +191,13 @@ bind_ifm3d(py::module_& m)
   bind_deserialize_struct(deserializer_module);
 #endif
 
+#if defined(BUILD_MODULE_RTSP)
+  auto rtsp_module = m.def_submodule(
+    "rtsp",
+    R"(Provides an RTSP/1.0 client for streaming H.264 video from ifm devices.)");
+  bind_rtsp(rtsp_module);
+#endif
+
   // deprecated aliases for backwards compatibility, will removed at some point
   // in the future
   m.attr("SemVer") = device_module.attr("SemVer");
@@ -203,6 +213,9 @@ bind_ifm3d(py::module_& m)
 #endif
 #if defined(BUILD_MODULE_SWUPDATER)
   m.attr("SWUpdater") = swupdater_module.attr("SWUpdater");
+#endif
+#if defined(BUILD_MODULE_RTSP)
+  m.attr("RtspClient") = rtsp_module.attr("RtspClient");
 #endif
 }
 

@@ -105,6 +105,9 @@ build:linux:python_wheel:
     - ${RUNNER}
   script:
     - |
+      bash "${CI_PROJECT_DIR}/scripts/install-ffmpeg.sh"
+      export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
+      export CMAKE_PREFIX_PATH="/usr/local:${CMAKE_PREFIX_PATH:-}"
       "/opt/python/${PYTHON_VERSION}/bin/pip" wheel ${CI_PROJECT_DIR} --no-deps -w /tmp/wheelhouse/
       for whl in /tmp/wheelhouse/*.whl; do
         auditwheel repair "$whl" -w /${CI_PROJECT_DIR}/wheelhouse/

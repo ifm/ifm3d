@@ -16,6 +16,8 @@ RUN apt-get update && \
         gnupg2 \
         wget \
         curl \
+        libavcodec-dev \
+        libavutil-dev \
         libssl-dev \
         sudo \
         locales \

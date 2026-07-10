@@ -3,4 +3,4 @@
 # Set any environment variables necessary for testing here
 export PYTHONPATH=@IFM3D_PYBIND11_BINARY_DIR@/src:$PYTHONPATH
 
-exec @PYTHON_EXECUTABLE@ -m pytest -v ${1+"$@"} .
+exec @Python_EXECUTABLE@ -m pytest -v ${1+"$@"} .

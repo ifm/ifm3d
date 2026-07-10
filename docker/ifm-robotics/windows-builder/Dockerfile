@@ -65,9 +65,17 @@ RUN `
 # Download googletest
 Run & 'C:\Program Files\Git\bin\git.exe' clone https://github.com/google/googletest.git C:\googletest
 
+RUN `
+    curl -SL --output nuget.exe "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"; `
+    ./nuget.exe install FFmpeg.LGPL -Version 20260626.1.0 -OutputDirectory C:\ffmpeg -ExcludeVersion `
+    && del nuget.exe
+
 # Add everything to the PATH
 USER ContainerAdministrator
-RUN setx /M PATH \"$env:PATH;C:\Program Files\Git\bin;C:\cmake\bin;C:\pwsh;C:\nsis\"
+RUN setx /M PATH \"$env:PATH;C:\Program Files\Git\bin;C:\cmake\bin;C:\pwsh;C:\nsis;C:\ffmpeg\FFmpeg.LGPL\build\native\bin\"
+
+# Let CMake's find_path/find_library discover the FFmpeg headers and import libs.
+RUN setx /M CMAKE_PREFIX_PATH \"C:\ffmpeg\FFmpeg.LGPL\build\native\"
 
 # Define the entry point for the docker container.
 # This entry point starts the developer command prompt and launches the PowerShell shell.

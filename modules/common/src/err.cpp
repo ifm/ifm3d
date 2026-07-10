@@ -52,6 +52,18 @@ const int IFM3D_DEVICE_PORT_NOT_SUPPORTED = -100037;
 const int IFM3D_INDEX_OUT_OF_RANGE = -100038;
 const int IFM3D_NO_INPUT_PROVIDED = -100039;
 const int IFM3D_CRYPTO_ERROR = -100040;
+// rtsp / video streaming errors
+const int IFM3D_RTSP_ERROR = -100041;
+const int IFM3D_RTSP_CONNECTION_ERROR = -100042;
+const int IFM3D_RTSP_REQUEST_FAILED = -100043;
+const int IFM3D_RTSP_TRANSPORT_UNSUPPORTED = -100044;
+const int IFM3D_RTSP_SDP_ERROR = -100045;
+const int IFM3D_RTSP_NO_VIDEO_TRACK = -100046;
+const int IFM3D_NAL_ERROR = -100047;
+const int IFM3D_NAL_UNSUPPORTED_PACKET = -100048;
+const int IFM3D_DECODER_ERROR = -100049;
+const int IFM3D_DECODER_NOT_FOUND = -100050;
+const int IFM3D_DECODE_ERROR = -100051;
 // sensor errors
 const int IFM3D_XMLRPC_OBJ_NOT_FOUND = 100000;
 const int IFM3D_INVALID_PARAM = 101000;
@@ -229,6 +241,28 @@ ifm3d::strerror(int errnum)
       return "Invalid firmware version";
     case IFM3D_HEADER_VERSION_MISMATCH:
       return "Header version mismatch while parsing data";
+    case IFM3D_RTSP_ERROR:
+      return "RTSP error";
+    case IFM3D_RTSP_CONNECTION_ERROR:
+      return "RTSP connection error. Can you 'ping' the camera?";
+    case IFM3D_RTSP_REQUEST_FAILED:
+      return "RTSP request failed (non-OK response from the server)";
+    case IFM3D_RTSP_TRANSPORT_UNSUPPORTED:
+      return "The requested RTSP transport is not supported by the server";
+    case IFM3D_RTSP_SDP_ERROR:
+      return "Failed to parse the SDP description returned by the server";
+    case IFM3D_RTSP_NO_VIDEO_TRACK:
+      return "No supported H.264 video track found in the SDP description";
+    case IFM3D_NAL_ERROR:
+      return "Error while assembling H.264 NAL units";
+    case IFM3D_NAL_UNSUPPORTED_PACKET:
+      return "Unsupported RTP H.264 packetization mode";
+    case IFM3D_DECODER_ERROR:
+      return "Video decoder error";
+    case IFM3D_DECODER_NOT_FOUND:
+      return "No video decoder available for the requested codec";
+    case IFM3D_DECODE_ERROR:
+      return "Video decoder failed to decode the stream";
     default:
       return nullptr;
     }

@@ -14,6 +14,8 @@ RUN apt-get update \
         coreutils \
         findutils \
         git \
+        libavcodec-dev \
+        libavutil-dev \
         libcurl4-openssl-dev \
         libgoogle-glog-dev \
         libgtest-dev \
@@ -21,6 +23,7 @@ RUN apt-get update \
         locales \
         file \
         ninja-build \
+        pkg-config \
         python3-dev \
         python3-venv \
         python3-numpy \

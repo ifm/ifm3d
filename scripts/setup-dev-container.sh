@@ -36,6 +36,8 @@ $SUDO apt-get install -y --no-install-recommends \
     gpg \
     gpg-agent \
     jq \
+    libavcodec-dev \
+    libavutil-dev \
     libcurl4-openssl-dev \
     libgtest-dev \
     locales \

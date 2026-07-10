@@ -14,6 +14,11 @@ if(BUILD_MODULE_FRAMEGRABBER)
   list(APPEND DOXYGEN_MODULES "framegrabber")
 endif()
 
+if (BUILD_MODULE_RTSP)
+  add_subdirectory( "rtsp")
+  list(APPEND DOXYGEN_MODULES "rtsp")
+endif()
+
 if(BUILD_MODULE_SWUPDATER)
   add_subdirectory(swupdater)
   list(APPEND DOXYGEN_MODULES "swupdater")
