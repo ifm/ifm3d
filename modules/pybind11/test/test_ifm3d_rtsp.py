@@ -4,9 +4,15 @@
 #
 
 from enum import IntEnum
+import os
+from pathlib import Path
+import subprocess
+import sys
+import textwrap
 
 import pytest
 
+import ifm3dpy
 from ifm3dpy.rtsp import RtspClient, NalUnit, DecoderManager
 
 
@@ -119,3 +125,47 @@ def test_decoder_manager_decoder_info_repr():
     decoders = DecoderManager.discover_decoders()
     for p in decoders:
         assert "DecoderInfo" in repr(p)
+
+
+def test_ifm3d_ffmpeg_package_is_activated_on_import(tmp_path):
+    if not any(p.name == "ffmpeg" for p in DecoderManager.discover_decoders()):
+        pytest.skip("ifm3d was built without FFmpeg decoder support")
+
+    marker = tmp_path / "activated"
+    package = tmp_path / "ifm3d_ffmpeg"
+    package.mkdir()
+    package.joinpath("__init__.py").write_text(
+        textwrap.dedent(
+            f"""
+            def abi_info():
+                return {{
+                    "distribution_version": "8.1.2.post1",
+                    "ffmpeg_version": "8.1.2",
+                    "platform": "test-platform",
+                    "avcodec_major": 62,
+                    "avutil_major": 60,
+                }}
+
+            def activate():
+                open({str(marker)!r}, "w").close()
+            """
+        ),
+        encoding="utf-8",
+    )
+
+    env = os.environ.copy()
+    python_paths = [str(tmp_path), str(Path(ifm3dpy.__file__).parent)]
+    if env.get("PYTHONPATH"):
+        python_paths.append(env["PYTHONPATH"])
+    env["PYTHONPATH"] = os.pathsep.join(python_paths)
+
+    result = subprocess.run(
+        [sys.executable, "-c", "import ifm3dpy"],
+        check=True,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert marker.exists()
+    assert "Loaded ifm3d-ffmpeg build 8.1.2.post1" in result.stderr
+    assert "valid: true" in result.stderr

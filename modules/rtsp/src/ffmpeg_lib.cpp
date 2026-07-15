@@ -24,7 +24,8 @@ namespace ifm3d::rtsp
      *   FFmpeg 5.x -> avcodec 59 / avutil 57
      *   FFmpeg 6.x -> avcodec 60 / avutil 58
      *   FFmpeg 7.x -> avcodec 61 / avutil 59
-     * plus recent BtbN/master snapshots used on Windows. */
+     *   FFmpeg 8.x -> avcodec 62 / avutil 60
+     * plus recent development snapshots. */
     struct SonamePair
     {
       const char* avcodec;
@@ -41,7 +42,9 @@ namespace ifm3d::rtsp
       {"avcodec-58.dll", "avutil-56.dll"},
     }};
 #else
-    constexpr std::array<SonamePair, 5> LIBRARY_CANDIDATES{{
+    constexpr std::array<SonamePair, 7> LIBRARY_CANDIDATES{{
+      {"libavcodec.so.63", "libavutil.so.61"},
+      {"libavcodec.so.62", "libavutil.so.60"},
       {"libavcodec.so.61", "libavutil.so.59"},
       {"libavcodec.so.60", "libavutil.so.58"},
       {"libavcodec.so.59", "libavutil.so.57"},
