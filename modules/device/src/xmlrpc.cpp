@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <chrono>
 #include <cstdint>
 #include <cstring>
 #include <fmt/format.h> // NOLINT(*)
@@ -348,7 +350,7 @@ namespace ifm3d
   XMLRPCValue
   XMLRPC::do_xmlrpc_call(const std::string& path,
                          const std::string& method,
-                         int /*timeout*/,
+                         int timeout,
                          std::vector<XMLRPCValue>& params)
   {
     std::string const xmlrpc_request = create_xmlrpc_request(method, params);
@@ -356,15 +358,55 @@ namespace ifm3d
     httplib::Client client(this->_ip, this->_xmlrpc_port);
     ifm3d::set_ifm3d_http_user_agent(client);
 
-    auto timeout_sec = NET_WAIT / 1000;
-    auto timeout_usec = (NET_WAIT % 1000) * 1000;
+    auto timeout_sec = timeout / 1000;
+    auto timeout_usec = (timeout % 1000) * 1000;
 
     client.set_connection_timeout(timeout_sec, timeout_usec);
     client.set_read_timeout(timeout_sec, timeout_usec);
     client.set_write_timeout(timeout_sec, timeout_usec);
 
+    auto const request_start = std::chrono::steady_clock::now();
     // NOLINTNEXTLINE(clang-analyzer-unix.BlockInCriticalSection)
     auto res = client.Post(path, xmlrpc_request, "text/xml");
+    auto const elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::steady_clock::now() - request_start);
+
+    if (res.error() == httplib::Error::ConnectionTimeout)
+      {
+        throw ifm3d::Error(
+          IFM3D_CURL_TIMEOUT,
+          fmt::format("Timed out after {} ms while connecting for XML-RPC "
+                      "method '{}'.",
+                      timeout,
+                      method));
+      }
+
+    // cpp-httplib reports read and write timeouts as generic I/O errors.
+    // Only classify them as timeouts when the configured deadline elapsed.
+    auto const timeout_tolerance =
+      std::chrono::milliseconds(std::min(timeout / 10, 50));
+    if (elapsed + timeout_tolerance >= std::chrono::milliseconds(timeout))
+      {
+        if (res.error() == httplib::Error::Read)
+          {
+            throw ifm3d::Error(
+              IFM3D_CURL_TIMEOUT,
+              fmt::format("Timed out after {} ms while waiting for the "
+                          "response to XML-RPC method '{}'.",
+                          timeout,
+                          method));
+          }
+
+        if (res.error() == httplib::Error::Write)
+          {
+            throw ifm3d::Error(
+              IFM3D_CURL_TIMEOUT,
+              fmt::format("Timed out after {} ms while sending the request "
+                          "for XML-RPC method '{}'.",
+                          timeout,
+                          method));
+          }
+      }
 
     ifm3d::check_http_result(res);
 
