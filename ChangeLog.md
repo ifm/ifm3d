@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for loading ffmpeg decoder libs from [ifm3d-ffmpeg](https://pypi.org/project/ifm3d-ffmpeg/) python package
 
 ### Fixed
 - regression: Honor per-request XML-RPC timeouts, including the extended timeout used by `O3R::Set`
