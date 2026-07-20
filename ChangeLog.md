@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- regression: Honor per-request XML-RPC timeouts, including the extended timeout used by `O3R::Set`
+
 ## 2.0.3 - 2026-07-10
 ### Added
 - RtspClient implementation with support for 2D Metadata
