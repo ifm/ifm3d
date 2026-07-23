@@ -24,9 +24,10 @@ ifm3d::GetServiceReportApp::CreateCommand(CLI::App* parent)
 {
   CLI::App* command =
     parent
-      ->add_subcommand("getServiceReport",
-                       "Get the service report of O3R VPU (only available for "
-                       "firmware version 1.4.x and above)")
+      ->add_subcommand(
+        "getServiceReport",
+        "Get the service report of O3R/O3C VPU (only available for firmware "
+        "version 1.4.x and above)")
       ->require_subcommand(0, 0);
 
   command

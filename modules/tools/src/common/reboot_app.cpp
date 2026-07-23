@@ -7,7 +7,6 @@
 #include <CLI/App.hpp>
 #include <ifm3d/device/device.h>
 #include <ifm3d/tools/common/reboot_app.h>
-#include <ifm3d/tools/ovp8xx/ovp8xx_app.h>
 #if defined(BUILD_MODULE_SWUPDATER)
 #  include <ifm3d/swupdater/swupdater.h>
 #  include <ifm3d/tools/common/swupdater/restart_app.h>
@@ -25,14 +24,11 @@ ifm3d::RebootApp::Execute(CLI::App* /*app*/)
                           ifm3d::Device::BootMode::PRODUCTIVE;
 
 #if defined(BUILD_MODULE_SWUPDATER)
-  const auto swu_version =
-    Parent<OVP8xx>() ? Device::SWUVersion::SWU_V2 : Device::SWUVersion::SWU_V1;
-
   const auto swupdater = std::make_shared<ifm3d::SWUpdater>(
     device,
     [](float p, const std::string& msg) {},
     SWUPDATER_RECOVERY_PORT,
-    swu_version);
+    device->SwUpdateVersion());
 
   ifm3d::reboot_device(device, swupdater, mode, this->_wait);
 #else

@@ -10,6 +10,7 @@
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/device/util.h>
 #include <ifm3d/tools/common/config_set_app.h>
+#include <ifm3d/tools/o3cxxx/o3cxxx_app.h>
 #include <ifm3d/tools/ovp8xx/ovp8xx_app.h>
 #include <iostream>
 #include <iterator>
@@ -83,7 +84,7 @@ ifm3d::ConfigSetApp::CreateCommand(CLI::App* parent)
     ->option_text("TEXT")
     ->default_str("-");
 
-  if (Parent<ifm3d::OVP8xx>())
+  if (Parent<ifm3d::OVP8xx>() || Parent<ifm3d::O3Cxxx>())
     {
       command->add_flag("--save",
                         this->save,
