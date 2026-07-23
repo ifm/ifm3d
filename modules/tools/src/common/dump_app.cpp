@@ -8,6 +8,7 @@
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/tools/common/dump_app.h>
+#include <ifm3d/tools/o3cxxx/o3cxxx_app.h>
 #include <ifm3d/tools/ovp8xx/ovp8xx_app.h>
 #include <iostream>
 #include <memory>
@@ -19,7 +20,8 @@ void
 ifm3d::DumpApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
-  if (device->AmI(Device::DeviceFamily::O3R))
+  if (device->AmI(Device::DeviceFamily::O3R) ||
+      device->AmI(Device::DeviceFamily::O3C))
     {
       if (this->paths.empty())
         {
@@ -46,7 +48,7 @@ ifm3d::DumpApp::CreateCommand(CLI::App* parent)
     parent->add_subcommand("dump", "Serialize the sensor state to JSON.")
       ->require_subcommand(0, 0);
 
-  if (Parent<ifm3d::OVP8xx>())
+  if (Parent<ifm3d::OVP8xx>() || Parent<ifm3d::O3Cxxx>())
     {
       command
         ->add_option(
