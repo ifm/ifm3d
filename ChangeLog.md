@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Fix `o3cxxx` config get path support to JSON-pointer filtering
+- Fix `o3cxxx` ifm3d cli `factoryReset` command fail
 
 ## 2.0.4 - 2026-07-20
 ### Added

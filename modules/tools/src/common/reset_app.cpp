@@ -5,10 +5,10 @@
  */
 
 #include <CLI/App.hpp>
-#include <ifm3d/device/device.h>
 #include <ifm3d/device/legacy_device.h>
 #include <ifm3d/device/o3r.h>
 #include <ifm3d/tools/common/reset_app.h>
+#include <ifm3d/tools/o3cxxx/o3cxxx_app.h>
 #include <ifm3d/tools/ovp8xx/ovp8xx_app.h>
 #include <memory>
 #include <string>
@@ -20,7 +20,7 @@ ifm3d::ResetApp::Execute(CLI::App* /*app*/)
 {
   auto device = Parent<MainCommand>()->GetDevice();
 
-  if (Parent<ifm3d::OVP8xx>())
+  if (Parent<ifm3d::OVP8xx>() || Parent<ifm3d::O3Cxxx>())
     {
       if (reset_network_opt != nullptr && reset_network_opt->count() >= 1)
         {
@@ -33,10 +33,9 @@ ifm3d::ResetApp::Execute(CLI::App* /*app*/)
         }
     }
 
-  if (device->AmI(ifm3d::Device::DeviceFamily::O3R))
+  if (auto o3r_family_device = std::dynamic_pointer_cast<ifm3d::O3R>(device))
     {
-      std::static_pointer_cast<ifm3d::O3R>(device)->FactoryReset(
-        !reset_network_settings);
+      o3r_family_device->FactoryReset(!reset_network_settings);
     }
   else
     {
@@ -65,7 +64,7 @@ ifm3d::ResetApp::CreateCommand(CLI::App* parent)
                         "Reboot the sensor after reset. Default: False");
     }
 
-  if (Parent<ifm3d::OVP8xx>())
+  if (Parent<ifm3d::OVP8xx>() || Parent<ifm3d::O3Cxxx>())
     {
       keep_network_opt =
         command->add_flag("--keepNetworkSettings", this->network_settings)
