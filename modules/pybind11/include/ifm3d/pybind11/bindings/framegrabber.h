@@ -8,10 +8,13 @@
 
 #include <ifm3d/fg/frame_grabber.h>
 #include <ifm3d/pybind11/bindings/future.h>
+#include <ifm3d/pybind11/util.hpp>
+#include <optional>
 #include <pybind11/functional.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <utility>
 
 namespace py = pybind11;
 
@@ -27,7 +30,14 @@ bind_framegrabber(pybind11::module_& m)
     )");
 
   framegrabber.def(
-    py::init<ifm3d::Device::Ptr, std::optional<std::uint16_t>>(),
+    // A factory rather than py::init<> so the holder carries the custom
+    // deleter; see ifm3d::with_cleanup.
+    py::init(
+      [](ifm3d::Device::Ptr cam, std::optional<std::uint16_t> pcic_port) {
+        return ifm3d::with_cleanup(
+          new ifm3d::FrameGrabber(std::move(cam), pcic_port),
+          [](ifm3d::FrameGrabber* fg) { fg->Stop().wait(); });
+      }),
     py::arg("cam"),
     py::arg("pcic_port") = std::nullopt,
     R"(

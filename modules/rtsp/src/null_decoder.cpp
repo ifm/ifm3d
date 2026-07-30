@@ -20,7 +20,9 @@ namespace ifm3d::rtsp
     {
     public:
       int
-      SendPacket(const std::uint8_t* /*data*/, int /*size*/) override
+      SendPacket(const std::uint8_t* /*data*/,
+                 int /*size*/,
+                 std::uint64_t /*pts*/) override
       {
         return 0;
       }

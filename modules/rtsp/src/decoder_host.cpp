@@ -15,12 +15,11 @@
 #include <vector>
 
 #include <ifm3d/common/err.h>
-#include <ifm3d/common/json_impl.hpp>
 #include <ifm3d/common/logging/log.h>
 #include <ifm3d/device/device.h>
+#include <ifm3d/fg/buffer.h>
+#include <ifm3d/fg/buffer_id.h>
 #include <ifm3d/rtsp/decoder_manager.h>
-#include <ifm3d/rtsp/frame_metadata.h>
-#include <ifm3d/rtsp/rtsp_client.h>
 #include <ifm3d/rtsp/video_decoder.h>
 
 namespace ifm3d::rtsp
@@ -34,28 +33,14 @@ namespace ifm3d::rtsp
     }
   } // namespace
 
-  ifm3d::json
-  rgb_info_to_json(const RgbInfo& info)
-  {
-    ifm3d::json j;
-    j[frame_metadata::VERSION] = info.version;
-    j[frame_metadata::FRAME_COUNTER] = info.frame_counter;
-    j[frame_metadata::TIMESTAMP_NS] = info.timestamp_ns;
-    j[frame_metadata::EXPOSURE_TIME] = info.exposure_time;
-    j[frame_metadata::EXTRINSIC_OPTIC_TO_USER] = info.extrinsic_optic_to_user;
-    j[frame_metadata::INTRINSIC_MODEL_ID] = info.intrinsic.model_id;
-    j[frame_metadata::INTRINSIC_PARAMETERS] = info.intrinsic.model_parameters;
-    j[frame_metadata::INVERSE_INTRINSIC_MODEL_ID] =
-      info.inverse_intrinsic.model_id;
-    j[frame_metadata::INVERSE_INTRINSIC_PARAMETERS] =
-      info.inverse_intrinsic.model_parameters;
-    return j;
-  }
-
   DecoderHost::DecoderHost(std::optional<std::string> decoder,
-                           ifm3d::RtspClient::OutputFormat output_format)
-    : _decoder_manager(std::make_unique<DecoderManager>(std::move(decoder))),
-      _output_format(output_format)
+                           bool request_rgb,
+                           bool request_yuv)
+    : _decoder_manager(std::make_unique<DecoderManager>(
+        request_rgb || request_yuv ? std::move(decoder) :
+                                     std::optional<std::string>{"null"})),
+      _request_rgb(request_rgb),
+      _request_yuv(request_yuv)
   {}
 
   DecoderHost::~DecoderHost() = default;
@@ -65,11 +50,21 @@ namespace ifm3d::rtsp
   {
     _decoder_manager->LoadDecoders();
     _decoder = _decoder_manager->CreateDecoder(VIDEO_CODEC_H264);
+    _produces_frames =
+      _decoder != nullptr &&
+      _decoder_manager->SelectedDecoderName(VIDEO_CODEC_H264) != "null";
     if (_decoder == nullptr)
       {
         LOG_WARNING("DecoderHost: no decoder available for H.264; running in "
                     "NAL-only mode");
         return false;
+      }
+
+    if ((_request_rgb || _request_yuv) && !_produces_frames)
+      {
+        LOG_WARNING("DecoderHost: decoded image buffers were requested but "
+                    "the 'null' decoder is selected; no image will be "
+                    "produced");
       }
 
     LOG_INFO("DecoderHost: H.264 decoder ready");
@@ -78,17 +73,16 @@ namespace ifm3d::rtsp
 
   void
   DecoderHost::SubmitAccessUnit(const std::vector<std::uint8_t>& access_unit,
-                                std::uint64_t pts_us,
-                                const std::optional<ifm3d::json>& metadata)
+                                std::uint64_t pts)
   {
-    (void)pts_us;
-    if (_decoder == nullptr || access_unit.empty())
+    if (!_produces_frames || _decoder == nullptr || access_unit.empty())
       {
         return;
       }
 
     const int rc = _decoder->SendPacket(access_unit.data(),
-                                        static_cast<int>(access_unit.size()));
+                                        static_cast<int>(access_unit.size()),
+                                        pts);
     if (rc < 0)
       {
         const std::string detail = _decoder->LastError();
@@ -107,12 +101,34 @@ namespace ifm3d::rtsp
     int recv = 0;
     while ((recv = _decoder->ReceiveFrame(frame)) == 1)
       {
-        if (auto buffer = convert_frame(frame, metadata))
+        if (frame.format != VIDEO_FORMAT_YUV420P || frame.width <= 0 ||
+            frame.height <= 0 || frame.planes[0] == nullptr ||
+            frame.planes[1] == nullptr || frame.planes[2] == nullptr)
           {
-            if (on_frame)
+            LOG_WARNING("DecoderHost: unsupported or invalid decoded frame");
+            continue;
+          }
+
+        BufferMap buffers;
+        if (_request_rgb)
+          {
+            if (auto buffer = frame_to_rgb(frame))
               {
-                on_frame(std::move(*buffer));
+                buffers.emplace(ifm3d::buffer_id::RGB_IMAGE,
+                                std::move(*buffer));
               }
+          }
+        if (_request_yuv)
+          {
+            if (auto buffer = frame_to_i420(frame))
+              {
+                buffers.emplace(ifm3d::buffer_id::YUV420_IMAGE,
+                                std::move(*buffer));
+              }
+          }
+        if (on_frame)
+          {
+            on_frame(std::move(buffers), frame.pts);
           }
       }
 
@@ -131,25 +147,7 @@ namespace ifm3d::rtsp
   }
 
   std::optional<ifm3d::Buffer>
-  DecoderHost::convert_frame(const VideoFrame& frame,
-                             const std::optional<ifm3d::json>& metadata) const
-  {
-    if (frame.format != VIDEO_FORMAT_YUV420P || frame.width <= 0 ||
-        frame.height <= 0 || frame.planes[0] == nullptr ||
-        frame.planes[1] == nullptr || frame.planes[2] == nullptr)
-      {
-        LOG_WARNING("DecoderHost: unsupported or invalid decoded frame");
-        return std::nullopt;
-      }
-
-    return _output_format == ifm3d::RtspClient::OutputFormat::RGB ?
-             frame_to_rgb(frame, metadata) :
-             frame_to_i420(frame, metadata);
-  }
-
-  std::optional<ifm3d::Buffer>
-  DecoderHost::frame_to_rgb(const VideoFrame& frame,
-                            const std::optional<ifm3d::json>& metadata) const
+  DecoderHost::frame_to_rgb(const VideoFrame& frame) const
   {
     const int width = frame.width;
     const int height = frame.height;
@@ -160,7 +158,8 @@ namespace ifm3d::rtsp
                          static_cast<std::uint32_t>(height),
                          3,
                          ifm3d::PixelFormat::FORMAT_8U,
-                         metadata);
+                         std::nullopt,
+                         ifm3d::buffer_id::RGB_IMAGE);
 
     const std::uint8_t* y = frame.planes[0];
     const std::uint8_t* u = frame.planes[1];
@@ -191,8 +190,7 @@ namespace ifm3d::rtsp
   }
 
   std::optional<ifm3d::Buffer>
-  DecoderHost::frame_to_i420(const VideoFrame& frame,
-                             const std::optional<ifm3d::json>& metadata) const
+  DecoderHost::frame_to_i420(const VideoFrame& frame) const
   {
     // Deliver the raw YUV420P data in planar I420 layout: a single-channel
     // 8-bit buffer of width x (height * 3 / 2), with the full-resolution Y
@@ -217,7 +215,8 @@ namespace ifm3d::rtsp
                          buffer_height,
                          1,
                          ifm3d::PixelFormat::FORMAT_8U,
-                         metadata);
+                         std::nullopt,
+                         ifm3d::buffer_id::YUV420_IMAGE);
 
     auto* dst = buffer.Ptr<std::uint8_t>(0);
     std::size_t offset = 0;

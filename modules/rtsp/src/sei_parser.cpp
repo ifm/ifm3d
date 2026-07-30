@@ -7,13 +7,11 @@
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
 #include <cstdint>
-#include <cstring>
 #include <functional>
 #include <optional>
 #include <vector>
-
-#include <ifm3d/rtsp/frame_metadata.h>
 
 namespace ifm3d::rtsp
 {
@@ -40,14 +38,6 @@ namespace ifm3d::rtsp
       return val;
     }
 
-    float
-    read_f32_le(const std::uint8_t* p)
-    {
-      float f = 0.0F;
-      std::memcpy(&f, p, sizeof(f));
-      return f;
-    }
-
     std::uint32_t
     read_u32_le(const std::uint8_t* p)
     {
@@ -64,17 +54,6 @@ namespace ifm3d::rtsp
              (static_cast<std::uint64_t>(read_u32_le(p + 4)) << 32);
     }
 
-    void
-    read_intrinsic(const std::uint8_t*& p, RgbInfo::Intrinsic& out)
-    {
-      out.model_id = read_u32_le(p);
-      p += 4;
-      for (std::size_t i = 0; i < RgbInfo::INTRINSIC_PARAM_COUNT; ++i)
-        {
-          out.model_parameters[i] = read_f32_le(p);
-          p += 4;
-        }
-    }
   } // namespace
 
   std::vector<std::uint8_t>
@@ -152,45 +131,20 @@ namespace ifm3d::rtsp
       }
   }
 
-  std::optional<RgbInfo>
+  std::optional<RgbInfoPayload>
   parse_rgb_info(const std::array<std::uint8_t, 16>& uuid,
                  const std::vector<std::uint8_t>& data)
   {
-    if (uuid != RgbInfo::UUID)
+    if (uuid != RGB_INFO_UUID || data.size() < RGB_INFO_WIRE_SIZE)
       {
         return std::nullopt;
       }
 
-    // `data` is the SEI user-data payload with the 16-byte UUID already
-    // stripped, so it must hold the full WIRE_SIZE worth of fields.
-    constexpr std::size_t body_size = RgbInfo::WIRE_SIZE;
-    if (data.size() < body_size)
-      {
-        return std::nullopt;
-      }
-
-    RgbInfo info;
-    const std::uint8_t* p = data.data();
-
-    info.version = read_u32_le(p);
-    p += 4;
-    info.frame_counter = read_u32_le(p);
-    p += 4;
-    info.timestamp_ns = read_u64_le(p);
-    p += 8;
-    info.exposure_time = read_f32_le(p);
-    p += 4;
-
-    for (auto& v : info.extrinsic_optic_to_user)
-      {
-        v = read_f32_le(p);
-        p += 4;
-      }
-
-    read_intrinsic(p, info.intrinsic);
-    read_intrinsic(p, info.inverse_intrinsic);
-
-    return info;
+    return RgbInfoPayload{
+      std::vector<std::uint8_t>(data.begin(),
+                                data.begin() + RGB_INFO_WIRE_SIZE),
+      read_u32_le(data.data() + 4),
+      read_u64_le(data.data() + 8)};
   }
 
 } // namespace ifm3d::rtsp

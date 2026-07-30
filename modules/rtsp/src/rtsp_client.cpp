@@ -70,9 +70,9 @@ namespace ifm3d
   RtspClient& RtspClient::operator=(RtspClient&&) noexcept = default;
 
   std::shared_future<void>
-  RtspClient::Start()
+  RtspClient::Start(const BufferIdList& buffers)
   {
-    return _impl->Start();
+    return _impl->Start(buffers);
   }
 
   std::shared_future<void>

@@ -79,9 +79,17 @@ namespace ifm3d::rtsp
                        const std::vector<std::uint8_t>& data)>
       on_sei_unregistered_user_data;
 
+    /**
+     * Fired when the in-progress access unit is discarded after a sequence
+     * gap, so that anything derived from its already-received NALs can be
+     * dropped with it.
+     */
+    std::function<void()> on_access_unit_cancelled;
+
   private:
     const std::uint8_t* next_nal_unit(int& size);
     void emit_nal(const std::uint8_t* nal, int size);
+    void flush_access_unit();
 
     std::vector<std::uint8_t> _current_frame;
     int _current_read_index = 0;
@@ -89,9 +97,12 @@ namespace ifm3d::rtsp
 
     std::vector<std::uint8_t> _access_unit;
     bool _access_unit_has_sprop = false;
+    bool _sprop_emitted = false;
+    bool _access_unit_has_vcl = false;
     std::vector<std::uint8_t> _sprop_prefix;
 
     std::uint32_t _current_rtp_timestamp = 0;
+    std::uint32_t _access_unit_rtp_timestamp = 0;
     std::uint16_t _fu_first_sequence = 0;
     std::uint16_t _current_first_sequence = 0;
     std::uint16_t _current_last_sequence = 0;

@@ -199,6 +199,15 @@ namespace ifm3d
     O3R_MCC_STATIC_IMAGE,
     O3R_ODS_RENDERED_ZONES,
 
+    /** @brief A complete H.264 access unit in Annex-B format. */
+    COMPRESSED_H264_FRAME,
+
+    /** @brief A decoded 8-bit, three-channel RGB image. */
+    RGB_IMAGE,
+
+    /** @brief A decoded 8-bit planar I420 image. */
+    YUV420_IMAGE,
+
     // clang-format on
   };
 
