@@ -129,6 +129,23 @@ if(IS_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/local)
 endif()
 
 #################################################
+# Uninstall target (build-from-source installs)
+# On Windows this also calls unregister_pwsh_completion.ps1 so that the
+# PowerShell profile block is removed before the files are deleted.
+#################################################
+configure_file(
+  "${CMAKE_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+  "${CMAKE_BINARY_DIR}/cmake_uninstall.cmake"
+  @ONLY
+)
+if(NOT TARGET uninstall)
+  add_custom_target(uninstall
+    COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_BINARY_DIR}/cmake_uninstall.cmake"
+    COMMENT "Uninstalling ifm3d"
+  )
+endif()
+
+#################################################
 # Documentation
 #################################################
 if(BUILD_DOC)

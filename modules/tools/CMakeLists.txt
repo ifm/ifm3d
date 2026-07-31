@@ -32,7 +32,7 @@ install(TARGETS ifm3d
 )
 
 #################################################
-# Shell completion installation (Linux only)
+# Shell completion installation
 #################################################
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT CMAKE_CROSSCOMPILING)
   # Directory to store generated completion scripts
@@ -85,6 +85,92 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT CMAKE_CROSSCOMPILING)
     DESTINATION share/zsh/vendor-completions
     COMPONENT ifm3d
   )
+
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows" AND NOT CMAKE_CROSSCOMPILING)
+  # -------------------------------------------------------------------
+  # PowerShell tab completion for Windows
+  # -------------------------------------------------------------------
+  # Strategy (mirrors the Linux bash/zsh lazy-load approach):
+  #   1. After the ifm3d binary is built, run it via a generated wrapper
+  #      script to produce the completion .ps1 file.
+  #   2. Install the .ps1 to share/ifm3d/completions/ifm3d.ps1.
+  #   3. Ship register_pwsh_completion.ps1 / unregister_pwsh_completion.ps1
+  #      alongside so the NSIS installer (and manual users) can wire the
+  #      script into the PowerShell profile automatically.
+  #
+  # NSIS installer: cpack.cmake runs register_pwsh_completion.ps1 -AllUsers
+  #   which writes a guarded block to the AllUsersAllHosts profile so that
+  #   completion is available to every user on the machine immediately after
+  #   installation - no per-user action required.
+  #
+  # Build-from-source: run register_pwsh_completion.ps1 once as instructed
+  #   by the post-install message printed below.
+  # -------------------------------------------------------------------
+
+  set(IFM3D_COMPLETION_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/completions")
+
+  # file(GENERATE) supports $<TARGET_FILE:> and $<CONFIG> generator expressions.
+  # One wrapper script is generated per build configuration so that MSVC
+  # multi-config generators (Debug / Release) each reference the correct binary.
+  # The output file (ifm3d.ps1) is config-independent: completion content is
+  # identical regardless of build type.
+  file(GENERATE
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/gen_pwsh_completion_$<CONFIG>.ps1"
+    CONTENT "New-Item -ItemType Directory -Force -Path '${IFM3D_COMPLETION_OUTPUT_DIR}' | Out-Null\n& '$<TARGET_FILE:ifm3d>' generate-completion pwsh | Set-Content -Encoding UTF8 '${IFM3D_COMPLETION_OUTPUT_DIR}/ifm3d.ps1'\n"
+  )
+
+  # Generate the completion script at build time, after ifm3d is built.
+  add_custom_command(
+    OUTPUT "${IFM3D_COMPLETION_OUTPUT_DIR}/ifm3d.ps1"
+    COMMAND powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass
+            -File "${CMAKE_CURRENT_BINARY_DIR}/gen_pwsh_completion_$<CONFIG>.ps1"
+    DEPENDS ifm3d
+    COMMENT "Generating PowerShell completion script for ifm3d"
+  )
+
+  add_custom_target(ifm3d_completions ALL
+    DEPENDS "${IFM3D_COMPLETION_OUTPUT_DIR}/ifm3d.ps1"
+  )
+
+  # Install the generated completion script
+  install(
+    FILES "${IFM3D_COMPLETION_OUTPUT_DIR}/ifm3d.ps1"
+    DESTINATION share/ifm3d/completions
+    COMPONENT ifm3d
+  )
+
+  # Install the profile-management helper scripts (used by NSIS and manual installs)
+  install(
+    FILES
+      "${CMAKE_SOURCE_DIR}/cmake/windows_installer/register_pwsh_completion.ps1"
+      "${CMAKE_SOURCE_DIR}/cmake/windows_installer/unregister_pwsh_completion.ps1"
+    DESTINATION share/ifm3d/completions
+    COMPONENT ifm3d
+  )
+
+  # For build-from-source installs (not the NSIS installer), print instructions.
+  # Use bracket notation so ${CMAKE_INSTALL_PREFIX} is deferred to install-time.
+  if(NOT CREATE_WIN_INSTALLER)
+    install(CODE [[
+      message(STATUS "")
+      message(STATUS "ifm3d: PowerShell tab completion installed.")
+      message(STATUS "  Script: ${CMAKE_INSTALL_PREFIX}/share/ifm3d/completions/ifm3d.ps1")
+      message(STATUS "")
+      message(STATUS "  To REGISTER (run once in PowerShell):")
+      message(STATUS "    powershell -ExecutionPolicy Bypass -File \"${CMAKE_INSTALL_PREFIX}/share/ifm3d/completions/register_pwsh_completion.ps1\" -InstallDir \"${CMAKE_INSTALL_PREFIX}\"")
+      message(STATUS "  Then restart PowerShell (or run '. \$PROFILE') to activate.")
+      message(STATUS "")
+      message(STATUS "  To UNREGISTER (removes tab completion from your profile):")
+      message(STATUS "    powershell -ExecutionPolicy Bypass -File \"${CMAKE_INSTALL_PREFIX}/share/ifm3d/completions/unregister_pwsh_completion.ps1\"")
+      message(STATUS "  Or, to unregister for all users (requires elevation):")
+      message(STATUS "    powershell -ExecutionPolicy Bypass -File \"${CMAKE_INSTALL_PREFIX}/share/ifm3d/completions/unregister_pwsh_completion.ps1\" -AllUsers")
+      message(STATUS "")
+      message(STATUS "  To uninstall files and unregister in one step:")
+      message(STATUS "    cmake --build <build-dir> --target uninstall")
+      message(STATUS "")
+    ]] COMPONENT ifm3d)
+  endif()
+
 endif()
 
 # if (BUILD_MODULE_FRAMEGRABBER)
