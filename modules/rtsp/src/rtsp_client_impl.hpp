@@ -17,6 +17,7 @@
 
 #include <atomic>
 #include <future>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -31,6 +32,7 @@
 #include "h264_depacketizer.hpp"
 #include "rtsp_session.hpp"
 #include "sdp_parser.hpp"
+#include "sei_parser.hpp"
 
 namespace ifm3d
 {
@@ -45,7 +47,7 @@ namespace ifm3d
     Impl(Impl&&) = delete;
     Impl& operator=(Impl&&) = delete;
 
-    std::shared_future<void> Start();
+    std::shared_future<void> Start(const BufferIdList& buffers);
     std::shared_future<void> Stop();
 
     [[nodiscard]] bool IsRunning() const;
@@ -65,6 +67,9 @@ namespace ifm3d
     void handle_sdp(const ifm3d::rtsp::SdpInfo& info);
     void resolve_start();
     void resolve_start_with_error(const ifm3d::Error& error);
+    void emit_frame(ifm3d::rtsp::BufferMap buffers,
+                    std::uint64_t timestamp_ns,
+                    std::uint32_t frame_count);
 
     /** Resolve the host, port and stream path from the configuration. */
     void resolve_endpoint(std::string& addr,
@@ -82,7 +87,24 @@ namespace ifm3d
     std::shared_ptr<ifm3d::rtsp::H264Depacketizer> _depacketizer;
     std::unique_ptr<ifm3d::rtsp::DecoderHost> _decoder_host;
 
-    std::optional<ifm3d::json> _pending_metadata;
+    struct PendingFrame
+    {
+      ifm3d::rtsp::BufferMap buffers;
+      std::uint64_t timestamp_ns = 0;
+      std::uint32_t frame_count = 0;
+    };
+
+    BufferIdList _requested_buffers;
+    std::optional<ifm3d::rtsp::RgbInfoPayload> _pending_rgb_info;
+
+    /**
+     * Metadata of the access units handed to the decoder, keyed by the pts
+     * they were submitted with, awaiting the frame they decode into.
+     */
+    std::map<std::uint64_t, PendingFrame> _pending_frames;
+    std::uint64_t _decode_pts = 0;
+    bool _warned_unmatched_frame = false;
+    std::uint32_t _frame_count = 0;
 
     mutable std::mutex _state_mutex;
     State _state = State::IDLE;

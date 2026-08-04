@@ -68,6 +68,9 @@ bind_frame(pybind11::module_& m, pybind11::module_& ifm3dpy)
     .value("O3R_ODS_POLAR_OCC_GRID", ifm3d::buffer_id::O3R_ODS_POLAR_OCC_GRID)
     .value("O3R_ODS_EXTRINSIC_CALIBRATION_CORRECTION",
            ifm3d::buffer_id::O3R_ODS_EXTRINSIC_CALIBRATION_CORRECTION)
+    .value("COMPRESSED_H264_FRAME", ifm3d::buffer_id::COMPRESSED_H264_FRAME)
+    .value("RGB_IMAGE", ifm3d::buffer_id::RGB_IMAGE)
+    .value("YUV420_IMAGE", ifm3d::buffer_id::YUV420_IMAGE)
     .finalize();
 
   frame.def("timestamps",

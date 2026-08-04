@@ -20,15 +20,6 @@
 
 #include "ffmpeg_lib.hpp"
 
-extern "C" {
-#include <libavcodec/avcodec.h>
-#include <libavcodec/codec.h>
-#include <libavcodec/codec_id.h>
-#include <libavutil/error.h>
-#include <libavutil/frame.h>
-#include <libavutil/pixfmt.h>
-}
-
 namespace ifm3d::rtsp
 {
   namespace
@@ -36,7 +27,7 @@ namespace ifm3d::rtsp
     bool
     is_supported_output_format(int pix_fmt)
     {
-      return pix_fmt == AV_PIX_FMT_YUV420P || pix_fmt == AV_PIX_FMT_YUVJ420P;
+      return pix_fmt == ff::PIX_FMT_YUV420P || pix_fmt == ff::PIX_FMT_YUVJ420P;
     }
 
     class FfmpegDecoder : public VideoDecoder
@@ -69,7 +60,8 @@ namespace ifm3d::rtsp
       bool
       Init()
       {
-        const AVCodec* codec = _api.avcodec_find_decoder(AV_CODEC_ID_H264);
+        const ff::AVCodec* codec =
+          _api.avcodec_find_decoder(ff::CODEC_ID_H264);
         if (codec == nullptr)
           {
             _last_error = "Failed to locate H264 decoder";
@@ -83,7 +75,11 @@ namespace ifm3d::rtsp
             return false;
           }
 
-        const int rc = _api.avcodec_open2(_codec_ctx, codec, nullptr);
+        ff::AVDictionary* opts = nullptr;
+        _api.av_dict_set(&opts, "threads", "1", 0);
+
+        const int rc = _api.avcodec_open2(_codec_ctx, codec, &opts);
+        _api.av_dict_free(&opts);
         if (rc < 0)
           {
             set_error(rc, "avcodec_open2 failed");
@@ -102,7 +98,9 @@ namespace ifm3d::rtsp
       }
 
       int
-      SendPacket(const std::uint8_t* data, int size) override
+      SendPacket(const std::uint8_t* data,
+                 int size,
+                 std::uint64_t pts) override
       {
         if (_codec_ctx == nullptr || _packet == nullptr || data == nullptr ||
             size <= 0)
@@ -120,7 +118,10 @@ namespace ifm3d::rtsp
             return rc;
           }
 
-        std::memcpy(_packet->data, data, static_cast<std::size_t>(size));
+        std::memcpy(FfmpegApi::packet(_packet)->data,
+                    data,
+                    static_cast<std::size_t>(size));
+        FfmpegApi::packet(_packet)->pts = static_cast<std::int64_t>(pts);
 
         rc = _api.avcodec_send_packet(_codec_ctx, _packet);
         _api.av_packet_unref(_packet);
@@ -144,7 +145,7 @@ namespace ifm3d::rtsp
           }
 
         const int rc = _api.avcodec_receive_frame(_codec_ctx, _frame);
-        if (rc == AVERROR(EAGAIN) || rc == AVERROR_EOF)
+        if (rc == ff::averror(EAGAIN) || rc == ff::ERROR_EOF)
           {
             return 0;
           }
@@ -155,7 +156,8 @@ namespace ifm3d::rtsp
             return rc;
           }
 
-        if (!is_supported_output_format(_frame->format))
+        const ff::FramePrefix* frame = FfmpegApi::frame(_frame);
+        if (!is_supported_output_format(frame->format))
           {
             _last_error = "Unsupported pixel format from decoder";
             return -2;
@@ -163,12 +165,13 @@ namespace ifm3d::rtsp
 
         for (int i = 0; i < 4; ++i)
           {
-            out.planes[i] = _frame->data[i];
-            out.linesize[i] = _frame->linesize[i];
+            out.planes[i] = frame->data[i];
+            out.linesize[i] = frame->linesize[i];
           }
-        out.width = _frame->width;
-        out.height = _frame->height;
+        out.width = frame->width;
+        out.height = frame->height;
         out.format = VIDEO_FORMAT_YUV420P;
+        out.pts = static_cast<std::uint64_t>(_api.frame_pts(_frame));
 
         return 1;
       }
@@ -183,7 +186,7 @@ namespace ifm3d::rtsp
           }
 
         const int rc = _api.avcodec_send_packet(_codec_ctx, nullptr);
-        if (rc < 0 && rc != AVERROR_EOF && rc != AVERROR(EAGAIN))
+        if (rc < 0 && rc != ff::ERROR_EOF && rc != ff::averror(EAGAIN))
           {
             set_error(rc, "flush failed");
             return rc;
@@ -202,15 +205,15 @@ namespace ifm3d::rtsp
       void
       set_error(int errnum, const char* prefix)
       {
-        std::array<char, AV_ERROR_MAX_STRING_SIZE> errbuf{};
+        std::array<char, ff::ERROR_MAX_STRING_SIZE> errbuf{};
         _api.av_strerror(errnum, errbuf.data(), errbuf.size());
         _last_error = std::string(prefix) + ": " + errbuf.data();
       }
 
       const FfmpegApi& _api;
-      AVCodecContext* _codec_ctx = nullptr;
-      AVPacket* _packet = nullptr;
-      AVFrame* _frame = nullptr;
+      ff::AVCodecContext* _codec_ctx = nullptr;
+      ff::AVPacket* _packet = nullptr;
+      ff::AVFrame* _frame = nullptr;
       std::string _last_error;
     };
 
@@ -228,7 +231,7 @@ namespace ifm3d::rtsp
       {
         const FfmpegApi& api = ffmpeg_api();
         return api.available &&
-               api.avcodec_find_decoder(AV_CODEC_ID_H264) != nullptr;
+               api.avcodec_find_decoder(ff::CODEC_ID_H264) != nullptr;
       }
 
       [[nodiscard]] bool

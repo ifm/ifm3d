@@ -176,8 +176,9 @@ TEST(DecoderManager, NullDecoderDiscardsPackets)
   ASSERT_NE(dec, nullptr);
 
   const std::vector<std::uint8_t> payload = {0x00, 0x00, 0x00, 0x01, 0x67};
-  EXPECT_EQ(dec->SendPacket(payload.data(), static_cast<int>(payload.size())),
-            0);
+  EXPECT_EQ(
+    dec->SendPacket(payload.data(), static_cast<int>(payload.size()), 1),
+    0);
 
   ifm3d::rtsp::VideoFrame frame{};
   EXPECT_EQ(dec->ReceiveFrame(frame), 0)

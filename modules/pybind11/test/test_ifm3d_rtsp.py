@@ -19,7 +19,6 @@ from ifm3dpy.rtsp import RtspClient, NalUnit, DecoderManager
 def test_rtsp_enums_are_int_enums():
     assert issubclass(RtspClient.Transport, IntEnum)
     assert issubclass(RtspClient.State, IntEnum)
-    assert issubclass(RtspClient.OutputFormat, IntEnum)
     assert issubclass(NalUnit.Type, IntEnum)
 
 
@@ -28,10 +27,17 @@ def test_rtsp_enum_values():
     assert int(RtspClient.Transport.UDP) == 1
     assert int(RtspClient.State.IDLE) == 0
     assert int(RtspClient.State.FAILED) == 5
-    assert int(RtspClient.OutputFormat.RGB) == 0
-    assert int(RtspClient.OutputFormat.YUV420) == 1
     assert int(NalUnit.Type.IDR_SLICE) == 5
     assert int(NalUnit.Type.SEI) == 6
+    assert hasattr(ifm3dpy.framegrabber.buffer_id, "COMPRESSED_H264_FRAME")
+    assert hasattr(ifm3dpy.framegrabber.buffer_id, "RGB_IMAGE")
+    assert hasattr(ifm3dpy.framegrabber.buffer_id, "YUV420_IMAGE")
+    # These are implicit successors of the enumerator above them, so inserting
+    # a new buffer id anywhere earlier in the run silently renumbers them and
+    # breaks every already-compiled consumer. Pin the values.
+    assert int(ifm3dpy.framegrabber.buffer_id.COMPRESSED_H264_FRAME) == 0x100000007
+    assert int(ifm3dpy.framegrabber.buffer_id.RGB_IMAGE) == 0x100000008
+    assert int(ifm3dpy.framegrabber.buffer_id.YUV420_IMAGE) == 0x100000009
 
 
 def test_rtsp_client_construct_with_defaults():
@@ -49,17 +55,6 @@ def test_rtsp_client_construct_with_options():
         stream_path="port2",
         transport=RtspClient.Transport.UDP,
         decoder="ffmpeg",
-        output_format=RtspClient.OutputFormat.YUV420,
-    )
-    assert client.is_running() is False
-    assert client.get_state() == RtspClient.State.IDLE
-
-
-def test_rtsp_client_construct_with_null_decoder():
-    client = RtspClient(
-        None,
-        url="rtsp://127.0.0.1:1/port1",
-        decoder="null",
     )
     assert client.is_running() is False
     assert client.get_state() == RtspClient.State.IDLE
@@ -88,16 +83,16 @@ def test_rtsp_client_callbacks_are_registerable():
 
 def test_rtsp_client_connection_refused_transitions_to_failed():
     # Port 1 is closed; the client must surface an error and end in FAILED.
-    client = RtspClient(
-        None, url="rtsp://127.0.0.1:1/port1", decoder="null"
-    )
+    client = RtspClient(None, url="rtsp://127.0.0.1:1/port1")
 
     states = []
     errors = []
     client.on_state_change(lambda state: states.append(state))
     client.on_error(lambda err: errors.append(err))
 
-    ok, _ = client.start().wait_for(5000)
+    ok, _ = client.start(
+        [ifm3dpy.framegrabber.buffer_id.COMPRESSED_H264_FRAME]
+    ).wait_for(5000)
     assert ok is True
     client.stop().wait()
 

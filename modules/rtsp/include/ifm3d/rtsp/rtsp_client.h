@@ -17,8 +17,7 @@
 #include <ifm3d/common/err.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/o3r.h>
-#include <ifm3d/fg/buffer.h>
-#include <ifm3d/rtsp/frame_metadata.h>
+#include <ifm3d/fg/frame.h>
 #include <ifm3d/rtsp/module_rtsp.h>
 #include <ifm3d/rtsp/nal_unit.h>
 
@@ -27,7 +26,7 @@ namespace ifm3d
   /** @ingroup RTSP
    *
    * @brief RTSP/1.0 client that streams H.264 video from an ifm device and,
-   * optionally, decodes it into `ifm3d::Buffer` frames using a compiled-in
+   * optionally, decodes it into `ifm3d::Frame` instances using a compiled-in
    * video decoder.
    *
    * The client mirrors the threading model of `ifm3d::FrameGrabber`: it owns a
@@ -37,9 +36,8 @@ namespace ifm3d
    *
    * Decoding is delegated to a `VideoDecoder` selected by the
    * `ifm3d::DecoderManager`; the core RTSP module never links against an H.264
-   * decoder. When no decoder is available, or when the `"null"` decoder is
-   * selected via `Config::decoder`, the client operates in NAL-only
-   * mode and only the `OnNalUnit` callback fires.
+   * decoder. The null decoder is selected automatically when no decoded image
+   * buffer is requested.
    */
   class IFM3D_EXPORT RtspClient
   {
@@ -66,22 +64,6 @@ namespace ifm3d
       FAILED = 5,
     };
 
-    /** Pixel layout of decoded frames delivered to `OnNewFrame`. */
-    enum class OutputFormat : std::uint8_t
-    {
-      /**
-       * 3-channel RGB. The decoded YUV420P frame is converted to a
-       * width x height x 3 `ifm3d::Buffer` of 8-bit RGB.
-       */
-      RGB = 0,
-      /**
-       * Raw planar I420 (YUV420P): a single-channel `ifm3d::Buffer` of
-       * width x (height * 3 / 2), with the full-resolution Y plane followed
-       * by the half-resolution U and V planes.
-       */
-      YUV420 = 1,
-    };
-
     /** Configuration for an `RtspClient` instance. */
     struct Config
     {
@@ -102,21 +84,14 @@ namespace ifm3d
       Transport transport = Transport::INTERLEAVED;
 
       /**
-       * Optional decoder selection. When unset, the first available decoder is
-       * used. Set to a decoder name substring (e.g. `"ffmpeg"`) to prefer a
-       * specific decoder, or to `"null"` to explicitly disable decoding
-       * (NAL-only mode).
+       * Override the decoder name used for decoding h264 video into buffers.
+       * When unset, the first available decoder is used.
        */
       std::optional<std::string> decoder;
-
-      /**
-       * Pixel layout of decoded frames delivered to `OnNewFrame`. Defaults to
-       * `OutputFormat::RGB`.
-       */
-      OutputFormat output_format = OutputFormat::RGB;
     };
 
-    using NewFrameCallback = std::function<void(ifm3d::Buffer)>;
+    using BufferIdList = std::vector<ifm3d::buffer_id>;
+    using NewFrameCallback = std::function<void(ifm3d::Frame::Ptr)>;
     using NalUnitCallback = std::function<void(const ifm3d::NalUnit&)>;
     using ErrorCallback = std::function<void(const ifm3d::Error&)>;
     using StateChangeCallback = std::function<void(State)>;
@@ -171,10 +146,13 @@ namespace ifm3d
     /**
      * Performs the RTSP handshake and starts streaming.
      *
+     * @param[in] buffers buffer IDs to receive. Supported IDs are
+     * `COMPRESSED_H264_FRAME`, `RGB_IMAGE`, `YUV420_IMAGE` and `RGB_INFO`
+     *
      * @return a future that resolves once the stream is playing, or that
      * holds an `ifm3d::Error` on failure.
      */
-    std::shared_future<void> Start();
+    std::shared_future<void> Start(const BufferIdList& buffers = {});
 
     /**
      * Sends `TEARDOWN`, stops the worker thread and closes the socket.
@@ -190,8 +168,7 @@ namespace ifm3d
     [[nodiscard]] State GetState() const;
 
     /**
-     * Registers a callback invoked for each decoded frame. The `Buffer`
-     * carries any RGB_INFO SEI metadata in its JSON metadata.
+     * Registers a callback invoked for each received frame.
      */
     void OnNewFrame(NewFrameCallback callback = nullptr);
 

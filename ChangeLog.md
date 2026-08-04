@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Align RtspClient api with FrameGrabber api (O3C-7123)
+
 ### Fixed
 - Fix `o3cxxx` config get path support to JSON-pointer filtering
 - Fix `o3cxxx` ifm3d cli `factoryReset` command fail

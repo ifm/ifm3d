@@ -61,7 +61,9 @@ namespace ifm3d::rtsp
     int linesize[4]{};
     int width{0};
     int height{0};
-    int format{0}; /* VideoFormat value, e.g. VIDEO_FORMAT_YUV420P */
+    int format{0};        /* VideoFormat value, e.g. VIDEO_FORMAT_YUV420P */
+    std::uint64_t pts{0}; /* echoed from the SendPacket call that built this
+                             frame -- see the frame identity contract above */
   };
 
   /**
@@ -77,14 +79,33 @@ namespace ifm3d::rtsp
 
     /**
      * Push one unit of compressed data into the decoder.
+     *
+     * @param data  compressed payload, valid for the duration of the call.
+     * @param size  size of @p data in bytes.
+     * @param pts   an opaque, caller-chosen identifier for this packet. The
+     *              decoder does not interpret it; it only stores it and
+     *              returns it on the VideoFrame decoded from this packet.
+     *              Callers should keep it unique across the packets that may
+     *              be in flight at once. Implementations that have no natural
+     *              place to put it must carry it themselves.
+     *
      * @return 0 on success, negative on error.
      */
-    virtual int SendPacket(const std::uint8_t* data, int size) = 0;
+    virtual int SendPacket(const std::uint8_t* data,
+                           int size,
+                           std::uint64_t pts) = 0;
 
     /**
-     * Pull a decoded frame.
-     * @return 1 = frame ready in @p out, 0 = need more input, negative =
-     * error.
+     * Pull a decoded frame. Call repeatedly until it reports that no further
+     * frame is available.
+     *
+     * `out.pts` identifies the SendPacket call this frame was decoded from.
+     * It is not necessarily the most recent one: an H.264 stream whose SPS
+     * advertises `max_num_reorder_frames > 0` makes libavcodec hold frames
+     * back, so output routinely lags input by a fixed number of packets.
+     *
+     * @return 1 = frame ready in @p out, 0 = no further frame can be built
+     * from the data submitted so far, negative = error.
      */
     virtual int ReceiveFrame(VideoFrame& out) = 0;
 

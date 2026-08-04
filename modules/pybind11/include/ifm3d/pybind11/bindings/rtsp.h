@@ -113,31 +113,21 @@ bind_rtsp(pybind11::module_& m)
     .value("FAILED", ifm3d::RtspClient::State::FAILED)
     .finalize();
 
-  py::native_enum<ifm3d::RtspClient::OutputFormat>(
-    rtsp,
-    "OutputFormat",
-    "enum.IntEnum",
-    "Pixel layout of decoded frames delivered to on_new_frame.")
-    .value("RGB", ifm3d::RtspClient::OutputFormat::RGB)
-    .value("YUV420", ifm3d::RtspClient::OutputFormat::YUV420)
-    .finalize();
-
   rtsp.def(py::init([](ifm3d::Device::Ptr device,
                        std::optional<std::string> url,
                        std::uint16_t port,
                        std::string stream_path,
                        ifm3d::RtspClient::Transport transport,
-                       std::optional<std::string> decoder,
-                       ifm3d::RtspClient::OutputFormat output_format) {
+                       std::optional<std::string> decoder) {
              ifm3d::RtspClient::Config config;
              config.url = std::move(url);
              config.port = port;
              config.stream_path = std::move(stream_path);
              config.transport = transport;
              config.decoder = std::move(decoder);
-             config.output_format = output_format;
-             return std::make_shared<ifm3d::RtspClient>(std::move(device),
-                                                        std::move(config));
+             return ifm3d::with_cleanup(
+               new ifm3d::RtspClient(std::move(device), std::move(config)),
+               [](ifm3d::RtspClient* client) { client->Stop().wait(); });
            }),
            py::arg("device"),
            py::arg("url") = py::none(),
@@ -145,7 +135,6 @@ bind_rtsp(pybind11::module_& m)
            py::arg("stream_path") = std::string("port1"),
            py::arg("transport") = ifm3d::RtspClient::Transport::INTERLEAVED,
            py::arg("decoder") = py::none(),
-           py::arg("output_format") = ifm3d::RtspClient::OutputFormat::RGB,
            R"(
       Constructs a client that streams from the given device.
 
@@ -164,38 +153,30 @@ bind_rtsp(pybind11::module_& m)
       transport : ifm3dpy.rtsp.RtspClient.Transport, optional
           RTP transport selection.
       decoder : str, optional
-          Decoder selection. When unset, the first available decoder is used.
-          Set to a decoder name substring (e.g. ``"ffmpeg"``) to prefer a
-          specific decoder, or to ``"null"`` to disable decoding (NAL-only
-          mode).
-      output_format : ifm3dpy.rtsp.RtspClient.OutputFormat, optional
-          Pixel layout of decoded frames. ``RGB`` (default) delivers a
-          3-channel RGB numpy array; ``YUV420`` delivers raw planar I420
-          (YUV420P) as a single-channel array of shape (height * 3 / 2, width).
+          Override the decoder name used for decoding h264 video into buffers.
+          When unset the decoder is chosen automatically.
     )");
 
-  rtsp.def(py::init([](ifm3d::Device::Ptr device,
-                       const ifm3d::PortInfo& port,
-                       std::optional<std::string> url,
-                       ifm3d::RtspClient::Transport transport,
-                       std::optional<std::string> decoder,
-                       ifm3d::RtspClient::OutputFormat output_format) {
-             ifm3d::RtspClient::Config config;
-             config.url = std::move(url);
-             config.transport = transport;
-             config.decoder = std::move(decoder);
-             config.output_format = output_format;
-             return std::make_shared<ifm3d::RtspClient>(std::move(device),
-                                                        port,
-                                                        std::move(config));
-           }),
-           py::arg("device"),
-           py::arg("port"),
-           py::arg("url") = py::none(),
-           py::arg("transport") = ifm3d::RtspClient::Transport::INTERLEAVED,
-           py::arg("decoder") = py::none(),
-           py::arg("output_format") = ifm3d::RtspClient::OutputFormat::RGB,
-           R"(
+  rtsp.def(
+    py::init([](ifm3d::Device::Ptr device,
+                const ifm3d::PortInfo& port,
+                std::optional<std::string> url,
+                ifm3d::RtspClient::Transport transport,
+                std::optional<std::string> decoder) {
+      ifm3d::RtspClient::Config config;
+      config.url = std::move(url);
+      config.transport = transport;
+      config.decoder = std::move(decoder);
+      return ifm3d::with_cleanup(
+        new ifm3d::RtspClient(std::move(device), port, std::move(config)),
+        [](ifm3d::RtspClient* client) { client->Stop().wait(); });
+    }),
+    py::arg("device"),
+    py::arg("port"),
+    py::arg("url") = py::none(),
+    py::arg("transport") = ifm3d::RtspClient::Transport::INTERLEAVED,
+    py::arg("decoder") = py::none(),
+    R"(
       Constructs a client for a specific port, deriving the RTSP port and
       stream path from the port's advertised RtspInfo when available.
 
@@ -211,23 +192,30 @@ bind_rtsp(pybind11::module_& m)
       transport : ifm3dpy.rtsp.RtspClient.Transport, optional
           RTP transport selection.
       decoder : str, optional
-          Decoder selection. When unset, the first available decoder is used.
-          Set to a decoder name substring (e.g. ``"ffmpeg"``) to prefer a
-          specific decoder, or to ``"null"`` to disable decoding (NAL-only
-          mode).
-      output_format : ifm3dpy.rtsp.RtspClient.OutputFormat, optional
-          Pixel layout of decoded frames. ``RGB`` (default) delivers a
-          3-channel RGB numpy array; ``YUV420`` delivers raw planar I420
-          (YUV420P) as a single-channel array of shape (height * 3 / 2, width).
+          Override the decoder name used for decoding h264 video into buffers.
+          When unset the decoder is chosen automatically.
     )");
 
   rtsp.def(
     "start",
-    [](const ifm3d::RtspClient::Ptr& self) {
-      return FutureAwaitable<void>(self->Start());
+    [](const ifm3d::RtspClient::Ptr& self,
+       const ifm3d::RtspClient::BufferIdList& buffers) {
+      return FutureAwaitable<void>(self->Start(buffers));
     },
+    py::arg("buffers") = ifm3d::RtspClient::BufferIdList{},
+    // Start() may report a configuration error through the Python on_error
+    // callback, which takes the GIL from whichever thread is inside Start().
+    py::call_guard<py::gil_scoped_release>(),
     R"(
       Performs the RTSP handshake and starts streaming.
+
+      Parameters
+      ----------
+      buffers : list[ifm3dpy.framegrabber.buffer_id], optional
+          Buffers to make available on each received frame. Supported ids are
+          ``COMPRESSED_H264_FRAME``, ``RGB_IMAGE``, ``YUV420_IMAGE`` and
+          ``RGB_INFO``. An empty list, the default, requests all four; each
+          one costs additional per-frame work, so pass only what you consume.
 
       Returns
       -------
@@ -240,6 +228,9 @@ bind_rtsp(pybind11::module_& m)
     [](const ifm3d::RtspClient::Ptr& self) {
       return FutureAwaitable<void>(self->Stop());
     },
+    // Stop() joins the receive thread, which may be waiting for the GIL in
+    // order to deliver a frame; holding on to it here would deadlock both.
+    py::call_guard<py::gil_scoped_release>(),
     R"(
       Sends TEARDOWN, stops the worker thread and closes the socket.
 
@@ -263,37 +254,30 @@ bind_rtsp(pybind11::module_& m)
 
   rtsp.def(
     "on_new_frame",
-    [](const ifm3d::RtspClient::Ptr& self, const py::object& callback) {
-      if (!callback.is_none())
+    [](const ifm3d::RtspClient::Ptr& self,
+       const ifm3d::RtspClient::NewFrameCallback& callback) {
+      if (callback)
         {
-          py::object buffer_class =
-            py::module::import("ifm3dpy").attr("buffer");
-          py::object json_loads = py::module::import("json").attr("loads");
-          self->OnNewFrame(
-            [callback, buffer_class, json_loads](ifm3d::Buffer buffer) {
-              py::gil_scoped_acquire acquire;
-              try
-                {
-                  auto arr = ifm3d::image_to_array(buffer);
-                  auto meta = json_loads(py::str(buffer.Metadata().dump()));
-                  callback(buffer_class(arr, meta, py::none()));
-                }
-              catch (py::error_already_set& ex)
-                {
-                  py::print(ex.value());
-                }
-            });
+          self->OnNewFrame([callback](const ifm3d::Frame::Ptr& frame) {
+            py::gil_scoped_acquire acquire;
+            try
+              {
+                callback(frame);
+              }
+            catch (py::error_already_set& ex)
+              {
+                py::print(ex.value());
+              }
+          });
         }
       else
         {
           self->OnNewFrame();
         }
     },
-    py::arg("callback") = py::none(),
+    py::arg("callback") = ifm3d::RtspClient::NewFrameCallback(),
     R"(
-      Registers a callback invoked for each decoded frame. The callback
-      receives a numpy.ndarray buffer whose .metadata attribute holds any
-      RGB_INFO SEI metadata.
+      Registers a callback invoked for each received frame.
     )");
 
   rtsp.def(

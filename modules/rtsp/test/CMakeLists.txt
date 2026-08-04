@@ -30,6 +30,7 @@ target_compile_definitions(ifm3d-rtsp-tests PRIVATE
 target_link_libraries(ifm3d-rtsp-tests
   gtest_main
   ifm3d_rtsp
+  ifm3d_deserialize
   $<BUILD_INTERFACE:fmt::fmt-header-only>
 )
 

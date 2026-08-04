@@ -54,7 +54,7 @@ namespace ifm3d::rtsp
 
     /** Fired with a complete Annex-B access unit and its presentation
      *  timestamp in microseconds. */
-    std::function<void(std::vector<std::uint8_t>, std::uint64_t)>
+    std::function<void(const std::vector<std::uint8_t>&, std::uint64_t)>
       on_access_unit;
   };
 

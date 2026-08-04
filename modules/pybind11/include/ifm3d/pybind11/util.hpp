@@ -11,9 +11,12 @@
 #if defined(BUILD_MODULE_FRAMEGRABBER)
 #  include <ifm3d/fg/buffer.h>
 #endif
+#include <memory>
+#include <optional>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <stdexcept>
+#include <utility>
 
 using namespace pybind11::literals;
 
@@ -79,6 +82,46 @@ bind_numpy(pybind11::module_& m)
 
 namespace ifm3d
 {
+  /// Run a cleanup function on an object when the last reference to it is
+  /// dropped making sure the GIL is dropped before the cleanup function is
+  /// called. This allows the cleanup function to reacquire the GIL without
+  /// deadlocking if the last reference is dropped.
+  ///
+  /// @warning `~T` also runs without the GIL, so every Python object
+  /// reachable from `T` must have a GIL-acquiring destructor. Callbacks bound
+  /// as `std::function` satisfy this, because pybind11's caster wraps them in
+  /// `func_handle`, whose destructor acquires the GIL. A raw `py::object`
+  /// captured into a plain lambda does not, and decrementing its refcount
+  /// here is undefined behaviour: it corrupts the refcount silently, or
+  /// aborts the interpreter outright if the count reaches zero and
+  /// `tp_dealloc` runs.
+  ///
+  /// @param object  Takes ownership
+  /// @param cleanup Cleanup function to run on the object when the last
+  /// reference is dropped
+  template <typename T, typename CleanupFn>
+  std::shared_ptr<T>
+  with_cleanup(T* object, CleanupFn cleanup)
+  {
+    return {object, [cleanup = std::move(cleanup)](T* self) {
+              std::optional<py::gil_scoped_release> release;
+              if (PyGILState_Check())
+                {
+                  release.emplace();
+                }
+
+              try
+                {
+                  cleanup(self);
+                }
+              catch (...)
+                {
+                  // IGNORE: best-effort, the destructor retries the shutdown
+                }
+              delete self;
+            }};
+  }
+
 #if defined(BUILD_MODULE_FRAMEGRABBER)
   template <typename T>
   py::array_t<T>
