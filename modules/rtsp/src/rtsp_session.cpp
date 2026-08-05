@@ -98,6 +98,7 @@ namespace ifm3d::rtsp
     _address = addr;
     _port = port;
     _rtsp_uri = "rtsp://" + addr + ":" + std::to_string(port) + "/" + path;
+    _closing = false;
 
     asio::ip::tcp::resolver resolver(_ctx);
     asio::error_code ec;
@@ -136,15 +137,8 @@ namespace ifm3d::rtsp
         send_message(
           DESCRIBE_MSG,
           [this, transport](const RtspMessage& desc_resp) {
-            if (desc_resp.status_code != 200)
+            if (report_failed_status(desc_resp, "DESCRIBE"))
               {
-                LOG_ERROR("RtspSession: DESCRIBE failed with status {}",
-                          desc_resp.status_code);
-                if (on_error)
-                  {
-                    on_error(IFM3D_RTSP_REQUEST_FAILED);
-                  }
-                close_connection();
                 return;
               }
 
@@ -202,6 +196,11 @@ namespace ifm3d::rtsp
         send_message(
           std::move(msg),
           [this, rtp_port, rtcp_port](const RtspMessage& resp) {
+            if (report_failed_status(resp, "SETUP"))
+              {
+                return;
+              }
+
             if (auto sit = resp.headers.find("session");
                 sit != resp.headers.end())
               {
@@ -259,7 +258,11 @@ namespace ifm3d::rtsp
                                                  srv_rtcp));
 
             auto play_msg = replace_all(PLAY_MSG, "%SESSION", _session);
-            send_message(std::move(play_msg), [this](const RtspMessage&) {
+            send_message(std::move(play_msg), [this](const RtspMessage& resp) {
+              if (report_failed_status(resp, "PLAY"))
+                {
+                  return;
+                }
               if (on_playing)
                 {
                   on_playing();
@@ -283,21 +286,15 @@ namespace ifm3d::rtsp
         msg = replace_all(std::move(msg), "%TRACK_URI", track_uri);
 
         send_message(std::move(msg), [this](const RtspMessage& resp) {
+          if (report_failed_status(resp, "SETUP"))
+            {
+              return;
+            }
+
           if (auto sit = resp.headers.find("session");
               sit != resp.headers.end())
             {
               _session = sit->second.substr(0, sit->second.find(';'));
-            }
-
-          if (resp.status_code == 461)
-            {
-              LOG_ERROR("RtspSession: server rejected interleaved transport");
-              if (on_error)
-                {
-                  on_error(IFM3D_RTSP_TRANSPORT_UNSUPPORTED);
-                }
-              close_connection();
-              return;
             }
 
           if (_session.empty())
@@ -313,7 +310,11 @@ namespace ifm3d::rtsp
             }
 
           auto play_msg = replace_all(PLAY_MSG, "%SESSION", _session);
-          send_message(std::move(play_msg), [this](const RtspMessage&) {
+          send_message(std::move(play_msg), [this](const RtspMessage& resp) {
+            if (report_failed_status(resp, "PLAY"))
+              {
+                return;
+              }
             if (on_playing)
               {
                 on_playing();
@@ -360,9 +361,18 @@ namespace ifm3d::rtsp
       [this](const asio::error_code& ec, std::size_t bytes_read) {
         if (ec)
           {
-            if (ec != asio::error::operation_aborted)
+            // A read error on a connection we did not close ourselves means
+            // the server went away (it dropped the connection, or the port was
+            // reconfigured mid-handshake). Nothing else would ever report it,
+            // so a pending handshake would otherwise wait forever.
+            if (!_closing && ec != asio::error::operation_aborted)
               {
-                LOG_WARNING("RtspSession: read error: {}", ec.message());
+                LOG_ERROR("RtspSession: connection lost: {}", ec.message());
+                close_connection();
+                if (on_error)
+                  {
+                    on_error(IFM3D_RTSP_CONNECTION_ERROR);
+                  }
               }
             return;
           }
@@ -541,8 +551,39 @@ namespace ifm3d::rtsp
   RtspSession::close_connection()
   {
     asio::error_code ec;
+    _closing = true;
     _keep_alive_timer.cancel();
     std::ignore = _socket.close(ec);
+  }
+
+  bool
+  RtspSession::report_failed_status(const RtspMessage& resp,
+                                    const std::string& request)
+  {
+    if (resp.status_code == 200)
+      {
+        return false;
+      }
+
+    if (resp.status_code < 0)
+      {
+        // parse_message() could not read the response and has already reported
+        // IFM3D_RTSP_ERROR; do not report a second, less accurate error.
+        close_connection();
+        return true;
+      }
+
+    LOG_ERROR("RtspSession: {} failed with status {} {}",
+              request,
+              resp.status_code,
+              resp.status_message);
+    close_connection();
+    if (on_error)
+      {
+        on_error(resp.status_code == 461 ? IFM3D_RTSP_TRANSPORT_UNSUPPORTED :
+                                           IFM3D_RTSP_REQUEST_FAILED);
+      }
+    return true;
   }
 
   void

@@ -98,6 +98,8 @@ namespace ifm3d::rtsp
     void start_read();
     void process_buffer();
     void close_connection();
+    bool report_failed_status(const RtspMessage& resp,
+                              const std::string& request);
     bool find_consecutive_free_ports(std::uint16_t& p1, std::uint16_t& p2);
     RtspMessage parse_message(const std::string& msg_text) const;
     void schedule_keep_alive();
@@ -111,6 +113,7 @@ namespace ifm3d::rtsp
     std::string _rtsp_uri = "stream";
     std::string _session;
     int _cseq = 0;
+    bool _closing = false;
 
     std::vector<std::uint8_t> _unused_data;
     std::array<std::uint8_t, 4096> _read_buffer{};

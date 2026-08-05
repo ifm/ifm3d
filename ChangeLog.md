@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Align RtspClient api with FrameGrabber api (O3C-7123)
 
 ### Fixed
+- Fix `RtspClient` not reporting a failed connection: the RTSP handshake now checks the status of every response (previously `PLAY` was unchecked) and a connection dropped by the device is detected, so a failed `Start()` is reported instead of appearing to succeed
+- Fix Python `wait_for()` and `await` on void-returning futures (e.g. `RtspClient.start()`) swallowing errors and reporting success
+- Fix a failed `FrameGrabber.Start()` surfacing as `broken_promise` instead of the actual `ifm3d::Error` (`ifm3dpy.device.Error` in Python) when the connection to the device cannot be established, and a failed start leaving a stale error on, or never resolving, the future returned by the next `Start()`
+- Fix `FrameGrabber` delivering no frames at all after it recovered from a failed `Start()`: the frame promise still held the previous failure, so both the future returned by `WaitForFrame()` and the new frame callback were skipped
 - Fix `o3cxxx` config get path support to JSON-pointer filtering
 - Fix `o3cxxx` ifm3d cli `factoryReset` command fail
 

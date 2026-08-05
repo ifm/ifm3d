@@ -18,13 +18,22 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <thread>
+#include <tuple>
+#include <utility>
 #include <variant>
 #include <vector>
 
+#include <asio/buffer.hpp>
+#include <asio/error_code.hpp>
 #include <asio/executor_work_guard.hpp>
 #include <asio/io_context.hpp>
+#include <asio/ip/address_v4.hpp>
+#include <asio/ip/tcp.hpp>
 #include <asio/post.hpp>
+#include <asio/steady_timer.hpp>
 
+#include <ifm3d/common/err.h>
 #include <ifm3d/deserialize/deserialize.h>
 #include <ifm3d/deserialize/struct_rgb_info_v1.hpp>
 #include <ifm3d/device/device.h>
@@ -40,6 +49,7 @@
 #include "rtp_client.hpp"
 #include "rtp_connection.hpp"
 #include "rtp_connection_udp.hpp"
+#include "rtsp_session.hpp"
 #include "rtsp_util.hpp"
 #include "sdp_parser.hpp"
 #include "sei_parser.hpp"
@@ -623,6 +633,327 @@ TEST(RtpConnectionUdp, StopBreaksSelfArmingReceiveLoop)
             std::future_status::ready)
     << "io_context.run() did not return after stop(); UDP shutdown deadlock";
   run_result.get();
+}
+
+// ---------------------------------------------------------------------------
+// RTSP handshake failure detection
+// ---------------------------------------------------------------------------
+
+namespace
+{
+  /* Minimal RTSP server that replies to the requests it receives with a
+   * canned script of responses and then closes the connection. Serving fewer
+   * responses than the client sends requests models a server that drops the
+   * connection mid-handshake.
+   *
+   * Every step is asynchronous on purpose: a synchronous accept()/read_some()
+   * cannot be woken from another thread, so a client that never connects (or
+   * never sends) would wedge the destructor's join() and turn a test failure
+   * into a silent hang. The destructor instead posts the shutdown into the
+   * io_context, and a watchdog timer bounds the server's lifetime even if the
+   * destructor is never reached. */
+  class ScriptedRtspServer
+  {
+  public:
+    explicit ScriptedRtspServer(std::vector<std::string> responses)
+      : _acceptor(
+          _ctx,
+          asio::ip::tcp::endpoint(asio::ip::address_v4::loopback(), 0)),
+        _socket(_ctx),
+        _watchdog(_ctx),
+        _responses(std::move(responses))
+    {
+      _port = _acceptor.local_endpoint().port();
+      arm_watchdog();
+      accept();
+      _thread = std::thread([this]() { _ctx.run(); });
+    }
+
+    ~ScriptedRtspServer()
+    {
+      asio::post(_ctx, [this]() { shutdown(); });
+      if (_thread.joinable())
+        {
+          _thread.join();
+        }
+    }
+
+    ScriptedRtspServer(const ScriptedRtspServer&) = delete;
+    ScriptedRtspServer& operator=(const ScriptedRtspServer&) = delete;
+    ScriptedRtspServer(ScriptedRtspServer&&) = delete;
+    ScriptedRtspServer& operator=(ScriptedRtspServer&&) = delete;
+
+    [[nodiscard]] std::uint16_t
+    Port() const
+    {
+      return _port;
+    }
+
+  private:
+    static constexpr std::chrono::seconds WATCHDOG_TIMEOUT{10};
+
+    // Drops every outstanding operation so io_context::run() runs out of work
+    // and the server thread finishes.
+    void
+    shutdown()
+    {
+      asio::error_code ec;
+      _watchdog.cancel();
+      std::ignore = _acceptor.close(ec);
+      std::ignore = _socket.close(ec);
+    }
+
+    void
+    arm_watchdog()
+    {
+      _watchdog.expires_after(WATCHDOG_TIMEOUT);
+      _watchdog.async_wait([this](const asio::error_code& ec) {
+        if (!ec)
+          {
+            shutdown();
+          }
+      });
+    }
+
+    void
+    accept()
+    {
+      _acceptor.async_accept(_socket, [this](const asio::error_code& ec) {
+        if (ec)
+          {
+            shutdown();
+            return;
+          }
+        read_request();
+      });
+    }
+
+    void
+    read_request()
+    {
+      if (_next_response >= _responses.size())
+        {
+          // Out of scripted responses: drop the connection, which is what the
+          // "server disappears mid-handshake" cases exercise.
+          shutdown();
+          return;
+        }
+
+      _socket.async_read_some(
+        asio::buffer(_buffer),
+        [this](const asio::error_code& ec, std::size_t read) {
+          if (ec)
+            {
+              shutdown();
+              return;
+            }
+          _request.append(_buffer.data(), read);
+          if (_request.find("\r\n\r\n") == std::string::npos)
+            {
+              read_request();
+              return;
+            }
+          _request.clear();
+          write_response();
+        });
+    }
+
+    void
+    write_response()
+    {
+      const std::string& response = _responses.at(_next_response);
+      _socket.async_write_some(
+        asio::buffer(response.data() + _written, response.size() - _written),
+        [this](const asio::error_code& ec, std::size_t written) {
+          if (ec)
+            {
+              shutdown();
+              return;
+            }
+          _written += written;
+          if (_written < _responses.at(_next_response).size())
+            {
+              write_response();
+              return;
+            }
+          _written = 0;
+          ++_next_response;
+          read_request();
+        });
+    }
+
+    asio::io_context _ctx;
+    asio::ip::tcp::acceptor _acceptor;
+    asio::ip::tcp::socket _socket;
+    asio::steady_timer _watchdog;
+    std::vector<std::string> _responses;
+    std::size_t _next_response = 0;
+    std::size_t _written = 0;
+    std::string _request;
+    std::array<char, 1024> _buffer{};
+    std::uint16_t _port = 0;
+    std::thread _thread;
+  };
+
+  const std::string SDP_BODY = "v=0\r\n"
+                               "o=- 0 0 IN IP4 127.0.0.1\r\n"
+                               "s=Session\r\n"
+                               "m=video 0 RTP/AVP 96\r\n"
+                               "a=rtpmap:96 H264/90000\r\n"
+                               "a=control:trackID=0\r\n";
+
+  std::string
+  describe_ok()
+  {
+    return "RTSP/1.0 200 OK\r\nCSeq: 1\r\nContent-Type: application/sdp\r\n"
+           "Content-Length: " +
+           std::to_string(SDP_BODY.size()) + "\r\n\r\n" + SDP_BODY;
+  }
+
+  const std::string SETUP_OK =
+    "RTSP/1.0 200 OK\r\nCSeq: 2\r\nSession: 12345678;timeout=60\r\n"
+    "Transport: RTP/AVP/TCP;unicast;interleaved=0-1\r\n\r\n";
+
+  /* Drives a session against the scripted server until it settles and returns
+   * the reported error codes (in order), or an empty list if none was
+   * reported. */
+  struct HandshakeOutcome
+  {
+    std::vector<int> errors;
+    bool playing = false;
+
+    [[nodiscard]] std::optional<int>
+    FirstError() const
+    {
+      return errors.empty() ? std::nullopt :
+                              std::optional<int>(errors.front());
+    }
+  };
+
+  HandshakeOutcome
+  run_handshake(std::uint16_t port)
+  {
+    asio::io_context ctx;
+    RtspSession session(ctx);
+
+    HandshakeOutcome outcome;
+    session.on_error = [&outcome](int code) {
+      outcome.errors.push_back(code);
+    };
+    session.on_playing = [&outcome]() { outcome.playing = true; };
+
+    session.InitConnection("127.0.0.1",
+                           port,
+                           RtspSession::TransportType::INTERLEAVED,
+                           "port1");
+    ctx.run_for(std::chrono::seconds(5));
+    return outcome;
+  }
+} // namespace
+
+// The scripted server must be destructible even when no client ever connects:
+// a destructor that joins a thread parked in a synchronous accept() would turn
+// any such test failure into an indefinite CI hang instead of a red test.
+TEST(ScriptedRtspServer, DestructorDoesNotBlockWithoutAClient)
+{
+  auto destroyed = std::make_shared<std::promise<void>>();
+  auto destroyed_future = destroyed->get_future();
+
+  std::thread worker([destroyed]() {
+    auto server = std::make_unique<ScriptedRtspServer>(
+      std::vector<std::string>{describe_ok()});
+    // Give the server thread time to park in its accept operation.
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    server.reset();
+    destroyed->set_value();
+  });
+
+  const bool destructed = destroyed_future.wait_for(std::chrono::seconds(5)) ==
+                          std::future_status::ready;
+  if (destructed)
+    {
+      worker.join();
+    }
+  else
+    {
+      // Only reached once the regression is back. Joining would hang the whole
+      // test binary, which is exactly the failure mode this test exists to
+      // prevent, so the stuck thread is deliberately abandoned instead.
+      worker.detach();
+    }
+
+  EXPECT_TRUE(destructed)
+    << "~ScriptedRtspServer() blocked although no client connected";
+}
+
+// A DESCRIBE that the server rejects (e.g. the port is not streaming yet)
+// must be reported; the handshake must not be left pending.
+TEST(RtspSession, DescribeFailureIsReported)
+{
+  const ScriptedRtspServer server(
+    {"RTSP/1.0 404 Not Found\r\nCSeq: 1\r\n\r\n"});
+
+  const HandshakeOutcome outcome = run_handshake(server.Port());
+
+  ASSERT_TRUE(outcome.FirstError().has_value());
+  EXPECT_EQ(outcome.FirstError().value_or(0), IFM3D_RTSP_REQUEST_FAILED);
+  EXPECT_FALSE(outcome.playing);
+}
+
+// The PLAY response status used to be ignored, so a rejected PLAY still
+// reported the session as playing.
+TEST(RtspSession, PlayFailureIsReported)
+{
+  const ScriptedRtspServer server(
+    {describe_ok(),
+     SETUP_OK,
+     "RTSP/1.0 455 Method Not Valid In This State\r\nCSeq: 3\r\n"
+     "Session: 12345678\r\n\r\n"});
+
+  const HandshakeOutcome outcome = run_handshake(server.Port());
+
+  ASSERT_TRUE(outcome.FirstError().has_value());
+  EXPECT_EQ(outcome.FirstError().value_or(0), IFM3D_RTSP_REQUEST_FAILED);
+  EXPECT_FALSE(outcome.playing);
+}
+
+// A SETUP rejected as unsupported transport keeps its dedicated error code.
+TEST(RtspSession, UnsupportedTransportIsReported)
+{
+  const ScriptedRtspServer server(
+    {describe_ok(), "RTSP/1.0 461 Unsupported Transport\r\nCSeq: 2\r\n\r\n"});
+
+  const HandshakeOutcome outcome = run_handshake(server.Port());
+
+  ASSERT_TRUE(outcome.FirstError().has_value());
+  EXPECT_EQ(outcome.FirstError().value_or(0),
+            IFM3D_RTSP_TRANSPORT_UNSUPPORTED);
+  EXPECT_FALSE(outcome.playing);
+}
+
+// A server that accepts the connection and then drops it without answering
+// used to be silent, leaving the caller's Start() future unresolved forever.
+TEST(RtspSession, ConnectionLossDuringHandshakeIsReported)
+{
+  const ScriptedRtspServer server({});
+
+  const HandshakeOutcome outcome = run_handshake(server.Port());
+
+  ASSERT_TRUE(outcome.FirstError().has_value());
+  EXPECT_EQ(outcome.FirstError().value_or(0), IFM3D_RTSP_CONNECTION_ERROR);
+  EXPECT_FALSE(outcome.playing);
+}
+
+// An unparseable response is already reported by the message parser; the
+// status check must not report it a second time with a less accurate code.
+TEST(RtspSession, MalformedResponseIsReportedOnce)
+{
+  const ScriptedRtspServer server({"NOT-AN-RTSP-RESPONSE\r\n\r\n"});
+
+  const HandshakeOutcome outcome = run_handshake(server.Port());
+
+  EXPECT_EQ(outcome.errors, std::vector<int>{IFM3D_RTSP_ERROR});
+  EXPECT_FALSE(outcome.playing);
 }
 
 // ---------------------------------------------------------------------------
