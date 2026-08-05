@@ -6,9 +6,13 @@
 #ifndef IFM3D_PYBIND_BINDING_CAMERA
 #define IFM3D_PYBIND_BINDING_CAMERA
 
+#include <optional>
+#include <string>
+
 #include <ifm3d/device/legacy_device.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 namespace py = pybind11;
 
@@ -28,14 +32,14 @@ bind_legacy_device(pybind11::module_& m)
 
       Parameters
       ----------
-      ip : string, optional
+      ip : str, optional
           The ip address of the camera. Defaults to 192.168.0.69.
 
-      xmlrpc_port : uint, optional
+      xmlrpc_port : int, optional
           The tcp port the sensor's XMLRPC server is listening on. Defaults to
           port 80.
 
-      password : string, optional
+      password : str, optional
           Password required for establishing an "edit session" with the sensor.
           Edit sessions allow for mutating camera parameters and persisting
           those changes. Defaults to '' (no password).
@@ -89,36 +93,27 @@ bind_legacy_device(pybind11::module_& m)
       Raises
       ------
       RuntimeError
-
-      @throws ifm3d::error_t if an error is encountered.
+          If an error is encountered while establishing the session.
     )");
 
-  legacy_device.def("cancel_session",
-                    (bool(ifm3d::LegacyDevice::*)(void)) &
-                      ifm3d::LegacyDevice::CancelSession,
-                    py::call_guard<py::gil_scoped_release>(),
-                    R"(
-      Explictly stops the current session with the sensor.
-
-      Returns
-      -------
-      bool
-          Indicates success or failure. On failure, check the ifm3d system log
-          for details.
-    )");
-
-  legacy_device.def("cancel_session",
-                    (bool(ifm3d::LegacyDevice::*)(const std::string&)) &
-                      ifm3d::LegacyDevice::CancelSession,
-                    py::call_guard<py::gil_scoped_release>(),
-                    py::arg("sid"),
-                    R"(
-      Attempts to cancel a session with a particular session id.
+  // A single binding (rather than one per C++ overload) keeps the generated
+  // Python signature and its documented types intact: pybind11 renders
+  // overloads as an opaque ``(*args, **kwargs)`` plus a concatenated
+  // docstring.
+  legacy_device.def(
+    "cancel_session",
+    [](ifm3d::LegacyDevice& self, const std::optional<std::string>& sid) {
+      return sid ? self.CancelSession(*sid) : self.CancelSession();
+    },
+    py::call_guard<py::gil_scoped_release>(),
+    py::arg("sid") = py::none(),
+    R"(
+      Explictly stops a session with the sensor.
 
       Parameters
       ----------
-      sid : str
-          Session ID to cancel.
+      sid : str, optional
+          Session ID to cancel. When unset the current session is cancelled.
 
       Returns
       -------

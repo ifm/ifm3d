@@ -40,6 +40,10 @@ bind_logging(pybind11::module_& m)
                                    "LogLevel",
                                    "enum.IntEnum",
                                    "Enum: The log level.")
+    // ``None`` is a Python keyword, so ``LogLevel.None`` is a syntax error and
+    // the value is only reachable through ``getattr``. ``Off`` is the usable
+    // spelling; ``None`` is kept as an alias for backwards compatibility.
+    .value("Off", ifm3d::LogLevel::None)
     .value("None", ifm3d::LogLevel::None)
     .value("Critical", ifm3d::LogLevel::Critical)
     .value("Error", ifm3d::LogLevel::Error)
@@ -142,8 +146,14 @@ bind_logging(pybind11::module_& m)
   logger.def_static(
     "set_log_level",
     [](ifm3d::LogLevel level) { ifm3d::Logger::Get().SetLogLevel(level); },
+    py::arg("level"),
     R"(
       Set the active log level, messages below this level will be discarded
+
+      Parameters
+      ----------
+      level : ifm3dpy.logging.LogLevel
+          The minimum level a message must have to be logged.
     )");
 
   logger.def_static(
@@ -158,8 +168,14 @@ bind_logging(pybind11::module_& m)
     [](std::shared_ptr<ifm3d::LogWriter> writer) {
       ifm3d::Logger::Get().SetWriter(std::move(writer));
     },
+    py::arg("writer"),
     R"(
       Set the log writer.
+
+      Parameters
+      ----------
+      writer : ifm3dpy.logging.LogWriter
+          The writer which receives all formatted log messages.
     )");
 }
 #endif // IFM3D_PYBIND_BINDING_LOGGING

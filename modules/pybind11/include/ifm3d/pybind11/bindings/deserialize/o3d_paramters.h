@@ -18,12 +18,12 @@ template <typename T>
 void
 bind_o3d_parameter(pybind11::module_& m, const std::string& name)
 {
+  const std::string doc =
+    "Class holding the deserialized " + name + " values of an O3D device.";
+
   py::class_<T, std::shared_ptr<T>> o3d_parameter(m,
                                                   name.c_str(),
-                                                  (R"(
-        Class for managing an o3d_parameter
-      )" + name)
-                                                    .c_str());
+                                                  doc.c_str());
 
   o3d_parameter.def(py::init<>(),
                     R"(
@@ -44,6 +44,7 @@ bind_o3d_parameter(pybind11::module_& m, const std::string& name)
       val.Read(reinterpret_cast<const uint8_t*>(in.data(0)), in.nbytes());
       return val;
     },
+    py::arg("buffer"),
     R"(
         Deserialize  O3D Buffer  array of values
       )");

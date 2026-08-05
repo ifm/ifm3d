@@ -39,13 +39,14 @@ bind_swupdater(pybind11::module_& m)
 
       Parameters
       ----------
-      cam : ifm3dpy.Camera
+      cam : ifm3dpy.device.Device
           The camera instance to grab frames from
 
-      cb : callback function  with parameters (float, string)
-          A  function for progress of the update
+      cb : collections.abc.Callable
+          A callable ``cb(progress, message)`` reporting the progress of the
+          update, receiving a :class:`float` and a :class:`str`.
 
-      swupdate_recovery_port : uint16_t
+      swupdate_recovery_port : int
           The Swupdate communication port
       )");
 
@@ -112,7 +113,7 @@ bind_swupdater(pybind11::module_& m)
       Parameter
       ---------
 
-      swu_file : string
+      swu_file : str
          A .swu file to flash on the device
 
       timeout_millis : long

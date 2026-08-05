@@ -48,9 +48,25 @@ bind_semver(pybind11::module_& m)
            stream << self;
            return stream.str();
          })
-    .def_static("Parse", [](const std::string& version_string) {
-      return ifm3d::SemVer::Parse(version_string).value();
-    });
+    .def_static(
+      "Parse",
+      [](const std::string& version_string) {
+        return ifm3d::SemVer::Parse(version_string).value();
+      },
+      "version_string"_a,
+      R"(
+      Parse a version string into a SemVer object.
+
+      Parameters
+      ----------
+      version_string : str
+          The version string to parse, e.g. ``1.2.3``
+
+      Returns
+      -------
+      SemVer
+          The parsed version
+    )");
 }
 
 #endif // IFM3D_PYBIND_BINDING_SEMVER

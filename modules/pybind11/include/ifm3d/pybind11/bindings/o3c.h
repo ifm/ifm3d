@@ -31,10 +31,10 @@ bind_o3c(pybind11::module_& m)
 
       Parameters
       ----------
-      ip : string, optional
+      ip : str, optional
           The ip address of the camera. Defaults to 192.168.0.69.
 
-      xmlrpc_port : uint, optional
+      xmlrpc_port : int, optional
           The tcp port the sensor's XMLRPC server is listening on. Defaults to
           port 80.
     )",
