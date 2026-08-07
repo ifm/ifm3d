@@ -17,6 +17,21 @@
 
 namespace py = pybind11;
 
+class PyPCICCommand : public ifm3d::PCICCommand
+{
+public:
+  using ifm3d::PCICCommand::PCICCommand;
+
+  std::vector<std::uint8_t>
+  SerializeData() const override
+  {
+    PYBIND11_OVERRIDE_PURE_NAME(std::vector<std::uint8_t>,
+                                ifm3d::PCICCommand,
+                                "serialize_data",
+                                SerializeData);
+  }
+};
+
 inline void
 bind_o3r(pybind11::module_& m)
 {
@@ -99,12 +114,24 @@ bind_o3r(pybind11::module_& m)
                        self->type);
   });
 
-  py::class_<ifm3d::PCICCommand>(m,
-                                 "PCICCommand",
-                                 R"(
-      Base class for the commands which can be sent to a device over PCIC.
+  py::class_<ifm3d::PCICCommand, PyPCICCommand>(m,
+                                                "PCICCommand",
+                                                R"(
+      Base class for PCIC commands.
 
-      See :class:`SetTemporaryApplicationParameter` for a concrete command.
+      Use this class as a Python base type when implementing custom
+      command payloads for framegrabber communication.
+    )")
+    .def(py::init<>())
+    .def("serialize_data",
+         &ifm3d::PCICCommand::SerializeData,
+         R"(
+      Serialize this command into the byte payload sent over PCIC.
+
+      Returns
+      -------
+      list[int]
+          Serialized payload as byte values.
     )");
 
   py::class_<ifm3d::O3R::SetTemporaryApplicationParameter, ifm3d::PCICCommand>(
@@ -128,8 +155,8 @@ bind_o3r(pybind11::module_& m)
         parameter : Parameter
             The parameter to set
 
-        data : bytes
-            The data to set the parameter to
+        data : list[int], tuple[int], or bytearray
+            The data to set the parameter to.
       )");
 
   py::native_enum<ifm3d::O3R::SetTemporaryApplicationParameter::Parameter>(
