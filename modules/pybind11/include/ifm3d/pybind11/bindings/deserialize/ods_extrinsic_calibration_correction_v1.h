@@ -56,7 +56,8 @@ bind_struct_odsextrinsiccalibrationcorrectionv1(pybind11::module_& m)
     "rot_delta_valid",
     &ifm3d::ODSExtrinsicCalibrationCorrectionV1::rot_delta_valid,
     R"(
-          A flag indicating a valid estimation of rotation delta value (0: invalid, 1: valid).
+          A flag indicating a valid estimation of the rotation delta value.
+          ``0`` means invalid, ``1`` means valid.
           Array of [X, Y, Z].
         )");
 
@@ -76,8 +77,19 @@ bind_struct_odsextrinsiccalibrationcorrectionv1(pybind11::module_& m)
       val.Read(reinterpret_cast<const uint8_t*>(in.data(0)), in.nbytes());
       return val;
     },
+    py::arg("buffer"),
     R"(
         Deserialize ODSExtrinsicCalibrationCorrectionV1 Buffer
+
+        Parameters
+        ----------
+        buffer : numpy.ndarray
+            The raw buffer data as an array of ``numpy.uint8``.
+
+        Returns
+        -------
+        ODSExtrinsicCalibrationCorrectionV1
+            The deserialized structure.
       )");
 }
 

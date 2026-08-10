@@ -8,16 +8,24 @@
 
 #include <fmt/format.h>
 #include <ifm3d/device/o3r.h>
+#include <ifm3d/pybind11/util.hpp>
 #include <pybind11/native_enum.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/typing.h>
 
 namespace py = pybind11;
 
 inline void
 bind_o3r(pybind11::module_& m)
 {
+  // A JSON pointer may select any JSON value, not just an object, so the
+  // return type has to cover the leaf types as well.
+  using JsonValue = ifm3d::Annotated<py::typing::Optional<
+    py::typing::
+      Union<py::dict, py::list, py::str, py::bool_, py::int_, py::float_>>>;
+
   py::class_<ifm3d::RtspControlInfo>(m,
                                      "RtspControlInfo",
                                      R"(
@@ -91,11 +99,23 @@ bind_o3r(pybind11::module_& m)
                        self->type);
   });
 
-  py::class_<ifm3d::PCICCommand>(m, "PCICCommand");
+  py::class_<ifm3d::PCICCommand>(m,
+                                 "PCICCommand",
+                                 R"(
+      Base class for the commands which can be sent to a device over PCIC.
+
+      See :class:`SetTemporaryApplicationParameter` for a concrete command.
+    )");
 
   py::class_<ifm3d::O3R::SetTemporaryApplicationParameter, ifm3d::PCICCommand>(
     m,
-    "SetTemporaryApplicationParameter")
+    "SetTemporaryApplicationParameter",
+    R"(
+      PCIC command which temporarily overrides a single application parameter.
+
+      The override is not persisted and is reverted when the application is
+      restarted.
+    )")
     .def(py::init<ifm3d::O3R::SetTemporaryApplicationParameter::Parameter,
                   std::vector<std::uint8_t>>(),
          py::arg("parameter"),
@@ -157,14 +177,14 @@ bind_o3r(pybind11::module_& m)
 
       Parameters
       ----------
-      ip : string, optional
+      ip : str, optional
           The ip address of the camera. Defaults to 192.168.0.69.
 
-      xmlrpc_port : uint, optional
+      xmlrpc_port : int, optional
           The tcp port the sensor's XMLRPC server is listening on. Defaults to
           port 80.
 
-      password : string, optional
+      password : str, optional
           Password required for establishing an "edit session" with the sensor.
           Edit sessions allow for mutating camera parameters and persisting
           those changes. Defaults to '' (no password).
@@ -210,7 +230,7 @@ bind_o3r(pybind11::module_& m)
 
   o3r.def(
     "resolve_config",
-    [](const ifm3d::O3R::Ptr& c, std::string& json_pointer) -> py::object {
+    [](const ifm3d::O3R::Ptr& c, std::string& json_pointer) -> JsonValue {
       // Convert the JSON to a python JSON object using the json module
       py::object json_loads = py::module::import("json").attr("loads");
 
@@ -225,10 +245,17 @@ bind_o3r(pybind11::module_& m)
        Returns a part of the configuration formatted as JSON based on a
        JSON pointer.
 
+      Parameters
+      ----------
+      json_pointer : str
+          A JSON pointer selecting the part of the configuration to return.
+
       Returns
       -------
-      dict
-          The partial JSON configuration for the given JSON pointer
+      dict or list or str or bool or int or float or None
+          The part of the JSON configuration selected by the given JSON
+          pointer. This is a ``dict`` for pointers selecting a JSON object and
+          the corresponding python type for pointers selecting a leaf value.
     )");
 
   o3r.def(
@@ -264,7 +291,7 @@ bind_o3r(pybind11::module_& m)
 
       Parameters
       ----------
-      json_pointer : string
+      json_pointer : str
           A JSON Pointer to the object to be removed.
     )");
 
@@ -280,7 +307,7 @@ bind_o3r(pybind11::module_& m)
 
       Parameters
       ----------
-      json_pointer : string
+      json_pointer : str
           A JSON Pointer to the object to be set to default.
     )");
 
@@ -314,7 +341,7 @@ bind_o3r(pybind11::module_& m)
      
       Parameters
       ----------
-      pointers : List[str]
+      pointers : list[str]
         A List of JSON pointers specifying which parts of
         the configuration should be saved as initial JSON. If no list is
         provided the whole config will be saved
@@ -464,7 +491,7 @@ bind_o3r(pybind11::module_& m)
 
       Returns
       -------
-      List[PortInfo]
+      list[PortInfo]
           the list of Ports
     )");
 

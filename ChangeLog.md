@@ -7,10 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Align RtspClient api with FrameGrabber api (O3C-7123)
+- Overhaul python documentation
+- Python `LogLevel.None` is now also available as `LogLevel.Off` and is reported under that name
 
 ### Fixed
 - Fix `o3cxxx` config get path support to JSON-pointer filtering
 - Fix `o3cxxx` ifm3d cli `factoryReset` command fail
+- Fix python `Buffer` slices and views losing `metadata` and `buffer_id`
+- Fix python `Device.device_discovery` and `Device.set_temp_ip_address` not being usable as static methods
+- Fix python framegrabber bindings being gated on the swupdater feature flag
 
 ## 2.0.4 - 2026-07-20
 ### Added

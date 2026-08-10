@@ -15,12 +15,114 @@
 #include <optional>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/typing.h>
 #include <stdexcept>
 #include <utility>
 
 using namespace pybind11::literals;
 
 namespace py = pybind11;
+
+namespace ifm3d
+{
+  /// The ``ifm3dpy.Buffer`` type created by bind_numpy(). The reference is
+  /// cached on first use and intentionally kept for the lifetime of the
+  /// process, the type object is owned by the ifm3dpy module anyway.
+  inline py::handle
+  py_buffer_type()
+  {
+    static py::handle type;
+    if (!type)
+      {
+        try
+          {
+            type = py::object(py::module_::import("ifm3dpy").attr("Buffer"))
+                     .release();
+          }
+        catch (const py::error_already_set&)
+          {
+            return {};
+          }
+      }
+    return type;
+  }
+
+  /// Check function for PyBuffer, true for instances of ``ifm3dpy.Buffer``.
+  inline int
+  py_buffer_check(PyObject* obj)
+  {
+    const py::handle type = py_buffer_type();
+    if (obj == nullptr || !type)
+      {
+        return 0;
+      }
+
+    const int result = PyObject_IsInstance(obj, type.ptr());
+    if (result < 0)
+      {
+        PyErr_Clear();
+        return 0;
+      }
+    return result;
+  }
+
+  /**
+   * Wrapper around py::object used purely for the generated type annotations.
+   * Functions returning or accepting the numpy.ndarray subclass created by
+   * bind_numpy() should use this type so that the signature reads
+   * ``ifm3dpy.Buffer`` instead of the useless ``object``.
+   */
+  class PyBuffer : public py::object
+  {
+  public:
+    PYBIND11_OBJECT_DEFAULT(PyBuffer, py::object, ifm3d::py_buffer_check)
+  };
+
+  /// Always true, the wrappers using this exist purely to carry an annotation.
+  inline int
+  annotation_only_check(PyObject* obj)
+  {
+    return obj != nullptr;
+  }
+
+  /**
+   * Non leaking stand in for the ``py::typing`` wrappers which are declared
+   * with ``PyObject_Type`` as their check function. ``PyObject_Type`` is not a
+   * predicate, it returns a *new* reference to the type of the object which
+   * pybind11 then discards, so every conversion leaks one reference to the
+   * type of the converted value. Wrap the annotation in this template to keep
+   * the rendered signature while using a check function which does not leak.
+   *
+   * Affects ``Optional``, ``Union``, ``Final``, ``ClassVar``, ``Literal`` and
+   * ``TypeVar``. Still present in pybind11 3.0.1 and on upstream master.
+   */
+  template <typename T>
+  class Annotated : public py::object
+  {
+  public:
+    PYBIND11_OBJECT_DEFAULT(Annotated,
+                            py::object,
+                            ifm3d::annotation_only_check)
+  };
+}
+
+namespace pybind11
+{
+  namespace detail
+  {
+    template <>
+    struct handle_type_name<ifm3d::PyBuffer>
+    {
+      static constexpr auto name = const_name("ifm3dpy.Buffer");
+    };
+
+    template <typename T>
+    struct handle_type_name<ifm3d::Annotated<T>>
+    {
+      static constexpr auto name = handle_type_name<T>::name;
+    };
+  }
+}
 
 inline void
 bind_numpy(pybind11::module_& m)
@@ -34,9 +136,26 @@ bind_numpy(pybind11::module_& m)
     reinterpret_cast<PyObject*>(&PyType_Type))(parent_class);
   py::dict attributes;
 
-  py::object wrapper_class = parent_metaclass("ifm3d_ndarray",
-                                              py::make_tuple(parent_class),
-                                              attributes);
+  py::object wrapper_class =
+    parent_metaclass("Buffer", py::make_tuple(parent_class), attributes);
+
+  // Without these the type is reported as ``ifm3d_ndarray`` defined in
+  // ``importlib._bootstrap``, which prevents Sphinx from documenting and
+  // cross referencing it.
+  wrapper_class.attr("__module__") = "ifm3dpy";
+  wrapper_class.attr("__qualname__") = "Buffer";
+  wrapper_class.attr("__doc__") = R"(
+      A :class:`numpy.ndarray` subclass carrying the image data of a single
+      buffer together with the metadata reported by the device.
+
+      Attributes
+      ----------
+      metadata : dict
+          The metadata associated with this buffer, as reported by the device.
+
+      buffer_id : ifm3dpy.framegrabber.buffer_id
+          The id of the buffer this data was received for.
+    )";
 
   wrapper_class.attr("__new__") = py::cpp_function(
     [parent_class, view_class](py::object self,
@@ -58,10 +177,13 @@ bind_numpy(pybind11::module_& m)
     py::is_method(wrapper_class),
     py::doc(R"(
         __new__(self, data: ndarray, metadata: dict, buffer_id: Any) -> ndarray
-        Create a buffer as numpy.ndarray with metadata and buffer_id.
+        Create a Buffer as numpy.ndarray with metadata and buffer_id.
       )"));
 
-  attributes["__array_finalize__"] = py::cpp_function(
+  // Must be set on the class: ``attributes`` was copied into the type when it
+  // was created above, so mutating it here would have no effect and every view
+  // or slice of a Buffer would silently lose ``metadata`` and ``buffer_id``.
+  wrapper_class.attr("__array_finalize__") = py::cpp_function(
     [](const py::object& self, const py::object& obj) {
       if (obj == Py_None)
         {
@@ -77,7 +199,7 @@ bind_numpy(pybind11::module_& m)
         }
     },
     py::is_method(wrapper_class));
-  m.attr("buffer") = wrapper_class;
+  m.attr("Buffer") = wrapper_class;
 };
 
 namespace ifm3d

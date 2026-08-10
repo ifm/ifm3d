@@ -55,8 +55,19 @@ bind_struct_odsinfov1(pybind11::module_& m)
       val.Read(reinterpret_cast<const uint8_t*>(in.data(0)), in.nbytes());
       return val;
     },
+    py::arg("buffer"),
     R"(
         Deserialize ODS_INFO Buffer to ODSInfoV1 struct
+
+        Parameters
+        ----------
+        buffer : numpy.ndarray
+            The raw buffer data as an array of ``numpy.uint8``.
+
+        Returns
+        -------
+        ODSInfoV1
+            The deserialized structure.
       )");
 }
 

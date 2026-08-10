@@ -84,7 +84,7 @@ bind_error(pybind11::module_& m)
   ERROR_CLASS.attr("__doc__") = R"(
     Exception wrapper for library and system errors encountered by the library.
 
-    **Error Codes*
+    **Error Codes**
 
     .. csv-table::
 

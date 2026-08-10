@@ -17,26 +17,79 @@ namespace py = pybind11;
 inline void
 bind_ifmnetworkdevice(pybind11::module_& m)
 {
-  py::class_<ifm3d::IFMNetworkDevice>(m, "IFMNetworkDevice")
+  py::class_<ifm3d::IFMNetworkDevice>(m,
+                                      "IFMNetworkDevice",
+                                      R"(
+      Describes an ifm device discovered on the local network.
+
+      Instances are returned by
+      :meth:`ifm3dpy.device.Device.device_discovery`.
+    )")
     .def(py::init<std::vector<unsigned char>&, const std::string&>(),
          py::arg("data"),
-         py::arg("ip_address_via_interface"))
+         py::arg("ip_address_via_interface"),
+         R"(
+        Constructor
+
+        Parameters
+        ----------
+        data : list[int]
+            The raw discovery reply as received from the device.
+
+        ip_address_via_interface : str
+            The IP address of the local interface the reply was received on.
+      )")
 
     .def_property_readonly("ip_address",
-                           &ifm3d::IFMNetworkDevice::GetIPAddress)
+                           &ifm3d::IFMNetworkDevice::GetIPAddress,
+                           "The IP address of the device.")
     .def_property_readonly("mac_address",
-                           &ifm3d::IFMNetworkDevice::GetMACAddress)
-    .def_property_readonly("netmask", &ifm3d::IFMNetworkDevice::GetNetmask)
-    .def_property_readonly("gateway", &ifm3d::IFMNetworkDevice::GetGateway)
-    .def_property_readonly("port", &ifm3d::IFMNetworkDevice::GetPort)
-    .def_property_readonly("flags", &ifm3d::IFMNetworkDevice::GetFlags)
-    .def_property_readonly("host_name", &ifm3d::IFMNetworkDevice::GetHostName)
+                           &ifm3d::IFMNetworkDevice::GetMACAddress,
+                           "The MAC address of the device.")
+    .def_property_readonly("netmask",
+                           &ifm3d::IFMNetworkDevice::GetNetmask,
+                           "The network mask configured on the device.")
+    .def_property_readonly("gateway",
+                           &ifm3d::IFMNetworkDevice::GetGateway,
+                           "The default gateway configured on the device.")
+    .def_property_readonly("port",
+                           &ifm3d::IFMNetworkDevice::GetPort,
+                           "The XMLRPC port of the device.")
+    .def_property_readonly("flags",
+                           &ifm3d::IFMNetworkDevice::GetFlags,
+                           "The device flags reported during discovery.")
+    .def_property_readonly("host_name",
+                           &ifm3d::IFMNetworkDevice::GetHostName,
+                           "The host name of the device.")
     .def_property_readonly("device_name",
-                           &ifm3d::IFMNetworkDevice::GetDeviceName)
-    .def_property_readonly("vendor_id", &ifm3d::IFMNetworkDevice::GetVendorId)
-    .def_property_readonly("device_id", &ifm3d::IFMNetworkDevice::GetDeviceId)
-    .def_property_readonly("found_via", &ifm3d::IFMNetworkDevice::GetFoundVia)
-    .def("has_flag", &ifm3d::IFMNetworkDevice::HasFlag, py::arg("flag"));
+                           &ifm3d::IFMNetworkDevice::GetDeviceName,
+                           "The user assigned name of the device.")
+    .def_property_readonly("vendor_id",
+                           &ifm3d::IFMNetworkDevice::GetVendorId,
+                           "The vendor id of the device.")
+    .def_property_readonly("device_id",
+                           &ifm3d::IFMNetworkDevice::GetDeviceId,
+                           "The device id identifying the device model.")
+    .def_property_readonly(
+      "found_via",
+      &ifm3d::IFMNetworkDevice::GetFoundVia,
+      "The IP address of the local interface the device was discovered on.")
+    .def("has_flag",
+         &ifm3d::IFMNetworkDevice::HasFlag,
+         py::arg("flag"),
+         R"(
+        Check whether the given flag is set for this device.
+
+        Parameters
+        ----------
+        flag : int
+            The flag to check for.
+
+        Returns
+        -------
+        bool
+            True if the flag is set
+      )");
 }
 
 inline void
@@ -142,14 +195,14 @@ bind_device(pybind11::module_& m)
 
       Parameters
       ----------
-      ip : string, optional
+      ip : str, optional
           The ip address of the camera. Defaults to 192.168.0.69.
 
-      xmlrpc_port : uint, optional
+      xmlrpc_port : int, optional
           The tcp port the sensor's XMLRPC server is listening on. Defaults to
           port 80.
 
-      password : string, optional
+      password : str, optional
           Password required for establishing an "edit session" with the sensor.
           Edit sessions allow for mutating camera parameters and persisting
           those changes. Defaults to '' (no password).
@@ -190,7 +243,7 @@ bind_device(pybind11::module_& m)
 
       Parameters
       ----------
-      mode : CameraBase.boot_mode
+      mode : ifm3dpy.device.Device.boot_mode
           The system mode to boot into upon restart of the sensor
 
       Raises
@@ -238,7 +291,7 @@ bind_device(pybind11::module_& m)
 
       Returns
       -------
-      CameraBase.device_family
+      ifm3dpy.device.Device.device_family
           The device family
     )");
 
@@ -250,7 +303,7 @@ bind_device(pybind11::module_& m)
 
       Parameters
       ----------
-      family : CameraBase.device_family
+      family : ifm3dpy.device.Device.device_family
           The family to check for
 
       Returns
@@ -394,28 +447,32 @@ bind_device(pybind11::module_& m)
           occured.
     )");
 
-  device.def("device_discovery",
-             &ifm3d::Device::DeviceDiscovery,
-             R"(
+  device.def_static("device_discovery",
+                    &ifm3d::Device::DeviceDiscovery,
+                    R"(
       Discover the list of devices in the network.
 
-      Returns:
-        list[dict]: A list of dictionaries, each containing the device's 
-                    IP address, MAC address and type.
+      Returns
+      -------
+      list[ifm3dpy.device.IFMNetworkDevice]
+          A list of the discovered devices, each providing the device's
+          IP address, MAC address, port URL, device name and vendor ID.
     )");
 
-  device.def("set_temp_ip_address",
-             &ifm3d::Device::SetTempIPAddress,
-             R"(
+  device.def_static("set_temp_ip_address",
+                    &ifm3d::Device::SetTempIPAddress,
+                    py::arg("mac"),
+                    py::arg("temp_ip"),
+                    R"(
       Set temporary IP address
 
       Parameters
       ----------
-      mac : string
+      mac : str
           MAC address of the device
 
-      temp_ip : string
-          Temporary IP addres of the device
+      temp_ip : str
+          Temporary IP address of the device
     )");
 }
 

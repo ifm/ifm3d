@@ -96,8 +96,8 @@ bind_frame(pybind11::module_& m, pybind11::module_& ifm3dpy)
     "get_buffer",
     [ifm3dpy](const ifm3d::Frame::Ptr& frame,
               ifm3d::buffer_id id,
-              size_t index) {
-      auto instance = ifm3dpy.attr("buffer");
+              size_t index) -> ifm3d::PyBuffer {
+      auto instance = ifm3dpy.attr("Buffer");
       auto ifm3d_buffer = frame->GetBuffer(id, index);
       py::object json_loads = py::module::import("json").attr("loads");
       py::gil_scoped_acquire acquire;
@@ -109,6 +109,26 @@ bind_frame(pybind11::module_& m, pybind11::module_& ifm3dpy)
     py::arg("index") = 0,
     R"(
       Get the buffer with the given id
+
+      Parameters
+      ----------
+      id : ifm3dpy.framegrabber.buffer_id
+          The id of the buffer to retrieve
+
+      index : int
+          The index of the buffer, for buffer ids which are received more
+          than once per frame
+
+      Returns
+      -------
+      ifm3dpy.Buffer
+          The image data as a numpy.ndarray subclass, carrying the buffer
+          metadata and its buffer_id
+
+      Raises
+      ------
+      RuntimeError
+          If no buffer with the given id is part of this frame
     )");
 
   frame.def(

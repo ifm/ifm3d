@@ -8,7 +8,9 @@
 
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
 #include <ifm3d/rtsp/decoder_manager.h>
@@ -113,29 +115,48 @@ bind_rtsp(pybind11::module_& m)
     .value("FAILED", ifm3d::RtspClient::State::FAILED)
     .finalize();
 
-  rtsp.def(py::init([](ifm3d::Device::Ptr device,
-                       std::optional<std::string> url,
-                       std::uint16_t port,
-                       std::string stream_path,
-                       ifm3d::RtspClient::Transport transport,
-                       std::optional<std::string> decoder) {
-             ifm3d::RtspClient::Config config;
-             config.url = std::move(url);
-             config.port = port;
-             config.stream_path = std::move(stream_path);
-             config.transport = transport;
-             config.decoder = std::move(decoder);
-             return ifm3d::with_cleanup(
-               new ifm3d::RtspClient(std::move(device), std::move(config)),
-               [](ifm3d::RtspClient* client) { client->Stop().wait(); });
-           }),
-           py::arg("device"),
-           py::arg("url") = py::none(),
-           py::arg("port") = std::uint16_t{8554},
-           py::arg("stream_path") = std::string("port1"),
-           py::arg("transport") = ifm3d::RtspClient::Transport::INTERLEAVED,
-           py::arg("decoder") = py::none(),
-           R"(
+  // A single binding (rather than one per C++ constructor) keeps the generated
+  // Python signature and its documented types intact: pybind11 renders
+  // overloads as an opaque ``(*args, **kwargs)`` plus a concatenated
+  // docstring.
+  rtsp.def(
+    py::init([](ifm3d::Device::Ptr device,
+                std::optional<std::string> url,
+                const std::variant<std::uint16_t, ifm3d::PortInfo>& port,
+                std::string stream_path,
+                ifm3d::RtspClient::Transport transport,
+                std::optional<std::string> decoder) {
+      ifm3d::RtspClient::Config config;
+      config.url = std::move(url);
+      config.transport = transport;
+      config.decoder = std::move(decoder);
+
+      const auto stop_on_destruction = [](ifm3d::RtspClient* client) {
+        client->Stop().wait();
+      };
+
+      if (const auto* const port_info = std::get_if<ifm3d::PortInfo>(&port))
+        {
+          // Port and stream path are derived from the port's RtspInfo.
+          return ifm3d::with_cleanup(new ifm3d::RtspClient(std::move(device),
+                                                           *port_info,
+                                                           std::move(config)),
+                                     stop_on_destruction);
+        }
+
+      config.port = std::get<std::uint16_t>(port);
+      config.stream_path = std::move(stream_path);
+      return ifm3d::with_cleanup(
+        new ifm3d::RtspClient(std::move(device), std::move(config)),
+        stop_on_destruction);
+    }),
+    py::arg("device"),
+    py::arg("url") = py::none(),
+    py::arg("port") = std::uint16_t{8554},
+    py::arg("stream_path") = std::string("port1"),
+    py::arg("transport") = ifm3d::RtspClient::Transport::INTERLEAVED,
+    py::arg("decoder") = py::none(),
+    R"(
       Constructs a client that streams from the given device.
 
       Parameters
@@ -146,49 +167,16 @@ bind_rtsp(pybind11::module_& m)
           Full RTSP URL override (e.g. ``rtsp://192.168.0.69:8554/port1``).
           When unset the URL is built from the device IP, ``port`` and
           ``stream_path``.
-      port : int, optional
-          RTSP server port, used when ``url`` is unset.
+      port : int or ifm3dpy.device.PortInfo, optional
+          Either the RTSP server port, or the port whose RTSP endpoint should
+          be streamed. When a
+          :class:`~ifm3dpy.device.PortInfo` is given the RTSP port and the
+          stream path are derived from its advertised ``RtspInfo`` when
+          available, and ``stream_path`` is ignored. Used when ``url`` is
+          unset.
       stream_path : str, optional
-          Stream path appended to the device IP, used when ``url`` is unset.
-      transport : ifm3dpy.rtsp.RtspClient.Transport, optional
-          RTP transport selection.
-      decoder : str, optional
-          Override the decoder name used for decoding h264 video into buffers.
-          When unset the decoder is chosen automatically.
-    )");
-
-  rtsp.def(
-    py::init([](ifm3d::Device::Ptr device,
-                const ifm3d::PortInfo& port,
-                std::optional<std::string> url,
-                ifm3d::RtspClient::Transport transport,
-                std::optional<std::string> decoder) {
-      ifm3d::RtspClient::Config config;
-      config.url = std::move(url);
-      config.transport = transport;
-      config.decoder = std::move(decoder);
-      return ifm3d::with_cleanup(
-        new ifm3d::RtspClient(std::move(device), port, std::move(config)),
-        [](ifm3d::RtspClient* client) { client->Stop().wait(); });
-    }),
-    py::arg("device"),
-    py::arg("port"),
-    py::arg("url") = py::none(),
-    py::arg("transport") = ifm3d::RtspClient::Transport::INTERLEAVED,
-    py::arg("decoder") = py::none(),
-    R"(
-      Constructs a client for a specific port, deriving the RTSP port and
-      stream path from the port's advertised RtspInfo when available.
-
-      Parameters
-      ----------
-      device : ifm3dpy.device.Device
-          Device used to discover the stream IP (unless ``url`` is set).
-      port : ifm3dpy.device.PortInfo
-          Port whose RTSP endpoint should be streamed.
-      url : str, optional
-          Full RTSP URL override. When unset the URL is built from the device
-          IP and the port's RtspInfo.
+          Stream path appended to the device IP, used when ``url`` is unset
+          and ``port`` is not a :class:`~ifm3dpy.device.PortInfo`.
       transport : ifm3dpy.rtsp.RtspClient.Transport, optional
           RTP transport selection.
       decoder : str, optional
@@ -278,6 +266,12 @@ bind_rtsp(pybind11::module_& m)
     py::arg("callback") = ifm3d::RtspClient::NewFrameCallback(),
     R"(
       Registers a callback invoked for each received frame.
+
+      Parameters
+      ----------
+      callback : Callable[[ifm3dpy.framegrabber.Frame], None], optional
+          The callback receiving each decoded frame. Pass ``None`` to remove
+          a previously registered callback.
     )");
 
   rtsp.def(
@@ -418,7 +412,7 @@ bind_rtsp(pybind11::module_& m)
 
       Returns
       -------
-      List[ifm3dpy.rtsp.DecoderManager.DecoderInfo]
+      list[ifm3dpy.rtsp.DecoderManager.DecoderInfo]
           One entry per decoder.
     )");
 }

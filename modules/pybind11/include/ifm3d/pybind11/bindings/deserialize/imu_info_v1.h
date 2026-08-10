@@ -126,8 +126,19 @@ bind_struct_imuinfov1(pybind11::module_& m)
       val.Read(reinterpret_cast<const uint8_t*>(in.data(0)), in.size());
       return val;
     },
+    py::arg("buffer"),
     R"(
         Deserialize a IMUInfoV1 structure from a byte array
+
+        Parameters
+        ----------
+        buffer : numpy.ndarray
+            The raw buffer data as an array of ``numpy.uint8``.
+
+        Returns
+        -------
+        IMUInfoV1
+            The deserialized structure.
       )");
 }
 #endif // IFM3D_PYBIND_BINDING_DESERIALIZE_IMU_INFO_V1_H

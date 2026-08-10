@@ -31,8 +31,10 @@ bind_deserialize_struct(py::module_& m)
   bind_struct_o3d_paramters(m);
   bind_struct_odspolaroccupancygridv1(m);
   bind_struct_odsextrinsiccalibrationcorrectionv1(m);
-  bind_deserializer(m);
   bind_struct_imuinfov1(m);
+  // Must run last: its signature references every struct bound above, and
+  // pybind11 resolves those type names at definition time.
+  bind_deserializer(m);
 }
 
 #endif // IFM3D_PYBIND_BINDING_DESERIALIZE

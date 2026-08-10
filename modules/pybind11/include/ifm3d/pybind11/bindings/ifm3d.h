@@ -163,7 +163,7 @@ bind_ifm3d(py::module_& m)
   bind_o3d(device_module);
   bind_o3x(device_module);
 
-#if defined(BUILD_MODULE_SWUPDATER)
+#if defined(BUILD_MODULE_FRAMEGRABBER)
   auto framegrabber_module = m.def_submodule(
     "framegrabber",
     R"(Provides an implementation of the PCIC protocol for streaming pixel
@@ -206,7 +206,7 @@ bind_ifm3d(py::module_& m)
   m.attr("LegacyDevice") = device_module.attr("LegacyDevice");
   m.attr("O3R") = device_module.attr("O3R");
   m.attr("O3C") = device_module.attr("O3C");
-#if defined(BUILD_MODULE_SWUPDATER)
+#if defined(BUILD_MODULE_FRAMEGRABBER)
   m.attr("FrameGrabber") = framegrabber_module.attr("FrameGrabber");
   m.attr("Frame") = framegrabber_module.attr("Frame");
   m.attr("buffer_id") = framegrabber_module.attr("buffer_id");

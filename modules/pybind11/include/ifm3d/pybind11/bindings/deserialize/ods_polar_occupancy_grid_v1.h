@@ -63,8 +63,19 @@ bind_struct_odspolaroccupancygridv1(pybind11::module_& m)
       val.Read(reinterpret_cast<const uint8_t*>(in.data(0)), in.nbytes());
       return val;
     },
+    py::arg("buffer"),
     R"(
         Deserialize ODSPolarOccupancyGridV1 Buffer
+
+        Parameters
+        ----------
+        buffer : numpy.ndarray
+            The raw buffer data as an array of ``numpy.uint8``.
+
+        Returns
+        -------
+        ODSPolarOccupancyGridV1
+            The deserialized structure.
       )");
 }
 #endif // IFM3D_PYBIND_BINDING_DESERIALIZE_ODS_POLAR_OCCUPANCY_GRID_V1_H

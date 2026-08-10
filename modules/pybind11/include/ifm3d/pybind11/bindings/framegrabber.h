@@ -45,10 +45,10 @@ bind_framegrabber(pybind11::module_& m)
 
       Parameters
       ----------
-      cam : ifm3dpy.Camera
+      cam : ifm3dpy.device.Device
           The camera instance to grab frames from.
 
-      pcic_port : uint16
+      pcic_port : int
           The PCIC port
     )");
 
@@ -78,29 +78,28 @@ bind_framegrabber(pybind11::module_& m)
 
         Starts the worker thread for streaming in pixel data from the device
 
-        Returns
-        -------
-        FutureAwaitable
-
-            Resolves when framegrabber is ready to receive frames. 
-
         Parameters
         ----------
-        buffers : List[uint64]
-            A List of buffer_ids for receiving, passing in an List
-            set will received all available images. The buffer_ids are specific to
+        buffers : list[ifm3dpy.framegrabber.buffer_id]
+            A list of buffer_ids for receiving. Passing in an empty list will
+            receive all available images. The buffer_ids are specific to
             the current Organizer. See buffer_id for a list of buffer_ids available
             with the default Organizer
-        
-        pcicFormat : Dict
-            allows to manually set a PCIC pcicFormat for
+
+        pcic_format : dict, optional
+            allows to manually set a PCIC pcic_format for
             asynchronous results. See ifm3d::make_schema for generation logic of the
-            default pcicFormat. Manually setting the pcicFormat should rarely be needed and
-            most usecases should be covered by the default generated pcicFormat.
-        
+            default pcic_format. Manually setting the pcic_format should rarely be needed and
+            most usecases should be covered by the default generated pcic_format.
+
             Note: The FrameGrabber is relying on some specific formatting rules, if
-            they are missing from the pcicFormat the FrameGrabber will not be able to
+            they are missing from the pcic_format the FrameGrabber will not be able to
             extract the image data.
+
+        Returns
+        -------
+        ifm3dpy.Awaitable
+            Resolves when framegrabber is ready to receive frames.
       )"));
   }
 
@@ -114,8 +113,7 @@ bind_framegrabber(pybind11::module_& m)
 
       Returns
       -------
-      FutureAwaitable
-
+      ifm3dpy.Awaitable
           Resolves when framgrabber stops.
     )");
 
@@ -290,13 +288,14 @@ bind_framegrabber(pybind11::module_& m)
 
   framegrabber.def("set_masking",
                    &ifm3d::FrameGrabber::SetMasking,
+                   py::arg("mask"),
                    R"(
       Enable/Disable masking on supported buffers
       Note: ifm3dpy.buffer_id.CONFIDENCE_IMAGE should be in schema  list passed to ifm3dpy.FrameGrabber.Start method
 
       Parameters
       ----------
-      mask
+      mask : bool
           flag to enable/disable masking.
     )");
 
@@ -305,7 +304,8 @@ bind_framegrabber(pybind11::module_& m)
                    R"(
       Returns
       -------
-      Masking flag
+      bool
+          True if masking is currently enabled
     )");
 
   framegrabber.def(
@@ -320,12 +320,12 @@ bind_framegrabber(pybind11::module_& m)
 
       Parameters
       ----------
-      command : PCICCommand
+      command : ifm3dpy.device.PCICCommand
           The command to send to the frame grabber.
 
       Returns
       -------
-      PCICCommandResponseAwaitable
+      ifm3dpy.PCICCommandResponseAwaitable
           An awaitable object returns: None, a string, or a bytes object if the response is binary.
     )");
   // clang-format on

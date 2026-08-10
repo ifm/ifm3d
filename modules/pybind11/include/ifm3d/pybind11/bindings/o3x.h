@@ -31,14 +31,14 @@ bind_o3x(pybind11::module_& m)
 
       Parameters
       ----------
-      ip : string, optional
+      ip : str, optional
           The ip address of the camera. Defaults to 192.168.0.69.
 
-      xmlrpc_port : uint, optional
+      xmlrpc_port : int, optional
           The tcp port the sensor's XMLRPC server is listening on. Defaults to
           port 80.
 
-      password : string, optional
+      password : str, optional
           Password required for establishing an "edit session" with the sensor.
           Edit sessions allow for mutating camera parameters and persisting
           those changes. Defaults to '' (no password).
