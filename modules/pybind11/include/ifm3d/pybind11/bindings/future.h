@@ -118,6 +118,7 @@ public:
 
     if (status == std::future_status::ready)
       {
+        this->_future.get();
         throw StopIteration(py::none());
       }
   };
@@ -141,6 +142,9 @@ public:
         return {false, std::nullopt};
       }
 
+    // get() rethrows a stored exception, so a failed operation is reported to
+    // the caller instead of being swallowed and reported as a success.
+    this->_future.get();
     return {true, std::nullopt};
   }
 
@@ -183,6 +187,8 @@ bind_future(py::module_& m,
 
 
       Blocks until the result becomes available.
+
+      :raises ifm3dpy.device.Error: if the operation failed.
     )",
                                  result_type)
                        .c_str()));
@@ -197,6 +203,8 @@ bind_future(py::module_& m,
       Blocks until specified timeout runs out or the result to becomes available. 
 
       :return: a tuple (True, Result) if a result was received within the timeout, (False, None) otherwise.
+
+      :raises ifm3dpy.device.Error: if the operation failed.
     )",
                                  result_type)
                        .c_str()));

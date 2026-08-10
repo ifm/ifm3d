@@ -19,6 +19,7 @@
 #include <fmt/core.h> // NOLINT(*)
 #include <fmt/core.h>
 #include <functional>
+#include <future>
 #include <ifm3d/common/logging/log.h>
 #include <ifm3d/device.h>
 #include <ifm3d/fg/frame_grabber.h>
@@ -160,6 +161,10 @@ namespace ifm3d
     std::promise<Frame::Ptr> _wait_for_frame_promise;
     std::shared_future<Frame::Ptr> _wait_for_frame_future;
     std::mutex _wait_for_frame_mutex;
+    // Tracks whether the promise above already carries a failed run's error.
+    // Such a promise must be kept, so WaitForFrame() keeps reporting that
+    // error, and may only be renewed once a new run is actually launched.
+    bool _wait_for_frame_failed{false};
 
     std::promise<void> _trigger_feedback_promise;
     std::shared_future<void> _trigger_feedback_future;
@@ -339,6 +344,19 @@ ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::buffer_id>& images,
   std::lock_guard<std::mutex> lock(this->_io_service_mutex);
   if (!this->_io_service)
     {
+      {
+        // A previous run left its error on the frame promise so that
+        // WaitForFrame() kept reporting it. This run needs a fresh one.
+        std::lock_guard<std::mutex> frame_lock(this->_wait_for_frame_mutex);
+        if (this->_wait_for_frame_failed)
+          {
+            this->_wait_for_frame_promise = std::promise<Frame::Ptr>();
+            this->_wait_for_frame_future =
+              this->_wait_for_frame_promise.get_future();
+            this->_wait_for_frame_failed = false;
+          }
+      }
+
       this->_io_service = std::make_unique<asio::io_service>();
       this->_sock = std::make_unique<asio::ip::tcp::socket>(*_io_service);
       this->_requested_images = images;
@@ -445,27 +463,54 @@ ifm3d::FrameGrabber::Impl::run(const std::optional<json>& schema)
     }
 
   {
+    // Resolving the current attempt and re-arming for the next one happens
+    // under the same lock as the io_service reset, so a concurrent Start()
+    // cannot hand out the future of the run that is being torn down here.
     std::lock_guard<std::mutex> lock(this->_io_service_mutex);
     this->_sock.reset();
     this->_io_service.reset();
+
+    if (error.has_value())
+      {
+        LOG_WARNING("Exception: {}: {}",
+                    static_cast<int>(error.value().code()),
+                    error.value().what());
+        auto ex_ptr = std::make_exception_ptr(error.value());
+
+        if (!this->_is_ready)
+          {
+            // Must be set on the promise the caller of Start() is waiting on;
+            // re-arming first would resolve that future with broken_promise.
+            this->_ready_promise.set_exception(ex_ptr);
+          }
+
+        std::lock_guard<std::mutex> frame_lock(this->_wait_for_frame_mutex);
+        if (!this->_wait_for_frame_failed)
+          {
+            // The error stays on the promise so a WaitForFrame() issued after
+            // this run has torn down still reports it. Renewing the promise
+            // here instead would leave that caller waiting on a future nobody
+            // ever satisfies; the next Start() renews it.
+            this->_wait_for_frame_failed = true;
+            try
+              {
+                this->_wait_for_frame_promise.set_exception(ex_ptr);
+              }
+            catch (const std::future_error& err)
+              {
+                // Unreachable while the flag above tracks the promise, kept
+                // because letting this escape would skip the re-arm below and
+                // wedge every later Start().
+                LOG_WARNING("Could not report the error to WaitForFrame(): {}",
+                            err.what());
+              }
+          }
+      }
+
+    this->_ready_promise = std::promise<void>();
+    this->_ready_future = this->_ready_promise.get_future();
+    this->_is_ready = false;
   }
-
-  this->_ready_promise = std::promise<void>();
-  this->_ready_future = this->_ready_promise.get_future();
-  this->_is_ready = false;
-
-  if (error.has_value())
-    {
-      LOG_WARNING("Exception: {}: {}",
-                  static_cast<int>(error.value().code()),
-                  error.value().what());
-      auto ex_ptr = std::make_exception_ptr(error.value());
-      this->_wait_for_frame_promise.set_exception(ex_ptr);
-      if (!this->_is_ready)
-        {
-          this->_ready_promise.set_exception(ex_ptr);
-        }
-    }
 
   LOG_INFO("FrameGrabber thread done.");
 }

@@ -90,10 +90,12 @@ def test_rtsp_client_connection_refused_transitions_to_failed():
     client.on_state_change(lambda state: states.append(state))
     client.on_error(lambda err: errors.append(err))
 
-    ok, _ = client.start(
-        [ifm3dpy.framegrabber.buffer_id.COMPRESSED_H264_FRAME]
-    ).wait_for(5000)
-    assert ok is True
+    # A failed handshake must be raised by wait_for, not reported as a
+    # successful start.
+    with pytest.raises(ifm3dpy.device.Error):
+        client.start(
+            [ifm3dpy.framegrabber.buffer_id.COMPRESSED_H264_FRAME]
+        ).wait_for(5000)
     client.stop().wait()
 
     assert RtspClient.State.CONNECTING in states
