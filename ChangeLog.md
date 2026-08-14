@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add `PCICCommand` trampoline for Python command overrides
 
+### Fixed
+- Fix `ifm3d::RtspClient` symbols missing from the installed `libifm3d` shared library (the Debian package installed the `rtsp_client.h` header but never linked the RTSP module into `libifm3d`, causing linker errors in code that used the class) [O3C-7269]
+
 ## 2.0.5 - 2026-08-10
 ### Changed
 - Align RtspClient api with FrameGrabber api (O3C-7123)

@@ -39,6 +39,14 @@ if(BUILD_MODULE_FRAMEGRABBER)
     )
 endif()
 
+if(BUILD_MODULE_RTSP)
+    target_link_libraries(libifm3d PRIVATE $<BUILD_INTERFACE:ifm3d_rtsp>)
+    target_include_directories(libifm3d
+      INTERFACE
+        $<BUILD_INTERFACE:${IFM3D_RTSP_SOURCE_DIR}/include>
+    )
+endif()
+
 if(BUILD_MODULE_SWUPDATER)
     target_link_libraries(libifm3d PRIVATE $<BUILD_INTERFACE:ifm3d_swupdater>)
     target_include_directories(libifm3d
