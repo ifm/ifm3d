@@ -17,6 +17,6 @@ release:tag:
     - git push origin $tag_value
     
   rules:
-    - if: ($CI_PIPELINE_SOURCE == "push") && ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH) && ($CI_COMMIT_MESSAGE =~ '/Release\/v\d+\.\d+\.\d+/')
+    - if: ($CI_PIPELINE_SOURCE == "push") && (($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH) || ($CI_COMMIT_BRANCH =~ /^release\//)) && ($CI_COMMIT_MESSAGE =~ '/Release\/v\d+\.\d+\.\d+/')
       when: always
     - when: never
