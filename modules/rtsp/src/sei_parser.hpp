@@ -20,6 +20,10 @@
 namespace ifm3d::rtsp
 {
   inline constexpr std::size_t RGB_INFO_WIRE_SIZE = 308;
+
+  // e6ccb4b0-0071-580e-828d-928c60078143, see requirement O3C-6884. Carries
+  // the per-frame RGB metadata (timestamp, frame counter, ...) that the
+  // client pairs with the decoded image.
   inline constexpr std::array<std::uint8_t, 16> RGB_INFO_UUID = {0xe6,
                                                                  0xcc,
                                                                  0xb4,
@@ -36,6 +40,27 @@ namespace ifm3d::rtsp
                                                                  0x07,
                                                                  0x81,
                                                                  0x43};
+
+  // 4db79811-0779-541e-8f49-e1b1bf90adc3, see requirement O3C-7758. Marks a
+  // fallback video frame, which the device streams to keep the RTSP session
+  // alive while no real image is available. Access units carrying this SEI
+  // are dropped instead of being handed to the application.
+  inline constexpr std::array<std::uint8_t, 16> FALLBACK_VIDEO_UUID = {0x4d,
+                                                                       0xb7,
+                                                                       0x98,
+                                                                       0x11,
+                                                                       0x07,
+                                                                       0x79,
+                                                                       0x54,
+                                                                       0x1e,
+                                                                       0x8f,
+                                                                       0x49,
+                                                                       0xe1,
+                                                                       0xb1,
+                                                                       0xbf,
+                                                                       0x90,
+                                                                       0xad,
+                                                                       0xc3};
 
   struct RgbInfoPayload
   {

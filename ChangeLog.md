@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Add Shell (`bash`, `zsh`, `pwsh`) Generation completion for `ifm3d` CLI commands `<TAB>` completion
+- Filter out fallback video frames (identified by SEI UUID 4db79811-0779-541e-8f49-e1b1bf90adc3) [O3C-7664]
 
 ## 2.0.6 - 2026-08-14
 ### Added

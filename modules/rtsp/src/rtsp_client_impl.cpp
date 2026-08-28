@@ -517,6 +517,12 @@ namespace ifm3d
       _pending_rgb_info.reset();
     };
 
+    // A dropped fallback access unit takes its SEI with it for the same
+    // reason.
+    _depacketizer->on_fallback_access_unit = [this] {
+      _pending_rgb_info.reset();
+    };
+
     _depacketizer->on_access_unit =
       [this](const std::vector<std::uint8_t>& access_unit,
              std::uint64_t /*pts_us*/) {
