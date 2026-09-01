@@ -19,6 +19,7 @@
 #include <ifm3d/tools/common/dump_app.h>
 #include <ifm3d/tools/common/fg/hz_app.h>
 #include <ifm3d/tools/common/fg/jitter_app.h>
+#include <ifm3d/tools/common/generate_completion_app.h>
 #include <ifm3d/tools/common/reboot_app.h>
 #include <ifm3d/tools/common/reset_app.h>
 #include <ifm3d/tools/common/swupdater/swupdate_deprecated_app.h>
@@ -104,6 +105,8 @@ ifm3d::MainCommand::CreateCommand(CLI::App* parent)
                           log_file_cb,
                           "Log to a file instead of stderr")
     ->option_text("TEXT");
+
+  RegisterSubcommand<ifm3d::GenerateCompletionApp>(parent);
 
   RegisterSubcommand<ifm3d::O3X1XX_O3X2XX>(parent)->SetDetails(
     "o3x1xx",
