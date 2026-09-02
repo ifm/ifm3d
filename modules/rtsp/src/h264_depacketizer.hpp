@@ -86,6 +86,14 @@ namespace ifm3d::rtsp
      */
     std::function<void()> on_access_unit_cancelled;
 
+    /**
+     * Fired for an access unit that completed normally but carried the
+     * fallback-video marker SEI and was therefore dropped instead of being
+     * handed to on_access_unit. Like on_access_unit_cancelled, anything
+     * derived from its NALs has to be dropped with it.
+     */
+    std::function<void()> on_fallback_access_unit;
+
   private:
     const std::uint8_t* next_nal_unit(int& size);
     void emit_nal(const std::uint8_t* nal, int size);
@@ -99,6 +107,7 @@ namespace ifm3d::rtsp
     bool _access_unit_has_sprop = false;
     bool _sprop_emitted = false;
     bool _access_unit_has_vcl = false;
+    bool _access_unit_is_fallback = false;
     std::vector<std::uint8_t> _sprop_prefix;
 
     std::uint32_t _current_rtp_timestamp = 0;

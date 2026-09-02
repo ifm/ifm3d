@@ -313,9 +313,176 @@ TEST(H264Depacketizer, CancelFrameReportsTheDiscardedAccessUnit)
   ASSERT_EQ(access_units.size(), 1U);
 }
 
-// ---------------------------------------------------------------------------
-// SEI / RGB_INFO parsing
-// ---------------------------------------------------------------------------
+namespace
+{
+  // SEI NAL (type 6): payloadType=5 (unregistered user data), payloadSize=16
+  // (UUID only), the fallback-video marker UUID and the RBSP stop bit.
+  std::vector<std::uint8_t>
+  make_fallback_video_sei()
+  {
+    std::vector<std::uint8_t> sei = {0x06, 0x05, 0x10};
+    sei.insert(sei.end(),
+               FALLBACK_VIDEO_UUID.begin(),
+               FALLBACK_VIDEO_UUID.end());
+    sei.push_back(0x80);
+    return sei;
+  }
+} // namespace
+
+TEST(H264Depacketizer, FallbackVideoMarkerSeiDropsAccessUnit)
+{
+  H264Depacketizer dp;
+  int fallback = 0;
+  int cancelled = 0;
+  std::vector<std::vector<std::uint8_t>> access_units;
+  dp.on_access_unit_cancelled = [&] { ++cancelled; };
+  dp.on_fallback_access_unit = [&] { ++fallback; };
+  dp.on_access_unit = [&](const std::vector<std::uint8_t>& au, std::uint64_t) {
+    access_units.push_back(au);
+  };
+
+  dp.DecodePackage(make_fallback_video_sei(), 9000, 1);
+  dp.DecodePackage({0x41, 0x80, 0x11}, 9000, 2);
+  dp.FinishFrame();
+
+  EXPECT_TRUE(access_units.empty());
+  EXPECT_EQ(fallback, 1);
+  EXPECT_EQ(cancelled, 0) << "a dropped fallback frame is not a stream gap";
+
+  // A subsequent access unit without the marker is emitted normally.
+  dp.DecodePackage({0x41, 0x80, 0x22}, 18000, 3);
+  dp.FinishFrame();
+
+  ASSERT_EQ(access_units.size(), 1U);
+  EXPECT_EQ(fallback, 1);
+}
+
+TEST(H264Depacketizer, FallbackVideoMarkerIsFoundInAStapAAggregate)
+{
+  H264Depacketizer dp;
+  int fallback = 0;
+  std::vector<std::vector<std::uint8_t>> access_units;
+  dp.on_fallback_access_unit = [&] { ++fallback; };
+  dp.on_access_unit = [&](const std::vector<std::uint8_t>& au, std::uint64_t) {
+    access_units.push_back(au);
+  };
+
+  // STAP-A (type 24, nri 3 -> 0x78) aggregating the marker SEI and a slice,
+  // each prefixed by its 16-bit size. This is how the device packs the two.
+  const std::vector<std::uint8_t> sei = make_fallback_video_sei();
+  const std::vector<std::uint8_t> slice = {0x41, 0x80, 0x11};
+
+  std::vector<std::uint8_t> stap = {0x78};
+  stap.push_back(0x00);
+  stap.push_back(static_cast<std::uint8_t>(sei.size()));
+  stap.insert(stap.end(), sei.begin(), sei.end());
+  stap.push_back(0x00);
+  stap.push_back(static_cast<std::uint8_t>(slice.size()));
+  stap.insert(stap.end(), slice.begin(), slice.end());
+
+  dp.DecodePackage(stap, 9000, 1);
+  dp.FinishFrame();
+
+  EXPECT_TRUE(access_units.empty());
+  EXPECT_EQ(fallback, 1);
+}
+
+TEST(H264Depacketizer, FallbackVideoAccessUnitLeavesSpropForTheNextOne)
+{
+  H264Depacketizer dp;
+  std::vector<std::vector<std::uint8_t>> access_units;
+  dp.on_access_unit = [&](const std::vector<std::uint8_t>& au, std::uint64_t) {
+    access_units.push_back(au);
+  };
+
+  // base64 of SPS {0x67,0x42,0x00,0x0A} and PPS {0x68,0xCE,0x3C,0x80}.
+  dp.SeedFromSprop("Z0IACg==,aM48gA==");
+
+  dp.DecodePackage(make_fallback_video_sei(), 9000, 1);
+  dp.DecodePackage({0x41, 0x80, 0x11}, 9000, 2);
+  dp.FinishFrame();
+
+  dp.DecodePackage({0x41, 0x80, 0x22}, 18000, 3);
+  dp.FinishFrame();
+
+  // The parameter sets went out with the dropped access unit, so the first
+  // access unit the application actually sees must still carry them.
+  ASSERT_EQ(access_units.size(), 1U);
+  const std::vector<std::uint8_t> expected = {
+    0x00, 0x00, 0x00, 0x01, 0x67, 0x42, 0x00, 0x0A, 0x00, 0x00, 0x00, 0x01,
+    0x68, 0xCE, 0x3C, 0x80, 0x00, 0x00, 0x00, 0x01, 0x41, 0x80, 0x22};
+  EXPECT_EQ(access_units.front(), expected);
+}
+
+TEST(H264Depacketizer, FallbackVideoMarkerWithoutSliceDoesNotDropTheNextFrame)
+{
+  H264Depacketizer dp;
+  int fallback = 0;
+  std::vector<std::vector<std::uint8_t>> access_units;
+  dp.on_fallback_access_unit = [&] { ++fallback; };
+  dp.on_access_unit = [&](const std::vector<std::uint8_t>& au, std::uint64_t) {
+    access_units.push_back(au);
+  };
+
+  // The RTP marker bit ends an access unit whose slices never arrived. The
+  // marker described that access unit and must not be carried into the next.
+  dp.DecodePackage(make_fallback_video_sei(), 9000, 1);
+  dp.FinishFrame();
+
+  EXPECT_TRUE(access_units.empty());
+  EXPECT_EQ(fallback, 0) << "no slice arrived, so no frame was dropped";
+
+  dp.DecodePackage({0x41, 0x80, 0x22}, 18000, 2);
+  dp.FinishFrame();
+
+  EXPECT_EQ(fallback, 0);
+  ASSERT_EQ(access_units.size(), 1U);
+}
+
+TEST(H264Depacketizer, ConsecutiveFallbackFramesAreAllDroppedUntilARealOne)
+{
+  H264Depacketizer dp;
+  int fallback = 0;
+  int cancelled = 0;
+  std::vector<std::vector<std::uint8_t>> access_units;
+  dp.on_access_unit_cancelled = [&] { ++cancelled; };
+  dp.on_fallback_access_unit = [&] { ++fallback; };
+  dp.on_access_unit = [&](const std::vector<std::uint8_t>& au, std::uint64_t) {
+    access_units.push_back(au);
+  };
+
+  // base64 of SPS {0x67,0x42,0x00,0x0A} and PPS {0x68,0xCE,0x3C,0x80}.
+  dp.SeedFromSprop("Z0IACg==,aM48gA==");
+
+  // The device streams fallback frames back-to-back while no real image is
+  // available, so a burst of drops -- not a single one -- is the expected
+  // input.
+  std::uint32_t rtp_timestamp = 9000;
+  std::uint16_t sequence_number = 1;
+  for (int i = 0; i < 3; ++i)
+    {
+      dp.DecodePackage(make_fallback_video_sei(),
+                       rtp_timestamp,
+                       sequence_number++);
+      dp.DecodePackage({0x41, 0x80, 0x11}, rtp_timestamp, sequence_number++);
+      dp.FinishFrame();
+      rtp_timestamp += 9000;
+    }
+
+  dp.DecodePackage({0x41, 0x80, 0x22}, rtp_timestamp, sequence_number++);
+  dp.FinishFrame();
+
+  EXPECT_EQ(fallback, 3);
+  EXPECT_EQ(cancelled, 0);
+
+  // None of the dropped access units emitted the sprop prefix, so the first
+  // real one must still carry it.
+  ASSERT_EQ(access_units.size(), 1U);
+  const std::vector<std::uint8_t> expected = {
+    0x00, 0x00, 0x00, 0x01, 0x67, 0x42, 0x00, 0x0A, 0x00, 0x00, 0x00, 0x01,
+    0x68, 0xCE, 0x3C, 0x80, 0x00, 0x00, 0x00, 0x01, 0x41, 0x80, 0x22};
+  EXPECT_EQ(access_units.front(), expected);
+}
 
 namespace
 {
@@ -369,6 +536,56 @@ namespace
     return body;
   }
 } // namespace
+
+TEST(H264Depacketizer, FallbackVideoAccessUnitStillReportsItsRgbInfo)
+{
+  H264Depacketizer dp;
+  int fallback = 0;
+  std::vector<std::uint32_t> frame_counters;
+  std::vector<std::vector<std::uint8_t>> access_units;
+  dp.on_fallback_access_unit = [&] { ++fallback; };
+  dp.on_access_unit = [&](const std::vector<std::uint8_t>& au, std::uint64_t) {
+    access_units.push_back(au);
+  };
+  dp.on_sei_unregistered_user_data =
+    [&](const std::array<std::uint8_t, 16>& uuid,
+        const std::vector<std::uint8_t>& data) {
+      if (const auto info = parse_rgb_info(uuid, data))
+        {
+          frame_counters.push_back(info->frame_counter);
+        }
+    };
+
+  // A fallback frame carries RGB_INFO like any other. The client parks that
+  // SEI for the access unit it arrived in, so the drop has to be signalled
+  // or the metadata leaks onto the next frame.
+  const std::vector<std::uint8_t> body = build_rgb_info_body();
+  std::vector<std::uint8_t> sei = {0x06, 0x05, 0xFF};
+  sei.push_back(static_cast<std::uint8_t>(16 + body.size() - 0xFF));
+  sei.insert(sei.end(), RGB_INFO_UUID.begin(), RGB_INFO_UUID.end());
+  sei.insert(sei.end(), body.begin(), body.end());
+  sei.push_back(0x05); // second message: payloadType 5
+  sei.push_back(0x10); // payloadSize 16 (UUID only)
+  sei.insert(sei.end(),
+             FALLBACK_VIDEO_UUID.begin(),
+             FALLBACK_VIDEO_UUID.end());
+  sei.push_back(0x80);
+
+  dp.DecodePackage(sei, 9000, 1);
+  dp.DecodePackage({0x41, 0x80, 0x11}, 9000, 2);
+  dp.FinishFrame();
+
+  EXPECT_TRUE(access_units.empty());
+  EXPECT_EQ(fallback, 1);
+  ASSERT_EQ(frame_counters.size(), 1U)
+    << "the RGB_INFO of a fallback frame is still reported, so the consumer "
+       "needs the drop signal to discard it";
+  EXPECT_EQ(frame_counters.front(), 42U);
+}
+
+// ---------------------------------------------------------------------------
+// SEI / RGB_INFO parsing
+// ---------------------------------------------------------------------------
 
 TEST(SeiParser, ExtractsRgbInfoFrameIdentity)
 {

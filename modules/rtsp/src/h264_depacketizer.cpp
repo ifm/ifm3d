@@ -271,9 +271,22 @@ namespace ifm3d::rtsp
       }
 
     // SEI (type 6): parse for unregistered user data before forwarding.
-    if (nal_unit_type == NalUnit::SEI && on_sei_unregistered_user_data)
+    if (nal_unit_type == NalUnit::SEI)
       {
-        parse_sei_nal(nal + 1, size - 1, on_sei_unregistered_user_data);
+        parse_sei_nal(nal + 1,
+                      size - 1,
+                      [this](const std::array<std::uint8_t, 16>& uuid,
+                             const std::vector<std::uint8_t>& data) {
+                        if (uuid == FALLBACK_VIDEO_UUID)
+                          {
+                            _access_unit_is_fallback = true;
+                            return;
+                          }
+                        if (on_sei_unregistered_user_data)
+                          {
+                            on_sei_unregistered_user_data(uuid, data);
+                          }
+                      });
       }
 
     if (_access_unit.empty())
@@ -306,17 +319,29 @@ namespace ifm3d::rtsp
   {
     if (!_access_unit_has_vcl)
       {
+        _access_unit_is_fallback = false;
         return;
       }
-    if (on_access_unit)
+    if (_access_unit_is_fallback)
       {
-        on_access_unit(_access_unit,
-                       rtp_to_micros(_access_unit_rtp_timestamp));
+        if (on_fallback_access_unit)
+          {
+            on_fallback_access_unit();
+          }
       }
-    _sprop_emitted = _sprop_emitted || _access_unit_has_sprop;
+    else
+      {
+        if (on_access_unit)
+          {
+            on_access_unit(_access_unit,
+                           rtp_to_micros(_access_unit_rtp_timestamp));
+          }
+        _sprop_emitted = _sprop_emitted || _access_unit_has_sprop;
+      }
     _access_unit.clear();
     _access_unit_has_sprop = false;
     _access_unit_has_vcl = false;
+    _access_unit_is_fallback = false;
   }
 
   const std::uint8_t*
@@ -366,6 +391,7 @@ namespace ifm3d::rtsp
     _access_unit.clear();
     _access_unit_has_sprop = false;
     _access_unit_has_vcl = false;
+    _access_unit_is_fallback = false;
     _access_unit_rtp_timestamp = 0;
 
     if (on_access_unit_cancelled)
