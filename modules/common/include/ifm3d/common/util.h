@@ -10,7 +10,7 @@
 #include <iostream>
 #include <string>
 
-#if defined(_MSC_VER)
+#ifdef _WIN32
 #  include <io.h>
 #  include <windows.h>
 #  define IFM3D_IS_A_TTY(stream) (!!_isatty(_fileno(stream)))
