@@ -6,6 +6,8 @@
 #ifndef IFM3D_PYBIND_BINDING_FRAMEGRABBER
 #define IFM3D_PYBIND_BINDING_FRAMEGRABBER
 
+#include <chrono>
+#include <cstdint>
 #include <ifm3d/fg/frame_grabber.h>
 #include <ifm3d/pybind11/bindings/future.h>
 #include <ifm3d/pybind11/util.hpp>
@@ -121,6 +123,29 @@ bind_framegrabber(pybind11::module_& m)
                    &ifm3d::FrameGrabber::IsRunning,
                    R"(
       Returns true if the worker thread is currently running
+    )");
+
+  framegrabber.def(
+    "set_heartbeat_interval",
+    [](const ifm3d::FrameGrabber::Ptr& fg, std::int64_t interval_ms) {
+      fg->SetHeartbeatInterval(std::chrono::milliseconds(interval_ms));
+    },
+    py::arg("interval_ms"),
+    R"(
+      Configure the PCIC heartbeat interval. Defaults to 200 milliseconds.
+      Changes apply while running and to subsequent start() calls. Time spent
+      processing frames and in user callbacks is excluded from heartbeat
+      deadlines.
+
+      Parameters
+      ----------
+      interval_ms : int
+          Interval in milliseconds. Zero disables the heartbeat.
+
+      Raises
+      ------
+        RuntimeError
+          If interval_ms is negative.
     )");
 
   framegrabber.def(

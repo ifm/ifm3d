@@ -40,7 +40,8 @@ main(int argc, char** argv)
       "only_algo_debug:FrameGrabberTest."
       "algo_with_other_data:FrameGrabberTest."
       "JSON_model:FrameGrabberTest.buffer_mapping"},
-     {"device_independent", "DistanceImageInfo.*:Buffer.*:Schema.*"}});
+     {"device_independent",
+      "DistanceImageInfo.*:Buffer.*:Schema.*:*FrameGrabberHeartbeat*"}});
 
   std::map<ifm3d::Device::DeviceFamily, std::string> device_family_to_device(
     {{ifm3d::Device::DeviceFamily::O3D, "O3D"},

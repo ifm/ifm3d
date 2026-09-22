@@ -13,11 +13,12 @@
 #include "o3x_organizer.hpp"
 #include <asio.hpp>
 #include <asio/use_future.hpp>
+#include <chrono>
 #include <cstdint>
 #include <cstdlib>
+#include <deque>
 #include <exception>
 #include <fmt/core.h> // NOLINT(*)
-#include <fmt/core.h>
 #include <functional>
 #include <future>
 #include <ifm3d/common/logging/log.h>
@@ -27,6 +28,7 @@
 #include <ifm3d/fg/schema.h>
 #include <memory>
 #include <mutex>
+#include <stdexcept>
 #include <string>
 #include <system_error>
 #include <unordered_map>
@@ -48,6 +50,7 @@ namespace ifm3d
   static const std::string TICKET_COMMAND_c = "1000";
   static const std::string TICKET_COMMAND_t = "1001";
   static const std::string TICKET_COMMAND_p = "1002";
+  static const std::string TICKET_HEARTBEAT = "1003";
 
   inline std::atomic<uint16_t> _next_ticket_id{1100};
 
@@ -74,6 +77,7 @@ namespace ifm3d
     void SetSchema(const json& schema);
     std::shared_future<void> Stop();
     bool IsRunning();
+    void SetHeartbeatInterval(std::chrono::milliseconds interval);
 
     std::shared_future<Frame::Ptr> WaitForFrame();
 
@@ -94,6 +98,7 @@ namespace ifm3d
                       const std::string& content);
     void send_command(const std::string& ticket_id,
                       const std::vector<std::uint8_t>& content);
+    void write_next_command();
     json generate_default_schema();
     std::set<ifm3d::buffer_id> get_image_chunks(ifm3d::buffer_id id);
     //
@@ -114,6 +119,11 @@ namespace ifm3d
     void async_error_handler();
     void async_notification_handler();
     void trigger_handler();
+    void reset_heartbeat(std::chrono::milliseconds interval);
+    void schedule_heartbeat(std::chrono::steady_clock::time_point deadline);
+    void heartbeat_handler();
+    template <typename CALLBACK_TYPE, typename... ARGS>
+    void invoke_callback(const CALLBACK_TYPE& callback, ARGS&&... args);
     void report_error(const ifm3d::Error& error);
     std::string calculate_async_command();
     std::string generate_ticket_id();
@@ -128,6 +138,16 @@ namespace ifm3d
     std::unique_ptr<asio::io_service> _io_service;
     std::mutex _io_service_mutex;
     std::unique_ptr<asio::ip::tcp::socket> _sock;
+    std::deque<std::vector<std::uint8_t>> _write_queue;
+    std::unique_ptr<asio::steady_timer> _heartbeat_timer;
+    // Configured target interval; settable from any thread under
+    // _io_service_mutex
+    std::chrono::milliseconds _heartbeat_interval{200};
+    // Currently scheduled interval; touched only on the io_service worker
+    // thread
+    std::chrono::milliseconds _active_heartbeat_interval{0};
+    std::size_t _heartbeat_generation{0};
+    bool _heartbeat_pending{false};
     std::shared_future<void> _finish_future;
     std::unique_ptr<Organizer> _organizer;
     std::set<buffer_id> _requested_images;
@@ -359,6 +379,8 @@ ifm3d::FrameGrabber::Impl::Start(const std::set<ifm3d::buffer_id>& images,
 
       this->_io_service = std::make_unique<asio::io_service>();
       this->_sock = std::make_unique<asio::ip::tcp::socket>(*_io_service);
+      this->_heartbeat_timer =
+        std::make_unique<asio::steady_timer>(*_io_service);
       this->_requested_images = images;
 
       this->_finish_future = std::async(
@@ -390,6 +412,24 @@ inline bool
 ifm3d::FrameGrabber::Impl::IsRunning()
 {
   return this->_io_service != nullptr;
+}
+
+inline void
+ifm3d::FrameGrabber::Impl::SetHeartbeatInterval(
+  std::chrono::milliseconds interval)
+{
+  if (interval.count() < 0)
+    {
+      throw std::invalid_argument("Heartbeat interval must not be negative");
+    }
+
+  std::lock_guard<std::mutex> lock(this->_io_service_mutex);
+  this->_heartbeat_interval = interval;
+  if (this->_io_service)
+    {
+      this->_io_service->post(
+        [this, interval]() { this->reset_heartbeat(interval); });
+    }
 }
 
 inline void
@@ -467,8 +507,24 @@ ifm3d::FrameGrabber::Impl::run(const std::optional<json>& schema)
     // under the same lock as the io_service reset, so a concurrent Start()
     // cannot hand out the future of the run that is being torn down here.
     std::lock_guard<std::mutex> lock(this->_io_service_mutex);
+    this->_heartbeat_timer.reset();
     this->_sock.reset();
     this->_io_service.reset();
+    this->_write_queue.clear();
+
+    {
+      std::lock_guard<std::mutex> command_lock(this->_send_command_mutex);
+      if (!this->_send_command_promises.empty())
+        {
+          const auto command_error = std::make_exception_ptr(
+            error.value_or(ifm3d::Error(IFM3D_THREAD_INTERRUPTED)));
+          for (const auto& entry : this->_send_command_promises)
+            {
+              entry.second->set_exception(command_error);
+            }
+          this->_send_command_promises.clear();
+        }
+    }
 
     if (error.has_value())
       {
@@ -528,15 +584,38 @@ ifm3d::FrameGrabber::Impl::send_command(
   const std::string& ticket_id,
   const std::vector<std::uint8_t>& content)
 {
-  std::string prefix =
+  const std::string prefix =
     fmt::format("{0}L{1:09}\r\n{0}", ticket_id, 4 + content.size() + 2);
-  std::string suffix = "\r\n";
+  std::vector<std::uint8_t> packet;
+  packet.reserve(prefix.size() + content.size() + 2);
+  packet.insert(packet.end(), prefix.begin(), prefix.end());
+  packet.insert(packet.end(), content.begin(), content.end());
+  packet.push_back('\r');
+  packet.push_back('\n');
+  this->_write_queue.push_back(std::move(packet));
+  if (this->_write_queue.size() == 1)
+    {
+      this->write_next_command();
+    }
+}
 
-  asio::write(*this->_sock,
-              std::vector<asio::const_buffer>{
-                asio::buffer(prefix),
-                asio::buffer(content.data(), content.size()),
-                asio::buffer(suffix)});
+inline void
+ifm3d::FrameGrabber::Impl::write_next_command()
+{
+  asio::async_write(*this->_sock,
+                    asio::buffer(this->_write_queue.front()),
+                    [this](const asio::error_code& error, std::size_t) {
+                      if (error)
+                        {
+                          throw ifm3d::Error(IFM3D_NETWORK_ERROR,
+                                             error.message());
+                        }
+                      this->_write_queue.pop_front();
+                      if (!this->_write_queue.empty())
+                        {
+                          this->write_next_command();
+                        }
+                    });
 }
 
 inline void
@@ -555,6 +634,11 @@ ifm3d::FrameGrabber::Impl::connect_handler(
 
   send_command(TICKET_COMMAND_p, calculate_async_command());
 
+  {
+    std::lock_guard<std::mutex> lock(this->_io_service_mutex);
+    this->reset_heartbeat(this->_heartbeat_interval);
+  }
+
   this->_sock->async_read_some(
     asio::buffer(this->_ticket_buffer.data(), ifm3d::TICKET_SIZE),
     [this](auto&& error_code, auto&& bytes_xferd) {
@@ -571,6 +655,108 @@ ifm3d::FrameGrabber::Impl::connect_handler(
           this->_ready_promise.set_value();
         }
     }
+}
+
+inline void
+ifm3d::FrameGrabber::Impl::reset_heartbeat(std::chrono::milliseconds interval)
+{
+  ++this->_heartbeat_generation;
+  this->_heartbeat_timer->cancel();
+  this->_active_heartbeat_interval = interval;
+  this->_heartbeat_pending = false;
+  if (interval.count() > 0)
+    {
+      this->schedule_heartbeat(std::chrono::steady_clock::now() + interval);
+    }
+}
+
+inline void
+ifm3d::FrameGrabber::Impl::schedule_heartbeat(
+  std::chrono::steady_clock::time_point deadline)
+{
+  ++this->_heartbeat_generation;
+  this->_heartbeat_timer->expires_at(deadline);
+  this->_heartbeat_timer->async_wait(
+    [this,
+     generation = this->_heartbeat_generation](const asio::error_code& error) {
+      if (error == asio::error::operation_aborted ||
+          generation != this->_heartbeat_generation)
+        {
+          return;
+        }
+      if (error)
+        {
+          throw ifm3d::Error(IFM3D_NETWORK_ERROR, error.message());
+        }
+      if (this->_heartbeat_pending)
+        {
+          throw ifm3d::Error(IFM3D_NETWORK_ERROR, "PCIC heartbeat timed out");
+        }
+
+      this->send_command(TICKET_HEARTBEAT, "V?");
+      this->_heartbeat_pending = true;
+      this->schedule_heartbeat(std::chrono::steady_clock::now() +
+                               this->_active_heartbeat_interval);
+    });
+}
+
+template <typename CALLBACK_TYPE, typename... ARGS>
+inline void
+ifm3d::FrameGrabber::Impl::invoke_callback(const CALLBACK_TYPE& callback,
+                                           ARGS&&... args)
+{
+  const auto started = std::chrono::steady_clock::now();
+  std::exception_ptr error;
+  try
+    {
+      callback(std::forward<ARGS>(args)...);
+    }
+  catch (...)
+    {
+      error = std::current_exception();
+    }
+
+  if (this->_active_heartbeat_interval.count() > 0)
+    {
+      const auto elapsed = std::chrono::steady_clock::now() - started;
+      this->schedule_heartbeat(this->_heartbeat_timer->expiry() + elapsed);
+    }
+  if (error)
+    {
+      std::rethrow_exception(error);
+    }
+}
+
+inline void
+ifm3d::FrameGrabber::Impl::heartbeat_handler()
+{
+  if (!this->_heartbeat_pending)
+    {
+      return;
+    }
+
+  bool valid =
+    this->_payload_buffer.size() >= 11 &&
+    this->_payload_buffer[this->_payload_buffer.size() - 2] == '\r' &&
+    this->_payload_buffer.back() == '\n';
+  if (valid)
+    {
+      const std::string versions(this->_payload_buffer.begin() + 4,
+                                 this->_payload_buffer.end() - 2);
+      valid = versions.size() % 3 == 2;
+      for (std::size_t index = 0; valid && index < versions.size(); ++index)
+        {
+          valid = index % 3 == 2 ?
+                    versions[index] == ' ' :
+                    versions[index] >= '0' && versions[index] <= '9';
+        }
+    }
+  if (!valid)
+    {
+      throw ifm3d::Error(IFM3D_PCIC_BAD_REPLY,
+                         "Invalid PCIC V? heartbeat reply");
+    }
+  this->_heartbeat_pending = false;
 }
 
 inline void
@@ -650,7 +836,7 @@ ifm3d::FrameGrabber::Impl::payload_handler(const asio::error_code& ec,
     {
       if (this->_is_ready)
         {
-          this->image_handler();
+          this->invoke_callback([this]() { this->image_handler(); });
         }
       else
         {
@@ -696,6 +882,10 @@ ifm3d::FrameGrabber::Impl::payload_handler(const asio::error_code& ec,
   else if (ticket_id == ifm3d::TICKET_COMMAND_t)
     {
       this->trigger_handler();
+    }
+  else if (ticket_id == ifm3d::TICKET_HEARTBEAT)
+    {
+      this->heartbeat_handler();
     }
   else
     {
@@ -840,7 +1030,9 @@ ifm3d::FrameGrabber::Impl::async_error_handler()
         }
       if (_async_error_callback)
         {
-          _async_error_callback(static_cast<int>(error_code), error_message);
+          this->invoke_callback(this->_async_error_callback,
+                                static_cast<int>(error_code),
+                                error_message);
         }
     }
   else
@@ -870,7 +1062,9 @@ ifm3d::FrameGrabber::Impl::async_notification_handler()
         }
       if (_async_notification_callback)
         {
-          _async_notification_callback(message_id, payload);
+          this->invoke_callback(this->_async_notification_callback,
+                                message_id,
+                                payload);
         }
     }
   else
@@ -1143,7 +1337,8 @@ ifm3d::FrameGrabber::Impl::SendCommand(const PCICCommand& command)
   auto promise = std::make_shared<std::promise<PCICCommandResponse>>();
   auto future = promise->get_future().share();
 
-  if (!this->_sock || !this->_sock->is_open())
+  std::lock_guard<std::mutex> lock(this->_io_service_mutex);
+  if (!this->_io_service)
     {
       LOG_ERROR("PCIC socket is not connected");
       try
@@ -1161,11 +1356,24 @@ ifm3d::FrameGrabber::Impl::SendCommand(const PCICCommand& command)
   std::string ticket_id = this->generate_ticket_id();
 
   {
-    std::lock_guard<std::mutex> lock(this->_send_command_mutex);
+    std::lock_guard<std::mutex> command_lock(this->_send_command_mutex);
     this->_send_command_promises[ticket_id] = promise;
   }
 
-  send_command(ticket_id, payload);
+  this->_io_service->post(
+    [this, ticket_id, payload = std::move(payload), promise]() {
+      try
+        {
+          send_command(ticket_id, payload);
+        }
+      catch (...)
+        {
+          std::lock_guard<std::mutex> command_lock(this->_send_command_mutex);
+          this->_send_command_promises.erase(ticket_id);
+          promise->set_exception(std::current_exception());
+          throw;
+        }
+    });
   return future;
 }
 #endif // IFM3D_FG_FRAMEGRABBER_IMPL_H
