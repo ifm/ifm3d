@@ -1,4 +1,7 @@
 import gc
+import subprocess
+import sys
+import textwrap
 import weakref
 import pytest
 
@@ -57,3 +60,40 @@ def test_set_writer_retains_python_writer_when_python_ref_removed():
 
     # Cleanup
     lg.Logger.set_writer(None)
+
+
+def test_process_exits_cleanly_with_active_python_log_writer():
+    """
+    Regression test: leaving a Python-derived `LogWriter` installed on
+    `Logger` at interpreter shutdown used to hang/crash the process.
+    """
+
+    script = textwrap.dedent(
+        """
+        import ifm3dpy.logging as lg
+
+        class MyWriter(lg.LogWriter):
+            def write(self, entry):
+                pass
+
+        lg.Logger.set_writer(MyWriter())
+        # Intentionally exit without resetting the writer.
+        """
+    )
+
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+
+    assert result.returncode == 0, (
+        "Process did not exit cleanly with an active Python log writer "
+        f"installed: returncode={result.returncode}, stderr={result.stderr!r}"
+    )
+    assert result.stderr == "", (
+        "Process exited with code 0 but wrote to stderr, which can "
+        f"indicate a crash/hang during shutdown: stderr={result.stderr!r}"
+    )
+

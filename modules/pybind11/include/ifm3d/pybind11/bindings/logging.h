@@ -177,5 +177,20 @@ bind_logging(pybind11::module_& m)
       writer : ifm3dpy.logging.LogWriter
           The writer which receives all formatted log messages.
     )");
+
+  // Function-local static guarantees this registers exactly once per
+  // process, even if bind_logging() runs again (e.g. module reload).
+  [[maybe_unused]] static const bool logger_cleanup_registered = [] {
+    // Drop the writer only if it's ours; Logger is a process-wide
+    // singleton that may hold a native writer set from elsewhere.
+    py::module_::import("atexit").attr("register")(py::cpp_function([]() {
+      auto& logger = ifm3d::Logger::Get();
+      if (dynamic_cast<PyLogWriter*>(logger.GetWriter().get()) != nullptr)
+        {
+          logger.SetWriter(nullptr);
+        }
+    }));
+    return true;
+  }();
 }
 #endif // IFM3D_PYBIND_BINDING_LOGGING
