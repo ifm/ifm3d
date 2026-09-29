@@ -34,6 +34,12 @@ namespace ifm3d
       return *this;
     }
 
+    [[nodiscard]] std::shared_ptr<LogWriter>
+    GetWriter() const
+    {
+      return this->_writer;
+    }
+
     [[nodiscard]] LogLevel
     GetLogLevel() const
     {
