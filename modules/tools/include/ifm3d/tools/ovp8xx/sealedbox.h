@@ -19,19 +19,19 @@ namespace ifm3d::tools::ovp8xx::sealedbox
   class SealedBox : public Command
   {
   public:
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
-    std::vector<std::string> paths = {};
+    std::vector<std::string> paths;
   };
 
   class Set : public Command
   {
   public:
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
-    std::string password = {};
+    std::string password;
     std::string config_file{"-"};
     bool save;
   };
@@ -39,17 +39,26 @@ namespace ifm3d::tools::ovp8xx::sealedbox
   class RemovePassword : public Command
   {
   public:
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
-    std::string password = {};
+    std::string password;
+  };
+
+  class RebootToRecovery : public Command
+  {
+  public:
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
+
+    std::string password;
   };
 
   class GetPublicKey : public Command
   {
   public:
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
     std::optional<std::string> output_format = std::nullopt;
   };
@@ -57,17 +66,17 @@ namespace ifm3d::tools::ovp8xx::sealedbox
   class IsPasswordProtected : public Command
   {
   public:
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
   };
 
   class SetPassword : public Command
   {
   public:
-    virtual void Execute(CLI::App* app) override;
-    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+    void Execute(CLI::App* app) override;
+    CLI::App* CreateCommand(CLI::App* parent) override;
 
-    std::string new_password = {};
+    std::string new_password;
     std::optional<std::string> old_password = std::nullopt;
   };
 }

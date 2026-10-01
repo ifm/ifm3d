@@ -53,9 +53,9 @@ ifm3d::SWUpdater::SWUpdater(
 ifm3d::SWUpdater::~SWUpdater() = default;
 
 void
-ifm3d::SWUpdater::RebootToRecovery()
+ifm3d::SWUpdater::RebootToRecovery(const std::optional<std::string>& password)
 {
-  this->_impl->RebootToRecovery();
+  this->_impl->RebootToRecovery(password);
 }
 
 bool

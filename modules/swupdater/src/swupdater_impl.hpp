@@ -57,7 +57,7 @@ namespace ifm3d
          const std::string& swupdate_recovery_port);
     virtual ~Impl() = default;
 
-    virtual void RebootToRecovery();
+    virtual void RebootToRecovery(const std::optional<std::string>& password);
     bool WaitForRecovery(long timeout_millis);
     virtual void RebootToProductive();
     bool WaitForProductive(long timeout_millis);
@@ -110,7 +110,7 @@ inline ifm3d::SWUpdater::Impl::Impl(ifm3d::Device::Ptr cam,
 // "Public" interface
 //-------------------------------------
 inline void
-ifm3d::SWUpdater::Impl::RebootToRecovery()
+ifm3d::SWUpdater::Impl::RebootToRecovery(const std::optional<std::string>&)
 {
   this->_cam->Reboot(ifm3d::Device::BootMode::RECOVERY);
 }

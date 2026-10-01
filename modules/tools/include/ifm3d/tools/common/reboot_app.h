@@ -34,6 +34,7 @@ namespace ifm3d
   private:
     bool _recovery{false};
     bool _wait{false};
+    std::optional<std::string> _password;
 
   }; // end: class RebootApp
 

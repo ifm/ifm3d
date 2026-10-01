@@ -47,6 +47,7 @@ namespace ifm3d::tools::ovp8xx::sealedbox
 
     RegisterSubcommand<GetPublicKey>(command);
     RegisterSubcommand<IsPasswordProtected>(command);
+    RegisterSubcommand<RebootToRecovery>(command);
     RegisterSubcommand<RemovePassword>(command);
     RegisterSubcommand<Set>(command);
     RegisterSubcommand<SetPassword>(command);
@@ -307,6 +308,39 @@ namespace ifm3d::tools::ovp8xx::sealedbox
 
     return command;
   }
+
+  void
+  RebootToRecovery::Execute(CLI::App* /*app*/)
+  {
+    auto device = Parent<MainCommand>()->GetDevice<O3R>();
+
+    auto password = this->password.empty() ? Parent<MainCommand>()->password :
+                                             this->password;
+    if (password.empty())
+      {
+        std::cout << "Password: " << std::flush;
+        password = ifm3d::read_password();
+      }
+
+    device->SealedBox()->RebootToRecovery(password);
+  }
+
+  CLI::App*
+  RebootToRecovery::CreateCommand(CLI::App* parent)
+  {
+    CLI::App* command =
+      parent->add_subcommand("rebootToRecovery",
+                             "Reboot the device into recovery mode");
+
+    command
+      ->add_option("--password",
+                   this->password,
+                   "The current password for the device")
+      ->required(false);
+
+    return command;
+  }
+
 }
 
 #endif

@@ -2,9 +2,11 @@
 #include <fstream>
 #include <gtest/gtest.h>
 #include <ifm3d/common/err.h>
+#include <ifm3d/common/features.h>
 #include <ifm3d/common/logging/log.h>
 #include <ifm3d/device/device.h>
 #include <ifm3d/device/legacy_device.h>
+#include <ifm3d/device/o3r.h>
 #include <ifm3d/swupdater/swupdater.h>
 #include <ios>
 #include <memory>
@@ -60,6 +62,40 @@ TEST_F(SWUpdater, DetectBootMode)
   EXPECT_TRUE(swu->WaitForProductive(-1));
   EXPECT_FALSE(swu->WaitForRecovery(-1));
 }
+
+#ifdef BUILD_MODULE_CRYPTO
+TEST_F(SWUpdater, DISABLED_DetectBootModePassword)
+{
+  auto cam = ifm3d::Device::MakeShared();
+  auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(cam);
+  if (!o3r)
+    {
+      GTEST_SKIP() << "Device is not O3R";
+    }
+
+  EXPECT_FALSE(o3r->SealedBox()->IsPasswordProtected());
+  const std::string password = "foo";
+  o3r->SealedBox()->SetPassword(password);
+  EXPECT_TRUE(o3r->SealedBox()->IsPasswordProtected());
+
+  auto swu = std::make_shared<ifm3d::SWUpdater>(cam);
+
+  EXPECT_THROW(swu->RebootToRecovery("wrong_password"), ifm3d::Error);
+  EXPECT_NO_THROW(swu->RebootToRecovery(password));
+  EXPECT_TRUE(swu->WaitForRecovery(100000));
+
+  swu->RebootToProductive();
+  EXPECT_TRUE(swu->WaitForProductive(100000));
+
+  cam = ifm3d::Device::MakeShared();
+  o3r = std::dynamic_pointer_cast<ifm3d::O3R>(cam);
+  if (o3r && o3r->SealedBox()->IsPasswordProtected())
+    {
+      o3r->SealedBox()->RemovePassword(password);
+    }
+  EXPECT_FALSE(o3r->SealedBox()->IsPasswordProtected());
+}
+#endif
 
 TEST_F(SWUpdater, DISABLED_FlashEmptyFile)
 {

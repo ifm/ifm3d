@@ -5,6 +5,7 @@
 
 #ifndef IFM3D_TOOLS_SWUPDATER_FLASH_SW_APP_H
 #define IFM3D_TOOLS_SWUPDATER_FLASH_SW_APP_H
+#include <optional>
 #pragma once
 
 #include <ifm3d/common/features.h>
@@ -35,6 +36,7 @@ namespace ifm3d
     std::string swu_file{"-"};
     bool quiet{false};
     unsigned int timeout{300};
+    std::optional<std::string> password;
 
   }; // end: class FlashSWApp
 

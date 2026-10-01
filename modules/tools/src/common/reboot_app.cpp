@@ -11,6 +11,10 @@
 #  include <ifm3d/swupdater/swupdater.h>
 #  include <ifm3d/tools/common/swupdater/restart_app.h>
 #endif
+#if defined(BUILD_MODULE_CRYPTO)
+#  include <ifm3d/tools/o3cxxx/o3cxxx_app.h>
+#  include <ifm3d/tools/ovp8xx/ovp8xx_app.h>
+#endif
 #include <memory>
 #include <string>
 
@@ -30,7 +34,7 @@ ifm3d::RebootApp::Execute(CLI::App* /*app*/)
     SWUPDATER_RECOVERY_PORT,
     device->SwUpdateVersion());
 
-  ifm3d::reboot_device(device, swupdater, mode, this->_wait);
+  ifm3d::reboot_device(device, swupdater, mode, this->_wait, this->_password);
 #else
   std::cout << msg;
   device->Reboot(mode);
@@ -54,6 +58,15 @@ ifm3d::RebootApp::CreateCommand(CLI::App* parent)
     "-w,--wait",
     this->_wait,
     "Wait for the device to come back online after restarting.");
+#endif
+
+#ifdef BUILD_MODULE_CRYPTO
+  if (Parent<ifm3d::OVP8xx>() || Parent<ifm3d::O3Cxxx>())
+    {
+      command->add_option("--password",
+                          this->_password,
+                          "Password for the device if required");
+    }
 #endif
 
   return command;

@@ -36,12 +36,14 @@ namespace ifm3d
 
   private:
     bool _wait{false};
+    std::optional<std::string> _password;
   }; // end: class RestartApp
 
   void reboot_device(ifm3d::Device::Ptr device,
                      ifm3d::SWUpdater::Ptr swupdater,
                      ifm3d::Device::BootMode mode,
-                     bool wait);
+                     bool wait,
+                     const std::optional<std::string>& password);
 
 } // end: namespace ifm3d
 
