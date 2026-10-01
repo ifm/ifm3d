@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Add PCIC heartbeat to detect network interrupts. Defaults to 200 ms, can be disabled by setting `FrameGrabber::SetHeartbeatInterval` to 0.
+
 ### Fixed
 - Fix Python process hanging/crashing at shutdown when a `LogWriter` was still installed via `Logger.set_writer()`
 

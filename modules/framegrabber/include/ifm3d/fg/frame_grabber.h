@@ -8,6 +8,7 @@
 #define IFM3D_FG_FRAMEGRABBER_H
 #pragma once
 
+#include <chrono>
 #include <cstdint>
 #include <future>
 #include <ifm3d/device/device.h>
@@ -124,6 +125,22 @@ namespace ifm3d
     bool IsRunning();
 
     /**
+     * Configures the PCIC heartbeat interval. Defaults to 200 milliseconds.
+     *
+     * Sends a heartbeat periodically while running. A missing reply before the
+     * next heartbeat stops the worker with IFM3D_NETWORK_ERROR, reported
+     * through OnError() and WaitForFrame(). The first heartbeat is sent one
+     * interval after connecting or changing the interval. Changes also apply
+     * to later Start() calls. Time spent processing frames and executing user
+     * callbacks is excluded from the heartbeat countdown, so slow processing
+     * does not cause a timeout.
+     *
+     * @param[in] interval Heartbeat interval; zero disables the heartbeat.
+     * @throws std::invalid_argument if interval is negative.
+     */
+    void SetHeartbeatInterval(std::chrono::milliseconds interval);
+
+    /**
      * Returns a future that will resolve when a new frame is available
      */
     std::shared_future<Frame::Ptr> WaitForFrame();
@@ -173,9 +190,9 @@ namespace ifm3d
     /**
      * @brief Sends a command to the frame grabber.
      *
-     * This function sends the specified command to the frame grabber and
-     * returns a shared future that will hold the response as a string once the
-     * command completes.
+     * This function queues the specified command on the frame grabber worker
+     * and returns a shared future that holds the response once the command
+     * completes. Pending commands fail if the worker stops before replying.
      *
      * @param command The command to send to the frame grabber.
      *

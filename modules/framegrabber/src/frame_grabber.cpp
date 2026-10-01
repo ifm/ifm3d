@@ -4,6 +4,7 @@
  */
 
 #include "frame_grabber_impl.hpp"
+#include <chrono>
 #include <cstdint>
 #include <future>
 #include <ifm3d/common/json_impl.hpp>
@@ -89,6 +90,12 @@ bool
 ifm3d::FrameGrabber::IsRunning()
 {
   return this->_impl->IsRunning();
+}
+
+void
+ifm3d::FrameGrabber::SetHeartbeatInterval(std::chrono::milliseconds interval)
+{
+  this->_impl->SetHeartbeatInterval(interval);
 }
 
 std::shared_future<ifm3d::Frame::Ptr>

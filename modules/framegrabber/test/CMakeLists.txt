@@ -27,6 +27,7 @@ add_executable(ifm3d-fg-tests ${TEST_SOURCES})
 target_compile_definitions(ifm3d-fg-tests PRIVATE IFM3D_STATIC_LIB)
 target_link_libraries(ifm3d-fg-tests
   gtest_main
+  asio
   ifm3d_common
   ifm3d_framegrabber
   ifm3d_device
