@@ -13,6 +13,7 @@
 #include <ifm3d/common/logging/log.h>
 #include <ifm3d/device/err.h>
 #include <ifm3d/device/legacy_device.h>
+#include <ifm3d/device/o3r.h>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -74,7 +75,7 @@ namespace ifm3d
            const std::string& swupdate_recovery_port);
     ~ImplV2() override = default;
 
-    void RebootToRecovery() override;
+    void RebootToRecovery(const std::optional<std::string>& password) override;
     void RebootToProductive() override;
     bool FlashFirmware(const std::string& swu_file,
                        long timeout_millis) override;
@@ -256,10 +257,20 @@ inline ifm3d::ImplV2::ImplV2(ifm3d::Device::Ptr cam,
 // "Public" interface
 //-------------------------------------
 inline void
-ifm3d::ImplV2::RebootToRecovery()
+ifm3d::ImplV2::RebootToRecovery(const std::optional<std::string>& password)
 {
   if (this->_cam->FirmwareVersion() >= MIN_O3R_FIRMWARE_RECOVERY_UPDATE)
     {
+#ifdef BUILD_MODULE_CRYPTO
+      if (auto o3r = std::dynamic_pointer_cast<O3R>(this->_cam))
+        {
+          if (o3r->SealedBox()->IsPasswordProtected())
+            {
+              o3r->SealedBox()->RebootToRecovery(password.value_or(""));
+              return;
+            }
+        }
+#endif
       this->_cam->Reboot(ifm3d::Device::BootMode::RECOVERY);
     }
 }

@@ -10,6 +10,8 @@
 #include <ifm3d/common/err.h>
 #include <ifm3d/tools/common/swupdater/flash_sw_app.h>
 #include <ifm3d/tools/common/swupdater/swupdate_app.h>
+#include <ifm3d/tools/o3cxxx/o3cxxx_app.h>
+#include <ifm3d/tools/ovp8xx/ovp8xx_app.h>
 #include <iostream>
 #include <string>
 
@@ -80,7 +82,7 @@ ifm3d::FlashSWApp::Execute(CLI::App* /*app*/)
             {
               std::cout << "Rebooting device to recovery mode..." << '\n';
             }
-          swupdater->RebootToRecovery();
+          swupdater->RebootToRecovery(this->password);
           if (!swupdater->WaitForRecovery(get_remaining_timeout()))
             {
               if (!quiet)
@@ -161,6 +163,15 @@ ifm3d::FlashSWApp::CreateCommand(CLI::App* parent)
                  this->timeout,
                  "The time in seconds for the swupdate to complete")
     ->default_val(300);
+
+#ifdef BUILD_MODULE_CRYPTO
+  if (Parent<ifm3d::OVP8xx>() || Parent<ifm3d::O3Cxxx>())
+    {
+      command->add_option("--password",
+                          this->password,
+                          "Password for the device if required");
+    }
+#endif
 
   return command;
 }

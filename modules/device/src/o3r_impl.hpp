@@ -8,6 +8,7 @@
 #ifndef IFM3D_DEVICE_O3R_IMPL_HPP
 #define IFM3D_DEVICE_O3R_IMPL_HPP
 
+#include <cstring>
 #include <ctime>
 #include <fmt/core.h> // NOLINT(*)
 #include <fstream>
@@ -74,6 +75,7 @@ namespace ifm3d
     bool SealedBoxIsPasswordProtected();
     void SealedBoxRemovePassword(std::string password);
     void SealedBoxSet(const std::string& password, const json& configuration);
+    void SealedBoxRebootToRecovery(const std::string& password);
     std::vector<uint8_t> SealedBoxGetPublicKey();
 
     std::vector<uint8_t> SealedBoxEncryptMessage(const json& message);
@@ -484,6 +486,25 @@ inline void
 ifm3d::O3R::Impl::SealedBoxRemovePassword(std::string password)
 {
   SealedBoxSendCommand("remove_password", {{"password", password}});
+}
+
+inline void
+ifm3d::O3R::Impl::SealedBoxRebootToRecovery(const std::string& password)
+{
+  try
+    {
+      SealedBoxSendCommand("reboot_to_recovery", {{"password", password}});
+    }
+  catch (const ifm3d::Error& e)
+    {
+      // The device will drop the connection without closing when it reboots to
+      // recovery
+      if (e.code() != IFM3D_CURL_ERROR ||
+          std::strstr(e.message(), "Failed to read connection") == nullptr)
+        {
+          throw;
+        }
+    }
 }
 
 inline std::vector<uint8_t>

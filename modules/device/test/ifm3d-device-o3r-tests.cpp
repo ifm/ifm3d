@@ -190,4 +190,18 @@ TEST_F(O3RTest, SealedBox_SetConfig)
             "baz");
 }
 
+TEST_F(O3RTest, SealedBox_RebootToRecovery_WrongPassword)
+{
+  EXPECT_FALSE(_dev->SealedBox()->IsPasswordProtected())
+    << "Device is already password protected, make sure device is not "
+       "password protected before running the tests";
+
+  auto revert_password =
+    RevertGuard([this]() { _dev->SealedBox()->RemovePassword("foo"); });
+  EXPECT_NO_THROW(_dev->SealedBox()->SetPassword("foo"));
+
+  EXPECT_THROW(_dev->SealedBox()->RebootToRecovery("wrong_password"),
+               ifm3d::Error);
+}
+
 #endif
