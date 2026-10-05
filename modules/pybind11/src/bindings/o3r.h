@@ -448,6 +448,21 @@ bind_o3r(pybind11::module_& m)
   );
 
   o3r_sealed_box.def(
+    "reboot_to_recovery",
+    &ifm3d::O3RSealedBox::RebootToRecovery,
+    py::call_guard<py::gil_scoped_release>(),
+    py::arg("password"),
+    R"(
+      Reboots the device into recovery mode
+
+      Parameters
+      ----------
+      password : str
+          The current password for the device
+    )"
+  );
+
+  o3r_sealed_box.def(
     "set",
     [](const ifm3d::O3RSealedBox::Ptr& c, const std::string& password, const py::dict& json)
     {

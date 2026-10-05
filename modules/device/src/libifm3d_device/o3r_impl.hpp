@@ -10,6 +10,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <cstring>
 #include <ctime>
 #include <functional>
 #include <map>
@@ -73,6 +74,7 @@ namespace ifm3d
     bool SealedBoxIsPasswordProtected();
     void SealedBoxRemovePassword(std::string password);
     void SealedBoxSet(const std::string& password, const json& configuration);
+    void SealedBoxRebootToRecovery(const std::string& password);
     std::vector<uint8_t> SealedBoxGetPublicKey();
 
     std::vector<uint8_t> SealedBoxEncryptMessage(const json& message);
@@ -411,6 +413,25 @@ void
 ifm3d::O3R::Impl::SealedBoxRemovePassword(std::string password)
 {
   SealedBoxSendCommand("remove_password", {{"password", password}});
+}
+
+void
+ifm3d::O3R::Impl::SealedBoxRebootToRecovery(const std::string& password)
+{
+  try
+    {
+      SealedBoxSendCommand("reboot_to_recovery", {{"password", password}});
+    }
+  catch (const ifm3d::Error& e)
+    {
+      // The device drops the connection without a reply when it reboots
+      if (e.code() != IFM3D_XMLRPC_FAILURE ||
+          (std::strstr(e.message(), "Empty reply from server") == nullptr &&
+           std::strstr(e.message(), "Server returned nothing") == nullptr))
+        {
+          throw;
+        }
+    }
 }
 
 inline std::vector<uint8_t>

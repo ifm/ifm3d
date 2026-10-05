@@ -46,9 +46,9 @@ ifm3d::SWUpdater::SWUpdater(ifm3d::Device::Ptr cam,
 ifm3d::SWUpdater::~SWUpdater() = default;
 
 void
-ifm3d::SWUpdater::RebootToRecovery()
+ifm3d::SWUpdater::RebootToRecovery(const std::optional<std::string>& password)
 {
-  this->pImpl->RebootToRecovery();
+  this->pImpl->RebootToRecovery(password);
 }
 
 bool

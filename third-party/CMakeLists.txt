@@ -150,6 +150,7 @@ if(BUILD_MODULE_CRYPTO)
   FetchContent_Declare(Sodium
       GIT_REPOSITORY https://github.com/robinlinden/libsodium-cmake.git
       GIT_TAG 24f829c6d1bf88adb05ff3ee594abc367ffc0590 # libsodium 1.0.20
+      PATCH_COMMAND git checkout -q . && git apply --whitespace=fix ${CMAKE_CURRENT_SOURCE_DIR}/patches/libsodium.patch
   )
   set(SODIUM_DISABLE_TESTS ON)
   FetchContent_MakeAvailable(Sodium)

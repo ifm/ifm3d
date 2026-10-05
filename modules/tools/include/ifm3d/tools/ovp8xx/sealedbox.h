@@ -45,6 +45,15 @@ namespace ifm3d::tools::ovp8xx::sealedbox
     std::string password = {};
   };
 
+  class RebootToRecovery : public Command
+  {
+  public:
+    virtual void Execute(CLI::App* app) override;
+    virtual CLI::App* CreateCommand(CLI::App* parent) override;
+
+    std::string password = {};
+  };
+
   class GetPublicKey : public Command
   {
   public:

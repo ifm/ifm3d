@@ -32,7 +32,7 @@ ifm3d::RestartApp::Execute(CLI::App* app)
 
   if (swupdater->WaitForRecovery(-1))
     {
-      swupdater->RebootToRecovery();
+      swupdater->RebootToRecovery(password_);
     }
   else
     {
@@ -49,6 +49,15 @@ ifm3d::RestartApp::CreateCommand(CLI::App* parent)
 // Hide command if SWUpdate module is not build
 #if !defined(BUILD_MODULE_SWUPDATER)
   swupdate_cmd->group("");
+#endif
+
+#if defined(BUILD_MODULE_CRYPTO)
+  if (Parent<ifm3d::OVP8xx>())
+    {
+      command->add_option("--password",
+                          this->password_,
+                          "Password for the device if required");
+    }
 #endif
 
   return command;

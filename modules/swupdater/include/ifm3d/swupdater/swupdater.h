@@ -7,6 +7,8 @@
 #define IFM3D_SWUPDATER_SWUPDATER_H
 
 #include <memory>
+#include <optional>
+#include <string>
 #include <vector>
 #include <ifm3d/device/legacy_device.h>
 #include <ifm3d/swupdater/module_swupdater.h>
@@ -60,9 +62,12 @@ namespace ifm3d
      * immediately, but the reboot process takes some time. The function
      * `WaitForRecovery` may be used to poll for completion.
      *
+     * @param password The current password for the device (if required)
+     *
      * @throw ifm3d::error_t on error
      */
-    void RebootToRecovery();
+    void RebootToRecovery(
+      const std::optional<std::string>& password = std::nullopt);
 
     /**
      * Polls on status of the device, waiting for it to present

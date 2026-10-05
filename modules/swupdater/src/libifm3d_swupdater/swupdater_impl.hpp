@@ -7,6 +7,7 @@
 #define IFM3D_SWUPDATER_SWUPDATER_IMPL_H
 
 #include <chrono>
+#include <optional>
 #include <string>
 #include <thread>
 #include <tuple>
@@ -51,7 +52,7 @@ namespace ifm3d
          const std::string& swupdate_recovery_port);
     virtual ~Impl() = default;
 
-    virtual void RebootToRecovery();
+    virtual void RebootToRecovery(const std::optional<std::string>& password);
     bool WaitForRecovery(long timeout_millis);
     virtual void RebootToProductive();
     bool WaitForProductive(long timeout_millis);
@@ -164,7 +165,7 @@ ifm3d::SWUpdater::Impl::Impl(ifm3d::Device::Ptr cam,
 // "Public" interface
 //-------------------------------------
 void
-ifm3d::SWUpdater::Impl::RebootToRecovery()
+ifm3d::SWUpdater::Impl::RebootToRecovery(const std::optional<std::string>&)
 {
   this->cam_->Reboot(ifm3d::Device::boot_mode::RECOVERY);
 }

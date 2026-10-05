@@ -8,6 +8,7 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/functional.h>
+#include <pybind11/stl.h>
 #include <ifm3d/swupdater/swupdater.h>
 
 void
@@ -49,8 +50,15 @@ bind_swupdater(pybind11::module_& m)
   swupdater.def(
     "reboot_to_recovery",
     &ifm3d::SWUpdater::RebootToRecovery,
+    py::call_guard<py::gil_scoped_release>(),
+    py::arg("password") = std::nullopt,
     R"(
       Reboot the device in Recovery Modes
+
+      Parameters
+      ----------
+      password : str, optional
+          The current password for the device (if required)
     )"
   );
 
