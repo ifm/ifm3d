@@ -7,9 +7,9 @@
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/buffer_id.h>
 #include <unordered_map>
-#if defined(__GNUC__) && !defined(__clang__) && !defined(_MSC_VER)
+#if defined(__GNUC__) && !defined(__clang__) && !defined(_WIN32)
 #  include <bits/endian.h>
-#elif defined(__clang__) && !defined(_MSC_VER)
+#elif defined(__clang__) && !defined(_WIN32)
 #  if __has_include(<bits/endian.h>)
 #    include <bits/endian.h>
 #  endif
