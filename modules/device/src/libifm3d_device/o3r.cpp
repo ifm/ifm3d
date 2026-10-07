@@ -203,6 +203,12 @@ ifm3d::O3RSealedBox::RemovePassword(std::string password)
   this->pImpl->SealedBoxRemovePassword(password);
 }
 
+void
+ifm3d::O3RSealedBox::RebootToRecovery(const std::string& password)
+{
+  this->pImpl->SealedBoxRebootToRecovery(password);
+}
+
 std::vector<uint8_t>
 ifm3d::O3RSealedBox::GetPublicKey()
 {

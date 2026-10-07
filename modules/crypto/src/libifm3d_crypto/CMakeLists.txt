@@ -1,6 +1,6 @@
 file(GLOB IFM3D_CRYPTO_SOURCES CONFIGURE_DEPENDS *.cpp)
 add_library(ifm3d_crypto INTERFACE)
-target_sources(ifm3d_crypto INTERFACE ${IFM3D_CRYPTO_SOURCES})
+target_sources(ifm3d_crypto INTERFACE ${IFM3D_CRYPTO_SOURCES} "$<TARGET_OBJECTS:sodium>")
 
 target_include_directories(ifm3d_crypto
   INTERFACE

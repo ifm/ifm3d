@@ -297,6 +297,13 @@ namespace ifm3d
     void Set(const std::string& password, const json& configuration);
 
     /**
+     * @brief Reboots the device into recovery mode
+     *
+     * @param password The current password for the device
+     */
+    void RebootToRecovery(const std::string& password);
+
+    /**
      * @brief Get the public key of the device used for sending encrypted
      * messages
      *

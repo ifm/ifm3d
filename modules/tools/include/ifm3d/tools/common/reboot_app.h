@@ -8,6 +8,7 @@
 #ifndef IFM3D_TOOLS_REBOOT_APP_H
 #define IFM3D_TOOLS_REBOOT_APP_H
 
+#include <optional>
 #include <string>
 #include <ifm3d/tools/command.hpp>
 #include <ifm3d/tools/main_command.hpp>
@@ -27,6 +28,7 @@ namespace ifm3d
     virtual bool CheckCompatibility() override;
 
     bool recovery{false};
+    std::optional<std::string> password;
 
   }; // end: class RebootApp
 

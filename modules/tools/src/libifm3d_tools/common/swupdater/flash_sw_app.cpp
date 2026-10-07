@@ -125,7 +125,7 @@ ifm3d::FlashSWApp::Execute(CLI::App* app)
             {
               std::cout << "Rebooting device to recovery mode..." << std::endl;
             }
-          swupdater->RebootToRecovery();
+          swupdater->RebootToRecovery(password);
           if (!swupdater->WaitForRecovery(get_remaining_timeout()))
             {
               if (!quiet)
@@ -200,6 +200,15 @@ ifm3d::FlashSWApp::CreateCommand(CLI::App* parent)
                  this->timeout,
                  "The time in seconds for the swupdate to complete")
     ->default_val(300);
+
+#if defined(BUILD_MODULE_CRYPTO)
+  if (Parent<ifm3d::OVP8xx>())
+    {
+      command->add_option("--password",
+                          this->password,
+                          "Password for the device if required");
+    }
+#endif
 
   return command;
 }
