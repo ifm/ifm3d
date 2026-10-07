@@ -61,7 +61,10 @@ namespace ifm3d::rtsp
 
     int _last_seq_num = 0;
     bool _initialized = false;
-    bool _frame_valid = false;
+    // Initialized to true so the first frame is delivered even though its
+    // starting sequence number is unknown; it may be incomplete if packets
+    // were lost.
+    bool _frame_valid = true;
     std::uint32_t _last_rtp_timestamp = 0;
   };
 

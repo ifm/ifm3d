@@ -1264,17 +1264,10 @@ TEST(RtpClient, SkipsRtpExtensionHeaderWhenComputingPayload)
   auto decoder = std::make_shared<CapturingPackageDecoder>();
   client.RegisterDecoder(96, decoder);
 
-  // Prime _frame_valid: a marker packet is not itself decoded, but flips the
-  // client into the "frame valid" state so the next packet is dispatched.
-  auto prime = make_rtp_header(/*ext=*/false, 0, /*marker=*/true, 96, 100);
-  prime.push_back(0x00);
-  conn->on_data_received(prime);
-  ASSERT_TRUE(decoder->packages.empty());
-
-  // Next in-sequence packet carries an RTP extension: a 4-byte extension
+  // The first packet carries an RTP extension: a 4-byte extension
   // header (profile 0xBEDE + length = 2 words) followed by 8 bytes of
   // extension data, then the real payload.
-  auto pkt = make_rtp_header(/*ext=*/true, 0, /*marker=*/false, 96, 101);
+  auto pkt = make_rtp_header(/*ext=*/true, 0, /*marker=*/false, 96, 100);
   pkt.push_back(0xBE);
   pkt.push_back(0xDE);
   pkt.push_back(0x00);
@@ -1293,6 +1286,21 @@ TEST(RtpClient, SkipsRtpExtensionHeaderWhenComputingPayload)
     << "RTP extension words must be skipped, not fed to the depacketizer";
 }
 
+TEST(RtpClient, DeliversFirstFrameOfNewConnection)
+{
+  auto conn = std::make_shared<MockRtpConnection>();
+  RtpClient client;
+  client.InitConnection(conn);
+  auto decoder = std::make_shared<CapturingPackageDecoder>();
+  client.RegisterDecoder(96, decoder);
+
+  auto pkt = make_rtp_header(/*ext=*/false, 0, /*marker=*/true, 96, 5000);
+  pkt.push_back(0x42);
+  conn->on_data_received(pkt);
+
+  EXPECT_EQ(decoder->packages.size(), 1U);
+}
+
 TEST(RtpClient, DiscardsTruncatedExtensionHeader)
 {
   auto conn = std::make_shared<MockRtpConnection>();
@@ -1301,12 +1309,8 @@ TEST(RtpClient, DiscardsTruncatedExtensionHeader)
   auto decoder = std::make_shared<CapturingPackageDecoder>();
   client.RegisterDecoder(96, decoder);
 
-  auto prime = make_rtp_header(/*ext=*/false, 0, /*marker=*/true, 96, 100);
-  prime.push_back(0x00);
-  conn->on_data_received(prime);
-
   // Extension bit set but fewer than 4 bytes of extension header present.
-  auto pkt = make_rtp_header(/*ext=*/true, 0, /*marker=*/false, 96, 101);
+  auto pkt = make_rtp_header(/*ext=*/true, 0, /*marker=*/false, 96, 100);
   pkt.push_back(0xBE);
   pkt.push_back(0xDE); // only 2 of the 4 required extension-header bytes
 
@@ -1336,7 +1340,6 @@ TEST(RtpClient, PacketLossIsVisibleInNalUnitSequenceNumbers)
     conn->on_data_received(pkt);
   };
 
-  send(100, /*marker=*/true, 0x11);  // primes _frame_valid, not decoded
   send(101, /*marker=*/false, 0x22); // delivered
   // 102..104 lost; 105 carries the marker that cancels the access unit
   send(105, /*marker=*/true, 0x33);
