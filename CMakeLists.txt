@@ -115,10 +115,10 @@ if(CREATE_WIN_INSTALLER)
   add_subdirectory(third-party EXCLUDE_FROM_ALL)
 
   # Copy DLLs and libs to CMAKE_INSTALL_PREFIX
-  install(SCRIPT ${CMAKE_SOURCE_DIR}/cmake/windows_installer/cp_dll_script.cmake)
+  install(SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/cmake/windows_installer/cp_dll_script.cmake)
 
   #Include cpack.cmake script
-  include(${CMAKE_SOURCE_DIR}/cmake/windows_installer/cpack.cmake)
+  include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/windows_installer/cpack.cmake)
 else()
   add_subdirectory(third-party)
 endif(CREATE_WIN_INSTALLER)
@@ -136,7 +136,7 @@ endif()
 # PowerShell profile block is removed before the files are deleted.
 #################################################
 configure_file(
-  "${CMAKE_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
   "${CMAKE_BINARY_DIR}/cmake_uninstall.cmake"
   @ONLY
 )
