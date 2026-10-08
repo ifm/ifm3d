@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - O3RSealedBox::RebootToRecovery and corresponding CLI commands/parameters where appropriate
 
+### Changed 
+- Rtsp: The first received frame now is not marked as invalid anymore due to the starting sequence number being unknown. [O3C-7905]
+
 ## 2.0.8 - 2026-10-01
 ### Added
 - Add PCIC heartbeat to detect network interrupts. Defaults to 200 ms, can be disabled by setting `FrameGrabber::SetHeartbeatInterval` to 0.
