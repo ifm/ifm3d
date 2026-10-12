@@ -121,6 +121,12 @@ ifm3d::MainCommand::CreateCommand(CLI::App* parent)
 
   RegisterSubcommand<ifm3d::OVP8xx>(parent);
 
+  // Deprecated hidden alias: `ovp8xx` was renamed to `ovpxxx`.
+  RegisterSubcommand<ifm3d::OVP8xx>(parent, std::string("ovp8xx"))
+    ->SetDeprecated(
+      "The 'ovp8xx' command has been renamed to 'ovpxxx', please use that "
+      "instead.");
+
   RegisterSubcommand<ifm3d::O3Cxxx>(parent);
 
   std::string const global_command_deprecation_message =
