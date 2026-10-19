@@ -10,6 +10,7 @@
 #include <ifm3d/deserialize/struct_o3r_ods_occupancy_grid_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_polar_occupancy_grid_v1.hpp>
 #include <ifm3d/deserialize/struct_rgb_info_v1.hpp>
+#include <ifm3d/deserialize/struct_rgb_info_v2.hpp>
 #include <ifm3d/deserialize/struct_tof_info_v3.hpp>
 #include <ifm3d/deserialize/struct_tof_info_v4.hpp>
 #include <ifm3d/device/device.h>
@@ -207,6 +208,53 @@ TEST(DeserializeTestWithFile, struct_rgb_info_v1)
     rgb_info_v1.inverse_intrinsic_calibration.model_parameters,
     ifm3d::rgb_info::INVERSE_INTRINSIC_CALIB_MODEL_PARAM));
 }
+TEST(DeserializeTestWithFile, struct_rgb_info_v2_size_exception)
+{
+  auto buffer = ifm3d::Buffer(1, 200, 1, ifm3d::PixelFormat::FORMAT_8U);
+
+  EXPECT_THROW(ifm3d::RGBInfoV2::Deserialize(buffer), ifm3d::Error);
+}
+TEST(DeserializeTestWithFile, struct_rgb_info_v2)
+{
+  auto buffer = ifm3d::read_buffer_from_file("rgb_info.data");
+  auto rgb_info_v2 = ifm3d::RGBInfoV2::Deserialize(buffer);
+
+  constexpr auto minimum_required_version = 2;
+  EXPECT_GE(rgb_info_v2.version, minimum_required_version);
+  EXPECT_EQ(rgb_info_v2.frame_counter, ifm3d::rgb_info::FRAME_COUNTER);
+  EXPECT_EQ(rgb_info_v2.timestamp_ns, ifm3d::rgb_info::TIMESTAMP_NS);
+  EXPECT_NEAR(rgb_info_v2.exposure_time,
+              ifm3d::rgb_info::EXPOSURE_TIME,
+              ifm3d::EPSILON);
+
+  std::array<float, 6> const extrinc_opt_to_user = {
+    rgb_info_v2.extrinsic_optic_to_user.trans_x,
+    rgb_info_v2.extrinsic_optic_to_user.trans_y,
+    rgb_info_v2.extrinsic_optic_to_user.trans_z,
+    rgb_info_v2.extrinsic_optic_to_user.rot_x,
+    rgb_info_v2.extrinsic_optic_to_user.rot_y,
+    rgb_info_v2.extrinsic_optic_to_user.rot_z};
+
+  EXPECT_TRUE(ifm3d::compare_array(extrinc_opt_to_user,
+                                   ifm3d::rgb_info::EXTRINCSIC_OPTIC_TO_USER));
+
+  EXPECT_EQ(rgb_info_v2.intrinsic_calibration.model_id,
+            ifm3d::rgb_info::INTRINSIC_CALIB_MODEL_ID);
+
+  EXPECT_TRUE(
+    ifm3d::compare_array(rgb_info_v2.intrinsic_calibration.model_parameters,
+                         ifm3d::rgb_info::INTRINSIC_CALIB_MODEL_PARAM));
+
+  EXPECT_EQ(rgb_info_v2.inverse_intrinsic_calibration.model_id,
+            ifm3d::rgb_info::INVERSE_INTRINSIC_CALIB_MODEL_ID);
+
+  EXPECT_TRUE(ifm3d::compare_array(
+    rgb_info_v2.inverse_intrinsic_calibration.model_parameters,
+    ifm3d::rgb_info::INVERSE_INTRINSIC_CALIB_MODEL_PARAM));
+
+  EXPECT_EQ(rgb_info_v2.rolling_shutter_row_offset_ns,
+            ifm3d::rgb_info::ROLLING_SHUTTER_ROW_OFFSET_NS);
+}
 
 TEST(DeserializeTestWithFile, struct_ods_info_v1_size_exception)
 {
@@ -292,6 +340,20 @@ TEST(DeserializeTestWithDevice, struct_rgb_info_v1)
   auto buffer = frame->GetBuffer(ifm3d::buffer_id::RGB_INFO);
 
   EXPECT_NO_THROW(ifm3d::RGBInfoV1::Deserialize(buffer));
+}
+
+TEST(DeserializeTestWithDevice, struct_rgb_info_v2)
+{
+  auto dev = std::make_shared<ifm3d::O3R>();
+  auto fg = std::make_shared<ifm3d::FrameGrabber>(dev, 50010);
+
+  fg->Start({ifm3d::buffer_id::RGB_INFO});
+  auto frame = fg->WaitForFrame().get();
+
+  auto buffer = frame->GetBuffer(ifm3d::buffer_id::RGB_INFO);
+
+  EXPECT_NO_THROW(ifm3d::RGBInfoV1::Deserialize(buffer));
+  EXPECT_NO_THROW(ifm3d::RGBInfoV2::Deserialize(buffer));
 }
 
 TEST(DeserializeTestWithFile, struct_o3d_intrinsic_parameter)

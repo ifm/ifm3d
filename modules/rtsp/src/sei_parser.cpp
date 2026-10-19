@@ -140,9 +140,17 @@ namespace ifm3d::rtsp
         return std::nullopt;
       }
 
+    // Keep the whole struct for the newest known version that fits so the
+    // extra v2 fields survive; trailing bytes beyond a known layout are
+    // dropped. The frame counter and timestamp sit in the shared v1 header.
+    const std::size_t wire_size = (data.size() >= RGB_INFO_V2_WIRE_SIZE) ?
+                                    RGB_INFO_V2_WIRE_SIZE :
+                                    RGB_INFO_WIRE_SIZE;
+
+    using diff_t = std::vector<std::uint8_t>::difference_type;
     return RgbInfoPayload{
       std::vector<std::uint8_t>(data.begin(),
-                                data.begin() + RGB_INFO_WIRE_SIZE),
+                                data.begin() + static_cast<diff_t>(wire_size)),
       read_u32_le(data.data() + 4),
       read_u64_le(data.data() + 8)};
   }

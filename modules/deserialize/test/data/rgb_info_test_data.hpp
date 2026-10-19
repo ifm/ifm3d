@@ -4,6 +4,7 @@
 namespace ifm3d::rgb_info
 {
   constexpr uint32_t VERSION = 1;
+  constexpr uint32_t VERSION_V2 = 2;
   constexpr uint32_t FRAME_COUNTER = 8174615;
   constexpr uint64_t TIMESTAMP_NS = 1581500914182583358;
   constexpr float EXPOSURE_TIME = 0.009999998845;
@@ -83,4 +84,5 @@ namespace ifm3d::rgb_info
     0,
     0,
   };
+  constexpr int32_t ROLLING_SHUTTER_ROW_OFFSET_NS = 15000;
 }
