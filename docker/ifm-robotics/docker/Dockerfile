@@ -9,6 +9,8 @@ ARG PYTHON_VERSION=3.14
 # ---------------------------
 FROM ${BASE_IMAGE} AS builder
 
+ARG PYTHON_VERSION
+
 # Install build dependencies
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -96,7 +98,8 @@ RUN BASE_IMAGE_NAME=$(echo "${BASE_IMAGE}" | grep -o '[^/]*$' | cut -d":" -f1) \
 # Install .whl packages
 # ---------------------------
 COPY ./filtered_wheels /filtered_wheels
-RUN  /home/ifm/venv/bin/pip install /filtered_wheels/*.whl
+RUN  /home/ifm/venv/bin/pip install --upgrade pip && \
+     /home/ifm/venv/bin/pip install /filtered_wheels/*.whl
 
 USER ifm
 WORKDIR /home/ifm
