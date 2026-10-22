@@ -7,7 +7,7 @@ import pytest
 from ifm3dpy.device import O3R
 from ifm3dpy.framegrabber import FrameGrabber, buffer_id
 from ifm3dpy.deserialize import deserialize, TOFInfoV3, TOFInfoV4, RGBInfoV1, \
-    ODSOccupancyGridV1, ODSInfoV1, IMUInfoV1
+     RGBInfoV2, ODSOccupancyGridV1, ODSInfoV1, IMUInfoV1
 
 DEVICE_IP = "192.168.0.69"
 FRAME_TIMEOUT_MS = 5000
@@ -41,12 +41,31 @@ def test_deserialize_rgb_info_v1():
     assert frame is not None, "No frame received"
 
     buffer = frame.get_buffer(buffer_id.RGB_INFO)
-    assert buffer is not None, "TOF_INFO buffer not available"
+    assert buffer is not None, "RGB_INFO buffer not available"
 
     result = deserialize(buffer)
     assert result is not None, "Deserialization returned None"
 
     assert isinstance(result, RGBInfoV1), f"Unexpected type: {type(result)}"
+
+def test_deserialize_rgb_info_v2():
+    dev = O3R()
+    fg = FrameGrabber(dev, 50010)
+
+    fg.start()
+
+    frame = fg.wait_for_frame().wait()
+
+    assert frame is not None, "No frame received"
+
+    buffer = frame.get_buffer(buffer_id.RGB_INFO)
+    assert buffer is not None, "RGB_INFO buffer not available"
+
+    result = deserialize(buffer)
+    assert result is not None, "Deserialization returned None"
+
+    assert isinstance(result, (RGBInfoV1, RGBInfoV2)), \
+        f"Unexpected type: {type(result)}"
 
 def test_deserialize_ods_info_v1():
     dev = O3R()
@@ -58,7 +77,7 @@ def test_deserialize_ods_info_v1():
     assert frame is not None, "No frame received"
 
     buffer = frame.get_buffer(buffer_id.O3R_ODS_INFO)
-    assert buffer is not None, "TOF_INFO buffer not available"
+    assert buffer is not None, "ODS_INFO buffer not available"
 
     result = deserialize(buffer)
     assert result is not None, "Deserialization returned None"
@@ -75,7 +94,7 @@ def test_deserialize_ods_occupancy_grid_v1():
     assert frame is not None, "No frame received"
 
     buffer = frame.get_buffer(buffer_id.O3R_ODS_OCCUPANCY_GRID)
-    assert buffer is not None, "TOF_INFO buffer not available"
+    assert buffer is not None, "ODS_INFO buffer not available"
 
     result = deserialize(buffer)
     assert result is not None, "Deserialization returned None"

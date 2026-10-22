@@ -36,6 +36,7 @@
 #include <ifm3d/common/err.h>
 #include <ifm3d/deserialize/deserialize.h>
 #include <ifm3d/deserialize/struct_rgb_info_v1.hpp>
+#include <ifm3d/deserialize/struct_rgb_info_v2.hpp>
 #include <ifm3d/device/device.h>
 #include <ifm3d/fg/buffer.h>
 #include <ifm3d/fg/buffer_id.h>
@@ -633,6 +634,42 @@ TEST(SeiParser, RgbInfoPayloadIsCompatibleWithRgbInfoV1)
 
   const auto deserialized = ifm3d::deserialize(buffer);
   ASSERT_TRUE(std::holds_alternative<ifm3d::RGBInfoV1>(deserialized));
+}
+
+TEST(SeiParser, RgbInfoPayloadIsCompatibleWithRgbInfoV2)
+{
+  std::vector<std::uint8_t> body = build_rgb_info_body();
+  body[0] = 2;             // version (little-endian u32 low byte)
+  append_u32(body, 15000); // rolling_shutter_row_offset_ns
+  ASSERT_EQ(body.size(), ifm3d::RGBInfoV2::RGB_INFO_V2_SIZE);
+
+  const auto payload = parse_rgb_info(RGB_INFO_UUID, body);
+  ASSERT_TRUE(payload.has_value());
+  if (!payload.has_value())
+    {
+      return;
+    }
+  const auto& data = payload->data;
+  ASSERT_EQ(data.size(), ifm3d::RGBInfoV2::RGB_INFO_V2_SIZE);
+  EXPECT_EQ(payload->frame_counter, 42U);
+  EXPECT_EQ(payload->timestamp_ns, 123456789ULL);
+
+  ifm3d::Buffer buffer(static_cast<std::uint32_t>(data.size()),
+                       1,
+                       1,
+                       ifm3d::PixelFormat::FORMAT_8U,
+                       std::nullopt,
+                       ifm3d::buffer_id::RGB_INFO);
+  std::copy(data.begin(), data.end(), buffer.Ptr<std::uint8_t>(0));
+
+  const auto info = ifm3d::RGBInfoV2::Deserialize(buffer);
+  EXPECT_EQ(info.version, 2U);
+  EXPECT_EQ(info.frame_counter, 42U);
+  EXPECT_EQ(info.timestamp_ns, 123456789ULL);
+  EXPECT_EQ(info.rolling_shutter_row_offset_ns, 15000U);
+
+  const auto deserialized = ifm3d::deserialize(buffer);
+  ASSERT_TRUE(std::holds_alternative<ifm3d::RGBInfoV2>(deserialized));
 }
 
 TEST(SeiParser, RejectsWrongUuid)

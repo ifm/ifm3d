@@ -14,6 +14,7 @@
 #include <ifm3d/deserialize/struct_o3r_ods_occupancy_grid_v1.hpp>
 #include <ifm3d/deserialize/struct_o3r_ods_polar_occupancy_grid_v1.hpp>
 #include <ifm3d/deserialize/struct_rgb_info_v1.hpp>
+#include <ifm3d/deserialize/struct_rgb_info_v2.hpp>
 #include <ifm3d/deserialize/struct_tof_info_v3.hpp>
 #include <ifm3d/deserialize/struct_tof_info_v4.hpp>
 #include <ifm3d/fg/buffer.h>
@@ -27,6 +28,7 @@ namespace ifm3d
                                    TOFInfoV3,
                                    TOFInfoV4,
                                    RGBInfoV1,
+                                   RGBInfoV2,
                                    ODSOccupancyGridV1,
                                    ODSPolarOccupancyGridV1,
                                    ODSExtrinsicCalibrationCorrectionV1,
@@ -74,8 +76,19 @@ namespace ifm3d
 
           return std::monostate{};
         }
-      case (ifm3d::buffer_id::RGB_INFO):
-        return create_and_read<RGBInfoV1>(data, size);
+        case (ifm3d::buffer_id::RGB_INFO): {
+          if (RGBInfoV2::IsValid(data, size))
+            {
+              return create_and_read<RGBInfoV2>(data, size);
+            }
+
+          if (RGBInfoV1::IsValid(data, size))
+            {
+              return create_and_read<RGBInfoV1>(data, size);
+            }
+
+          return std::monostate{};
+        }
       case (ifm3d::buffer_id::O3R_ODS_OCCUPANCY_GRID):
         return create_and_read<ODSOccupancyGridV1>(data, size);
       case (ifm3d::buffer_id::O3R_ODS_POLAR_OCC_GRID):

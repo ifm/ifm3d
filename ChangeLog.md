@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - O3RSealedBox::RebootToRecovery and corresponding CLI commands/parameters where appropriate
+- `RGBInfoV2` deserialize struct for RGB_INFO header version 2
 
 ### Changed 
 - Rtsp: The first received frame now is not marked as invalid anymore due to the starting sequence number being unknown. [O3C-7905]

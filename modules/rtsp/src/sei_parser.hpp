@@ -20,6 +20,7 @@
 namespace ifm3d::rtsp
 {
   inline constexpr std::size_t RGB_INFO_WIRE_SIZE = 308;
+  inline constexpr std::size_t RGB_INFO_V2_WIRE_SIZE = 312;
 
   // e6ccb4b0-0071-580e-828d-928c60078143, see requirement O3C-6884. Carries
   // the per-frame RGB metadata (timestamp, frame counter, ...) that the
