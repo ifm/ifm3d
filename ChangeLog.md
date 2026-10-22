@@ -5,8 +5,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
-## 2.0.8 - 2026-10-22
 ### Added
 - O3RSealedBox::RebootToRecovery and corresponding CLI commands/parameters where appropriate
 - `RGBInfoV2` deserialize struct for RGB_INFO header version 2
