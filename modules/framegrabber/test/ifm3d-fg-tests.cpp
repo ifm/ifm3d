@@ -31,17 +31,13 @@ protected:
     if (_dev->WhoAmI() == ifm3d::Device::DeviceFamily::O3R)
       {
         auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->_dev);
-        auto config = o3r->Get();
-        config["ports"]["port2"]["state"] = "RUN";
-        o3r->Set(config);
+        o3r->Set({{"ports", {{"port2", {{"state", "RUN"}}}}}});
         _fg = std::make_shared<ifm3d::FrameGrabber>(_dev, O3R_PORT);
       }
     else if (_dev->WhoAmI() == ifm3d::Device::DeviceFamily::O3C)
       {
         auto o3c = std::dynamic_pointer_cast<ifm3d::O3C>(this->_dev);
-        auto config = o3c->Get();
-        config["ports"]["port0"]["state"] = "RUN";
-        o3c->Set(config);
+        o3c->Set({{"ports", {{"port0", {{"state", "RUN"}}}}}});
         _fg = std::make_shared<ifm3d::FrameGrabber>(_dev, O3C_PORT);
       }
     else
@@ -170,9 +166,7 @@ TEST_F(FrameGrabberTest, BlankSchema2D)
 
   auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->_dev);
 
-  auto config = o3r->Get();
-  config["ports"]["port0"]["state"] = "RUN";
-  o3r->Set(config);
+  o3r->Set({{"ports", {{"port0", {{"state", "RUN"}}}}}});
   _fg = std::make_shared<ifm3d::FrameGrabber>(_dev, 50010);
 
   _fg->Start({});
@@ -189,9 +183,7 @@ TEST_F(FrameGrabberTest, schema_o3r_rgb_image_info)
 
   auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->_dev);
 
-  auto config = o3r->Get();
-  config["ports"]["port0"]["state"] = "RUN";
-  o3r->Set(config);
+  o3r->Set({{"ports", {{"port0", {{"state", "RUN"}}}}}});
   _fg = std::make_shared<ifm3d::FrameGrabber>(_dev, 50010);
 
   _fg->Start({ifm3d::buffer_id::RGB_INFO});
@@ -356,9 +348,7 @@ TEST_F(FrameGrabberTest, confidence_image_2D)
 
   auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->_dev);
 
-  auto config = o3r->Get();
-  config["ports"]["port0"]["state"] = "RUN";
-  o3r->Set(config);
+  o3r->Set({{"ports", {{"port0", {{"state", "RUN"}}}}}});
   _fg = std::make_shared<ifm3d::FrameGrabber>(_dev, 50010);
 
   _fg->Start(
@@ -473,18 +463,14 @@ TEST_F(FrameGrabberTest, FrameGrabberRecycling)
     {
       auto o3r = std::dynamic_pointer_cast<ifm3d::O3R>(this->_dev);
 
-      auto config = o3r->Get();
-      config["ports"]["port2"]["state"] = "RUN";
-      o3r->Set(config);
+      o3r->Set({{"ports", {{"port2", {{"state", "RUN"}}}}}});
       _fg = std::make_shared<ifm3d::FrameGrabber>(_dev, O3R_PORT);
     }
   else if (_dev->WhoAmI() == ifm3d::Device::DeviceFamily::O3C)
     {
       auto o3c = std::dynamic_pointer_cast<ifm3d::O3C>(this->_dev);
 
-      auto config = o3c->Get();
-      config["ports"]["port0"]["state"] = "RUN";
-      o3c->Set(config);
+      o3c->Set({{"ports", {{"port0", {{"state", "RUN"}}}}}});
       _fg = std::make_shared<ifm3d::FrameGrabber>(_dev, O3C_PORT);
     }
   else
