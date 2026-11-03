@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Fix framegrabber tests failing in `SetUp()` on O3R/O3C with `[104011] instance not found in required enum` because the whole device config, including read-only values such as `/device/led/leds`, was written back; only the port state is set now [O3C-8095]
+
 
 ## 2.0.9 - 2026-10-22
 ### Added
