@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.6.18 - 2026-11-03
+
 ## 1.6.17 - 2026-10-19
 ### Added
 - O3RSealedBox::RebootToRecovery and corresponding CLI commands/parameters where appropriate
