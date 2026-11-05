@@ -96,7 +96,7 @@ class CMakeBuild(build_ext):
                       '-DCMAKE_USE_OPENSSL=OFF',
                       '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_ARCHIVE_OUTPUT_DIRECTORY=' + extdir,
-                      '-DCREATE_PYTHON_STUBS=OFF',
+                      '-DCREATE_PYTHON_STUBS=ON',
                       f'-DPython_EXECUTABLE={sys.executable}',
                       f'-DPython_ROOT_DIR={python_home}',
                       f'-DPython_INCLUDE_DIR={python_include}',

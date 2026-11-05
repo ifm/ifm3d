@@ -69,9 +69,9 @@ build:linux:docker:
      echo "ARCH : ${ARCH}"
      PYTHON_VERSION=cp314
      if [ "$ARCH" = "x86_64" ]; then
-        PATTERN="manylinux_2_17_x86_64"
+        PATTERN="manylinux_2_28_x86_64"
      elif [ "$ARCH" = "aarch64" ]; then
-        PATTERN="manylinux_2_17_aarch64"
+        PATTERN="manylinux_2_28_aarch64"
      else
         echo "Unknown architecture: $ARCH"
         exit 1

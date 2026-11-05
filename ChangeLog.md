@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Fix framegrabber tests failing in `SetUp()` on O3R/O3C with `[104011] instance not found in required enum` because the whole device config, including read-only values such as `/device/led/leds`, was written back; only the port state is set now [O3C-8095]
+- Python wheel: restore missing `.pyi` type stubs in `ifm3dpy`
+- Linux Python wheel CI: switch base image from `manylinux2014` to `manylinux_2_28`
 
 #### Changed
 - Renamed the `ifm3d` CLI `ovp8xx` command to `ovpxxx`. `ovp8xx` is kept as a hidden, deprecated alias for backwards compatibility.
-
 
 ## 2.0.9 - 2026-10-22
 ### Added
