@@ -17,6 +17,12 @@
 #include <ifm3d/tools/ovp8xx/get_service_report_app.h>
 #include <ifm3d/tools/ovp8xx/ovp8xx_app.h>
 #include <ifm3d/tools/ovp8xx/sealedbox.h>
+#include <string>
+#include <utility>
+
+ifm3d::OVP8xx::OVP8xx(std::string subcommand_name)
+  : subcommand_name_(std::move(subcommand_name))
+{}
 
 ifm3d::OVP8xx::~OVP8xx() = default;
 
@@ -25,8 +31,8 @@ ifm3d::OVP8xx::CreateCommand(CLI::App* parent)
 {
   CLI::App* command =
     parent
-      ->add_subcommand("ovp8xx",
-                       "Interact with the OVP8xx video processing units")
+      ->add_subcommand(this->subcommand_name_,
+                       "Interact with the OVPxxx video processing units")
       ->require_subcommand(1);
   RegisterSubcommand<ifm3d::ConfigOvp8xxApp>(command);
   RegisterSubcommand<ifm3d::DiagnosticApp>(command);

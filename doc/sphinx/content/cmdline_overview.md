@@ -29,7 +29,7 @@ Options:
 Subcommands:
   o3x1xx                      Interact with the O3X1xx devices
   o3d3xx                      Interact with the O3D3xx devices
-  ovp8xx                      Interact with the OVP8xx video processing units
+  ovpxxx                      Interact with the OVPxxx video processing units
   discover                    Discover ifm devices on the network.
 ```
 
@@ -38,7 +38,7 @@ To access these, the name of the camera family will be used as the first subcomm
 
 For example, to read out the current configuration on a connected OVP8xx, one would use:
 ```
-$ ifm3d ovp8xx config get
+$ ifm3d ovpxxx config get
 {
   "applications": {
     "classes": {
@@ -56,7 +56,7 @@ $ ifm3d ovp8xx config get
 When accessing a device using non-default parameters, one can add global arguments to the command. 
 For example, to read out the current configuration of a connected OVP, at IP 192.168.0.70, one would use:
 ```
-$ ifm3d ovp8xx config get --ip=192.168.0.70
+$ ifm3d ovpxxx config get --ip=192.168.0.70
 {
   "applications": {
     "classes": {
@@ -109,18 +109,18 @@ It can be used in conjunction with the tool [jq](https://jqlang.org/) to set por
 
 For example, to change the name of an OVP8xx device, one can use:
 ```
-$ echo {} | jq '.device.info.name="My favorite O3R"' | ifm3d ovp8xx config set
+$ echo {} | jq '.device.info.name="My favorite O3R"' | ifm3d ovpxxx config set
 ```
 
 Alternatively, a configuration file can be used, by providing its path in the `--file` argument.
 For example:
 ```
-$ ifm3d ovp8xx config set --file=config.json
+$ ifm3d ovpxxx config set --file=config.json
 ```
 
 To read out a specific subset of the configuration, one can use:
 ```
-$ ifm3d ovp8xx config get --path "/device/info/name"
+$ ifm3d ovpxxx config get --path "/device/info/name"
 {
   "device": {
     "info": {
@@ -146,7 +146,7 @@ The O3R platforms provides diagnostic to help monitor the health of the system a
 
 To retrieve the currently active diagnostic, one can use:
 ```
-$ ifm3d ovp8xx diagnostic get
+$ ifm3d ovpxxx diagnostic get
 {
   "bootid": "2e49ea23-2f03-4965-8d48-fe08e72c23dd",
   "events": [],
@@ -162,7 +162,7 @@ In the example above, there is no active diagnostics.
 
 By default, only the active diagnostic is displayed. To filter the diagnostic messages, for example to retrieve all active diagnostics from the "/applications/instances/app0/type" source, use:
 ```
-$ ifm3d ovp8xx diagnostic get --filter '{"source": "/applications/instances/app0/type", "state": "active"}'
+$ ifm3d ovpxxx diagnostic get --filter '{"source": "/applications/instances/app0/type", "state": "active"}'
 {
   "bootid": "7a4ea1e6-1869-4500-bd2d-c32aad956ca9",
   "events": [
@@ -238,7 +238,7 @@ The generated ZIP file should be shared with ifm support team when requesting tr
 
 To download it, use:
 ```
-$ ifm3d ovp8xx getServiceReport > service_report.zip
+$ ifm3d ovpxxx getServiceReport > service_report.zip
 $ unzip service_report.zip
 $ ls
 configuration.json  deserializer_info.json  diagnostics.json  emmc_devices_health.json  filesystem_info.txt  journalctl.log  manifest.json  schema.json  service_report.zip

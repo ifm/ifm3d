@@ -292,13 +292,20 @@ namespace
             continue;
           }
 
-        push_unique(subcommands[context], subcommand_name);
-        if (subcommand_descriptions != nullptr)
+        // Hidden/deprecated subcommands (empty group, e.g. renamed aliases
+        // like `ovp8xx`) are left out of completion suggestions, the same
+        // way they are left out of --help, but are still recursed into so
+        // they keep completing correctly if typed out in full.
+        if (!subcommand->get_group().empty())
           {
-            (*subcommand_descriptions)[description_key(context,
-                                                       subcommand_name)] =
-              zsh_describe_escape(
-                normalize_description(subcommand->get_description()));
+            push_unique(subcommands[context], subcommand_name);
+            if (subcommand_descriptions != nullptr)
+              {
+                (*subcommand_descriptions)[description_key(context,
+                                                           subcommand_name)] =
+                  zsh_describe_escape(
+                    normalize_description(subcommand->get_description()));
+              }
           }
         collect_completion_data(subcommand,
                                 context_key(context, subcommand_name),

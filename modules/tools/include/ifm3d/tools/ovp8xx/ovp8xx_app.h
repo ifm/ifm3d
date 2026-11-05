@@ -10,17 +10,19 @@
 
 #include <CLI/CLI.hpp>
 #include <ifm3d/tools/command.hpp>
+#include <string>
 
 namespace ifm3d
 {
   /**
-   * Concrete implementation of the `ovp8xx` subcommand to the `ifm3d`
-   * command-line utility.
+   * Concrete implementation of the `ovpxxx` subcommand to the `ifm3d`
+   * command-line utility. Also used to register the deprecated `ovp8xx`
+   * alias (see MainCommand::CreateCommand).
    */
   class OVP8xx : public Command
   {
   public:
-    OVP8xx() = default;
+    explicit OVP8xx(std::string subcommand_name = "ovpxxx");
     OVP8xx(const OVP8xx&) = default;
     OVP8xx(OVP8xx&&) = delete;
     OVP8xx& operator=(const OVP8xx&) = default;
@@ -29,6 +31,9 @@ namespace ifm3d
     CLI::App* CreateCommand(CLI::App* parent) override;
     void Execute(CLI::App* app) override;
     bool CheckCompatibility() override;
+
+  private:
+    std::string subcommand_name_;
 
   }; // end: class OVP8xx
 

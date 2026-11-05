@@ -53,6 +53,19 @@ namespace ifm3d
       _subcommands.push_back(command);
       command->_context = command->CreateCommand(parent);
 
+      // Warn as soon as the deprecated subcommand is matched, rather than in
+      // final_callback, so the warning is not lost if a nested subcommand
+      // throws (e.g. a device connection error) before its callback runs.
+      command->_context->preparse_callback([command](std::size_t) {
+        if (command->_deprecated.has_value())
+          {
+            std::cerr << '\n'
+                      << "ifm3d error: Deprecated subcommand: "
+                      << command->_context->get_name() << ". "
+                      << command->_deprecated.value() << std::endl;
+          }
+      });
+
       command->_context->final_callback([command, this]() {
         for (const auto& subcmd : command->_subcommands)
           {
@@ -64,13 +77,6 @@ namespace ifm3d
         if (!command->CheckCompatibility())
           {
             throw ifm3d::Error(IFM3D_TOOL_COMMAND_UNSUPPORTED_DEVICE);
-          }
-        if (command->_deprecated.has_value())
-          {
-            std::cerr << '\n'
-                      << "ifm3d error: Deprecated subcommand: "
-                      << command->_context->get_name() << ". "
-                      << command->_deprecated.value() << std::endl;
           }
         command->Execute(command->_context);
       });
