@@ -227,6 +227,9 @@ TEST(DeserializeTestWithFile, struct_rgb_info_v2)
               ifm3d::rgb_info::EXPOSURE_TIME,
               ifm3d::EPSILON);
 
+  EXPECT_TRUE(
+    ifm3d::compare_array(rgb_info_v2.reserved, ifm3d::rgb_info::RESERVED));
+
   std::array<float, 6> const extrinc_opt_to_user = {
     rgb_info_v2.extrinsic_optic_to_user.trans_x,
     rgb_info_v2.extrinsic_optic_to_user.trans_y,

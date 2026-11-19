@@ -14,6 +14,7 @@
 #include <ifm3d/pybind11/bindings/deserialize/ods_occupancy_grid_v1.h>
 #include <ifm3d/pybind11/bindings/deserialize/ods_polar_occupancy_grid_v1.h>
 #include <ifm3d/pybind11/bindings/deserialize/rgb_info_v1.h>
+#include <ifm3d/pybind11/bindings/deserialize/rgb_info_v2.h>
 #include <ifm3d/pybind11/bindings/deserialize/tof_info_v3.h>
 #include <ifm3d/pybind11/bindings/deserialize/tof_info_v4.h>
 #include <pybind11/pybind11.h>
@@ -26,6 +27,7 @@ bind_deserialize_struct(py::module_& m)
   bind_struct_tofinfov3(m);
   bind_struct_tofinfov4(m);
   bind_struct_rgbinfov1(m);
+  bind_struct_rgbinfov2(m);
   bind_struct_odsinfov1(m);
   bind_struct_odsoccupancygridv1(m);
   bind_struct_o3d_paramters(m);

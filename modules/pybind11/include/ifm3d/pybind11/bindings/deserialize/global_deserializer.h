@@ -22,6 +22,7 @@ bind_deserializer(py::module_& m)
                       ifm3d::TOFInfoV3,
                       ifm3d::TOFInfoV4,
                       ifm3d::RGBInfoV1,
+                      ifm3d::RGBInfoV2,
                       ifm3d::ODSOccupancyGridV1,
                       ifm3d::ODSPolarOccupancyGridV1,
                       ifm3d::ODSExtrinsicCalibrationCorrectionV1,
@@ -68,7 +69,7 @@ bind_deserializer(py::module_& m)
 
         Returns
         -------
-        ODSInfoV1 or TOFInfoV3 or TOFInfoV4 or RGBInfoV1 or ODSOccupancyGridV1 or ODSPolarOccupancyGridV1 or ODSExtrinsicCalibrationCorrectionV1 or IMUInfoV1 or None
+        ODSInfoV1 or TOFInfoV3 or TOFInfoV4 or RGBInfoV1 or RGBInfoV2 or ODSOccupancyGridV1 or ODSPolarOccupancyGridV1 or ODSExtrinsicCalibrationCorrectionV1 or IMUInfoV1 or None
             The deserialized structure, or ``None`` if the buffer could not be
             interpreted.
     )");

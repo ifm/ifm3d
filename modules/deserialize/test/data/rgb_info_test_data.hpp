@@ -85,4 +85,5 @@ namespace ifm3d::rgb_info
     0,
   };
   constexpr int32_t ROLLING_SHUTTER_ROW_OFFSET_NS = 15000;
+  constexpr std::array<uint8_t, 4> RESERVED = {9, 215, 35, 60};
 }
