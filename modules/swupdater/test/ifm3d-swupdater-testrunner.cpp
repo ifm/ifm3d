@@ -18,7 +18,8 @@ main(int argc, char** argv)
   std::map<ifm3d::Device::DeviceFamily, std::string> device_family_to_device(
     {{ifm3d::Device::DeviceFamily::O3D, "O3D"},
      {ifm3d::Device::DeviceFamily::O3X, "O3X"},
-     {ifm3d::Device::DeviceFamily::O3R, "O3R"}});
+     {ifm3d::Device::DeviceFamily::O3R, "O3R"},
+     {ifm3d::Device::DeviceFamily::O3C, "O3C"}});
 
   std::string gtest_filter = device_to_filter["device_independent"];
 
