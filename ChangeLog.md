@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## 2.0.10 - 2026-11-23
 ### Added
 - Add `RGBInfoV2` Python bindings (`ifm3dpy.deserialize.RGBInfoV2`)
 - Add `RGBInfoV2.reserved`; make `RGBInfoV2.rolling_shutter_row_offset_ns` a signed `std::int32_t`
